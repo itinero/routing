@@ -117,7 +117,7 @@ namespace OsmSharp.Test.Unittests.Routing.Instructions
         {
             OsmRoutingInterpreter interpreter = new OsmRoutingInterpreter();
 
-            Router router = this.CreateRouter(interpreter, "OsmSharp.Test.Unittests.test_routing_regression1.osm");
+            Router router = this.CreateRouter(interpreter, "OsmSharp.Routing.Test.data.test_routing_regression1.osm");
 
             // resolve the three points in question.
             GeoCoordinate point35 = new GeoCoordinate(51.01257, 4.000753);

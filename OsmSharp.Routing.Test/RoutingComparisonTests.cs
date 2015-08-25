@@ -49,29 +49,20 @@ namespace OsmSharp.Test.Unittests.Routing
         /// <returns></returns>
         public override Router BuildRouter(IOsmRoutingInterpreter interpreter, string embeddedName)
         {
-            if (_data == null)
-            {
-                _data = new Dictionary<string, RouterDataSource<Edge>>();
-            }
-            RouterDataSource<Edge> data = null;
-            if (!_data.TryGetValue(embeddedName, out data))
-            {
-                var tagsIndex = new TagsIndex();
+            var tagsIndex = new TagsIndex();
 
-                // do the data processing.
-                data = new RouterDataSource<Edge>(new Graph<Edge>(), tagsIndex);
-                var targetData = new GraphOsmStreamTarget(
-                    data, interpreter, tagsIndex, new Vehicle[] { Vehicle.Car }, false);
-                var dataProcessorSource = new XmlOsmStreamSource(
-                    Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Format(
-                    "OsmSharp.Test.Unittests.{0}", embeddedName)));
-                var sorter = new OsmStreamFilterSort();
-                sorter.RegisterSource(dataProcessorSource);
-                targetData.RegisterSource(sorter);
-                targetData.Pull();
+            // do the data processing.
+            var data = new RouterDataSource<Edge>(new Graph<Edge>(), tagsIndex);
+            var targetData = new GraphOsmStreamTarget(
+                data, interpreter, tagsIndex, new Vehicle[] { Vehicle.Car }, false);
+            var dataProcessorSource = new XmlOsmStreamSource(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Format(
+                "OsmSharp.Routing.Test.data.{0}", embeddedName)));
+            var sorter = new OsmStreamFilterSort();
+            sorter.RegisterSource(dataProcessorSource);
+            targetData.RegisterSource(sorter);
+            targetData.Pull();
 
-                _data[embeddedName] = data;
-            }
             return Router.CreateFrom(data, new Dykstra(), interpreter);
         }
 

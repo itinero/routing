@@ -69,7 +69,7 @@
             
 //            // do the data processing.
 //            var source = new OsmDataSource(
-//                Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedString)); // "OsmSharp.Test.Unittests.test_network.osm"));
+//                Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedString)); // "OsmSharp.Routing.Test.data.test_network.osm"));
 //            return new OsmSourceRouterDataSource(interpreter, tagsIndex, source);
 //        }
 

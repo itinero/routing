@@ -68,7 +68,7 @@ namespace OsmSharp.Test.Unittests.Routing.CH
                     data, interpreter, tagsIndex, Vehicle.Car);
                 var dataProcessorSource = new XmlOsmStreamSource(
                     Assembly.GetExecutingAssembly().GetManifestResourceStream(string.Format(
-                    "OsmSharp.Test.Unittests.{0}", embeddedName)));
+                    "OsmSharp.Routing.Test.data.{0}", embeddedName)));
                 var sorter = new OsmStreamFilterSort();
                 sorter.RegisterSource(dataProcessorSource);
                 targetData.RegisterSource(sorter);

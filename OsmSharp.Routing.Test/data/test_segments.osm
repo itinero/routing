@@ -1,0 +1,109 @@
+<?xml version="1.0"?>
+<osm generator="Merkaartor 0.17" version="0.6">
+  <node version="0" lon="4.7696568" lat="51.2" timestamp="2012-11-29T11:42:08Z" user="" id="-1" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:08Z" user="" id="-2" actor="0" dirtylevel="3">
+    <nd ref="-1"/>
+    <nd ref="-3"/>
+    <tag k='highway' v='footway' />
+  </way>
+  <node version="0" lon="4.8283861" lat="51.2" timestamp="2012-11-29T11:42:08Z" user="" id="-3" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="51.1" timestamp="2012-11-29T11:42:16Z" user="" id="-5" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:16Z" user="" id="-6" actor="0" dirtylevel="3">
+    <nd ref="-5"/>
+    <nd ref="-7"/>
+    <tag k='highway' v='cycleway' />
+  </way>
+  <node version="0" lon="4.8283861" lat="51.1" timestamp="2012-11-29T11:42:16Z" user="" id="-7" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="51.0" timestamp="2012-11-29T11:42:24Z" user="" id="-9" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:24Z" user="" id="-10" actor="0" dirtylevel="3">
+    <nd ref="-9"/>
+    <nd ref="-11"/>
+    <tag k='highway' v='bridleway' />
+  </way>
+  <node version="0" lon="4.8283861" lat="51.0" timestamp="2012-11-29T11:42:24Z" user="" id="-11" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.9" timestamp="2012-11-29T11:42:30Z" user="" id="-13" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:30Z" user="" id="-14" actor="0" dirtylevel="3">
+    <nd ref="-13"/>
+    <nd ref="-15"/>
+    <tag k='highway' v='path' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.9" timestamp="2012-11-29T11:42:30Z" user="" id="-15" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.8" timestamp="2012-11-29T11:42:36Z" user="" id="-17" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:36Z" user="" id="-18" actor="0" dirtylevel="3">
+    <nd ref="-17"/>
+    <nd ref="-19"/>
+    <tag k='highway' v='pedestrian' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.8" timestamp="2012-11-29T11:42:36Z" user="" id="-19" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.7" timestamp="2012-11-29T11:42:42Z" user="" id="-21" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:42Z" user="" id="-22" actor="0" dirtylevel="3">
+    <nd ref="-21"/>
+    <nd ref="-23"/>
+    <tag k='highway' v='road' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.7" timestamp="2012-11-29T11:42:42Z" user="" id="-23" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.6" timestamp="2012-11-29T11:42:46Z" user="" id="-25" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:46Z" user="" id="-26" actor="0" dirtylevel="3">
+    <nd ref="-25"/>
+    <nd ref="-27"/>
+    <tag k='highway' v='living_street' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.6" timestamp="2012-11-29T11:42:46Z" user="" id="-27" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.5" timestamp="2012-11-29T11:42:52Z" user="" id="-29" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:52Z" user="" id="-30" actor="0" dirtylevel="3">
+    <nd ref="-29"/>
+    <nd ref="-31"/>
+    <tag k='highway' v='residential' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.5" timestamp="2012-11-29T11:42:52Z" user="" id="-31" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.4" timestamp="2012-11-29T11:42:57Z" user="" id="-33" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:42:57Z" user="" id="-34" actor="0" dirtylevel="3">
+    <nd ref="-33"/>
+    <nd ref="-35"/>
+    <tag k='highway' v='unclassified' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.4" timestamp="2012-11-29T11:42:57Z" user="" id="-35" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.3" timestamp="2012-11-29T11:43:01Z" user="" id="-37" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:43:01Z" user="" id="-38" actor="0" dirtylevel="3">
+    <nd ref="-37"/>
+    <nd ref="-39"/>
+    <tag k='highway' v='tertiary' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.3" timestamp="2012-11-29T11:43:01Z" user="" id="-39" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.2" timestamp="2012-11-29T11:43:06Z" user="" id="-41" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:43:06Z" user="" id="-42" actor="0" dirtylevel="3">
+    <nd ref="-41"/>
+    <nd ref="-43"/>
+    <tag k='highway' v='secondary' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.2" timestamp="2012-11-29T11:43:06Z" user="" id="-43" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.1" timestamp="2012-11-29T11:43:10Z" user="" id="-45" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:43:10Z" user="" id="-46" actor="0" dirtylevel="3">
+    <nd ref="-45"/>
+    <nd ref="-47"/>
+    <tag k='highway' v='primary' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.1" timestamp="2012-11-29T11:43:10Z" user="" id="-47" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="50.0" timestamp="2012-11-29T11:44:30Z" user="" id="-250" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:44:30Z" user="" id="-251" actor="0" dirtylevel="3">
+    <nd ref="-250"/>
+    <nd ref="-252"/>
+    <tag k='highway' v='trunk' />
+  </way>
+  <node version="0" lon="4.8283861" lat="50.0" timestamp="2012-11-29T11:44:30Z" user="" id="-252" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="49.9" timestamp="2012-11-29T11:44:35Z" user="" id="-254" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:44:35Z" user="" id="-255" actor="0" dirtylevel="3">
+    <nd ref="-254"/>
+    <nd ref="-256"/>
+    <tag k='highway' v='motorway' />
+  </way>
+  <node version="0" lon="4.8283861" lat="49.9" timestamp="2012-11-29T11:44:35Z" user="" id="-256" actor="0" dirtylevel="1"/>
+  <node version="0" lon="4.7696568" lat="49.8" timestamp="2012-11-29T11:44:39Z" user="" id="-258" actor="0" dirtylevel="1"/>
+  <way version="0" timestamp="2012-11-29T11:44:39Z" user="" selected="true" id="-259" actor="0" dirtylevel="3">
+    <nd ref="-258"/>
+    <nd ref="-260"/>
+    <tag k='highway' v='residential' />
+  </way>
+  <node version="0" lon="4.8283861" lat="49.8" timestamp="2012-11-29T11:44:39Z" user="" id="-260" actor="0" dirtylevel="1"/>
+  <bound box="51.248107,4.769577,51.279538,4.831596" origin="http://www.openstreetmap.org/api/0.6"/>
+</osm>

@@ -917,7 +917,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
 
             var source = new XmlOsmStreamSource(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                    "OsmSharp.Test.Unittests.test_network_real1.osm"));
+                    "OsmSharp.Routing.Test.data.test_network_real1.osm"));
             var data = GraphOsmStreamTarget.Preprocess(source, new OsmRoutingInterpreter());
 
             // test if sorted.
@@ -1041,7 +1041,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
         [Test]
         public void SortHilbertRealTest()
         {
-            var embeddedString = "OsmSharp.Test.Unittests.test_network.osm";
+            var embeddedString = "OsmSharp.Routing.Test.data.test_network.osm";
             var n = GraphExtensions.DefaultHilbertSteps;
 
             // do the data processing without preprocessing.
@@ -1113,7 +1113,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
         [Test]
         public void SortDirectedHilbertRealTest()
         {
-            var embeddedString = "OsmSharp.Test.Unittests.test_network.osm";
+            var embeddedString = "OsmSharp.Routing.Test.data.test_network.osm";
             var n = GraphExtensions.DefaultHilbertSteps;
 
             // do the data processing without preprocessing.
@@ -1188,7 +1188,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
         [Test]
         public void SortHilbertRealBigTest()
         {
-            var embeddedString = "OsmSharp.Test.Unittests.test_network_real1.osm";
+            var embeddedString = "OsmSharp.Routing.Test.data.test_network_real1.osm";
             var n = GraphExtensions.DefaultHilbertSteps;
 
             // do the data processing without preprocessing.
@@ -1262,7 +1262,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
         [Test]
         public void SortDirectedHilbertRealBigTest()
         {
-            var embeddedString = "OsmSharp.Test.Unittests.test_network_big.osm";
+            var embeddedString = "OsmSharp.Routing.Test.data.test_network_big.osm";
             var n = GraphExtensions.DefaultHilbertSteps;
 
             // do the data processing without preprocessing.

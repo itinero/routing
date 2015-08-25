@@ -68,9 +68,6 @@ namespace OsmSharp.Test.Unittests.Routing
         public override IRoutingAlgorithmData<Edge> BuildData(IOsmRoutingInterpreter interpreter,
             string embeddedString)
         {
-            var key = string.Format("Dykstra.Routing.IRoutingAlgorithmData<SimpleWeighedEdge>.OSM.{0}",
-                embeddedString);
-
             var tagsIndex = new TagsIndex();
 
             // do the data processing.

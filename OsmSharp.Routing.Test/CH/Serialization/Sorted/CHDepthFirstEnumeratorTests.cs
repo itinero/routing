@@ -41,7 +41,7 @@
 //        [Test]
 //        public void TestCHDepthFirstEnumerator()
 //        {
-//            const string embeddedString = "OsmSharp.Test.Unittests.test_network_real1.osm";
+//            const string embeddedString = "OsmSharp.Routing.Test.data.test_network_real1.osm";
 
 //            // creates a new interpreter.
 //            var interpreter = new OsmRoutingInterpreter();

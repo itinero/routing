@@ -55,7 +55,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var memoryData = new RouterDataSource<Edge>(new Graph<Edge>(), tagsIndex);
             var targetData = new GraphOsmStreamTarget(memoryData, interpreter, tagsIndex);
             var dataProcessorSource = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression1.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression1.osm"));
             var sorter = new OsmStreamFilterSort();
             sorter.RegisterSource(dataProcessorSource);
             targetData.RegisterSource(sorter);
@@ -92,7 +92,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var memoryData = new RouterDataSource<Edge>(new Graph<Edge>(), tagsIndex);
             var targetData = new GraphOsmStreamTarget(memoryData, interpreter, tagsIndex);
             var dataProcessorSource = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_network.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_network.osm"));
             var sorter = new OsmStreamFilterSort();
             sorter.RegisterSource(dataProcessorSource);
             targetData.RegisterSource(sorter);
@@ -177,7 +177,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var memoryData = new RouterDataSource<Edge>(new Graph<Edge>(), tagsIndex);
             var targetData = new GraphOsmStreamTarget(memoryData, interpreter, tagsIndex);
             var dataProcessorSource = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_network.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_network.osm"));
             var sorter = new OsmStreamFilterSort();
             sorter.RegisterSource(dataProcessorSource);
             targetData.RegisterSource(sorter);
@@ -258,7 +258,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var memoryData = new RouterDataSource<Edge>(new Graph<Edge>(), tagsIndex);
             var targetData = new GraphOsmStreamTarget(memoryData, interpreter, tagsIndex);
             var dataProcessorSource = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression1.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression1.osm"));
             var sorter = new OsmStreamFilterSort();
             sorter.RegisterSource(dataProcessorSource);
             targetData.RegisterSource(sorter);
@@ -301,7 +301,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex6 = new GeoCoordinate(50.98496931078, 4.83079728585);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression3.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression3.osm"));
             var router = Router.CreateFrom(source, new OsmRoutingInterpreter());
 
             var resolved3 = router.Resolve(Vehicle.Car, vertex3, true);
@@ -354,7 +354,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex6 = new GeoCoordinate(50.98496931078, 4.83079728585);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression3.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression3.osm"));
             var router = Router.CreateCHFrom(source, new OsmRoutingInterpreter(), Vehicle.Car);
 
             var resolved3 = router.Resolve(Vehicle.Car, vertex3, true);
@@ -407,7 +407,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex6 = new GeoCoordinate(50.98496931078, 4.83079728585);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression4.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression4.osm"));
             var router = Router.CreateFrom(source, new OsmRoutingInterpreter());
 
             var resolved3 = router.Resolve(Vehicle.Car, vertex3, true);
@@ -460,7 +460,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex6 = new GeoCoordinate(50.98496931078, 4.83079728585);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression4.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression4.osm"));
             var router = Router.CreateCHFrom(source, new OsmRoutingInterpreter(), Vehicle.Car);
 
             var resolved3 = router.Resolve(Vehicle.Car, vertex3, true);
@@ -506,7 +506,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex6 = new GeoCoordinate(50.985017593072016, 4.828410262241598);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression5.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression5.osm"));
             var router = Router.CreateFrom(source, new OsmRoutingInterpreter());
 
             var resolved1 = router.Resolve(Vehicle.Car, vertex1, true);
@@ -563,7 +563,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex6 = new GeoCoordinate(50.985017593072016, 4.828410262241598);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression5.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression5.osm"));
             var router = Router.CreateCHFrom(source, new OsmRoutingInterpreter(), Vehicle.Car);
 
             var resolved1 = router.Resolve(Vehicle.Car, vertex1, true);
@@ -621,7 +621,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex8 = new GeoCoordinate(50.985013738270930 ,4.828723851247985);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression6.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression6.osm"));
             var router = Router.CreateFrom(source, new OsmRoutingInterpreter());
 
             var resolved1 = router.Resolve(Vehicle.Car, vertex1, true);
@@ -668,7 +668,7 @@ namespace OsmSharp.Test.Unittests.Routing
             var vertex8 = new GeoCoordinate(50.985013738270930, 4.828723851247985);
 
             var source = new XmlOsmStreamSource(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_routing_regression6.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_routing_regression6.osm"));
             var router = Router.CreateCHFrom(source, new OsmRoutingInterpreter(), Vehicle.Car);
 
             var resolved1 = router.Resolve(Vehicle.Car, vertex1, true);

@@ -509,7 +509,7 @@ namespace OsmSharp.Test.Unittests.Routing.CH
         public void TestVerifiedContraction5TestNetwork()
         {
             this.DoTestCHSparseVerifiedContraction(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_network.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_network.osm"));
         }
 
         /// <summary>
@@ -519,7 +519,7 @@ namespace OsmSharp.Test.Unittests.Routing.CH
         public void TestCHVerifiedContractionTestNetworkReal()
         {
             this.DoTestCHSparseVerifiedContraction(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_network_real1.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_network_real1.osm"));
         }
 
         /// <summary>
@@ -529,7 +529,7 @@ namespace OsmSharp.Test.Unittests.Routing.CH
         public void TestCHVerifiedContractionTestNetworkOneWay()
         {
             this.DoTestCHSparseVerifiedContraction(
-                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Test.Unittests.test_network_oneway.osm"));
+                Assembly.GetExecutingAssembly().GetManifestResourceStream("OsmSharp.Routing.Test.data.test_network_oneway.osm"));
         }
     }
 }

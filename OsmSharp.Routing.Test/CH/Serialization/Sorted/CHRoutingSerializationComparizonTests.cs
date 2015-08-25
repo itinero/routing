@@ -45,7 +45,7 @@
 //        [Test]
 //        public void RoutingSerializationV2CHRoutingV2ComparisonTestNetwork()
 //        {
-//            const string embeddedString = "OsmSharp.Test.Unittests.test_network.osm";
+//            const string embeddedString = "OsmSharp.Routing.Test.data.test_network.osm";
 
 //            this.DoRoutingSerializationV2CHRoutingV2ComparisonTest(embeddedString);
 //        }
@@ -57,7 +57,7 @@
 //        [Test]
 //        public void RoutingSerializationV2CHRoutingV2ComparisonTestRealNetwork1()
 //        {
-//            const string embeddedString = "OsmSharp.Test.Unittests.test_network_real1.osm";
+//            const string embeddedString = "OsmSharp.Routing.Test.data.test_network_real1.osm";
 
 //            this.DoRoutingSerializationV2CHRoutingV2ComparisonTest(embeddedString);
 //        }
@@ -68,7 +68,7 @@
 //        [Test]
 //        public void RoutingSerializationV2CHRoutingV2ComparisonTestNetworkBig()
 //        {
-//            const string embeddedString = "OsmSharp.Test.Unittests.test_network_big.osm";
+//            const string embeddedString = "OsmSharp.Routing.Test.data.test_network_big.osm";
 
 //            this.DoRoutingSerializationV2CHRoutingV2ComparisonTest(embeddedString);
 //        }

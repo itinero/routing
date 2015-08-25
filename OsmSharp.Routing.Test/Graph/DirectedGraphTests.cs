@@ -975,7 +975,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
         [Test]
         public void TestGraphSerialize2()
         {
-            const string embeddedString = "OsmSharp.Test.Unittests.test_network.osm";
+            const string embeddedString = "OsmSharp.Routing.Test.data.test_network.osm";
 
             // creates a new interpreter.
             var interpreter = new OsmRoutingInterpreter();

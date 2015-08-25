@@ -365,19 +365,16 @@ namespace OsmSharp.Test.Unittests.Routing
         protected bool DoTestForVehicle(Vehicle vehicle, GeoCoordinate from, GeoCoordinate to,
             IOsmRoutingInterpreter interpreter)
         {
-            IRoutingAlgorithmData<TEdgeData> data = 
-                this.BuildData(interpreter, "OsmSharp.Test.Unittests.test_segments.osm", vehicle);
-            IRoutingAlgorithm<TEdgeData> basicRouter = 
-                this.BuildBasicRouter(data);
-            Router router = 
-                this.BuildRouter(data, interpreter, basicRouter);
+            var data = this.BuildData(interpreter, "OsmSharp.Routing.Test.data.test_segments.osm", vehicle);
+            var basicRouter = this.BuildBasicRouter(data);
+            var router = this.BuildRouter(data, interpreter, basicRouter);
 
-            RouterPoint resolvedFrom = router.Resolve(vehicle, from);
-            RouterPoint resolvedTo = router.Resolve(vehicle, to);
+            var resolvedFrom = router.Resolve(vehicle, from);
+            var resolvedTo = router.Resolve(vehicle, to);
 
             if (resolvedFrom != null && resolvedTo != null)
             {
-                Route route = router.Calculate(vehicle, resolvedFrom, resolvedTo);
+                var route = router.Calculate(vehicle, resolvedFrom, resolvedTo);
                 return route != null;
             }
             return false;

@@ -51,7 +51,7 @@ namespace OsmSharp.Test.Unittests.Routing.Serialization
         [Test]
         public void RoutingSerializationRoutingTest()
         {
-            const string embeddedString = "OsmSharp.Test.Unittests.test_network.osm";
+            const string embeddedString = "OsmSharp.Routing.Test.data.test_network.osm";
 
             // create the tags index (and make sure it's serializable).
             var tagsIndex = new TagsIndex(new MemoryMappedStream(new MemoryStream()));
@@ -142,7 +142,7 @@ namespace OsmSharp.Test.Unittests.Routing.Serialization
         [Test]
         public void RoutingSerializationRoutingComparisonTest()
         {
-            const string embeddedString = "OsmSharp.Test.Unittests.test_network_real1.osm";
+            const string embeddedString = "OsmSharp.Routing.Test.data.test_network_real1.osm";
 
             // create the tags index (and make sure it's serializable).
             var tagsIndex = new TagsIndex(new MemoryMappedStream(new MemoryStream()));
@@ -239,7 +239,7 @@ namespace OsmSharp.Test.Unittests.Routing.Serialization
         [Test]
         public void RoutingSerialization()
         {
-            const string embeddedString = "OsmSharp.Test.Unittests.test_network_real1.osm";
+            const string embeddedString = "OsmSharp.Routing.Test.data.test_network_real1.osm";
 
             // create the tags index (and make sure it's serializable).
             var tagsIndex = new TagsIndex(new MemoryMappedStream(new MemoryStream()));
@@ -340,7 +340,7 @@ namespace OsmSharp.Test.Unittests.Routing.Serialization
         [Test]
         public void RoutingSerializationCHEdgeData()
         {
-            const string embeddedString = "OsmSharp.Test.Unittests.test_network_real1.osm";
+            const string embeddedString = "OsmSharp.Routing.Test.data.test_network_real1.osm";
 
             // create the tags index (and make sure it's serializable).
             var tagsIndex = new TagsIndex(new MemoryMappedStream(new MemoryStream()));

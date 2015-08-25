@@ -81,7 +81,7 @@ namespace OsmSharp.Test.Unittests.Routing.Instructions
         [Test]
         public void InstructionRegressionDykstraTest2()
         {
-            this.DoInstructionComparisonTest("OsmSharp.Test.Unittests.test_routing_regression1.osm",
+            this.DoInstructionComparisonTest("OsmSharp.Routing.Test.data.test_routing_regression1.osm",
                 new GeoCoordinate(51.01257, 4.000753),
                 new GeoCoordinate(51.01250, 4.000013));
         }
@@ -92,7 +92,7 @@ namespace OsmSharp.Test.Unittests.Routing.Instructions
         [Test]
         public void InstructionRegressionDykstraTest3()
         {
-            this.DoInstructionComparisonTest("OsmSharp.Test.Unittests.test_routing_regression1.osm",
+            this.DoInstructionComparisonTest("OsmSharp.Routing.Test.data.test_routing_regression1.osm",
                 new GeoCoordinate(51.01177, 4.00249),
                 new GeoCoordinate(51.01250, 4.000013));
         }

@@ -116,8 +116,19 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="data\test_network.osm" />
+    <EmbeddedResource Include="data\test_network_big.osm" />
+    <EmbeddedResource Include="data\test_network_real1.osm" />
+    <EmbeddedResource Include="data\test_network_oneway.osm" />
+    <EmbeddedResource Include="data\test_routing_regression1.osm" />
+    <EmbeddedResource Include="data\test_routing_regression3.osm" />
+    <EmbeddedResource Include="data\test_routing_regression4.osm" />
+    <EmbeddedResource Include="data\test_routing_regression5.osm" />
+    <EmbeddedResource Include="data\test_routing_regression6.osm" />
+    <EmbeddedResource Include="data\test_segments.osm" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
