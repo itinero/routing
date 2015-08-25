@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A0994CCC-D71E-4DC1-99BB-C52F52093B1F}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OsmSharp.Routing.Test</RootNamespace>
+    <AssemblyName>OsmSharp.Routing.Test</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OsmSharp, Version=0.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.4-beta\lib\net45\OsmSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.4-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Zlib.Portable, Version=1.9.1.9000, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Zlib.Portable.1.9.2\lib\portable-net4+sl4+wp71+win8\Zlib.Portable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CH\CHEdgeDataTests.cs" />
+    <Compile Include="CH\CHEdgeDifferenceComparisonTests.cs" />
+    <Compile Include="CH\CHEdgeDifferenceRoutingTest.cs" />
+    <Compile Include="CH\CHPriorityCalculationTests.cs" />
+    <Compile Include="CH\CHVerifiedContractionBaseTests.cs" />
+    <Compile Include="CH\CHVerifiedContractionTests.cs" />
+    <Compile Include="CH\Serialization\Sorted\CHDataSourceSerializeSortTests.cs" />
+    <Compile Include="CH\Serialization\Sorted\CHDepthFirstEnumeratorTests.cs" />
+    <Compile Include="CH\Serialization\Sorted\CHRoutingSerializationComparizonTests.cs" />
+    <Compile Include="DykstraAccessTests.cs" />
+    <Compile Include="DykstraRoutingTests.cs" />
+    <Compile Include="EdgeMatcher\EdgeMatcherTests.cs" />
+    <Compile Include="Graph\DirectedGraphTests.cs" />
+    <Compile Include="Graph\GraphExtensionsTests.cs" />
+    <Compile Include="Graph\GraphTests.cs" />
+    <Compile Include="Graph\MemoryMappedGraphTests.cs" />
+    <Compile Include="Instructions\InstructionRegressionSerializedContractedTests.cs" />
+    <Compile Include="Instructions\InstructionRegressionTestsBase.cs" />
+    <Compile Include="Instructions\InstructionRegressionTestsCH.cs" />
+    <Compile Include="Instructions\InstructionRegressionTestsDykstraLive.cs" />
+    <Compile Include="Instructions\InstructionTests.cs" />
+    <Compile Include="Instructions\LanguageGenerator\LanguageTestGenerator.cs" />
+    <Compile Include="Interpreter\OsmRoutingInterpreterTests.cs" />
+    <Compile Include="Navigation\RouterTrackerTests.cs" />
+    <Compile Include="OsmSourceRoutingTest.cs" />
+    <Compile Include="PathSegmentTests.cs" />
+    <Compile Include="PreProcessorRoutingTests.cs" />
+    <Compile Include="PreProcessorTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReferenceGraphTarget.cs" />
+    <Compile Include="RouteTests.cs" />
+    <Compile Include="RoutingAccessTests.cs" />
+    <Compile Include="RoutingComparisonTests.cs" />
+    <Compile Include="RoutingComparisonTestsBase.cs" />
+    <Compile Include="RoutingConditionalAccessTests.cs" />
+    <Compile Include="RoutingOneWayTests.cs" />
+    <Compile Include="RoutingRegressionTests.cs" />
+    <Compile Include="RoutingTest.cs" />
+    <Compile Include="RoutingTests.cs" />
+    <Compile Include="Serialization\RoutingSerializationTests.cs" />
+    <Compile Include="VehicleBaseTests.cs" />
+    <Compile Include="VehicleBicycleTests.cs" />
+    <Compile Include="VehicleBigTruckTests.cs" />
+    <Compile Include="VehicleBusTests.cs" />
+    <Compile Include="VehicleCarTests.cs" />
+    <Compile Include="VehicleMopedTests.cs" />
+    <Compile Include="VehicleMotorCycleTests.cs" />
+    <Compile Include="VehiclePedestrianTests.cs" />
+    <Compile Include="VehicleSmallTruckTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OsmSharp.Routing\OsmSharp.Routing.csproj">
+      <Project>{2f4d2b40-d557-4640-96e1-693d598012a6}</Project>
+      <Name>OsmSharp.Routing</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

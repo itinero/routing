@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2F4D2B40-D557-4640-96E1-693D598012A6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OsmSharp.Routing</RootNamespace>
+    <AssemblyName>OsmSharp.Routing</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile147</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Output\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\Output\OsmSharp.Routing.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Output\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\Output\OsmSharp.Routing.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>..\Output\OsmSharp.Routing.XML</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DocumentationFile>..\Output\OsmSharp.Routing.XML</DocumentationFile>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyVersion.cs">
+      <Link>Properties\SharedAssemblyVersion.cs</Link>
+    </Compile>
+    <Compile Include="CH\Preprocessing\DefaultPreprocessor.cs" />
+    <Compile Include="Graph\PreProcessor\HilbertSortingPreprocessor.cs" />
+    <Compile Include="Graph\PreProcessor\MultiPreprocessor.cs" />
+    <Compile Include="Instructions\ArcAggregation\AggregatedHelper.cs" />
+    <Compile Include="Instructions\ArcAggregation\ArcAggregator.cs" />
+    <Compile Include="Instructions\ArcAggregation\Output\Aggregated.cs" />
+    <Compile Include="Instructions\ArcAggregation\Output\AggregatedArc.cs" />
+    <Compile Include="Instructions\ArcAggregation\Output\AggregatedPoint.cs" />
+    <Compile Include="CH\CHEdgeData.cs" />
+    <Compile Include="CH\CHQueue.cs" />
+    <Compile Include="CH\CHRouter.cs" />
+    <Compile Include="CH\Preprocessing\CHPreprocessor.cs" />
+    <Compile Include="CH\Preprocessing\INodeWeightCalculator.cs" />
+    <Compile Include="CH\Preprocessing\INodeWitnessCalculator.cs" />
+    <Compile Include="CH\Preprocessing\Ordering\EdgeDifference.cs" />
+    <Compile Include="CH\Preprocessing\Ordering\EdgeDifferenceContractedSearchSpace.cs" />
+    <Compile Include="CH\Preprocessing\Ordering\EdgeDifferenceContractedSearchSpaceNew.cs" />
+    <Compile Include="CH\Preprocessing\Witnesses\DykstraWitnessCalculator.cs" />
+    <Compile Include="CH\Serialization\CHEdgeSerializer.cs" />
+    <Compile Include="Graph\RouterDataSource.cs" />
+    <Compile Include="Graph\EdgeEnumerator.cs" />
+    <Compile Include="Graph\GraphBase.cs" />
+    <Compile Include="Graph\IGraphEdgeData.cs" />
+    <Compile Include="Graph\IGraphReadOnly.cs" />
+    <Compile Include="Graph\IGraphWriteOnly.cs" />
+    <Compile Include="Graph\INeighbourEnumerator.cs" />
+    <Compile Include="Graph\DirectedGraph.cs" />
+    <Compile Include="Graph\Graph.cs" />
+    <Compile Include="Graph\PreProcessor\IPreprocessor.cs" />
+    <Compile Include="Graph\Restrictions\GraphRestriction.cs" />
+    <Compile Include="Graph\Routing\DykstraBase.cs" />
+    <Compile Include="Graph\Routing\Dykstra.cs" />
+    <Compile Include="Graph\Routing\IRoutingAlgorithm.cs" />
+    <Compile Include="Graph\Routing\IRoutingAlgorithmData.cs" />
+    <Compile Include="Graph\RouterDataSourceBase.cs" />
+    <Compile Include="Graph\Routing\PathSegment.cs" />
+    <Compile Include="Graph\Routing\PathSegmentVisitList.cs" />
+    <Compile Include="Graph\Serialization\RoutingDataSourceSerializerBase.cs" />
+    <Compile Include="IEdgeMatcher.cs" />
+    <Compile Include="Graph\GraphExtensions.cs" />
+    <Compile Include="Instructions\Instruction.cs" />
+    <Compile Include="Instructions\InstructionGenerator.cs" />
+    <Compile Include="Instructions\LanguageGeneration\Defaults\DutchLanguageGenerator.cs" />
+    <Compile Include="Instructions\LanguageGeneration\Defaults\EnglishLanguageGenerator.cs" />
+    <Compile Include="Instructions\LanguageGeneration\Defaults\GermanLanguageGenerator.cs" />
+    <Compile Include="Instructions\LanguageGeneration\ILanguageGenerator.cs" />
+    <Compile Include="Instructions\LanguageGeneration\LanguageGenerator.cs" />
+    <Compile Include="Instructions\LanguageGeneration\SentencePlanner.cs" />
+    <Compile Include="Instructions\MicroPlanning\Machines\ImmidiateTurnMachine.cs" />
+    <Compile Include="Instructions\MicroPlanning\Machines\PoiMachine.cs" />
+    <Compile Include="Instructions\MicroPlanning\Machines\PoiWithTurnMachine.cs" />
+    <Compile Include="Instructions\MicroPlanning\Machines\RoundaboutMachine.cs" />
+    <Compile Include="Instructions\MicroPlanning\Machines\TurnMachine.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlanner.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlannerException.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlannerHelper.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlannerMachine.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlannerMessage.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlannerMessageArc.cs" />
+    <Compile Include="Instructions\MicroPlanning\MicroPlannerMessagePoint.cs" />
+    <Compile Include="Interpreter\Constraints\Cars\DefaultCarConstraints.cs" />
+    <Compile Include="Interpreter\Constraints\Highways\DefaultHighwayConstraints.cs" />
+    <Compile Include="Interpreter\Constraints\IRoutingConstraints.cs" />
+    <Compile Include="Interpreter\Constraints\RoutingLabel.cs" />
+    <Compile Include="Interpreter\IRoutingInterpreter.cs" />
+    <Compile Include="Interpreter\Roads\IEdgeInterpreter.cs" />
+    <Compile Include="Interpreter\Roads\TagsExtensions.cs" />
+    <Compile Include="IO\Gpx\RouteGpx.cs" />
+    <Compile Include="IRouterExtensions.cs" />
+    <Compile Include="Metrics\RouteMetricCalculator.cs" />
+    <Compile Include="Metrics\Time\TimeCalculator.cs" />
+    <Compile Include="Navigation\RouteTracker.cs" />
+    <Compile Include="Graph\Edge.cs" />
+    <Compile Include="Graph\PreProcessor\GraphSimplificationPreprocessor.cs" />
+    <Compile Include="Graph\Serialization\RoutingDataSourceSerializer.cs" />
+    <Compile Include="Osm\Interpreter\Edge\EdgeInterpreter.cs" />
+    <Compile Include="Osm\Interpreter\IOsmRoutingInterpreter.cs" />
+    <Compile Include="Osm\Interpreter\OsmRoutingInterpreter.cs" />
+    <Compile Include="Osm\Streams\CHEdgeGraphOsmStreamTarget.cs" />
+    <Compile Include="Osm\Streams\GraphOsmStreamTargetBase.cs" />
+    <Compile Include="Osm\Streams\GraphOsmStreamTarget.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Route.cs" />
+    <Compile Include="RouteEnumerable.cs" />
+    <Compile Include="Router.cs" />
+    <Compile Include="RouterPoint.cs" />
+    <Compile Include="Routers\ITypedRouter.cs" />
+    <Compile Include="Routers\TypedRouter.cs" />
+    <Compile Include="Routers\TypedRouterCHEdge.cs" />
+    <Compile Include="Routers\TypedRouterEdge.cs" />
+    <Compile Include="Routers\TypedRouterResolvedGraph.cs" />
+    <Compile Include="Vehicles\Bicycle.cs" />
+    <Compile Include="Vehicles\BigTruck.cs" />
+    <Compile Include="Vehicles\Bus.cs" />
+    <Compile Include="Vehicles\Car.cs" />
+    <Compile Include="Vehicles\Moped.cs" />
+    <Compile Include="Vehicles\MotorCycle.cs" />
+    <Compile Include="Vehicles\MotorVehicle.cs" />
+    <Compile Include="Vehicles\Pedestrian.cs" />
+    <Compile Include="Vehicles\SmallTruck.cs" />
+    <Compile Include="Vehicles\Vehicle.cs" />
+    <Compile Include="Vehicles\VehicleType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OsmSharp, Version=0.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.4-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.4, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.4-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
+    <Reference Include="Zlib.Portable">
+      <HintPath>..\packages\Zlib.Portable.1.9.2\lib\portable-net4+sl4+wp71+win8\Zlib.Portable.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
