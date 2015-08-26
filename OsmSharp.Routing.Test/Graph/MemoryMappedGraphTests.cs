@@ -202,7 +202,7 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
                                                        }, null);
 
                     var edges =  graph.GetEdges(vertex1).ToKeyValuePairs();
-                    Assert.AreEqual(10000 - count + 1, edges.Length);
+                    Assert.AreEqual(count - count + 1, edges.Length);
 
                     edges = graph.GetEdges(vertex2).ToKeyValuePairs();
                     Assert.AreEqual(1, edges.Length);
