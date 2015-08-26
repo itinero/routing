@@ -181,15 +181,15 @@ namespace OsmSharp.Test.Unittests.Routing.Graph
         }
 
         /// <summary>
-        /// Tests adding 10000 edges.
+        /// Tests adding 1000 edges.
         /// </summary>
         [Test]
-        public void TestEdge10000()
+        public void TestEdge1000()
         {
             using (var graph = new Graph<Edge>(new MemoryMappedStream(new MemoryStream()), 1000, 
                 Edge.MapFromDelegate, Edge.MapToDelegate, Edge.SizeUints))
             {
-                int count = 10000;
+                int count = 1000;
                 uint vertex1 = graph.AddVertex(51, 1);
                 while (count > 0)
                 {
