@@ -158,6 +158,10 @@ namespace OsmSharp.Routing
         public FeatureCollection ToFeatureCollection()
         {
             var featureCollection = new FeatureCollection();
+            if(this.Segments == null)
+            {
+                return featureCollection;
+            }
             for (int i = 0; i < this.Segments.Length; i++)
             {
                 // create a line string for the current segment.
