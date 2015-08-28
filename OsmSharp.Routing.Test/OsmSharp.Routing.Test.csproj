@@ -61,74 +61,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CH\CHEdgeDataTests.cs" />
-    <Compile Include="CH\CHEdgeDifferenceComparisonTests.cs" />
-    <Compile Include="CH\CHEdgeDifferenceRoutingTest.cs" />
-    <Compile Include="CH\CHPriorityCalculationTests.cs" />
-    <Compile Include="CH\CHVerifiedContractionBaseTests.cs" />
-    <Compile Include="CH\CHVerifiedContractionTests.cs" />
-    <Compile Include="CH\Serialization\Sorted\CHDataSourceSerializeSortTests.cs" />
-    <Compile Include="CH\Serialization\Sorted\CHDepthFirstEnumeratorTests.cs" />
-    <Compile Include="CH\Serialization\Sorted\CHRoutingSerializationComparizonTests.cs" />
-    <Compile Include="DykstraAccessTests.cs" />
-    <Compile Include="DykstraRoutingTests.cs" />
-    <Compile Include="EdgeMatcher\EdgeMatcherTests.cs" />
-    <Compile Include="Graph\DirectedGraphTests.cs" />
-    <Compile Include="Graph\GraphExtensionsTests.cs" />
+    <Compile Include="Graph\EdgeDataMock.cs" />
     <Compile Include="Graph\GraphTests.cs" />
-    <Compile Include="Graph\MemoryMappedGraphTests.cs" />
-    <Compile Include="Instructions\InstructionRegressionSerializedContractedTests.cs" />
-    <Compile Include="Instructions\InstructionRegressionTestsBase.cs" />
-    <Compile Include="Instructions\InstructionRegressionTestsCH.cs" />
-    <Compile Include="Instructions\InstructionRegressionTestsDykstraLive.cs" />
-    <Compile Include="Instructions\InstructionTests.cs" />
-    <Compile Include="Instructions\LanguageGenerator\LanguageTestGenerator.cs" />
-    <Compile Include="Interpreter\OsmRoutingInterpreterTests.cs" />
-    <Compile Include="Navigation\RouterTrackerTests.cs" />
-    <Compile Include="OsmSourceRoutingTest.cs" />
-    <Compile Include="PathSegmentTests.cs" />
-    <Compile Include="PreProcessorRoutingTests.cs" />
-    <Compile Include="PreProcessorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReferenceGraphTarget.cs" />
-    <Compile Include="RouteTests.cs" />
-    <Compile Include="RoutingAccessTests.cs" />
-    <Compile Include="RoutingComparisonTests.cs" />
-    <Compile Include="RoutingComparisonTestsBase.cs" />
-    <Compile Include="RoutingConditionalAccessTests.cs" />
-    <Compile Include="RoutingOneWayTests.cs" />
-    <Compile Include="RoutingRegressionTests.cs" />
-    <Compile Include="RoutingTest.cs" />
-    <Compile Include="RoutingTests.cs" />
-    <Compile Include="Serialization\RoutingSerializationTests.cs" />
-    <Compile Include="VehicleBaseTests.cs" />
-    <Compile Include="VehicleBicycleTests.cs" />
-    <Compile Include="VehicleBigTruckTests.cs" />
-    <Compile Include="VehicleBusTests.cs" />
-    <Compile Include="VehicleCarTests.cs" />
-    <Compile Include="VehicleMopedTests.cs" />
-    <Compile Include="VehicleMotorCycleTests.cs" />
-    <Compile Include="VehiclePedestrianTests.cs" />
-    <Compile Include="VehicleSmallTruckTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OsmSharp.Routing\OsmSharp.Routing.csproj">
       <Project>{2f4d2b40-d557-4640-96e1-693d598012a6}</Project>
       <Name>OsmSharp.Routing</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="data\test_network.osm" />
-    <EmbeddedResource Include="data\test_network_big.osm" />
-    <EmbeddedResource Include="data\test_network_real1.osm" />
-    <EmbeddedResource Include="data\test_network_oneway.osm" />
-    <EmbeddedResource Include="data\test_routing_regression1.osm" />
-    <EmbeddedResource Include="data\test_routing_regression3.osm" />
-    <EmbeddedResource Include="data\test_routing_regression4.osm" />
-    <EmbeddedResource Include="data\test_routing_regression5.osm" />
-    <EmbeddedResource Include="data\test_routing_regression6.osm" />
-    <EmbeddedResource Include="data\test_segments.osm" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

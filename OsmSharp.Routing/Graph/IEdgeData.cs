@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2013 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Math.Geo.Simple;
 using System;
 
 namespace OsmSharp.Routing.Graph
@@ -24,36 +23,12 @@ namespace OsmSharp.Routing.Graph
     /// <summary>
     /// Abstracts edge information.
     /// </summary>
-    public interface IGraphEdgeData : IEquatable<IGraphEdgeData>
+    public interface IEdgeData
     {
-        /// <summary>
-        /// Returns the forward flag relative to the tags.
-        /// </summary>
-        bool Forward { get; }
-
-        /// <summary>
-        /// Returns true if this edge represents a neighbour relation.
-        /// </summary>
-        bool RepresentsNeighbourRelations { get; }
-
-        /// <summary>
-        /// Returns true if the shape of this edge is within the bounding box formed by it's two vertices.
-        /// </summary>
-        /// <remarks>False by default, only true when explicitly checked.</remarks>
-        bool ShapeInBox { get; }
-
-        /// <summary>
-        /// Returns the tag id.
-        /// </summary>
-        uint Tags
-        {
-            get;
-        }
-
         /// <summary>
         /// Returns the exact reverse edge.
         /// </summary>
         /// <returns></returns>
-        IGraphEdgeData Reverse();
+        IEdgeData Reverse();
     }
 }
