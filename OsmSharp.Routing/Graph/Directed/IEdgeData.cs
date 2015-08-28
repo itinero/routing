@@ -16,34 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Routing.Graph;
-
-namespace OsmSharp.Routing.Test.Graph
+namespace OsmSharp.Routing.Graph.Directed
 {
     /// <summary>
-    /// A mock of graph edge data
+    /// Abstracts edge information.
     /// </summary>
-    struct EdgeDataMock : IEdgeData, OsmSharp.Routing.Graph.Directed.IEdgeData
+    public interface IEdgeData
     {
-        public EdgeDataMock(int id)
-            : this()
-        {
-            this.Id = id;
-        }
-
-        public int Id { get; set; }
-
-        public IEdgeData Reverse()
-        {
-            return new EdgeDataMock()
-            {
-                Id = -this.Id
-            };
-        }
-
-        public bool Equals(Routing.Graph.Directed.IEdgeData other)
-        {
-            return ((EdgeDataMock)other).Id == this.Id;
-        }
+        /// <summary>
+        /// Returns true if the given edge represents the same edge data as this one.
+        /// </summary>
+        /// <returns></returns>
+        bool Equals(IEdgeData other);
     }
 }

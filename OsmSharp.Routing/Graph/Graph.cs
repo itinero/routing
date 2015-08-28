@@ -38,6 +38,7 @@ namespace OsmSharp.Routing.Graph
         private const int NODEB = 1;
         private const int NEXTNODEA = 2;
         private const int NEXTNODEB = 3;
+        private const int BLOCKSIZE = 1000;
 
         private readonly HugeArrayBase<uint> _vertices; // Holds all vertices pointing to it's first edge.
         private readonly HugeArrayBase<uint> _edges;
@@ -47,7 +48,7 @@ namespace OsmSharp.Routing.Graph
         /// Creates a new in-memory graph.
         /// </summary>
         public Graph()
-            : this(1000)
+            : this(BLOCKSIZE)
         {
 
         }
@@ -143,24 +144,29 @@ namespace OsmSharp.Routing.Graph
         }
 
         private uint _nextEdgeId;
+        private long _edgeCount = 0;
 
         /// <summary>
-        /// Increases the memory allocation.
+        /// Increases the size of the vertex-array.
         /// </summary>
         private void IncreaseVertexSize()
         {
-            this.IncreaseVertexSize(_vertices.Length + 1000);
+            this.IncreaseVertexSize(_vertices.Length + BLOCKSIZE);
         }
 
         /// <summary>
-        /// Increases the memory allocation.
+        /// Increases the size of the vertex-array.
         /// </summary>
-        /// <param name="size"></param>
-        private void IncreaseVertexSize(long size)
+        private void IncreaseVertexSize(long min)
         {
+            var newSize = (long)(System.Math.Floor(min / BLOCKSIZE) + 1) * (long)BLOCKSIZE;
+            if(newSize < _vertices.Length)
+            { // no need to increase, already big enough.
+                return;
+            }
             var oldLength = _vertices.Length;
-            _vertices.Resize(size);
-            for (long idx = oldLength; idx < size; idx++)
+            _vertices.Resize(newSize);
+            for (long idx = oldLength; idx < newSize; idx++)
             {
                 _vertices[idx] = NO_EDGE;
             }
@@ -194,8 +200,8 @@ namespace OsmSharp.Routing.Graph
         public void AddEdge(uint vertex1, uint vertex2, TEdgeData data)
         {
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
-            if (vertex1 > _vertices.Length - 1) { this.IncreaseVertexSize(); }
-            if (vertex2 > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (vertex1 > _vertices.Length - 1) { this.IncreaseVertexSize(vertex1); }
+            if (vertex2 > _vertices.Length - 1) { this.IncreaseVertexSize(vertex2); }
 
             var edgeId = _vertices[vertex1];
             if (_vertices[vertex1] != NO_EDGE)
@@ -249,6 +255,7 @@ namespace OsmSharp.Routing.Graph
 
                 // set data.
                 _edgeData[edgeId / 4] = data;
+                _edgeCount++;
             }
             else
             { // create a new edge and set.
@@ -267,6 +274,7 @@ namespace OsmSharp.Routing.Graph
 
                 // set data.
                 _edgeData[edgeId / 4] = data;
+                _edgeCount++;
             }
 
             var toEdgeId = _vertices[vertex2];
@@ -367,6 +375,7 @@ namespace OsmSharp.Routing.Graph
                         _edges[previousEdgeSlot] = nextEdgeId;
                     }
                     removed = true;
+                    _edgeCount--;
                     break;
                 }
             }
@@ -445,9 +454,9 @@ namespace OsmSharp.Routing.Graph
         }
 
         /// <summary>
-        /// Trims the internal data structures of this graph.
+        /// Relocates data internally in the most compact way possible.
         /// </summary>
-        public void Trim()
+        public void Compress()
         {
             // move edges down.
             uint maxAllocatedEdgeId = 0;
@@ -464,25 +473,50 @@ namespace OsmSharp.Routing.Graph
             }
             _nextEdgeId = maxAllocatedEdgeId;
 
-            // remove all vertices without edges.
-            var size = _vertices.Length;
-            while(_vertices[size - 1] == NO_EDGE)
-            {
-                size--;
-            }
-            _vertices.Resize(size);
+            this.Trim();
+        }
 
+        /// <summary>
+        /// Resizes the internal data structures to their smallest size possible.
+        /// </summary>
+        public void Trim()
+        {
+            if(_nextEdgeId == 0)
+            { // keep minimum room for one edge.
+                _nextEdgeId = EDGE_SIZE;
+            }
             // resize edges.
             _edgeData.Resize(_nextEdgeId / EDGE_SIZE);
             _edges.Resize(_nextEdgeId);
+
+            // remove all vertices without edges.
+            var size = _vertices.Length;
+            while (_vertices[size - 1] == NO_EDGE)
+            {
+                size--;
+                if (size == 0)
+                { // keep minimum of 1 vertex.
+                    size = 1;
+                    break;
+                }
+            }
+            _vertices.Resize(size);
         }
 
         /// <summary>
         /// Returns the number of vertices in this graph.
         /// </summary>
-        public uint VertexCount
+        public long VertexCount
         {
-            get { return (uint)_vertices.Length; }
+            get { return _vertices.Length; }
+        }
+
+        /// <summary>
+        /// Returns the number of edges in this graph.
+        /// </summary>
+        public long EdgeCount
+        {
+            get { return _edgeCount; }
         }
 
         /// <summary>

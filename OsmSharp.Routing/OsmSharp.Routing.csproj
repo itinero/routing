@@ -61,6 +61,11 @@
     <Compile Include="..\SharedAssemblyVersion.cs">
       <Link>Properties\SharedAssemblyVersion.cs</Link>
     </Compile>
+    <Compile Include="Graph\Directed\DirectedGraph.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graph\Directed\Edge.cs" />
+    <Compile Include="Graph\Directed\IEdgeData.cs" />
     <Compile Include="Graph\Edge.cs" />
     <Compile Include="Graph\IEdgeData.cs" />
     <Compile Include="Graph\Graph.cs" />

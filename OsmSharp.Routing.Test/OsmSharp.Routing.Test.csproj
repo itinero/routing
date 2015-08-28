@@ -61,6 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Graph\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graph\EdgeDataMock.cs" />
     <Compile Include="Graph\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
