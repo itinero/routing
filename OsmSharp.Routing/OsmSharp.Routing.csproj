@@ -69,6 +69,7 @@
     <Compile Include="Graph\Edge.cs" />
     <Compile Include="Graph\IEdgeData.cs" />
     <Compile Include="Graph\Graph.cs" />
+    <Compile Include="Graph\IMappedEdgeData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

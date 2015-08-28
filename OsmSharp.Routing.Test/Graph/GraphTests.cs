@@ -507,8 +507,7 @@ namespace OsmSharp.Routing.Test.Graph
                 graph.EdgeCount * EdgeDataMock.SizeUInts * 4; // the bytes for the one edge-data: one edge = one edge data object.
             using(var stream = new System.IO.MemoryStream())
             {
-                Assert.AreEqual(expectedSize,
-                    graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate));
+                Assert.AreEqual(expectedSize, graph.Serialize(stream));
             }
             
             graph = new Graph<EdgeDataMock>();
@@ -531,8 +530,7 @@ namespace OsmSharp.Routing.Test.Graph
                 graph.EdgeCount * EdgeDataMock.SizeUInts * 4; // the bytes for the one edge-data: one edge = one edge data object.
             using (var stream = new System.IO.MemoryStream())
             {
-                Assert.AreEqual(expectedSize,
-                    graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate));
+                Assert.AreEqual(expectedSize, graph.Serialize(stream));
             }
         }
 
@@ -550,7 +548,7 @@ namespace OsmSharp.Routing.Test.Graph
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate);
+                graph.Serialize(stream);
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
@@ -587,7 +585,7 @@ namespace OsmSharp.Routing.Test.Graph
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate);
+                graph.Serialize(stream);
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 

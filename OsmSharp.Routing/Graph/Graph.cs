@@ -107,17 +107,21 @@ namespace OsmSharp.Routing.Graph
         /// <summary>
         /// Creates a new using the given file.
         /// </summary>
-        public Graph(MemoryMappedFile file, long estimatedSize,
-            MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo,
-            int edgeDataSize)
-            : this(estimatedSize,
-            new MemoryMappedHugeArrayUInt32(file, estimatedSize),
-            new MemoryMappedHugeArrayUInt32(file, estimatedSize),
-            new MappedHugeArray<TEdgeData, uint>(new MemoryMappedHugeArrayUInt32(file, estimatedSize * edgeDataSize), edgeDataSize, 
-                mapTo, mapFrom))
+        public Graph(MemoryMappedFile file, long estimatedSize)
         {
+            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
+            if(mapper == null)
+            { // oeps, this is impossible.
+                throw new InvalidOperationException(
+                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
+                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
+            }
 
+            _vertices = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
+            _edges = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
+            _edgeData = new MappedHugeArray<TEdgeData, uint>(
+                new MemoryMappedHugeArrayUInt32(file, estimatedSize * mapper.MappedSize), mapper.MappedSize,
+                    mapper.MapToDelegate, mapper.MapFromDelegate);
         }
 
         private uint _nextEdgeId;
@@ -717,9 +721,20 @@ namespace OsmSharp.Routing.Graph
         /// <summary>
         /// Serializes this graph to disk.
         /// </summary>
-        public long Serialize(System.IO.Stream stream, int edgeDataSize, MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo)
+        public long Serialize(System.IO.Stream stream)
         {
+            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
+            if (mapper == null)
+            { // oeps, this is impossible.
+                throw new InvalidOperationException(
+                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
+                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
+            }
+
+            var edgeDataSize = mapper.MappedSize;
+            var mapTo = mapper.MapToDelegate;
+            var mapFrom = mapper.MapFromDelegate;
+
             if(_edgeData.Length > this.EdgeCount)
             { // can be compressed, do this first.
                 this.Compress();

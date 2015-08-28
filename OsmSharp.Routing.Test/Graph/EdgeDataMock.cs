@@ -24,7 +24,7 @@ namespace OsmSharp.Routing.Test.Graph
     /// <summary>
     /// A mock of graph edge data
     /// </summary>
-    struct EdgeDataMock : IEdgeData, OsmSharp.Routing.Graph.Directed.IEdgeData
+    struct EdgeDataMock : IEdgeData, OsmSharp.Routing.Graph.Directed.IEdgeData, IMappedEdgeData<EdgeDataMock>
     {
         public EdgeDataMock(int id)
             : this()
@@ -67,5 +67,20 @@ namespace OsmSharp.Routing.Test.Graph
         {
             array[idx] = System.BitConverter.ToUInt32(System.BitConverter.GetBytes(value.Id), 0);
         };
+
+        MappedHugeArray<EdgeDataMock, uint>.MapFrom IMappedEdgeData<EdgeDataMock>.MapFromDelegate
+        {
+            get { return EdgeDataMock.MapFromDelegate; }
+        }
+
+        MappedHugeArray<EdgeDataMock, uint>.MapTo IMappedEdgeData<EdgeDataMock>.MapToDelegate
+        {
+            get { return EdgeDataMock.MapToDelegate; }
+        }
+
+        public int MappedSize
+        {
+            get { return EdgeDataMock.SizeUInts; }
+        }
     }
 }
