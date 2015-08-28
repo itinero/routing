@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Collections.Arrays;
 using OsmSharp.Routing.Graph;
 
 namespace OsmSharp.Routing.Test.Graph
@@ -45,5 +46,26 @@ namespace OsmSharp.Routing.Test.Graph
         {
             return ((EdgeDataMock)other).Id == this.Id;
         }
+
+        public static int SizeUInts = 1;
+
+        /// <summary>
+        /// A delegate to map an edge onto uints.
+        /// </summary>
+        public static MappedHugeArray<EdgeDataMock, uint>.MapFrom MapFromDelegate = (array, idx) =>
+        {
+            return new EdgeDataMock()
+                {
+                    Id = System.BitConverter.ToInt32(System.BitConverter.GetBytes(array[idx]), 0)
+                };
+        };
+
+        /// <summary>
+        /// A delegate to map an edge onto uints.
+        /// </summary>
+        public static MappedHugeArray<EdgeDataMock, uint>.MapTo MapToDelegate = (array, idx, value) =>
+        {
+            array[idx] = System.BitConverter.ToUInt32(System.BitConverter.GetBytes(value.Id), 0);
+        };
     }
 }

@@ -487,5 +487,116 @@ namespace OsmSharp.Routing.Test.Graph
             Assert.AreEqual(-4, edges.First().EdgeData.Id);
             Assert.AreEqual(3, edges.First().Neighbour);
         }
+
+        /// <summary>
+        /// Tests the serialization.
+        /// </summary>
+        [Test]
+        public void TestSerialize()
+        {
+            var graph = new Graph<EdgeDataMock>();
+
+            // add one edge.
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+
+            // serialize.
+            graph.Compress();
+            var expectedSize = 8 + 8 + // the header: two longs representing vertex and edge count.
+                graph.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
+                graph.EdgeCount * 4 * 4 + // the bytes for the one edge: one edge = 4 uints.
+                graph.EdgeCount * EdgeDataMock.SizeUInts * 4; // the bytes for the one edge-data: one edge = one edge data object.
+            using(var stream = new System.IO.MemoryStream())
+            {
+                Assert.AreEqual(expectedSize,
+                    graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate));
+            }
+            
+            graph = new Graph<EdgeDataMock>();
+
+            // add one edge.
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+            graph.AddEdge(0, 2, new EdgeDataMock(2));
+            graph.AddEdge(0, 3, new EdgeDataMock(3));
+            graph.AddEdge(0, 4, new EdgeDataMock(4));
+            graph.AddEdge(5, 1, new EdgeDataMock(5));
+            graph.AddEdge(5, 2, new EdgeDataMock(6));
+            graph.AddEdge(5, 3, new EdgeDataMock(7));
+            graph.AddEdge(5, 4, new EdgeDataMock(8));
+
+            // serialize.
+            graph.Compress();
+            expectedSize = 8 + 8 + // the header: two longs representing vertex and edge count.
+                graph.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
+                graph.EdgeCount * 4 * 4 + // the bytes for the one edge: one edge = 4 uints.
+                graph.EdgeCount * EdgeDataMock.SizeUInts * 4; // the bytes for the one edge-data: one edge = one edge data object.
+            using (var stream = new System.IO.MemoryStream())
+            {
+                Assert.AreEqual(expectedSize,
+                    graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate));
+            }
+        }
+
+        /// <summary>
+        /// Tests the deserialization.
+        /// </summary>
+        [Test]
+        public void TestDeserialize()
+        {
+            var graph = new Graph<EdgeDataMock>();
+
+            // add one edge.
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+
+            // serialize.
+            using (var stream = new System.IO.MemoryStream())
+            {
+                graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate);
+
+                stream.Seek(0, System.IO.SeekOrigin.Begin);
+
+                var deserializedGraph = Graph<EdgeDataMock>.Deserialize(stream, 
+                    EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate, false);
+
+                Assert.AreEqual(2, deserializedGraph.VertexCount);
+                Assert.AreEqual(1, deserializedGraph.EdgeCount);
+
+                // verify all edges.
+                var edges = deserializedGraph.GetEdgeEnumerator(0);
+                Assert.AreEqual(1, edges.Count());
+                Assert.AreEqual(1, edges.First().EdgeData.Id);
+                Assert.AreEqual(1, edges.First().Neighbour);
+
+                edges = deserializedGraph.GetEdgeEnumerator(1);
+                Assert.AreEqual(1, edges.Count());
+                Assert.AreEqual(-1, edges.First().EdgeData.Id);
+                Assert.AreEqual(0, edges.First().Neighbour);
+            }
+
+            graph = new Graph<EdgeDataMock>();
+
+            // add one edge.
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+            graph.AddEdge(0, 2, new EdgeDataMock(2));
+            graph.AddEdge(0, 3, new EdgeDataMock(3));
+            graph.AddEdge(0, 4, new EdgeDataMock(4));
+            graph.AddEdge(5, 1, new EdgeDataMock(5));
+            graph.AddEdge(5, 2, new EdgeDataMock(6));
+            graph.AddEdge(5, 3, new EdgeDataMock(7));
+            graph.AddEdge(5, 4, new EdgeDataMock(8));
+
+            // serialize.
+            using (var stream = new System.IO.MemoryStream())
+            {
+                graph.Serialize(stream, EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate);
+
+                stream.Seek(0, System.IO.SeekOrigin.Begin);
+
+                var deserializedGraph = Graph<EdgeDataMock>.Deserialize(stream,
+                    EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate, false);
+
+                Assert.AreEqual(6, deserializedGraph.VertexCount);
+                Assert.AreEqual(8, deserializedGraph.EdgeCount);
+            }
+        }
     }
 }
