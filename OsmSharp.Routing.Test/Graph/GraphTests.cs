@@ -552,8 +552,7 @@ namespace OsmSharp.Routing.Test.Graph
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = Graph<EdgeDataMock>.Deserialize(stream, 
-                    EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate, false);
+                var deserializedGraph = Graph<EdgeDataMock>.Deserialize(stream, false);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
                 Assert.AreEqual(1, deserializedGraph.EdgeCount);
@@ -589,8 +588,7 @@ namespace OsmSharp.Routing.Test.Graph
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = Graph<EdgeDataMock>.Deserialize(stream,
-                    EdgeDataMock.SizeUInts, EdgeDataMock.MapFromDelegate, EdgeDataMock.MapToDelegate, false);
+                var deserializedGraph = Graph<EdgeDataMock>.Deserialize(stream, false);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);

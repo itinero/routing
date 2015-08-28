@@ -34,7 +34,7 @@ namespace OsmSharp.Routing.Graph.Directed
         private const int VERTEX_SIZE = 2; // holds the first edge index and the edge count.
         private const int FIRST_EDGE = 0;
         private const int EDGE_COUNT = 1;
-        private const int EDGE_SIZE = 1; // holds only the target vertext.
+        private const int EDGE_SIZE = 1; // holds only the target vertex.
         private const uint NO_EDGE = uint.MaxValue; // a dummy value indication that there is no edge.
 
         private uint _nextEdgeId;
@@ -56,11 +56,11 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Creates a new graph using the existing data in the given arrays.
         /// </summary>
-        public DirectedGraph(
-            HugeArrayBase<uint> vertexArray,
+        private DirectedGraph(HugeArrayBase<uint> vertexArray,
             HugeArrayBase<uint> edgesArray,
             HugeArrayBase<TEdgeData> edgeDataArray)
         {
+            _edgeCount = 0;
             _vertices = vertexArray;
             _edges = edgesArray;
             _edgeData = edgeDataArray;
@@ -80,13 +80,19 @@ namespace OsmSharp.Routing.Graph.Directed
         }
 
         /// <summary>
-        /// Creates a new in-memory graph.
+        /// Creates a graph.
         /// </summary>
-        public DirectedGraph(long sizeEstimate, HugeArrayBase<uint> vertexArray, HugeArrayBase<uint> edgesArray, HugeArrayBase<TEdgeData> edgeDataArray)
+        private DirectedGraph(long sizeEstimate, 
+            HugeArrayBase<uint> vertexArray, HugeArrayBase<uint> edgesArray, HugeArrayBase<TEdgeData> edgeDataArray)
         {
             _nextEdgeId = 0;
+            _edgeCount = 0;
             _vertices = vertexArray;
             _vertices.Resize(sizeEstimate);
+            for (var idx = 0; idx < sizeEstimate; idx++)
+            {
+                _vertices[idx] = 0;
+            }
             _edges = edgesArray;
             _edges.Resize(sizeEstimate * 3 * EDGE_SIZE);
             _edgeData = edgeDataArray;
@@ -96,38 +102,29 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Creates a new graph using the given memorymapped file.
         /// </summary>
-        public DirectedGraph(MemoryMappedFile file, long estimatedSize,
-            MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo,
-            int edgeDataSize)
-            : this(estimatedSize,
-            new MemoryMappedHugeArrayUInt32(file, estimatedSize),
-            new MemoryMappedHugeArrayUInt32(file, estimatedSize),
-            new MappedHugeArray<TEdgeData, uint>(new MemoryMappedHugeArrayUInt32(file, estimatedSize * edgeDataSize), edgeDataSize,
-                mapTo, mapFrom))
+        public DirectedGraph(MemoryMappedFile file, long estimatedSize)
         {
+            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
+            if (mapper == null)
+            { // oeps, this is impossible.
+                throw new InvalidOperationException(
+                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
+                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
+            }
 
+            _vertices = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
+            for (var idx = 0; idx < estimatedSize; idx++)
+            {
+                _vertices[idx] = 0;
+            }
+            _edges = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
+            _edgeData = new MappedHugeArray<TEdgeData, uint>(
+                new MemoryMappedHugeArrayUInt32(file, estimatedSize * mapper.MappedSize), mapper.MappedSize,
+                    mapper.MapToDelegate, mapper.MapFromDelegate);
+            _edgeCount = 0;
         }
 
-        /// <summary>
-        /// Creates a new graph from existing data.
-        /// </summary>
-        public DirectedGraph(long vertexCount, long edgesCount,
-            MemoryMappedFile verticesFile,
-            MemoryMappedFile edgesFile,
-            MemoryMappedFile edgeDataFile,
-            MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo,
-            int edgeDataSize)
-            : this(
-                new MemoryMappedHugeArrayUInt32(verticesFile, vertexCount),
-                new MemoryMappedHugeArrayUInt32(edgesFile, edgesCount),
-                new MappedHugeArray<TEdgeData, uint>(new MemoryMappedHugeArrayUInt32(edgeDataFile, edgesCount * edgeDataSize), edgeDataSize,
-                    mapTo,
-                    mapFrom))
-        {
-
-        }
+        private long _edgeCount;
 
         /// <summary>
         /// Increases the memory allocation.
@@ -241,6 +238,8 @@ namespace OsmSharp.Routing.Graph.Directed
             // update edge.
             _edges[edgeId] = vertex2;
             _edgeData[edgeId] = data;
+
+            _edgeCount++;
             return;
         }
 
@@ -283,6 +282,8 @@ namespace OsmSharp.Routing.Graph.Directed
                     _edgeData[removeIdx] = _edgeData[edgeId + edgeCount];
                     removed++;
                     removeIdx--;
+
+                    _edgeCount--;
                 }
             }
             _vertices[vertex1Idx + EDGE_COUNT] = edgeCount;
@@ -313,6 +314,8 @@ namespace OsmSharp.Routing.Graph.Directed
                     _edges[removeIdx] = _edges[edgeId + edgeCount];
                     _edgeData[removeIdx] = _edgeData[edgeId + edgeCount];
                     removed = true;
+
+                    _edgeCount--;
                 }
             }
             _vertices[vertex1Idx + EDGE_COUNT] = edgeCount;
@@ -341,24 +344,6 @@ namespace OsmSharp.Routing.Graph.Directed
         }
 
         /// <summary>
-        /// Trims the internal data structures of this graph.
-        /// </summary>
-        public void Trim()
-        {
-            // remove all vertices without edges.
-            var size = _vertices.Length;
-            while (_vertices[size - 1] == NO_EDGE)
-            {
-                size -= 2;
-            }
-            _vertices.Resize(size * VERTEX_SIZE);
-
-            // resize edges.
-            _edgeData.Resize(_nextEdgeId / EDGE_SIZE);
-            _edges.Resize(_nextEdgeId * EDGE_SIZE);
-        }
-
-        /// <summary>
         /// Returns the number of vertices in this graph.
         /// </summary>
         public uint VertexCount
@@ -366,63 +351,113 @@ namespace OsmSharp.Routing.Graph.Directed
             get { return (uint)(_vertices.Length / VERTEX_SIZE); }
         }
 
-        ///// <summary>
-        ///// Compresses the data in this graph to it's smallest size.
-        ///// </summary>
-        ///// <param name="toReadonly">Flag to make the graph even smaller by converting it to a readonly version.</param>
-        //public void Compress(bool toReadonly)
-        //{
-        //    if (toReadonly)
-        //    {
-        //        if (_readonly) { throw new Exception("Graph is readonly."); }
+        /// <summary>
+        /// Returns the number of edges in this graph.
+        /// </summary>
+        public uint EdgeCount
+        {
+            get { return (uint)_edgeCount; }
+        }
 
-        //        // copy everything in a better structure after the last edge.
-        //        var offset = _nextEdgeId;
-        //        var nextEdgeId = _nextEdgeId;
-        //        for (int vertex = 2; vertex < _nextVertexId * VERTEX_SIZE; vertex = vertex + 2)
-        //        { // assume vertices are sorted correctly.
-        //            var newEdge = nextEdgeId;
+        /// <summary>
+        /// Trims the internal data structures of this graph.
+        /// </summary>
+        public void Trim()
+        {
+            // remove all vertices without edges at the end.
+            var maxVertexId = uint.MinValue;
+            for(var i = 0; i < _vertices.Length / 2; i++)
+            {
+                var position = _vertices[i * 2 + FIRST_EDGE];
+                var count = _vertices[i * 2 + EDGE_COUNT];
+                for(var e = position; e < position + count; e++)
+                {
+                    var vertex = _edges[e];
+                    if(maxVertexId < vertex)
+                    {
+                        maxVertexId = vertex;
+                    }
+                }
+                if(count > 0 &&
+                    maxVertexId < i * 2)
+                { // also take into account the largest vertex pointing down.
+                    maxVertexId = (uint)i * 2;
+                }
+            }
+            _vertices.Resize((maxVertexId + 1) * VERTEX_SIZE);
 
-        //            // move edges.
-        //            for (uint oldEdgeId = _vertices[vertex + FIRST_EDGE]; oldEdgeId < _vertices[vertex + EDGE_COUNT] + _vertices[vertex + FIRST_EDGE]; oldEdgeId++)
-        //            {
-        //                if (nextEdgeId + 1 >= _edges.Length)
-        //                { // edges need to be increased.
-        //                    this.IncreaseEdgeSize();
-        //                }
+            // resize edges.
+            var edgeSize = _nextEdgeId;
+            if (edgeSize == 0)
+            { // keep minimum room for one edge.
+                edgeSize = EDGE_SIZE;
+            }
+            _edgeData.Resize(edgeSize / EDGE_SIZE);
+            _edges.Resize(edgeSize * EDGE_SIZE);
+        }
 
-        //                _edges[nextEdgeId] = _edges[oldEdgeId];
-        //                _edgeData[nextEdgeId] = _edgeData[oldEdgeId];
-        //                nextEdgeId++;
-        //            }
+        /// <summary>
+        /// Compresses the data in this graph to it's smallest size.
+        /// </summary>
+        /// <param name="toReadonly">Flag to make the graph even smaller by converting it to a readonly version.</param>
+        public void Compress(bool toReadonly)
+        {
+            // trim first.
+            this.Trim();
 
-        //            // update vertex.
-        //            _vertices[vertex + FIRST_EDGE] = newEdge - offset;
-        //        }
+            // build a list of all vertices sorted by their first position.
+            var sortedVertices = new HugeArray<uint>(_vertices.Length / VERTEX_SIZE);
+            for (uint i = 0; i < sortedVertices.Length; i++)
+            {
+                sortedVertices[i] = i;
+            }
 
-        //        // copy everything back to the beginning.
-        //        for (uint edgeId = 0; edgeId < nextEdgeId - _nextEdgeId; edgeId++)
-        //        {
-        //            _edges[edgeId] = _edges[edgeId + offset];
-        //            _edgeData[edgeId] = _edgeData[edgeId + offset];
-        //        }
-        //        _nextEdgeId = nextEdgeId - _nextEdgeId;
+            // sort vertices and coordinates.
+            QuickSort.Sort((i) => _vertices[i * 2], (i, j) =>
+            {
+                var tempRef = sortedVertices[i];
+                sortedVertices[i] = sortedVertices[j];
+                sortedVertices[j] = tempRef;
+            }, 0, this.VertexCount - 1);
 
-        //        // ... and trim.
-        //        this.Trim();
+            // move data down.
+            uint pointer = 0;
+            for (uint i = 0; i < sortedVertices.Length; i++)
+            {
+                // move data.
+                var vertex = sortedVertices[i] * VERTEX_SIZE;
+                var count = _vertices[vertex + EDGE_COUNT];
+                var position = _vertices[vertex + FIRST_EDGE];
+                _vertices[vertex + FIRST_EDGE] = pointer;
+                for (var e = 0; e < count; e++)
+                {
+                    _edgeData[pointer + e] = _edgeData[position + e];
+                    _edges[pointer + e] = _edges[position + e];
+                }
 
-        //        // ... last, but not least, set readonly flag.
-        //        _readonly = true;
-        //    }
-        //}
+                if (!toReadonly && count > 2)
+                { // next power of 2, don't do this on readonly to save space.
+                    count |= count >> 1;
+                    count |= count >> 2;
+                    count |= count >> 4;
+                    count |= count >> 8;
+                    count |= count >> 16;
+                    count++;
+                }
 
-        ///// <summary>
-        ///// Compresses the data in this graph to it's smallest size.
-        ///// </summary>
-        //public void Compress()
-        //{
-        //    this.Compress(false);
-        //}
+                pointer += count;
+            }
+            _nextEdgeId = pointer;
+            _readonly = toReadonly;
+        }
+
+        /// <summary>
+        /// Compresses the data in this graph to it's smallest size.
+        /// </summary>
+        public void Compress()
+        {
+            this.Compress(false);
+        }
 
         /// <summary>
         /// Represents the internal edge enumerator.
@@ -626,9 +661,20 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Serializes this graph to disk.
         /// </summary>
-        public long Serialize(System.IO.Stream stream, int edgeDataSize, MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo)
+        public long Serialize(System.IO.Stream stream)
         {
+            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
+            if (mapper == null)
+            { // oeps, this is impossible.
+                throw new InvalidOperationException(
+                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
+                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
+            }
+
+            var mapTo = mapper.MapToDelegate;
+            var mapFrom = mapper.MapFromDelegate;
+            var edgeDataSize = mapper.MappedSize;
+
             long vertexCount = this.VertexCount;
             long edgeCount = (_nextEdgeId / EDGE_SIZE);
 
@@ -670,9 +716,20 @@ namespace OsmSharp.Routing.Graph.Directed
         /// Deserializes a graph from the given stream.
         /// </summary>
         /// <returns></returns>
-        public static DirectedGraph<TEdgeData> Deserialize(System.IO.Stream stream, int edgeDataSize, MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo, bool copy)
+        public static DirectedGraph<TEdgeData> Deserialize(System.IO.Stream stream, bool copy)
         {
+            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
+            if (mapper == null)
+            { // oeps, this is impossible.
+                throw new InvalidOperationException(
+                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
+                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
+            }
+
+            var mapTo = mapper.MapToDelegate;
+            var mapFrom = mapper.MapFromDelegate;
+            var edgeDataSize = mapper.MappedSize;
+
             // read sizes.
             long position = 0;
             stream.Seek(4, System.IO.SeekOrigin.Begin);

@@ -462,13 +462,14 @@ namespace OsmSharp.Routing.Graph
         /// </summary>
         public void Trim()
         {
-            if(_nextEdgeId == 0)
+            var edgeSize = _nextEdgeId;
+            if (edgeSize == 0)
             { // keep minimum room for one edge.
-                _nextEdgeId = EDGE_SIZE;
+                edgeSize = EDGE_SIZE;
             }
             // resize edges.
-            _edgeData.Resize(_nextEdgeId / EDGE_SIZE);
-            _edges.Resize(_nextEdgeId);
+            _edgeData.Resize(edgeSize / EDGE_SIZE);
+            _edges.Resize(edgeSize);
 
             // remove all vertices without edges.
             var size = _vertices.Length;
@@ -783,9 +784,20 @@ namespace OsmSharp.Routing.Graph
         /// Deserializes a graph from the given stream.
         /// </summary>
         /// <returns></returns>
-        public static Graph<TEdgeData> Deserialize(System.IO.Stream stream, int edgeDataSize, MappedHugeArray<TEdgeData, uint>.MapFrom mapFrom,
-            MappedHugeArray<TEdgeData, uint>.MapTo mapTo, bool copy)
+        public static Graph<TEdgeData> Deserialize(System.IO.Stream stream, bool copy)
         {
+            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
+            if (mapper == null)
+            { // oeps, this is impossible.
+                throw new InvalidOperationException(
+                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
+                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
+            }
+
+            var mapTo = mapper.MapToDelegate;
+            var mapFrom = mapper.MapFromDelegate;
+            var edgeDataSize = mapper.MappedSize;
+
             // read sizes.
             long position = 0;
             var longBytes = new byte[8];
