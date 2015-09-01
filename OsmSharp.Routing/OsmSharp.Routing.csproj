@@ -68,18 +68,22 @@
     <Compile Include="Graph\Directed\IEdgeData.cs" />
     <Compile Include="Graph\Directed\IMappedEdgeData.cs" />
     <Compile Include="Graph\Edge.cs" />
+    <Compile Include="Graph\Geometric\GeometricEdge.cs" />
+    <Compile Include="Graph\Geometric\GeometricGraph.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Graph\IEdgeData.cs" />
     <Compile Include="Graph\Graph.cs" />
     <Compile Include="Graph\IMappedEdgeData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OsmSharp, Version=0.0.0.14, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.14-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.19-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm, Version=0.0.0.14, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.14-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.19-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net">
@@ -92,7 +96,9 @@
       <HintPath>..\packages\Zlib.Portable.1.9.2\lib\portable-net4+sl4+wp71+win8\Zlib.Portable.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

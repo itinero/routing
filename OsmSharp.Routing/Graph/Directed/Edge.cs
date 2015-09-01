@@ -15,7 +15,7 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Creates a new edge keeping the current state of the given enumerator.
         /// </summary>
-        internal Edge(DirectedGraph<TEdgeData>.GraphEdgeEnumerator enumerator)
+        internal Edge(DirectedGraph<TEdgeData>.EdgeEnumerator enumerator)
         {
             this.Neighbour = enumerator.Neighbour;
             this.EdgeData = enumerator.EdgeData;

@@ -178,7 +178,7 @@ namespace OsmSharp.Routing.Graph
         /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
-        public void AddEdge(uint vertex1, uint vertex2, TEdgeData data)
+        public uint AddEdge(uint vertex1, uint vertex2, TEdgeData data)
         {
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             if (vertex1 > _vertices.Length - 1) { this.IncreaseVertexSize(vertex1); }
@@ -215,7 +215,7 @@ namespace OsmSharp.Routing.Graph
                             data = (TEdgeData)data.Reverse();
                         }
                         _edgeData[previousEdgeId / 4] = data;
-                        return;
+                        return previousEdgeId / 4;
                     }
                 }
 
@@ -285,7 +285,23 @@ namespace OsmSharp.Routing.Graph
                 _vertices[vertex2] = edgeId;
             }
 
-            return;
+            return edgeId / 4;
+        }
+
+        /// <summary>
+        /// Gets the edge with the given id.
+        /// </summary>
+        /// <returns></returns>
+        public Edge<TEdgeData> GetEdge(uint edgeId)
+        {
+            edgeId = edgeId * 4;
+            if (_edges.Length < edgeId + 4)
+            { // edge not part of graph.
+                throw new ArgumentOutOfRangeException(string.Format("Edge with id {0} does not exist.", edgeId));
+            }
+
+            return new Edge<TEdgeData>(edgeId / 4, _edges[edgeId + NODEA], _edges[edgeId + NODEB], 
+                _edgeData[edgeId / 4], false);
         }
 
         /// <summary>
@@ -298,12 +314,27 @@ namespace OsmSharp.Routing.Graph
             var edges =  this.GetEdgeEnumerator(vertex);
             while (edges.MoveNext())
             {
-                if(this.RemoveEdge(vertex, edges.Neighbour))
+                if(this.RemoveEdge(vertex, edges.To))
                 {
                     removed++;
                 }
             }
             return removed;
+        }
+
+        /// <summary>
+        /// Deletes the edge with the given id.
+        /// </summary>
+        /// <returns></returns>
+        public bool RemoveEdge(uint edgeId)
+        {
+            edgeId = edgeId * 4;
+            if(_edges.Length < edgeId + 4)
+            { // edge not part of graph.
+                return false;
+            }
+
+            return this.RemoveEdge(_edges[edgeId + NODEA], _edges[edgeId + NODEB]);
         }
 
         /// <summary>
@@ -416,20 +447,20 @@ namespace OsmSharp.Routing.Graph
         /// Returns an empty edge enumerator.
         /// </summary>
         /// <returns></returns>
-        public GraphEdgeEnumerator GetEdgeEnumerator()
+        public EdgeEnumerator GetEdgeEnumerator()
         {
-            return new GraphEdgeEnumerator(this);
+            return new EdgeEnumerator(this);
         }
 
         /// <summary>
         /// Returns all edges starting at the given vertex.
         /// </summary>
         /// <returns></returns>
-        public GraphEdgeEnumerator GetEdgeEnumerator(uint vertex)
+        public EdgeEnumerator GetEdgeEnumerator(uint vertex)
         {
             if (vertex >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex", "vertex is not part of this graph."); }
 
-            var enumerator = new GraphEdgeEnumerator(this);
+            var enumerator = new EdgeEnumerator(this);
             enumerator.MoveTo(vertex);
             return enumerator;
         }
@@ -437,7 +468,8 @@ namespace OsmSharp.Routing.Graph
         /// <summary>
         /// Relocates data internally in the most compact way possible.
         /// </summary>
-        public void Compress()
+        /// <param name="updateEdgeId">The edge id's may change. This action can be used to hook into every change.</param>
+        public void Compress(Action<uint, uint> updateEdgeId)
         {
             // move edges down.
             uint maxAllocatedEdgeId = 0;
@@ -448,6 +480,10 @@ namespace OsmSharp.Routing.Graph
                     if (edgeId != maxAllocatedEdgeId)
                     { // there is data here.
                         this.MoveEdge(edgeId, maxAllocatedEdgeId);
+                        if (updateEdgeId != null)
+                        { // report that this edge id has changed.
+                            updateEdgeId.Invoke(edgeId / 4, maxAllocatedEdgeId / 4);
+                        }
                     }
                     maxAllocatedEdgeId = maxAllocatedEdgeId + EDGE_SIZE;
                 }
@@ -458,29 +494,28 @@ namespace OsmSharp.Routing.Graph
         }
 
         /// <summary>
+        /// Relocates data internally in the most compact way possible.
+        /// </summary>
+        public void Compress()
+        {
+            this.Compress(null);
+        }
+
+        /// <summary>
         /// Resizes the internal data structures to their smallest size possible.
         /// </summary>
         public void Trim()
         {
-            var edgeSize = _nextEdgeId;
-            if (edgeSize == 0)
-            { // keep minimum room for one edge.
-                edgeSize = EDGE_SIZE;
-            }
             // resize edges.
+            var edgeSize = _nextEdgeId;
             _edgeData.Resize(edgeSize / EDGE_SIZE);
             _edges.Resize(edgeSize);
 
             // remove all vertices without edges.
             var size = _vertices.Length;
-            while (_vertices[size - 1] == NO_EDGE)
+            while (size > 0 &&_vertices[size - 1] == NO_EDGE)
             {
                 size--;
-                if (size == 0)
-                { // keep minimum of 1 vertex.
-                    size = 1;
-                    break;
-                }
             }
             _vertices.Resize(size);
         }
@@ -502,9 +537,9 @@ namespace OsmSharp.Routing.Graph
         }
 
         /// <summary>
-        /// Represents a graph edge enumerator.
+        /// An edge enumerator.
         /// </summary>
-        public class GraphEdgeEnumerator : IEnumerable<Edge<TEdgeData>>, IEnumerator<Edge<TEdgeData>>
+        public class EdgeEnumerator : IEnumerable<Edge<TEdgeData>>, IEnumerator<Edge<TEdgeData>>
         {
             private readonly Graph<TEdgeData> _graph;
             private uint _nextEdgeId;
@@ -518,7 +553,7 @@ namespace OsmSharp.Routing.Graph
             /// <summary>
             /// Creates a new edge enumerator.
             /// </summary>
-            internal GraphEdgeEnumerator(Graph<TEdgeData> graph)
+            internal EdgeEnumerator(Graph<TEdgeData> graph)
             {
                 _graph = graph;
                 _currentEdgeId = NO_EDGE;
@@ -566,24 +601,31 @@ namespace OsmSharp.Routing.Graph
             }
 
             /// <summary>
-            /// Returns the current neighbour.
+            /// Returns the vertex at the beginning.
             /// </summary>
-            public uint Neighbour
+            public uint From
+            {
+                get
+                {
+                    return _vertex;
+                }
+            }
+
+            /// <summary>
+            /// Returns the vertex at the end.
+            /// </summary>
+            public uint To
             {
                 get { return _neighbour; }
             }
 
             /// <summary>
-            /// Returns the current edge data.
+            /// Returns the edge data.
             /// </summary>
             public TEdgeData EdgeData
             {
                 get
                 {
-                    if (_currentEdgeInverted)
-                    {
-                        return (TEdgeData)_graph._edgeData[_currentEdgeId / 4].Reverse();
-                    }
                     return _graph._edgeData[_currentEdgeId / 4];
                 }
             }
@@ -591,9 +633,33 @@ namespace OsmSharp.Routing.Graph
             /// <summary>
             /// Returns true if the edge data is inverted by default.
             /// </summary>
-            public bool IsInverted
+            public bool EdgeDataInverted
             {
                 get { return _currentEdgeInverted; }
+            }
+
+            /// <summary>
+            /// Gets the directed edge data.
+            /// </summary>
+            /// <returns></returns>
+            public TEdgeData GetDirectedEdgeData()
+            {
+                if (this.EdgeDataInverted)
+                {
+                    return (TEdgeData)this.EdgeData.Reverse();
+                }
+                return this.EdgeData;
+            }
+
+            /// <summary>
+            /// Gets the current edge id.
+            /// </summary>
+            public uint Id
+            {
+                get
+                {
+                    return _currentEdgeId / 4;
+                }
             }
 
             /// <summary>
@@ -832,7 +898,7 @@ namespace OsmSharp.Routing.Graph
 
                 return new Graph<TEdgeData>(vertexArrayCopy, edgeArrayCopy, edgeDataArrayCopy);
             }
-
+            stream.Seek(position, System.IO.SeekOrigin.Begin);
             return new Graph<TEdgeData>(vertexArray, edgeArray, edgeDataArray);
         }
 

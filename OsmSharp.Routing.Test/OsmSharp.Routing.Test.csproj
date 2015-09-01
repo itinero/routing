@@ -36,12 +36,12 @@
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp, Version=0.0.0.14, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.14-beta\lib\net45\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.19-beta\lib\net45\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm, Version=0.0.0.14, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.14-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.19-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
@@ -63,6 +63,7 @@
   <ItemGroup>
     <Compile Include="Graph\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graph\EdgeDataMock.cs" />
+    <Compile Include="Graph\Geometric\GeometricGraphTests.cs" />
     <Compile Include="Graph\GraphTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -72,7 +73,9 @@
       <Name>OsmSharp.Routing</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

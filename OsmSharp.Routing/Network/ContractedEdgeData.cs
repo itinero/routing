@@ -17,18 +17,14 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Arrays;
-using OsmSharp.Math.Geo.Simple;
-using OsmSharp.Routing.Graph;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace OsmSharp.Routing.CH.Preprocessing
 {
     /// <summary>
     /// Represents the data on a contracted edge.
     /// </summary>
-    public struct CHEdgeData : IGraphEdgeData
+    public struct ContractedEdgeData : Graph.Directed.IEdgeData, Graph.Directed.IMappedEdgeData<ContractedEdgeData>
     {
         /// <summary>
         /// Bitmask holding status info [forwardMove(1), backwardMove(2), forwardTags(4), contracted(8), shapeInBox(16)]
@@ -41,55 +37,37 @@ namespace OsmSharp.Routing.CH.Preprocessing
         private uint _value;
 
         /// <summary>
-        /// Creates a new contracted edge that represents normal neighbour relations.
+        /// Creates a new contracted edge.
         /// </summary>
-        /// <param name="tagsId"></param>
-        /// <param name="tagsForward"></param>
-        /// <param name="canMoveforward"></param>
-        /// <param name="canMoveBackward"></param>
-        /// <param name="weight"></param>
-        public CHEdgeData(uint tagsId, bool tagsForward, bool canMoveforward, bool canMoveBackward, float weight)
+        public ContractedEdgeData(uint tagsId, bool tagsForward, bool canMoveforward, bool canMoveBackward, float weight)
             : this()
         {
             _meta = 0;
 
             this.CanMoveBackward = canMoveBackward;
             this.CanMoveForward = canMoveforward;
-            this.Tags = tagsId;
             this.Forward = tagsForward;
             this.Weight = weight;
-        }
-
-        /// <summary>
-        /// Creates a new contracted edge that represents normal neighbour relations.
-        /// </summary>
-        /// <param name="tagsId"></param>
-        /// <param name="tagsForward"></param>
-        /// <param name="canMoveforward"></param>
-        /// <param name="canMoveBackward"></param>
-        /// <param name="weight"></param>
-        /// <param name="shapeInBox"></param>
-        public CHEdgeData(uint tagsId, bool tagsForward, bool canMoveforward, bool canMoveBackward, float weight, bool shapeInBox)
-            : this()
-        {
-            _meta = 0;
-
-            this.CanMoveBackward = canMoveBackward;
-            this.CanMoveForward = canMoveforward;
-            this.Tags = tagsId;
-            this.Forward = tagsForward;
-            this.Weight = weight;
-            this.ShapeInBox = shapeInBox;
         }
 
         /// <summary>
         /// Creates a new contracted edge.
         /// </summary>
-        /// <param name="contractedId"></param>
-        /// <param name="canMoveforward"></param>
-        /// <param name="canMoveBackward"></param>
-        /// <param name="weight"></param>
-        public CHEdgeData(uint contractedId, bool canMoveforward, bool canMoveBackward, float weight)
+        public ContractedEdgeData(uint tagsId, bool tagsForward, bool canMoveforward, bool canMoveBackward, float weight, bool shapeInBox)
+            : this()
+        {
+            _meta = 0;
+
+            this.CanMoveBackward = canMoveBackward;
+            this.CanMoveForward = canMoveforward;
+            this.Forward = tagsForward;
+            this.Weight = weight;
+        }
+
+        /// <summary>
+        /// Creates a new contracted edge.
+        /// </summary>
+        public ContractedEdgeData(uint contractedId, bool canMoveforward, bool canMoveBackward, float weight)
             : this()
         {
             _meta = 0;
@@ -103,12 +81,7 @@ namespace OsmSharp.Routing.CH.Preprocessing
         /// <summary>
         /// Creates a new contracted edge.
         /// </summary>
-        /// <param name="contractedId"></param>
-        /// <param name="canMoveforward"></param>
-        /// <param name="canMoveBackward"></param>
-        /// <param name="weight"></param>
-        /// <param name="shapeInBox"></param>
-        public CHEdgeData(uint contractedId, bool canMoveforward, bool canMoveBackward, float weight, bool shapeInBox)
+        public ContractedEdgeData(uint contractedId, bool canMoveforward, bool canMoveBackward, float weight, bool shapeInBox)
             : this()
         {
             _meta = 0;
@@ -117,16 +90,12 @@ namespace OsmSharp.Routing.CH.Preprocessing
             this.CanMoveForward = canMoveforward;
             this.ContractedId = contractedId;
             this.Weight = weight;
-            this.ShapeInBox = shapeInBox;
         }
 
         /// <summary>
         /// Creates a new contracted edge using raw data.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="weight"></param>
-        /// <param name="meta"></param>
-        public CHEdgeData(uint value, float weight, byte meta)
+        private ContractedEdgeData(uint value, float weight, byte meta)
             : this()
         {
             _meta = meta;
@@ -207,28 +176,6 @@ namespace OsmSharp.Routing.CH.Preprocessing
         }
 
         /// <summary>
-        /// Returns true if the shape of this edge is within the bounding box formed by it's two vertices.
-        /// </summary>
-        public bool ShapeInBox
-        {
-            get
-            {
-                return (_meta & (1 << 4)) != 0;
-            }
-            set
-            {
-                if (value)
-                {
-                    _meta = (byte)(_meta | 16);
-                }
-                else
-                {
-                    _meta = (byte)(_meta & (255 - 16));
-                }
-            }
-        }
-
-        /// <summary>
         /// Holds the forward contracted id.
         /// </summary>
         public uint ContractedId
@@ -294,48 +241,12 @@ namespace OsmSharp.Routing.CH.Preprocessing
         }
 
         /// <summary>
-        /// The properties of this edge.
-        /// </summary>
-        public uint Tags
-        {
-            get
-            {
-                if (this.IsContracted)
-                {
-                    return uint.MaxValue;
-                }
-                return _value;
-            }
-            set
-            {
-                // set uncontracted.
-                _meta = (byte)(_meta & (255 - 8));
-                _value = value;
-            }
-        }
-
-        /// <summary>
-        /// Returns the exact inverse of this edge.
-        /// </summary>
-        /// <returns></returns>
-        public IGraphEdgeData Reverse()
-        {
-            if (this.IsContracted)
-            {
-                return new CHEdgeData(this.ContractedId, this.CanMoveBackward, this.CanMoveForward, this.Weight, this.ShapeInBox);
-            }
-            return new CHEdgeData(this.Tags, !this.Forward,
-                this.CanMoveBackward, this.CanMoveForward, this.Weight, this.ShapeInBox);
-        }
-
-        /// <summary>
         /// Returns true if the given edge equals this edge.
         /// </summary>
-        /// <param name="other"></param>
         /// <returns></returns>
-        public bool Equals(IGraphEdgeData other)
+        public bool Equals(Graph.Directed.IEdgeData other)
         {
-            var otherEdge = (CHEdgeData)other;
+            var otherEdge = (ContractedEdgeData)other;
             return otherEdge._value == this._value &&
                 otherEdge._meta == this._meta &&
                 otherEdge.Weight == this.Weight;
@@ -349,9 +260,9 @@ namespace OsmSharp.Routing.CH.Preprocessing
         /// <summary>
         /// A delegate to map an edge onto uints.
         /// </summary>
-        public static MappedHugeArray<CHEdgeData, uint>.MapFrom MapFromDelegate = (array, idx) =>
+        public static MappedHugeArray<ContractedEdgeData, uint>.MapFrom MapFromDelegate = (array, idx) =>
             {
-                return new CHEdgeData(
+                return new ContractedEdgeData(
                     array[idx],
                     BitConverter.ToSingle(BitConverter.GetBytes(array[idx + 1]), 0),
                     (byte)array[idx + 2]);
@@ -360,34 +271,26 @@ namespace OsmSharp.Routing.CH.Preprocessing
         /// <summary>
         /// A delegate to map an edge onto uints.
         /// </summary>
-        public static MappedHugeArray<CHEdgeData, uint>.MapTo MapToDelegate = (array, idx, value) =>
+        public static MappedHugeArray<ContractedEdgeData, uint>.MapTo MapToDelegate = (array, idx, value) =>
             {
                 array[idx] = value.Value;
                 array[idx + 1] = BitConverter.ToUInt32(BitConverter.GetBytes(value.Weight), 0);
                 array[idx + 2] = value.Meta;
             };
-    }
 
-    /// <summary>
-    /// Contains extensions related to the CHEdgeData.
-    /// </summary>
-    public static class CHExtensions
-    {
-        /// <summary>
-        /// Removes all contracted edges.
-        /// </summary>
-        /// <param name="edges"></param>
-        public static List<Edge<CHEdgeData>> KeepUncontracted(this List<Edge<CHEdgeData>> edges)
+        MappedHugeArray<ContractedEdgeData, uint>.MapFrom Graph.Directed.IMappedEdgeData<ContractedEdgeData>.MapFromDelegate
         {
-            var result = new List<Edge<CHEdgeData>>(edges.Count);
-            foreach (var edge in edges)
-            {
-                if (!edge.EdgeData.IsContracted)
-                {
-                    result.Add(edge);
-                }
-            }
-            return result;
+            get { return ContractedEdgeData.MapFromDelegate; }
+        }
+
+        MappedHugeArray<ContractedEdgeData, uint>.MapTo Graph.Directed.IMappedEdgeData<ContractedEdgeData>.MapToDelegate
+        {
+            get { return ContractedEdgeData.MapToDelegate; }
+        }
+
+        int Graph.Directed.IMappedEdgeData<ContractedEdgeData>.MappedSize
+        {
+            get { return ContractedEdgeData.SizeUints; }
         }
     }
 }

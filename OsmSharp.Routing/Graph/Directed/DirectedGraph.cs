@@ -326,9 +326,9 @@ namespace OsmSharp.Routing.Graph.Directed
         /// Returns an empty edge enumerator.
         /// </summary>
         /// <returns></returns>
-        public GraphEdgeEnumerator GetEdgeEnumerator()
+        public EdgeEnumerator GetEdgeEnumerator()
         {
-            return new GraphEdgeEnumerator(this);
+            return new EdgeEnumerator(this);
         }
 
         /// <summary>
@@ -336,9 +336,9 @@ namespace OsmSharp.Routing.Graph.Directed
         /// </summary>
         /// <param name="vertex"></param>
         /// <returns></returns>
-        public GraphEdgeEnumerator GetEdgeEnumerator(uint vertex)
+        public EdgeEnumerator GetEdgeEnumerator(uint vertex)
         {
-            var enumerator = new GraphEdgeEnumerator(this);
+            var enumerator = new EdgeEnumerator(this);
             enumerator.MoveTo(vertex);
             return enumerator;
         }
@@ -462,7 +462,7 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Represents the internal edge enumerator.
         /// </summary>
-        public class GraphEdgeEnumerator : IEnumerable<Edge<TEdgeData>>, IEnumerator<Edge<TEdgeData>>
+        public class EdgeEnumerator : IEnumerable<Edge<TEdgeData>>, IEnumerator<Edge<TEdgeData>>
         {
             private readonly DirectedGraph<TEdgeData> _graph;
             private uint _currentEdgeId;
@@ -475,7 +475,7 @@ namespace OsmSharp.Routing.Graph.Directed
             /// Creates a new edge enumerator.
             /// </summary>
             /// <param name="graph"></param>
-            public GraphEdgeEnumerator(DirectedGraph<TEdgeData> graph)
+            public EdgeEnumerator(DirectedGraph<TEdgeData> graph)
             {
                 _graph = graph;
                 _startEdgeId = 0;
@@ -674,6 +674,8 @@ namespace OsmSharp.Routing.Graph.Directed
             var mapTo = mapper.MapToDelegate;
             var mapFrom = mapper.MapFromDelegate;
             var edgeDataSize = mapper.MappedSize;
+
+            this.Compress();
 
             long vertexCount = this.VertexCount;
             long edgeCount = (_nextEdgeId / EDGE_SIZE);
