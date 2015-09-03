@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2013 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,37 +16,29 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Collections.Generic;
+using OsmSharp.Collections.Tags;
 using OsmSharp.Math;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Vehicles;
 
-namespace OsmSharp.Routing
+namespace OsmSharp.Routing.Network
 {
     /// <summary>
     /// Represents a resolved point. A hook for the router to route on.
     /// 
     /// The object represents a location and can be tagged.
     /// </summary>
-    public class RouterPoint : ILocationObject, ITaggedObject
+    public class RouterPoint : ILocationObject
     {
-        /// <summary>
-        /// Holds the id of this router point.
-        /// </summary>
-        private readonly long _id;
-
         /// <summary>
         /// Creates a new router point.
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="vehicle"></param>
-        /// <param name="location"></param>
         public RouterPoint(long id, Vehicle vehicle, GeoCoordinate location)
         {
-            _id = id;
+            this.Id = id;
             this.Location = location;
             this.Vehicle = vehicle;
-            this.Tags = new List<KeyValuePair<string, string>>();
+            this.Tags = new TagsCollection();
         }
 
         /// <summary>
@@ -54,10 +46,8 @@ namespace OsmSharp.Routing
         /// </summary>
         public long Id
         {
-            get
-            {
-                return _id;
-            }
+            get;
+            private set;
         }
 
         /// <summary>
@@ -81,10 +71,10 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Gets/sets the tags.
         /// </summary>
-        public List<KeyValuePair<string, string>> Tags
+        public TagsCollectionBase Tags
         {
             get;
-            set;
+            private set;
         }
 
         /// <summary>
@@ -95,11 +85,11 @@ namespace OsmSharp.Routing
         {
             if (this.Location == null)
             {
-                return string.Format("{0}",
-                                     this.Id);
+                return string.Format("{0} ({1})",
+                    this.Id, this.Tags.ToInvariantString());
             }
-            return string.Format("{0} {1}",
-                                 this.Id, this.Location.ToString());
+            return string.Format("{0} {1} ({2})",
+                this.Id, this.Location.ToString(), this.Tags.ToInvariantString());
         }
     }
 }

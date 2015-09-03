@@ -19,7 +19,7 @@
 using OsmSharp.Collections.Arrays;
 using System;
 
-namespace OsmSharp.Routing.CH.Preprocessing
+namespace OsmSharp.Routing.Data.Contracted
 {
     /// <summary>
     /// Represents the data on a contracted edge.

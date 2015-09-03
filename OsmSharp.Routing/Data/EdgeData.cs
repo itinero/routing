@@ -21,7 +21,7 @@ using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Graph;
 using System;
 
-namespace OsmSharp.Routing.Graph
+namespace OsmSharp.Routing.Data
 {
     /// <summary>
     /// A simple edge containing the orignal attributes and a flag indicating the direction of this edge relative to it's data.

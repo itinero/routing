@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2013 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OsmSharp.Routing.Graph.Routing
+namespace OsmSharp.Routing.Algorithms.Resolver
 {
     /// <summary>
     /// Linked list of routed vertices.
@@ -30,7 +30,6 @@ namespace OsmSharp.Routing.Graph.Routing
         /// <summary>
         /// Creates a vertex not linked to any others.
         /// </summary>
-        /// <param name="vertexId"></param>
         public PathSegment(TIdType vertexId)
         {
             this.VertexId = vertexId;
@@ -41,9 +40,6 @@ namespace OsmSharp.Routing.Graph.Routing
         /// <summary>
         /// Creates a new linked vertex.
         /// </summary>
-        /// <param name="vertexId"></param>
-        /// <param name="weight"></param>
-        /// <param name="from"></param>
         public PathSegment(TIdType vertexId, double weight, PathSegment<TIdType> from)
         {
             this.VertexId = vertexId;
@@ -116,16 +112,14 @@ namespace OsmSharp.Routing.Graph.Routing
         /// <summary>
         /// Concatenates this path after the given path.
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="comparer"></param>
         /// <returns></returns>
         public PathSegment<TIdType> ConcatenateAfter(PathSegment<TIdType> path, Func<TIdType, TIdType, int> comparer)
         {
-            PathSegment<TIdType> clone = this.Clone();
-            PathSegment<TIdType> first = clone.First();
-            PathSegment<TIdType> pathClone = path.Clone();
+            var clone = this.Clone();
+            var first = clone.First();
+            var pathClone = path.Clone();
 
-            PathSegment<TIdType> current = clone;
+            var current = clone;
             current.Weight = path.Weight + current.Weight;
             while (current.From != null)
             {
@@ -189,7 +183,7 @@ namespace OsmSharp.Routing.Graph.Routing
         public override string ToString()
         {
             var builder = new StringBuilder();
-            PathSegment<TIdType> next = this;
+            var next = this;
             while (next.From != null)
             {
                 builder.Insert(0, string.Format("-> {0}[{1}]", next.VertexId, next.Weight));
@@ -206,7 +200,7 @@ namespace OsmSharp.Routing.Graph.Routing
         public TIdType[] ToArray()
         {
             var vertices = new List<TIdType>();
-            PathSegment<TIdType> next = this;
+            var next = this;
             while (next.From != null)
             {
                 vertices.Add(next.VertexId);
