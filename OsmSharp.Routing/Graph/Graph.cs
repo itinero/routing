@@ -444,6 +444,74 @@ namespace OsmSharp.Routing.Graph
         }
 
         /// <summary>
+        /// Switches the two vertices.
+        /// </summary>
+        public void Switch(uint vertex1, uint vertex2)
+        {
+            if (vertex1 >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex1", "vertex1 is not part of this graph."); }
+            if (vertex2 >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex2", "vertex2 is not part of this graph."); }
+
+            // change things around in the edges of vertex1.
+            var pointer = _vertices[vertex1];
+            while (pointer != NO_EDGE)
+            {
+                if (_edges[pointer + NODEA] == vertex1)
+                { // was NODEA.
+                    if (_edges[pointer + NODEB] == vertex2)
+                    { // vertex2 was NODEB.
+                        _edges[pointer + NODEB] = vertex1;
+                    }
+                    _edges[pointer + NODEA] = vertex2;
+                    pointer = _edges[pointer + NEXTNODEA];
+                }
+                else
+                { // was NODEB.
+                    if(_edges[pointer + NODEA] == vertex2)
+                    { // vertex2 was NODEA.
+                        _edges[pointer + NODEA] = vertex1;
+                    }
+                    _edges[pointer + NODEB] = vertex2;
+                    pointer = _edges[pointer + NEXTNODEB];
+                }
+            }
+
+            // change things around in the edges of vertex2.
+            pointer = _vertices[vertex2];
+            while (pointer != NO_EDGE)
+            {
+                if (_edges[pointer + NODEA] == vertex2)
+                { // was NODEA.
+                    if(_edges[pointer + NODEB] == vertex1)
+                    { // ok, NODEB is now vertex1, meaning it used to be vertex2, this edge has already been changed.
+                        pointer = _edges[pointer + NEXTNODEB];
+                    }
+                    else
+                    { // ok, NODEB is not vertex1, meaning this edge has not been changed yet.
+                        _edges[pointer + NODEA] = vertex1;
+                        pointer = _edges[pointer + NEXTNODEA];
+                    }
+                }
+                else
+                { // was NODEB.
+                    if(_edges[pointer + NODEA] == vertex1)
+                    { // ok, NODEA is now vertex1, meaning it used to be vertex2, this edge has already been changed.
+                        pointer = _edges[pointer + NEXTNODEA];
+                    }
+                    else
+                    { // ok, NODEA is not vertex1, meaning this edge has not been changed yet.
+                        _edges[pointer + NODEB] = vertex1;
+                        pointer = _edges[pointer + NEXTNODEB];
+                    }
+                }
+            }
+
+            // switch points.
+            var vertex1Pointer = _vertices[vertex1];
+            _vertices[vertex1] = _vertices[vertex2];
+            _vertices[vertex2] = vertex1Pointer;
+        }
+
+        /// <summary>
         /// Returns an empty edge enumerator.
         /// </summary>
         /// <returns></returns>

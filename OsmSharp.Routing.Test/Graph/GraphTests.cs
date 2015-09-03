@@ -631,8 +631,6 @@ namespace OsmSharp.Routing.Test.Graph
         public void TestDeserialize()
         {
             var graph = new Graph<EdgeDataMock>();
-
-            // add one edge.
             graph.AddEdge(0, 1, new EdgeDataMock(1));
 
             // serialize.
@@ -660,8 +658,6 @@ namespace OsmSharp.Routing.Test.Graph
             }
 
             graph = new Graph<EdgeDataMock>();
-
-            // add one edge.
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 2, new EdgeDataMock(2));
             graph.AddEdge(0, 3, new EdgeDataMock(3));
@@ -683,6 +679,90 @@ namespace OsmSharp.Routing.Test.Graph
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);
             }
+        }
+
+        /// <summary>
+        /// Tests switching two vertices.
+        /// </summary>
+        [Test]
+        public void TestSwitch()
+        {
+            var graph = new Graph<EdgeDataMock>();
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+
+            graph.Switch(0, 1);
+
+            // verify all edges.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().To);
+            Assert.AreEqual(-1, edges.First().GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(0, edges.First().To);
+            Assert.AreEqual(1, edges.First().GetDirectedEdgeData().Id);
+
+            graph = new Graph<EdgeDataMock>();
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+            graph.AddEdge(0, 2, new EdgeDataMock(2));
+            graph.AddEdge(0, 3, new EdgeDataMock(3));
+            graph.AddEdge(0, 4, new EdgeDataMock(4));
+            graph.AddEdge(5, 1, new EdgeDataMock(5));
+            graph.AddEdge(5, 2, new EdgeDataMock(6));
+            graph.AddEdge(5, 3, new EdgeDataMock(7));
+            graph.AddEdge(5, 4, new EdgeDataMock(8));
+
+            graph.Switch(0, 1);
+
+            // verify all edges.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-1, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-5, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(4, edges.Count());
+            Assert.AreEqual(1, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(2, edges.First(x => x.To == 2).GetDirectedEdgeData().Id);
+            Assert.AreEqual(3, edges.First(x => x.To == 3).GetDirectedEdgeData().Id);
+            Assert.AreEqual(4, edges.First(x => x.To == 4).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-2, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-6, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-3, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-7, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-4, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-8, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+
+            graph.Switch(0, 1);
+
+            // verify all edges.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(4, edges.Count());
+            Assert.AreEqual(1, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(2, edges.First(x => x.To == 2).GetDirectedEdgeData().Id);
+            Assert.AreEqual(3, edges.First(x => x.To == 3).GetDirectedEdgeData().Id);
+            Assert.AreEqual(4, edges.First(x => x.To == 4).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-1, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-5, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-2, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-6, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-3, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-7, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-4, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-8, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
         }
     }
 }
