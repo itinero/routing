@@ -63,6 +63,8 @@
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
+    <Compile Include="Algorithms\Resolver\Hilbert.cs" />
+    <Compile Include="Algorithms\Resolver\IResolver.cs" />
     <Compile Include="Graph\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -122,9 +124,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Algorithms\Hilbert\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -44,6 +44,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             uint vertex2 = 2;
 
             // make sure to add vertex1 and vertex2.
+            graph.AddVertex(vertex0, 0, 0);
+            graph.AddVertex(vertex1, 1, 1);
             graph.AddEdge(vertex0, vertex1, new EdgeDataMock(1), null);
 
             Assert.Catch<ArgumentOutOfRangeException>(() =>
@@ -63,6 +65,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             uint vertex1 = 1;
 
             // add edge.
+            graph.AddVertex(vertex0, 0, 0);
+            graph.AddVertex(vertex1, 1, 1);
             var edgeId1 = graph.AddEdge(vertex0, vertex1, new EdgeDataMock(1), null);
             Assert.AreEqual(0, edgeId1);
 
@@ -83,6 +87,7 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
 
             // add another edge.
             uint vertex2 = 2;
+            graph.AddVertex(vertex2, 2, 2);
             var edgeId2 = graph.AddEdge(vertex1, vertex2, new EdgeDataMock(2), null);
 
             // verify all edges.
@@ -113,6 +118,7 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
 
             // add another edge.
             uint vertex3 = 3;
+            graph.AddVertex(vertex3, 3, 3);
             var edgeId3 = graph.AddEdge(vertex1, vertex3, new EdgeDataMock(3), null);
 
             // verify all edges.
@@ -195,6 +201,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             // add another edge and start a new island.
             uint vertex4 = 4;
             uint vertex5 = 5;
+            graph.AddVertex(vertex4, 4, 4);
+            graph.AddVertex(vertex5, 5, 5);
             var edge5Id = graph.AddEdge(vertex4, vertex5, new EdgeDataMock(4), null);
 
             // verify all edges.
@@ -312,6 +320,38 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
         }
 
         /// <summary>
+        /// Tests setting a vertex.
+        /// </summary>
+        [Test]
+        public void TestSetVertex()
+        {
+            var graph = new GeometricGraph<EdgeDataMock>(2);
+
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            graph.AddVertex(2, 2, 2);
+
+            float latitude, longitude;
+            Assert.IsTrue(graph.GetVertex(0, out latitude, out longitude));
+            Assert.AreEqual(0, latitude);
+            Assert.AreEqual(0, longitude);
+            Assert.AreEqual(0, graph.GetVertex(0).Latitude);
+            Assert.AreEqual(0, graph.GetVertex(0).Longitude);
+            Assert.IsTrue(graph.GetVertex(1, out latitude, out longitude));
+            Assert.AreEqual(1, latitude);
+            Assert.AreEqual(1, longitude);
+            Assert.AreEqual(1, graph.GetVertex(1).Latitude);
+            Assert.AreEqual(1, graph.GetVertex(1).Longitude);
+            Assert.IsTrue(graph.GetVertex(2, out latitude, out longitude));
+            Assert.AreEqual(2, latitude);
+            Assert.AreEqual(2, longitude);
+            Assert.AreEqual(2, graph.GetVertex(2).Latitude);
+            Assert.AreEqual(2, graph.GetVertex(2).Longitude);
+
+            Assert.IsFalse(graph.GetVertex(10000, out latitude, out longitude));
+        }
+
+        /// <summary>
         /// Tests get edge enumerator.
         /// </summary>
         [Test]
@@ -320,6 +360,12 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add edges.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(2, 0, 0);
+            graph.AddVertex(3, 0, 0);
+            graph.AddVertex(4, 0, 0);
+            graph.AddVertex(5, 0, 0);
             var edge1 = graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             var edge2 = graph.AddEdge(1, 2, new EdgeDataMock(2), null);
             var edge3 = graph.AddEdge(1, 3, new EdgeDataMock(3), null);
@@ -395,12 +441,16 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add and remove edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             Assert.IsTrue(graph.RemoveEdge(0, 1));
 
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add and remove edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             var edge = graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             Assert.IsTrue(graph.RemoveEdge(edge));
         }
@@ -414,6 +464,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add and remove edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             Assert.AreEqual(1, graph.RemoveEdges(0));
             Assert.AreEqual(0, graph.RemoveEdges(1));
@@ -428,6 +480,9 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add and remove edges.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(2, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             graph.AddEdge(0, 2, new EdgeDataMock(1), null);
             Assert.AreEqual(2, graph.RemoveEdges(0));
@@ -443,6 +498,9 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add and remove edges.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(2, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             graph.AddEdge(0, 2, new EdgeDataMock(2), null);
             graph.AddEdge(1, 2, new EdgeDataMock(3), null);
@@ -466,6 +524,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
 
             // trim.
@@ -476,6 +536,9 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(11001, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             graph.AddEdge(0, 11001, new EdgeDataMock(1), null);
 
@@ -500,12 +563,17 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             Assert.AreEqual(1, graph.EdgeCount);
 
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(11001, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             graph.AddEdge(0, 11001, new EdgeDataMock(1), null);
             Assert.AreEqual(2, graph.EdgeCount);
@@ -528,6 +596,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
         {
             var graph = new GeometricGraph<EdgeDataMock>();
 
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             var edgeId = graph.AddEdge(0, 1, new EdgeDataMock(1), new CoordinateArrayCollection<GeoCoordinateSimple>(
                 new GeoCoordinateSimple[] {
                     new GeoCoordinateSimple()
@@ -557,6 +627,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add one edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
 
             // serialize.
@@ -577,6 +649,12 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add one edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(2, 0, 0);
+            graph.AddVertex(3, 0, 0);
+            graph.AddVertex(4, 0, 0);
+            graph.AddVertex(5, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             graph.AddEdge(0, 2, new EdgeDataMock(2), null);
             graph.AddEdge(0, 3, new EdgeDataMock(3), null);
@@ -611,6 +689,8 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             var graph = new GeometricGraph<EdgeDataMock>();
 
             // add one edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
 
             // serialize.
@@ -640,6 +720,12 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
             graph = new GeometricGraph<EdgeDataMock>();
 
             // add one edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(2, 0, 0);
+            graph.AddVertex(3, 0, 0);
+            graph.AddVertex(4, 0, 0);
+            graph.AddVertex(5, 0, 0);
             graph.AddEdge(0, 1, new EdgeDataMock(1), null);
             graph.AddEdge(0, 2, new EdgeDataMock(2), null);
             graph.AddEdge(0, 3, new EdgeDataMock(3), null);
@@ -661,6 +747,98 @@ namespace OsmSharp.Routing.Test.Graph.Geometric
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);
             }
+        }
+
+        /// <summary>
+        /// Tests switching two vertices.
+        /// </summary>
+        [Test]
+        public void TestSwitch()
+        {
+            var graph = new GeometricGraph<EdgeDataMock>();
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddEdge(0, 1, new EdgeDataMock(1), null);
+
+            graph.Switch(0, 1);
+
+            // verify all edges.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().To);
+            Assert.AreEqual(-1, edges.First().GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(0, edges.First().To);
+            Assert.AreEqual(1, edges.First().GetDirectedEdgeData().Id);
+
+            graph = new GeometricGraph<EdgeDataMock>();
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0, 0);
+            graph.AddVertex(2, 0, 0);
+            graph.AddVertex(3, 0, 0);
+            graph.AddVertex(4, 0, 0);
+            graph.AddVertex(5, 0, 0);
+            graph.AddEdge(0, 1, new EdgeDataMock(1), null);
+            graph.AddEdge(0, 2, new EdgeDataMock(2), null);
+            graph.AddEdge(0, 3, new EdgeDataMock(3), null);
+            graph.AddEdge(0, 4, new EdgeDataMock(4), null);
+            graph.AddEdge(5, 1, new EdgeDataMock(5), null);
+            graph.AddEdge(5, 2, new EdgeDataMock(6), null);
+            graph.AddEdge(5, 3, new EdgeDataMock(7), null);
+            graph.AddEdge(5, 4, new EdgeDataMock(8), null);
+
+            graph.Switch(0, 1);
+
+            // verify all edges.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-1, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-5, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(4, edges.Count());
+            Assert.AreEqual(1, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(2, edges.First(x => x.To == 2).GetDirectedEdgeData().Id);
+            Assert.AreEqual(3, edges.First(x => x.To == 3).GetDirectedEdgeData().Id);
+            Assert.AreEqual(4, edges.First(x => x.To == 4).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-2, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-6, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-3, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-7, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-4, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-8, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+
+            graph.Switch(0, 1);
+
+            // verify all edges.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(4, edges.Count());
+            Assert.AreEqual(1, edges.First(x => x.To == 1).GetDirectedEdgeData().Id);
+            Assert.AreEqual(2, edges.First(x => x.To == 2).GetDirectedEdgeData().Id);
+            Assert.AreEqual(3, edges.First(x => x.To == 3).GetDirectedEdgeData().Id);
+            Assert.AreEqual(4, edges.First(x => x.To == 4).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-1, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-5, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-2, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-6, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-3, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-7, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(-4, edges.First(x => x.To == 0).GetDirectedEdgeData().Id);
+            Assert.AreEqual(-8, edges.First(x => x.To == 5).GetDirectedEdgeData().Id);
         }
     }
 }

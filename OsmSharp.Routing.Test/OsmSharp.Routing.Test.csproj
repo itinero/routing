@@ -61,6 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\Resolver\HibertTests.cs" />
     <Compile Include="Graph\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graph\EdgeDataMock.cs" />
     <Compile Include="Graph\Geometric\GeometricGraphTests.cs" />

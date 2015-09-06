@@ -20,6 +20,7 @@ using OsmSharp.Collections.Arrays;
 using OsmSharp.Collections.Arrays.MemoryMapped;
 using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo.Simple;
+using System;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Graph.Geometric
@@ -30,6 +31,12 @@ namespace OsmSharp.Routing.Graph.Geometric
     public class GeometricGraph<TEdgeData>
         where TEdgeData : struct, IEdgeData
     {
+        private static GeoCoordinateSimple NO_COORDINATE = new GeoCoordinateSimple()
+        {
+            Latitude = float.MaxValue,
+            Longitude = float.MaxValue
+        };
+
         private readonly Graph<TEdgeData> _graph;
         private readonly HugeArrayBase<GeoCoordinateSimple> _coordinates;
         private readonly HugeCoordinateCollectionIndex _shapes;
@@ -40,7 +47,11 @@ namespace OsmSharp.Routing.Graph.Geometric
         public GeometricGraph()
         {
             _graph = new Graph<TEdgeData>();
-            _coordinates = new HugeArray<GeoCoordinateSimple>(_graph.VertexCount);
+            _coordinates = new HugeArray<GeoCoordinateSimple>(1000);
+            for (var i = 0; i < _coordinates.Length; i++)
+            {
+                _coordinates[i] = NO_COORDINATE;
+            }
             _shapes = new HugeCoordinateCollectionIndex(1000);
         }
 
@@ -50,7 +61,11 @@ namespace OsmSharp.Routing.Graph.Geometric
         public GeometricGraph(int size)
         {
             _graph = new Graph<TEdgeData>(size);
-            _coordinates = new HugeArray<GeoCoordinateSimple>(_graph.VertexCount);
+            _coordinates = new HugeArray<GeoCoordinateSimple>(size);
+            for (var i = 0; i < _coordinates.Length; i++)
+            {
+                _coordinates[i] = NO_COORDINATE;
+            }
             _shapes = new HugeCoordinateCollectionIndex(1000);
         }
 
@@ -63,6 +78,80 @@ namespace OsmSharp.Routing.Graph.Geometric
             _graph = graph;
             _coordinates = coordinates;
             _shapes = shapes;
+        }
+
+        /// <summary>
+        /// Gets the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public GeoCoordinateSimple GetVertex(uint vertex)
+        {
+            if (vertex >= _coordinates.Length) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
+            if (_coordinates[vertex].Equals(NO_COORDINATE)) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
+
+            return _coordinates[vertex];
+        }
+
+        /// <summary>
+        /// Gets the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public bool GetVertex(uint vertex, out float latitude, out float longitude)
+        {
+            if (vertex < _coordinates.Length)
+            { // vertex exists.
+                var coordinate = _coordinates[vertex];
+                if(!coordinate.Equals(NO_COORDINATE))
+                { // there is a coordinate set.
+                    latitude = coordinate.Latitude;
+                    longitude = coordinate.Longitude;
+                    return true;
+                }
+            }
+            latitude = 0;
+            longitude = 0;
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the given vertex.
+        /// </summary>
+        public bool RemoveVertex(uint vertex)
+        {
+            if(_graph.RemoveVertex(vertex))
+            { // removes the vertex.
+                _coordinates[vertex] = NO_COORDINATE;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Adds the given vertex.
+        /// </summary>
+        public void AddVertex(uint vertex, float latitude, float longitude)
+        {
+            _graph.AddVertex(vertex);
+
+            if(vertex >= _coordinates.Length)
+            { // increase coordinates length.
+                var newBlocks = 1;
+                if(vertex - _coordinates.Length > 0)
+                { // increase more.
+                    newBlocks = (int)System.Math.Floor(vertex - _coordinates.Length) + 1;
+                }
+                var oldLength = _coordinates.Length;
+                _coordinates.Resize(_coordinates.Length + (newBlocks * 1000));
+                for (var i = oldLength; i < _coordinates.Length; i++)
+                {
+                    _coordinates[i] = NO_COORDINATE;
+                }
+            }
+            _coordinates[vertex] = new GeoCoordinateSimple()
+            {
+                Latitude = latitude,
+                Longitude = longitude
+            };
         }
 
         /// <summary>
@@ -138,6 +227,20 @@ namespace OsmSharp.Routing.Graph.Geometric
         }
 
         /// <summary>
+        /// Switches the two vertices.
+        /// </summary>
+        public void Switch(uint vertex1, uint vertex2)
+        {
+            // switch vertices, edges do not change id's.
+            _graph.Switch(vertex1, vertex2);
+
+            // switch coordinates.
+            var temp = _coordinates[vertex1];
+            _coordinates[vertex1] = _coordinates[vertex2];
+            _coordinates[vertex2] = temp;
+        }
+
+        /// <summary>
         /// Gets an empty edge enumerator.
         /// </summary>
         /// <returns></returns>
@@ -184,7 +287,10 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// </summary>
         public long VertexCount
         {
-            get { return _graph.VertexCount; }
+            get
+            {
+                return _graph.VertexCount;
+            }
         }
 
         /// <summary>
@@ -372,7 +478,6 @@ namespace OsmSharp.Routing.Graph.Geometric
             this.Compress();
 
             var size = _graph.Serialize(stream);
-
             using (var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(
                 new OsmSharp.IO.LimitedStream(stream)))
             {
@@ -413,25 +518,33 @@ namespace OsmSharp.Routing.Graph.Geometric
 
             // get vertices.
             var position = stream.Position;
-            var bufferSize = 32;
-            var cacheSize = MemoryMappedHugeArrayUInt32.DefaultCacheSize;
-            var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(new OsmSharp.IO.LimitedStream(stream)); 
-            var coordinates = new MappedHugeArray<GeoCoordinateSimple, float>(
-                new MemoryMappedHugeArraySingle(file, graph.VertexCount * 2, graph.VertexCount * 2, bufferSize, cacheSize),
-                    2, (array, idx, coordinate) =>
-                    {
-                        array[idx] = coordinate.Latitude;
-                        array[idx + 1] = coordinate.Longitude;
-                    },
-                    (Array, idx) =>
-                    {
-                        return new GeoCoordinateSimple()
+            HugeArrayBase<GeoCoordinateSimple> coordinates = null;
+            if (graph.VertexCount == 0)
+            { // no coordinates.
+                coordinates = new HugeArray<GeoCoordinateSimple>(0);
+            }
+            else if (graph.VertexCount > 0)
+            { // at least one vertex, otherwise write '0'.
+                var bufferSize = 32;
+                var cacheSize = MemoryMappedHugeArrayUInt32.DefaultCacheSize;
+                var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(new OsmSharp.IO.LimitedStream(stream));
+                coordinates = new MappedHugeArray<GeoCoordinateSimple, float>(
+                    new MemoryMappedHugeArraySingle(file, graph.VertexCount * 2, graph.VertexCount * 2, bufferSize, cacheSize),
+                        2, (array, idx, coordinate) =>
                         {
-                            Latitude = Array[idx],
-                            Longitude = Array[idx + 1]
-                        };
-                    });
-            position = position + (graph.VertexCount * 2 * 4);
+                            array[idx] = coordinate.Latitude;
+                            array[idx + 1] = coordinate.Longitude;
+                        },
+                        (Array, idx) =>
+                        {
+                            return new GeoCoordinateSimple()
+                            {
+                                Latitude = Array[idx],
+                                Longitude = Array[idx + 1]
+                            };
+                        });
+                position = position + (graph.VertexCount * 2 * 4);
+            }
 
             // deserialize shapes.
             stream.Seek(position, System.IO.SeekOrigin.Begin);

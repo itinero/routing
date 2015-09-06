@@ -42,12 +42,72 @@ namespace OsmSharp.Routing.Test.Graph
             uint vertex2 = 2;
 
             // make sure to add vertex1 and vertex2.
+            Assert.Catch<ArgumentException>(() =>
+            {
+                graph.AddEdge(vertex0, vertex1, new EdgeDataMock(1));
+            });
+            
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(vertex0, vertex1, new EdgeDataMock(1));
-
             Assert.Catch<ArgumentOutOfRangeException>(() =>
             {
                 graph.GetEdgeEnumerator(vertex2);
             });
+        }
+
+        /// <summary>
+        /// Tests adding a vertex.
+        /// </summary>
+        [Test]
+        public void TestAddVertex()
+        {
+            var graph = new Graph<EdgeDataMock>(2);
+
+            graph.AddVertex(0);
+            Assert.IsTrue(graph.HasVertex(0));
+
+            graph.AddVertex(1);
+            Assert.IsTrue(graph.HasVertex(1));
+
+            Assert.IsFalse(graph.HasVertex(1000000));
+        }
+
+        /// <summary>
+        /// Tests removing a vertex.
+        /// </summary>
+        [Test]
+        public void TestRemoveVertex()
+        {
+            var graph = new Graph<EdgeDataMock>(2);
+
+            graph.AddVertex(0);
+            Assert.IsTrue(graph.RemoveVertex(0));
+            Assert.IsFalse(graph.HasVertex(0));
+            graph.AddVertex(1);
+            Assert.IsTrue(graph.RemoveVertex(1));
+            Assert.IsFalse(graph.HasVertex(1));
+
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddEdge(0, 1, new EdgeDataMock(1));
+            Assert.IsTrue(graph.RemoveVertex(0));
+            Assert.IsFalse(graph.HasVertex(0));
+            Assert.IsTrue(graph.HasVertex(1));
+
+            Assert.IsFalse(graph.RemoveVertex(1000000));
+
+            graph = new Graph<EdgeDataMock>(5);
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(4);
+
+            Assert.IsTrue(graph.RemoveVertex(4));
+            Assert.AreEqual(2, graph.VertexCount);
+
+            Assert.IsTrue(graph.RemoveVertex(0));
+            Assert.IsTrue(graph.RemoveVertex(1));
+            Assert.AreEqual(0, graph.VertexCount);
         }
 
         /// <summary>
@@ -61,6 +121,8 @@ namespace OsmSharp.Routing.Test.Graph
             uint vertex1 = 1;
 
             // add edge.
+            graph.AddVertex(vertex0);
+            graph.AddVertex(vertex1);
             var edgeId1 = graph.AddEdge(vertex0, vertex1, new EdgeDataMock(1));
             Assert.AreEqual(0, edgeId1);
 
@@ -81,6 +143,7 @@ namespace OsmSharp.Routing.Test.Graph
 
             // add another edge.
             uint vertex2 = 2;
+            graph.AddVertex(vertex2);
             var edgeId2 = graph.AddEdge(vertex1, vertex2, new EdgeDataMock(2));
 
             // verify all edges.
@@ -111,6 +174,7 @@ namespace OsmSharp.Routing.Test.Graph
 
             // add another edge.
             uint vertex3 = 3;
+            graph.AddVertex(vertex3);
             var edgeId3 = graph.AddEdge(vertex1, vertex3, new EdgeDataMock(3));
 
             // verify all edges.
@@ -193,6 +257,8 @@ namespace OsmSharp.Routing.Test.Graph
             // add another edge and start a new island.
             uint vertex4 = 4;
             uint vertex5 = 5;
+            graph.AddVertex(vertex4);
+            graph.AddVertex(vertex5);
             var edge5Id = graph.AddEdge(vertex4, vertex5, new EdgeDataMock(4));
 
             // verify all edges.
@@ -318,6 +384,12 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add edges.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddVertex(4);
+            graph.AddVertex(5);
             var edge1 = graph.AddEdge(0, 1, new EdgeDataMock(1));
             var edge2 = graph.AddEdge(1, 2, new EdgeDataMock(2));
             var edge3 = graph.AddEdge(1, 3, new EdgeDataMock(3));
@@ -393,12 +465,16 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add and remove edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             Assert.IsTrue(graph.RemoveEdge(0, 1));
 
             graph = new Graph<EdgeDataMock>();
 
             // add and remove edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             var edge = graph.AddEdge(0, 1, new EdgeDataMock(1));
             Assert.IsTrue(graph.RemoveEdge(edge));
         }
@@ -412,6 +488,8 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add and remove edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             Assert.AreEqual(1, graph.RemoveEdges(0));
             Assert.AreEqual(0, graph.RemoveEdges(1));
@@ -426,6 +504,9 @@ namespace OsmSharp.Routing.Test.Graph
             graph = new Graph<EdgeDataMock>();
 
             // add and remove edges.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 2, new EdgeDataMock(1));
             Assert.AreEqual(2, graph.RemoveEdges(0));
@@ -441,6 +522,9 @@ namespace OsmSharp.Routing.Test.Graph
             graph = new Graph<EdgeDataMock>();
 
             // add and remove edges.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 2, new EdgeDataMock(2));
             graph.AddEdge(1, 2, new EdgeDataMock(3));
@@ -464,6 +548,8 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
 
             // trim.
@@ -473,6 +559,9 @@ namespace OsmSharp.Routing.Test.Graph
             graph = new Graph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(11001);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 11001, new EdgeDataMock(1));
 
@@ -496,12 +585,17 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             Assert.AreEqual(1, graph.EdgeCount);
 
             graph = new Graph<EdgeDataMock>();
 
             // add edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(11001);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 11001, new EdgeDataMock(1));
             Assert.AreEqual(2, graph.EdgeCount);
@@ -525,8 +619,13 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add and compress.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.Compress();
+
+            Assert.AreEqual(2, graph.VertexCount);
+            Assert.AreEqual(1, graph.EdgeCount);
 
             // verify all edges.
             var edges = graph.GetEdgeEnumerator(0);
@@ -542,12 +641,20 @@ namespace OsmSharp.Routing.Test.Graph
             graph = new Graph<EdgeDataMock>();
 
             // add and compress.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddVertex(4);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(1, 2, new EdgeDataMock(2));
             graph.AddEdge(2, 3, new EdgeDataMock(3));
             graph.AddEdge(3, 4, new EdgeDataMock(4));
             graph.RemoveEdge(1, 2);
             graph.Compress();
+
+            Assert.AreEqual(5, graph.VertexCount);
+            Assert.AreEqual(3, graph.EdgeCount);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -587,6 +694,8 @@ namespace OsmSharp.Routing.Test.Graph
             var graph = new Graph<EdgeDataMock>();
 
             // add one edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
 
             // serialize.
@@ -603,6 +712,12 @@ namespace OsmSharp.Routing.Test.Graph
             graph = new Graph<EdgeDataMock>();
 
             // add one edge.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddVertex(4);
+            graph.AddVertex(5);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 2, new EdgeDataMock(2));
             graph.AddEdge(0, 3, new EdgeDataMock(3));
@@ -631,6 +746,8 @@ namespace OsmSharp.Routing.Test.Graph
         public void TestDeserialize()
         {
             var graph = new Graph<EdgeDataMock>();
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
 
             // serialize.
@@ -658,6 +775,12 @@ namespace OsmSharp.Routing.Test.Graph
             }
 
             graph = new Graph<EdgeDataMock>();
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddVertex(4);
+            graph.AddVertex(5);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 2, new EdgeDataMock(2));
             graph.AddEdge(0, 3, new EdgeDataMock(3));
@@ -688,6 +811,24 @@ namespace OsmSharp.Routing.Test.Graph
         public void TestSwitch()
         {
             var graph = new Graph<EdgeDataMock>();
+
+            Assert.Catch<ArgumentException>(() => 
+            {
+                graph.Switch(0, 1);
+            });
+
+            graph = new Graph<EdgeDataMock>();
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+
+            graph.Switch(0, 1);
+
+            graph.HasVertex(0);
+            graph.HasVertex(1);
+
+            graph = new Graph<EdgeDataMock>();
+            graph.AddVertex(0);
+            graph.AddVertex(1);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
 
             graph.Switch(0, 1);
@@ -703,6 +844,12 @@ namespace OsmSharp.Routing.Test.Graph
             Assert.AreEqual(1, edges.First().GetDirectedEdgeData().Id);
 
             graph = new Graph<EdgeDataMock>();
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddVertex(4);
+            graph.AddVertex(5);
             graph.AddEdge(0, 1, new EdgeDataMock(1));
             graph.AddEdge(0, 2, new EdgeDataMock(2));
             graph.AddEdge(0, 3, new EdgeDataMock(3));

@@ -34,6 +34,7 @@ namespace OsmSharp.Routing.Graph
     {
         private const int EDGE_SIZE = 4;
         private const uint NO_EDGE = uint.MaxValue;
+        private const uint NO_VERTEX = uint.MaxValue - 1;
         private const int NODEA = 0;
         private const int NODEB = 1;
         private const int NEXTNODEA = 2;
@@ -73,6 +74,11 @@ namespace OsmSharp.Routing.Graph
             HugeArrayBase<TEdgeData> edgeDataArray)
         {
             _vertices = vertexArray;
+            _maxVertex = null;
+            if(_vertices.Length > 0)
+            {
+                _maxVertex = (uint)(vertexArray.Length - 1);
+            }
             _edges = edgesArray;
             _edgeData = edgeDataArray;
             _nextEdgeId = (uint)(edgesArray.Length + 1);
@@ -92,7 +98,7 @@ namespace OsmSharp.Routing.Graph
             _vertices.Resize(sizeEstimate);
             for (int idx = 0; idx < sizeEstimate; idx++)
             {
-                _vertices[idx] = NO_EDGE;
+                _vertices[idx] = NO_VERTEX;
             }
             _edges = edgesArray;
             _edges.Resize(sizeEstimate * 3 * EDGE_SIZE);
@@ -126,6 +132,7 @@ namespace OsmSharp.Routing.Graph
 
         private uint _nextEdgeId;
         private long _edgeCount = 0;
+        private uint? _maxVertex = null;
 
         /// <summary>
         /// Increases the size of the vertex-array.
@@ -149,7 +156,7 @@ namespace OsmSharp.Routing.Graph
             _vertices.Resize(newSize);
             for (long idx = oldLength; idx < newSize; idx++)
             {
-                _vertices[idx] = NO_EDGE;
+                _vertices[idx] = NO_VERTEX;
             }
         }
 
@@ -176,13 +183,90 @@ namespace OsmSharp.Routing.Graph
         }
 
         /// <summary>
+        /// Adds a new vertex.
+        /// </summary>
+        public void AddVertex(uint vertex)
+        {
+            if (vertex > _vertices.Length - 1)
+            { // increase space.
+                this.IncreaseVertexSize(vertex);
+            }
+            if (_maxVertex == null || _maxVertex.Value < vertex)
+            { // update max vertex.
+                _maxVertex = vertex;
+            }
+
+            if(_vertices[vertex] == NO_VERTEX)
+            { // only overwrite if this vertex is not there yet.
+                _vertices[vertex] = NO_EDGE;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if this graph has the given vertex.
+        /// </summary>
+        public bool HasVertex(uint vertex)
+        {
+            if (vertex > _vertices.Length - 1)
+            {
+                return false;
+            }
+
+            if (_vertices[vertex] != NO_VERTEX)
+            { // also remove edges.
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Removes the given vertex.
+        /// </summary>
+        public bool RemoveVertex(uint vertex)
+        {
+            if (vertex > _vertices.Length - 1)
+            { // vertex does not exist.
+                return false;
+            }
+
+            if(_vertices[vertex] != NO_VERTEX)
+            { // also remove edges.
+                this.RemoveEdges(vertex);
+
+                _vertices[vertex] = NO_VERTEX;
+
+                // update max vertex.
+                if (vertex == _maxVertex)
+                {
+                    while (vertex > 0)
+                    {
+                        vertex--;
+                        if (_vertices[vertex] != NO_VERTEX)
+                        { // this vertex is the highest vertex that is not unset.
+                            _maxVertex = vertex;
+                            break;
+                        }
+                        else if (vertex == 0)
+                        { // no vertices left.
+                            _maxVertex = null;
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
         public uint AddEdge(uint vertex1, uint vertex2, TEdgeData data)
         {
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
-            if (vertex1 > _vertices.Length - 1) { this.IncreaseVertexSize(vertex1); }
-            if (vertex2 > _vertices.Length - 1) { this.IncreaseVertexSize(vertex2); }
+            if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
+            if (vertex2 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
+            if (_vertices[vertex1] == NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
+            if (_vertices[vertex2] == NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
 
             var edgeId = _vertices[vertex1];
             if (_vertices[vertex1] != NO_EDGE)
@@ -342,8 +426,11 @@ namespace OsmSharp.Routing.Graph
         /// </summary>
         public bool RemoveEdge(uint vertex1, uint vertex2)
         {
-            if (vertex1 >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex1", "vertex1 is not part of this graph."); }
-            if (vertex2 >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex2", "vertex2 is not part of this graph."); }
+            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
+            if (vertex2 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
+            if (_vertices[vertex1] == NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
+            if (_vertices[vertex2] == NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
 
             if (_vertices[vertex1] == NO_EDGE ||
                 _vertices[vertex2] == NO_EDGE)
@@ -448,8 +535,11 @@ namespace OsmSharp.Routing.Graph
         /// </summary>
         public void Switch(uint vertex1, uint vertex2)
         {
-            if (vertex1 >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex1", "vertex1 is not part of this graph."); }
-            if (vertex2 >= _vertices.Length) { throw new ArgumentOutOfRangeException("vertex2", "vertex2 is not part of this graph."); }
+            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
+            if (vertex2 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
+            if (_vertices[vertex1] == NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
+            if (_vertices[vertex2] == NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
 
             // change things around in the edges of vertex1.
             var pointer = _vertices[vertex1];
@@ -579,9 +669,9 @@ namespace OsmSharp.Routing.Graph
             _edgeData.Resize(edgeSize / EDGE_SIZE);
             _edges.Resize(edgeSize);
 
-            // remove all vertices without edges.
+            // remove all vertices that are unset.
             var size = _vertices.Length;
-            while (size > 0 &&_vertices[size - 1] == NO_EDGE)
+            while (size > 0 &&_vertices[size - 1] == NO_VERTEX)
             {
                 size--;
             }
@@ -593,7 +683,14 @@ namespace OsmSharp.Routing.Graph
         /// </summary>
         public long VertexCount
         {
-            get { return _vertices.Length; }
+            get
+            {
+                if(_maxVertex == null)
+                { // no vertices set yet!
+                    return 0;
+                }
+                return _maxVertex.Value + 1;
+            }
         }
 
         /// <summary>
