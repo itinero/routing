@@ -123,15 +123,6 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
-        /// Save the route as GPX.
-        /// </summary>
-        /// <param name="stream"></param>
-        public void SaveAsGpx(Stream stream)
-        {
-            OsmSharp.Routing.Gpx.RouteGpx.Save(stream, this);
-        }
-
-        /// <summary>
         /// Save the route as GeoJson.
         /// </summary>
         /// <param name="stream"></param>
@@ -525,16 +516,6 @@ namespace OsmSharp.Routing
                 }
             }
             return true;
-        }
-
-        /// <summary>
-        /// Returns an enumerable of route positions with the given interval between them.
-        /// </summary>
-        /// <param name="interval"></param>
-        /// <returns></returns>
-        public IEnumerable<GeoCoordinate> GetRouteEnumerable(Meter interval)
-        {
-            return new RouteEnumerable(this, interval);
         }
 
         #endregion

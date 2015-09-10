@@ -69,6 +69,8 @@
     <Compile Include="Algorithms\Routing\Path.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\EdgeDataSerializer.cs" />
+    <Compile Include="Exceptions\ResolveFailedException.cs" />
+    <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -88,11 +90,15 @@
     <Compile Include="Data\EdgeData.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="IRouter.cs" />
+    <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Network\RouterPoint.cs" />
     <Compile Include="Network\RoutingNetwork.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Result.cs" />
+    <Compile Include="Route.cs" />
     <Compile Include="Vehicles\Bicycle.cs" />
     <Compile Include="Vehicles\BigTruck.cs" />
     <Compile Include="Vehicles\Bus.cs" />

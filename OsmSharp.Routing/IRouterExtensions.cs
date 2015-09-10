@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2013 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,42 +16,112 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using OsmSharp.Routing.Routers;
+using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Exceptions;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Vehicles;
 
 namespace OsmSharp.Routing
 {
     /// <summary>
-    /// Contains common IRouter extensions.
+    /// Contains extension methods on top of the basic IRouter interface.
     /// </summary>
-    public static class RouterExtensions
+    public static class IRouterExtensions
     {
         /// <summary>
-        /// Checks connectivity of all given points and returns only those that are valid.
+        /// The default connectivity radius.
         /// </summary>
-        /// <param name="router"></param>
-        /// <param name="vehicle"></param>
-        /// <param name="resolvedPoints"></param>
-        /// <param name="weight"></param>
+        public const float DefaultConnectivityRadius = 250;
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given vehicles.
+        /// </summary>
         /// <returns></returns>
-        public static RouterPoint[] CheckConnectivityAndRemoveInvalid(
-            this Router router, Vehicle vehicle, RouterPoint[] resolvedPoints, float weight)
+        public static RouterPoint Resolve(this IRouter router, Vehicle[] vehicles, GeoCoordinate location)
         {
-            var connectedPoints = new List<RouterPoint>();
-            for (int idx = 0; idx < resolvedPoints.Length; idx++)
+            return router.TryResolve(vehicles, location).Value;
+        }
+
+        /// <summary>
+        /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
+        /// </summary>
+        /// <returns></returns>
+        public static bool CheckConnectivity(this IRouter router, Vehicle vehicle, RouterPoint point)
+        {
+            return router.CheckConnectivity(vehicle, point, DefaultConnectivityRadius);
+        }
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Route Calculate(this IRouter router, Vehicle vehicle,
+            GeoCoordinate source, GeoCoordinate target)
+        {
+            return router.TryCalculate(vehicle, source, target).Value;
+        }
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<Route> TryCalculate(this IRouter router, Vehicle vehicle,
+            GeoCoordinate source, GeoCoordinate target)
+        {
+            var vehicles = new Vehicle[] { vehicle };
+            var sourcePoint = router.TryResolve(vehicles, source);
+            var targetPoint = router.TryResolve(vehicles, target);
+
+            return router.TryCalculate(vehicle, sourcePoint.Value, targetPoint.Value);
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<Route>[] TryCalculate(this IRouter router, Vehicle vehicle, RouterPoint source, RouterPoint[] targets)
+        {
+            var result = router.TryCalculate(vehicle, new RouterPoint[] { source }, targets);
+            var routes = new Result<Route>[result.Length];
+            for (var j = 0; j < result.Length; j++)
             {
-                RouterPoint resolvedPoint = resolvedPoints[idx];
-                if (resolvedPoint != null &&
-                    router.CheckConnectivity(vehicle, resolvedPoint, weight))
-                { // the point is connected.
-                    connectedPoints.Add(resolvedPoint);
+                routes[j] = result[0][j];
+            }
+            return routes;
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public static Route[] Calculate(this IRouter router, Vehicle vehicle, RouterPoint source, RouterPoint[] targets)
+        {
+            var result = router.TryCalculate(vehicle, new RouterPoint[] { source }, targets);
+            var routes = new Route[result.Length];
+            for (var j = 0; j < result.Length; j++)
+            {
+                routes[j] = result[0][j].Value;
+            }
+            return routes;
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public static Route[][] Calculate(this IRouter router, Vehicle vehicle, RouterPoint[] sources, RouterPoint[] targets)
+        {
+            var result = router.TryCalculate(vehicle, sources, targets);
+            var routes = new Route[result.Length][];
+            for(var i = 0; i < result.Length; i++)
+            {
+                routes[i] = new Route[result[i].Length];
+                for(var j = 0; j < result[i].Length; j++)
+                {
+                    routes[i][j] = result[i][j].Value;
                 }
             }
-            return connectedPoints.ToArray();
+            return routes;
         }
     }
 }
