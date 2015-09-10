@@ -23,13 +23,12 @@ using OsmSharp.Math.Geo.Simple;
 using System;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Graph.Geometric
+namespace OsmSharp.Routing.Graphs.Geometric
 {
     /// <summary>
     /// A geometric graph.
     /// </summary>
-    public class GeometricGraph<TEdgeData>
-        where TEdgeData : struct, IEdgeData
+    public class GeometricGraph
     {
         private static GeoCoordinateSimple NO_COORDINATE = new GeoCoordinateSimple()
         {
@@ -37,16 +36,16 @@ namespace OsmSharp.Routing.Graph.Geometric
             Longitude = float.MaxValue
         };
 
-        private readonly Graph<TEdgeData> _graph;
+        private readonly Graph _graph;
         private readonly HugeArrayBase<GeoCoordinateSimple> _coordinates;
         private readonly HugeCoordinateCollectionIndex _shapes;
 
         /// <summary>
         /// Creates a new geometric graph.
         /// </summary>
-        public GeometricGraph()
+        public GeometricGraph(int edgeDataSize)
         {
-            _graph = new Graph<TEdgeData>();
+            _graph = new Graph(edgeDataSize);
             _coordinates = new HugeArray<GeoCoordinateSimple>(1000);
             for (var i = 0; i < _coordinates.Length; i++)
             {
@@ -58,9 +57,9 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// <summary>
         /// Creates a new geometric graph.
         /// </summary>
-        public GeometricGraph(int size)
+        public GeometricGraph(int edgeDataSize, int size)
         {
-            _graph = new Graph<TEdgeData>(size);
+            _graph = new Graph(edgeDataSize, size);
             _coordinates = new HugeArray<GeoCoordinateSimple>(size);
             for (var i = 0; i < _coordinates.Length; i++)
             {
@@ -72,7 +71,7 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// <summary>
         /// Creates a new geometric graph.
         /// </summary>
-        private GeometricGraph(Graph<TEdgeData> graph, HugeArrayBase<GeoCoordinateSimple> coordinates, 
+        private GeometricGraph(Graph graph, HugeArrayBase<GeoCoordinateSimple> coordinates,
             HugeCoordinateCollectionIndex shapes)
         {
             _graph = graph;
@@ -101,7 +100,7 @@ namespace OsmSharp.Routing.Graph.Geometric
             if (vertex < _coordinates.Length)
             { // vertex exists.
                 var coordinate = _coordinates[vertex];
-                if(!coordinate.Equals(NO_COORDINATE))
+                if (!coordinate.Equals(NO_COORDINATE))
                 { // there is a coordinate set.
                     latitude = coordinate.Latitude;
                     longitude = coordinate.Longitude;
@@ -118,7 +117,7 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// </summary>
         public bool RemoveVertex(uint vertex)
         {
-            if(_graph.RemoveVertex(vertex))
+            if (_graph.RemoveVertex(vertex))
             { // removes the vertex.
                 _coordinates[vertex] = NO_COORDINATE;
                 return true;
@@ -133,10 +132,10 @@ namespace OsmSharp.Routing.Graph.Geometric
         {
             _graph.AddVertex(vertex);
 
-            if(vertex >= _coordinates.Length)
+            if (vertex >= _coordinates.Length)
             { // increase coordinates length.
                 var newBlocks = 1;
-                if(vertex - _coordinates.Length > 0)
+                if (vertex - _coordinates.Length > 0)
                 { // increase more.
                     newBlocks = (int)System.Math.Floor(vertex - _coordinates.Length) + 1;
                 }
@@ -158,7 +157,7 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// Adds a new edge.
         /// </summary>
         /// <returns></returns>
-        public uint AddEdge(uint vertex1, uint vertex2, TEdgeData data, ICoordinateCollection shape)
+        public uint AddEdge(uint vertex1, uint vertex2, uint[] data, ICoordinateCollection shape)
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
             _shapes[edgeId] = shape;
@@ -169,11 +168,11 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// Gets the edge with the given id.
         /// </summary>
         /// <returns></returns>
-        public GeometricEdge<TEdgeData> GetEdge(uint edgeId)
+        public GeometricEdge GetEdge(uint edgeId)
         {
             var edge = _graph.GetEdge(edgeId);
 
-            return new GeometricEdge<TEdgeData>(edge.Id, edge.From, edge.To, edge.EdgeData, edge.EdgeDataInverted, _shapes[edgeId]);
+            return new GeometricEdge(edge.Id, edge.From, edge.To, edge.Data, edge.DataInverted, _shapes[edgeId]);
         }
 
         /// <summary>
@@ -184,10 +183,10 @@ namespace OsmSharp.Routing.Graph.Geometric
         {
             var removed = 0;
             var edges = this.GetEdgeEnumerator(vertex);
-            while(edges.MoveNext())
+            while (edges.MoveNext())
             {
                 _shapes[edges.Id] = null;
-                if(this.RemoveEdge(edges.Id))
+                if (this.RemoveEdge(edges.Id))
                 {
                     removed++;
                 }
@@ -201,7 +200,7 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// <returns></returns>
         public bool RemoveEdge(uint edgeId)
         {
-            if(_graph.RemoveEdge(edgeId))
+            if (_graph.RemoveEdge(edgeId))
             {
                 _shapes[edgeId] = null;
                 return true;
@@ -216,9 +215,9 @@ namespace OsmSharp.Routing.Graph.Geometric
         public bool RemoveEdge(uint vertex1, uint vertex2)
         {
             var edge = this.GetEdgeEnumerator(vertex1);
-            while(edge.MoveNext())
+            while (edge.MoveNext())
             {
-                if(edge.To == vertex2)
+                if (edge.To == vertex2)
                 {
                     return this.RemoveEdge(edge.Id);
                 }
@@ -270,7 +269,7 @@ namespace OsmSharp.Routing.Graph.Geometric
             _shapes.Resize(_graph.EdgeCount);
             _shapes.Compress();
         }
-        
+
         /// <summary>
         /// Resizes the internal data structures to their smallest size possible.
         /// </summary>
@@ -304,12 +303,12 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// <summary>
         /// An edge enumerator.
         /// </summary>
-        public class EdgeEnumerator : IEnumerable<GeometricEdge<TEdgeData>>, IEnumerator<GeometricEdge<TEdgeData>>
+        public class EdgeEnumerator : IEnumerable<GeometricEdge>, IEnumerator<GeometricEdge>
         {
-            private readonly GeometricGraph<TEdgeData> _graph;
-            private readonly Graph<TEdgeData>.EdgeEnumerator _enumerator;
+            private readonly GeometricGraph _graph;
+            private readonly Graph.EdgeEnumerator _enumerator;
 
-            internal EdgeEnumerator(GeometricGraph<TEdgeData> graph, Graph<TEdgeData>.EdgeEnumerator enumerator)
+            internal EdgeEnumerator(GeometricGraph graph, Graph.EdgeEnumerator enumerator)
             {
                 _graph = graph;
                 _enumerator = enumerator;
@@ -362,22 +361,22 @@ namespace OsmSharp.Routing.Graph.Geometric
             /// <summary>
             /// Returns the edge data.
             /// </summary>
-            public TEdgeData EdgeData
+            public uint[] Data
             {
                 get
                 {
-                    return _enumerator.EdgeData;
+                    return _enumerator.Data;
                 }
             }
 
             /// <summary>
             /// Returns true if the edge data is inverted by default.
             /// </summary>
-            public bool EdgeDataInverted
+            public bool DataInverted
             {
                 get
                 {
-                    return _enumerator.EdgeDataInverted;
+                    return _enumerator.DataInverted;
                 }
             }
 
@@ -404,9 +403,9 @@ namespace OsmSharp.Routing.Graph.Geometric
             /// <summary>
             /// Returns the current edge.
             /// </summary>
-            public GeometricEdge<TEdgeData> Current
+            public GeometricEdge Current
             {
-                get { return new GeometricEdge<TEdgeData>(this); }
+                get { return new GeometricEdge(this); }
             }
 
             /// <summary>
@@ -446,7 +445,7 @@ namespace OsmSharp.Routing.Graph.Geometric
             /// Gets the enumerator.
             /// </summary>
             /// <returns></returns>
-            public IEnumerator<GeometricEdge<TEdgeData>> GetEnumerator()
+            public IEnumerator<GeometricEdge> GetEnumerator()
             {
                 this.Reset();
                 return this;
@@ -512,9 +511,9 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// Deserializes a graph from the stream.
         /// </summary>
         /// <returns></returns>
-        public static GeometricGraph<TEdgeData> Deserialize(System.IO.Stream stream, bool copy)
+        public static GeometricGraph Deserialize(System.IO.Stream stream, bool copy)
         {
-            var graph = Graph<TEdgeData>.Deserialize(stream, copy);
+            var graph = Graph.Deserialize(stream, copy);
 
             // get vertices.
             var position = stream.Position;
@@ -550,7 +549,7 @@ namespace OsmSharp.Routing.Graph.Geometric
             stream.Seek(position, System.IO.SeekOrigin.Begin);
             var edgeShapes = HugeCoordinateCollectionIndex.Deserialize(stream, copy);
 
-            return new GeometricGraph<TEdgeData>(graph, coordinates, edgeShapes);
+            return new GeometricGraph(graph, coordinates, edgeShapes);
         }
     }
 }

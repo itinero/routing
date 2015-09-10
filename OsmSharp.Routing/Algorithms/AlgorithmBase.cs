@@ -23,7 +23,7 @@ namespace OsmSharp.Routing.Algorithms
     /// <summary>
     /// Abstract representation of an algorithm.
     /// </summary>
-    public abstract class RoutingAlgorithmBase : IAlgorithm
+    public abstract class AlgorithmBase : IAlgorithm
     {
         /// <summary>
         /// Returns true if this instance has run already.

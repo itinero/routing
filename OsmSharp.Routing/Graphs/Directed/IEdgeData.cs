@@ -16,39 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Arrays;
-
-namespace OsmSharp.Routing.Graph.Directed
+namespace OsmSharp.Routing.Graphs.Directed
 {
     /// <summary>
-    /// Abstract representation of edge data that can be memory-mapped.
+    /// Abstracts edge information.
     /// </summary>
-    /// <typeparam name="TEdgeData"></typeparam>
-    public interface IMappedEdgeData<TEdgeData> : IEdgeData
-        where TEdgeData : struct, IEdgeData
+    public interface IEdgeData
     {
         /// <summary>
-        /// Returns the map-from delegate.
+        /// Returns true if the given edge represents the same edge data as this one.
         /// </summary>
-        MappedHugeArray<TEdgeData, uint>.MapFrom MapFromDelegate
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Returns the map-to delegate.
-        /// </summary>
-        MappedHugeArray<TEdgeData, uint>.MapTo MapToDelegate
-        {
-            get;
-        }
-
-        /// <summary>
-        /// The size in uint's onces mapped.
-        /// </summary>
-        int MappedSize
-        {
-            get;
-        }
+        /// <returns></returns>
+        bool Equals(IEdgeData other);
     }
 }

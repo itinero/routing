@@ -23,32 +23,32 @@ using OsmSharp.IO.MemoryMappedFiles;
 using System;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Graph.Directed
+namespace OsmSharp.Routing.Graphs.Directed
 {
     /// <summary>
     /// An directed graph.
     /// </summary>
-    public class DirectedGraph<TEdgeData>
-        where TEdgeData : struct, IEdgeData
+    public class DirectedGraph
     {
         private const int VERTEX_SIZE = 2; // holds the first edge index and the edge count.
         private const int FIRST_EDGE = 0;
         private const int EDGE_COUNT = 1;
-        private const int EDGE_SIZE = 1; // holds only the target vertex.
+        private const int MINIMUM_EDGE_SIZE = 1; // holds only the target vertex.
         private const uint NO_EDGE = uint.MaxValue; // a dummy value indication that there is no edge.
 
         private uint _nextEdgeId;
 
+        private readonly int _edgeSize = -1;
+        private readonly int _edgeDataSize = -1;
         private readonly HugeArrayBase<uint> _vertices; // Holds all vertices pointing to it's first edge.
         private readonly HugeArrayBase<uint> _edges;
-        private readonly HugeArrayBase<TEdgeData> _edgeData;
         private bool _readonly = false;
 
         /// <summary>
         /// Creates a new graph.
         /// </summary>
-        public DirectedGraph()
-            : this(1000)
+        public DirectedGraph(int edgeDataSize)
+            : this(edgeDataSize, 1000)
         {
 
         }
@@ -56,25 +56,25 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Creates a new graph using the existing data in the given arrays.
         /// </summary>
-        private DirectedGraph(HugeArrayBase<uint> vertexArray,
-            HugeArrayBase<uint> edgesArray,
-            HugeArrayBase<TEdgeData> edgeDataArray)
+        private DirectedGraph(int edgeDataSize, HugeArrayBase<uint> vertices,
+            HugeArrayBase<uint> edges)
         {
+            _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
+            _edgeDataSize = edgeDataSize;
+
             _edgeCount = 0;
-            _vertices = vertexArray;
-            _edges = edgesArray;
-            _edgeData = edgeDataArray;
-            _nextEdgeId = (uint)(edgesArray.Length / EDGE_SIZE);
+            _vertices = vertices;
+            _edges = edges;
+            _nextEdgeId = (uint)(edges.Length / _edgeSize);
         }
 
         /// <summary>
         /// Creates a new graph.
         /// </summary>
-        public DirectedGraph(long sizeEstimate)
-            : this(sizeEstimate,
+        public DirectedGraph(int edgeDataSize, long sizeEstimate)
+            : this(edgeDataSize, sizeEstimate,
             new HugeArray<uint>(sizeEstimate),
-            new HugeArray<uint>(sizeEstimate * 3 * EDGE_SIZE),
-            new HugeArray<TEdgeData>(sizeEstimate * 3))
+            new HugeArray<uint>(sizeEstimate * 3 * edgeDataSize + MINIMUM_EDGE_SIZE))
         {
 
         }
@@ -82,21 +82,22 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Creates a graph.
         /// </summary>
-        private DirectedGraph(long sizeEstimate, 
-            HugeArrayBase<uint> vertexArray, HugeArrayBase<uint> edgesArray, HugeArrayBase<TEdgeData> edgeDataArray)
+        private DirectedGraph(int edgeDataSize, long sizeEstimate, 
+            HugeArrayBase<uint> vertices, HugeArrayBase<uint> edges)
         {
+            _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
+            _edgeDataSize = edgeDataSize;
+
             _nextEdgeId = 0;
             _edgeCount = 0;
-            _vertices = vertexArray;
+            _vertices = vertices;
             _vertices.Resize(sizeEstimate);
             for (var idx = 0; idx < sizeEstimate; idx++)
             {
                 _vertices[idx] = 0;
             }
-            _edges = edgesArray;
-            _edges.Resize(sizeEstimate * 3 * EDGE_SIZE);
-            _edgeData = edgeDataArray;
-            _edgeData.Resize(sizeEstimate * 3);
+            _edges = edges;
+            _edges.Resize(sizeEstimate * 3 * _edgeSize);
         }
 
         /// <summary>
@@ -104,23 +105,12 @@ namespace OsmSharp.Routing.Graph.Directed
         /// </summary>
         public DirectedGraph(MemoryMappedFile file, long estimatedSize)
         {
-            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
-            if (mapper == null)
-            { // oeps, this is impossible.
-                throw new InvalidOperationException(
-                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
-                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
-            }
-
             _vertices = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
             for (var idx = 0; idx < estimatedSize; idx++)
             {
                 _vertices[idx] = 0;
             }
             _edges = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
-            _edgeData = new MappedHugeArray<TEdgeData, uint>(
-                new MemoryMappedHugeArrayUInt32(file, estimatedSize * mapper.MappedSize), mapper.MappedSize,
-                    mapper.MapToDelegate, mapper.MapFromDelegate);
             _edgeCount = 0;
         }
 
@@ -163,14 +153,13 @@ namespace OsmSharp.Routing.Graph.Directed
 
             var oldLength = _edges.Length;
             _edges.Resize(size);
-            _edgeData.Resize(size / EDGE_SIZE);
         }
 
         /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
         /// 
-        public void AddEdge(uint vertex1, uint vertex2, TEdgeData data)
+        public void AddEdge(uint vertex1, uint vertex2, params uint[] data)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
@@ -179,13 +168,13 @@ namespace OsmSharp.Routing.Graph.Directed
 
             var vertex1Idx = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertex1Idx + EDGE_COUNT];
-            var edgeId = _vertices[vertex1Idx + FIRST_EDGE];
+            var edgeId = _vertices[vertex1Idx + FIRST_EDGE] * (uint)_edgeSize;
 
             if ((edgeCount & (edgeCount - 1)) == 0)
             { // edgeCount is a power of two, increase space.
                 // update vertex.
                 uint newEdgeId = _nextEdgeId;
-                _vertices[vertex1Idx + FIRST_EDGE] = newEdgeId;
+                _vertices[vertex1Idx + FIRST_EDGE] = newEdgeId / (uint)_edgeSize;
 
                 // move edges.
                 if (edgeCount > 0)
@@ -195,12 +184,13 @@ namespace OsmSharp.Routing.Graph.Directed
                         this.IncreaseEdgeSize();
                     }
 
-                    for (uint toMoveIdx = edgeId; toMoveIdx < edgeId + edgeCount; toMoveIdx = toMoveIdx + EDGE_SIZE)
+                    for (uint toMoveIdx = edgeId; toMoveIdx < edgeId + edgeCount; toMoveIdx = (uint)(toMoveIdx + _edgeSize))
                     {
-                        _edges[newEdgeId] = _edges[toMoveIdx];
-                        _edgeData[newEdgeId] = _edgeData[toMoveIdx];
-
-                        newEdgeId++;
+                        for (var i = 0; i < _edgeSize; i++)
+                        {
+                            _edges[newEdgeId + i] = _edges[toMoveIdx + i];
+                        }
+                        newEdgeId += (uint)_edgeSize;
                     }
 
                     // the edge id is the last new edge id.
@@ -211,13 +201,13 @@ namespace OsmSharp.Routing.Graph.Directed
                 }
                 else
                 { // just add next edge id.
-                    if (_nextEdgeId + 1 >= _edges.Length)
+                    if (_nextEdgeId + _edgeSize >= _edges.Length)
                     { // edges need to be increased.
                         this.IncreaseEdgeSize();
                     }
 
                     edgeId = _nextEdgeId;
-                    _nextEdgeId++;
+                    _nextEdgeId += (uint)_edgeSize;
                 }
             }
             else
@@ -228,7 +218,7 @@ namespace OsmSharp.Routing.Graph.Directed
                 }
 
                 edgeId = edgeId + edgeCount;
-                _nextEdgeId++;
+                _nextEdgeId += (uint)_edgeSize;
             }
 
             // update edge count in vertex.
@@ -237,7 +227,11 @@ namespace OsmSharp.Routing.Graph.Directed
 
             // update edge.
             _edges[edgeId] = vertex2;
-            _edgeData[edgeId] = data;
+            for (var i = 0; i < _edgeDataSize; i++)
+            {
+                _edges[edgeId + MINIMUM_EDGE_SIZE + i] =
+                    data[i];
+            }
 
             _edgeCount++;
             return;
@@ -273,47 +267,19 @@ namespace OsmSharp.Routing.Graph.Directed
             var edgeCount = _vertices[vertex1Idx + EDGE_COUNT];
             var edgeId = _vertices[vertex1Idx + FIRST_EDGE];
 
-            for (var removeIdx = edgeId; removeIdx < edgeId + edgeCount; removeIdx++)
+            for (var removeIdx = edgeId * (uint)_edgeSize; removeIdx < edgeId + (edgeCount * (uint)_edgeSize); removeIdx += (uint)_edgeSize)
             {
                 if (_edges[removeIdx] == vertex2)
                 {
                     edgeCount--;
-                    _edges[removeIdx] = _edges[edgeId + edgeCount];
-                    _edgeData[removeIdx] = _edgeData[edgeId + edgeCount];
+                    _edges[removeIdx] = _edges[edgeId + (edgeCount * (uint)_edgeSize)];
+                    for (var i = 0; i < _edgeDataSize; i++)
+                    {
+                        _edges[removeIdx + MINIMUM_EDGE_SIZE + i] =
+                            _edges[edgeId + (edgeCount * (uint)_edgeSize)];
+                    }
                     removed++;
-                    removeIdx--;
-
-                    _edgeCount--;
-                }
-            }
-            _vertices[vertex1Idx + EDGE_COUNT] = edgeCount;
-            return removed;
-        }
-
-        /// <summary>
-        /// Deletes the edge between the two given vertices.
-        /// </summary>
-        /// <remarks>Only deletes edge vertex1->vertex2 NOT vertex2 -> vertex1.</remarks>
-        public bool RemoveEdge(uint vertex1, uint vertex2, TEdgeData data)
-        {
-            if (_readonly) { throw new Exception("Graph is readonly."); }
-            if (vertex1 >= _vertices.Length) { return false; }
-            if (vertex2 >= _vertices.Length) { return false; }
-
-            var vertex1Idx = vertex1 * VERTEX_SIZE;
-            var edgeCount = _vertices[vertex1Idx + EDGE_COUNT];
-            var edgeId = _vertices[vertex1Idx + FIRST_EDGE];
-
-            bool removed = false;
-            for (var removeIdx = edgeId; removeIdx < edgeId + edgeCount; removeIdx++)
-            {
-                if (_edges[removeIdx] == vertex2 &&
-                    _edgeData[removeIdx].Equals(data))
-                {
-                    edgeCount--;
-                    _edges[removeIdx] = _edges[edgeId + edgeCount];
-                    _edgeData[removeIdx] = _edgeData[edgeId + edgeCount];
-                    removed = true;
+                    removeIdx -= (uint)_edgeSize;
 
                     _edgeCount--;
                 }
@@ -390,10 +356,9 @@ namespace OsmSharp.Routing.Graph.Directed
             var edgeSize = _nextEdgeId;
             if (edgeSize == 0)
             { // keep minimum room for one edge.
-                edgeSize = EDGE_SIZE;
+                edgeSize = 1;
             }
-            _edgeData.Resize(edgeSize / EDGE_SIZE);
-            _edges.Resize(edgeSize * EDGE_SIZE);
+            _edges.Resize(edgeSize * _edgeSize);
         }
 
         /// <summary>
@@ -427,12 +392,16 @@ namespace OsmSharp.Routing.Graph.Directed
                 // move data.
                 var vertex = sortedVertices[i] * VERTEX_SIZE;
                 var count = _vertices[vertex + EDGE_COUNT];
-                var position = _vertices[vertex + FIRST_EDGE];
-                _vertices[vertex + FIRST_EDGE] = pointer;
-                for (var e = 0; e < count; e++)
+                var position = _vertices[vertex + FIRST_EDGE] * (uint)_edgeSize;
+                _vertices[vertex + FIRST_EDGE] = pointer / (uint)_edgeSize;
+                for (uint e = 0; e < count * (uint)_edgeSize; e += (uint)_edgeSize)
                 {
-                    _edgeData[pointer + e] = _edgeData[position + e];
                     _edges[pointer + e] = _edges[position + e];
+                    for (var j = 0; j < _edgeDataSize; j++)
+                    {
+                        _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
+                            _edges[position + e + MINIMUM_EDGE_SIZE + j];
+                    }
                 }
 
                 if (!toReadonly && count > 2)
@@ -445,9 +414,9 @@ namespace OsmSharp.Routing.Graph.Directed
                     count++;
                 }
 
-                pointer += count;
+                pointer += count * (uint)_edgeSize;
             }
-            _nextEdgeId = pointer;
+            _nextEdgeId = pointer / (uint)_edgeSize;
             _readonly = toReadonly;
         }
 
@@ -462,10 +431,10 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Represents the internal edge enumerator.
         /// </summary>
-        public class EdgeEnumerator : IEnumerable<Edge<TEdgeData>>, IEnumerator<Edge<TEdgeData>>
+        public class EdgeEnumerator : IEnumerable<Edge>, IEnumerator<Edge>
         {
-            private readonly DirectedGraph<TEdgeData> _graph;
-            private uint _currentEdgeId;
+            private readonly DirectedGraph _graph;
+            private uint _currentEdgePointer;
             private int _currentCount;
             private uint _startEdgeId;
             private uint _count;
@@ -474,8 +443,7 @@ namespace OsmSharp.Routing.Graph.Directed
             /// <summary>
             /// Creates a new edge enumerator.
             /// </summary>
-            /// <param name="graph"></param>
-            public EdgeEnumerator(DirectedGraph<TEdgeData> graph)
+            public EdgeEnumerator(DirectedGraph graph)
             {
                 _graph = graph;
                 _startEdgeId = 0;
@@ -483,7 +451,7 @@ namespace OsmSharp.Routing.Graph.Directed
                 _neighbour = 0;
 
                 // reset.
-                _currentEdgeId = uint.MaxValue;
+                _currentEdgePointer = uint.MaxValue;
                 _currentCount = -1;
             }
 
@@ -495,12 +463,12 @@ namespace OsmSharp.Routing.Graph.Directed
             {
                 if (_currentCount < 0)
                 {
-                    _currentEdgeId = _startEdgeId;
+                    _currentEdgePointer = _startEdgeId;
                     _currentCount = 0;
                 }
                 else
                 {
-                    _currentEdgeId++;
+                    _currentEdgePointer += (uint)_graph._edgeSize;
                     _currentCount++;
                 }
                 if (_currentCount < _count)
@@ -508,7 +476,7 @@ namespace OsmSharp.Routing.Graph.Directed
                     while (_neighbour != 0 &&
                         _neighbour != this.Neighbour)
                     {
-                        _currentEdgeId++;
+                        _currentEdgePointer += (uint)_graph._edgeSize;
                         _currentCount++;
 
                         if (_currentCount >= _count)
@@ -526,17 +494,22 @@ namespace OsmSharp.Routing.Graph.Directed
             /// </summary>
             public uint Neighbour
             {
-                get { return _graph._edges[_currentEdgeId]; }
+                get { return _graph._edges[_currentEdgePointer]; }
             }
 
             /// <summary>
             /// Returns the current edge data.
             /// </summary>
-            public TEdgeData EdgeData
+            public uint[] Data
             {
                 get
                 {
-                    return _graph._edgeData[_currentEdgeId];
+                    var data = new uint[_graph._edgeDataSize];
+                    for (var i = 0; i < _graph._edgeDataSize; i++)
+                    {
+                        data[i] = _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + i];
+                    }
+                    return data;
                 }
             }
 
@@ -545,7 +518,7 @@ namespace OsmSharp.Routing.Graph.Directed
             /// </summary>
             public void Reset()
             {
-                _currentEdgeId = uint.MaxValue;
+                _currentEdgePointer = uint.MaxValue;
                 _currentCount = -1;
             }
 
@@ -553,7 +526,7 @@ namespace OsmSharp.Routing.Graph.Directed
             /// Gets the enumerator.
             /// </summary>
             /// <returns></returns>
-            public IEnumerator<Edge<TEdgeData>> GetEnumerator()
+            public IEnumerator<Edge> GetEnumerator()
             {
                 this.Reset();
                 return this;
@@ -562,9 +535,9 @@ namespace OsmSharp.Routing.Graph.Directed
             /// <summary>
             /// Gets the current edge.
             /// </summary>
-            public Edge<TEdgeData> Current
+            public Edge Current
             {
-                get { return new Edge<TEdgeData>(this); }
+                get { return new Edge(this); }
             }
 
             /// <summary>
@@ -589,12 +562,12 @@ namespace OsmSharp.Routing.Graph.Directed
             public bool MoveTo(uint vertex)
             {
                 var vertexId = vertex * VERTEX_SIZE;
-                _startEdgeId = _graph._vertices[vertexId + FIRST_EDGE];
+                _startEdgeId = _graph._vertices[vertexId + FIRST_EDGE] * (uint)_graph._edgeSize;
                 _count = _graph._vertices[vertexId + EDGE_COUNT];
                 _neighbour = 0;
 
                 // reset.
-                _currentEdgeId = uint.MaxValue;
+                _currentEdgePointer = uint.MaxValue;
                 _currentCount = -1;
 
                 return _count > 0;
@@ -629,33 +602,6 @@ namespace OsmSharp.Routing.Graph.Directed
             }
         }
 
-        /// <summary>
-        /// Sorts the graph based on the given transformations.
-        /// </summary>
-        public void Sort(HugeArrayBase<uint> transformations)
-        {
-            // update edges.
-            for (var i = 0; i < _nextEdgeId; i++)
-            {
-                _edges[i] = transformations[_edges[i]];
-            }
-
-            // sort vertices and coordinates.
-            QuickSort.Sort((i) => transformations[i], (i, j) =>
-            {
-                var tempRef = _vertices[i * 2];
-                _vertices[i * 2] = _vertices[j * 2];
-                _vertices[j * 2] = tempRef;
-                tempRef = _vertices[i * 2 + 1];
-                _vertices[i * 2 + 1] = _vertices[j * 2 + 1];
-                _vertices[j * 2 + 1] = tempRef;
-
-                var trans = transformations[i];
-                transformations[i] = transformations[j];
-                transformations[j] = trans;
-            }, 1, this.VertexCount);
-        }
-
         #region Serialization
 
         /// <summary>
@@ -663,31 +609,21 @@ namespace OsmSharp.Routing.Graph.Directed
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
-            if (mapper == null)
-            { // oeps, this is impossible.
-                throw new InvalidOperationException(
-                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
-                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
-            }
-
-            var mapTo = mapper.MapToDelegate;
-            var mapFrom = mapper.MapFromDelegate;
-            var edgeDataSize = mapper.MappedSize;
-
             this.Compress();
 
             long vertexCount = this.VertexCount;
-            long edgeCount = (_nextEdgeId / EDGE_SIZE);
+            long edgeCount = (_nextEdgeId / _edgeSize);
 
             // write vertex and edge count.
             long position = 0;
-            stream.Write(BitConverter.GetBytes((int)1), 0, 4);
-            position = position + 4;
             stream.Write(BitConverter.GetBytes(vertexCount), 0, 8); // write exact number of vertices.
             position = position + 8;
             stream.Write(BitConverter.GetBytes(edgeCount), 0, 8); // write exact number of edges.
             position = position + 8;
+            stream.Write(BitConverter.GetBytes(2), 0, 4); // write the vertex size.
+            position = position + 4;
+            stream.Write(BitConverter.GetBytes(_edgeSize), 0, 4); // write the edge size.
+            position = position + 4;
 
             // write in this order: vertices, vertexCoordinates, edges, edgeData, edgeShapes.
             using (var file = new MemoryMappedStream(new OsmSharp.IO.LimitedStream(stream)))
@@ -699,17 +635,10 @@ namespace OsmSharp.Routing.Graph.Directed
                 position = position + ((vertexCount + 1) * VERTEX_SIZE * 4);
 
                 // write edges (each edge = 4 uints (16 bytes)).
-                var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeCount * EDGE_SIZE, edgeCount * EDGE_SIZE, 1024);
-                edgeArray.CopyFrom(_edges, edgeCount * EDGE_SIZE);
+                var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeCount * _edgeSize, edgeCount * _edgeSize, 1024);
+                edgeArray.CopyFrom(_edges, edgeCount * _edgeSize);
                 edgeArray.Dispose(); // written, get rid of it!
-                position = position + (edgeCount * EDGE_SIZE * 4);
-
-                // write edge data (each edgeData = edgeDataSize units (edgeDataSize * 4 bytes)).
-                var edgeDataArray = new MappedHugeArray<TEdgeData, uint>(
-                    new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeDataSize, edgeCount * edgeDataSize, 1024), edgeDataSize, mapTo, mapFrom);
-                edgeDataArray.CopyFrom(_edgeData, edgeCount);
-                edgeDataArray.Dispose(); // written, get rid of it!
-                position = position + (edgeCount * edgeDataSize * 4);
+                position = position + (edgeCount * _edgeSize * 4);
             }
             return position;
         }
@@ -718,42 +647,33 @@ namespace OsmSharp.Routing.Graph.Directed
         /// Deserializes a graph from the given stream.
         /// </summary>
         /// <returns></returns>
-        public static DirectedGraph<TEdgeData> Deserialize(System.IO.Stream stream, bool copy)
+        public static DirectedGraph Deserialize(System.IO.Stream stream, bool copy)
         {
-            var mapper = default(TEdgeData) as IMappedEdgeData<TEdgeData>;
-            if (mapper == null)
-            { // oeps, this is impossible.
-                throw new InvalidOperationException(
-                    string.Format("Cannot create a memory-mapped graph with edge data type: {0}. " +
-                        "There is no IMappedEdgeData implementation.", typeof(TEdgeData).ToInvariantString()));
-            }
-
-            var mapTo = mapper.MapToDelegate;
-            var mapFrom = mapper.MapFromDelegate;
-            var edgeDataSize = mapper.MappedSize;
-
             // read sizes.
             long position = 0;
             stream.Seek(4, System.IO.SeekOrigin.Begin);
             position = position + 4;
-            var longBytes = new byte[8];
-            stream.Read(longBytes, 0, 8);
+            var bytes = new byte[8];
+            stream.Read(bytes, 0, 8);
             position = position + 8;
-            var vertexLength = BitConverter.ToInt64(longBytes, 0);
-            stream.Read(longBytes, 0, 8);
+            var vertexLength = BitConverter.ToInt64(bytes, 0);
+            stream.Read(bytes, 0, 8);
             position = position + 8;
-            var edgeLength = BitConverter.ToInt64(longBytes, 0);
+            var edgeLength = BitConverter.ToInt64(bytes, 0);
+            stream.Read(bytes, 0, 4);
+            position = position + 4;
+            var vertexSize = BitConverter.ToInt32(bytes, 0);
+            stream.Read(bytes, 0, 4);
+            position = position + 4;
+            var edgeSize = BitConverter.ToInt32(bytes, 0);
 
             var bufferSize = 32;
             var cacheSize = MemoryMappedHugeArrayUInt32.DefaultCacheSize;
             var file = new MemoryMappedStream(new OsmSharp.IO.LimitedStream(stream));
             var vertexArray = new MemoryMappedHugeArrayUInt32(file, (vertexLength + 1) * VERTEX_SIZE, (vertexLength + 1) * VERTEX_SIZE, bufferSize / 4, cacheSize * 4);
             position = position + ((vertexLength + 1) * VERTEX_SIZE * 4);
-            var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeLength * EDGE_SIZE, edgeLength * EDGE_SIZE, bufferSize / 2, cacheSize * 4);
-            position = position + (edgeLength * EDGE_SIZE * 4);
-            var edgeDataArray = new MappedHugeArray<TEdgeData, uint>(
-                new MemoryMappedHugeArrayUInt32(file, edgeLength * edgeDataSize, edgeLength * edgeDataSize, bufferSize * 2, cacheSize * 2), edgeDataSize, mapTo, mapFrom);
-            position = position + (edgeLength * edgeDataSize * 4);
+            var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeLength * edgeSize, edgeLength * edgeSize, bufferSize / 2, cacheSize * 4);
+            position = position + (edgeLength * edgeSize * 4);
 
             // deserialize shapes.
             stream.Seek(position, System.IO.SeekOrigin.Begin);
@@ -765,15 +685,12 @@ namespace OsmSharp.Routing.Graph.Directed
                 vertexArrayCopy.CopyFrom(vertexArray);
                 var edgeArrayCopy = new HugeArray<uint>(edgeArray.Length);
                 edgeArrayCopy.CopyFrom(edgeArray);
-                var edgeDataArrayCopy = new HugeArray<TEdgeData>(edgeDataArray.Length);
-                edgeDataArrayCopy.CopyFrom(edgeDataArray);
 
                 file.Dispose();
 
-                return new DirectedGraph<TEdgeData>(vertexArrayCopy, edgeArrayCopy, edgeDataArrayCopy);
+                return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, vertexArrayCopy, edgeArrayCopy);
             }
-
-            return new DirectedGraph<TEdgeData>(vertexArray, edgeArray, edgeDataArray);
+            return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, vertexArray, edgeArray);
         }
 
         #endregion

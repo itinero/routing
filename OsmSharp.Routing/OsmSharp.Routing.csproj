@@ -63,22 +63,25 @@
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
-    <Compile Include="Algorithms\Resolver\Hilbert.cs" />
-    <Compile Include="Algorithms\Resolver\IResolver.cs" />
-    <Compile Include="Graph\Directed\DirectedGraph.cs">
+    <Compile Include="Algorithms\Routing\OneToAllDykstra.cs" />
+    <Compile Include="Algorithms\Routing\Speed.cs" />
+    <Compile Include="Algorithms\Search\Hilbert.cs" />
+    <Compile Include="Algorithms\Routing\Path.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Data\EdgeDataSerializer.cs" />
+    <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Graph\Directed\Edge.cs" />
-    <Compile Include="Graph\Directed\IEdgeData.cs" />
-    <Compile Include="Graph\Directed\IMappedEdgeData.cs" />
-    <Compile Include="Graph\Edge.cs" />
-    <Compile Include="Graph\Geometric\GeometricEdge.cs" />
-    <Compile Include="Graph\Geometric\GeometricGraph.cs">
+    <Compile Include="Graphs\Directed\Edge.cs" />
+    <Compile Include="Graphs\Directed\IEdgeData.cs" />
+    <Compile Include="Graphs\Directed\IMappedEdgeData.cs" />
+    <Compile Include="Graphs\Edge.cs" />
+    <Compile Include="Graphs\Geometric\GeometricEdge.cs" />
+    <Compile Include="Graphs\Geometric\GeometricGraph.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Graph\IEdgeData.cs" />
-    <Compile Include="Graph\Graph.cs" />
-    <Compile Include="Graph\IMappedEdgeData.cs" />
+    <Compile Include="Graphs\Geometric\GeometricGraphExtensions.cs" />
+    <Compile Include="Graphs\Graph.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeData.cs">
       <SubType>Code</SubType>
     </Compile>

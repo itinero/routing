@@ -17,14 +17,14 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Data;
-using OsmSharp.Routing.Graph.Geometric;
-using OsmSharp.Routing.Algorithms.Resolver;
-using System.Collections.Generic;
 using OsmSharp.Math.Algorithms;
+using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Algorithms.Search;
+using OsmSharp.Routing.Graphs.Geometric;
+using OsmSharp.Routing.Test.Graphs;
+using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Test.Algorithms.Resolver
+namespace OsmSharp.Routing.Test.Algorithms.Search
 {
     [TestFixture]
     class HibertTests
@@ -57,7 +57,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Resolver
             locations.Add(new GeoCoordinate(90, 180));
 
             // build graph.
-            var graph = new GeometricGraph<EdgeData>();
+            var graph = new GeometricGraph(1);
             for (var vertex = 0; vertex < locations.Count; vertex++)
             {
                 graph.AddVertex((uint)vertex, (float)locations[vertex].Latitude,
@@ -90,6 +90,23 @@ namespace OsmSharp.Routing.Test.Algorithms.Resolver
                 Assert.AreEqual(latitude, locations[(int)vertex].Latitude);
                 Assert.AreEqual(longitude, locations[(int)vertex].Longitude);
             }
+        }
+
+        /// <summary>
+        /// Tests searching the closest vertex.
+        /// </summary>
+        [Test]
+        public void SearchClosestVertexTest()
+        {
+            var graph = new GeometricGraph(1);
+            graph.AddVertex(0, 1, 1);
+            graph.AddVertex(1, 2, 2);
+
+            graph.Sort();
+
+            Assert.AreEqual(0, graph.SearchClosest(1, 1, 1));
+            Assert.AreEqual(1, graph.SearchClosest(2, 2, 1));
+            Assert.AreEqual(Constants.NO_VERTEX, graph.SearchClosest(3, 3, .5f));
         }
     }
 }

@@ -3,22 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OsmSharp.Routing.Graph.Directed
+namespace OsmSharp.Routing.Graphs.Directed
 {
     /// <summary>
     /// Abstract representation of an edge.
     /// </summary>
-    /// <typeparam name="TEdgeData"></typeparam>
-    public class Edge<TEdgeData>
-        where TEdgeData : struct, IEdgeData
+    public class Edge
     {
         /// <summary>
         /// Creates a new edge keeping the current state of the given enumerator.
         /// </summary>
-        internal Edge(DirectedGraph<TEdgeData>.EdgeEnumerator enumerator)
+        internal Edge(DirectedGraph.EdgeEnumerator enumerator)
         {
             this.Neighbour = enumerator.Neighbour;
-            this.EdgeData = enumerator.EdgeData;
+            this.Data = enumerator.Data;
         }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace OsmSharp.Routing.Graph.Directed
         /// <summary>
         /// Returns the edge data.
         /// </summary>
-        public TEdgeData EdgeData
+        public uint[] Data
         {
             get;
             set;
@@ -47,7 +45,7 @@ namespace OsmSharp.Routing.Graph.Directed
         {
             return string.Format("{0} - {1}",
                 this.Neighbour,
-                this.EdgeData.ToInvariantString());
+                this.Data.ToInvariantString());
         }
     }
 }

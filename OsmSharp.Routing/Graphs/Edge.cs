@@ -16,43 +16,35 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Coordinates.Collections;
-
-namespace OsmSharp.Routing.Graph.Geometric
+namespace OsmSharp.Routing.Graphs
 {
     /// <summary>
-    /// A geometric edge.
+    /// Abstract representation of an edge.
     /// </summary>
-    /// <typeparam name="TEdgeData"></typeparam>
-    public class GeometricEdge<TEdgeData>
-        where TEdgeData : struct, IEdgeData
+    public class Edge
     {
         /// <summary>
-        /// Creates a new geometric edge.
+        /// Creates a new edge.
         /// </summary>
-        public GeometricEdge(uint id, uint from, uint to, TEdgeData edgeData, bool edgeDataInverted, 
-            ICoordinateCollection shape)
+        internal Edge(uint id, uint from, uint to, uint[] data, bool edgeDataInverted)
         {
             this.Id = id;
-            this.From = from;
             this.To = to;
-            this.EdgeData = edgeData;
-            this.EdgeDataInverted = edgeDataInverted;
-            this.Shape = shape;
+            this.From = from;
+            this.Data = data;
+            this.DataInverted = edgeDataInverted;
         }
 
         /// <summary>
-        /// Creates a new geometric edge.
+        /// Creates a new edge keeping the current state of the given enumerator.
         /// </summary>
-        /// <param name="enumerator"></param>
-        internal GeometricEdge(GeometricGraph<TEdgeData>.EdgeEnumerator enumerator)
+        internal Edge(Graph.EdgeEnumerator enumerator)
         {
             this.Id = enumerator.Id;
-            this.From = enumerator.From;
             this.To = enumerator.To;
-            this.EdgeData = enumerator.EdgeData;
-            this.EdgeDataInverted = enumerator.EdgeDataInverted;
-            this.Shape = enumerator.Shape;
+            this.From = enumerator.From;
+            this.DataInverted = enumerator.DataInverted;
+            this.Data = enumerator.Data;
         }
 
         /// <summary>
@@ -85,7 +77,7 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// <summary>
         /// Returns true if the edge data is inverted relative to the direction of this edge.
         /// </summary>
-        public bool EdgeDataInverted
+        public bool DataInverted
         {
             get;
             private set;
@@ -94,32 +86,21 @@ namespace OsmSharp.Routing.Graph.Geometric
         /// <summary>
         /// Gets the edge data.
         /// </summary>
-        public TEdgeData EdgeData
+        public uint[] Data
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// Gets the directed edge data.
+        /// Returns a string representing this edge.
         /// </summary>
         /// <returns></returns>
-        public TEdgeData GetDirectedEdgeData()
+        public override string ToString()
         {
-            if (this.EdgeDataInverted)
-            {
-                return (TEdgeData)this.EdgeData.Reverse();
-            }
-            return this.EdgeData;
-        }
-
-        /// <summary>
-        /// Gets the shape.
-        /// </summary>
-        public ICoordinateCollection Shape
-        {
-            get;
-            private set;
+            return string.Format("{0} - {1}",
+                this.To,
+                this.Data.ToInvariantString());
         }
     }
 }

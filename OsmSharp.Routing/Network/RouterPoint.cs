@@ -28,41 +28,51 @@ namespace OsmSharp.Routing.Network
     /// 
     /// The object represents a location and can be tagged.
     /// </summary>
-    public class RouterPoint : ILocationObject
+    public class RouterPoint
     {
         /// <summary>
         /// Creates a new router point.
         /// </summary>
-        public RouterPoint(long id, Vehicle vehicle, GeoCoordinate location)
+        public RouterPoint(float latitude, float longitude, uint edgeId, float offset)
         {
-            this.Id = id;
-            this.Location = location;
-            this.Vehicle = vehicle;
+            this.Latitude = latitude;
+            this.Longitude = longitude;
+            this.EdgeId = edgeId;
+            this.Offset = offset;
             this.Tags = new TagsCollection();
         }
 
         /// <summary>
-        /// Returns the id of this router point.
+        /// Gets the edge id.
         /// </summary>
-        public long Id
+        public uint EdgeId
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// Returns the location of this router point.
+        /// Gets the offset in meters.
         /// </summary>
-        public GeoCoordinate Location
+        public float Offset
         {
             get;
             private set;
         }
 
         /// <summary>
-        /// Returns the vehicle profile this point is valid for.
+        /// Gets the latitude.
         /// </summary>
-        public Vehicle Vehicle
+        public float Latitude
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Gets the longitude.
+        /// </summary>
+        public float Longitude
         {
             get;
             private set;
@@ -83,13 +93,9 @@ namespace OsmSharp.Routing.Network
         /// <returns></returns>
         public override string ToString()
         {
-            if (this.Location == null)
-            {
-                return string.Format("{0} ({1})",
-                    this.Id, this.Tags.ToInvariantString());
-            }
-            return string.Format("{0} {1} ({2})",
-                this.Id, this.Location.ToString(), this.Tags.ToInvariantString());
+            return string.Format("[{0},{1}] ({2})",
+                this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString(), 
+                this.Tags.ToInvariantString());
         }
     }
 }

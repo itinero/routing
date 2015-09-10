@@ -1,0 +1,97 @@
+﻿// OsmSharp - OpenStreetMap (OSM) SDK
+// Copyright (C) 2015 Abelshausen Ben
+// 
+// This file is part of OsmSharp.
+// 
+// OsmSharp is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// OsmSharp is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
+
+using System;
+
+namespace OsmSharp.Routing.Data
+{
+    /// <summary>
+    /// Parses edge data.
+    /// </summary>
+    public static class EdgeDataSerializer
+    {
+        /// <summary>
+        /// Holds the maximum profile count.
+        /// </summary>
+        public const ushort MAX_PROFILE_COUNT = (ushort)(1 << 14);
+
+        /// <summary>
+        /// Holds the maxium distance that can be stored on an edge.
+        /// </summary>
+        public const float MAX_DISTANCE = (((uint.MaxValue - 1) >> 14) / 10.0f);
+
+        /// <summary>
+        /// Parses the profile id.
+        /// </summary>
+        /// <returns></returns>
+        public static void Deserialize(uint value, out float distance, out ushort profile)
+        {
+            distance = (value >> 14) / 10f;
+            profile = (ushort)(value & (uint)((1 << 14) - 1));
+        }
+
+        /// <summary>
+        /// Returns the size of a the data in uint's when serialized.
+        /// </summary>
+        public static int Size
+        {
+            get { return 1; }
+        }
+
+        /// <summary>
+        /// Deserializes edges data.
+        /// </summary>
+        /// <returns></returns>
+        public static EdgeData Deserialize(uint[] data)
+        {
+            float distance;
+            ushort profile;
+            EdgeDataSerializer.Deserialize(data[0], out distance, out profile);
+
+            return new EdgeData()
+            {
+                Profile = profile,
+                Distance = distance
+            };
+        }
+
+        /// <summary>
+        /// Serializes edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static uint[] Serialize(EdgeData data)
+        {
+            if(data.Distance > MAX_DISTANCE)
+            {
+                throw new ArgumentOutOfRangeException("Cannot store distance on edge, too big.");
+            }
+            if(data.Distance < 0)
+            {
+                throw new ArgumentOutOfRangeException("Cannot store distance on edge, too small.");
+            }
+            if(data.Profile >= MAX_PROFILE_COUNT)
+            {
+                throw new ArgumentOutOfRangeException("Cannot store profile id on edge, too big.");
+            }
+
+            var distance = (uint)(data.Distance * 10) << 14;
+            uint value = data.Profile + distance;
+            return new uint[] { value };
+        }
+    }
+}

@@ -16,17 +16,26 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Graph.Directed
+namespace OsmSharp.Routing.Algorithms.Routing
 {
     /// <summary>
-    /// Abstracts edge information.
+    /// Represents speed.
     /// </summary>
-    public interface IEdgeData
+    public struct Speed
     {
         /// <summary>
-        /// Returns true if the given edge represents the same edge data as this one.
+        /// Gets or sets the meters per second.
         /// </summary>
-        /// <returns></returns>
-        bool Equals(IEdgeData other);
+        public float MeterPerSecond { get; set; }
+
+        /// <summary>
+        /// Gets or sets the direction.
+        /// </summary>
+        public bool? Direction { get; set; }
+
+        /// <summary>
+        /// Returns a default empty speed value.
+        /// </summary>
+        public static Speed NoSpeed = new Speed() { Direction = null, MeterPerSecond = 0 };
     }
 }

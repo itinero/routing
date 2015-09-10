@@ -16,26 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Algorithms.Resolver
+namespace OsmSharp.Routing
 {
     /// <summary>
-    /// Abstract a resolver.
+    /// Contains constants.
     /// </summary>
-    /// <typeparam name="THook"></typeparam>
-    /// <typeparam name="TRoutingPoint"></typeparam>
-    public interface IResolver<THook, TRoutingPoint>
+    public static class Constants
     {
         /// <summary>
-        /// Resolves a location to a routing point.
+        /// A constant to use when no edge was found, is available or set.
         /// </summary>
-        /// <exception cref="System.Exception">The resolving operation failed.</exception>
-        /// <returns>A routing point. This method should quarantee a non-null return.</returns>
-        TRoutingPoint Resolve(float latitude, float longitude);
+        public const uint NO_EDGE = uint.MaxValue;
 
         /// <summary>
-        /// Converts a resolved point to a routing hook that can serve as the start of a routing algorithm run.
+        /// A constant to use when no vertex was found, is available or set.
         /// </summary>
-        /// <returns></returns>
-        THook GetHook(TRoutingPoint routingPoint);
+        public const uint NO_VERTEX = uint.MaxValue - 1;
     }
 }

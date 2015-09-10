@@ -18,185 +18,24 @@
 
 using OsmSharp.Collections.Arrays;
 using OsmSharp.Math.Geo.Simple;
-using OsmSharp.Routing.Graph;
+using OsmSharp.Routing.Graphs;
 using System;
 
 namespace OsmSharp.Routing.Data
 {
     /// <summary>
-    /// A simple edge containing the orignal attributes and a flag indicating the direction of this edge relative to it's data.
+    /// A simple edge represting distance and profile.
     /// </summary>
-    public struct EdgeData : IEdgeData, IMappedEdgeData<EdgeData>
+    public struct EdgeData
     {
         /// <summary>
-        /// Contains a value that represents attributes id and forward flag [forwardFlag (true when zero)][tagsIdx].
+        /// Gets or sets the profile id.
         /// </summary>
-        private uint _value;
+        public ushort Profile { get; set; }
 
         /// <summary>
-        /// Gets/sets the value.
+        /// Gets or sets the distance.
         /// </summary>
-        internal uint Value
-        {
-            get
-            {
-                return _value;
-            }
-            set
-            {
-                _value = value;
-            }
-        }
-
-        /// <summary>
-        /// Flag indicating if this is a forward or backward edge relative to the tag descriptions.
-        /// </summary>
-        public bool Forward
-        {
-            get
-            { // true when first bit is 0.
-                return _value % 2 == 0;
-            }
-            set
-            {
-                if (_value % 2 == 0)
-                { // true already.
-                    if (!value) { _value = _value + 1; }
-                }
-                else
-                { // false already.
-                    if (value) { _value = _value - 1; }
-                }
-            }
-        }
-
-        /// <summary>
-        /// The properties of this edge.
-        /// </summary>
-        public uint Tags
-        {
-            get
-            {
-                return _value / 2;
-            }
-            set
-            {
-                if (_value % 2 == 0)
-                { // true already.
-                    _value = value * 2;
-                }
-                else
-                { // false already.
-                    _value = (value * 2) + 1;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Holds the distance but also the shape-in-box flag. (>=0: no (out box) else: yes (in box)).
-        /// </summary>
-        private float _distance;
-
-        /// <summary>
-        /// Gets/or sets the total distance of this edge.
-        /// </summary>
-        public float Distance
-        {
-            get
-            {
-                if (_distance < 0)
-                {
-                    return -_distance;
-                }
-                return _distance;
-            }
-            set
-            {
-                if (value < 0) { throw new ArgumentOutOfRangeException(); }
-
-                if (_distance >= 0)
-                { // current state: out box, keep it this way.
-                    _distance = value;
-                }
-                else
-                { // current state: in box, keep it this way.
-                    _distance = -value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Returns true if this edge represents a neighbour-relation.
-        /// </summary>
-        public bool RepresentsNeighbourRelations
-        {
-            get { return true; }
-        }
-
-        /// <summary>
-        /// Creates the exact reverse of this edge.
-        /// </summary>
-        /// <returns></returns>
-        public IEdgeData Reverse()
-        {
-            return new EdgeData()
-            {
-                Distance = this.Distance,
-                Forward = !this.Forward,
-                Tags = this.Tags
-            };
-        }
-
-        /// <summary>
-        /// Returns a description of this edge.
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Format("{0}-{1}", this.Tags, this.Distance);
-        }
-
-        /// <summary>
-        /// Holds the size this edge has when converted to uints.
-        /// </summary>
-        public static int SizeUints = 3;
-
-        /// <summary>
-        /// A delegate to map an edge onto uints.
-        /// </summary>
-        public static MappedHugeArray<EdgeData, uint>.MapFrom MapFromDelegate = (array, idx) =>
-        {
-            return new EdgeData()
-                {
-                    Value = array[idx],
-                    Tags = array[idx + 1],
-                    Distance = System.BitConverter.ToSingle(System.BitConverter.GetBytes(array[idx + 2]), 0)
-                };
-        };
-
-        /// <summary>
-        /// A delegate to map an edge onto uints.
-        /// </summary>
-        public static MappedHugeArray<EdgeData, uint>.MapTo MapToDelegate = (array, idx, value) =>
-        {
-            array[idx] = value.Value;
-            array[idx + 1] = value.Tags;
-            array[idx + 2] = System.BitConverter.ToUInt32(System.BitConverter.GetBytes(value.Distance), 0);
-        };
-
-        MappedHugeArray<EdgeData, uint>.MapFrom IMappedEdgeData<EdgeData>.MapFromDelegate
-        {
-            get { return EdgeData.MapFromDelegate; }
-        }
-
-        MappedHugeArray<EdgeData, uint>.MapTo IMappedEdgeData<EdgeData>.MapToDelegate
-        {
-            get { return EdgeData.MapToDelegate; }
-        }
-
-        int IMappedEdgeData<EdgeData>.MappedSize
-        {
-            get { return EdgeData.SizeUints; }
-        }
+        public float Distance { get; set; }
     }
 }

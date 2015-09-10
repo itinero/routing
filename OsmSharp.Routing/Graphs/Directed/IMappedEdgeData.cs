@@ -18,7 +18,7 @@
 
 using OsmSharp.Collections.Arrays;
 
-namespace OsmSharp.Routing.Graph
+namespace OsmSharp.Routing.Graphs.Directed
 {
     /// <summary>
     /// Abstract representation of edge data that can be memory-mapped.
