@@ -31,6 +31,7 @@ namespace OsmSharp.Routing.Test.Data
         /// <summary>
         /// Tests serializing distance/profile id's.
         /// </summary>
+        [Test]
         public void TestSerialize()
         {
             var edgeData = new EdgeData()
@@ -93,6 +94,7 @@ namespace OsmSharp.Routing.Test.Data
         /// <summary>
         /// Test deserializing distance/profile id's.
         /// </summary>
+        [Test]
         public void TestDeserialize()
         {
             var edge = EdgeDataSerializer.Deserialize(new uint[] { 0 });

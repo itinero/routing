@@ -728,7 +728,7 @@ namespace OsmSharp.Routing.Test.Graphs
 
             // serialize.
             graph.Compress();
-            var expectedSize = 8 + 8 + 4 + // the header: two longs representing vertex and edge count and one int for edge size.
+            var expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
                 graph.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
                 graph.EdgeCount * 4 * (4 + 1); // the bytes for the one edge: one edge = 4 uints + edge data size.
             using (var stream = new System.IO.MemoryStream())
@@ -756,7 +756,7 @@ namespace OsmSharp.Routing.Test.Graphs
 
             // serialize.
             graph.Compress();
-            expectedSize = 8 + 8 + 4 + // the header: two longs representing vertex and edge count and one int for edge size.
+            expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
                 graph.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
                 graph.EdgeCount * 4 * (4 + 1); // the bytes for the one edge: one edge = 4 uints and edge data size.
             using (var stream = new System.IO.MemoryStream())

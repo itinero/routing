@@ -37,12 +37,12 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="OsmSharp, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.19-beta\lib\net45\OsmSharp.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\core\Output\OsmSharp.dll</HintPath>
     </Reference>
     <Reference Include="OsmSharp.Osm, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.19-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\core\Output\OsmSharp.Osm.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>

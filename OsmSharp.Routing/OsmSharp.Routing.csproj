@@ -75,8 +75,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Graphs\Directed\Edge.cs" />
-    <Compile Include="Graphs\Directed\IEdgeData.cs" />
-    <Compile Include="Graphs\Directed\IMappedEdgeData.cs" />
     <Compile Include="Graphs\Edge.cs" />
     <Compile Include="Graphs\Geometric\GeometricEdge.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraph.cs">

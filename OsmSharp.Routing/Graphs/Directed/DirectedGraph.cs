@@ -36,7 +36,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         private const int MINIMUM_EDGE_SIZE = 1; // holds only the target vertex.
         private const uint NO_EDGE = uint.MaxValue; // a dummy value indication that there is no edge.
 
-        private uint _nextEdgeId;
+        private uint _nextEdgePointer;
 
         private readonly int _edgeSize = -1;
         private readonly int _edgeDataSize = -1;
@@ -54,21 +54,6 @@ namespace OsmSharp.Routing.Graphs.Directed
         }
 
         /// <summary>
-        /// Creates a new graph using the existing data in the given arrays.
-        /// </summary>
-        private DirectedGraph(int edgeDataSize, HugeArrayBase<uint> vertices,
-            HugeArrayBase<uint> edges)
-        {
-            _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
-            _edgeDataSize = edgeDataSize;
-
-            _edgeCount = 0;
-            _vertices = vertices;
-            _edges = edges;
-            _nextEdgeId = (uint)(edges.Length / _edgeSize);
-        }
-
-        /// <summary>
         /// Creates a new graph.
         /// </summary>
         public DirectedGraph(int edgeDataSize, long sizeEstimate)
@@ -77,27 +62,6 @@ namespace OsmSharp.Routing.Graphs.Directed
             new HugeArray<uint>(sizeEstimate * 3 * edgeDataSize + MINIMUM_EDGE_SIZE))
         {
 
-        }
-
-        /// <summary>
-        /// Creates a graph.
-        /// </summary>
-        private DirectedGraph(int edgeDataSize, long sizeEstimate, 
-            HugeArrayBase<uint> vertices, HugeArrayBase<uint> edges)
-        {
-            _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
-            _edgeDataSize = edgeDataSize;
-
-            _nextEdgeId = 0;
-            _edgeCount = 0;
-            _vertices = vertices;
-            _vertices.Resize(sizeEstimate);
-            for (var idx = 0; idx < sizeEstimate; idx++)
-            {
-                _vertices[idx] = 0;
-            }
-            _edges = edges;
-            _edges.Resize(sizeEstimate * 3 * _edgeSize);
         }
 
         /// <summary>
@@ -112,6 +76,42 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
             _edges = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
             _edgeCount = 0;
+        }
+
+        /// <summary>
+        /// Creates a new graph using the existing data in the given arrays.
+        /// </summary>
+        private DirectedGraph(int edgeDataSize, HugeArrayBase<uint> vertices,
+            HugeArrayBase<uint> edges)
+        {
+            _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
+            _edgeDataSize = edgeDataSize;
+
+            _edgeCount = 0;
+            _vertices = vertices;
+            _edges = edges;
+            _nextEdgePointer = (uint)(edges.Length / _edgeSize);
+        }
+
+        /// <summary>
+        /// Creates a graph.
+        /// </summary>
+        private DirectedGraph(int edgeDataSize, long sizeEstimate,
+            HugeArrayBase<uint> vertices, HugeArrayBase<uint> edges)
+        {
+            _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
+            _edgeDataSize = edgeDataSize;
+
+            _nextEdgePointer = 0;
+            _edgeCount = 0;
+            _vertices = vertices;
+            _vertices.Resize(sizeEstimate);
+            for (var idx = 0; idx < sizeEstimate; idx++)
+            {
+                _vertices[idx] = 0;
+            }
+            _edges = edges;
+            _edges.Resize(sizeEstimate * 3 * _edgeSize);
         }
 
         private long _edgeCount;
@@ -166,74 +166,87 @@ namespace OsmSharp.Routing.Graphs.Directed
             if (vertex1 * VERTEX_SIZE > _vertices.Length - 1 ) { this.IncreaseVertexSize(); }
             if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
 
-            var vertex1Idx = vertex1 * VERTEX_SIZE;
-            var edgeCount = _vertices[vertex1Idx + EDGE_COUNT];
-            var edgeId = _vertices[vertex1Idx + FIRST_EDGE] * (uint)_edgeSize;
+            var vertexPointer = vertex1 * VERTEX_SIZE;
+            var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
 
-            if ((edgeCount & (edgeCount - 1)) == 0)
-            { // edgeCount is a power of two, increase space.
-                // update vertex.
-                uint newEdgeId = _nextEdgeId;
-                _vertices[vertex1Idx + FIRST_EDGE] = newEdgeId / (uint)_edgeSize;
+            if (edgeCount == 0)
+            { // no edge yet, just add the end.
+                _vertices[vertexPointer + EDGE_COUNT] = 1;
+                _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
 
-                // move edges.
-                if (edgeCount > 0)
+                _edges[_nextEdgePointer] = vertex2;
+                for (uint i = 0; i < _edgeDataSize; i++)
                 {
-                    if (newEdgeId + (2 * edgeCount) >= _edges.Length)
-                    { // edges need to be increased.
-                        this.IncreaseEdgeSize();
-                    }
-
-                    for (uint toMoveIdx = edgeId; toMoveIdx < edgeId + edgeCount; toMoveIdx = (uint)(toMoveIdx + _edgeSize))
-                    {
-                        for (var i = 0; i < _edgeSize; i++)
-                        {
-                            _edges[newEdgeId + i] = _edges[toMoveIdx + i];
-                        }
-                        newEdgeId += (uint)_edgeSize;
-                    }
-
-                    // the edge id is the last new edge id.
-                    edgeId = newEdgeId;
-
-                    // increase the nextEdgeId, these edges have been added at the end of the edge-array.
-                    _nextEdgeId = _nextEdgeId + (2 * edgeCount);
+                    _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
+                        data[i];
                 }
-                else
-                { // just add next edge id.
-                    if (_nextEdgeId + _edgeSize >= _edges.Length)
-                    { // edges need to be increased.
-                        this.IncreaseEdgeSize();
-                    }
-
-                    edgeId = _nextEdgeId;
-                    _nextEdgeId += (uint)_edgeSize;
-                }
+                _nextEdgePointer += (uint)(_edgeSize);
             }
-            else
-            { // calculate edgeId of new edge.
-                if (_nextEdgeId + 1 >= _edges.Length)
-                { // edges need to be increased.
+            else if ((edgeCount & (edgeCount - 1)) == 0)
+            { // edgeCount is a power of two, increase space.
+                if (_nextEdgePointer >= _edges.Length)
+                { // make sure we can add another edge.
                     this.IncreaseEdgeSize();
                 }
 
-                edgeId = edgeId + edgeCount;
-                _nextEdgeId += (uint)_edgeSize;
+                if(edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
+                { // these edge are at the end of the edge-array, don't copy just increase size.
+
+                    _edges[_nextEdgePointer] = vertex2;
+                    for(uint i = 0; i < _edgeDataSize; i++)
+                    {
+                        _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
+                            data[i];
+                    }
+                    _nextEdgePointer += (uint)(edgeCount * _edgeSize); // duplicate space for this vertex.
+                    _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
+                }
+                else
+                { // not at the end, copy edges to the end.
+                    _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
+                    _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
+
+                    for(var edge = 0; edge <  edgeCount; edge++)
+                    {
+                        _edges[_nextEdgePointer] = _edges[edgePointer + (edge * _edgeSize)];
+                        for (uint i = 0; i < _edgeDataSize; i++)
+                        {
+                            _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
+                                _edges[edgePointer + MINIMUM_EDGE_SIZE + i + (edge * _edgeSize)];
+                        }
+                        _nextEdgePointer += (uint)_edgeSize;
+
+                        if (_nextEdgePointer >= _edges.Length)
+                        { // make sure we can add another edge.
+                            this.IncreaseEdgeSize();
+                        }
+                    }
+
+                    // add at the end.
+                    _edges[_nextEdgePointer] = vertex2;
+                    for (uint i = 0; i < _edgeDataSize; i++)
+                    {
+                        _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
+                            data[i];
+                    }
+                    _nextEdgePointer += (uint)_edgeSize;
+                }
             }
+            else
+            { // just add the edge.
+                _edges[edgePointer + (edgeCount * (uint)_edgeSize)] = vertex2;
+                for (uint i = 0; i < _edgeDataSize; i++)
+                {
+                    _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + i] =
+                        data[i];
+                }
 
-            // update edge count in vertex.
-            edgeCount++;
-            _vertices[vertex1Idx + EDGE_COUNT] = edgeCount;
-
-            // update edge.
-            _edges[edgeId] = vertex2;
-            for (var i = 0; i < _edgeDataSize; i++)
-            {
-                _edges[edgeId + MINIMUM_EDGE_SIZE + i] =
-                    data[i];
+                _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
             }
 
             _edgeCount++;
+
             return;
         }
 
@@ -263,28 +276,36 @@ namespace OsmSharp.Routing.Graphs.Directed
             if (vertex2 >= _vertices.Length) { return 0; }
 
             var removed = 0;
-            var vertex1Idx = vertex1 * VERTEX_SIZE;
-            var edgeCount = _vertices[vertex1Idx + EDGE_COUNT];
-            var edgeId = _vertices[vertex1Idx + FIRST_EDGE];
+            var vertexPointer = vertex1 * VERTEX_SIZE;
+            var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
 
-            for (var removeIdx = edgeId * (uint)_edgeSize; removeIdx < edgeId + (edgeCount * (uint)_edgeSize); removeIdx += (uint)_edgeSize)
+            for (var removeEdgePointer = edgePointer; removeEdgePointer < edgePointer + (edgeCount * (uint)_edgeSize); 
+                removeEdgePointer += (uint)_edgeSize)
             {
-                if (_edges[removeIdx] == vertex2)
-                {
+                if (_edges[removeEdgePointer] == vertex2)
+                { // edge found, remove it.
+                    removed++;
+                    _edgeCount--;
+
+                    // reduce edge count.
                     edgeCount--;
-                    _edges[removeIdx] = _edges[edgeId + (edgeCount * (uint)_edgeSize)];
+                    if (removeEdgePointer == edgePointer + (edgeCount * (uint)_edgeSize))
+                    { // no need to move data anymore, this is the last edge being removed.
+                        break;
+                    }
+
+                    // move the last edge and overwrite the current edge.
+                    _edges[removeEdgePointer] = _edges[edgePointer + (edgeCount * (uint)_edgeSize)];
                     for (var i = 0; i < _edgeDataSize; i++)
                     {
-                        _edges[removeIdx + MINIMUM_EDGE_SIZE + i] =
-                            _edges[edgeId + (edgeCount * (uint)_edgeSize)];
+                        _edges[removeEdgePointer + MINIMUM_EDGE_SIZE + i] =
+                            _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + i];
                     }
-                    removed++;
-                    removeIdx -= (uint)_edgeSize;
-
-                    _edgeCount--;
+                    removeEdgePointer -= (uint)_edgeSize;
                 }
             }
-            _vertices[vertex1Idx + EDGE_COUNT] = edgeCount;
+            _vertices[vertexPointer + EDGE_COUNT] = edgeCount;
             return removed;
         }
 
@@ -332,11 +353,11 @@ namespace OsmSharp.Routing.Graphs.Directed
         {
             // remove all vertices without edges at the end.
             var maxVertexId = uint.MinValue;
-            for(var i = 0; i < _vertices.Length / 2; i++)
+            for(uint i = 0; i < _vertices.Length / VERTEX_SIZE; i++)
             {
-                var position = _vertices[i * 2 + FIRST_EDGE];
-                var count = _vertices[i * 2 + EDGE_COUNT];
-                for(var e = position; e < position + count; e++)
+                var pointer = _vertices[i * VERTEX_SIZE + FIRST_EDGE] * _edgeSize;
+                var count = _vertices[i * VERTEX_SIZE + EDGE_COUNT];
+                for(var e = pointer; e < pointer + (count * _edgeSize); e++)
                 {
                     var vertex = _edges[e];
                     if(maxVertexId < vertex)
@@ -345,15 +366,15 @@ namespace OsmSharp.Routing.Graphs.Directed
                     }
                 }
                 if(count > 0 &&
-                    maxVertexId < i * 2)
+                   maxVertexId < i)
                 { // also take into account the largest vertex pointing down.
-                    maxVertexId = (uint)i * 2;
+                    maxVertexId = i;
                 }
             }
             _vertices.Resize((maxVertexId + 1) * VERTEX_SIZE);
 
             // resize edges.
-            var edgeSize = _nextEdgeId;
+            var edgeSize = _nextEdgePointer;
             if (edgeSize == 0)
             { // keep minimum room for one edge.
                 edgeSize = 1;
@@ -378,7 +399,8 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
 
             // sort vertices and coordinates.
-            QuickSort.Sort((i) => _vertices[i * 2], (i, j) =>
+            QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE], 
+                (i, j) =>
             {
                 var tempRef = sortedVertices[i];
                 sortedVertices[i] = sortedVertices[j];
@@ -390,17 +412,17 @@ namespace OsmSharp.Routing.Graphs.Directed
             for (uint i = 0; i < sortedVertices.Length; i++)
             {
                 // move data.
-                var vertex = sortedVertices[i] * VERTEX_SIZE;
-                var count = _vertices[vertex + EDGE_COUNT];
-                var position = _vertices[vertex + FIRST_EDGE] * (uint)_edgeSize;
-                _vertices[vertex + FIRST_EDGE] = pointer / (uint)_edgeSize;
+                var vertexPointer = sortedVertices[i] * VERTEX_SIZE;
+                var count = _vertices[vertexPointer + EDGE_COUNT];
+                var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+                _vertices[vertexPointer + FIRST_EDGE] = pointer / (uint)_edgeSize;
                 for (uint e = 0; e < count * (uint)_edgeSize; e += (uint)_edgeSize)
                 {
-                    _edges[pointer + e] = _edges[position + e];
+                    _edges[pointer + e] = _edges[edgePointer + e];
                     for (var j = 0; j < _edgeDataSize; j++)
                     {
                         _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
-                            _edges[position + e + MINIMUM_EDGE_SIZE + j];
+                            _edges[edgePointer + e + MINIMUM_EDGE_SIZE + j];
                     }
                 }
 
@@ -416,7 +438,7 @@ namespace OsmSharp.Routing.Graphs.Directed
 
                 pointer += count * (uint)_edgeSize;
             }
-            _nextEdgeId = pointer / (uint)_edgeSize;
+            _nextEdgePointer = pointer / (uint)_edgeSize;
             _readonly = toReadonly;
         }
 
@@ -612,7 +634,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             this.Compress();
 
             long vertexCount = this.VertexCount;
-            long edgeCount = (_nextEdgeId / _edgeSize);
+            long edgeCount = (_nextEdgePointer / _edgeSize);
 
             // write vertex and edge count.
             long position = 0;
