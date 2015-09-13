@@ -65,9 +65,9 @@
     <Compile Include="Algorithms\Search\HibertTests.cs" />
     <Compile Include="Data\EdgeDataSerializerTests.cs" />
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />
-    <Compile Include="Graphs\EdgeDataMock.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
     <Compile Include="Graphs\GraphTests.cs" />
+    <Compile Include="Network\RoutingNetworkTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vehicles\VehicleBaseTests.cs" />
     <Compile Include="Vehicles\VehicleBicycleTests.cs" />
@@ -88,6 +88,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

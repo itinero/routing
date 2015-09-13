@@ -21,7 +21,7 @@ using OsmSharp.Math;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Vehicles;
 
-namespace OsmSharp.Routing.Network
+namespace OsmSharp.Routing
 {
     /// <summary>
     /// Represents a resolved point. A hook for the router to route on.

@@ -74,24 +74,33 @@ namespace OsmSharp.Routing.Data
         /// Serializes edge data.
         /// </summary>
         /// <returns></returns>
-        public static uint[] Serialize(EdgeData data)
+        public static uint[] Serialize(float distance, ushort profile)
         {
-            if(data.Distance > MAX_DISTANCE)
+            if (distance > MAX_DISTANCE)
             {
                 throw new ArgumentOutOfRangeException("Cannot store distance on edge, too big.");
             }
-            if(data.Distance < 0)
+            if (distance < 0)
             {
                 throw new ArgumentOutOfRangeException("Cannot store distance on edge, too small.");
             }
-            if(data.Profile >= MAX_PROFILE_COUNT)
+            if (profile >= MAX_PROFILE_COUNT)
             {
                 throw new ArgumentOutOfRangeException("Cannot store profile id on edge, too big.");
             }
 
-            var distance = (uint)(data.Distance * 10) << 14;
-            uint value = data.Profile + distance;
+            var serDistance = (uint)(distance * 10) << 14;
+            uint value = profile + serDistance;
             return new uint[] { value };
+        }
+
+        /// <summary>
+        /// Serializes edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static uint[] Serialize(EdgeData data)
+        {
+            return EdgeDataSerializer.Serialize(data.Distance, data.Profile);
         }
     }
 }

@@ -90,7 +90,9 @@
     </Compile>
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
-    <Compile Include="Network\RouterPoint.cs" />
+    <Compile Include="Network\Data\EdgeData.cs" />
+    <Compile Include="RouterPoint.cs" />
+    <Compile Include="Network\RoutingEdge.cs" />
     <Compile Include="Network\RoutingNetwork.cs">
       <SubType>Code</SubType>
     </Compile>
