@@ -111,7 +111,8 @@ namespace OsmSharp.Routing.Algorithms.Routing
                 }
             }
 
-            if (_current != null)
+            if (_current != null &&
+                !_visits.ContainsKey(_current.Vertex))
             { // we visit this one, set visit.
                 _visits[_current.Vertex] = _current;
             }

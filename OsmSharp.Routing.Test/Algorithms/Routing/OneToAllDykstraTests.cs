@@ -85,7 +85,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
         /// </summary>
         /// <remarks>
         /// Situation:
-        ///  (0)---100m----(1) @ 100km/h
+        ///  (0)---100m---(1) @ 100km/h
         /// Result:
         ///  Only settle 0 because search is limited to 100m/100km/h
         /// </remarks>
@@ -204,6 +204,87 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(0, visit.Vertex);
             Assert.AreEqual(0, visit.Weight);
             Assert.IsFalse(algorithm.TryGetVisit(1, out visit));
+        }
+
+        /// <summary>
+        /// Tests shortest path calculations using a given source.
+        /// </summary>
+        /// <remarks>
+        /// Situation:
+        ///  (0)-X--100m----(1)
+        ///   \             /
+        ///    \           /           
+        ///     \         /
+        ///     100m    100m
+        ///       \     /
+        ///        \   /
+        ///         (2)
+        /// With x the starting point at 10m from 0 and 90m from 1.
+        /// 
+        /// Result:
+        ///  - Settle 0@10m, 1@90m and 2@110m.
+        /// </remarks>
+        [Test]
+        public void TestSourceBetween()
+        {
+            // build graph.
+            var graph = new Graph(EdgeDataSerializer.Size);
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            }));
+            graph.AddEdge(1, 2, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            }));
+            graph.AddEdge(0, 2, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            }));
+
+            // build speed profile function.
+            var speed = 100f / 3.6f;
+            Func<ushort, Speed> getSpeed = (x) =>
+            {
+                return new Speed()
+                {
+                    Direction = true,
+                    MeterPerSecond = speed
+                };
+            };
+
+            // run algorithm.
+            var algorithm = new OneToAllDykstra(graph, getSpeed, new Path[] { 
+                new Path(0, 10 / speed, new Path(uint.MaxValue)),
+                new Path(1, 90 / speed, new Path(uint.MaxValue))},
+                float.MaxValue, false);
+            algorithm.Run();
+
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+
+            Path visit;
+            Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
+            Assert.IsNotNull(visit.From);
+            Assert.AreEqual(uint.MaxValue, visit.From.Vertex);
+            Assert.AreEqual(0, visit.Vertex);
+            Assert.AreEqual(10 / speed, visit.Weight);
+            Assert.IsTrue(algorithm.TryGetVisit(1, out visit));
+            Assert.IsNotNull(visit.From);
+            Assert.AreEqual(uint.MaxValue, visit.From.Vertex);
+            Assert.AreEqual(1, visit.Vertex);
+            Assert.AreEqual(90 / speed, visit.Weight);
+            Assert.IsTrue(algorithm.TryGetVisit(2, out visit));
+            Assert.IsNotNull(visit.From);
+            Assert.AreEqual(0, visit.From.Vertex);
+            Assert.AreEqual(2, visit.Vertex);
+            Assert.AreEqual(110 / speed, visit.Weight);
         }
     }
 }
