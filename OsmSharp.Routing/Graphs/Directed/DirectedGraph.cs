@@ -28,7 +28,7 @@ namespace OsmSharp.Routing.Graphs.Directed
     /// <summary>
     /// An directed graph.
     /// </summary>
-    public class DirectedGraph
+    public class DirectedGraph : IDisposable
     {
         private const int VERTEX_SIZE = 2; // holds the first edge index and the edge count.
         private const int FIRST_EDGE = 0;
@@ -36,12 +36,13 @@ namespace OsmSharp.Routing.Graphs.Directed
         private const int MINIMUM_EDGE_SIZE = 1; // holds only the target vertex.
         private const uint NO_EDGE = uint.MaxValue; // a dummy value indication that there is no edge.
 
-        private uint _nextEdgePointer;
-
         private readonly int _edgeSize = -1;
         private readonly int _edgeDataSize = -1;
+        private readonly Action<uint, uint> _switchEdge;
         private readonly HugeArrayBase<uint> _vertices; // Holds all vertices pointing to it's first edge.
         private readonly HugeArrayBase<uint> _edges;
+
+        private uint _nextEdgePointer;
         private bool _readonly = false;
 
         /// <summary>
@@ -57,9 +58,18 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// Creates a new graph.
         /// </summary>
         public DirectedGraph(int edgeDataSize, long sizeEstimate)
+            : this(edgeDataSize, sizeEstimate, null)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new graph.
+        /// </summary>
+        public DirectedGraph(int edgeDataSize, long sizeEstimate, Action<uint, uint> switchEdge)
             : this(edgeDataSize, sizeEstimate,
             new HugeArray<uint>(sizeEstimate),
-            new HugeArray<uint>(sizeEstimate * 3 * edgeDataSize + MINIMUM_EDGE_SIZE))
+            new HugeArray<uint>(sizeEstimate * 3 * edgeDataSize + MINIMUM_EDGE_SIZE), switchEdge)
         {
 
         }
@@ -67,27 +77,29 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <summary>
         /// Creates a new graph using the given memorymapped file.
         /// </summary>
-        public DirectedGraph(MemoryMappedFile file, long estimatedSize)
+        public DirectedGraph(MemoryMappedFile file, int edgeDataSize, long sizeEstimate, Action<uint, uint> switchEdge)
         {
-            _vertices = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
-            for (var idx = 0; idx < estimatedSize; idx++)
+            _vertices = new MemoryMappedHugeArrayUInt32(file, sizeEstimate);
+            for (var idx = 0; idx < sizeEstimate; idx++)
             {
                 _vertices[idx] = 0;
             }
-            _edges = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
+            _edges = new MemoryMappedHugeArrayUInt32(file, sizeEstimate);
             _edgeCount = 0;
+            _edgeDataSize = edgeDataSize;
+            _switchEdge = switchEdge;
         }
 
         /// <summary>
         /// Creates a new graph using the existing data in the given arrays.
         /// </summary>
-        private DirectedGraph(int edgeDataSize, HugeArrayBase<uint> vertices,
+        private DirectedGraph(int edgeDataSize, long edgeCount, HugeArrayBase<uint> vertices,
             HugeArrayBase<uint> edges)
         {
             _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
             _edgeDataSize = edgeDataSize;
 
-            _edgeCount = 0;
+            _edgeCount = edgeCount;
             _vertices = vertices;
             _edges = edges;
             _nextEdgePointer = (uint)(edges.Length / _edgeSize);
@@ -97,7 +109,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// Creates a graph.
         /// </summary>
         private DirectedGraph(int edgeDataSize, long sizeEstimate,
-            HugeArrayBase<uint> vertices, HugeArrayBase<uint> edges)
+            HugeArrayBase<uint> vertices, HugeArrayBase<uint> edges, Action<uint, uint> switchEdge)
         {
             _edgeSize = edgeDataSize + MINIMUM_EDGE_SIZE;
             _edgeDataSize = edgeDataSize;
@@ -112,6 +124,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
             _edges = edges;
             _edges.Resize(sizeEstimate * 3 * _edgeSize);
+            _switchEdge = switchEdge;
         }
 
         private long _edgeCount;
@@ -158,8 +171,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
-        /// 
-        public void AddEdge(uint vertex1, uint vertex2, params uint[] data)
+        public uint AddEdge(uint vertex1, uint vertex2, params uint[] data)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
@@ -169,11 +181,13 @@ namespace OsmSharp.Routing.Graphs.Directed
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
             var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+            var edgeId = uint.MaxValue;
 
             if (edgeCount == 0)
             { // no edge yet, just add the end.
                 _vertices[vertexPointer + EDGE_COUNT] = 1;
                 _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
+                edgeId = _nextEdgePointer / (uint)_edgeSize;
 
                 _edges[_nextEdgePointer] = vertex2;
                 for (uint i = 0; i < _edgeDataSize; i++)
@@ -192,8 +206,8 @@ namespace OsmSharp.Routing.Graphs.Directed
 
                 if(edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
                 { // these edge are at the end of the edge-array, don't copy just increase size.
-
                     _edges[_nextEdgePointer] = vertex2;
+                    edgeId = _nextEdgePointer / (uint)_edgeSize;
                     for(uint i = 0; i < _edgeDataSize; i++)
                     {
                         _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
@@ -215,6 +229,11 @@ namespace OsmSharp.Routing.Graphs.Directed
                             _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
                                 _edges[edgePointer + MINIMUM_EDGE_SIZE + i + (edge * _edgeSize)];
                         }
+                        if (_switchEdge != null)
+                        { // report on the edge switch.
+                            _switchEdge((uint)((edgePointer + (edge * _edgeSize)) / (long)_edgeSize),
+                                _nextEdgePointer / (uint)_edgeSize);
+                        }
                         _nextEdgePointer += (uint)_edgeSize;
 
                         if (_nextEdgePointer >= _edges.Length)
@@ -225,6 +244,7 @@ namespace OsmSharp.Routing.Graphs.Directed
 
                     // add at the end.
                     _edges[_nextEdgePointer] = vertex2;
+                    edgeId = _nextEdgePointer / (uint)_edgeSize;
                     for (uint i = 0; i < _edgeDataSize; i++)
                     {
                         _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
@@ -236,6 +256,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             else
             { // just add the edge.
                 _edges[edgePointer + (edgeCount * (uint)_edgeSize)] = vertex2;
+                edgeId = (edgePointer + (edgeCount * (uint)_edgeSize)) / (uint)_edgeSize;
                 for (uint i = 0; i < _edgeDataSize; i++)
                 {
                     _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + i] =
@@ -244,10 +265,9 @@ namespace OsmSharp.Routing.Graphs.Directed
 
                 _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
             }
-
             _edgeCount++;
 
-            return;
+            return edgeId;
         }
 
         /// <summary>
@@ -302,6 +322,14 @@ namespace OsmSharp.Routing.Graphs.Directed
                         _edges[removeEdgePointer + MINIMUM_EDGE_SIZE + i] =
                             _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + i];
                     }
+
+                    // report on the move.
+                    if(_switchEdge != null)
+                    {
+                        _switchEdge((uint)((edgePointer + (edgeCount * (uint)_edgeSize)) / _edgeSize),
+                            (uint)(removeEdgePointer / _edgeSize));
+                    }
+
                     removeEdgePointer -= (uint)_edgeSize;
                 }
             }
@@ -357,7 +385,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             {
                 var pointer = _vertices[i * VERTEX_SIZE + FIRST_EDGE] * _edgeSize;
                 var count = _vertices[i * VERTEX_SIZE + EDGE_COUNT];
-                for(var e = pointer; e < pointer + (count * _edgeSize); e++)
+                for(var e = pointer; e < pointer + (count * _edgeSize); e += _edgeSize)
                 {
                     var vertex = _edges[e];
                     if(maxVertexId < vertex)
@@ -374,12 +402,12 @@ namespace OsmSharp.Routing.Graphs.Directed
             _vertices.Resize((maxVertexId + 1) * VERTEX_SIZE);
 
             // resize edges.
-            var edgeSize = _nextEdgePointer;
-            if (edgeSize == 0)
+            var edgesLength = _nextEdgePointer;
+            if (edgesLength == 0)
             { // keep minimum room for one edge.
-                edgeSize = 1;
+                edgesLength = (uint)_edgeSize;
             }
-            _edges.Resize(edgeSize * _edgeSize);
+            _edges.Resize(edgesLength);
         }
 
         /// <summary>
@@ -424,9 +452,16 @@ namespace OsmSharp.Routing.Graphs.Directed
                         _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
                             _edges[edgePointer + e + MINIMUM_EDGE_SIZE + j];
                     }
+
+                    // report on the move.
+                    if (_switchEdge != null)
+                    {
+                        _switchEdge((uint)(edgePointer / _edgeSize),
+                            (uint)(pointer / _edgeSize));
+                    }
                 }
 
-                if (!toReadonly && count > 2)
+                if (!toReadonly && count > 2 && !((count & (count - 1)) == 0))
                 { // next power of 2, don't do this on readonly to save space.
                     count |= count >> 1;
                     count |= count >> 2;
@@ -438,7 +473,7 @@ namespace OsmSharp.Routing.Graphs.Directed
 
                 pointer += count * (uint)_edgeSize;
             }
-            _nextEdgePointer = pointer / (uint)_edgeSize;
+            _nextEdgePointer = pointer;
             _readonly = toReadonly;
         }
 
@@ -532,6 +567,17 @@ namespace OsmSharp.Routing.Graphs.Directed
                         data[i] = _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + i];
                     }
                     return data;
+                }
+            }
+
+            /// <summary>
+            /// Returns the edge id.
+            /// </summary>
+            public uint Id
+            {
+                get
+                {
+                    return _currentEdgePointer / (uint)_graph._edgeSize;
                 }
             }
 
@@ -651,16 +697,16 @@ namespace OsmSharp.Routing.Graphs.Directed
             using (var file = new MemoryMappedStream(new OsmSharp.IO.LimitedStream(stream)))
             {
                 // write vertices (each vertex = 1 uint (4 bytes)).
-                var vertexArray = new MemoryMappedHugeArrayUInt32(file, (vertexCount + 1) * VERTEX_SIZE, (vertexCount + 1) * VERTEX_SIZE, 1024);
-                vertexArray.CopyFrom(_vertices, 0, 0, (vertexCount + 1) * VERTEX_SIZE);
+                var vertexArray = new MemoryMappedHugeArrayUInt32(file, vertexCount * VERTEX_SIZE, vertexCount * VERTEX_SIZE, 1024);
+                vertexArray.CopyFrom(_vertices, 0, 0, vertexCount * VERTEX_SIZE);
                 vertexArray.Dispose(); // written, get rid of it!
-                position = position + ((vertexCount + 1) * VERTEX_SIZE * 4);
+                position = position + vertexCount * VERTEX_SIZE * 4;
 
                 // write edges (each edge = 4 uints (16 bytes)).
                 var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeCount * _edgeSize, edgeCount * _edgeSize, 1024);
                 edgeArray.CopyFrom(_edges, edgeCount * _edgeSize);
                 edgeArray.Dispose(); // written, get rid of it!
-                position = position + (edgeCount * _edgeSize * 4);
+                position = position + edgeCount * _edgeSize * 4;
             }
             return position;
         }
@@ -673,8 +719,6 @@ namespace OsmSharp.Routing.Graphs.Directed
         {
             // read sizes.
             long position = 0;
-            stream.Seek(4, System.IO.SeekOrigin.Begin);
-            position = position + 4;
             var bytes = new byte[8];
             stream.Read(bytes, 0, 8);
             position = position + 8;
@@ -692,8 +736,8 @@ namespace OsmSharp.Routing.Graphs.Directed
             var bufferSize = 32;
             var cacheSize = MemoryMappedHugeArrayUInt32.DefaultCacheSize;
             var file = new MemoryMappedStream(new OsmSharp.IO.LimitedStream(stream));
-            var vertexArray = new MemoryMappedHugeArrayUInt32(file, (vertexLength + 1) * VERTEX_SIZE, (vertexLength + 1) * VERTEX_SIZE, bufferSize / 4, cacheSize * 4);
-            position = position + ((vertexLength + 1) * VERTEX_SIZE * 4);
+            var vertexArray = new MemoryMappedHugeArrayUInt32(file, vertexLength * VERTEX_SIZE, vertexLength * VERTEX_SIZE, bufferSize / 4, cacheSize * 4);
+            position = position + (vertexLength * VERTEX_SIZE * 4);
             var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeLength * edgeSize, edgeLength * edgeSize, bufferSize / 2, cacheSize * 4);
             position = position + (edgeLength * edgeSize * 4);
 
@@ -710,11 +754,20 @@ namespace OsmSharp.Routing.Graphs.Directed
 
                 file.Dispose();
 
-                return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, vertexArrayCopy, edgeArrayCopy);
+                return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, edgeLength, vertexArrayCopy, edgeArrayCopy);
             }
-            return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, vertexArray, edgeArray);
+            return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, edgeLength, vertexArray, edgeArray);
         }
 
         #endregion
+
+        /// <summary>
+        /// Releases unmanaged resources associated with this graph.
+        /// </summary>
+        public void Dispose()
+        {
+            _edges.Dispose();
+            _vertices.Dispose();
+        }
     }
 }

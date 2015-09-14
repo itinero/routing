@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace OsmSharp.Routing.Graphs.Directed
 {
     /// <summary>
     /// Abstract representation of an edge.
     /// </summary>
-    public class Edge
+    public class MetaEdge
     {
         /// <summary>
         /// Creates a new edge keeping the current state of the given enumerator.
         /// </summary>
-        internal Edge(DirectedGraph.EdgeEnumerator enumerator)
+        internal MetaEdge(DirectedMetaGraph.EdgeEnumerator enumerator)
         {
             this.Neighbour = enumerator.Neighbour;
             this.Data = enumerator.Data;
+            this.MetaData = enumerator.MetaData;
             this.Id = enumerator.Id;
         }
 
@@ -33,6 +30,15 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// Returns the edge data.
         /// </summary>
         public uint[] Data
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Returns the edge meta-data.
+        /// </summary>
+        public uint[] MetaData
         {
             get;
             set;
