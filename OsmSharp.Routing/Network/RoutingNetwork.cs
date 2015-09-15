@@ -56,6 +56,17 @@ namespace OsmSharp.Routing.Network.Data
         }
 
         /// <summary>
+        /// Returns the geometric graph.
+        /// </summary>
+        public GeometricGraph GeometricGraph
+        {
+            get
+            {
+                return _graph;
+            }
+        }
+
+        /// <summary>
         /// Increase edge data size to fit at least the given edge.
         /// </summary>
         private void IncreaseSizeEdgeData(uint edgeId)

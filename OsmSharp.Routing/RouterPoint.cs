@@ -17,23 +17,18 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Tags;
-using OsmSharp.Math;
-using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Osm.Vehicles;
 
 namespace OsmSharp.Routing
 {
     /// <summary>
     /// Represents a resolved point. A hook for the router to route on.
-    /// 
-    /// The object represents a location and can be tagged.
     /// </summary>
     public class RouterPoint
     {
         /// <summary>
         /// Creates a new router point.
         /// </summary>
-        public RouterPoint(float latitude, float longitude, uint edgeId, float offset)
+        public RouterPoint(float latitude, float longitude, uint edgeId, ushort offset)
         {
             this.Latitude = latitude;
             this.Longitude = longitude;
@@ -52,9 +47,9 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
-        /// Gets the offset in meters.
+        /// Gets the offset.
         /// </summary>
-        public float Offset
+        public ushort Offset
         {
             get;
             private set;

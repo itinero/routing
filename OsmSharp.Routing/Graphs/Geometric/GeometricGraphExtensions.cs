@@ -29,7 +29,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// Projects a point onto an edge.
         /// </summary>
         /// <returns></returns>
-        public static bool ProjectOn<TEdgeData>(this GeometricGraph graph, GeometricEdge edge, float latitude, float longitude,
+        public static bool ProjectOn(this GeometricGraph graph, GeometricEdge edge, float latitude, float longitude,
             out float projectedLatitude, out float projectedLongitude, out float projectedDistanceFromFirst)
         {
             int projectedShapeIndex;
@@ -45,6 +45,19 @@ namespace OsmSharp.Routing.Graphs.Geometric
         public static bool ProjectOn(this GeometricGraph graph, GeometricEdge edge, float latitude, float longitude,
             out float projectedLatitude, out float projectedLongitude, out float projectedDistanceFromFirst,
             out int projectedShapeIndex, out float distanceToProjected)
+        {
+            float totalLength;
+            return graph.ProjectOn(edge, latitude, longitude, out projectedLatitude, out projectedLongitude, out projectedDistanceFromFirst,
+                out projectedShapeIndex, out distanceToProjected, out totalLength);
+        }
+
+        /// <summary>
+        /// Projects a point onto an edge.
+        /// </summary>
+        /// <returns></returns>
+        public static bool ProjectOn(this GeometricGraph graph, GeometricEdge edge, float latitude, float longitude,
+            out float projectedLatitude, out float projectedLongitude, out float projectedDistanceFromFirst,
+            out int projectedShapeIndex, out float distanceToProjected, out float totalLength)
         {
             distanceToProjected = float.MaxValue;
             projectedDistanceFromFirst = 0;
@@ -98,6 +111,11 @@ namespace OsmSharp.Routing.Graphs.Geometric
 
                 if (!isShapePoint)
                 { // if the current is not a shape point, it's time to stop.
+                    var to = graph.GetVertex(edge.To);
+                    totalLength = previousShapeDistance +
+                        (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                            previous.Latitude, previous.Longitude,
+                            to.Latitude, to.Longitude);
                     break;
                 }
 
@@ -110,6 +128,40 @@ namespace OsmSharp.Routing.Graphs.Geometric
                 previous = current;
             }
             return distanceToProjected != float.MaxValue;
+        }
+
+        /// <summary>
+        /// Gets the length of an edge.
+        /// </summary>
+        /// <returns></returns>
+        public static float Length(this GeometricGraph graph, GeometricEdge edge)
+        {
+            var totalLength = 0.0f;
+
+            ICoordinate previous = graph.GetVertex(edge.From);
+            var shape = edge.Shape;
+            var shapeEnumerator = shape.GetEnumerator();
+            while (true)
+            {
+                // get current point.
+                ICoordinate current = null;
+                if (shapeEnumerator.MoveNext())
+                { // one more shape point.
+                    current = shapeEnumerator.Current;
+                }
+                else
+                { // no more shape points.
+                    current = graph.GetVertex(edge.From);
+                    totalLength += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                            previous.Latitude, previous.Longitude,
+                            current.Latitude, current.Longitude);
+                    return totalLength;
+                }
+                totalLength += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                        previous.Latitude, previous.Longitude,
+                        current.Latitude, current.Longitude);
+                previous = current;
+            }
         }
     }
 }

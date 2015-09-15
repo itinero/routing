@@ -44,6 +44,15 @@ namespace OsmSharp.Routing.Algorithms
         }
 
         /// <summary>
+        /// Returns an error message when the algorithm was not successful.
+        /// </summary>
+        public string ErrorMessage
+        {
+            get;
+            protected set;
+        }
+
+        /// <summary>
         /// Checks if HasRun is true and throw an exception if not.
         /// </summary>
         protected void CheckHasRun()

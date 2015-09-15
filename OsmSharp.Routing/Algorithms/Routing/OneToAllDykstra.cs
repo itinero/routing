@@ -205,6 +205,12 @@ namespace OsmSharp.Routing.Algorithms.Routing
         }
 
         /// <summary>
+        /// Gets the max reached flag.
+        /// </summary>
+        /// <remarks>True if the source-max value was reached.</remarks>
+        public bool MaxReached { get; private set; }
+
+        /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
         public Func<long, float, bool> WasFound

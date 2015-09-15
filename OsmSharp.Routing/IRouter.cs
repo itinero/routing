@@ -17,8 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Network;
-using OsmSharp.Routing.Osm.Vehicles;
+using OsmSharp.Routing.Profiles;
 using OsmSharp.Units.Distance;
 
 namespace OsmSharp.Routing
@@ -29,27 +28,27 @@ namespace OsmSharp.Routing
     public interface IRouter
     {
         /// <summary>
-        /// Searches for the closest point on the routing network that's routable for the given vehicles.
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        Result<RouterPoint> TryResolve(Vehicle[] vehicles, GeoCoordinate location);
+        Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        bool CheckConnectivity(Vehicle vehicle, RouterPoint point, Meter radius);
+        bool CheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters);
 
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        Result<Route> TryCalculate(Vehicle vehicle, RouterPoint source, RouterPoint target);
+        Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target);
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        Result<Route>[][] TryCalculate(Vehicle vehicle, RouterPoint[] sources, RouterPoint[] targets);
+        Result<Route>[][] TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets);
     }
 }

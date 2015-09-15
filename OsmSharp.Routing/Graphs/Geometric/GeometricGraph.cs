@@ -80,6 +80,17 @@ namespace OsmSharp.Routing.Graphs.Geometric
         }
 
         /// <summary>
+        /// Gets the basic graph.
+        /// </summary>
+        public Graph Graph
+        {
+            get
+            {
+                return _graph;
+            }
+        }
+
+        /// <summary>
         /// Gets the given vertex.
         /// </summary>
         /// <returns></returns>
