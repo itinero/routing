@@ -81,7 +81,7 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public bool CheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)
         {
-            var dykstra = new OneToAllDykstra(_db.Network.GeometricGraph.Graph, (p) =>
+            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
             {
                 var speed = profile.Speed(_db.Profiles.Get(p));
                 if (speed > 0)

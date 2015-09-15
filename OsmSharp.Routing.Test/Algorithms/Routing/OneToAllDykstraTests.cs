@@ -62,7 +62,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             };
 
             // run algorithm.
-            var algorithm = new OneToAllDykstra(graph, getSpeed, new Path[] { new Path(0) }, 
+            var algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) }, 
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -114,7 +114,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             };
 
             // run algorithm.
-            var algorithm = new OneToAllDykstra(graph, getSpeed, new Path[] { new Path(0) },
+            var algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) },
                 (100 / speed) / 2, false);
             algorithm.Run();
 
@@ -164,7 +164,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             };
 
             // run algorithm.
-            var algorithm = new OneToAllDykstra(graph, getSpeed, new Path[] { new Path(0) },
+            var algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -192,7 +192,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             };
 
             // run algorithm.
-            algorithm = new OneToAllDykstra(graph, getSpeed, new Path[] { new Path(0) },
+            algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -260,7 +260,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             };
 
             // run algorithm.
-            var algorithm = new OneToAllDykstra(graph, getSpeed, new Path[] { 
+            var algorithm = new Dykstra(graph, getSpeed, new Path[] { 
                 new Path(0, 10 / speed, new Path(uint.MaxValue)),
                 new Path(1, 90 / speed, new Path(uint.MaxValue))},
                 float.MaxValue, false);

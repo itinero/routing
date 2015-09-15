@@ -25,9 +25,9 @@ using System.Collections.Generic;
 namespace OsmSharp.Routing.Algorithms.Routing
 {
     /// <summary>
-    /// An algorithm that calculates one-to-many paths between on source and all targets within a certain range.
+    /// An implementation of the dykstra routing algorithm.
     /// </summary>
-    public class OneToAllDykstra : AlgorithmBase
+    public class Dykstra : AlgorithmBase
     {
         private readonly Graph _graph;
         private readonly IEnumerable<Path> _sources;
@@ -38,7 +38,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public OneToAllDykstra(Graph graph, Func<ushort, Speed> getSpeed,
+        public Dykstra(Graph graph, Func<ushort, Speed> getSpeed,
             IEnumerable<Path> sources, float sourceMax, bool backward)
         {
             _graph = graph;
