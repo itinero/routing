@@ -16,21 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Vehicles
+namespace OsmSharp.Routing.Osm.Vehicles
 {
 
     /// <summary>
-    /// Represents a SmallTruck
+    /// Represents a BigTruck
     /// </summary>
-    public class SmallTruck : MotorVehicle
+    public class BigTruck : MotorVehicle
     {
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public SmallTruck()
+        public BigTruck()
         {
-            // http://wiki.openstreetmap.org/wiki/Key:goods
-            VehicleTypes.Add("goods");
+            // http://wiki.openstreetmap.org/wiki/Key:hgv#Land-based_transportation
+            VehicleTypes.Add("hgv");
         }
 
         /// <summary>
@@ -38,7 +38,7 @@ namespace OsmSharp.Routing.Vehicles
         /// </summary>
         public override string UniqueName
         {
-            get { return "SmallTruck"; }
+            get { return "BigTruck"; }
         }
     }
 }

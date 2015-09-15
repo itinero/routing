@@ -18,7 +18,7 @@
 
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Network;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Units.Distance;
 
 namespace OsmSharp.Routing

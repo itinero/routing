@@ -19,26 +19,20 @@
 using OsmSharp.Collections.Tags;
 using OsmSharp.Units.Speed;
 
-namespace OsmSharp.Routing.Vehicles
+namespace OsmSharp.Routing.Osm.Vehicles
 {
+
     /// <summary>
-    /// Represents a pedestrian
+    /// Represents a MotorVehicle
     /// </summary>
-    public class Pedestrian : Vehicle
+    public abstract class MotorVehicle : Vehicle
     {
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public Pedestrian()
+        protected MotorVehicle()
         {
-            AccessibleTags.Add("services", string.Empty);
-            AccessibleTags.Add("steps", string.Empty);
-            AccessibleTags.Add("footway", string.Empty);
-            AccessibleTags.Add("cycleway", string.Empty);
-            AccessibleTags.Add("path", string.Empty);
             AccessibleTags.Add("road", string.Empty);
-            AccessibleTags.Add("track", string.Empty);
-            AccessibleTags.Add("pedestrian", string.Empty);
             AccessibleTags.Add("living_street", string.Empty);
             AccessibleTags.Add("residential", string.Empty);
             AccessibleTags.Add("unclassified", string.Empty);
@@ -48,8 +42,13 @@ namespace OsmSharp.Routing.Vehicles
             AccessibleTags.Add("primary_link", string.Empty);
             AccessibleTags.Add("tertiary", string.Empty);
             AccessibleTags.Add("tertiary_link", string.Empty);
+            AccessibleTags.Add("trunk", string.Empty);
+            AccessibleTags.Add("trunk_link", string.Empty);
+            AccessibleTags.Add("motorway", string.Empty);
+            AccessibleTags.Add("motorway_link", string.Empty);
 
-            VehicleTypes.Add("pedestrian");
+            VehicleTypes.Add("vehicle"); // a motor vehicle is a generic vehicle.
+            VehicleTypes.Add("motor_vehicle"); // ... and also a generic motor vehicle.
         }
 
         /// <summary>
@@ -60,19 +59,11 @@ namespace OsmSharp.Routing.Vehicles
         /// <returns></returns>
         protected override bool IsVehicleAllowed(TagsCollectionBase tags, string highwayType)
         {
-            if (tags.ContainsKey("foot"))
+            if (tags.ContainsKey("motor_vehicle"))
             {
-                if (tags["foot"] == "designated")
+                if (tags["motor_vehicle"] == "no")
                 {
-                    return true; // designated foot
-                }
-                if (tags["foot"] == "yes")
-                {
-                    return true; // yes for foot
-                }
-                if (tags["foot"] == "no")
-                {
-                    return false; // no for foot
+                    return false;
                 }
             }
             return AccessibleTags.ContainsKey(highwayType);
@@ -100,31 +91,21 @@ namespace OsmSharp.Routing.Vehicles
                     return 5;
                 case "track":
                 case "road":
-                    return 4.5;
+                    return 30;
                 case "residential":
                 case "unclassified":
-                    return 4.4;
+                    return 50;
                 case "motorway":
                 case "motorway_link":
-                    return 4.3;
+                    return 120;
                 case "trunk":
                 case "trunk_link":
                 case "primary":
                 case "primary_link":
-                    return 4.2;
+                    return 90;
                 default:
-                    return 4;
+                    return 70;
             }
-        }
-
-        /// <summary>
-        ///     Returns true if the edge is one way forward, false if backward, null if bidirectional.
-        /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        public override bool? IsOneWay(TagsCollectionBase tags)
-        {
-            return null;
         }
 
         /// <summary>
@@ -133,15 +114,7 @@ namespace OsmSharp.Routing.Vehicles
         /// <returns></returns>
         public override KilometerPerHour MaxSpeed()
         {
-            return 5;
-        }
-
-        /// <summary>
-        /// Returns a unique name this vehicle type.
-        /// </summary>
-        public override string UniqueName
-        {
-            get { return "Pedestrian"; }
+            return 200;
         }
     }
 }

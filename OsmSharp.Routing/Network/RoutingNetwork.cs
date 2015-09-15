@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-
 using OsmSharp.Collections.Arrays;
 using OsmSharp.Collections.Arrays.MemoryMapped;
 using OsmSharp.Collections.Coordinates.Collections;
@@ -117,7 +116,7 @@ namespace OsmSharp.Routing.Network.Data
             {
                 this.IncreaseSizeEdgeData(edgeId);
             }
-            _edgeData[edgeId] = data.AttributesId;
+            _edgeData[edgeId] = data.MetaId;
             return edgeId;
         }
 
@@ -133,7 +132,7 @@ namespace OsmSharp.Routing.Network.Data
                 edge.Data);
             var edgeData = new EdgeData()
             {
-                AttributesId = _edgeData[edgeId],
+                MetaId = _edgeData[edgeId],
                 Distance = baseEdgeData.Distance,
                 Profile = baseEdgeData.Profile
             };
@@ -215,7 +214,7 @@ namespace OsmSharp.Routing.Network.Data
         /// <summary>
         /// Returns the number of vertices in this graph.
         /// </summary>
-        public long VertexCount
+        public uint VertexCount
         {
             get
             {
@@ -309,7 +308,7 @@ namespace OsmSharp.Routing.Network.Data
                         _enumerator.Data);
                     return new EdgeData()
                     {
-                        AttributesId = _network._edgeData[_enumerator.Id],
+                        MetaId = _network._edgeData[_enumerator.Id],
                         Distance = baseEdgeData.Distance,
                         Profile = baseEdgeData.Profile
                     };

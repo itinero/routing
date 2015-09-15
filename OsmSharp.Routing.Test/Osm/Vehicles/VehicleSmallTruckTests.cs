@@ -18,35 +18,33 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Units.Speed;
 
-namespace OsmSharp.Test.Unittests.Routing
+namespace OsmSharp.Routing.Test.Osm.Vehicles
 {
     /// <summary>
-    /// Contains test for the Vehicle.Moped class.
+    /// Contains test for the Vehicle.SmallTruck class.
     /// </summary>
     [TestFixture]
-    public class VehicleMopedTests : VehicleBaseTests
+    public class VehicleSmallTruckTests : VehicleBaseTests
     {
         /// <summary>
         /// Tests the can traverse functionality.
         /// </summary>
         [Test]
-        public void TestVehicleMopedCanTranverse()
+        public void TestVehicleSmallTruckCanTranverse()
         {
-            var vehicle = Vehicle.Moped;
+            var vehicle = Vehicle.SmallTruck;
 
             // invalid highway types.
             base.TestVehicleCanTranverse(vehicle, false, "highwey", "road");
 
             // default highway types.
             base.TestVehicleCanTranverse(vehicle, false, "highway", "path");
-            base.TestVehicleCanTranverse(vehicle, false, "highway", "cycleway");
             base.TestVehicleCanTranverse(vehicle, false, "highway", "footway");
             base.TestVehicleCanTranverse(vehicle, false, "highway", "pedestrian");
-            base.TestVehicleCanTranverse(vehicle, false, "highway", "motorway");
-            base.TestVehicleCanTranverse(vehicle, false, "highway", "motorway_link");
+            base.TestVehicleCanTranverse(vehicle, false, "highway", "cycleway");
 
             base.TestVehicleCanTranverse(vehicle, true, "highway", "road");
             base.TestVehicleCanTranverse(vehicle, true, "highway", "living_street");
@@ -60,6 +58,8 @@ namespace OsmSharp.Test.Unittests.Routing
             base.TestVehicleCanTranverse(vehicle, true, "highway", "tertiary_link");
             base.TestVehicleCanTranverse(vehicle, true, "highway", "trunk");
             base.TestVehicleCanTranverse(vehicle, true, "highway", "trunk_link");
+            base.TestVehicleCanTranverse(vehicle, true, "highway", "motorway");
+            base.TestVehicleCanTranverse(vehicle, true, "highway", "motorway_link");
 
             // designated roads.
             base.TestVehicleCanTranverse(vehicle, true, "highway", "unclassified", "foot", "designated");
@@ -74,9 +74,9 @@ namespace OsmSharp.Test.Unittests.Routing
         /// Tests the max speed functionality.
         /// </summary>
         [Test]
-        public void TestVehicleMopedMaxSpeed()
+        public void TestVehicleSmallTruckMaxSpeed()
         {
-            Vehicle vehicle = Vehicle.Moped;
+            Vehicle vehicle = Vehicle.SmallTruck;
 
             //base.TextMaxSpeed(Vehicle.Car, 5, "highway", "pedestrian");
 
@@ -104,10 +104,10 @@ namespace OsmSharp.Test.Unittests.Routing
         /// Tests the probable speed functionality.
         /// </summary>
         [Test]
-        public void TestVehicleMopedProbableSpeed()
+        public void TestVehicleSmallTruckProbableSpeed()
         {
-            Vehicle vehicle = Vehicle.Moped;
-            double max = 40;
+            Vehicle vehicle = Vehicle.SmallTruck;
+            double max = 200;
 
             //base.TextMaxSpeed(Vehicle.Car, 5, "highway", "pedestrian");
 

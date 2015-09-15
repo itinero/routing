@@ -16,21 +16,33 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Vehicles
-{
+using OsmSharp.Units.Speed;
 
+namespace OsmSharp.Routing.Osm.Vehicles
+{
     /// <summary>
-    /// Represents a BigTruck
+    /// Represents a moped
     /// </summary>
-    public class BigTruck : MotorVehicle
+    public class Moped : MotorVehicle
     {
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public BigTruck()
+        public Moped()
         {
-            // http://wiki.openstreetmap.org/wiki/Key:hgv#Land-based_transportation
-            VehicleTypes.Add("hgv");
+            AccessibleTags.Remove("motorway");
+            AccessibleTags.Remove("motorway_link");
+
+            VehicleTypes.Add("moped");
+        }
+
+        /// <summary>
+        /// Returns the maximum possible speed this vehicle can achieve.
+        /// </summary>
+        /// <returns></returns>
+        public override KilometerPerHour MaxSpeed()
+        {
+            return 40;
         }
 
         /// <summary>
@@ -38,7 +50,7 @@ namespace OsmSharp.Routing.Vehicles
         /// </summary>
         public override string UniqueName
         {
-            get { return "BigTruck"; }
+            get { return "Moped"; }
         }
     }
 }

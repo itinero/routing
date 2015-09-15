@@ -18,10 +18,10 @@
 
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing
+namespace OsmSharp.Routing.Osm.Vehicles
 {
     /// <summary>
-    /// Contains types of vehicles.
+    /// Contains an enumeration of vehicle types.
     /// </summary>
     public static class VehicleType
     {
@@ -65,5 +65,9 @@ namespace OsmSharp.Routing
         /// Represents a bus that is not used in public transport.
         /// </summary>
         public static string TouristBus = "tourist_bus";
+        /// <summary>
+        /// Represents any vehicle other than the above.
+        /// </summary>
+        public static string Other = "other";
     }
 }

@@ -36,6 +36,6 @@ namespace OsmSharp.Routing.Network.Data
         /// <summary>
         /// Gets or sets the attributes id.
         /// </summary>
-        public uint AttributesId { get; set; }
+        public uint MetaId { get; set; }
     }
 }

@@ -19,7 +19,7 @@
 using OsmSharp.Collections.Tags;
 using OsmSharp.Units.Speed;
 
-namespace OsmSharp.Routing.Vehicles
+namespace OsmSharp.Routing.Osm.Vehicles
 {
 
     /// <summary>

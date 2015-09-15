@@ -16,12 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Routing;
-using OsmSharp.Collections.Tags;
 using NUnit.Framework;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Osm.Vehicles;
 
-namespace OsmSharp.Test.Unittests.Routing
+namespace OsmSharp.Routing.Test.Osm.Vehicles
 {
     /// <summary>
     /// Contains generic testing functionality for the vehicle class.

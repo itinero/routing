@@ -703,7 +703,7 @@ namespace OsmSharp.Routing.Graphs
         /// <summary>
         /// Returns the number of vertices in this graph.
         /// </summary>
-        public long VertexCount
+        public uint VertexCount
         {
             get
             {

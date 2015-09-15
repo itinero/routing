@@ -19,7 +19,7 @@
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Network;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Routing.Osm.Vehicles;
 
 namespace OsmSharp.Routing
 {

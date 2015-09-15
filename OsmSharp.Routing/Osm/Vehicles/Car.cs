@@ -16,22 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Vehicles
+namespace OsmSharp.Routing.Osm.Vehicles
 {
-
     /// <summary>
-    /// Represents a bus that is not acting as a public service.
+    /// Represents a Car
     /// </summary>
-    /// <remarks>http://wiki.openstreetmap.org/wiki/Key:tourist_bus</remarks>
-    public class Bus : MotorVehicle
+    public class Car : MotorVehicle
     {
         /// <summary>
-        /// Default constructor.
+        /// Default Constructor
         /// </summary>
-        public Bus()
+        public Car()
         {
-            // http://wiki.openstreetmap.org/wiki/Key:tourist_bus
-            VehicleTypes.Add("tourist_bus");
+            VehicleTypes.Add("motorcar");
         }
 
         /// <summary>
@@ -39,7 +36,7 @@ namespace OsmSharp.Routing.Vehicles
         /// </summary>
         public override string UniqueName
         {
-            get { return "Bus"; }
+            get { return "Car"; }
         }
     }
 }

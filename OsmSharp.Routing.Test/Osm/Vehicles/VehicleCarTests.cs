@@ -18,24 +18,24 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Units.Speed;
 
-namespace OsmSharp.Test.Unittests.Routing
+namespace OsmSharp.Routing.Test.Osm.Vehicles
 {
     /// <summary>
-    /// Contains test for the Vehicle.SmallTruck class.
+    /// Contains test for the Vehicle.Car class.
     /// </summary>
     [TestFixture]
-    public class VehicleSmallTruckTests : VehicleBaseTests
+    public class VehicleCarTests : VehicleBaseTests
     {
         /// <summary>
         /// Tests the can traverse functionality.
         /// </summary>
         [Test]
-        public void TestVehicleSmallTruckCanTranverse()
+        public void TestVehicleCarCanTranverse()
         {
-            var vehicle = Vehicle.SmallTruck;
+            var vehicle = Vehicle.Car;
 
             // invalid highway types.
             base.TestVehicleCanTranverse(vehicle, false, "highwey", "road");
@@ -74,9 +74,9 @@ namespace OsmSharp.Test.Unittests.Routing
         /// Tests the max speed functionality.
         /// </summary>
         [Test]
-        public void TestVehicleSmallTruckMaxSpeed()
+        public void TestVehicleCarMaxSpeed()
         {
-            Vehicle vehicle = Vehicle.SmallTruck;
+            Vehicle vehicle = Vehicle.Car;
 
             //base.TextMaxSpeed(Vehicle.Car, 5, "highway", "pedestrian");
 
@@ -104,9 +104,9 @@ namespace OsmSharp.Test.Unittests.Routing
         /// Tests the probable speed functionality.
         /// </summary>
         [Test]
-        public void TestVehicleSmallTruckProbableSpeed()
+        public void TestVehicleCarProbableSpeed()
         {
-            Vehicle vehicle = Vehicle.SmallTruck;
+            Vehicle vehicle = Vehicle.Car;
             double max = 200;
 
             //base.TextMaxSpeed(Vehicle.Car, 5, "highway", "pedestrian");

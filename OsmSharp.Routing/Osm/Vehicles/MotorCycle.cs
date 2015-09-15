@@ -16,20 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Vehicles
-{
 
+namespace OsmSharp.Routing.Osm.Vehicles
+{
     /// <summary>
-    /// Represents a Car
+    /// Represents a MotorCycle
     /// </summary>
-    public class Car : MotorVehicle
+    public class MotorCycle : MotorVehicle
     {
         /// <summary>
         /// Default Constructor
         /// </summary>
-        public Car()
+        public MotorCycle()
         {
-            VehicleTypes.Add("motorcar");
+            VehicleTypes.Add("motorcycle");
         }
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace OsmSharp.Routing.Vehicles
         /// </summary>
         public override string UniqueName
         {
-            get { return "Car"; }
+            get { return "MotorCycle"; }
         }
     }
 }

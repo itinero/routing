@@ -18,10 +18,10 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Units.Speed;
 
-namespace OsmSharp.Test.Unittests.Routing
+namespace OsmSharp.Routing.Test.Osm.Vehicles
 {
     /// <summary>
     /// Contains test for the Vehicle.Pedestrian class.

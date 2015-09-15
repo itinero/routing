@@ -94,6 +94,11 @@
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Network\Data\EdgeData.cs" />
+    <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
+    <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
+    <Compile Include="Profiles\Profile.cs" />
+    <Compile Include="Profiles\VehicleTypes.cs" />
+    <Compile Include="RouterDb.cs" />
     <Compile Include="RouterPoint.cs" />
     <Compile Include="Network\RoutingEdge.cs" />
     <Compile Include="Network\RoutingNetwork.cs">
@@ -102,17 +107,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Route.cs" />
-    <Compile Include="Vehicles\Bicycle.cs" />
-    <Compile Include="Vehicles\BigTruck.cs" />
-    <Compile Include="Vehicles\Bus.cs" />
-    <Compile Include="Vehicles\Car.cs" />
-    <Compile Include="Vehicles\Moped.cs" />
-    <Compile Include="Vehicles\MotorCycle.cs" />
-    <Compile Include="Vehicles\MotorVehicle.cs" />
-    <Compile Include="Vehicles\Pedestrian.cs" />
-    <Compile Include="Vehicles\SmallTruck.cs" />
-    <Compile Include="Vehicles\Vehicle.cs" />
-    <Compile Include="Vehicles\VehicleType.cs" />
+    <Compile Include="Osm\Vehicles\Bicycle.cs" />
+    <Compile Include="Osm\Vehicles\BigTruck.cs" />
+    <Compile Include="Osm\Vehicles\Bus.cs" />
+    <Compile Include="Osm\Vehicles\Car.cs" />
+    <Compile Include="Osm\Vehicles\Moped.cs" />
+    <Compile Include="Osm\Vehicles\MotorCycle.cs" />
+    <Compile Include="Osm\Vehicles\MotorVehicle.cs" />
+    <Compile Include="Osm\Vehicles\Pedestrian.cs" />
+    <Compile Include="Osm\Vehicles\SmallTruck.cs" />
+    <Compile Include="Osm\Vehicles\Vehicle.cs" />
+    <Compile Include="Osm\Vehicles\VehicleType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OsmSharp, Version=0.0.0.19, Culture=neutral, processorArchitecture=MSIL">

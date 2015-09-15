@@ -69,16 +69,17 @@
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
     <Compile Include="Graphs\GraphTests.cs" />
     <Compile Include="Network\RoutingNetworkTests.cs" />
+    <Compile Include="Osm\Streams\RouterDbStreamTargetTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Vehicles\VehicleBaseTests.cs" />
-    <Compile Include="Vehicles\VehicleBicycleTests.cs" />
-    <Compile Include="Vehicles\VehicleBigTruckTests.cs" />
-    <Compile Include="Vehicles\VehicleBusTests.cs" />
-    <Compile Include="Vehicles\VehicleCarTests.cs" />
-    <Compile Include="Vehicles\VehicleMopedTests.cs" />
-    <Compile Include="Vehicles\VehicleMotorCycleTests.cs" />
-    <Compile Include="Vehicles\VehiclePedestrianTests.cs" />
-    <Compile Include="Vehicles\VehicleSmallTruckTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleBaseTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleBicycleTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleBigTruckTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleBusTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleCarTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleMopedTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleMotorCycleTests.cs" />
+    <Compile Include="Osm\Vehicles\VehiclePedestrianTests.cs" />
+    <Compile Include="Osm\Vehicles\VehicleSmallTruckTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OsmSharp.Routing\OsmSharp.Routing.csproj">

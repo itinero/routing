@@ -19,7 +19,7 @@
 using OsmSharp.Collections.Tags;
 using OsmSharp.Math;
 using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Vehicles;
+using OsmSharp.Routing.Osm.Vehicles;
 
 namespace OsmSharp.Routing
 {
