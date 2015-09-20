@@ -411,7 +411,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <returns></returns>
         public Profiles.Profile Fastest()
         {
-            return new Profiles.Profile((tags) => 
+            return new Profiles.Profile(this.UniqueName + ".Fastest", (tags) => 
                 {
                     return (float)this.ProbableSpeed(tags).Value / 3.6f;
                 }, this.VehicleTypes);
@@ -423,7 +423,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <returns></returns>
         public Profiles.Profile Shortest()
         {
-            return new Profiles.Profile((tags) =>
+            return new Profiles.Profile(this.UniqueName + ".Shortest", (tags) =>
             {
                 return (float)1;
             }, this.VehicleTypes);

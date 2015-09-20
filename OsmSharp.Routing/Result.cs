@@ -19,6 +19,7 @@
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Network;
 using System;
+
 namespace OsmSharp.Routing
 {
     /// <summary>

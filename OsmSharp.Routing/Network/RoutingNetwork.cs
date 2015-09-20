@@ -23,9 +23,10 @@ using OsmSharp.IO;
 using OsmSharp.IO.MemoryMappedFiles;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Graphs.Geometric;
+using OsmSharp.Routing.Network.Data;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Network.Data
+namespace OsmSharp.Routing.Network
 {
     /// <summary>
     /// Represents a routing network.

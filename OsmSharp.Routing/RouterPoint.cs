@@ -38,6 +38,19 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Creates a new router point.
+        /// </summary>
+        public RouterPoint(float latitude, float longitude, uint edgeId, ushort offset,
+            params Tag[] tags)
+        {
+            this.Latitude = latitude;
+            this.Longitude = longitude;
+            this.EdgeId = edgeId;
+            this.Offset = offset;
+            this.Tags = new TagsCollection(tags);
+        }
+
+        /// <summary>
         /// Gets the edge id.
         /// </summary>
         public uint EdgeId

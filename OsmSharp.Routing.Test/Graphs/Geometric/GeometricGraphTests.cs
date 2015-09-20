@@ -18,9 +18,11 @@
 
 using NUnit.Framework;
 using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Math.Geo;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Graphs.Geometric;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace OsmSharp.Routing.Test.Graphs.Geometric
@@ -329,6 +331,132 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             Assert.AreEqual(edgeId5, edges.First(x => x.To == 3).Id);
             Assert.AreEqual(vertex5, edges.First(x => x.To == 3).From);
         }
+
+        /// <summary>
+        /// Tests adding an edge with a shape.
+        /// </summary>
+        [Test]
+        public void TestAddEdgeShape()
+        {
+            var graph = new GeometricGraph(2, 100);
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            graph.AddVertex(2, 0, 1);
+            graph.AddVertex(3, 0, 2);
+            graph.AddEdge(0, 1, new uint[] { 0, 10 }, 
+                new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
+                    new GeoCoordinate(0.25, 0.25),
+                    new GeoCoordinate(0.5, 0.5),
+                    new GeoCoordinate(0.75, 0.75)
+                }));
+            graph.AddEdge(1, 2, new uint[] { 10, 20 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
+                new GeoCoordinate(0.75, 1),
+                new GeoCoordinate(0.5, 1),
+                new GeoCoordinate(0.25, 1)
+            }));
+            graph.AddEdge(2, 3, new uint[] { 20, 30 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
+                new GeoCoordinate(0, 1.25),
+                new GeoCoordinate(0, 1.5),
+                new GeoCoordinate(0, 1.75)
+            }));
+
+            // verify all edges.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().To);
+            Assert.IsNotNull(edges.First().Shape);
+            var shape = new List<ICoordinate>(edges.First().Shape);
+            Assert.AreEqual(0.25, shape[0].Latitude);
+            Assert.AreEqual(0.25, shape[0].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(0.5, shape[1].Longitude);
+            Assert.AreEqual(0.75, shape[2].Latitude);
+            Assert.AreEqual(0.75, shape[2].Longitude);
+            shape = new List<ICoordinate>(edges.First().Shape.Reverse());
+            Assert.AreEqual(0.25, shape[2].Latitude);
+            Assert.AreEqual(0.25, shape[2].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(0.5, shape[1].Longitude);
+            Assert.AreEqual(0.75, shape[0].Latitude);
+            Assert.AreEqual(0.75, shape[0].Longitude);
+
+            edges = graph.GetEdgeEnumerator(1);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 0).Shape);
+            Assert.AreEqual(0.25, shape[0].Latitude);
+            Assert.AreEqual(0.25, shape[0].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(0.5, shape[1].Longitude);
+            Assert.AreEqual(0.75, shape[2].Latitude);
+            Assert.AreEqual(0.75, shape[2].Longitude);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 0).Shape.Reverse());
+            Assert.AreEqual(0.25, shape[2].Latitude);
+            Assert.AreEqual(0.25, shape[2].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(0.5, shape[1].Longitude);
+            Assert.AreEqual(0.75, shape[0].Latitude);
+            Assert.AreEqual(0.75, shape[0].Longitude);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 2).Shape);
+            Assert.AreEqual(0.75, shape[0].Latitude);
+            Assert.AreEqual(1, shape[0].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(1, shape[1].Longitude);
+            Assert.AreEqual(0.25, shape[2].Latitude);
+            Assert.AreEqual(1, shape[2].Longitude);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 2).Shape.Reverse());
+            Assert.AreEqual(0.75, shape[2].Latitude);
+            Assert.AreEqual(1, shape[2].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(1, shape[1].Longitude);
+            Assert.AreEqual(0.25, shape[0].Latitude);
+            Assert.AreEqual(1, shape[0].Longitude);
+
+            edges = graph.GetEdgeEnumerator(2);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 1).Shape);
+            Assert.AreEqual(0.75, shape[0].Latitude);
+            Assert.AreEqual(1, shape[0].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(1, shape[1].Longitude);
+            Assert.AreEqual(0.25, shape[2].Latitude);
+            Assert.AreEqual(1, shape[2].Longitude);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 1).Shape.Reverse());
+            Assert.AreEqual(0.75, shape[2].Latitude);
+            Assert.AreEqual(1, shape[2].Longitude);
+            Assert.AreEqual(0.5, shape[1].Latitude);
+            Assert.AreEqual(1, shape[1].Longitude);
+            Assert.AreEqual(0.25, shape[0].Latitude);
+            Assert.AreEqual(1, shape[0].Longitude);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 3).Shape);
+            Assert.AreEqual(0, shape[0].Latitude);
+            Assert.AreEqual(1.25, shape[0].Longitude);
+            Assert.AreEqual(0, shape[1].Latitude);
+            Assert.AreEqual(1.5, shape[1].Longitude);
+            Assert.AreEqual(0, shape[2].Latitude);
+            Assert.AreEqual(1.75, shape[2].Longitude);
+            shape = new List<ICoordinate>(edges.First(x => x.To == 3).Shape.Reverse());
+            Assert.AreEqual(0, shape[2].Latitude);
+            Assert.AreEqual(1.25, shape[2].Longitude);
+            Assert.AreEqual(0, shape[1].Latitude);
+            Assert.AreEqual(1.5, shape[1].Longitude);
+            Assert.AreEqual(0, shape[0].Latitude);
+            Assert.AreEqual(1.75, shape[0].Longitude);
+
+            edges = graph.GetEdgeEnumerator(3);
+            shape = new List<ICoordinate>(edges.First().Shape);
+            Assert.AreEqual(0, shape[0].Latitude);
+            Assert.AreEqual(1.25, shape[0].Longitude);
+            Assert.AreEqual(0, shape[1].Latitude);
+            Assert.AreEqual(1.5, shape[1].Longitude);
+            Assert.AreEqual(0, shape[2].Latitude);
+            Assert.AreEqual(1.75, shape[2].Longitude);
+            shape = new List<ICoordinate>(edges.First().Shape.Reverse());
+            Assert.AreEqual(0, shape[2].Latitude);
+            Assert.AreEqual(1.25, shape[2].Longitude);
+            Assert.AreEqual(0, shape[1].Latitude);
+            Assert.AreEqual(1.5, shape[1].Longitude);
+            Assert.AreEqual(0, shape[0].Latitude);
+            Assert.AreEqual(1.75, shape[0].Longitude);
+        }
+
 
         /// <summary>
         /// Tests setting a vertex.

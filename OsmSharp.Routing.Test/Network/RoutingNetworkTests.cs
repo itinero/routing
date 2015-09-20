@@ -19,6 +19,7 @@
 using NUnit.Framework;
 using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using System;
 using System.Linq;

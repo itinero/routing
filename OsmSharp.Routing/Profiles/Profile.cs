@@ -27,26 +27,48 @@ namespace OsmSharp.Routing.Profiles
     /// </summary>
     public class Profile
     {
+        private readonly string _name;
         private readonly Func<TagsCollectionBase, float> _getSpeed;
         private readonly HashSet<string> _vehicleTypes;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        public Profile(Func<TagsCollectionBase, float> getSpeed, 
+        public Profile(string name, Func<TagsCollectionBase, float> getSpeed,
             HashSet<string> vehicleTypes)
         {
             _getSpeed = getSpeed;
             _vehicleTypes = vehicleTypes;
+            _name = name;
         }
 
         /// <summary>
-        /// Returns the speed this vehicle would have over a segment with the given attributes.
+        /// Returns the multiplication factor for profile over a segment with the given attributes.
+        /// </summary>
+        /// <returns></returns>
+        public virtual float Factor(TagsCollectionBase attributes)
+        {
+            return 1.0f / _getSpeed(attributes);
+        }
+
+        /// <summary>
+        /// Returns the speed a vehicle with this profile would have over a segment with the given attributes.
         /// </summary>
         /// <returns></returns>
         public virtual float Speed(TagsCollectionBase attributes)
         {
             return _getSpeed(attributes);
+        }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public virtual string Name
+        {
+            get
+            {
+                return _name;
+            }
         }
 
         /// <summary>

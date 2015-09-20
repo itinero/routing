@@ -17,6 +17,8 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Coordinates.Collections;
+using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Graphs.Geometric
 {
@@ -139,29 +141,107 @@ namespace OsmSharp.Routing.Graphs.Geometric
             var totalLength = 0.0f;
 
             ICoordinate previous = graph.GetVertex(edge.From);
+            ICoordinate current = null;
             var shape = edge.Shape;
-            var shapeEnumerator = shape.GetEnumerator();
-            while (true)
+            if(shape != null)
             {
-                // get current point.
-                ICoordinate current = null;
-                if (shapeEnumerator.MoveNext())
-                { // one more shape point.
-                    current = shapeEnumerator.Current;
-                }
-                else
-                { // no more shape points.
-                    current = graph.GetVertex(edge.From);
+                while (shape.MoveNext())
+                {
+                    current = shape.Current;
                     totalLength += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
                             previous.Latitude, previous.Longitude,
                             current.Latitude, current.Longitude);
-                    return totalLength;
+                    previous = current;
                 }
-                totalLength += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
-                        previous.Latitude, previous.Longitude,
-                        current.Latitude, current.Longitude);
+            }
+            current = graph.GetVertex(edge.To);
+            totalLength += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                    previous.Latitude, previous.Longitude,
+                    current.Latitude, current.Longitude);
+            return totalLength;
+        }
+
+        /// <summary>
+        /// Gets the shape points starting at the given vertex until the max distance.
+        /// </summary>
+        /// <returns></returns>
+        public static List<ICoordinate> GetShapePoints(this GeometricGraph graph, GeometricEdge geometricEdge, float minDistance, float maxDistance)
+        {
+            var points = new List<ICoordinate>();
+            if (geometricEdge.Shape == null)
+            {
+                return points;
+            }
+            ICoordinate previous = graph.GetVertex(geometricEdge.From);
+            var distance = 0.0f;
+            var shapeEnumerator = geometricEdge.Shape.GetEnumerator();
+            while (shapeEnumerator.MoveNext())
+            {
+                var current = shapeEnumerator.Current;
+                distance += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                    previous, current);
+                if(minDistance < distance &&
+                    distance < maxDistance)
+                {
+                    points.Add(current);
+                }
                 previous = current;
             }
+            return points;
+        }
+
+        /// <summary>
+        /// Gets the shape points starting at the given vertex until the max distance.
+        /// </summary>
+        /// <returns></returns>
+        public static List<ICoordinate> GetShapePoints(this GeometricGraph graph, GeometricEdge geometricEdge, uint vertex, float maxDistance)
+        {
+            var points = new List<ICoordinate>();
+            if(geometricEdge.Shape == null)
+            {
+                return points;
+            }
+            if (geometricEdge.From == vertex)
+            { // start at from.
+                ICoordinate previous = graph.GetVertex(vertex);
+                var distance = 0.0f;
+                var shapeEnumerator = geometricEdge.Shape.GetEnumerator();
+                while(shapeEnumerator.MoveNext())
+                {
+                    var current = shapeEnumerator.Current;
+                    distance += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                        previous, current);
+                    if(distance >= maxDistance)
+                    { // do not include this point anymore.
+                        break;
+                    }
+                    points.Add(current);
+                    previous = current;
+                }
+                return points;
+            }
+            else if (geometricEdge.To == vertex)
+            { // start at to.
+                var shape = geometricEdge.Shape.Reverse();
+                ICoordinate previous = graph.GetVertex(vertex);
+                var distance = 0.0f;
+                var shapeEnumerator = shape.GetEnumerator();
+                while (shapeEnumerator.MoveNext())
+                {
+                    var current = shapeEnumerator.Current;
+                    distance += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                        previous, current);
+                    if (distance >= maxDistance)
+                    { // do not include this point anymore.
+                        break;
+                    }
+                    points.Add(current);
+                    previous = current;
+                }
+                return points;
+            }
+            throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
+                vertex, geometricEdge.Id));
         }
     }
 }

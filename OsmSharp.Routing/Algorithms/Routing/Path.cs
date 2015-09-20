@@ -190,41 +190,5 @@ namespace OsmSharp.Routing.Algorithms.Routing
             builder.Insert(0, string.Format("{0}[{1}]", next.Vertex, next.Weight));
             return builder.ToString();
         }
-
-        /// <summary>
-        /// Returns all the vertices in an array.
-        /// </summary>
-        /// <returns></returns>
-        public uint[] ToArray()
-        {
-            var vertices = new List<uint>();
-            var next = this;
-            while (next.From != null)
-            {
-                vertices.Add(next.Vertex);
-                next = next.From;
-            }
-            vertices.Add(next.Vertex);
-            vertices.Reverse();
-            return vertices.ToArray();
-        }
-
-        /// <summary>
-        /// Returns all the vertices in an array along with their respective weight.
-        /// </summary>
-        /// <returns></returns>
-        public Tuple<uint, double>[] ToArrayWithWeight()
-        {
-            var vertices = new List<Tuple<uint, double>>();
-            var next = this;
-            while (next.From != null)
-            {
-                vertices.Add(new Tuple<uint, double>(next.Vertex, next.Weight));
-                next = next.From;
-            }
-            vertices.Add(new Tuple<uint, double>(next.Vertex, next.Weight));
-            vertices.Reverse();
-            return vertices.ToArray();
-        }
     }
 }

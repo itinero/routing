@@ -65,6 +65,7 @@
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\Routing\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Routing\Dykstra.cs" />
+    <Compile Include="Algorithms\Routing\RouteBuilder.cs" />
     <Compile Include="Algorithms\Routing\Speed.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Routing\Path.cs" />
@@ -96,10 +97,12 @@
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Network\Data\EdgeData.cs" />
+    <Compile Include="Network\RoutingNetworkExtensions.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Profiles\Profile.cs" />
     <Compile Include="Profiles\VehicleTypes.cs" />
+    <Compile Include="RouteExtensions.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="RouterDb.cs" />
     <Compile Include="RouterPoint.cs" />

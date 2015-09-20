@@ -16,9 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Algorithms.Routing;
 using OsmSharp.Routing.Graphs.Geometric;
 using OsmSharp.Routing.Profiles;
+using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing
 {
@@ -47,12 +51,119 @@ namespace OsmSharp.Routing
             float distance;
             ushort profileId;
             OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
-            var speed = profile.Speed(routerDb.Profiles.Get(profileId));
+            var factor = profile.Factor(routerDb.Profiles.Get(profileId));
             var length = graph.Length(edge);
             return new Path[] {
-                new Path(edge.From, (length * offset), new Path(uint.MaxValue)),
-                new Path(edge.To, (length * (1 - offset)), new Path(uint.MaxValue))
+                new Path(edge.From, (length * offset) * factor, new Path(Constants.NO_VERTEX)),
+                new Path(edge.To, (length * (1 - offset)) * factor, new Path(Constants.NO_VERTEX))
             };
+        }
+
+        /// <summary>
+        /// Calculates the distance to one of the vertices on the edge this router point is on.
+        /// </summary>
+        /// <returns></returns>
+        public static float DistanceTo(this RouterPoint point, RouterDb routerDb, uint vertex)
+        {
+            var geometricEdge = routerDb.Network.GeometricGraph.GetEdge(point.EdgeId);
+            var edgeDistance = routerDb.Network.GeometricGraph.Length(geometricEdge);
+            var offsetDistance = edgeDistance * ((float)point.Offset / (float)ushort.MaxValue);
+            if(geometricEdge.From == vertex)
+            { // offset = distance.
+                return offsetDistance;
+            }
+            else if(geometricEdge.To == vertex)
+            { // offset = 100 - distance.
+                return edgeDistance - offsetDistance;
+            }
+            throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
+                vertex, point.EdgeId));
+        }
+
+        /// <summary>
+        /// Calculates the shape points along the way from this router point to one of it's vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static List<ICoordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, uint vertex)
+        {
+            List<ICoordinate> points = null;
+            var geometricEdge = routerDb.Network.GeometricGraph.GetEdge(point.EdgeId);
+            var edgeDistance = routerDb.Network.GeometricGraph.Length(geometricEdge);
+            var offsetDistance = edgeDistance * ((float)point.Offset / (float)ushort.MaxValue);
+            if (geometricEdge.From == vertex)
+            { // offset = distance.
+                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, vertex, offsetDistance);
+                points.Reverse();
+                return points;
+            }
+            else if (geometricEdge.To == vertex)
+            { // offset = 100 - distance.
+                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, vertex, edgeDistance - offsetDistance);
+                points.Reverse();
+                return points;
+            }
+            throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
+                vertex, point.EdgeId));
+        }
+
+        /// <summary>
+        /// Calculates the shape points along the way from this router point to another routerpoint on the same edge.
+        /// </summary>
+        /// <returns></returns>
+        public static List<ICoordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, RouterPoint other)
+        {
+            if (point.EdgeId != other.EdgeId) { throw new ArgumentException("Cannot build shape points list between router points on different edges."); }
+
+            List<ICoordinate> points = null;
+
+            var geometricEdge = routerDb.Network.GeometricGraph.GetEdge(point.EdgeId);
+            var edgeDistance = routerDb.Network.GeometricGraph.Length(geometricEdge);
+            var pointOffset = edgeDistance * ((float)point.Offset / (float)ushort.MaxValue);
+            var otherOffset = edgeDistance * ((float)other.Offset / (float)ushort.MaxValue);
+
+            if(pointOffset > otherOffset)
+            { // oeps, shapes are opposite to edge.
+                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, otherOffset, pointOffset);
+                points.Reverse();
+            }
+            else
+            { // with edge direction.
+                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, pointOffset, otherOffset);
+            }
+            return points;
+        }
+
+        /// <summary>
+        /// Returns the location.
+        /// </summary>
+        /// <returns></returns>
+        public static ICoordinate Location(this RouterPoint point)
+        {
+            return new GeoCoordinateSimple()
+            {
+                Latitude = point.Latitude,
+                Longitude = point.Longitude
+            };
+        }
+
+
+        /// <summary>
+        /// Returns true if the router point matches exactly with the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsVertex(this RouterPoint point, RouterDb router, uint vertex)
+        {
+            if(point.Offset == 0)
+            { // offset is zero, maybe there is a match.
+                var edge = router.Network.GetEdge(point.EdgeId);
+                return edge.From == vertex;
+            }
+            else if(point.Offset == ushort.MaxValue)
+            { // offset is max, maybe there is a match.
+                var edge = router.Network.GetEdge(point.EdgeId);
+                return edge.To == vertex;
+            }
+            return false;
         }
     }
 }

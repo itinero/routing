@@ -16,11 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Profiles;
-using OsmSharp.Routing.Algorithms.Search;
-using System;
 using OsmSharp.Routing.Algorithms.Routing;
+using OsmSharp.Routing.Algorithms.Search;
+using OsmSharp.Routing.Profiles;
+using System;
 
 namespace OsmSharp.Routing
 {
@@ -58,7 +57,7 @@ namespace OsmSharp.Routing
                     for(var i = 0; i < profiles.Length; i++)
                     {
                         // get speed from profile.
-                        if (profiles[i].Speed(_db.Profiles.Get(profile)) <= 0)
+                        if (profiles[i].Factor(_db.Profiles.Get(profile)) <= 0)
                         { // cannot be travelled by this profile.
                             return false;
                         }
@@ -83,7 +82,7 @@ namespace OsmSharp.Routing
         {
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
             {
-                var speed = profile.Speed(_db.Profiles.Get(p));
+                var speed = profile.Factor(_db.Profiles.Get(p));
                 if (speed > 0)
                 {
                     return new Speed() { 
