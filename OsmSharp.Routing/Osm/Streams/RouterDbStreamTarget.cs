@@ -192,7 +192,7 @@ namespace OsmSharp.Routing.Osm.Streams
 
                         // try to add edge.
                         var edge = _db.Network.GetEdgeEnumerator(fromVertex).FirstOrDefault(x => x.To == toVertex);
-                        if (edge == null)
+                        if (edge == null && fromVertex != toVertex)
                         { // just add edge.
                             _db.Network.AddEdge(fromVertex, toVertex, new Network.Data.EdgeData()
                             {
@@ -206,7 +206,9 @@ namespace OsmSharp.Routing.Osm.Streams
                             var splitMeta = meta;
                             var splitProfile = profile;
                             var splitDistance = distance;
-                            if (intermediates.Count == 0)
+                            if (intermediates.Count == 0 &&
+                                edge != null && 
+                                edge.Shape != null)
                             { // no intermediates in current edge.
                                 // save old edge data.
                                 intermediates = new List<ICoordinate>(edge.Shape);
@@ -220,7 +222,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                 _db.Network.AddEdge(fromVertex, toVertex, new Network.Data.EdgeData()
                                 {
                                     MetaId = meta,
-                                    Distance = distance,
+                                    Distance = System.Math.Max(distance, 0.0f),
                                     Profile = (ushort)profile
                                 }, null);
                             }
@@ -238,7 +240,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                 _db.Network.AddEdge(fromVertex, newCoreVertex, new Network.Data.EdgeData()
                                 {
                                     MetaId = splitMeta,
-                                    Distance = newDistance,
+                                    Distance = System.Math.Max(newDistance, 0.0f),
                                     Profile = (ushort)splitProfile
                                 }, null);
 
@@ -247,7 +249,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                 _db.Network.AddEdge(newCoreVertex, toVertex, new Network.Data.EdgeData()
                                 {
                                     MetaId = splitMeta,
-                                    Distance = splitDistance,
+                                    Distance = System.Math.Max(splitDistance, 0.0f),
                                     Profile = (ushort)splitProfile
                                 }, new CoordinateArrayCollection<ICoordinate>(intermediates.ToArray()));
                             }

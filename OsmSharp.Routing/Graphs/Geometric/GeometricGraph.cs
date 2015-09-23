@@ -36,6 +36,8 @@ namespace OsmSharp.Routing.Graphs.Geometric
             Longitude = float.MaxValue
         };
 
+        private const int BLOCKSIZE = 1000;
+
         private readonly Graph _graph;
         private readonly HugeArrayBase<GeoCoordinateSimple> _coordinates;
         private readonly HugeCoordinateCollectionIndex _shapes;
@@ -46,12 +48,12 @@ namespace OsmSharp.Routing.Graphs.Geometric
         public GeometricGraph(int edgeDataSize)
         {
             _graph = new Graph(edgeDataSize);
-            _coordinates = new HugeArray<GeoCoordinateSimple>(1000);
+            _coordinates = new HugeArray<GeoCoordinateSimple>(BLOCKSIZE);
             for (var i = 0; i < _coordinates.Length; i++)
             {
                 _coordinates[i] = NO_COORDINATE;
             }
-            _shapes = new HugeCoordinateCollectionIndex(1000);
+            _shapes = new HugeCoordinateCollectionIndex(BLOCKSIZE);
         }
 
         /// <summary>
@@ -171,6 +173,17 @@ namespace OsmSharp.Routing.Graphs.Geometric
         public uint AddEdge(uint vertex1, uint vertex2, uint[] data, ICoordinateCollection shape)
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
+
+            if (edgeId >= _shapes.LengthIndex)
+            { // increase coordinates length.
+                var newBlocks = 1;
+                if (edgeId - _shapes.LengthIndex > 0)
+                { // increase more.
+                    newBlocks = (int)System.Math.Floor(edgeId - _coordinates.Length) + 1;
+                }
+                _shapes.Resize(_shapes.LengthIndex + (newBlocks * BLOCKSIZE));
+            }
+
             _shapes[edgeId] = shape;
             return edgeId;
         }
