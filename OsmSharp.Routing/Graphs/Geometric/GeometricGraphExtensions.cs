@@ -69,23 +69,26 @@ namespace OsmSharp.Routing.Graphs.Geometric
 
             ICoordinate previous = graph.GetVertex(edge.From);
             var shape = edge.Shape;
+            if(shape != null)
+            {
+                shape.Reset();
+            }
             var previousShapeDistance = 0.0f;
             var previousShapeIndex = -1;
 
-            var shapeEnumerator = shape.GetEnumerator();
             while (true)
             {
                 // get current point.
                 var isShapePoint = true;
                 ICoordinate current = null;
-                if (shapeEnumerator.MoveNext())
+                if (shape != null && shape.MoveNext())
                 { // one more shape point.
-                    current = shapeEnumerator.Current;
+                    current = shape.Current;
                 }
                 else
                 { // no more shape points.
                     isShapePoint = false;
-                    current = graph.GetVertex(edge.From);
+                    current = graph.GetVertex(edge.To);
                 }
 
                 var line = new OsmSharp.Math.Geo.GeoCoordinateLine(
@@ -145,6 +148,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
             var shape = edge.Shape;
             if(shape != null)
             {
+                shape.Reset();
                 while (shape.MoveNext())
                 {
                     current = shape.Current;
@@ -159,6 +163,27 @@ namespace OsmSharp.Routing.Graphs.Geometric
                     previous.Latitude, previous.Longitude,
                     current.Latitude, current.Longitude);
             return totalLength;
+        }
+
+        /// <summary>
+        /// Gets the shape points including the two vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static List<ICoordinate> GetShapePoints(this GeometricGraph graph, GeometricEdge geometricEdge)
+        {
+            var points = new List<ICoordinate>();
+            points.Add(graph.GetVertex(geometricEdge.From));
+            var shape = geometricEdge.Shape;
+            if(shape != null)
+            {
+                shape.Reset();
+                while (shape.MoveNext())
+                {
+                    points.Add(shape.Current);
+                }
+            }
+            points.Add(graph.GetVertex(geometricEdge.To));
+            return points;
         }
 
         /// <summary>

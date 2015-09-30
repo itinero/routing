@@ -16,26 +16,27 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Algorithms.Routing
+namespace OsmSharp.Routing.Profiles
 {
     /// <summary>
-    /// Represents speed.
+    /// A speed returned by a routing profile to influence routing.
     /// </summary>
     public struct Speed
     {
         /// <summary>
-        /// Gets or sets the meters per second.
+        /// Gets or sets the value in m/s.
         /// </summary>
-        public float MeterPerSecond { get; set; }
+        public float Value { get; set; }
 
         /// <summary>
         /// Gets or sets the direction.
         /// </summary>
-        public bool? Direction { get; set; }
+        /// 0=bidirectional, 1=forward, 2=backward.
+        public short Direction { get; set; }
 
         /// <summary>
-        /// Returns a default empty speed value.
+        /// Returns a default speed represent a non-value.
         /// </summary>
-        public static Speed NoSpeed = new Speed() { Direction = null, MeterPerSecond = 0 };
+        public static Speed NoSpeed { get { return new Speed() { Direction = 0, Value = 0 }; } }
     }
 }

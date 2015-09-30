@@ -66,7 +66,6 @@
     <Compile Include="Algorithms\Routing\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Routing\Dykstra.cs" />
     <Compile Include="Algorithms\Routing\RouteBuilder.cs" />
-    <Compile Include="Algorithms\Routing\Speed.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Routing\Path.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
@@ -74,6 +73,7 @@
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />
     <Compile Include="Data\EdgeDataSerializer.cs" />
     <Compile Include="Exceptions\ResolveFailedException.cs" />
+    <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
@@ -100,7 +100,9 @@
     <Compile Include="Network\RoutingNetworkExtensions.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
+    <Compile Include="Profiles\Factor.cs" />
     <Compile Include="Profiles\Profile.cs" />
+    <Compile Include="Profiles\Speed.cs" />
     <Compile Include="Profiles\VehicleTypes.cs" />
     <Compile Include="RouteExtensions.cs" />
     <Compile Include="Router.cs" />

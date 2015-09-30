@@ -388,8 +388,8 @@ namespace OsmSharp.Routing.Graphs
         /// <returns></returns>
         public Edge GetEdge(uint edgeId)
         {
-            edgeId = edgeId * (uint)_edgeSize;
-            if (_edges.Length < edgeId + (uint)_edgeSize)
+            var edgePointer = edgeId * (uint)_edgeSize;
+            if (_edges.Length < edgePointer + (uint)_edgeSize)
             { // edge not part of graph.
                 throw new ArgumentOutOfRangeException();
             }
@@ -397,13 +397,13 @@ namespace OsmSharp.Routing.Graphs
             var data = new uint[_edgeDataSize];
             for(var i = 0; i < _edgeDataSize; i++)
             {
-                data[i] = 
-                    _edges[edgeId + MINIMUM_EDGE_SIZE + i];
+                data[i] =
+                    _edges[edgePointer + MINIMUM_EDGE_SIZE + i];
             }
             return new Edge(
                 edgeId,
-                _edges[edgeId + NODEA],
-                _edges[edgeId + NODEB],
+                _edges[edgePointer + NODEA],
+                _edges[edgePointer + NODEB],
                 data,
                 false);
         }

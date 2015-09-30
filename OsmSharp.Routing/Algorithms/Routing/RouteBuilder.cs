@@ -191,7 +191,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
             var edge = _routerDb.Network.GetEdge(_source.EdgeId);
             var profile = _routerDb.Profiles.Get(edge.Data.Profile);
             var speed = _profile.Speed(profile);
-            var meta = _routerDb.Profiles.Get(edge.Data.MetaId);
+            var meta = _routerDb.Meta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
             tags.AddOrReplace(meta);
 
@@ -220,7 +220,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
             var edge = _routerDb.Network.GetEdgeEnumerator(previousVertex).First(x => x.To == vertex);
             var profile = _routerDb.Profiles.Get(edge.Data.Profile);
             var speed = _profile.Speed(profile);
-            var meta = _routerDb.Profiles.Get(edge.Data.MetaId);
+            var meta = _routerDb.Meta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
             tags.AddOrReplace(meta);
 
@@ -259,7 +259,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
             var edge = _routerDb.Network.GetEdge(_target.EdgeId);
             var profile = _routerDb.Profiles.Get(edge.Data.Profile);
             var speed = _profile.Speed(profile);
-            var meta = _routerDb.Profiles.Get(edge.Data.MetaId);
+            var meta = _routerDb.Meta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
             tags.AddOrReplace(meta);
 

@@ -18,6 +18,7 @@
 
 using OsmSharp.Routing.Algorithms.Routing;
 using OsmSharp.Routing.Algorithms.Search;
+using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Profiles;
 using System;
 
@@ -57,13 +58,14 @@ namespace OsmSharp.Routing
                     for(var i = 0; i < profiles.Length; i++)
                     {
                         // get speed from profile.
-                        if (profiles[i].Factor(_db.Profiles.Get(profile)) <= 0)
+                        if (profiles[i].Factor(_db.Profiles.Get(profile)).Value <= 0)
                         { // cannot be travelled by this profile.
                             return false;
                         }
                     }
                     return true;
                 });
+            resolver.Run();
             if(!resolver.HasSucceeded)
             { // something went wrong.
                 return new Result<RouterPoint>(resolver.ErrorMessage, (message) =>
@@ -82,15 +84,7 @@ namespace OsmSharp.Routing
         {
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
             {
-                var speed = profile.Factor(_db.Profiles.Get(p));
-                if (speed > 0)
-                {
-                    return new Speed() { 
-                        Direction = null,
-                        MeterPerSecond = 1
-                    };
-                }
-                return Speed.NoSpeed;
+                return profile.Factor(_db.Profiles.Get(p));
             }, point.ToPaths(_db, profile), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
@@ -106,7 +100,35 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target)
         {
-            throw new NotImplementedException();
+            var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
+            {
+                return profile.Factor(_db.Profiles.Get(p));
+            }, source.ToPaths(_db, profile), float.MaxValue, false);
+            var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
+            {
+                return profile.Factor(_db.Profiles.Get(p));
+            }, target.ToPaths(_db, profile), float.MaxValue, true);
+            var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
+            bidirectionalSearch.Run();
+            if(!bidirectionalSearch.HasSucceeded)
+            {
+                return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                    {
+                        return new RouteNotFoundException(message);
+                    });
+            }
+            var path = bidirectionalSearch.GetPath();
+
+            var routeBuilder = new RouteBuilder(_db, profile, source, target, path);
+            routeBuilder.Run();
+            if(!routeBuilder.HasSucceeded)
+            {
+                return new Result<Route>(routeBuilder.ErrorMessage, (message) =>
+                {
+                    return new RouteBuildFailedException(message);
+                });
+            }
+            return new Result<Route>(routeBuilder.Route);
         }
 
         /// <summary>

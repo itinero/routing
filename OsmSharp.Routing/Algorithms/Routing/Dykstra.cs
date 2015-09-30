@@ -19,6 +19,7 @@
 using OsmSharp.Collections.PriorityQueues;
 using OsmSharp.Routing.Data;
 using OsmSharp.Routing.Graphs;
+using OsmSharp.Routing.Profiles;
 using System;
 using System.Collections.Generic;
 
@@ -31,19 +32,19 @@ namespace OsmSharp.Routing.Algorithms.Routing
     {
         private readonly Graph _graph;
         private readonly IEnumerable<Path> _sources;
-        private readonly Func<ushort, Speed> _getSpeed;
+        private readonly Func<ushort, Factor> _getFactor;
         private readonly float _sourceMax;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Speed> getSpeed,
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor,
             IEnumerable<Path> sources, float sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
-            _getSpeed = getSpeed;
+            _getFactor = getFactor;
             _sourceMax = sourceMax;
             _backward = backward;
         }
@@ -52,7 +53,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
         private Dictionary<uint, Path> _visits;
         private Path _current;
         private BinaryHeap<Path> _heap;
-        private Dictionary<uint, Speed> _speeds;
+        private Dictionary<uint, Factor> _factors;
 
         /// <summary>
         /// Executes the algorithm.
@@ -75,7 +76,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
             this.HasSucceeded = true;
 
             // initialize a dictionary of speeds per profile.
-            _speeds = new Dictionary<uint, Speed>();
+            _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
             _visits = new Dictionary<uint, Path>();
@@ -150,31 +151,25 @@ namespace OsmSharp.Routing.Algorithms.Routing
                 float distance;
                 ushort profile;
                 EdgeDataSerializer.Deserialize(edge.Data0, out distance, out profile);
-                var speed = Speed.NoSpeed;
-                if (!_speeds.TryGetValue(profile, out speed))
+                var factor = Factor.NoFactor;
+                if (!_factors.TryGetValue(profile, out factor))
                 { // speed not there, calculate speed.
-                    speed = _getSpeed(profile);
-                    _speeds.Add(profile, speed);
+                    factor = _getFactor(profile);
+                    _factors.Add(profile, factor);
                 }
 
                 // check the tags against the interpreter.
-                if (speed.MeterPerSecond > 0 && (!speed.Direction.HasValue ||
-                    (!_backward && speed.Direction.Value != edge.DataInverted) ||
-                    (_backward && speed.Direction.Value == edge.DataInverted)))
+                if (factor.Value > 0 && (factor.Direction == 0 ||
+                    (!_backward && (factor.Direction == 1) != edge.DataInverted) ||
+                    (_backward && (factor.Direction == 1) == edge.DataInverted)))
                 { // it's ok; the edge can be traversed by the given vehicle.
-                    //if (_current.From == null ||
-                    //    (!_backward && _interpreter.CanBeTraversed(_current.From, _current.Vertex, neighbour)) ||
-                    //    (_backward && _interpreter.CanBeTraversed(neighbour, _current.Vertex, _current.From)))
-                    //{ // the neighbour is forward and is not settled yet!
                     // calculate neighbors weight.
-                    var totalWeight = _current.Weight + (distance / speed.MeterPerSecond);
-
+                    var totalWeight = _current.Weight + (distance * factor.Value);
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
                         _heap.Push(new Path(neighbour, totalWeight, _current),
                             totalWeight);
                     }
-                    //}
                 }
             }
             return true;

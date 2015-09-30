@@ -54,8 +54,8 @@ namespace OsmSharp.Routing
             var factor = profile.Factor(routerDb.Profiles.Get(profileId));
             var length = graph.Length(edge);
             return new Path[] {
-                new Path(edge.From, (length * offset) * factor, new Path(Constants.NO_VERTEX)),
-                new Path(edge.To, (length * (1 - offset)) * factor, new Path(Constants.NO_VERTEX))
+                new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
+                new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
             };
         }
 

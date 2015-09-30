@@ -21,6 +21,7 @@ using OsmSharp.Collections.Sorting;
 using OsmSharp.Math.Algorithms;
 using OsmSharp.Routing.Graphs;
 using OsmSharp.Routing.Graphs.Geometric;
+using OsmSharp.Routing.Network;
 using System;
 using System.Collections.Generic;
 
@@ -47,7 +48,30 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// <summary>
         /// Copies all data from the given graph.
         /// </summary>
+        public static void Sort(this RoutingNetwork graph)
+        {
+            graph.Sort(Hilbert.DefaultHilbertSteps);
+        }
+
+        /// <summary>
+        /// Copies all data from the given graph.
+        /// </summary>
         public static void Sort(this GeometricGraph graph, int n)
+        {
+            QuickSort.Sort((vertex) =>
+            {
+                return graph.Distance(n, (uint)vertex);
+            },
+            (vertex1, vertex2) =>
+            {
+                graph.Switch((uint)vertex1, (uint)vertex2);
+            }, 0, graph.VertexCount - 1);
+        }
+
+        /// <summary>
+        /// Copies all data from the given graph.
+        /// </summary>
+        public static void Sort(this RoutingNetwork graph, int n)
         {
             QuickSort.Sort((vertex) =>
             {
@@ -64,6 +88,21 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         /// <returns></returns>
         public static long Distance(this GeometricGraph graph, int n, uint vertex)
+        {
+            float latitude, longitude;
+            if (!graph.GetVertex(vertex, out latitude, out longitude))
+            {
+                throw new Exception(string.Format("Cannot calculate hilbert distance, vertex {0} does not exist.",
+                    vertex));
+            }
+            return HilbertCurve.HilbertDistance(latitude, longitude, n);
+        }
+
+        /// <summary>
+        /// Returns the hibert distance for n and the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public static long Distance(this RoutingNetwork graph, int n, uint vertex)
         {
             float latitude, longitude;
             if (!graph.GetVertex(vertex, out latitude, out longitude))
@@ -262,11 +301,40 @@ namespace OsmSharp.Routing.Algorithms.Search
         public static uint SearchClosestEdge(this GeometricGraph graph, float latitude, float longitude,
             float offset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk)
         {
+            var coordinate = new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude);
+
             // find vertices within bounding box delta.
-            var vertices = graph.Search(longitude, longitude, offset);
+            var vertices = graph.Search(latitude, longitude, offset);
+
+            // build result-structure.
+            var bestEdge = Constants.NO_EDGE;
+            var bestDistance = (double)maxDistanceMeter;
+
+            // get edge enumerator.
+            var edgeEnumerator = graph.GetEdgeEnumerator();
 
             // TODO: get rid of creating all these object just to do some calculations!
             // TODO: sort vertices with the first vertices first.
+            foreach(var vertex in vertices)
+            {
+                var vertexLocation = graph.GetVertex(vertex);
+                var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(latitude, longitude,
+                    vertexLocation.Latitude, vertexLocation.Longitude);
+
+                if (distance < bestDistance)
+                { // ok, new best vertex yay!
+                    edgeEnumerator.MoveTo(vertex);
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        if (isOk(edgeEnumerator.Current))
+                        { // ok, edge is found to be ok.
+                            bestDistance = distance;
+                            bestEdge = edgeEnumerator.Id;
+                            break;
+                        }
+                    }
+                }
+            }
 
             // go over all edges and check max distance box.
             var maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
@@ -275,12 +343,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
                     Math.Geo.Meta.DirectionEnum.SouthEast));
 
-            // build result-structure.
-            var bestEdge = Constants.NO_EDGE;
-            var bestDistance = (double)maxDistanceMeter;
-
             var checkedEdges = new HashSet<uint>();
-            var edgeEnumerator = graph.GetEdgeEnumerator();
             foreach (var vertex in vertices)
             {
                 var sourceLocation = graph.GetVertex(vertex);
@@ -301,22 +364,48 @@ namespace OsmSharp.Routing.Algorithms.Search
                     // check edge.
                     var edgeIsOk = isOk == null;
                     ICoordinate previous = sourceLocation;
+                    ICoordinate current = null;
+                    OsmSharp.Math.Geo.GeoCoordinateLine line;
+                    OsmSharp.Math.Primitives.PointF2D projectedPoint;
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
-                        foreach (var shapePoint in shape)
+                        shape.Reset();
+                        while(shape.MoveNext())
                         {
+                            current = shape.Current;
+                            var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                        current.Latitude, current.Longitude, latitude, longitude);
+                            if (distance < bestDistance)
+                            { // ok this shape-point is clooose.
+                                if (!edgeIsOk && isOk(edgeEnumerator.Current))
+                                { // ok, edge is found to be ok.
+                                    edgeIsOk = true;
+                                }
+                                if (edgeIsOk)
+                                { // edge is ok, or all edges are ok by default.
+                                    bestDistance = distance;
+                                    bestEdge = edgeEnumerator.Id;
+
+                                    // decrease max distance box.
+                                    maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
+                                        (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
+                                            Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                        (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
+                                            Math.Geo.Meta.DirectionEnum.SouthEast));
+                                }
+                            }
+
                             if (maxDistanceBox.IntersectsPotentially(previous.Longitude, previous.Latitude,
-                                shapePoint.Longitude, shapePoint.Latitude))
+                                    current.Longitude, current.Latitude))
                             { // ok, it's possible there is an intersection here, project this point.
-                                var line = new OsmSharp.Math.Geo.GeoCoordinateLine(
+                                line = new OsmSharp.Math.Geo.GeoCoordinateLine(
                                     new OsmSharp.Math.Geo.GeoCoordinate(previous.Latitude, previous.Longitude),
-                                     new OsmSharp.Math.Geo.GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude), true, true);
-                                var coordinate = new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude);
-                                var projectedPoint = line.ProjectOn(coordinate);
+                                     new OsmSharp.Math.Geo.GeoCoordinate(current.Latitude, current.Longitude), true, true);
+                                projectedPoint = line.ProjectOn(coordinate);
                                 if (projectedPoint != null)
                                 { // ok, projection succeeded.
-                                    var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                    distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
                                         projectedPoint[1], projectedPoint[0],
                                         latitude, longitude);
                                     if (distance < bestDistance)
@@ -338,6 +427,41 @@ namespace OsmSharp.Routing.Algorithms.Search
                                                     Math.Geo.Meta.DirectionEnum.SouthEast));
                                         }
                                     }
+                                }
+                            }
+                            previous = current;
+                        }
+                    }
+                    current = graph.GetVertex(edgeEnumerator.To);
+                    if (maxDistanceBox.IntersectsPotentially(previous.Longitude, previous.Latitude,
+                            current.Longitude, current.Latitude))
+                    { // ok, it's possible there is an intersection here, project this point.
+                        line = new OsmSharp.Math.Geo.GeoCoordinateLine(
+                            new OsmSharp.Math.Geo.GeoCoordinate(previous.Latitude, previous.Longitude),
+                             new OsmSharp.Math.Geo.GeoCoordinate(current.Latitude, current.Longitude), true, true);
+                        projectedPoint = line.ProjectOn(coordinate);
+                        if (projectedPoint != null)
+                        { // ok, projection succeeded.
+                            var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                projectedPoint[1], projectedPoint[0],
+                                latitude, longitude);
+                            if (distance < bestDistance)
+                            { // ok, new best edge yay!
+                                if (!edgeIsOk && isOk(edgeEnumerator.Current))
+                                { // ok, edge is found to be ok.
+                                    edgeIsOk = true;
+                                }
+                                if (edgeIsOk)
+                                { // edge is ok, or all edges are ok by default.
+                                    bestDistance = distance;
+                                    bestEdge = edgeEnumerator.Id;
+
+                                    // decrease max distance box.
+                                    maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
+                                        (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
+                                            Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                        (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
+                                            Math.Geo.Meta.DirectionEnum.SouthEast));
                                 }
                             }
                         }

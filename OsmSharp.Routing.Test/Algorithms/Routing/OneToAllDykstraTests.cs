@@ -20,6 +20,7 @@ using NUnit.Framework;
 using OsmSharp.Routing.Algorithms.Routing;
 using OsmSharp.Routing.Data;
 using OsmSharp.Routing.Graphs;
+using OsmSharp.Routing.Profiles;
 using System;
 
 namespace OsmSharp.Routing.Test.Algorithms.Routing
@@ -52,17 +53,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
 
             // build speed profile function.
             var speed = 100f / 3.6f;
-            Func<ushort, Speed> getSpeed = (x) =>
+            Func<ushort, OsmSharp.Routing.Profiles.Factor> getFactor = (x) =>
             {
-                return new Speed()
+                return new OsmSharp.Routing.Profiles.Factor()
                 {
-                    Direction = null,
-                    MeterPerSecond = speed
+                    Direction = 0,
+                    Value = 1.0f / speed
                 };
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) }, 
+            var algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) }, 
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -104,17 +105,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
 
             // build speed profile function.
             var speed = 100f / 3.6f;
-            Func<ushort, Speed> getSpeed = (x) =>
+            Func<ushort, Factor> getFactor = (x) =>
             {
-                return new Speed()
+                return new Factor()
                 {
-                    Direction = null,
-                    MeterPerSecond = speed
+                    Direction = 0,
+                    Value = 1.0f / speed
                 };
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) },
+            var algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) },
                 (100 / speed) / 2, false);
             algorithm.Run();
 
@@ -154,17 +155,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
 
             // build speed profile function.
             var speed = 100f / 3.6f;
-            Func<ushort, Speed> getSpeed = (x) =>
+            Func<ushort, Factor> getFactor = (x) =>
             {
-                return new Speed()
+                return new Factor()
                 {
-                    Direction = true,
-                    MeterPerSecond = speed
+                    Direction = 1,
+                    Value = 1.0f / speed
                 };
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) },
+            var algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -182,17 +183,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(100 / speed, visit.Weight);
 
             // invert direction.
-            getSpeed = (x) =>
+            getFactor = (x) =>
             {
-                return new Speed()
+                return new Factor()
                 {
-                    Direction = false,
-                    MeterPerSecond = speed
+                    Direction = 2,
+                    Value = 1.0f / speed
                 };
             };
 
             // run algorithm.
-            algorithm = new Dykstra(graph, getSpeed, new Path[] { new Path(0) },
+            algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -250,17 +251,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
 
             // build speed profile function.
             var speed = 100f / 3.6f;
-            Func<ushort, Speed> getSpeed = (x) =>
+            Func<ushort, Factor> getFactor = (x) =>
             {
-                return new Speed()
+                return new Factor()
                 {
-                    Direction = true,
-                    MeterPerSecond = speed
+                    Direction = 1,
+                    Value = 1.0f / speed
                 };
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getSpeed, new Path[] { 
+            var algorithm = new Dykstra(graph, getFactor, new Path[] { 
                 new Path(0, 10 / speed, new Path(uint.MaxValue)),
                 new Path(1, 90 / speed, new Path(uint.MaxValue))},
                 float.MaxValue, false);

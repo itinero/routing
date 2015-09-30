@@ -31,7 +31,7 @@ namespace OsmSharp.Routing.Test.Profiles
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        private ProfileMock(string name, Func<TagsCollectionBase, float> getSpeed,
+        private ProfileMock(string name, Func<TagsCollectionBase, Speed> getSpeed,
             HashSet<string> vehicleTypes)
             : base(name, getSpeed, vehicleTypes)
         {
@@ -48,7 +48,11 @@ namespace OsmSharp.Routing.Test.Profiles
             vehicleTypes.Add(VehicleTypes.MotorVehicle);
             vehicleTypes.Add(VehicleTypes.Vehicle);
 
-            return new ProfileMock("CarMock", x => 50f / 3.6f, vehicleTypes);
+            return new ProfileMock("CarMock", x => new Speed() 
+            {
+                Value = 50f / 3.6f,
+                Direction = 0
+            }, vehicleTypes);
         }
     }
 }

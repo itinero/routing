@@ -61,9 +61,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\Routing\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Routing\OneToAllDykstraTests.cs" />
     <Compile Include="Algorithms\Routing\RouteBuilderTests.cs" />
     <Compile Include="Algorithms\Search\HibertTests.cs" />
+    <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
     <Compile Include="Data\EdgeDataSerializerTests.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />

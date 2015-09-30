@@ -72,10 +72,35 @@ namespace OsmSharp.Routing.Algorithms.Search
             if(!_graph.ProjectOn(edge, _latitude, _longitude, 
                 out projectedLatitude, out projectedLongitude, out projectedDistanceFromFirst, 
                 out projectedShapeIndex, out distanceToProjected, out totalLength))
-            { // oeps, could not project onto edge.
-                this.ErrorMessage = string.Format("Could not project point at [{0},{1}] on to closest edge.",
-                    _latitude.ToInvariantString(), _longitude.ToInvariantString());
-                return;
+            { // oeps, could not project onto edge.              
+                var points = _graph.GetShapePoints(edge);
+                var previous = points[0];
+
+                var bestProjectedDistanceFromFirst = 0.0f;
+                projectedDistanceFromFirst = 0;
+                var bestDistanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(previous.Latitude, previous.Longitude,
+                    _latitude, _longitude);
+                projectedLatitude = previous.Latitude;
+                projectedLongitude = previous.Longitude;
+                for(var i =  1; i < points.Count; i++)
+                {
+                    var current = points[i];
+                    projectedDistanceFromFirst += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
+                        previous.Latitude, previous.Longitude);
+                    distanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
+                        _latitude, _longitude);
+                    if(distanceToProjected < bestDistanceToProjected)
+                    { // improvement.
+                        bestDistanceToProjected = distanceToProjected;
+                        bestProjectedDistanceFromFirst = projectedDistanceFromFirst;
+                        projectedLatitude = current.Latitude;
+                        projectedLongitude = current.Longitude;
+                    }
+                    previous = current;
+                }
+
+                // set best distance.
+                projectedDistanceFromFirst = bestProjectedDistanceFromFirst;
             }
 
             var offset = (ushort)((projectedDistanceFromFirst / totalLength) * ushort.MaxValue);

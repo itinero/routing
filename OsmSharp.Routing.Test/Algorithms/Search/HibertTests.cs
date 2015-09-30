@@ -21,11 +21,13 @@ using OsmSharp.Math.Algorithms;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Graphs.Geometric;
-using OsmSharp.Routing.Test.Graphs;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Test.Algorithms.Search
 {
+    /// <summary>
+    /// Contains tests for the hilbert sort/search algorithms.
+    /// </summary>
     [TestFixture]
     class HibertTests
     {

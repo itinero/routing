@@ -481,6 +481,61 @@ namespace OsmSharp.Routing.Test.Graphs
         }
 
         /// <summary>
+        /// Tests get edge.
+        /// </summary>
+        [Test]
+        public void TestGetEdge()
+        {
+            var graph = new Graph(1, 10);
+
+            // add edges.
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddVertex(4);
+            graph.AddVertex(5);
+            var edge1 = graph.AddEdge(0, 1, 1);
+            var edge2 = graph.AddEdge(1, 2, 2);
+            var edge3 = graph.AddEdge(1, 3, 3);
+            var edge4 = graph.AddEdge(3, 4, 4);
+            var edge5 = graph.AddEdge(4, 1, 5);
+            var edge6 = graph.AddEdge(5, 1, 6);
+
+            // get edges one by one.
+            var edge1Details = graph.GetEdge(edge1);
+            Assert.AreEqual(edge1, edge1Details.Id);
+            Assert.AreEqual(0, edge1Details.From);
+            Assert.AreEqual(1, edge1Details.To);
+            Assert.AreEqual(1, edge1Details.Data[0]);
+            var edge2Details = graph.GetEdge(edge2);
+            Assert.AreEqual(edge2, edge2Details.Id);
+            Assert.AreEqual(1, edge2Details.From);
+            Assert.AreEqual(2, edge2Details.To);
+            Assert.AreEqual(2, edge2Details.Data[0]);
+            var edge3Details = graph.GetEdge(edge3);
+            Assert.AreEqual(edge3, edge3Details.Id);
+            Assert.AreEqual(1, edge3Details.From);
+            Assert.AreEqual(3, edge3Details.To);
+            Assert.AreEqual(3, edge3Details.Data[0]);
+            var edge4Details = graph.GetEdge(edge4);
+            Assert.AreEqual(edge4, edge4Details.Id);
+            Assert.AreEqual(3, edge4Details.From);
+            Assert.AreEqual(4, edge4Details.To);
+            Assert.AreEqual(4, edge4Details.Data[0]);
+            var edge5Details = graph.GetEdge(edge5);
+            Assert.AreEqual(edge5, edge5Details.Id);
+            Assert.AreEqual(4, edge5Details.From);
+            Assert.AreEqual(1, edge5Details.To);
+            Assert.AreEqual(5, edge5Details.Data[0]);
+            var edge6Details = graph.GetEdge(edge6);
+            Assert.AreEqual(edge6, edge6Details.Id);
+            Assert.AreEqual(5, edge6Details.From);
+            Assert.AreEqual(1, edge6Details.To);
+            Assert.AreEqual(6, edge6Details.Data[0]);
+        }
+
+        /// <summary>
         /// Tests remove edges.
         /// </summary>
         [Test]

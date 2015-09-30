@@ -87,9 +87,9 @@ namespace OsmSharp.Routing.Test
             var factor = profile.Factor(new TagsCollection(
                     new Tag("highway", "residential")));
             var weight0 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.04, 0.04)) * factor;
+                new GeoCoordinate(0.04, 0.04)) * factor.Value;
             var weight1 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(.1, .1),
-                new GeoCoordinate(0.04, 0.04)) * factor;
+                new GeoCoordinate(0.04, 0.04)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 

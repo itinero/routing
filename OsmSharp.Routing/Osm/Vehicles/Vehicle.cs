@@ -413,7 +413,29 @@ namespace OsmSharp.Routing.Osm.Vehicles
         {
             return new Profiles.Profile(this.UniqueName + ".Fastest", (tags) => 
                 {
-                    return (float)this.ProbableSpeed(tags).Value / 3.6f;
+                    if(this.CanTraverse(tags))
+                    {
+                        var speed = new OsmSharp.Routing.Profiles.Speed()
+                            {
+                                Value = (float)this.ProbableSpeed(tags).Value / 3.6f,
+                                Direction= 0
+                            };
+                        var oneway = this.IsOneWay(tags);
+                        
+                        if(oneway.HasValue)
+                        {
+                            if(oneway.Value)
+                            {
+                                speed.Direction = 1;
+                            }
+                            else
+                            {
+                                speed.Direction = 2;
+                            }
+                        }
+                        return speed;
+                    }
+                    return OsmSharp.Routing.Profiles.Speed.NoSpeed;
                 }, this.VehicleTypes);
         }
 
@@ -425,7 +447,28 @@ namespace OsmSharp.Routing.Osm.Vehicles
         {
             return new Profiles.Profile(this.UniqueName + ".Shortest", (tags) =>
             {
-                return (float)1;
+                if (this.CanTraverse(tags))
+                {
+                    var speed = new OsmSharp.Routing.Profiles.Speed()
+                    {
+                        Value = 1,
+                        Direction = 0
+                    };
+                    var oneway = this.IsOneWay(tags);
+                    if (oneway.HasValue)
+                    {
+                        if (oneway.Value)
+                        {
+                            speed.Direction = 1;
+                        }
+                        else
+                        {
+                            speed.Direction = 2;
+                        }
+                    }
+                    return speed;
+                }
+                return OsmSharp.Routing.Profiles.Speed.NoSpeed;
             }, this.VehicleTypes);
         }
     }

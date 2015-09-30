@@ -498,7 +498,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Sets the distance/time.
         /// </summary>
-        public static void SetDistanceAndTime(this RouteSegment segment, RouteSegment previous, float speed)
+        public static void SetDistanceAndTime(this RouteSegment segment, RouteSegment previous, OsmSharp.Routing.Profiles.Speed speed)
         {
             var distance = GeoCoordinate.DistanceEstimateInMeter(
                 new GeoCoordinateSimple()
@@ -511,13 +511,13 @@ namespace OsmSharp.Routing
                     Longitude = segment.Longitude
                 });
             segment.Distance = previous.Distance + distance;
-            segment.Time = previous.Time + (distance / speed);
+            segment.Time = previous.Time + (distance / speed.Value);
         }
 
         /// <summary>
         /// Sets the details of the segment.
         /// </summary>
-        public static void Set(this RouteSegment segment, RouteSegment previous, Profile profile, TagsCollectionBase tags, float speed)
+        public static void Set(this RouteSegment segment, RouteSegment previous, Profile profile, TagsCollectionBase tags, OsmSharp.Routing.Profiles.Speed speed)
         {
             segment.SetDistanceAndTime(previous, speed);
             segment.Tags = tags.ConvertFrom();
@@ -539,7 +539,7 @@ namespace OsmSharp.Routing
                 {
                     var edge = edges.Current;
                     var profile = routerDb.Profiles.Get(edge.Data.Profile);
-                    var meta = routerDb.Profiles.Get(edge.Data.MetaId);
+                    var meta = routerDb.Meta.Get(edge.Data.MetaId);
 
                     var tags = new TagsCollection(profile);
                     tags.AddOrReplace(meta);

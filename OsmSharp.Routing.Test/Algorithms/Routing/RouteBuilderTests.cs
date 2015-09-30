@@ -246,7 +246,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -260,7 +260,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -274,7 +274,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -288,7 +288,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -304,13 +304,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
         {
             // build router db.
             var routerDb = new RouterDb();
+            routerDb.Profiles.Add(new TagsCollection());
+            routerDb.Meta.Add(new TagsCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
@@ -322,7 +324,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
@@ -368,7 +370,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -382,7 +384,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -396,7 +398,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -410,7 +412,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -424,7 +426,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -438,7 +440,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -452,7 +454,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -466,7 +468,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -506,7 +508,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -520,7 +522,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -534,7 +536,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -548,7 +550,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -562,7 +564,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -576,7 +578,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -590,7 +592,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -604,7 +606,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -620,6 +622,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
         {
             // build router db.
             var routerDb = new RouterDb();
+            routerDb.Meta.Add(new TagsCollection());
+            routerDb.Profiles.Add(new TagsCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
@@ -627,7 +631,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
@@ -639,7 +643,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
@@ -651,7 +655,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             routerDb.Network.AddEdge(2, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
@@ -697,7 +701,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -711,7 +715,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -725,7 +729,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -739,7 +743,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -753,7 +757,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -767,7 +771,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -781,7 +785,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -795,7 +799,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -809,7 +813,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -823,7 +827,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -837,7 +841,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -851,7 +855,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -891,7 +895,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -905,7 +909,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -919,7 +923,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -933,7 +937,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -947,7 +951,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -961,7 +965,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -975,7 +979,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -989,7 +993,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -1003,7 +1007,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -1017,7 +1021,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -1031,7 +1035,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
@@ -1045,7 +1049,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Routing
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
                 new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
             Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed, segment.Time, 0.001);
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
             Assert.AreEqual(profile.Name, segment.Profile);
             Assert.IsNotNull(segment.Tags);
             Assert.AreEqual(2, segment.Tags.Length);
