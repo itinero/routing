@@ -107,6 +107,7 @@
     <Compile Include="RouteExtensions.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="RouterDb.cs" />
+    <Compile Include="RouterDbExtensions.cs" />
     <Compile Include="RouterPoint.cs" />
     <Compile Include="Network\RoutingEdge.cs" />
     <Compile Include="Network\RoutingNetwork.cs">

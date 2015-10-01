@@ -17,6 +17,11 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Collections.Tags;
+using OsmSharp.Geo.Attributes;
+using OsmSharp.Geo.Features;
+using OsmSharp.Geo.Geometries;
+using OsmSharp.Math.Geo;
 using System;
 using System.Collections.Generic;
 
@@ -169,13 +174,17 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// Gets the shape points including the two vertices.
         /// </summary>
         /// <returns></returns>
-        public static List<ICoordinate> GetShapePoints(this GeometricGraph graph, GeometricEdge geometricEdge)
+        public static List<ICoordinate> GetShape(this GeometricGraph graph, GeometricEdge geometricEdge)
         {
             var points = new List<ICoordinate>();
             points.Add(graph.GetVertex(geometricEdge.From));
             var shape = geometricEdge.Shape;
             if(shape != null)
             {
+                if(geometricEdge.DataInverted)
+                {
+                    shape = shape.Reverse();
+                }
                 shape.Reset();
                 while (shape.MoveNext())
                 {
@@ -190,7 +199,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// Gets the shape points starting at the given vertex until the max distance.
         /// </summary>
         /// <returns></returns>
-        public static List<ICoordinate> GetShapePoints(this GeometricGraph graph, GeometricEdge geometricEdge, float minDistance, float maxDistance)
+        public static List<ICoordinate> GetShape(this GeometricGraph graph, GeometricEdge geometricEdge, float minDistance, float maxDistance)
         {
             var points = new List<ICoordinate>();
             if (geometricEdge.Shape == null)
@@ -199,7 +208,8 @@ namespace OsmSharp.Routing.Graphs.Geometric
             }
             ICoordinate previous = graph.GetVertex(geometricEdge.From);
             var distance = 0.0f;
-            var shapeEnumerator = geometricEdge.Shape.GetEnumerator();
+            var shapeEnumerator = geometricEdge.Shape;
+            shapeEnumerator.Reset();
             while (shapeEnumerator.MoveNext())
             {
                 var current = shapeEnumerator.Current;
@@ -219,7 +229,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// Gets the shape points starting at the given vertex until the max distance.
         /// </summary>
         /// <returns></returns>
-        public static List<ICoordinate> GetShapePoints(this GeometricGraph graph, GeometricEdge geometricEdge, uint vertex, float maxDistance)
+        public static List<ICoordinate> GetShape(this GeometricGraph graph, GeometricEdge geometricEdge, uint vertex, float maxDistance)
         {
             var points = new List<ICoordinate>();
             if(geometricEdge.Shape == null)
@@ -267,6 +277,50 @@ namespace OsmSharp.Routing.Graphs.Geometric
             }
             throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
                 vertex, geometricEdge.Id));
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box.
+        /// </summary>
+        /// <returns></returns>
+        public static FeatureCollection GetFeaturesIn(this GeometricGraph graph, float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude)
+        {
+            var features = new FeatureCollection();
+
+            var vertices = OsmSharp.Routing.Algorithms.Search.Hilbert.Search(graph, minLatitude, minLongitude,
+                maxLatitude, maxLongitude);
+            var edges = new HashSet<long>();
+
+            var edgeEnumerator = graph.GetEdgeEnumerator();
+            foreach(var vertex in vertices)
+            {
+                var vertexLocation = graph.GetVertex(vertex);
+                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
+                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
+                edgeEnumerator.MoveTo(vertex);
+                edgeEnumerator.Reset();
+                while(edgeEnumerator.MoveNext())
+                {
+                    if(edges.Contains(edgeEnumerator.Id))
+                    {
+                        continue;
+                    }
+                    edges.Add(edgeEnumerator.Id);
+
+                    var shape = graph.GetShape(edgeEnumerator.Current);
+                    var coordinates = new List<GeoCoordinate>();
+                    foreach(var shapePoint in shape)
+                    {
+                        coordinates.Add(new GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude));
+                    }
+                    var geometry = new LineString(coordinates);
+                    features.Add(new Feature(geometry,
+                        new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", edgeEnumerator.Id.ToInvariantString()) })));
+                }
+            }
+
+            return features;
         }
     }
 }

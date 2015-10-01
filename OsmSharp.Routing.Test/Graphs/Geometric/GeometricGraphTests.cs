@@ -457,6 +457,64 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             Assert.AreEqual(1.75, shape[0].Longitude);
         }
 
+        /// <summary>
+        /// Tests getting all shape points for an edge.
+        /// </summary>
+        [Test]
+        public void TestGetShape()
+        {
+            var graph = new GeometricGraph(2, 100);
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            graph.AddVertex(2, 0, 1);
+            graph.AddVertex(3, 0, 2);
+            var edge1 = graph.AddEdge(0, 1, new uint[] { 0, 10 },
+                new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
+                    new GeoCoordinate(0.25, 0.25),
+                    new GeoCoordinate(0.5, 0.5),
+                    new GeoCoordinate(0.75, 0.75)
+                }));
+
+            var shape = graph.GetShape(graph.GetEdge(edge1));
+            Assert.IsNotNull(shape);
+            Assert.AreEqual(5, shape.Count);
+            Assert.AreEqual(0, shape[0].Latitude);
+            Assert.AreEqual(0, shape[0].Longitude);
+            Assert.AreEqual(0.25, shape[1].Latitude);
+            Assert.AreEqual(0.25, shape[1].Longitude);
+            Assert.AreEqual(0.5, shape[2].Latitude);
+            Assert.AreEqual(0.5, shape[2].Longitude);
+            Assert.AreEqual(0.75, shape[3].Latitude);
+            Assert.AreEqual(0.75, shape[3].Longitude);
+            Assert.AreEqual(1, shape[4].Latitude);
+            Assert.AreEqual(1, shape[4].Longitude);
+            shape = graph.GetShape(graph.GetEdgeEnumerator(0).First());
+            Assert.IsNotNull(shape);
+            Assert.AreEqual(5, shape.Count);
+            Assert.AreEqual(0, shape[0].Latitude);
+            Assert.AreEqual(0, shape[0].Longitude);
+            Assert.AreEqual(0.25, shape[1].Latitude);
+            Assert.AreEqual(0.25, shape[1].Longitude);
+            Assert.AreEqual(0.5, shape[2].Latitude);
+            Assert.AreEqual(0.5, shape[2].Longitude);
+            Assert.AreEqual(0.75, shape[3].Latitude);
+            Assert.AreEqual(0.75, shape[3].Longitude);
+            Assert.AreEqual(1, shape[4].Latitude);
+            Assert.AreEqual(1, shape[4].Longitude);
+            shape = graph.GetShape(graph.GetEdgeEnumerator(1).First(x => x.To ==0));
+            Assert.IsNotNull(shape);
+            Assert.AreEqual(5, shape.Count);
+            Assert.AreEqual(1, shape[0].Latitude);
+            Assert.AreEqual(1, shape[0].Longitude);
+            Assert.AreEqual(0.75, shape[1].Latitude);
+            Assert.AreEqual(0.75, shape[1].Longitude);
+            Assert.AreEqual(0.5, shape[2].Latitude);
+            Assert.AreEqual(0.5, shape[2].Longitude);
+            Assert.AreEqual(0.25, shape[3].Latitude);
+            Assert.AreEqual(0.25, shape[3].Longitude);
+            Assert.AreEqual(0, shape[4].Latitude);
+            Assert.AreEqual(0, shape[4].Longitude);
+        }
 
         /// <summary>
         /// Tests setting a vertex.

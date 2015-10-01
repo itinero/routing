@@ -17,6 +17,11 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Collections.Tags;
+using OsmSharp.Geo.Attributes;
+using OsmSharp.Geo.Features;
+using OsmSharp.Geo.Geometries;
+using OsmSharp.Math.Geo;
 using System;
 using System.Collections.Generic;
 
@@ -74,6 +79,76 @@ namespace OsmSharp.Routing.Network
             }
             throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
                 vertex, edge.Id));
+        }
+
+        /// <summary>
+        /// Gets the shape points including the two vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static List<ICoordinate> GetShape(this RoutingNetwork graph, RoutingEdge edge)
+        {
+            var points = new List<ICoordinate>();
+            points.Add(graph.GetVertex(edge.From));
+            var shape = edge.Shape;
+            if (shape != null)
+            {
+                if (edge.DataInverted)
+                {
+                    shape = shape.Reverse();
+                }
+                shape.Reset();
+                while (shape.MoveNext())
+                {
+                    points.Add(shape.Current);
+                }
+            }
+            points.Add(graph.GetVertex(edge.To));
+            return points;
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box.
+        /// </summary>
+        /// <returns></returns>
+        public static FeatureCollection GetFeaturesIn(this RoutingNetwork network,  float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude)
+        {
+            var features = new FeatureCollection();
+
+            var vertices = OsmSharp.Routing.Algorithms.Search.Hilbert.Search(network.GeometricGraph, minLatitude, minLongitude,
+                maxLatitude, maxLongitude);
+            var edges = new HashSet<long>();
+
+            var edgeEnumerator = network.GetEdgeEnumerator();
+            foreach (var vertex in vertices)
+            {
+                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
+                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
+                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
+                edgeEnumerator.MoveTo(vertex);
+                edgeEnumerator.Reset();
+                while (edgeEnumerator.MoveNext())
+                {
+                    if (edges.Contains(edgeEnumerator.Id))
+                    {
+                        continue;
+                    }
+                    edges.Add(edgeEnumerator.Id);
+
+                    var shape = network.GetShape(edgeEnumerator.Current);
+                    var coordinates = new List<GeoCoordinate>();
+                    foreach (var shapePoint in shape)
+                    {
+                        coordinates.Add(new GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude));
+                    }
+                    var geometry = new LineString(coordinates);
+
+                    features.Add(new Feature(geometry,
+                        new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", edgeEnumerator.Id.ToInvariantString()) })));
+                }
+            }
+
+            return features;
         }
     }
 }

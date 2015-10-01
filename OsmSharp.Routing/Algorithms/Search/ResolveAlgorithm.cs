@@ -73,7 +73,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                 out projectedLatitude, out projectedLongitude, out projectedDistanceFromFirst, 
                 out projectedShapeIndex, out distanceToProjected, out totalLength))
             { // oeps, could not project onto edge.              
-                var points = _graph.GetShapePoints(edge);
+                var points = _graph.GetShape(edge);
                 var previous = points[0];
 
                 var bestProjectedDistanceFromFirst = 0.0f;

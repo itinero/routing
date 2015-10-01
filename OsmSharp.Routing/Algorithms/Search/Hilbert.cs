@@ -119,20 +119,32 @@ namespace OsmSharp.Routing.Algorithms.Search
         public static HashSet<uint> Search(this GeometricGraph graph, float latitude, float longitude,
             float offset)
         {
-            return Hilbert.Search(graph, Hilbert.DefaultHilbertSteps, latitude, longitude, offset);
+            return Hilbert.Search(graph, Hilbert.DefaultHilbertSteps, latitude - offset, longitude - offset, 
+                latitude + offset, longitude + offset);
         }
 
         /// <summary>
         /// Searches the graph for nearby vertices assuming it has been sorted.
         /// </summary>
-        public static HashSet<uint> Search(this GeometricGraph graph, int n, float latitude, float longitude,
-            float offset)
+        /// <returns></returns>
+        public static HashSet<uint> Search(this GeometricGraph graph, float minLatitude, float minLongitude, 
+            float maxLatitude, float maxLongitude)
+        {
+            return Hilbert.Search(graph, Hilbert.DefaultHilbertSteps, minLatitude, minLongitude,
+                maxLatitude, maxLongitude);
+        }
+
+        /// <summary>
+        /// Searches the graph for nearby vertices assuming it has been sorted.
+        /// </summary>
+        public static HashSet<uint> Search(this GeometricGraph graph, int n, float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude)
         {
             var targets = HilbertCurve.HilbertDistances(
-                System.Math.Max(latitude - offset, -90),
-                System.Math.Max(longitude - offset, -180),
-                System.Math.Min(latitude + offset, 90),
-                System.Math.Min(longitude + offset, 180), n);
+                System.Math.Max(minLatitude, -90),
+                System.Math.Max(minLongitude, -180),
+                System.Math.Min(maxLatitude, 90),
+                System.Math.Min(maxLongitude, 180), n);
             targets.Sort();
             var vertices = new HashSet<uint>();
 
@@ -150,8 +162,10 @@ namespace OsmSharp.Routing.Algorithms.Search
                     { // there have been vertices found.
                         if (graph.GetVertex((uint)vertex + (uint)(count - 1), out vertexLat, out vertexLon))
                         { // the vertex was found.
-                            if (System.Math.Abs(latitude - vertexLat) < offset &&
-                               System.Math.Abs(longitude - vertexLon) < offset)
+                            if (minLatitude < vertexLat &&
+                                minLongitude < vertexLon &&
+                                maxLatitude > vertexLat &&
+                                maxLongitude > vertexLon)
                             { // within offset.
                                 vertices.Add((uint)vertex + (uint)(count - 1));
                             }

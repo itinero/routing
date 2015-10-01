@@ -92,13 +92,13 @@ namespace OsmSharp.Routing
             var offsetDistance = edgeDistance * ((float)point.Offset / (float)ushort.MaxValue);
             if (geometricEdge.From == vertex)
             { // offset = distance.
-                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, vertex, offsetDistance);
+                points = routerDb.Network.GeometricGraph.GetShape(geometricEdge, vertex, offsetDistance);
                 points.Reverse();
                 return points;
             }
             else if (geometricEdge.To == vertex)
             { // offset = 100 - distance.
-                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, vertex, edgeDistance - offsetDistance);
+                points = routerDb.Network.GeometricGraph.GetShape(geometricEdge, vertex, edgeDistance - offsetDistance);
                 points.Reverse();
                 return points;
             }
@@ -123,12 +123,12 @@ namespace OsmSharp.Routing
 
             if(pointOffset > otherOffset)
             { // oeps, shapes are opposite to edge.
-                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, otherOffset, pointOffset);
+                points = routerDb.Network.GeometricGraph.GetShape(geometricEdge, otherOffset, pointOffset);
                 points.Reverse();
             }
             else
             { // with edge direction.
-                points = routerDb.Network.GeometricGraph.GetShapePoints(geometricEdge, pointOffset, otherOffset);
+                points = routerDb.Network.GeometricGraph.GetShape(geometricEdge, pointOffset, otherOffset);
             }
             return points;
         }
