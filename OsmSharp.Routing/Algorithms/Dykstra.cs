@@ -23,7 +23,7 @@ using OsmSharp.Routing.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Algorithms.Routing
+namespace OsmSharp.Routing.Algorithms
 {
     /// <summary>
     /// An implementation of the dykstra routing algorithm.

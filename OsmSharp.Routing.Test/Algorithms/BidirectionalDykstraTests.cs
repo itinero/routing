@@ -17,13 +17,13 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Routing.Algorithms.Routing;
+using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Data;
 using OsmSharp.Routing.Graphs;
 using OsmSharp.Routing.Profiles;
 using System;
 
-namespace OsmSharp.Routing.Test.Algorithms.Routing
+namespace OsmSharp.Routing.Test.Algorithms
 {
     /// <summary>
     /// Executes tests

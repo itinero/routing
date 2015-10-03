@@ -56,7 +56,7 @@ namespace OsmSharp.Routing.Data.Contracted
         /// </summary>
         public static int Size
         {
-            get { return 1; }
+            get { return 2; }
         }
 
         /// <summary>

@@ -63,11 +63,12 @@
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
-    <Compile Include="Algorithms\Routing\BidirectionalDykstra.cs" />
-    <Compile Include="Algorithms\Routing\Dykstra.cs" />
-    <Compile Include="Algorithms\Routing\RouteBuilder.cs" />
+    <Compile Include="Algorithms\BidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Contracted\DirectedGraphBuilder.cs" />
+    <Compile Include="Algorithms\Dykstra.cs" />
+    <Compile Include="Algorithms\RouteBuilder.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
-    <Compile Include="Algorithms\Routing\Path.cs" />
+    <Compile Include="Algorithms\Path.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />

@@ -23,7 +23,7 @@ using OsmSharp.Routing.Profiles;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OsmSharp.Routing.Algorithms.Routing
+namespace OsmSharp.Routing.Algorithms
 {
     /// <summary>
     /// An algorithm to build a route from a path.

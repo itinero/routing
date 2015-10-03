@@ -18,7 +18,7 @@
 
 using System;
 
-namespace OsmSharp.Routing.Algorithms.Routing
+namespace OsmSharp.Routing.Algorithms
 {
     /// <summary>
     /// An implementation of the bi-directional dykstra algorithm.

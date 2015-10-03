@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace OsmSharp.Routing.Algorithms.Routing
+namespace OsmSharp.Routing.Algorithms
 {    
     /// <summary>
     /// Represents a path along a set of vertices.

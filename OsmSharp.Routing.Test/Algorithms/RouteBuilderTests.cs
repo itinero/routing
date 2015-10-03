@@ -20,13 +20,13 @@ using NUnit.Framework;
 using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Algorithms.Routing;
+using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Test.Profiles;
 using System.Linq;
 
-namespace OsmSharp.Routing.Test.Algorithms.Routing
+namespace OsmSharp.Routing.Test.Algorithms
 {
     /// <summary>
     /// Contains tests for route builder.

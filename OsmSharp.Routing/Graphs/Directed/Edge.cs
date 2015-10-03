@@ -21,6 +21,16 @@ namespace OsmSharp.Routing.Graphs.Directed
         }
 
         /// <summary>
+        /// Creates a new edge keeping the current state of the given enumerator.
+        /// </summary>
+        internal Edge(uint id, uint neighbour, uint[] data)
+        {
+            this.Neighbour = neighbour;
+            this.Data = data;
+            this.Id = id;
+        }
+
+        /// <summary>
         /// Returns the current neighbour.
         /// </summary>
         public uint Neighbour

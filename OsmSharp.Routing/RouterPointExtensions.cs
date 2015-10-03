@@ -18,7 +18,7 @@
 
 using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo.Simple;
-using OsmSharp.Routing.Algorithms.Routing;
+using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Graphs.Geometric;
 using OsmSharp.Routing.Profiles;
 using System;

@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Routing.Algorithms.Routing;
+using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Profiles;
