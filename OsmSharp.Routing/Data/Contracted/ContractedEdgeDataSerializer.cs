@@ -28,7 +28,7 @@ namespace OsmSharp.Routing.Data.Contracted
         /// <summary>
         /// Holds the maxium distance that can be stored on an edge.
         /// </summary>
-        public const float MAX_DISTANCE = ((uint.MaxValue >> 2) / 10.0f);
+        public const float MAX_DISTANCE = 4294967000 / 4;
 
         /// <summary>
         /// Parses the profile id.
@@ -37,7 +37,7 @@ namespace OsmSharp.Routing.Data.Contracted
         public static void Deserialize(uint data0, uint data1, out float weight, out bool? direction,
             out uint contractedId)
         {
-            var dirFlags = (data0 & ((uint)3 << 30)) >> 30;
+            var dirFlags = (data0 & 3);
             direction = null;
             if(dirFlags == 1)
             {
@@ -47,7 +47,7 @@ namespace OsmSharp.Routing.Data.Contracted
             {
                 direction = false;
             }
-            weight = (data0 >> 2) / 10f;
+            weight = data0 / 4.0f;
             contractedId = data1;
         }
 
@@ -104,9 +104,8 @@ namespace OsmSharp.Routing.Data.Contracted
                 dirFlags = 2;
             }
 
-            var data0 = (uint)(dirFlags) << 30;
-            data0 = data0 + (uint)(weight / 10F);
-            weight = (data0 >> 2) / 10f;
+            var data0 = (uint)dirFlags;
+            data0 = data0 + (uint)(weight * 4);
             var data1 = contractedId;
 
             return new uint[] { data0, data1 };
