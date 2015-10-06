@@ -62,6 +62,32 @@ namespace OsmSharp.Routing.Test.Data.Contracted
 
             edgeData = new ContractedEdgeData()
             {
+                Weight = 100,
+                Direction = false,
+                ContractedId = Constants.NO_VERTEX
+            };
+
+            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            Assert.IsNotNull(data);
+            Assert.AreEqual(2, data.Length);
+            Assert.AreEqual(((uint)2) + (((uint)(100.0f * 4))), data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, data[1]);
+
+            edgeData = new ContractedEdgeData()
+            {
+                Weight = 100,
+                Direction = true,
+                ContractedId = Constants.NO_VERTEX
+            };
+
+            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            Assert.IsNotNull(data);
+            Assert.AreEqual(2, data.Length);
+            Assert.AreEqual(((uint)1) + (((uint)(100.0f * 4))), data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, data[1]);
+
+            edgeData = new ContractedEdgeData()
+            {
                 Weight = ContractedEdgeDataSerializer.MAX_DISTANCE,
                 Direction = false,
                 ContractedId = Constants.NO_VERTEX
@@ -94,6 +120,18 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             var edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)(100.0f * 4)),
                 Constants.NO_VERTEX });
             Assert.AreEqual(null, edge.Direction);
+            Assert.AreEqual(100.0f, edge.Weight);
+            Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
+
+            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { (uint)1 + ((uint)(100.0f * 4)),
+                Constants.NO_VERTEX });
+            Assert.AreEqual(true, edge.Direction);
+            Assert.AreEqual(100.0f, edge.Weight);
+            Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
+
+            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { (uint)2 + ((uint)(100.0f * 4)),
+                Constants.NO_VERTEX });
+            Assert.AreEqual(false, edge.Direction);
             Assert.AreEqual(100.0f, edge.Weight);
             Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
 

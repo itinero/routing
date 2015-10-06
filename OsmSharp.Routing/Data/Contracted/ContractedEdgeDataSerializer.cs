@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Routing.Graphs.Directed;
 using System;
 
 namespace OsmSharp.Routing.Data.Contracted
@@ -47,7 +48,7 @@ namespace OsmSharp.Routing.Data.Contracted
             {
                 direction = false;
             }
-            weight = data0 / 4.0f;
+            weight = (data0 - dirFlags) / 4.0f;
             contractedId = data1;
         }
 
@@ -118,6 +119,25 @@ namespace OsmSharp.Routing.Data.Contracted
         public static uint[] Serialize(ContractedEdgeData data)
         {
             return ContractedEdgeDataSerializer.Serialize(data.Weight, data.Direction, data.ContractedId);
+        }
+
+        /// <summary>
+        /// Gets contracted edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static ContractedEdgeData GetContractedEdgeData(this Edge edge)
+        {
+            float weight;
+            bool? direction;
+            uint contractedId;
+            ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.Data[1],
+                out weight, out direction, out contractedId);
+            return new ContractedEdgeData()
+            {
+                ContractedId = contractedId,
+                Direction = direction,
+                Weight = weight
+            };
         }
     }
 }
