@@ -571,6 +571,28 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
 
             /// <summary>
+            /// Returns the first entry in the edge data.
+            /// </summary>
+            public uint Data0
+            {
+                get
+                {
+                    return _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + 0];
+                }
+            }
+
+            /// <summary>
+            /// Returns the second entry in the edge data.
+            /// </summary>
+            public uint Data1
+            {
+                get
+                {
+                    return _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + 1];
+                }
+            }
+
+            /// <summary>
             /// Returns the edge id.
             /// </summary>
             public uint Id

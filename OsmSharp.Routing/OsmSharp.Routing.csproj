@@ -62,6 +62,7 @@
       <Link>Properties\SharedAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
+    <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilder.cs" />
