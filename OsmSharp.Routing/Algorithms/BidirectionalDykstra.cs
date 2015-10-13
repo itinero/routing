@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Algorithms
 {
@@ -140,7 +141,7 @@ namespace OsmSharp.Routing.Algorithms
         /// Gets the path from source->target.
         /// </summary>
         /// <returns></returns>
-        public Path GetPath()
+        public List<uint> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -149,7 +150,13 @@ namespace OsmSharp.Routing.Algorithms
             if(_sourceSearch.TryGetVisit(_bestVertex, out fromSource) &&
                _targetSearch.TryGetVisit(_bestVertex, out toTarget))
             {
-                return toTarget.Reverse().ConcatenateAfter(fromSource);
+                var path = new List<uint>();
+                fromSource.AddToList(path);
+                if (toTarget.From != null)
+                {
+                    toTarget.From.AddToListReverse(path);
+                }
+                return path;
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
         }

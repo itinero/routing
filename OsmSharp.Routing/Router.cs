@@ -21,6 +21,7 @@ using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Profiles;
 using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing
 {
@@ -100,25 +101,47 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target)
         {
-            var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
-            {
-                return profile.Factor(_db.Profiles.Get(p));
-            }, source.ToPaths(_db, profile), float.MaxValue, false);
-            var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
-            {
-                return profile.Factor(_db.Profiles.Get(p));
-            }, target.ToPaths(_db, profile), float.MaxValue, true);
-            var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
-            bidirectionalSearch.Run();
-            if(!bidirectionalSearch.HasSucceeded)
-            {
-                return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+            List<uint> path;
+            OsmSharp.Routing.Graphs.Directed.DirectedGraph contracted;
+            if(_db.TryGetContracted(profile, out contracted))
+            { // contracted calculation.
+                path = null;
+                var bidirectionalSearch = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(contracted,
+                    source.ToPaths(_db, profile), target.ToPaths(_db, profile));
+                bidirectionalSearch.Run();
+                if (!bidirectionalSearch.HasSucceeded)
+                {
+                    return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
                     {
                         return new RouteNotFoundException(message);
                     });
+                }
+                // path = bidirectionalSearch.GetPath();
             }
-            var path = bidirectionalSearch.GetPath();
+            else
+            { // non-contracted calculation.
+                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
+                {
+                    return profile.Factor(_db.Profiles.Get(p));
+                }, source.ToPaths(_db, profile), float.MaxValue, false);
+                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
+                {
+                    return profile.Factor(_db.Profiles.Get(p));
+                }, target.ToPaths(_db, profile), float.MaxValue, true);
 
+                var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
+                bidirectionalSearch.Run();
+                if (!bidirectionalSearch.HasSucceeded)
+                {
+                    return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                    {
+                        return new RouteNotFoundException(message);
+                    });
+                }
+                path = bidirectionalSearch.GetPath();
+            }
+            
+            // generate route.
             var routeBuilder = new RouteBuilder(_db, profile, source, target, path);
             routeBuilder.Run();
             if(!routeBuilder.HasSucceeded)

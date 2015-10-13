@@ -64,6 +64,7 @@
     <Compile Include="Algorithms\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilderTests.cs" />
+    <Compile Include="Algorithms\Contracted\DirectedGraphExtensionsTests.cs" />
     <Compile Include="Algorithms\Contracted\DykstraWitnessCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilderTests.cs" />

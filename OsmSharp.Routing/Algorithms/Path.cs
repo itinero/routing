@@ -60,7 +60,7 @@ namespace OsmSharp.Routing.Algorithms
         /// <summary>
         /// Gets previous path.
         /// </summary>
-        public Path From { get; set; }
+        public Path From { get; private set; }
 
         /// <summary>
         /// Returns the reverse of this path segment.
@@ -189,6 +189,32 @@ namespace OsmSharp.Routing.Algorithms
             }
             builder.Insert(0, string.Format("{0}[{1}]", next.Vertex, next.Weight));
             return builder.ToString();
+        }
+
+        /// <summary>
+        /// Adds the vertices in this path to the given list.
+        /// </summary>
+        public void AddToListReverse(List<uint> vertices)
+        {
+            var path = this;
+            while (path != null)
+            {
+                vertices.Add(path.Vertex);
+                path = path.From;
+            }
+        }
+
+        /// <summary>
+        /// Adds the vertices in this path to the given list.
+        /// </summary>
+        public void AddToList(List<uint> vertices)
+        {
+            var reversed = new List<uint>();
+            this.AddToListReverse(reversed);
+            for(var i = reversed.Count - 1; i >= 0; i--)
+            {
+                vertices.Add(reversed[i]);
+            }
         }
     }
 }

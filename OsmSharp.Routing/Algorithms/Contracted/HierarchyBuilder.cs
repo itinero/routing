@@ -60,6 +60,9 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             this.CalculateQueue();
 
             var next = this.SelectNext();
+            var latestProgress = 0f;
+            var current = 0;
+            var total = _graph.VertexCount;
             while(next != null)
             {
                 // contract...
@@ -67,6 +70,19 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
                 // ... and select next.
                 next = this.SelectNext();
+
+                // calculate and log progress.
+                var progress = (float)(System.Math.Floor(((double)current / (double)total) * 1000) / 10.0);
+                if(progress > 99)
+                {
+                    progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
+                }
+                if (progress != latestProgress)
+                {
+                    OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
+                        "Pre-processing... {0}% [{1}/{2}]", progress, current, total);
+                }
+                current++;
             }
         }
 
@@ -159,7 +175,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Contracts the given vertex.
         /// </summary>
-        public void Contract(uint vertex)
+        private void Contract(uint vertex)
         {
             // get and keep edges.
             var edges = new List<Edge>(_graph.GetEdgeEnumerator(vertex));
@@ -211,8 +227,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
-                    forwardWitnesses[k] = !(edge1CanMoveForward && edge1CanMoveBackward);
-                    backwardWitnesses[k] = !(edge1CanMoveBackward && edge1CanMoveForward);
+                    forwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
+                    backwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward);
                     targets.Add(edge2.Neighbour);
                     targetWeights.Add(edge1Weight + edge2Weight);
                 }
@@ -224,6 +240,11 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 for (var k = 0; k < j; k++)
                 {
                     var edge2 = edges[k];
+
+                    if (edge1.Neighbour == edge2.Neighbour)
+                    { // do not try to add a shortcut between identical vertices.
+                        continue;
+                    }
 
                     if(!forwardWitnesses[k] && !backwardWitnesses[k])
                     { // add bidirectional edge.

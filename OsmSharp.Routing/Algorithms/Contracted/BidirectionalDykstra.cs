@@ -25,7 +25,7 @@ using System.Collections.Generic;
 namespace OsmSharp.Routing.Algorithms.Contracted
 {
     /// <summary>
-    /// An algorithm to calculate a point-to-point route based on 
+    /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
     /// </summary>
     public class BidirectionalDykstra : AlgorithmBase
     {
@@ -61,7 +61,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             var backwardQueue = new BinaryHeap<Path>();
 
             // queue sources.
-            foreach(var source in _sources)
+            foreach (var source in _sources)
             {
                 forwardQueue.Push(source, source.Weight);
             }
@@ -84,7 +84,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 { // stop the search; both queues are empty.
                     break;
                 }
-                if (_best.Item2 < queueForwardWeight && 
+                if (_best.Item2 < queueForwardWeight &&
                     _best.Item2 < queueBackwardWeight)
                 { // stop the search: it now became impossible to find a shorter route by further searching.
                     break;
@@ -97,7 +97,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     Path toBest;
                     if (_backwardVisits.TryGetValue(best.Vertex, out toBest))
                     { // check for a new best.
-                        if(best.Weight + toBest.Weight < _best.Item2)
+                        if (best.Weight + toBest.Weight < _best.Item2)
                         { // a better path was found.
                             _best = new Tuple<uint, float>(best.Vertex, best.Weight + toBest.Weight);
                             this.HasSucceeded = true;
@@ -265,6 +265,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <returns></returns>
         public bool TryGetForwardVisit(uint vertex, out Path visit)
         {
+            this.CheckHasRunAndHasSucceeded();
+
             return _forwardVisits.TryGetValue(vertex, out visit);
         }
 
@@ -274,7 +276,74 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <returns></returns>
         public bool TryGetBackwardVisit(uint vertex, out Path visit)
         {
+            this.CheckHasRunAndHasSucceeded();
+
             return _backwardVisits.TryGetValue(vertex, out visit);
+        }
+
+        /// <summary>
+        /// Returns the path.
+        /// </summary>
+        /// <returns></returns>
+        public List<uint> GetPath()
+        {
+            this.CheckHasRunAndHasSucceeded();
+
+            Path fromSource;
+            Path toTarget;
+            if (_forwardVisits.TryGetValue(_best.Item1, out fromSource) &&
+                _backwardVisits.TryGetValue(_best.Item1, out toTarget))
+            {
+                var vertices = new List<uint>();
+
+                // add vertices from source.
+                vertices.Add(fromSource.Vertex);
+                while (fromSource.From != null)
+                {
+                    _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false);
+                    vertices.Add(fromSource.From.Vertex);
+                    fromSource = fromSource.From;
+                }
+                vertices.Reverse();
+
+                // and add vertices to target.
+                while (toTarget.From != null)
+                {
+                    _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false);
+                    vertices.Add(toTarget.From.Vertex);
+                    toTarget = toTarget.From;
+                }
+                return vertices;
+            }
+            throw new InvalidOperationException("No path could be found to/from source/target.");
+        }
+
+        /// <summary>
+        /// Expands the entire path.
+        /// </summary>
+        /// <returns></returns>
+        private List<uint> Expand(Path path)
+        {
+            //var expand = path;
+            //var store = expand.From;
+            //expand = this.ExpandOne(expand, true);
+            //var expanded = expand;
+            //while (store != null)
+            //{
+            //    expand = store;
+            //    store = expand.From;
+            //    expand = this.ExpandOne(expand, true);
+            //}
+            //return expanded;
+            return null;
+        }
+
+        /// <summary>
+        /// Expands a section between two vertices.
+        /// </summary>
+        /// <returns></returns>
+        private void ExpandOne(uint vertex1, uint vertex2, List<uint> vertices, bool forward)
+        {
         }
     }
 }

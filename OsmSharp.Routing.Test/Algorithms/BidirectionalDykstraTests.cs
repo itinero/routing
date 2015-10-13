@@ -22,6 +22,7 @@ using OsmSharp.Routing.Data;
 using OsmSharp.Routing.Graphs;
 using OsmSharp.Routing.Profiles;
 using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Test.Algorithms
 {
@@ -80,18 +81,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.IsTrue(algorithm.HasSucceeded);
 
             Assert.AreEqual(1, algorithm.BestVertex);
-            var path = algorithm.GetPath();
-            Assert.IsNotNull(path);
-            Assert.AreEqual(2, path.Vertex);
-            Assert.AreEqual(7.2, path.Weight, .0001);
-            path = path.From;
-            Assert.IsNotNull(path);
-            Assert.AreEqual(1, path.Vertex);
-            Assert.AreEqual(3.6, path.Weight, .0001);
-            path = path.From;
-            Assert.IsNotNull(path);
-            Assert.AreEqual(0, path.Vertex);
-            Assert.AreEqual(0, path.Weight, .0001);
+            Assert.AreEqual(new uint[] { 0, 1, 2 }, algorithm.GetPath().ToArray());
         }
     }
 }

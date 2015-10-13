@@ -63,9 +63,21 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} - {1}",
+            if(this.Data != null)
+            {
+                var dataString = "[" + this.Data[0].ToInvariantString();
+                for (var i = 1; i < this.Data.Length; i++)
+                {
+                    dataString += ", " + this.Data[i].ToInvariantString();
+                }
+                return string.Format("{0} - {1} [{2}]",
+                    this.Neighbour,
+                    this.Id,
+                    dataString);
+            }
+            return string.Format("{0} - {1} []",
                 this.Neighbour,
-                this.Data.ToInvariantString());
+                this.Id);
         }
     }
 }

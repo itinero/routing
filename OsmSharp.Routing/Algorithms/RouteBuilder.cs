@@ -31,7 +31,7 @@ namespace OsmSharp.Routing.Algorithms
     public class RouteBuilder : AlgorithmBase
     {
         private readonly RouterDb _routerDb;
-        private readonly Path _path;
+        private readonly List<uint> _path;
         private readonly Profile _profile;
         private readonly RouterPoint _source;
         private readonly RouterPoint _target;
@@ -39,7 +39,7 @@ namespace OsmSharp.Routing.Algorithms
         /// <summary>
         /// Creates a router builder.
         /// </summary>
-        public RouteBuilder(RouterDb routerDb, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        public RouteBuilder(RouterDb routerDb, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
         {
             _routerDb = routerDb;
             _path = path;
@@ -55,16 +55,13 @@ namespace OsmSharp.Routing.Algorithms
         /// </summary>
         protected override void DoRun()
         {
-            // reverse the original path.
-            var path = _path.Reverse();
-
             // build the route.
             _route = new Route();
             _route.Segments = new List<RouteSegment>();
-            if (path.From == null)
+            if (_path.Count == 1)
             { // only one vertex, route has length of zero.
                 if (_source.EdgeId != _target.EdgeId ||
-                   _source.Offset != _target.Offset)
+                    _source.Offset != _target.Offset)
                 { // a route of one vertex but source and target do not match.
                     this.ErrorMessage = "Target and source have to be indentical with a route with only one vertex.";
                     return;
@@ -76,8 +73,9 @@ namespace OsmSharp.Routing.Algorithms
                 this.HasSucceeded = true;
                 return;
             }
-            if (path.From.Vertex == Constants.NO_VERTEX ||
-                _target.IsVertex(_routerDb, path.From.Vertex))
+            if (_path.Count == 2 && (
+                _path[1] == Constants.NO_VERTEX ||
+                _target.IsVertex(_routerDb, _path[1])))
             { // this path represents a short path located within one edge or the edge max.
                 this.AddSourceTarget();
                 this.HasSucceeded = true;
@@ -88,42 +86,42 @@ namespace OsmSharp.Routing.Algorithms
             // build the route by expanding the edges/shapes.
 
             // add the source.
-            if (path.From.From.Vertex == Constants.NO_VERTEX ||
-                _target.IsVertex(_routerDb, path.From.From.Vertex))
+            if (_path.Count ==  3 &&
+                _path[2] == Constants.NO_VERTEX ||
+                _target.IsVertex(_routerDb, _path[2]))
             { // the next one is the next one of the target.
-                this.AddSource(path.From.Vertex, _routerDb.Network.GetEdge(_source.EdgeId).GetOther(path.From.Vertex),
-                    _routerDb.Network.GetEdge(_target.EdgeId).GetOther(path.From.Vertex));
-                this.AddTarget(path.From.Vertex);
+                this.AddSource(_path[1], _routerDb.Network.GetEdge(_source.EdgeId).GetOther(_path[1]),
+                    _routerDb.Network.GetEdge(_target.EdgeId).GetOther(_path[1]));
+                this.AddTarget(_path[1]);
                 this.HasSucceeded = true;
                 return;
             }
 
             // next one is a regular vertex.
-            this.AddSource(path.From.Vertex, _routerDb.Network.GetEdge(_source.EdgeId).GetOther(path.From.Vertex),
-                path.From.From.Vertex);
+            this.AddSource(_path[1], _routerDb.Network.GetEdge(_source.EdgeId).GetOther(_path[1]),
+                _path[2]);
 
-            path = path.From; // move to next vertex.
+            var offset = 1; // move to next vertex.
 
             // add intermediate points.
-            while (path != null &&
-                  path.From != null &&
-                  path.From.From != null)
+            while(offset < _path.Count - 2)
             {
-                if(path.From.From.Vertex == Constants.NO_VERTEX ||
-                    _target.IsVertex(_routerDb, path.From.From.Vertex))
+                if(_path[offset + 2] == Constants.NO_VERTEX ||
+                   _target.IsVertex(_routerDb, _path[offset + 2]))
                 { // next is target.
-                    this.Add(path.From.Vertex, path.Vertex, _routerDb.Network.GetEdge(_target.EdgeId).GetOther(path.From.Vertex));
+                    this.Add(_path[offset + 1], _path[offset + 0], _routerDb.Network.GetEdge(_target.EdgeId).GetOther(
+                        _path[offset + 1]));
                     break;
                 }
                 else
                 { // next is regular edge.
-                    this.Add(path.From.Vertex, path.Vertex, path.From.From.Vertex);
-                    path = path.From; // move to next vertex.
+                    this.Add(_path[offset + 1], _path[offset + 0], _path[offset + 2]);
+                    offset++; // move to next vertex.
                 }
             }
 
             // add the target.
-            this.AddTarget(path.From.Vertex);
+            this.AddTarget(_path[_path.Count - 2]);
             this.HasSucceeded = true;
         }
 

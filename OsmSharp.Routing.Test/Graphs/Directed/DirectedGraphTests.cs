@@ -34,65 +34,105 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
         [Test]
         public void TestAddEdge()
         {
-            var meta = new int[100];
-            var graph = new DirectedGraph(1, 10, (x, y) =>
+            // a new graph.
+            var graph = new DirectedGraph(2, 10);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(1, 0, 10, 100);
+            graph.AddEdge(0, 2, 20, 200);
+            graph.AddEdge(2, 0, 20, 200);
+
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(2, edges.Count);
+            Assert.AreEqual(10, edges.First(x => x.Neighbour == 1).Data[0]);
+            Assert.AreEqual(100, edges.First(x => x.Neighbour == 1).Data[1]);
+            Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(10, edges.First(x => x.Neighbour == 0).Data[0]);
+            Assert.AreEqual(100, edges.First(x => x.Neighbour == 0).Data[1]);
+
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(20, edges.First(x => x.Neighbour == 0).Data[0]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 0).Data[1]);
+
+            var meta = new int[200];
+            graph = new DirectedGraph(2, 10, (x, y) =>
             {
-                meta[y] = meta[x];
+                meta[y * 2] = meta[x * 2];
+                meta[y * 2 + 1] = meta[x * 2 + 1];
             });
 
             // add edge.
-            var edge = graph.AddEdge(0, 1, 10);
-            meta[edge] = 10;
+            var edge = graph.AddEdge(0, 1, 10, 100);
+            meta[edge * 2] = 10;
+            meta[edge * 2 + 1] = 100;
 
             // verify all edges.
-            var edges = graph.GetEdgeEnumerator(0);
+            edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(0, edges.Count());
 
             // add another edge.
-            edge = graph.AddEdge(1, 2, 20);
-            meta[edge] = 20;
+            edge = graph.AddEdge(1, 2, 20, 200);
+            meta[edge * 2] = 20;
+            meta[edge * 2 + 1] = 200;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(20, edges.First().Data[0]);
-            Assert.AreEqual(20, meta[edges.First().Id]);
+            Assert.AreEqual(200, edges.First().Data[1]);
+            Assert.AreEqual(20, meta[edges.First().Id * 2]);
+            Assert.AreEqual(200, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(2, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
 
             // add another edge.
-            edge = graph.AddEdge(1, 3, 30);
-            meta[edge] = 30;
+            edge = graph.AddEdge(1, 3, 30, 300);
+            meta[edge * 2] = 30;
+            meta[edge * 2 + 1] = 300;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(2, edges.Count());
             Assert.IsTrue(edges.Any(x => x.Neighbour == 2));
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
-            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id * 2]);
+            Assert.AreEqual(200, meta[edges.First(x => x.Neighbour == 2).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 3));
             Assert.AreEqual(30, edges.First(x => x.Neighbour == 3).Data[0]);
-            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id]);
+            Assert.AreEqual(300, edges.First(x => x.Neighbour == 3).Data[1]);
+            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id * 2]);
+            Assert.AreEqual(300, meta[edges.First(x => x.Neighbour == 3).Id * 2 + 1]);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
@@ -101,24 +141,31 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(0, edges.Count());
 
             // add another edge but in reverse.
-            edge = graph.AddEdge(3, 1, 30);
-            meta[edge] = 30;
+            edge = graph.AddEdge(3, 1, 30, 300);
+            meta[edge * 2] = 30;
+            meta[edge * 2 + 1] = 300;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(2, edges.Count());
             Assert.IsTrue(edges.Any(x => x.Neighbour == 2));
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
-            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id * 2]);
+            Assert.AreEqual(200, meta[edges.First(x => x.Neighbour == 2).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 3));
             Assert.AreEqual(30, edges.First(x => x.Neighbour == 3).Data[0]);
-            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id]);
+            Assert.AreEqual(300, edges.First(x => x.Neighbour == 3).Data[1]);
+            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id * 2]);
+            Assert.AreEqual(300, meta[edges.First(x => x.Neighbour == 3).Id * 2 + 1]);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
@@ -126,28 +173,37 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             edges = graph.GetEdgeEnumerator(3);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(30, edges.First().Data[0]);
-            Assert.AreEqual(30, meta[edges.First().Id]);
+            Assert.AreEqual(300, edges.First().Data[1]);
+            Assert.AreEqual(30, meta[edges.First().Id * 2]);
+            Assert.AreEqual(300, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             // add another edge and start a new island.
-            edge = graph.AddEdge(4, 5, 40);
-            meta[edge] = 40;
+            edge = graph.AddEdge(4, 5, 40, 400);
+            meta[edge * 2] = 40;
+            meta[edge * 2  + 1] = 400;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(2, edges.Count());
             Assert.IsTrue(edges.Any(x => x.Neighbour == 2));
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
-            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id * 2]);
+            Assert.AreEqual(200, meta[edges.First(x => x.Neighbour == 2).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 3));
             Assert.AreEqual(30, edges.First(x => x.Neighbour == 3).Data[0]);
-            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id]);
+            Assert.AreEqual(300, edges.First(x => x.Neighbour == 3).Data[1]);
+            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id * 2]);
+            Assert.AreEqual(300, meta[edges.First(x => x.Neighbour == 3).Id * 2 + 1]);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
@@ -155,37 +211,48 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             edges = graph.GetEdgeEnumerator(3);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(30, edges.First().Data[0]);
-            Assert.AreEqual(30, meta[edges.First().Id]);
+            Assert.AreEqual(300, edges.First().Data[1]);
+            Assert.AreEqual(30, meta[edges.First().Id * 2]);
+            Assert.AreEqual(300, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(4);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(40, edges.First().Data[0]);
-            Assert.AreEqual(40, meta[edges.First().Id]);
+            Assert.AreEqual(400, edges.First().Data[1]);
+            Assert.AreEqual(40, meta[edges.First().Id * 2]);
+            Assert.AreEqual(400, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(5, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(5);
             Assert.AreEqual(0, edges.Count());
 
             // connect the islands.
-            edge = graph.AddEdge(5, 3, 50);
-            meta[edge] = 50;
+            edge = graph.AddEdge(5, 3, 50, 500);
+            meta[edge * 2] = 50;
+            meta[edge * 2 + 1] = 500;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(2, edges.Count());
             Assert.IsTrue(edges.Any(x => x.Neighbour == 2));
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
-            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id * 2]);
+            Assert.AreEqual(200, meta[edges.First(x => x.Neighbour == 2).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 3));
             Assert.AreEqual(30, edges.First(x => x.Neighbour == 3).Data[0]);
-            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id]);
+            Assert.AreEqual(300, edges.First(x => x.Neighbour == 3).Data[1]);
+            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id * 2]);
+            Assert.AreEqual(300, meta[edges.First(x => x.Neighbour == 3).Id * 2 + 1]);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
@@ -193,42 +260,57 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             edges = graph.GetEdgeEnumerator(3);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(30, edges.First().Data[0]);
-            Assert.AreEqual(30, meta[edges.First().Id]);
+            Assert.AreEqual(300, edges.First().Data[1]);
+            Assert.AreEqual(30, meta[edges.First().Id * 2]);
+            Assert.AreEqual(300, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(4);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(40, edges.First().Data[0]);
-            Assert.AreEqual(40, meta[edges.First().Id]);
+            Assert.AreEqual(400, edges.First().Data[1]);
+            Assert.AreEqual(40, meta[edges.First().Id * 2]);
+            Assert.AreEqual(400, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(5, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(5);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(50, edges.First().Data[0]);
-            Assert.AreEqual(50, meta[edges.First().Id]);
+            Assert.AreEqual(500, edges.First().Data[1]);
+            Assert.AreEqual(50, meta[edges.First().Id * 2]);
+            Assert.AreEqual(500, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(3, edges.First().Neighbour);
 
-            edge = graph.AddEdge(1, 6, 60);
-            meta[edge] = 60;
+            edge = graph.AddEdge(1, 6, 60, 600);
+            meta[edge * 2] = 60;
+            meta[edge * 2 + 1] = 600;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(3, edges.Count());
             Assert.IsTrue(edges.Any(x => x.Neighbour == 2));
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
-            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id * 2]);
+            Assert.AreEqual(200, meta[edges.First(x => x.Neighbour == 2).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 3));
             Assert.AreEqual(30, edges.First(x => x.Neighbour == 3).Data[0]);
-            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id]);
+            Assert.AreEqual(300, edges.First(x => x.Neighbour == 3).Data[1]);
+            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id * 2]);
+            Assert.AreEqual(300, meta[edges.First(x => x.Neighbour == 3).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 6));
             Assert.AreEqual(60, edges.First(x => x.Neighbour == 6).Data[0]);
-            Assert.AreEqual(60, meta[edges.First(x => x.Neighbour == 6).Id]);
+            Assert.AreEqual(600, edges.First(x => x.Neighbour == 6).Data[1]);
+            Assert.AreEqual(60, meta[edges.First(x => x.Neighbour == 6).Id * 2]);
+            Assert.AreEqual(600, meta[edges.First(x => x.Neighbour == 6).Id * 2 + 1]);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
@@ -236,45 +318,61 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             edges = graph.GetEdgeEnumerator(3);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(30, edges.First().Data[0]);
-            Assert.AreEqual(30, meta[edges.First().Id]);
+            Assert.AreEqual(300, edges.First().Data[1]);
+            Assert.AreEqual(30, meta[edges.First().Id * 2]);
+            Assert.AreEqual(300, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(4);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(40, edges.First().Data[0]);
-            Assert.AreEqual(40, meta[edges.First().Id]);
+            Assert.AreEqual(400, edges.First().Data[1]);
+            Assert.AreEqual(40, meta[edges.First().Id * 2]);
+            Assert.AreEqual(400, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(5, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(5);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(50, edges.First().Data[0]);
-            Assert.AreEqual(50, meta[edges.First().Id]);
+            Assert.AreEqual(50, meta[edges.First().Id * 2]);
+            Assert.AreEqual(500, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(3, edges.First().Neighbour);
 
-            edge = graph.AddEdge(1, 7, 70);
-            meta[edge] = 70;
+            edge = graph.AddEdge(1, 7, 70, 700);
+            meta[edge * 2] = 70;
+            meta[edge * 2 + 1] = 700;
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(10, edges.First().Data[0]);
-            Assert.AreEqual(10, meta[edges.First().Id]);
+            Assert.AreEqual(100, edges.First().Data[1]);
+            Assert.AreEqual(10, meta[edges.First().Id * 2]);
+            Assert.AreEqual(100, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(1);
             Assert.AreEqual(4, edges.Count());
             Assert.IsTrue(edges.Any(x => x.Neighbour == 2));
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 2).Data[0]);
-            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id]);
+            Assert.AreEqual(200, edges.First(x => x.Neighbour == 2).Data[1]);
+            Assert.AreEqual(20, meta[edges.First(x => x.Neighbour == 2).Id * 2]);
+            Assert.AreEqual(200, meta[edges.First(x => x.Neighbour == 2).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 3));
             Assert.AreEqual(30, edges.First(x => x.Neighbour == 3).Data[0]);
-            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id]);
+            Assert.AreEqual(300, edges.First(x => x.Neighbour == 3).Data[1]);
+            Assert.AreEqual(30, meta[edges.First(x => x.Neighbour == 3).Id * 2]);
+            Assert.AreEqual(300, meta[edges.First(x => x.Neighbour == 3).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 6));
             Assert.AreEqual(60, edges.First(x => x.Neighbour == 6).Data[0]);
-            Assert.AreEqual(60, meta[edges.First(x => x.Neighbour == 6).Id]);
+            Assert.AreEqual(600, edges.First(x => x.Neighbour == 6).Data[1]);
+            Assert.AreEqual(60, meta[edges.First(x => x.Neighbour == 6).Id * 2]);
+            Assert.AreEqual(600, meta[edges.First(x => x.Neighbour == 6).Id * 2 + 1]);
             Assert.IsTrue(edges.Any(x => x.Neighbour == 7));
             Assert.AreEqual(70, edges.First(x => x.Neighbour == 7).Data[0]);
-            Assert.AreEqual(70, meta[edges.First(x => x.Neighbour == 7).Id]);
+            Assert.AreEqual(700, edges.First(x => x.Neighbour == 7).Data[1]);
+            Assert.AreEqual(70, meta[edges.First(x => x.Neighbour == 7).Id * 2]);
+            Assert.AreEqual(700, meta[edges.First(x => x.Neighbour == 7).Id * 2 + 1]);
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(0, edges.Count());
@@ -282,19 +380,25 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             edges = graph.GetEdgeEnumerator(3);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(30, edges.First().Data[0]);
-            Assert.AreEqual(30, meta[edges.First().Id]);
+            Assert.AreEqual(300, edges.First().Data[1]);
+            Assert.AreEqual(30, meta[edges.First().Id * 2]);
+            Assert.AreEqual(300, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(4);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(40, edges.First().Data[0]);
-            Assert.AreEqual(40, meta[edges.First().Id]);
+            Assert.AreEqual(400, edges.First().Data[1]);
+            Assert.AreEqual(40, meta[edges.First().Id * 2]);
+            Assert.AreEqual(400, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(5, edges.First().Neighbour);
 
             edges = graph.GetEdgeEnumerator(5);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(50, edges.First().Data[0]);
-            Assert.AreEqual(50, meta[edges.First().Id]);
+            Assert.AreEqual(500, edges.First().Data[1]);
+            Assert.AreEqual(50, meta[edges.First().Id * 2]);
+            Assert.AreEqual(500, meta[edges.First().Id * 2 + 1]);
             Assert.AreEqual(3, edges.First().Neighbour);
         }
 

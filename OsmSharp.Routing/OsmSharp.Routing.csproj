@@ -63,11 +63,13 @@
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Contracted\DirectedGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilder.cs" />
     <Compile Include="Algorithms\Contracted\IPriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\IWitnessCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\ManyToManyBidirectionalDykstra.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilder.cs" />
@@ -85,6 +87,7 @@
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Graphs\Directed\DirectedGraphException.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraph.cs" />
     <Compile Include="Graphs\Directed\Edge.cs" />
     <Compile Include="Graphs\Directed\MetaEdge.cs" />

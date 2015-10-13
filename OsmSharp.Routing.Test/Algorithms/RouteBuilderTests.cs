@@ -24,6 +24,7 @@ using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Test.Profiles;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace OsmSharp.Routing.Test.Algorithms
@@ -51,7 +52,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             var target = new RouterPoint(0, 0, 1, 0, new Tag("type", "target"));
             var profile = ProfileMock.CarMock();
             var routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(Constants.NO_VERTEX));
+                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
@@ -92,8 +93,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "target"));
             var profile = ProfileMock.CarMock();
             var routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(Constants.NO_VERTEX, 100, 
-                    new Path(Constants.NO_VERTEX)));
+                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
@@ -124,8 +124,7 @@ namespace OsmSharp.Routing.Test.Algorithms
 
             // build route with similar path.
             routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(Constants.NO_VERTEX, 100,
-                    new Path(0)));
+                source, target, new List<uint>(new uint[] { 0, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
@@ -156,8 +155,7 @@ namespace OsmSharp.Routing.Test.Algorithms
 
             // build route with similar path.
             routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(1, 100,
-                    new Path(0)));
+                source, target, new List<uint>(new uint[] { 0, 1 }));
             routeBuilder.Run();
 
             // check result.
@@ -215,8 +213,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "target"));
             var profile = ProfileMock.CarMock();
             var routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(Constants.NO_VERTEX, 100,
-                    new Path(Constants.NO_VERTEX)));
+                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
@@ -252,7 +249,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-            
+
             previous = segment;
             segment = route.Segments[2];
             Assert.AreEqual(0.5, segment.Latitude);
@@ -339,8 +336,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             var target = new RouterPoint(0, 1, 1, ushort.MaxValue, new Tag("type", "target"));
             var profile = ProfileMock.CarMock();
             var routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(Constants.NO_VERTEX, 100,
-                    new Path(1, 100, new Path(Constants.NO_VERTEX))));
+                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, Constants.NO_VERTEX })); 
             routeBuilder.Run();
 
             // check result.
@@ -477,8 +473,7 @@ namespace OsmSharp.Routing.Test.Algorithms
 
             // build route.
             routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(2, 100,
-                    new Path(1, 100, new Path(0))));
+                source, target, new List<uint>(new uint[] { 0, 1, 2 }));
             routeBuilder.Run();
 
             // check result.
@@ -670,8 +665,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             var target = new RouterPoint(0, 2, 2, ushort.MaxValue, new Tag("type", "target"));
             var profile = ProfileMock.CarMock();
             var routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(Constants.NO_VERTEX, 100,
-                    new Path(2, 100, new Path(1, 100, new Path(Constants.NO_VERTEX)))));
+                source, target,  new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
@@ -864,8 +858,7 @@ namespace OsmSharp.Routing.Test.Algorithms
 
             // build route.
             routeBuilder = new RouteBuilder(routerDb, profile,
-                source, target, new Path(3, 100,
-                    new Path(2, 100, new Path(1, 100, new Path(0)))));
+                source, target, new List<uint>(new uint[] { 0, 1, 2, 3 }));
             routeBuilder.Run();
 
             // check result.

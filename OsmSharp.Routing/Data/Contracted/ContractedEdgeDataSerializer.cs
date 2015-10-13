@@ -72,6 +72,27 @@ namespace OsmSharp.Routing.Data.Contracted
         }
 
         /// <summary>
+        /// Parses the edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static Func<uint[], float> DeserializeWeightFunc = (data) =>
+            {
+                return ContractedEdgeDataSerializer.DeserializeWeight(data);
+            };
+
+        /// <summary>
+        /// Parses the edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static float DeserializeWeight(uint[] data)
+        {
+            float weight;
+            bool? direction;
+            ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
+            return weight;
+        }
+
+        /// <summary>
         /// Returns the size of a the data in uint's when serialized.
         /// </summary>
         public static int Size
@@ -157,6 +178,15 @@ namespace OsmSharp.Routing.Data.Contracted
                 Direction = direction,
                 Weight = weight
             };
+        }
+
+        /// <summary>
+        /// Gets contracted id.
+        /// </summary>
+        /// <returns></returns>
+        public static uint GetContractedId(this Edge edge)
+        {
+            return edge.Data[1];
         }
     }
 }

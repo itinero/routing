@@ -49,6 +49,14 @@ namespace OsmSharp.Routing.Profiles
         public virtual Factor Factor(TagsCollectionBase attributes)
         {
             var speed = _getSpeed(attributes);
+            if(speed.Value == 0)
+            {
+                return new Factor()
+                {
+                    Value = 0,
+                    Direction = 0
+                };
+            }
             return new Factor()
             {
                 Value = 1.0f / speed.Value,

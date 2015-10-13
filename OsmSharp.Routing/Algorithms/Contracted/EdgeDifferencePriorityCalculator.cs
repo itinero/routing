@@ -66,6 +66,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             while (i < edges.Count)
             {
                 var edgeEnumerator = _graph.GetEdgeEnumerator(edges[i].Neighbour);
+                edgeEnumerator.Reset();
                 while(edgeEnumerator.MoveNext())
                 {
                     if(edgeEnumerator.Neighbour == vertex)
@@ -77,6 +78,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 if (contractedFlags.Contains(edges[i].Neighbour))
                 { // neighbour was already contracted, remove 'downward' edge and exclude it.
                     edgeEnumerator.MoveTo(vertex);
+                    edgeEnumerator.Reset();
                     while (edgeEnumerator.MoveNext())
                     {
                         if (edgeEnumerator.Neighbour == edges[i].Neighbour)
@@ -185,6 +187,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
             // loop over all neighbours.
             var edgeEnumerator = _graph.GetEdgeEnumerator(vertex);
+            edgeEnumerator.Reset();
             while(edgeEnumerator.MoveNext())
             {
                 var neighbour = edgeEnumerator.Neighbour;

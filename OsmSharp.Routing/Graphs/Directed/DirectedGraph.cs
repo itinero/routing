@@ -189,6 +189,11 @@ namespace OsmSharp.Routing.Graphs.Directed
                 _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
                 edgeId = _nextEdgePointer / (uint)_edgeSize;
 
+                if (_nextEdgePointer >= _edges.Length)
+                { // make sure we can add another edge.
+                    this.IncreaseEdgeSize();
+                }
+
                 _edges[_nextEdgePointer] = vertex2;
                 for (uint i = 0; i < _edgeDataSize; i++)
                 {
@@ -199,7 +204,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
             else if ((edgeCount & (edgeCount - 1)) == 0)
             { // edgeCount is a power of two, increase space.
-                if (_nextEdgePointer >= _edges.Length)
+                if (_nextEdgePointer + (edgeCount * _edgeSize) >= _edges.Length)
                 { // make sure we can add another edge.
                     this.IncreaseEdgeSize();
                 }
@@ -220,6 +225,14 @@ namespace OsmSharp.Routing.Graphs.Directed
                 { // not at the end, copy edges to the end.
                     _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
                     _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
+
+                    // keep new pointer & duplicate space for this vertex.
+                    var newNextEdgePointer = _nextEdgePointer + (uint)(edgeCount * 2 * _edgeSize);
+
+                    if (_nextEdgePointer + (edgeCount * _edgeSize) >= _edges.Length)
+                    { // make sure we can add another edge.
+                        this.IncreaseEdgeSize();
+                    }
 
                     for(var edge = 0; edge <  edgeCount; edge++)
                     {
@@ -242,6 +255,11 @@ namespace OsmSharp.Routing.Graphs.Directed
                         }
                     }
 
+                    if (_nextEdgePointer + (edgeCount * _edgeSize) >= _edges.Length)
+                    { // make sure we can add another edge.
+                        this.IncreaseEdgeSize();
+                    }
+
                     // add at the end.
                     _edges[_nextEdgePointer] = vertex2;
                     edgeId = _nextEdgePointer / (uint)_edgeSize;
@@ -250,7 +268,7 @@ namespace OsmSharp.Routing.Graphs.Directed
                         _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
                             data[i];
                     }
-                    _nextEdgePointer += (uint)_edgeSize;
+                    _nextEdgePointer = newNextEdgePointer;
                 }
             }
             else

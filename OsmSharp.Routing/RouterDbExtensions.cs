@@ -21,6 +21,9 @@ using OsmSharp.Geo.Attributes;
 using OsmSharp.Geo.Features;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Algorithms.Contracted;
+using OsmSharp.Routing.Data.Contracted;
+using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
 using System.Collections.Generic;
 
@@ -78,6 +81,29 @@ namespace OsmSharp.Routing
             }
 
             return features;
+        }
+
+        /// <summary>
+        /// Creates a new contracted graph and adds it to the router db for the given profile.
+        /// </summary>
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile)
+        {
+            // create the raw directed graph.
+            var contracted = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            var directedGraphBuilder = new DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
+                {
+                    var tags = db.Profiles.Get(p);
+                    return profile.Factor(tags);
+                });
+            directedGraphBuilder.Run();
+
+            // contract the graph.
+            var hierarchyBuilder = new HierarchyBuilder(contracted, new EdgeDifferencePriorityCalculator(contracted, new DykstraWitnessCalculator(int.MaxValue)),
+                new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.Run();
+
+            // add the graph.
+            db.AddContracted(profile, contracted);
         }
     }
 }
