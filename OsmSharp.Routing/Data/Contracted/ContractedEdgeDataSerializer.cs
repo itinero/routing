@@ -32,6 +32,26 @@ namespace OsmSharp.Routing.Data.Contracted
         public const float MAX_DISTANCE = 4294967000 / 4;
 
         /// <summary>
+        /// Deserializes edges data.
+        /// </summary>
+        /// <returns></returns>
+        public static ContractedEdgeData Deserialize(uint[] data)
+        {
+            float weight;
+            bool? direction;
+            uint contractedId;
+            ContractedEdgeDataSerializer.Deserialize(data[0], data[1],
+                out weight, out direction, out contractedId);
+
+            return new ContractedEdgeData()
+            {
+                ContractedId = contractedId,
+                Weight = weight,
+                Direction = direction
+            };
+        }
+
+        /// <summary>
         /// Parses the edge data.
         /// </summary>
         /// <returns></returns>
@@ -93,31 +113,23 @@ namespace OsmSharp.Routing.Data.Contracted
         }
 
         /// <summary>
+        /// Returns true if the data represents the same direction.
+        /// </summary>
+        /// <returns></returns>
+        public static bool HasDirection(uint[] data, bool? direction)
+        {
+            float weight;
+            bool? currentDirection;
+            ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out currentDirection);
+            return currentDirection == direction;
+        }
+
+        /// <summary>
         /// Returns the size of a the data in uint's when serialized.
         /// </summary>
         public static int Size
         {
             get { return 2; }
-        }
-
-        /// <summary>
-        /// Deserializes edges data.
-        /// </summary>
-        /// <returns></returns>
-        public static ContractedEdgeData Deserialize(uint[] data)
-        {
-            float weight;
-            bool? direction;
-            uint contractedId;
-            ContractedEdgeDataSerializer.Deserialize(data[0], data[1], 
-                out weight, out direction, out contractedId);
-
-            return new ContractedEdgeData()
-            {
-                ContractedId = contractedId,
-                Weight = weight,
-                Direction = direction
-            };
         }
 
         /// <summary>
@@ -146,7 +158,7 @@ namespace OsmSharp.Routing.Data.Contracted
             }
 
             var data0 = (uint)dirFlags;
-            data0 = data0 + (uint)(weight * 4);
+            data0 = data0 + ((uint)weight * 4);
             var data1 = contractedId;
 
             return new uint[] { data0, data1 };

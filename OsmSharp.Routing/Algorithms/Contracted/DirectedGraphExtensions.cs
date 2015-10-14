@@ -57,5 +57,118 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 }
             }
         }
+
+        /// <summary>
+        /// Add or update edge.
+        /// </summary>
+        /// <returns></returns>
+        public static void AddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId)
+        {
+            var current = ContractedEdgeDataSerializer.Serialize(weight, direction, contractedId);
+            var hasExistingEdge = false;
+            var hasExistingEdgeOnlySameDirection = true;
+            if(graph.UpdateEdge(vertex1, vertex2, (data) => 
+                {
+                    hasExistingEdge = true;
+                    if(ContractedEdgeDataSerializer.HasDirection(data, direction))
+                    { // has the same direction.
+                        if (weight < ContractedEdgeDataSerializer.DeserializeWeight(data))
+                        { // the weight is better, just update.
+                            return true;
+                        }
+                        return false;
+                    }
+                    hasExistingEdgeOnlySameDirection = false;
+                    return false;
+                }, current))
+            { // updating the edge succeeded.
+                return;
+            }
+            if (!hasExistingEdge)
+            { // no edge exists yet.
+                graph.AddEdge(vertex1, vertex2, current);
+                return;
+            }
+            else if (hasExistingEdgeOnlySameDirection)
+            { // there is an edge already but it has a better weight.
+                return;
+            }
+            else
+            { // see what's there and update if needed.
+                var forward = false;
+                var forwardWeight = float.MaxValue;
+                var forwardContractedId = uint.MaxValue;
+                var backward = false;
+                var backwardWeight = float.MaxValue;
+                var backwardContractedId = uint.MaxValue;
+
+                if(direction == null || direction.Value)
+                {
+                    forward = true;
+                    forwardWeight = weight;
+                    forwardContractedId = contractedId;
+                }
+                if(direction == null || !direction.Value)
+                {
+                    backward = true;
+                    backwardWeight = weight;
+                    backwardContractedId = contractedId;
+                }
+
+                var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+                while(edgeEnumerator.MoveNext())
+                {
+                    if(edgeEnumerator.Neighbour == vertex2)
+                    {
+                        float localWeight;
+                        bool? localDirection;
+                        uint localContractedId;
+                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.Data1,
+                            out localWeight, out localDirection, out localContractedId);
+                        if(localDirection == null || localDirection.Value)
+                        {
+                            if(localWeight < forwardWeight)
+                            {
+                                forwardWeight = localWeight;
+                                forward = true;
+                                forwardContractedId = localContractedId;
+                            }
+                        }
+                        if (localDirection == null || !localDirection.Value)
+                        {
+                            if (localWeight < backwardWeight)
+                            {
+                                backwardWeight = localWeight;
+                                backward = true;
+                                backwardContractedId = localContractedId;
+                            }
+                        }
+                    }
+                }
+
+                graph.RemoveEdge(vertex1, vertex2);
+
+                if(forward && backward &&
+                    forwardWeight == backwardWeight &&
+                    forwardContractedId == backwardContractedId)
+                { // add one bidirectional edge.
+                    graph.AddEdge(vertex1, vertex2, 
+                        ContractedEdgeDataSerializer.Serialize(forwardWeight, null, forwardContractedId));
+                }
+                else
+                { // add two unidirectional edges if needed.
+                    if(forward)
+                    { // there is a forward edge.
+                        graph.AddEdge(vertex1, vertex2, 
+                            ContractedEdgeDataSerializer.Serialize(forwardWeight, true, forwardContractedId));
+                    }
+                    if (backward)
+                    { // there is a backward edge.
+                        graph.AddEdge(vertex1, vertex2,
+                            ContractedEdgeDataSerializer.Serialize(backwardWeight, false, backwardContractedId));
+                    }
+                }
+            }
+        }
     }
 }

@@ -62,6 +62,19 @@ namespace OsmSharp.Routing.Test.Data.Contracted
 
             edgeData = new ContractedEdgeData()
             {
+                Weight = 100.25f,
+                Direction = null,
+                ContractedId = Constants.NO_VERTEX
+            };
+
+            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            Assert.IsNotNull(data);
+            Assert.AreEqual(2, data.Length);
+            Assert.AreEqual(((uint)(100f * 4)), data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, data[1]);
+
+            edgeData = new ContractedEdgeData()
+            {
                 Weight = 100,
                 Direction = false,
                 ContractedId = Constants.NO_VERTEX

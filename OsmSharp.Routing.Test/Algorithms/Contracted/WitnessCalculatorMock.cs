@@ -19,6 +19,7 @@
 using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted
@@ -28,24 +29,16 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
     /// </summary>
     class WitnessCalculatorMock : IWitnessCalculator
     {
-        private readonly Dictionary<uint, Dictionary<uint, bool>> _witnesses;
+        private readonly uint[][] _witnesses;
 
         public WitnessCalculatorMock()
         {
 
         }
 
-        public WitnessCalculatorMock(Tuple<uint, Tuple<uint, bool>[]>[] witnesses)
+        public WitnessCalculatorMock(uint[][] witnesses)
         {
-            _witnesses = new Dictionary<uint, Dictionary<uint, bool>>();
-            foreach(var tuple in witnesses)
-            {
-                _witnesses[tuple.Item1] = new Dictionary<uint, bool>();
-                foreach(var tuple2 in tuple.Item2)
-                {
-                    _witnesses[tuple.Item1].Add(tuple2.Item1, tuple2.Item2);
-                }
-            }
+            _witnesses = witnesses;
         }
 
         public void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights, 
@@ -53,24 +46,18 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         {
             if (_witnesses != null)
             {
-                Dictionary<uint, bool> sourceWitnesses;
-                if(_witnesses.TryGetValue(source, out sourceWitnesses))
+                for (var i = 0; i < targets.Count; i++)
                 {
-                    for (var i = 0; i < targets.Count; i++)
+                    var target = targets[i];
+                    if(_witnesses.Any((x) => x[0] == vertexToSkip &&
+                        x[1] == source && x[2] == target && (x[3] == 1 || x[3] == 0)))
                     {
-                        var target = targets[i];
-                        bool witness;
-                        if(sourceWitnesses.TryGetValue(target, out witness))
-                        {
-                            if(witness)
-                            {
-                                forwardWitness[i] = true;
-                            }
-                            else
-                            {
-                                backwardWitness[i] = true;
-                            }
-                        }
+                        forwardWitness[i] = true;
+                    }
+                    else if (_witnesses.Any((x) => x[0] == vertexToSkip &&
+                        x[1] == source && x[2] == target && (x[3] == 2 || x[3] == 0)))
+                    {
+                        backwardWitness[i] = true;
                     }
                 }
             }

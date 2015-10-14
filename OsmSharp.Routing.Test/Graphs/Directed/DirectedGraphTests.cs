@@ -825,5 +825,73 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             }
         }
 
+        /// <summary>
+        /// Tests updating an edge.
+        /// </summary>
+        [Test]
+        public void TestUpdateEdge()
+        {
+            // a new graph.
+            var graph = new DirectedGraph(2, 10);
+            graph.AddEdge(0, 1, 10, 100);
+
+            // update
+            Assert.IsTrue(graph.UpdateEdge(0, 1, (data) =>
+                {
+                    return data[0] == 10;
+                }, 10, 101));
+
+            // check result.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(10, edges.First(x => x.Neighbour == 1).Data[0]);
+            Assert.AreEqual(101, edges.First(x => x.Neighbour == 1).Data[1]);
+
+            // a new graph.
+            graph = new DirectedGraph(2, 10);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(0, 1, 20, 200);
+            graph.AddEdge(0, 1, 30, 300);
+
+            // update
+            Assert.IsTrue(graph.UpdateEdge(0, 1, (data) =>
+            {
+                return data[0] == 30;
+            }, 30, 301));
+
+            // check result.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(3, edges.Count);
+            Assert.AreEqual(301, edges.First(x => x.Neighbour == 1 && x.Data[0] == 30).Data[1]);
+
+            // a new graph.
+            graph = new DirectedGraph(2, 10);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(0, 1, 20, 200);
+            graph.AddEdge(0, 1, 30, 300);
+
+            // update
+            Assert.IsTrue(graph.UpdateEdge(0, 1, (data) =>
+            {
+                return data[0] == 20;
+            }, 20, 201));
+
+            // check result.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(3, edges.Count);
+            Assert.AreEqual(201, edges.First(x => x.Neighbour == 1 && x.Data[0] == 20).Data[1]);
+
+            // do a failing update.
+            Assert.IsFalse(graph.UpdateEdge(0, 1, (data) =>
+            {
+                return false;
+            }, 20, 201));
+
+            // do another failing update.
+            Assert.IsFalse(graph.UpdateEdge(0, 2, (data) =>
+            {
+                return true;
+            }, 20, 201));
+        }
     }
 }

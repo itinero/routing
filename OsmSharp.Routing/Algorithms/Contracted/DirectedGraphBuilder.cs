@@ -57,6 +57,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             for(uint vertex = 0; vertex < _source.VertexCount; vertex++)
             {
                 edgeEnumerator.MoveTo(vertex);
+                edgeEnumerator.Reset();
                 while(edgeEnumerator.MoveNext())
                 {
                     OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, 
@@ -71,11 +72,11 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     if(factor.Value != 0)
                     {
                         direction = null;
-                        if(factor.Direction == 1)
+                        if (factor.Direction == 1)
                         {
                             direction = true;
                         }
-                        else if(factor.Direction == 2)
+                        else if (factor.Direction == 2)
                         {
                             direction = false;
                         }

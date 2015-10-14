@@ -72,15 +72,16 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 next = this.SelectNext();
 
                 // calculate and log progress.
-                var progress = (float)(System.Math.Floor(((double)current / (double)total) * 1000) / 10.0);
-                if(progress > 99)
+                var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
+                if(progress < 99)
                 {
-                    progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
+                    progress = (float)(System.Math.Floor(((double)current / (double)total) * 1000) / 10.0);
                 }
                 if (progress != latestProgress)
                 {
                     OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
-                        "Pre-processing... {0}% [{1}/{2}]", progress, current, total);
+                        "Pre-processing... {0}% [{1}/{2}] {3}q", progress, current, total, _queue.Count);
+                    latestProgress = progress;
                 }
                 current++;
             }
@@ -227,8 +228,10 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
-                    forwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
-                    backwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward);
+                    // use witness flags to represent impossible routes.
+                    forwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward); 
+                    backwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
+
                     targets.Add(edge2.Neighbour);
                     targetWeights.Add(edge1Weight + edge2Weight);
                 }
@@ -248,27 +251,29 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
                     if(!forwardWitnesses[k] && !backwardWitnesses[k])
                     { // add bidirectional edge.
-                        _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, ContractedEdgeDataSerializer.Serialize(
-                            targetWeights[k], null, vertex));
-                        _graph.AddEdge(edge2.Neighbour, edge1.Neighbour, ContractedEdgeDataSerializer.Serialize(
-                            targetWeights[k], null, vertex));
+                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], null, vertex);
+                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], null, vertex);
                     }
                     else if(!forwardWitnesses[k])
                     { // add forward edge.
-                        _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, ContractedEdgeDataSerializer.Serialize(
-                            targetWeights[k], true, vertex));
-                        _graph.AddEdge(edge2.Neighbour, edge1.Neighbour, ContractedEdgeDataSerializer.Serialize(
-                            targetWeights[k], false, vertex));
+                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], true, vertex);
+                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], false, vertex);
                     }
                     else if (!backwardWitnesses[k])
                     { // add forward edge.
-                        _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, ContractedEdgeDataSerializer.Serialize(
-                            targetWeights[k], false, vertex));
-                        _graph.AddEdge(edge2.Neighbour, edge1.Neighbour, ContractedEdgeDataSerializer.Serialize(
-                            targetWeights[k], true, vertex));
+                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], false, vertex);
+                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour, 
+                            targetWeights[k], true, vertex);
                     }
                 }
             }
+
+            _contractedFlags.Add(vertex);
         }
     }
 }

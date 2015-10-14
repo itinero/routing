@@ -124,14 +124,15 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
-                    forwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
-                    backwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward);
+                    forwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward);
+                    backwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward); 
                     targets.Add(edge2.Neighbour);
                     targetWeights.Add(edge1Weight + edge2Weight);
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses, ref backwardWitnesses, vertex);
+                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights, 
+                    ref forwardWitnesses, ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.
                 for (var k = 0; k < j; k++)

@@ -93,35 +93,53 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 // do a forward search.
                 if (forwardQueue.Count > 0)
                 { // first check for better path.
-                    var best = forwardQueue.Peek();
-                    Path toBest;
-                    if (_backwardVisits.TryGetValue(best.Vertex, out toBest))
-                    { // check for a new best.
-                        if (best.Weight + toBest.Weight < _best.Item2)
-                        { // a better path was found.
-                            _best = new Tuple<uint, float>(best.Vertex, best.Weight + toBest.Weight);
-                            this.HasSucceeded = true;
-                        }
+                    // get the current queued with the smallest weight that hasn't been visited yet.
+                    var current = forwardQueue.Pop();
+                    while (current != null && _forwardVisits.ContainsKey(current.Vertex))
+                    { // keep trying.
+                        current = forwardQueue.Pop();
                     }
 
-                    this.SearchForward(forwardQueue);
+                    if (current != null)
+                    {
+                        Path toBest;
+                        if (_backwardVisits.TryGetValue(current.Vertex, out toBest))
+                        { // check for a new best.
+                            if (current.Weight + toBest.Weight < _best.Item2)
+                            { // a better path was found.
+                                _best = new Tuple<uint, float>(current.Vertex, current.Weight + toBest.Weight);
+                                this.HasSucceeded = true;
+                            }
+                        }
+
+                        this.SearchForward(forwardQueue, current);
+                    }
                 }
 
                 // do a backward search.
                 if (backwardQueue.Count > 0)
                 {// first check for better path.
-                    var best = backwardQueue.Peek();
-                    Path toBest;
-                    if (_forwardVisits.TryGetValue(best.Vertex, out toBest))
-                    { // check for a new best.
-                        if (best.Weight + toBest.Weight < _best.Item2)
-                        { // a better path was found.
-                            _best = new Tuple<uint, float>(best.Vertex, best.Weight + toBest.Weight);
-                            this.HasSucceeded = true;
-                        }
+                    // get the current vertex with the smallest weight.
+                    var current = backwardQueue.Pop();
+                    while (current != null && _backwardVisits.ContainsKey(current.Vertex))
+                    { // keep trying.
+                        current = backwardQueue.Pop();
                     }
 
-                    this.SearchBackward(backwardQueue);
+                    if (current != null)
+                    {
+                        Path toBest;
+                        if (_forwardVisits.TryGetValue(current.Vertex, out toBest))
+                        { // check for a new best.
+                            if (current.Weight + toBest.Weight < _best.Item2)
+                            { // a better path was found.
+                                _best = new Tuple<uint, float>(current.Vertex, current.Weight + toBest.Weight);
+                                this.HasSucceeded = true;
+                            }
+                        }
+
+                        this.SearchBackward(backwardQueue, current);
+                    }
                 }
 
                 // calculate stopping conditions.
@@ -140,15 +158,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(BinaryHeap<Path> queue)
+        private void SearchForward(BinaryHeap<Path> queue, Path current)
         {
-            // get the current vertex with the smallest weight.
-            var current = queue.Pop();
-            while (current != null && _forwardVisits.ContainsKey(current.Vertex))
-            { // keep trying.
-                current = queue.Pop();
-            }
-
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
@@ -194,15 +205,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Search backward from one vertex.
         /// </summary>
-        private void SearchBackward(BinaryHeap<Path> queue)
+        private void SearchBackward(BinaryHeap<Path> queue, Path current)
         {
-            // get the current vertex with the smallest weight.
-            var current = queue.Pop();
-            while (current != null && _backwardVisits.ContainsKey(current.Vertex))
-            { // keep trying.
-                current = queue.Pop();
-            }
-
             if (current != null)
             {
                 // get the edge enumerator.
@@ -300,7 +304,10 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 vertices.Add(fromSource.Vertex);
                 while (fromSource.From != null)
                 {
-                    _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false);
+                    if (fromSource.From.Vertex != Constants.NO_VERTEX)
+                    { // this should be the end of the path.
+                        _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false);
+                    }
                     vertices.Add(fromSource.From.Vertex);
                     fromSource = fromSource.From;
                 }
@@ -309,41 +316,16 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 // and add vertices to target.
                 while (toTarget.From != null)
                 {
-                    _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false);
+                    if (toTarget.From.Vertex != Constants.NO_VERTEX)
+                    { // this should be the end of the path.
+                        _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false);
+                    }
                     vertices.Add(toTarget.From.Vertex);
                     toTarget = toTarget.From;
                 }
                 return vertices;
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
-        }
-
-        /// <summary>
-        /// Expands the entire path.
-        /// </summary>
-        /// <returns></returns>
-        private List<uint> Expand(Path path)
-        {
-            //var expand = path;
-            //var store = expand.From;
-            //expand = this.ExpandOne(expand, true);
-            //var expanded = expand;
-            //while (store != null)
-            //{
-            //    expand = store;
-            //    store = expand.From;
-            //    expand = this.ExpandOne(expand, true);
-            //}
-            //return expanded;
-            return null;
-        }
-
-        /// <summary>
-        /// Expands a section between two vertices.
-        /// </summary>
-        /// <returns></returns>
-        private void ExpandOne(uint vertex1, uint vertex2, List<uint> vertices, bool forward)
-        {
         }
     }
 }

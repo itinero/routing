@@ -107,10 +107,19 @@ namespace OsmSharp.Routing.Network
         }
 
         /// <summary>
+        /// Gets all features.
+        /// </summary>
+        /// <returns></returns>
+        public static FeatureCollection GetFeatures(this RoutingNetwork network)
+        {
+            return network.GetFeaturesIn(float.MinValue, float.MinValue, float.MaxValue, float.MaxValue);
+        }
+
+        /// <summary>
         /// Gets all features inside the given bounding box.
         /// </summary>
         /// <returns></returns>
-        public static FeatureCollection GetFeaturesIn(this RoutingNetwork network,  float minLatitude, float minLongitude,
+        public static FeatureCollection GetFeaturesIn(this RoutingNetwork network, float minLatitude, float minLongitude,
             float maxLatitude, float maxLongitude)
         {
             var features = new FeatureCollection();
@@ -145,6 +154,28 @@ namespace OsmSharp.Routing.Network
 
                     features.Add(new Feature(geometry,
                         new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", edgeEnumerator.Id.ToInvariantString()) })));
+                }
+            }
+
+            return features;
+        }
+
+        /// <summary>
+        /// Gets features for all the given vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static FeatureCollection GetFeaturesFor(this RoutingNetwork network, List<uint> vertices)
+        {
+            var features = new FeatureCollection();
+
+            foreach (var vertex in vertices)
+            {
+                float latitude1, longitude1;
+                if(network.GeometricGraph.GetVertex(vertex, out latitude1, out longitude1))
+                {
+                    var vertexLocation = new GeoCoordinate(latitude1, longitude1);
+                    features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
+                        new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
                 }
             }
 

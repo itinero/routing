@@ -189,7 +189,7 @@ namespace OsmSharp.Routing.Graphs.Directed
                 _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
                 edgeId = _nextEdgePointer / (uint)_edgeSize;
 
-                if (_nextEdgePointer >= _edges.Length)
+                if (_nextEdgePointer + (1 * _edgeSize) >= _edges.Length)
                 { // make sure we can add another edge.
                     this.IncreaseEdgeSize();
                 }
@@ -286,6 +286,45 @@ namespace OsmSharp.Routing.Graphs.Directed
             _edgeCount++;
 
             return edgeId;
+        }
+
+        /// <summary>
+        /// Updates and edge's associated data.
+        /// </summary>
+        public bool UpdateEdge(uint vertex1, uint vertex2, Func<uint[], bool> update, params uint[] data)
+        {
+            if (_readonly) { throw new Exception("Graph is readonly."); }
+            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+
+            var vertexPointer = vertex1 * VERTEX_SIZE;
+            var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+            var lastEdgePointer = edgePointer + (edgeCount * (uint)_edgeSize);
+
+            var currentData = new uint[_edgeDataSize];
+            while (edgePointer <= lastEdgePointer)
+            {
+                for (uint i = 0; i < _edgeDataSize; i++)
+                {
+                    currentData[i] = _edges[edgePointer + MINIMUM_EDGE_SIZE + i];
+                }
+                if(_edges[edgePointer] == vertex2)
+                {
+                    if (update(currentData))
+                    { // yes, update here.
+                        for (uint i = 0; i < _edgeDataSize; i++)
+                        {
+                            _edges[edgePointer + MINIMUM_EDGE_SIZE + i] =
+                                data[i];
+                        }
+                        return true;
+                    }
+                }
+                edgePointer += (uint)_edgeSize;
+            }
+            return false;
         }
 
         /// <summary>

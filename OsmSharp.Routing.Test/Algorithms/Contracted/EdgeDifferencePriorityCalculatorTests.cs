@@ -21,6 +21,7 @@ using OsmSharp.Collections.LongIndex.LongIndex;
 using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
+using System;
 using System.Linq;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted
@@ -441,6 +442,79 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             var priority = priorityCalculator.Calculate(contractedFlags, 0);
 
             Assert.AreEqual(0, priority);
+        }
+
+        /// <summary>
+        /// Tests calculator on a small network with 4 vertices in a quadrilateral.
+        /// </summary>
+        [Test]
+        public void TestQuadrilateralOneWay()
+        {
+            // build graph.
+            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = true,
+                Weight = 100
+            }));
+            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = false,
+                Weight = 100
+            }));
+            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = false,
+                Weight = 10
+            }));
+            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = true,
+                Weight = 10
+            }));
+            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = false,
+                Weight = 1000
+            }));
+            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = true,
+                Weight = 1000
+            }));
+            graph.AddEdge(1, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = true,
+                Weight = 10000
+            }));
+            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = false,
+                Weight = 10000
+            }));
+            graph.Compress(false);
+
+            // create a witness calculator and the priority calculator.
+            var contractedFlags = new LongIndex();
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
+                new WitnessCalculatorMock(new uint[][]
+                    {
+                        new uint[] { 1, 3, 2, 1 },
+                        new uint[] { 3, 0, 1, 1 }
+                    }));
+
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 0));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 1));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 2));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 3));
         }
     }
 }

@@ -116,7 +116,7 @@ namespace OsmSharp.Routing
                         return new RouteNotFoundException(message);
                     });
                 }
-                // path = bidirectionalSearch.GetPath();
+                path = bidirectionalSearch.GetPath();
             }
             else
             { // non-contracted calculation.

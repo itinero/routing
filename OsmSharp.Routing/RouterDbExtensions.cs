@@ -38,6 +38,52 @@ namespace OsmSharp.Routing
         /// Gets all features inside the given bounding box.
         /// </summary>
         /// <returns></returns>
+        public static FeatureCollection GetFeatures(this RouterDb db)
+        {
+            var network = db.Network;
+            var features = new FeatureCollection();
+
+            var edges = new HashSet<long>();
+
+            var edgeEnumerator = network.GetEdgeEnumerator();
+            for (uint vertex = 0; vertex < network.VertexCount; vertex++)
+            {
+                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
+                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
+                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
+                edgeEnumerator.MoveTo(vertex);
+                edgeEnumerator.Reset();
+                while (edgeEnumerator.MoveNext())
+                {
+                    if (edges.Contains(edgeEnumerator.Id))
+                    {
+                        continue;
+                    }
+                    edges.Add(edgeEnumerator.Id);
+
+                    var shape = network.GetShape(edgeEnumerator.Current);
+                    var coordinates = new List<GeoCoordinate>();
+                    foreach (var shapePoint in shape)
+                    {
+                        coordinates.Add(new GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude));
+                    }
+                    var geometry = new LineString(coordinates);
+
+                    var tags = new TagsCollection(db.Profiles.Get(edgeEnumerator.Data.Profile));
+                    tags.AddOrReplace(db.Meta.Get(edgeEnumerator.Data.MetaId));
+                    tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
+                    features.Add(new Feature(geometry,
+                        new SimpleGeometryAttributeCollection(tags)));
+                }
+            }
+
+            return features;
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box.
+        /// </summary>
+        /// <returns></returns>
         public static FeatureCollection GetFeaturesIn(this RouterDb db, float minLatitude, float minLongitude,
             float maxLatitude, float maxLongitude)
         {
