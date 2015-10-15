@@ -253,22 +253,69 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             var witnessCalculator = new DykstraWitnessCalculator(int.MaxValue);
 
-            // calculate witness for weight of 200.
+            // calculate witnesses for 0.
             var forwardWitnesses = new bool[1];
             var backwardWitnesses = new bool[1];
-            witnessCalculator.Calculate(graph, 0, new List<uint>(new uint[] { 2 }), new List<float>(new float[] { 1000 }),
-                ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
+            witnessCalculator.Calculate(graph, 2, new List<uint>(new uint[] { 3 }), new List<float>(new float[] { 110 }),
+                ref forwardWitnesses, ref backwardWitnesses, 0);
+            Assert.AreEqual(false, forwardWitnesses[0]);
+            Assert.AreEqual(false, backwardWitnesses[0]);
+
+            // calculate witnesses for 0.
+            forwardWitnesses = new bool[1];
+            backwardWitnesses = new bool[1];
+            witnessCalculator.Calculate(graph, 3, new List<uint>(new uint[] { 2 }), new List<float>(new float[] { 110 }),
+                ref forwardWitnesses, ref backwardWitnesses, 0);
+            Assert.AreEqual(false, forwardWitnesses[0]);
+            Assert.AreEqual(false, backwardWitnesses[0]);
+
+            // calculate witnesses for 2.
+            forwardWitnesses = new bool[1];
+            backwardWitnesses = new bool[1];
+            witnessCalculator.Calculate(graph, 0, new List<uint>(new uint[] { 1 }), new List<float>(new float[] { 1100 }),
+                ref forwardWitnesses, ref backwardWitnesses, 2);
+            Assert.AreEqual(false, forwardWitnesses[0]);
+            Assert.AreEqual(false, backwardWitnesses[0]);
+
+            // calculate witnesses for 2.
+            forwardWitnesses = new bool[1];
+            backwardWitnesses = new bool[1];
+            witnessCalculator.Calculate(graph, 1, new List<uint>(new uint[] { 0 }), new List<float>(new float[] { 1100 }),
+                ref forwardWitnesses, ref backwardWitnesses, 2);
+            Assert.AreEqual(false, forwardWitnesses[0]);
+            Assert.AreEqual(false, backwardWitnesses[0]);
+
+            // calculate witnesses for 1.
+            forwardWitnesses = new bool[1];
+            backwardWitnesses = new bool[1];
+            witnessCalculator.Calculate(graph, 3, new List<uint>(new uint[] { 2 }), new List<float>(new float[] { 11000 }),
+                ref forwardWitnesses, ref backwardWitnesses, 1);
             Assert.AreEqual(true, forwardWitnesses[0]);
             Assert.AreEqual(false, backwardWitnesses[0]);
 
-            // calculate witness for weight of 50.
+            // calculate witnesses for 1.
             forwardWitnesses = new bool[1];
             backwardWitnesses = new bool[1];
-            witnessCalculator.Calculate(graph, 0, new List<uint>(new uint[] { 2 }), new List<float>(new float[] { 50 }),
-                ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
-
+            witnessCalculator.Calculate(graph, 2, new List<uint>(new uint[] { 3 }), new List<float>(new float[] { 11000 }),
+                ref forwardWitnesses, ref backwardWitnesses, 1);
             Assert.AreEqual(false, forwardWitnesses[0]);
+            Assert.AreEqual(true, backwardWitnesses[0]);
+
+            // calculate witnesses for 3.
+            forwardWitnesses = new bool[1];
+            backwardWitnesses = new bool[1];
+            witnessCalculator.Calculate(graph, 0, new List<uint>(new uint[] { 1 }), new List<float>(new float[] { 10010 }),
+                ref forwardWitnesses, ref backwardWitnesses, 3);
+            Assert.AreEqual(true, forwardWitnesses[0]);
             Assert.AreEqual(false, backwardWitnesses[0]);
+
+            // calculate witnesses for 3.
+            forwardWitnesses = new bool[1];
+            backwardWitnesses = new bool[1];
+            witnessCalculator.Calculate(graph, 1, new List<uint>(new uint[] { 0 }), new List<float>(new float[] { 10010 }),
+                ref forwardWitnesses, ref backwardWitnesses, 3);
+            Assert.AreEqual(false, forwardWitnesses[0]);
+            Assert.AreEqual(true, backwardWitnesses[0]);
         }
     }
 }

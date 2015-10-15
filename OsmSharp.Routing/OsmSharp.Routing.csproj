@@ -74,6 +74,7 @@
     <Compile Include="Algorithms\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilder.cs" />
     <Compile Include="Algorithms\Dykstra.cs" />
+    <Compile Include="Algorithms\Networks\NetworkOptimizer.cs" />
     <Compile Include="Algorithms\RouteBuilder.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Path.cs" />

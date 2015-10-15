@@ -181,5 +181,22 @@ namespace OsmSharp.Routing.Network
 
             return features;
         }
+
+        /// <summary>
+        /// Returns true if the routing network contains an edge between the two given vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static bool ContainsEdge(this RoutingNetwork network, uint vertex1, uint vertex2)
+        {
+            var edges = network.GetEdgeEnumerator(vertex1);
+            while(edges.MoveNext())
+            {
+                if(edges.To == vertex2)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

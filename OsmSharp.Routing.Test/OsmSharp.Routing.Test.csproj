@@ -69,6 +69,7 @@
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilderTests.cs" />
     <Compile Include="Algorithms\Contracted\WitnessCalculatorMock.cs" />
+    <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />
     <Compile Include="Algorithms\OneToAllDykstraTests.cs" />
     <Compile Include="Algorithms\RouteBuilderTests.cs" />
     <Compile Include="Algorithms\Search\HibertTests.cs" />
