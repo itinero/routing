@@ -19,6 +19,7 @@
 using OsmSharp.Collections.LongIndex;
 using OsmSharp.Collections.PriorityQueues;
 using OsmSharp.Logging;
+using OsmSharp.Routing.Algorithms.Contracted.Witness;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System.Collections.Generic;
@@ -79,9 +80,35 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 }
                 if (progress != latestProgress)
                 {
-                    OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
-                        "Pre-processing... {0}% [{1}/{2}] {3}q", progress, current, total, _queue.Count);
                     latestProgress = progress;
+
+                    int totaEdges = 0;
+                    int totalUncontracted = 0;
+                    int maxCardinality = 0;
+                    var neighbourCount = new Dictionary<uint, int>();
+                    for (uint v = 0; v < _graph.VertexCount; v++)
+                    {
+                        if (!_contractedFlags.Contains(v))
+                        {
+                            neighbourCount.Clear();
+                            var edges = _graph.GetEdgeEnumerator(v);
+                            if (edges != null)
+                            {
+                                var edgesCount = edges.Count;
+                                totaEdges = edgesCount + totaEdges;
+                                if (maxCardinality < edgesCount)
+                                {
+                                    maxCardinality = edgesCount;
+                                }
+                            }
+                            totalUncontracted++;
+                        }
+                    }
+
+                    var density = (double)totaEdges / (double)totalUncontracted;
+                    OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
+                        "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}", progress, current, total, _queue.Count,
+                            density, maxCardinality);
                 }
                 current++;
             }
@@ -274,6 +301,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             }
 
             _contractedFlags.Add(vertex);
+            _priorityCalculator.NotifyContracted(vertex);
         }
     }
 }

@@ -18,6 +18,7 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing.Algorithms.Contracted;
+using OsmSharp.Routing.Algorithms.Contracted.Witness;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System.Linq;
@@ -251,7 +252,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.Compress(false);
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.ContractedFactor = 0;
+            priorityCalculator.DepthFactor = 0;
+            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
@@ -363,7 +367,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.Compress(false);
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.ContractedFactor = 0;
+            priorityCalculator.DepthFactor = 0;
+            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
@@ -463,7 +470,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.Compress(false);
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.DepthFactor = 0;
+            priorityCalculator.ContractedFactor = 0;
+            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
@@ -548,7 +558,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.Compress(false);
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.ContractedFactor = 0;
+            priorityCalculator.DepthFactor = 0;
+            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 

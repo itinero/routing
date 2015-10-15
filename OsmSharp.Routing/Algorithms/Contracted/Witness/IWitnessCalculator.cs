@@ -19,7 +19,7 @@
 using OsmSharp.Routing.Graphs.Directed;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Algorithms.Contracted
+namespace OsmSharp.Routing.Algorithms.Contracted.Witness
 {
     /// <summary>
     /// Calculator to calculate witness paths.

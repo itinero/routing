@@ -22,6 +22,7 @@ using OsmSharp.Geo.Features;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Algorithms.Contracted;
+using OsmSharp.Routing.Algorithms.Contracted.Witness;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
@@ -144,9 +145,10 @@ namespace OsmSharp.Routing
             directedGraphBuilder.Run();
 
             // contract the graph.
-            var hierarchyBuilder = new HierarchyBuilder(contracted, new EdgeDifferencePriorityCalculator(contracted,
-                new DykstraWitnessCalculator(4)),
-                    new DykstraWitnessCalculator(5));
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
+                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(contracted, priorityCalculator,
+                    new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
             // add the graph.

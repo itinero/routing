@@ -21,6 +21,7 @@ using OsmSharp.Routing.Graphs.Directed;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using OsmSharp.Routing.Algorithms.Contracted.Witness;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted
 {

@@ -21,7 +21,7 @@ using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Algorithms.Contracted
+namespace OsmSharp.Routing.Algorithms.Contracted.Witness
 {
     /// <summary>
     /// A witness calculator based on dykstra's algorithm.
@@ -38,7 +38,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             _hopLimit = hopLimit;
 
             _heap = new BinaryHeap<SettledVertex>();
-            _maxSettles = 1000;
+            _maxSettles = int.MaxValue;
         }
 
         private int _hopLimit;

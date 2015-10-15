@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.LongIndex;
+using OsmSharp.Routing.Algorithms.Contracted.Witness;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System;
@@ -139,17 +140,40 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 {
                     var edge2 = edges[k];
 
+                    var removedLocal = 0;
+                    var addedLocal = 0;
                     if (!forwardWitnesses[k] && !backwardWitnesses[k])
                     { // add bidirectional edge.
-                        added += 2;
+                        _graph.TryAddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], null, vertex, out addedLocal, out removedLocal);
+                        added += addedLocal;
+                        removed += removedLocal;
+                        _graph.TryAddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], null, vertex, out addedLocal, out removedLocal);
+                        added += addedLocal;
+                        removed += removedLocal;
                     }
                     else if (!forwardWitnesses[k])
                     { // add forward edge.
-                        added += 2;
+                        _graph.TryAddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], true, vertex, out addedLocal, out removedLocal);
+                        added += addedLocal;
+                        removed += removedLocal;
+                        _graph.TryAddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], false, vertex, out addedLocal, out removedLocal);
+                        added += addedLocal;
+                        removed += removedLocal;
                     }
                     else if (!backwardWitnesses[k])
                     { // add forward edge.
-                        added += 2;
+                        _graph.TryAddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], false, vertex, out addedLocal, out removedLocal);
+                        added += addedLocal;
+                        removed += removedLocal;
+                        _graph.TryAddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], true, vertex, out addedLocal, out removedLocal);
+                        added += addedLocal;
+                        removed += removedLocal;
                     }
                 }
             }
