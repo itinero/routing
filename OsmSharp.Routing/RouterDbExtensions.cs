@@ -144,8 +144,9 @@ namespace OsmSharp.Routing
             directedGraphBuilder.Run();
 
             // contract the graph.
-            var hierarchyBuilder = new HierarchyBuilder(contracted, new EdgeDifferencePriorityCalculator(contracted, new DykstraWitnessCalculator(int.MaxValue)),
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(contracted, new EdgeDifferencePriorityCalculator(contracted,
+                new DykstraWitnessCalculator(4)),
+                    new DykstraWitnessCalculator(5));
             hierarchyBuilder.Run();
 
             // add the graph.

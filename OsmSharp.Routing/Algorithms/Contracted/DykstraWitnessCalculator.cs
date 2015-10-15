@@ -38,7 +38,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             _hopLimit = hopLimit;
 
             _heap = new BinaryHeap<SettledVertex>();
-            _maxSettles = int.MaxValue;
+            _maxSettles = 1000;
         }
 
         private int _hopLimit;

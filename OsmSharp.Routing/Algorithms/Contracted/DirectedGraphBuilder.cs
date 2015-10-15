@@ -75,10 +75,18 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                         if (factor.Direction == 1)
                         {
                             direction = true;
+                            if(edgeEnumerator.DataInverted)
+                            {
+                                direction = false;
+                            }
                         }
                         else if (factor.Direction == 2)
                         {
                             direction = false;
+                            if (edgeEnumerator.DataInverted)
+                            {
+                                direction = true;
+                            }
                         }
                         var data = OsmSharp.Routing.Data.Contracted.ContractedEdgeDataSerializer.Serialize(
                             distance * factor.Value, direction, Constants.NO_VERTEX);

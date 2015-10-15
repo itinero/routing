@@ -304,7 +304,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             var lastEdgePointer = edgePointer + (edgeCount * (uint)_edgeSize);
 
             var currentData = new uint[_edgeDataSize];
-            while (edgePointer <= lastEdgePointer)
+            while (edgePointer < lastEdgePointer)
             {
                 for (uint i = 0; i < _edgeDataSize; i++)
                 {
