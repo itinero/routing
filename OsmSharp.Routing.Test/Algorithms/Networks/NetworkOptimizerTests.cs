@@ -49,7 +49,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, null);
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, (e1, e2) => e1 == e2);
+            var algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
             algorithm.Run();
 
             // check result.
@@ -81,7 +81,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, null);
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, (e1, e2) => e1 == e2);
+            var algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
             algorithm.Run();
 
             // check result.
@@ -120,7 +120,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             }));
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, (e1, e2) => e1 == e2);
+            var algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
             algorithm.Run();
 
             // check result.
@@ -151,7 +151,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             }));
 
             // execute algorithm.
-            algorithm = new NetworkOptimizer(graph, (e1, e2) => e1 == e2);
+            algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
             algorithm.Run();
 
             // check result.
@@ -182,21 +182,22 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             }));
 
             // execute algorithm.
-            algorithm = new NetworkOptimizer(graph, (e1, e2) => e1 == e2);
+            algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
             algorithm.Run();
 
             // check result.
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(1, edges.First().Data.Profile);
+            Assert.AreEqual(true, edges.First().DataInverted);
             shape = new List<ICoordinate>(edges.Shape);
             Assert.AreEqual(3, shape.Count);
-            Assert.AreEqual(0.5, shape[0].Latitude);
-            Assert.AreEqual(0.5, shape[0].Longitude);
+            Assert.AreEqual(1.5, shape[0].Latitude);
+            Assert.AreEqual(1.5, shape[0].Longitude);
             Assert.AreEqual(1, shape[1].Latitude);
             Assert.AreEqual(1, shape[1].Longitude);
-            Assert.AreEqual(1.5, shape[2].Latitude);
-            Assert.AreEqual(1.5, shape[2].Longitude);
+            Assert.AreEqual(0.5, shape[2].Latitude);
+            Assert.AreEqual(0.5, shape[2].Longitude);
         }
     }
 }

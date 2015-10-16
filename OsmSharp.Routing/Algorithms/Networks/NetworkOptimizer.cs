@@ -30,13 +30,13 @@ namespace OsmSharp.Routing.Algorithms.Networks
     public class NetworkOptimizer : AlgorithmBase
     {
         private readonly Network.RoutingNetwork _network;
-        private readonly Func<uint, uint, bool> _canMerge;
+        private readonly Func<uint, bool, uint, bool, bool> _canMerge;
 
         /// <summary>
         /// Creates a new network optimizer algorithm.
         /// </summary>
         public NetworkOptimizer(Network.RoutingNetwork network,
-            Func<uint, uint, bool> canMerge)
+            Func<uint, bool, uint, bool, bool> canMerge)
         {
             _network = network;
             _canMerge = canMerge;
@@ -57,7 +57,8 @@ namespace OsmSharp.Routing.Algorithms.Networks
                     if(edges[0].To != edges[1].To &&
                        edges[0].Data.MetaId == edges[1].Data.MetaId)
                     { // targets are different and meta data is the same.
-                        if(_canMerge(edges[0].Data.Profile, edges[1].Data.Profile))
+                        if(_canMerge(edges[0].Data.Profile, edges[0].DataInverted,
+                                     edges[1].Data.Profile, edges[1].DataInverted))
                         { // these edges can be merged.
                             if (!_network.ContainsEdge(edges[0].To, edges[1].To))
                             { // network does not contain edge yet.
@@ -92,10 +93,21 @@ namespace OsmSharp.Routing.Algorithms.Networks
                                 _network.RemoveEdges(vertex);
 
                                 // add edges.
-                                var shapeCollection = new CoordinateArrayCollection<ICoordinate>(
-                                    shape.ToArray());
-                                _network.AddEdge(edges[0].To, edges[1].To, edges[1].Data,
-                                    shapeCollection);
+                                if(!edges[1].DataInverted)
+                                {
+                                    var shapeCollection = new CoordinateArrayCollection<ICoordinate>(
+                                        shape.ToArray());
+                                    _network.AddEdge(edges[0].To, edges[1].To, edges[1].Data,
+                                        shapeCollection);
+                                }
+                                else
+                                {
+                                    shape.Reverse();
+                                    var shapeCollection = new CoordinateArrayCollection<ICoordinate>(
+                                        shape.ToArray());
+                                    _network.AddEdge(edges[1].To, edges[0].To, edges[1].Data,
+                                        shapeCollection);
+                                }
                             }
                         }
                     }

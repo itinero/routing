@@ -142,7 +142,7 @@ namespace OsmSharp.Routing.Osm.Streams
                         {
                             profileTags.Add(tag);
                         }
-                        else if(_vehicles.IsRelevantForMeta(tag.Key))
+                        else
                         {
                             metaTags.Add(tag);
                         }
@@ -282,6 +282,17 @@ namespace OsmSharp.Routing.Osm.Streams
         public override void AddRelation(Relation simpleRelation)
         {
 
+        }
+
+        /// <summary>
+        /// Gets the core node id map.
+        /// </summary>
+        public HugeDictionary<long, uint> CoreNodeIdMap
+        {
+            get
+            {
+                return _coreNodeIdMap;
+            }
         }
     }
 }
