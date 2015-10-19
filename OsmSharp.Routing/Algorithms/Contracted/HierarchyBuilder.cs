@@ -67,7 +67,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             while(next != null)
             {
                 // contract...
-                this.Contract(next.Value);
+               this.Contract(next.Value);
 
                 // ... and select next.
                 next = this.SelectNext();
@@ -78,6 +78,10 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 {
                     progress = (float)(System.Math.Floor(((double)current / (double)total) * 1000) / 10.0);
                 }
+                //else
+                //{
+                //    return;
+                //}
                 if (progress != latestProgress)
                 {
                     latestProgress = progress;

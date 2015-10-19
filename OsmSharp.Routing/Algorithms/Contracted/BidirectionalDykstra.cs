@@ -306,7 +306,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 {
                     if (fromSource.From.Vertex != Constants.NO_VERTEX)
                     { // this should be the end of the path.
-                        _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false);
+                        _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
                     }
                     vertices.Add(fromSource.From.Vertex);
                     fromSource = fromSource.From;
@@ -318,7 +318,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 {
                     if (toTarget.From.Vertex != Constants.NO_VERTEX)
                     { // this should be the end of the path.
-                        _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false);
+                        _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
                     }
                     vertices.Add(toTarget.From.Vertex);
                     toTarget = toTarget.From;

@@ -944,5 +944,81 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             Assert.AreEqual(new List<uint>(new uint[] { 0, 1, 2, 3, 4 }), algorithm.GetPath());
         }
+
+        /// <summary>
+        /// Tests routing with part of the route shorter but in opposite direction.
+        /// </summary>
+        [Test]
+        public void TestShorterEdgeOpposite()
+        {
+            // build graph.
+            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = false,
+                Weight = 100
+            }));
+            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = 3,
+                Direction = true,
+                Weight = 10
+            }));
+            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = true,
+                Weight = 5
+            }));
+            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = false,
+                Weight = 5
+            }));
+            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 10
+            }));
+            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = 1,
+                Direction = true,
+                Weight = 110
+            }));
+            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = 1,
+                Direction = false,
+                Weight = 20
+            }));
+
+            // create algorithm and run.
+            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
+                new Path[] { new Path(0) }, new Path[] { new Path(2) });
+            algorithm.Run();
+
+            // check results.
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+            Assert.AreEqual(2, algorithm.Best);
+
+            Assert.AreEqual(new List<uint>(new uint[] { 0, 1, 2 }), algorithm.GetPath());
+
+            // create algorithm and run.
+            algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
+                new Path[] { new Path(2) }, new Path[] { new Path(0) });
+            algorithm.Run();
+
+            // check results.
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+            Assert.AreEqual(2, algorithm.Best);
+
+            Assert.AreEqual(new List<uint>(new uint[] { 2, 1, 3, 0 }), algorithm.GetPath());
+        }
     }
 }

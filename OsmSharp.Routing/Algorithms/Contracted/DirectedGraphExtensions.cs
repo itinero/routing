@@ -31,11 +31,21 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Expands a the shortest edge between the two given vertices.
         /// </summary>
-        public static void ExpandEdge(this DirectedGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool forward)
+        public static void ExpandEdge(this DirectedGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
+            bool forward)
         {
             // check if expansion is needed.
-            var edge = graph.GetEdge(vertex1, vertex2,
-                ContractedEdgeDataSerializer.DeserializeWeightFunc);
+            var edge = graph.GetShortestEdge(vertex1, vertex2, data =>
+                {
+                    float weight;
+                    bool? direction;
+                    ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
+                    if (direction == null || direction.Value == forward)
+                    {
+                        return weight;
+                    }
+                    return null;
+                });
             if(edge == null)
             { // no edge found!
                 throw new Exception(string.Format("No edge found from {0} to {1}.", vertex1, vertex2));
@@ -43,17 +53,17 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             var edgeContractedId = edge.GetContractedId();
             if (edgeContractedId != Constants.NO_VERTEX)
             { // further expansion needed.
-                if (forward)
+                if (inverted)
                 {
-                    graph.ExpandEdge(edgeContractedId, vertex1, vertices, false);
+                    graph.ExpandEdge(edgeContractedId, vertex1, vertices, false, !forward);
                     vertices.Add(edgeContractedId);
-                    graph.ExpandEdge(edgeContractedId, vertex2, vertices, true);
+                    graph.ExpandEdge(edgeContractedId, vertex2, vertices, true, forward);
                 }
                 else
                 {
-                    graph.ExpandEdge(edgeContractedId, vertex2, vertices, false);
+                    graph.ExpandEdge(edgeContractedId, vertex2, vertices, false, forward);
                     vertices.Add(edgeContractedId);
-                    graph.ExpandEdge(edgeContractedId, vertex1, vertices, true);
+                    graph.ExpandEdge(edgeContractedId, vertex1, vertices, true, !forward);
                 }
             }
         }

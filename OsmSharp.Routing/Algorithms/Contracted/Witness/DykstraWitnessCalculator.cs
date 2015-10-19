@@ -72,7 +72,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
                         forwardMaxWeight = weights[idx];
                     }
                 }
-                if (!forwardWitness[idx])
+                if (!backwardWitness[idx])
                 {
                     backwardTargets.Add(targets[idx]);
                     if (backwardMaxWeight < weights[idx])

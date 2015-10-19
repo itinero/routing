@@ -49,7 +49,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // expand edge.
             Assert.Catch<System.Exception>(() =>
                 {
-                    graph.ExpandEdge(1, 2, new List<uint>(), true);
+                    graph.ExpandEdge(1, 2, new List<uint>(), true, true);
                 });
         }
 
@@ -70,7 +70,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             // expand edge.
             var vertices = new List<uint>();
-            graph.ExpandEdge(0, 1, vertices, true);
+            graph.ExpandEdge(0, 1, vertices, true, true);
 
             // check result.
             Assert.AreEqual(0, vertices.Count);
@@ -105,7 +105,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             // expand edge.
             var vertices = new List<uint>();
-            graph.ExpandEdge(0, 2, vertices, true);
+            graph.ExpandEdge(0, 2, vertices, true, true);
 
             // check result.
             Assert.AreEqual(1, vertices.Count);
@@ -113,7 +113,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             // expand edge.
             vertices = new List<uint>();
-            graph.ExpandEdge(0, 2, vertices, false);
+            graph.ExpandEdge(0, 2, vertices, false, true);
 
             // check result.
             Assert.AreEqual(1, vertices.Count);
@@ -161,7 +161,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             // expand edge.
             var vertices = new List<uint>();
-            graph.ExpandEdge(0, 3, vertices, true);
+            graph.ExpandEdge(0, 3, vertices, true, true);
 
             // check result.
             Assert.AreEqual(2, vertices.Count);
@@ -170,7 +170,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
 
             // expand edge.
             vertices = new List<uint>();
-            graph.ExpandEdge(0, 3, vertices, false);
+            graph.ExpandEdge(0, 3, vertices, false, true);
 
             // check result.
             Assert.AreEqual(2, vertices.Count);

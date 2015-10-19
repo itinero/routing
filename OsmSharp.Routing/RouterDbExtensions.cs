@@ -96,6 +96,7 @@ namespace OsmSharp.Routing
             var edges = new HashSet<long>();
 
             var edgeEnumerator = network.GetEdgeEnumerator();
+            var extraVertices = new HashSet<uint>();
             foreach (var vertex in vertices)
             {
                 var vertexLocation = network.GeometricGraph.GetVertex(vertex);
@@ -124,7 +125,18 @@ namespace OsmSharp.Routing
                     tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
                     features.Add(new Feature(geometry,
                         new SimpleGeometryAttributeCollection(tags)));
+
+                    if(!vertices.Contains(edgeEnumerator.To))
+                    {
+                        extraVertices.Add(edgeEnumerator.To);
+                    }
                 }
+            }
+            foreach (var vertex in extraVertices)
+            {
+                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
+                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
+                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
             }
 
             return features;
