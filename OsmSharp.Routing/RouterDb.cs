@@ -30,9 +30,11 @@ namespace OsmSharp.Routing
     public class RouterDb
     {
         private readonly RoutingNetwork _network;
-        private readonly Dictionary<Profiles.Profile, DirectedGraph> _contracted;
         private readonly ITagsIndex _profiles;
         private readonly ITagsIndex _meta;
+
+        private readonly Dictionary<string, DirectedGraph> _contracted;
+        private readonly HashSet<string> _supportedProfiles;
 
         /// <summary>
         /// Creates a new router database.
@@ -43,19 +45,54 @@ namespace OsmSharp.Routing
             _profiles = new TagsIndex();
             _meta = new TagsIndex();
 
-            _contracted = new Dictionary<Profiles.Profile, DirectedGraph>();
+            _supportedProfiles = new HashSet<string>();
+            _contracted = new Dictionary<string, DirectedGraph>();
         }
 
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(RoutingNetwork network, ITagsIndex profiles, ITagsIndex meta)
+        public RouterDb(RoutingNetwork network, ITagsIndex profiles, ITagsIndex meta,
+            params Profiles.Profile[] supportedProfiles)
         {
             _network = network;
             _profiles = profiles;
             _meta = meta;
 
-            _contracted = new Dictionary<Profiles.Profile, DirectedGraph>();
+            _supportedProfiles = new HashSet<string>();
+            foreach(var supportedProfile in supportedProfiles)
+            {
+                _supportedProfiles.Add(supportedProfile.Name);
+            }
+            _contracted = new Dictionary<string, DirectedGraph>();
+        }
+
+        /// <summary>
+        /// Returns true if this router db is empty.
+        /// </summary>
+        public bool IsEmpty
+        {
+            get
+            {
+                return _network.VertexCount == 0;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the given profile is supported.
+        /// </summary>
+        /// <returns></returns>
+        public bool Supports(Profiles.Profile profile)
+        {
+            return _supportedProfiles.Contains(profile.Name);
+        }
+
+        /// <summary>
+        /// Adds a supported profile.
+        /// </summary>
+        internal void AddSupportedProfile(Profiles.Profile profile)
+        {
+            _supportedProfiles.Add(profile.Name);
         }
 
         /// <summary>
@@ -94,9 +131,9 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
-        public void AddContracted(Profiles.Profile profile, DirectedGraph contracted)
+        internal void AddContracted(Profiles.Profile profile, DirectedGraph contracted)
         {
-            _contracted.Add(profile, contracted);
+            _contracted.Add(profile.Name, contracted);
         }
 
         /// <summary>
@@ -105,7 +142,7 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public bool TryGetContracted(Profiles.Profile profile, out DirectedGraph contracted)
         {
-            return _contracted.TryGetValue(profile, out contracted);
+            return _contracted.TryGetValue(profile.Name, out contracted);
         }
 
         /// <summary>
@@ -115,7 +152,7 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public bool HasContractedFor(Profiles.Profile profile)
         {
-            return _contracted.ContainsKey(profile);
+            return _contracted.ContainsKey(profile.Name);
         }
     }
 }

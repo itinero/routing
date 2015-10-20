@@ -37,7 +37,7 @@ namespace OsmSharp.Routing
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        bool CheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters);
+        Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters);
 
         /// <summary>
         /// Calculates a route between the two locations.

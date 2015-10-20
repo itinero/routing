@@ -110,6 +110,7 @@
     <Compile Include="Network\Data\EdgeData.cs" />
     <Compile Include="Network\RoutingNetworkExtensions.cs" />
     <Compile Include="Osm\HighwayComparer.cs" />
+    <Compile Include="Osm\RouterDbExtensions.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Profiles\Factor.cs" />

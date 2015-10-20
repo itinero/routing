@@ -169,5 +169,21 @@ namespace OsmSharp.Routing
             // add the graph.
             db.AddContracted(profile, contracted);
         }
+
+        /// <summary>
+        /// Returns true if all of the given profiles are supported.
+        /// </summary>
+        /// <returns></returns>
+        public static bool SupportsAll(this RouterDb db, Profiles.Profile[] profiles)
+        {
+            for (var i = 0; i < profiles.Length; i++)
+            {
+                if (!db.Supports(profiles[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

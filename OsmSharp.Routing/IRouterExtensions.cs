@@ -53,6 +53,16 @@ namespace OsmSharp.Routing
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
+        public static bool CheckConnectivity(this IRouter router, Profile profile, RouterPoint point, float radiusInMeters)
+        {
+            var result = router.TryCheckConnectivity(profile, point, radiusInMeters);
+            return result.Value;
+        }
+
+        /// <summary>
+        /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
+        /// </summary>
+        /// <returns></returns>
         public static bool CheckConnectivity(this IRouter router, Profile profile, RouterPoint point)
         {
             return router.CheckConnectivity(profile, point, DefaultConnectivityRadius);

@@ -52,6 +52,12 @@ namespace OsmSharp.Routing.Osm.Streams
             _routingNodes = new LongIndex();
             _coreNodes = new LongIndex();
             _coreNodeIdMap = new HugeDictionary<long, uint>();
+
+            foreach(var vehicle in vehicles)
+            {
+                db.AddSupportedProfile(vehicle.Fastest());
+                db.AddSupportedProfile(vehicle.Shortest());
+            }
         }
 
         private bool _firstPass = true; // flag for first/second pass.

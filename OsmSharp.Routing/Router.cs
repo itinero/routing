@@ -48,6 +48,14 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude)
         {
+            if(!_db.SupportsAll(profiles))
+            {
+                return new Result<RouterPoint>("Not all routing profiles are supported.", (message) =>
+                {
+                    return new Exceptions.ResolveFailedException(message);
+                });
+            }
+
             var resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, _defaultSearchOffset,
                 _defaultSearchMaxDistance, (edge) =>
                 { // check all profiles, they all need to be traversible.
@@ -81,8 +89,16 @@ namespace OsmSharp.Routing
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        public bool CheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)
+        public Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)
         {
+            if (!_db.Supports(profile))
+            {
+                return new Result<bool>("Routing profile is not supported.", (message) =>
+                {
+                    return new Exception(message);
+                });
+            }
+
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
             {
                 return profile.Factor(_db.Profiles.Get(p));
@@ -90,9 +106,9 @@ namespace OsmSharp.Routing
             dykstra.Run();
             if (!dykstra.HasSucceeded)
             { // something went wrong.
-                return false;
+                return new Result<bool>(false);
             }
-            return dykstra.MaxReached;
+            return new Result<bool>(dykstra.MaxReached);
         }
 
         /// <summary>
@@ -101,6 +117,14 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target)
         {
+            if (!_db.Supports(profile))
+            {
+                return new Result<Route>("Routing profile is not supported.", (message) =>
+                {
+                    return new Exception(message);
+                });
+            }
+
             List<uint> path;
             OsmSharp.Routing.Graphs.Directed.DirectedGraph contracted;
             if(_db.TryGetContracted(profile, out contracted))
