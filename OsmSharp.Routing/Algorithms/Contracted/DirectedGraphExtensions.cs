@@ -69,10 +69,22 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         }
 
         /// <summary>
+        /// Add edge.
+        /// </summary>
+        /// <returns></returns>
+        public static void AddEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, 
+            bool? direction, uint contractedId)
+        {
+            graph.AddEdge(vertex1, vertex2, ContractedEdgeDataSerializer.Serialize(
+                weight, direction, contractedId));
+        }
+
+        /// <summary>
         /// Add or update edge.
         /// </summary>
         /// <returns></returns>
-        public static void AddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId)
+        public static void AddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, 
+            bool? direction, uint contractedId)
         {
             var current = ContractedEdgeDataSerializer.Serialize(weight, direction, contractedId);
             var hasExistingEdge = false;

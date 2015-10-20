@@ -44,7 +44,7 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             var data = ContractedEdgeDataSerializer.Serialize(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
-            Assert.AreEqual(((uint)(100.0f * 4 * 10)), data[0]);
+            Assert.AreEqual(((uint)(100.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)), data[0]);
             Assert.AreEqual(Constants.NO_VERTEX, data[1]);
 
             edgeData = new ContractedEdgeData()
@@ -57,7 +57,7 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             data = ContractedEdgeDataSerializer.Serialize(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
-            Assert.AreEqual(((uint)1) + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * 10))), data[0]);
+            Assert.AreEqual(((uint)1) + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR))), data[0]);
             Assert.AreEqual(Constants.NO_VERTEX, data[1]);
 
             edgeData = new ContractedEdgeData()
@@ -70,7 +70,7 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             data = ContractedEdgeDataSerializer.Serialize(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
-            Assert.AreEqual(((uint)(100.25f * 10) * 4), data[0]);
+            Assert.AreEqual(((uint)(100.25f * ContractedEdgeDataSerializer.PRECISION_FACTOR) * 4), data[0]);
             Assert.AreEqual(Constants.NO_VERTEX, data[1]);
 
             edgeData = new ContractedEdgeData()
@@ -83,7 +83,7 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             data = ContractedEdgeDataSerializer.Serialize(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
-            Assert.AreEqual(((uint)2) + (((uint)(100.0f * 4 * 10))), data[0]);
+            Assert.AreEqual(((uint)2) + (((uint)(100.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR))), data[0]);
             Assert.AreEqual(Constants.NO_VERTEX, data[1]);
 
             edgeData = new ContractedEdgeData()
@@ -96,7 +96,7 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             data = ContractedEdgeDataSerializer.Serialize(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
-            Assert.AreEqual(((uint)1) + (((uint)(100.0f * 10) * 4)), data[0]);
+            Assert.AreEqual(((uint)1) + (((uint)(100.0f * ContractedEdgeDataSerializer.PRECISION_FACTOR) * 4)), data[0]);
             Assert.AreEqual(Constants.NO_VERTEX, data[1]);
 
             edgeData = new ContractedEdgeData()
@@ -109,7 +109,7 @@ namespace OsmSharp.Routing.Test.Data.Contracted
             data = ContractedEdgeDataSerializer.Serialize(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
-            Assert.AreEqual(((uint)2) + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * 10))), data[0]);
+            Assert.AreEqual(((uint)2) + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR))), data[0]);
             Assert.AreEqual(Constants.NO_VERTEX, data[1]);
 
             edgeData = new ContractedEdgeData()
@@ -130,31 +130,31 @@ namespace OsmSharp.Routing.Test.Data.Contracted
         [Test]
         public void TestDeserialize()
         {
-            var edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)(100.0f * 4)),
+            var edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)(10.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)),
                 Constants.NO_VERTEX });
             Assert.AreEqual(null, edge.Direction);
             Assert.AreEqual(10.0f, edge.Weight);
             Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
 
-            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { (uint)1 + ((uint)(100.0f * 4)),
+            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { (uint)1 + ((uint)(10.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)),
                 Constants.NO_VERTEX });
             Assert.AreEqual(true, edge.Direction);
             Assert.AreEqual(10.0f, edge.Weight);
             Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
 
-            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { (uint)2 + ((uint)(100.0f * 4)),
+            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { (uint)2 + ((uint)(10.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)),
                 Constants.NO_VERTEX });
             Assert.AreEqual(false, edge.Direction);
             Assert.AreEqual(10.0f, edge.Weight);
             Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
 
-            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)1 + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * 10)))),
+            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)1 + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)))),
                 Constants.NO_VERTEX });
             Assert.AreEqual(true, edge.Direction);
             Assert.AreEqual(ContractedEdgeDataSerializer.MAX_DISTANCE, edge.Weight);
             Assert.AreEqual(Constants.NO_VERTEX, edge.ContractedId);
 
-            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)2 + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * 10)))),
+            edge = ContractedEdgeDataSerializer.Deserialize(new uint[] { ((uint)2 + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)))),
                 Constants.NO_VERTEX });
             Assert.AreEqual(false, edge.Direction);
             Assert.AreEqual(ContractedEdgeDataSerializer.MAX_DISTANCE, edge.Weight);

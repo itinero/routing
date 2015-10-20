@@ -34,12 +34,22 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
         /// Creates a new witness calculator.
         /// </summary>
         public DykstraWitnessCalculator(int hopLimit)
+            : this(hopLimit, int.MaxValue)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new witness calculator.
+        /// </summary>
+        public DykstraWitnessCalculator(int hopLimit, int maxSettles)
         {
             _hopLimit = hopLimit;
 
             _heap = new BinaryHeap<SettledVertex>();
-            _maxSettles = int.MaxValue;
+            _maxSettles = maxSettles;
         }
+
 
         private int _hopLimit;
         private int _maxSettles;
@@ -116,9 +126,14 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
                         forwardMinWeight.Remove(current.VertexId);
                         if (forwardTargets.Contains(current.VertexId))
                         {
-                            var index = targets.IndexOf(current.VertexId);
-                            forwardWitness[index] = current.Weight <= weights[index];
-                            forwardTargets.Remove(current.VertexId);
+                            for(var i = 0; i < targets.Count; i++)
+                            {
+                                if (targets[i] == current.VertexId)
+                                {
+                                    forwardWitness[i] = current.Weight < weights[i];
+                                    forwardTargets.Remove(current.VertexId);
+                                }
+                            }
                         }
                     }
                     if (current.Backward)
@@ -127,9 +142,14 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
                         backwardMinWeight.Remove(current.VertexId);
                         if (backwardTargets.Contains(current.VertexId))
                         {
-                            var index = targets.IndexOf(current.VertexId);
-                            backwardWitness[index] = current.Weight <= weights[index];
-                            backwardTargets.Remove(current.VertexId);
+                            for(var i = 0; i < targets.Count; i++)
+                            {
+                                if(targets[i] == current.VertexId)
+                                {
+                                    backwardWitness[i] = current.Weight < weights[i];
+                                    backwardTargets.Remove(current.VertexId);
+                                }
+                            }
                         }
                     }
 
@@ -156,16 +176,15 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
 
                             float neighbourWeight;
                             bool? neighbourDirection;
-                            uint neighbourContractedId;
-                            ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data[0], edgeEnumerator.Data[1],
-                                out neighbourWeight, out neighbourDirection, out neighbourContractedId);
+                            ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
+                                out neighbourWeight, out neighbourDirection);
                             var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
                             var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
 
                             var totalNeighbourWeight = current.Weight + neighbourWeight;
-                            var doNeighbourForward = doForward && neighbourCanMoveForward && totalNeighbourWeight <= forwardMaxWeight &&
+                            var doNeighbourForward = doForward && neighbourCanMoveForward && totalNeighbourWeight < forwardMaxWeight &&
                                 !forwardSettled.Contains(neighbour);
-                            var doNeighbourBackward = doBackward && neighbourCanMoveBackward && totalNeighbourWeight <= backwardMaxWeight &&
+                            var doNeighbourBackward = doBackward && neighbourCanMoveBackward && totalNeighbourWeight < backwardMaxWeight &&
                                 !backwardSettled.Contains(neighbour);
                             if (doNeighbourBackward || doNeighbourForward)
                             {
@@ -254,7 +273,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
                         float neighbourWeight;
                         bool? neighbourDirection;
                         uint neighbourContractedId;
-                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data[0], edgeEnumerator.Data[1],
+                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.Data1,
                             out neighbourWeight, out neighbourDirection, out neighbourContractedId);
                         var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
                         var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;

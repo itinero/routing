@@ -21,6 +21,7 @@ using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Algorithms.Contracted.Witness;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted
@@ -616,6 +617,105 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNull(edge);
+        }
+
+        /// <summary>
+        /// Tests an uncontracted edge that already has a witness path.
+        /// </summary>
+        [Test]
+        public void TestUncontractedWitnessed()
+        {
+            // build graph.
+            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 100
+            }));
+            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 100
+            }));
+            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 100
+            }));
+            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 100
+            }));
+            graph.AddEdge(1, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 10
+            }));
+            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 10
+            }));
+            graph.AddEdge(3, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 10
+            }));
+            graph.AddEdge(2, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            {
+                ContractedId = Constants.NO_VERTEX,
+                Direction = null,
+                Weight = 10
+            }));
+            graph.Compress(false);
+
+            // contract graph.
+            var priorities = new Dictionary<uint, float>();
+            priorities.Add(1, 0);
+            priorities.Add(0, 1);
+            priorities.Add(2, 2);
+            priorities.Add(3, 3);
+            var hierarchyBuilder = new HierarchyBuilder(graph, 
+                new MockPriorityCalculator(priorities),
+                new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.Run();
+
+            // edges 1->2 and 2->1 should have been removed.
+            var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
+            Assert.IsNotNull(edge);
+            var edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            Assert.AreEqual(110, edgeData.Weight);
+            Assert.AreEqual(null, edgeData.Direction);
+            Assert.AreEqual(1, edgeData.ContractedId);
+
+            edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 0);
+            Assert.IsNotNull(edge);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            Assert.AreEqual(100, edgeData.Weight);
+            Assert.AreEqual(null, edgeData.Direction);
+            Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
+
+            edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
+            Assert.IsNotNull(edge);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            Assert.AreEqual(10, edgeData.Weight);
+            Assert.AreEqual(null, edgeData.Direction);
+            Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
+
+            edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 3);
+            Assert.IsNotNull(edge);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            Assert.AreEqual(10, edgeData.Weight);
+            Assert.AreEqual(null, edgeData.Direction);
+            Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
         }
     }
 }

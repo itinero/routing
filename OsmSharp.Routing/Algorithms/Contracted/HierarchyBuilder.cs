@@ -57,6 +57,10 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             _contractedFlags = new OsmSharp.Collections.LongIndex.LongIndex.LongIndex();
             _missesQueue = new Queue<bool>();
 
+            // remove all edges that have witness paths, meaning longer than the shortest path
+            // between the two ending vertices.
+            this.RemoveWitnessedEdges();
+
             // build queue.
             this.CalculateQueue();
 
@@ -67,7 +71,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             while(next != null)
             {
                 // contract...
-               this.Contract(next.Value);
+                this.Contract(next.Value);
 
                 // ... and select next.
                 next = this.SelectNext();
@@ -76,16 +80,14 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
                 if(progress < 99)
                 {
-                    progress = (float)(System.Math.Floor(((double)current / (double)total) * 1000) / 10.0);
+                    progress = (float)(System.Math.Floor(((double)current / (double)total) * 100) / 1.0);
                 }
-                //else
-                //{
-                //    return;
-                //}
                 if (progress != latestProgress)
                 {
                     latestProgress = progress;
 
+                    //if (progress % 1 == 0)
+                    //{
                     int totaEdges = 0;
                     int totalUncontracted = 0;
                     int maxCardinality = 0;
@@ -113,6 +115,12 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
                         "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}", progress, current, total, _queue.Count,
                             density, maxCardinality);
+                    //}
+                    //else
+                    //{
+                    //    OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
+                    //        "Preprocessing... {0}% [{1}/{2}]", progress, current, total);
+                    //}
                 }
                 current++;
             }
@@ -132,6 +140,66 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 if(!_contractedFlags.Contains(vertex))
                 {
                     _queue.Push(vertex, _priorityCalculator.Calculate(_contractedFlags, vertex));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Remove all witnessed edges.
+        /// </summary>
+        private void RemoveWitnessedEdges()
+        {
+            var edges = new List<Edge>();
+            var weights = new List<float>();
+            var targets = new List<uint>();
+            for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
+            {
+                edges.Clear();
+                weights.Clear();
+                targets.Clear();
+
+                edges.AddRange(_graph.GetEdgeEnumerator(vertex));
+
+                var forwardWitnesses = new bool[edges.Count];
+                var backwardWitnesses = new bool[edges.Count];
+                for (var i = 0; i < edges.Count; i++)
+                {
+                    var edge = edges[i];
+
+                    float edgeWeight;
+                    bool? edgeDirection;
+                    OsmSharp.Routing.Data.Contracted.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                        out edgeWeight, out edgeDirection);
+                    var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
+                    var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
+
+                    forwardWitnesses[i] = !edgeCanMoveForward;
+                    backwardWitnesses[i] = !edgeCanMoveBackward;
+                    weights.Add(edgeWeight);
+                    targets.Add(edge.Neighbour);
+                }
+
+                // calculate all witness paths.
+                _witnessCalculator.Calculate(_graph, vertex, targets, weights, 
+                    ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
+
+                // check witness paths.
+                for (var i = 0; i < edges.Count; i++)
+                {
+                    if(forwardWitnesses[i] && backwardWitnesses[i])
+                    { // in both directions the edge does not represent the shortest path.
+                        _graph.RemoveEdge(vertex, targets[i]);
+                    }
+                    else if(forwardWitnesses[i])
+                    { // only in forward direction is this edge useless.
+                        _graph.RemoveEdge(vertex, targets[i]);
+                        _graph.AddEdge(vertex, targets[i], weights[i], false, Constants.NO_VERTEX);
+                    }
+                    else if (backwardWitnesses[i])
+                    { // only in backward direction is this edge useless.
+                        _graph.RemoveEdge(vertex, targets[i]);
+                        _graph.AddEdge(vertex, targets[i], weights[i], true, Constants.NO_VERTEX);
+                    }
                 }
             }
         }

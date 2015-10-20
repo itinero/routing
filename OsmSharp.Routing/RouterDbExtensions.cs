@@ -159,6 +159,9 @@ namespace OsmSharp.Routing
             // contract the graph.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
                 new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.DifferenceFactor = 5;
+            priorityCalculator.DepthFactor = 5;
+            priorityCalculator.ContractedFactor = 8;
             var hierarchyBuilder = new HierarchyBuilder(contracted, priorityCalculator,
                     new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();

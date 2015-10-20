@@ -82,7 +82,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
@@ -198,7 +198,7 @@ namespace OsmSharp.Routing.Test.Algorithms
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.Meta.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))

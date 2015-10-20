@@ -146,7 +146,6 @@ namespace OsmSharp.Routing
             };
         }
 
-
         /// <summary>
         /// Returns true if the router point matches exactly with the given vertex.
         /// </summary>
@@ -164,6 +163,59 @@ namespace OsmSharp.Routing
                 return edge.To == vertex;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Creates a router point for the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public static RouterPoint CreateRouterPointForVertex(this GeometricGraph graph, uint vertex)
+        {
+            float latitude, longitude;
+            if(!graph.GetVertex(vertex, out latitude, out longitude))
+            {
+                throw new ArgumentException("Vertex doesn't exist, cannot create routerpoint.");
+            }
+            var edges = graph.GetEdgeEnumerator(vertex);
+            if(!edges.MoveNext())
+            {
+                throw new ArgumentException("No edges associated with vertex, cannot create routerpoint.");
+            }
+            if(edges.DataInverted)
+            {
+                return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
+            }
+            return new RouterPoint(latitude, longitude, edges.Id, 0);
+        }
+
+        /// <summary>
+        /// Creates a router point for the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public static RouterPoint CreateRouterPointForVertex(this GeometricGraph graph, uint vertex, uint neighbour)
+        {
+            float latitude, longitude;
+            if (!graph.GetVertex(vertex, out latitude, out longitude))
+            {
+                throw new ArgumentException("Vertex doesn't exist, cannot create routerpoint.");
+            }
+            var edges = graph.GetEdgeEnumerator(vertex);
+            while(true)
+            {
+                if(!edges.MoveNext())
+                {
+                    throw new ArgumentException("No edges associated with vertex and it's neigbour, cannot create routerpoint.");
+                }
+                if(edges.To == neighbour)
+                {
+                    break;
+                }
+            }
+            if (edges.DataInverted)
+            {
+                return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
+            }
+            return new RouterPoint(latitude, longitude, edges.Id, 0);
         }
     }
 }
