@@ -62,6 +62,7 @@ namespace OsmSharp.Routing.Algorithms
                 _maxBackward = weight;
                 return this.ReachedVertexBackward((uint)vertex, weight);
             };
+
             _sourceSearch.Initialize();
             _targetSearch.Initialize();
             var source = true;

@@ -35,15 +35,15 @@ namespace OsmSharp.Routing
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
         /// <returns></returns>
-        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Profile profile)
+        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
         {
             var graph = routerDb.Network.GeometricGraph;
             var edge = graph.GetEdge(point.EdgeId);
-            if(point.Offset == 0)
+            if (point.Offset == 0)
             {
                 return new Path[] { new Path(edge.From) };
             }
-            else if(point.Offset == ushort.MaxValue)
+            else if (point.Offset == ushort.MaxValue)
             {
                 return new Path[] { new Path(edge.To) };
             }
@@ -53,10 +53,37 @@ namespace OsmSharp.Routing
             OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
             var factor = profile.Factor(routerDb.Profiles.Get(profileId));
             var length = graph.Length(edge);
-            return new Path[] {
-                new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
-                new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
-            };
+            if(factor.Direction == 0)
+            { // bidirectional.
+                return new Path[] {
+                    new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
+                    new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                };
+            }
+            else if(factor.Direction == 1)
+            { // edge is forward oneway.
+                if (asSource)
+                {
+                    return new Path[] {
+                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+                }
+                return new Path[] {
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+            }
+            else
+            { // edge is backward oneway.
+                if (!asSource)
+                {
+                    return new Path[] {
+                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+                }
+                return new Path[] {
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+            }
         }
 
         /// <summary>

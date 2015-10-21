@@ -44,15 +44,27 @@ namespace OsmSharp.Routing.Test.Profiles
         /// <returns></returns>
         public static ProfileMock CarMock()
         {
-            var vehicleTypes = new HashSet<string>();
-            vehicleTypes.Add(VehicleTypes.MotorVehicle);
-            vehicleTypes.Add(VehicleTypes.Vehicle);
-
-            return new ProfileMock("CarMock", x => new Speed() 
+            return ProfileMock.Mock("CarMock", x => new Speed() 
             {
                 Value = 50f / 3.6f,
                 Direction = 0
-            }, vehicleTypes);
+            }, VehicleTypes.MotorVehicle, VehicleTypes.Vehicle);
+        }
+
+        /// <summary>
+        /// Creates a mock car profile.
+        /// </summary>
+        /// <returns></returns>
+        public static ProfileMock Mock(string name, Func<TagsCollectionBase, Speed> getSpeed,
+            params string[] vehicleTypes)
+        {
+            var vehicleTypesSet = new HashSet<string>();
+            foreach(var vehicleType in vehicleTypes)
+            {
+                vehicleTypesSet.Add(vehicleType);
+            }
+
+            return new ProfileMock(name, getSpeed, vehicleTypesSet);
         }
     }
 }

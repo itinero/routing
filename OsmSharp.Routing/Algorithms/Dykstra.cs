@@ -208,7 +208,7 @@ namespace OsmSharp.Routing.Algorithms
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
-        public Func<long, float, bool> WasFound
+        public Func<uint, float, bool> WasFound
         {
             get;
             set;
