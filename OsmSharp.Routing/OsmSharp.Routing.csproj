@@ -64,6 +64,7 @@
     <Compile Include="Algorithms\AlgorithmBase.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedMetaGraphExtensions.cs" />
+    <Compile Include="Algorithms\Contracted\Dykstra.cs" />
     <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilder.cs" />
