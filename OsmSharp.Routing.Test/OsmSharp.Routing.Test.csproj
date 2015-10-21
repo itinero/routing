@@ -79,6 +79,7 @@
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializerTests.cs" />
     <Compile Include="Data\EdgeDataSerializerTests.cs" />
+    <Compile Include="ExtensionTests.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
