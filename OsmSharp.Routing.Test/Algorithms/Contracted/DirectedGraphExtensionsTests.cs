@@ -38,13 +38,9 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestExpandNonExistingEdge()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // expand edge.
             Assert.Catch<System.Exception>(() =>
@@ -60,13 +56,9 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestExpandEdgeNotContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // expand edge.
             var vertices = new List<uint>();
@@ -83,25 +75,11 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestExpandEdgeContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, null, 1);
 
             // expand edge.
             var vertices = new List<uint>();
@@ -127,37 +105,13 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestExpandNestedEdgeContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(2, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 2,
-                Direction = null,
-                Weight = 300
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 200, null, 1);
+            graph.AddEdge(2, 3, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 3, 300, null, 2);
 
             // expand edge.
             var vertices = new List<uint>();
@@ -185,198 +139,156 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestAddOrUpdateEdge()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 99, null, Constants.NO_VERTEX);
 
             // check result.
-            var edges = new List<Edge>(graph.GetEdgeEnumerator(0).Where(x => x.Neighbour == 1));
+            var edges = new List<MetaEdge>(graph.GetEdgeEnumerator(0).Where(x => x.Neighbour == 1));
             Assert.AreEqual(1, edges.Count);
             Assert.AreEqual(1, edges[0].Neighbour);
-            var edgeData = ContractedEdgeDataSerializer.Deserialize(edges[0].Data);
+            var edgeData = ContractedEdgeDataSerializer.Deserialize(edges[0].Data[0], edges[0].MetaData[0]);
             Assert.AreEqual(null, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(99, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 101, null, Constants.NO_VERTEX);
 
             // check result.
-            edges = new List<Edge>(graph.GetEdgeEnumerator(0).Where(x => x.Neighbour == 1));
+            edges = new List<MetaEdge>(graph.GetEdgeEnumerator(0).Where(x => x.Neighbour == 1));
             Assert.AreEqual(1, edges.Count);
             Assert.AreEqual(1, edges[0].Neighbour);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edges[0].Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edges[0].Data[0], edges[0].MetaData[0]);
             Assert.AreEqual(null, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(100, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 99, true, Constants.NO_VERTEX);
 
             // check result.
-            edges = new List<Edge>(graph.GetEdgeEnumerator(0).Where(x => x.Neighbour == 1));
+            edges = new List<MetaEdge>(graph.GetEdgeEnumerator(0).Where(x => x.Neighbour == 1));
             Assert.AreEqual(1, edges.Count);
             Assert.AreEqual(1, edges[0].Neighbour);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edges[0].Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edges[0].Data[0], edges[0].MetaData[0]);
             Assert.AreEqual(true, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(99, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 99, true, Constants.NO_VERTEX);
 
             // check result.
             var edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 && 
-                ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == false);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == false);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(100, edgeData.Weight); 
 
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 &&
-                 ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == true);
+                 ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == true);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(99, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, false, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 99, true, Constants.NO_VERTEX);
 
             // check result.
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 &&
-                ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == false);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == false);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(100, edgeData.Weight);
 
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 &&
-                 ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == true);
+                 ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == true);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(99, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 99
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(0, 1, 99, true, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 98, null, Constants.NO_VERTEX);
 
             // check result.
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 &&
-                ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == null);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == null);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(98, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 98
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(0, 1, 98, true, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 1, 99, null, Constants.NO_VERTEX);
 
             // check result.
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 &&
-                ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == false);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == false);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(99, edgeData.Weight);
 
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 1 &&
-                 ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == true);
+                 ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == true);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(98, edgeData.Weight);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // update.
             graph.AddOrUpdateEdge(0, 2, 99, null, Constants.NO_VERTEX);
 
             // check result.
             edge = graph.GetEdgeEnumerator(0).First(x => x.Neighbour == 2 &&
-                ContractedEdgeDataSerializer.Deserialize(x.Data).Direction == null);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == null);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             Assert.AreEqual(99, edgeData.Weight);
         }

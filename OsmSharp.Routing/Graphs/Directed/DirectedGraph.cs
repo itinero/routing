@@ -171,11 +171,116 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
+        public uint AddEdge(uint vertex1, uint vertex2, uint data)
+        {
+            if (_readonly) { throw new Exception("Graph is readonly."); }
+            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (_edgeDataSize != 1) { throw new ArgumentOutOfRangeException("Dimension of data doesn't match."); }
+
+            var vertexPointer = vertex1 * VERTEX_SIZE;
+            var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+            var edgeId = uint.MaxValue;
+
+            if (edgeCount == 0)
+            { // no edge yet, just add the end.
+                _vertices[vertexPointer + EDGE_COUNT] = 1;
+                _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
+                edgeId = _nextEdgePointer / (uint)_edgeSize;
+
+                if (_nextEdgePointer + (1 * _edgeSize) >= _edges.Length)
+                { // make sure we can add another edge.
+                    this.IncreaseEdgeSize();
+                }
+
+                _edges[_nextEdgePointer] = vertex2;
+                _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + 0] = data;
+                _nextEdgePointer += (uint)(_edgeSize);
+            }
+            else if ((edgeCount & (edgeCount - 1)) == 0)
+            { // edgeCount is a power of two, increase space.
+                if (_nextEdgePointer + (edgeCount * _edgeSize) >= _edges.Length)
+                { // make sure we can add another edge.
+                    this.IncreaseEdgeSize();
+                }
+
+                if (edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
+                { // these edge are at the end of the edge-array, don't copy just increase size.
+                    _edges[_nextEdgePointer] = vertex2;
+                    edgeId = _nextEdgePointer / (uint)_edgeSize;
+                    _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + 0] = data;
+                    _nextEdgePointer += (uint)(edgeCount * _edgeSize); // duplicate space for this vertex.
+                    _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
+                }
+                else
+                { // not at the end, copy edges to the end.
+                    _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
+                    _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
+
+                    // keep new pointer & duplicate space for this vertex.
+                    var newNextEdgePointer = _nextEdgePointer + (uint)(edgeCount * 2 * _edgeSize);
+
+                    if (_nextEdgePointer + (edgeCount * _edgeSize) >= _edges.Length)
+                    { // make sure we can add another edge.
+                        this.IncreaseEdgeSize();
+                    }
+
+                    for (var edge = 0; edge < edgeCount; edge++)
+                    {
+                        _edges[_nextEdgePointer] = _edges[edgePointer + (edge * _edgeSize)];
+                        for (uint i = 0; i < _edgeDataSize; i++)
+                        {
+                            _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
+                                _edges[edgePointer + MINIMUM_EDGE_SIZE + i + (edge * _edgeSize)];
+                        }
+                        if (_switchEdge != null)
+                        { // report on the edge switch.
+                            _switchEdge((uint)((edgePointer + (edge * _edgeSize)) / (long)_edgeSize),
+                                _nextEdgePointer / (uint)_edgeSize);
+                        }
+                        _nextEdgePointer += (uint)_edgeSize;
+
+                        if (_nextEdgePointer >= _edges.Length)
+                        { // make sure we can add another edge.
+                            this.IncreaseEdgeSize();
+                        }
+                    }
+
+                    if (_nextEdgePointer + (edgeCount * _edgeSize) >= _edges.Length)
+                    { // make sure we can add another edge.
+                        this.IncreaseEdgeSize();
+                    }
+
+                    // add at the end.
+                    _edges[_nextEdgePointer] = vertex2;
+                    edgeId = _nextEdgePointer / (uint)_edgeSize;
+                    _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + 0] = data;
+                    _nextEdgePointer = newNextEdgePointer;
+                }
+            }
+            else
+            { // just add the edge.
+                _edges[edgePointer + (edgeCount * (uint)_edgeSize)] = vertex2;
+                edgeId = (edgePointer + (edgeCount * (uint)_edgeSize)) / (uint)_edgeSize;
+                _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + 0] = data;
+
+                _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
+            }
+            _edgeCount++;
+
+            return edgeId;
+        }
+
+        /// <summary>
+        /// Adds an edge with the associated data.
+        /// </summary>
         public uint AddEdge(uint vertex1, uint vertex2, params uint[] data)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
-            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1 ) { this.IncreaseVertexSize(); }
+            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
             if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
@@ -209,11 +314,11 @@ namespace OsmSharp.Routing.Graphs.Directed
                     this.IncreaseEdgeSize();
                 }
 
-                if(edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
+                if (edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
                 { // these edge are at the end of the edge-array, don't copy just increase size.
                     _edges[_nextEdgePointer] = vertex2;
                     edgeId = _nextEdgePointer / (uint)_edgeSize;
-                    for(uint i = 0; i < _edgeDataSize; i++)
+                    for (uint i = 0; i < _edgeDataSize; i++)
                     {
                         _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
                             data[i];
@@ -234,7 +339,7 @@ namespace OsmSharp.Routing.Graphs.Directed
                         this.IncreaseEdgeSize();
                     }
 
-                    for(var edge = 0; edge <  edgeCount; edge++)
+                    for (var edge = 0; edge < edgeCount; edge++)
                     {
                         _edges[_nextEdgePointer] = _edges[edgePointer + (edge * _edgeSize)];
                         for (uint i = 0; i < _edgeDataSize; i++)
@@ -291,7 +396,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <summary>
         /// Updates and edge's associated data.
         /// </summary>
-        public bool UpdateEdge(uint vertex1, uint vertex2, Func<uint[], bool> update, params uint[] data)
+        public uint UpdateEdge(uint vertex1, uint vertex2, Func<uint[], bool> update, params uint[] data)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
@@ -319,12 +424,12 @@ namespace OsmSharp.Routing.Graphs.Directed
                             _edges[edgePointer + MINIMUM_EDGE_SIZE + i] =
                                 data[i];
                         }
-                        return true;
+                        return edgePointer / (uint)_edgeSize;
                     }
                 }
                 edgePointer += (uint)_edgeSize;
             }
-            return false;
+            return Constants.NO_EDGE;
         }
 
         /// <summary>

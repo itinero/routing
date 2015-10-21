@@ -29,14 +29,14 @@ namespace OsmSharp.Routing.Algorithms.Contracted
     /// </summary>
     public class BidirectionalDykstra : AlgorithmBase
     {
-        private readonly DirectedGraph _graph;
+        private readonly DirectedMetaGraph _graph;
         private readonly IEnumerable<Path> _sources;
         private readonly IEnumerable<Path> _targets;
 
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedGraph graph, IEnumerable<Path> sources, IEnumerable<Path> targets)
+        public BidirectionalDykstra(DirectedMetaGraph graph, IEnumerable<Path> sources, IEnumerable<Path> targets)
         {
             _graph = graph;
             _sources = sources;
@@ -163,7 +163,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
-                var edgeEnumerator = _graph.GetEdgeEnumerator();
+                var edgeEnumerator = _graph.Graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
                 Path previousLinkedRoute;
@@ -210,7 +210,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             if (current != null)
             {
                 // get the edge enumerator.
-                var edgeEnumerator = _graph.GetEdgeEnumerator();
+                var edgeEnumerator = _graph.Graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
                 Path previousLinkedRoute;

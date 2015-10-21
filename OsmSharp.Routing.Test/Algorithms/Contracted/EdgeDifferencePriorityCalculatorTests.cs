@@ -39,13 +39,9 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestNoNeighbours()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, 
@@ -62,19 +58,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestOneNeighbour()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -91,31 +78,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoNeighbours()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -132,43 +100,14 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestThreeNeighbours()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 3, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -185,31 +124,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoNeighboursOneWay()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, true, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -219,31 +139,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(0, priority);
 
             // build another graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -260,31 +161,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoNeighboursOneWayOpposite()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -301,19 +183,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestOneNeighboursContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new LongIndex();
@@ -332,31 +205,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoNeighboursContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new LongIndex();
@@ -375,19 +229,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestOneNeighboursNotifyContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new LongIndex();
@@ -407,31 +252,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoNeighboursNotifyContracted()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new LongIndex();
@@ -451,56 +277,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestQuadrilateralOneWay()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 10
-            }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 10
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 1000
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 1000
-            }));
-            graph.AddEdge(1, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 10000
-            }));
-            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 10000
-            }));
-            graph.Compress(false);
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(0, 3, 10, false, Constants.NO_VERTEX);
+            graph.AddEdge(3, 0, 10, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 1000, false, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 1000, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 3, 10000, true, Constants.NO_VERTEX);
+            graph.AddEdge(3, 1, 10000, false, Constants.NO_VERTEX);
+            graph.Compress();
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new LongIndex();

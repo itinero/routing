@@ -61,7 +61,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             };
 
             // convert graph.
-            var directedGraph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
             algorithm.Run();
 
@@ -76,14 +77,16 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // verify all edges.
             var edges = directedGraph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count);
-            var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null, Constants.NO_VERTEX);
-            Assert.AreEqual(data, edges.First().Data);
+            var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null);
+            Assert.AreEqual(data, edges.First().Data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(1, edges.First().Neighbour);
             
             edges = directedGraph.GetEdgeEnumerator(1);
             Assert.AreEqual(1, edges.Count);
-            data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null, Constants.NO_VERTEX);
-            Assert.AreEqual(data, edges.First().Data);
+            data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null);
+            Assert.AreEqual(data, edges.First().Data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(0, edges.First().Neighbour);
         }
 
@@ -115,7 +118,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             };
 
             // convert graph.
-            var directedGraph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
             algorithm.Run();
 
@@ -130,14 +134,16 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // verify all edges.
             var edges = directedGraph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count);
-            var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, true, Constants.NO_VERTEX);
-            Assert.AreEqual(data, edges.First().Data);
+            var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, true);
+            Assert.AreEqual(data, edges.First().Data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = directedGraph.GetEdgeEnumerator(1);
             Assert.AreEqual(1, edges.Count);
-            data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, false, Constants.NO_VERTEX);
-            Assert.AreEqual(data, edges.First().Data);
+            data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, false);
+            Assert.AreEqual(data, edges.First().Data[0]);
+            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(0, edges.First().Neighbour);
         }
     }

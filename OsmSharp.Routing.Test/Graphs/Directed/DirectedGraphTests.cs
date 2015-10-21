@@ -839,7 +839,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.IsTrue(graph.UpdateEdge(0, 1, (data) =>
                 {
                     return data[0] == 10;
-                }, 10, 101));
+                }, 10, 101) != Constants.NO_EDGE);
 
             // check result.
             var edges = graph.GetEdgeEnumerator(0);
@@ -857,7 +857,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.IsTrue(graph.UpdateEdge(0, 1, (data) =>
             {
                 return data[0] == 30;
-            }, 30, 301));
+            }, 30, 301) != Constants.NO_EDGE);
 
             // check result.
             edges = graph.GetEdgeEnumerator(0);
@@ -874,7 +874,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.IsTrue(graph.UpdateEdge(0, 1, (data) =>
             {
                 return data[0] == 20;
-            }, 20, 201));
+            }, 20, 201) != Constants.NO_EDGE);
 
             // check result.
             edges = graph.GetEdgeEnumerator(0);
@@ -885,13 +885,13 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.IsFalse(graph.UpdateEdge(0, 1, (data) =>
             {
                 return false;
-            }, 20, 201));
+            }, 20, 201) != Constants.NO_EDGE);
 
             // do another failing update.
             Assert.IsFalse(graph.UpdateEdge(0, 2, (data) =>
             {
                 return true;
-            }, 20, 201));
+            }, 20, 201) != Constants.NO_EDGE);
         }
     }
 }

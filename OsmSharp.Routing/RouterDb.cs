@@ -33,7 +33,7 @@ namespace OsmSharp.Routing
         private readonly ITagsIndex _profiles;
         private readonly ITagsIndex _meta;
 
-        private readonly Dictionary<string, DirectedGraph> _contracted;
+        private readonly Dictionary<string, DirectedMetaGraph> _contracted;
         private readonly HashSet<string> _supportedProfiles;
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace OsmSharp.Routing
             _meta = new TagsIndex();
 
             _supportedProfiles = new HashSet<string>();
-            _contracted = new Dictionary<string, DirectedGraph>();
+            _contracted = new Dictionary<string, DirectedMetaGraph>();
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace OsmSharp.Routing
             {
                 _supportedProfiles.Add(supportedProfile.Name);
             }
-            _contracted = new Dictionary<string, DirectedGraph>();
+            _contracted = new Dictionary<string, DirectedMetaGraph>();
         }
 
         /// <summary>
@@ -131,7 +131,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
-        internal void AddContracted(Profiles.Profile profile, DirectedGraph contracted)
+        internal void AddContracted(Profiles.Profile profile, DirectedMetaGraph contracted)
         {
             _contracted.Add(profile.Name, contracted);
         }
@@ -140,7 +140,7 @@ namespace OsmSharp.Routing
         /// Tries to get a contracted version of the routing network for the given profile.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetContracted(Profiles.Profile profile, out DirectedGraph contracted)
+        public bool TryGetContracted(Profiles.Profile profile, out DirectedMetaGraph contracted)
         {
             return _contracted.TryGetValue(profile.Name, out contracted);
         }

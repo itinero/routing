@@ -63,7 +63,7 @@
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
-    <Compile Include="Algorithms\Contracted\DirectedGraphExtensions.cs" />
+    <Compile Include="Algorithms\Contracted\DirectedMetaGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilder.cs" />
@@ -88,7 +88,7 @@
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Graphs\Directed\DirectedGraphException.cs" />
+    <Compile Include="Graphs\Directed\DirectedMetaGraphException.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraph.cs" />
     <Compile Include="Graphs\Directed\Edge.cs" />
     <Compile Include="Graphs\Directed\MetaEdge.cs" />

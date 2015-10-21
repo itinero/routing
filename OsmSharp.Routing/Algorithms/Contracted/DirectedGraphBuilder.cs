@@ -30,13 +30,13 @@ namespace OsmSharp.Routing.Algorithms.Contracted
     public class DirectedGraphBuilder : AlgorithmBase
     {
         private readonly OsmSharp.Routing.Graphs.Graph _source;
-        private readonly DirectedGraph _target;
+        private readonly DirectedMetaGraph _target;
         private readonly Func<ushort, Factor> _getFactor;
 
         /// <summary>
         /// Creates anew graph builder.
         /// </summary>
-        public DirectedGraphBuilder(OsmSharp.Routing.Graphs.Graph source, DirectedGraph target, Func<ushort, Factor> getFactor)
+        public DirectedGraphBuilder(OsmSharp.Routing.Graphs.Graph source, DirectedMetaGraph target, Func<ushort, Factor> getFactor)
         {
             _source = source;
             _target = target;
@@ -89,9 +89,9 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                             }
                         }
                         var data = OsmSharp.Routing.Data.Contracted.ContractedEdgeDataSerializer.Serialize(
-                            distance * factor.Value, direction, Constants.NO_VERTEX);
+                            distance * factor.Value, direction);
 
-                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data);
+                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data, Constants.NO_VERTEX);
                     }
                 }
             }

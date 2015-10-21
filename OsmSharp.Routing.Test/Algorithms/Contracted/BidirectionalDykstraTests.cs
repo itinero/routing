@@ -18,6 +18,7 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing.Algorithms;
+using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System.Collections.Generic;
@@ -37,13 +38,9 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestOneEdge()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -72,13 +69,9 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(new List<uint>(new uint[] { 0, 1 }), algorithm.GetPath());
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -112,19 +105,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -166,19 +150,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesRightHighest()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -220,19 +195,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesLeftHighest()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -274,19 +240,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesDirectedMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -328,19 +285,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesRightMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, true, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -382,19 +330,10 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesLeftMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -436,49 +375,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestPentagon()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 2,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(4, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 0,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(4, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 4, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 3, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 1, 200, null, 2);
+            graph.AddEdge(4, 1, 200, null, 0);
+            graph.AddEdge(4, 3, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -572,49 +477,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestMultipleLevelHiearchy1()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 3,
-                Direction = null,
-                Weight = 400
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(2, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 2,
-                Direction = null,
-                Weight = 300
-            }));
-            graph.AddEdge(3, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 4, 400, null, 3);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 200, null, 1);
+            graph.AddEdge(2, 3, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 0, 300, null, 2);
+            graph.AddEdge(3, 4, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -651,49 +522,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestMultipleLevelHiearchy2()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(2, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 2,
-                Direction = null,
-                Weight = 300
-            }));
-            graph.AddEdge(3, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(4, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 3,
-                Direction = null,
-                Weight = 400
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 200, null, 1);
+            graph.AddEdge(2, 3, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 0, 300, null, 2);
+            graph.AddEdge(3, 4, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(4, 0, 400, null, 3);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -729,49 +566,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestMultipleLevelHiearchy3()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 2,
-                Direction = null,
-                Weight = 400
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(2, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 3,
-                Direction = null,
-                Weight = 200
-            }));
-            graph.AddEdge(3, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(3, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 4, 400, null, 2);
+            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 0, 200, null, 1);
+            graph.AddEdge(2, 4, 200, null, 3);
+            graph.AddEdge(3, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 4, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -808,31 +611,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestMultipleLevelHiearchy4()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 30
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 10
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 20
-            }));
-            graph.AddEdge(2, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 30
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 2, 30, null, 1);
+            graph.AddEdge(1, 0, 10, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 20, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 3, 30, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -874,43 +658,14 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestMultipleLevelHiearchy5()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = null,
-                Weight = 30
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 10
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 20
-            }));
-            graph.AddEdge(2, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 3,
-                Direction = null,
-                Weight = 70
-            }));
-            graph.AddEdge(3, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 30
-            }));
-            graph.AddEdge(3, 4, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 40
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(0, 2, 30, null, 1);
+            graph.AddEdge(1, 0, 10, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 20, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 4, 70, null, 3);
+            graph.AddEdge(3, 2, 30, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 4, 40, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,
@@ -952,49 +707,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestShorterEdgeOpposite()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 3,
-                Direction = true,
-                Weight = 10
-            }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 5
-            }));
-            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 5
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 10
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = true,
-                Weight = 110
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = 1,
-                Direction = false,
-                Weight = 20
-            }));
+            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                ContractedEdgeDataSerializer.MetaSize);
+            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 10, true, 3);
+            graph.AddEdge(3, 0, 5, true, Constants.NO_VERTEX);
+            graph.AddEdge(3, 1, 5, false, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 10, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 2, 110, true, 1);
+            graph.AddEdge(0, 2, 20, false, 1);
 
             // create algorithm and run.
             var algorithm = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(graph,

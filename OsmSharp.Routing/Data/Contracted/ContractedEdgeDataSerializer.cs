@@ -40,12 +40,12 @@ namespace OsmSharp.Routing.Data.Contracted
         /// Deserializes edges data.
         /// </summary>
         /// <returns></returns>
-        public static ContractedEdgeData Deserialize(uint[] data)
+        public static ContractedEdgeData Deserialize(uint data, uint metaData)
         {
             float weight;
             bool? direction;
             uint contractedId;
-            ContractedEdgeDataSerializer.Deserialize(data[0], data[1],
+            ContractedEdgeDataSerializer.Deserialize(data, metaData,
                 out weight, out direction, out contractedId);
 
             return new ContractedEdgeData()
@@ -102,18 +102,18 @@ namespace OsmSharp.Routing.Data.Contracted
         /// <returns></returns>
         public static Func<uint[], float> DeserializeWeightFunc = (data) =>
             {
-                return ContractedEdgeDataSerializer.DeserializeWeight(data);
+                return ContractedEdgeDataSerializer.DeserializeWeight(data[0]);
             };
 
         /// <summary>
         /// Parses the edge data.
         /// </summary>
         /// <returns></returns>
-        public static float DeserializeWeight(uint[] data)
+        public static float DeserializeWeight(uint data)
         {
             float weight;
             bool? direction;
-            ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
+            ContractedEdgeDataSerializer.Deserialize(data, out weight, out direction);
             return weight;
         }
 
@@ -121,12 +121,20 @@ namespace OsmSharp.Routing.Data.Contracted
         /// Returns true if the data represents the same direction.
         /// </summary>
         /// <returns></returns>
-        public static bool HasDirection(uint[] data, bool? direction)
+        public static bool HasDirection(uint data, bool? direction)
         {
             float weight;
             bool? currentDirection;
-            ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out currentDirection);
+            ContractedEdgeDataSerializer.Deserialize(data, out weight, out currentDirection);
             return currentDirection == direction;
+        }
+
+        /// <summary>
+        /// Returns the size of a the meta data in uint's when serialized.
+        /// </summary>
+        public static int MetaSize
+        {
+            get { return 1; }
         }
 
         /// <summary>
@@ -134,14 +142,14 @@ namespace OsmSharp.Routing.Data.Contracted
         /// </summary>
         public static int Size
         {
-            get { return 2; }
+            get { return 1; }
         }
 
         /// <summary>
         /// Serializes edge data.
         /// </summary>
         /// <returns></returns>
-        public static uint[] Serialize(float weight, bool? direction, uint contractedId)
+        public static uint Serialize(float weight, bool? direction)
         {
             if (weight > MAX_DISTANCE)
             {
@@ -164,9 +172,7 @@ namespace OsmSharp.Routing.Data.Contracted
 
             var data0 = (uint)dirFlags;
             data0 = data0 + ((uint)(weight * PRECISION_FACTOR) * 4);
-            var data1 = contractedId;
-
-            return new uint[] { data0, data1 };
+            return data0;
         }
 
         /// <summary>
@@ -175,19 +181,23 @@ namespace OsmSharp.Routing.Data.Contracted
         /// <returns></returns>
         public static uint[] Serialize(ContractedEdgeData data)
         {
-            return ContractedEdgeDataSerializer.Serialize(data.Weight, data.Direction, data.ContractedId);
+            return new uint[]
+            {
+                ContractedEdgeDataSerializer.Serialize(data.Weight, data.Direction),
+                data.ContractedId
+            };
         }
 
         /// <summary>
         /// Gets contracted edge data.
         /// </summary>
         /// <returns></returns>
-        public static ContractedEdgeData GetContractedEdgeData(this Edge edge)
+        public static ContractedEdgeData GetContractedEdgeData(this MetaEdge edge)
         {
             float weight;
             bool? direction;
             uint contractedId;
-            ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.Data[1],
+            ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0],
                 out weight, out direction, out contractedId);
             return new ContractedEdgeData()
             {
@@ -201,9 +211,9 @@ namespace OsmSharp.Routing.Data.Contracted
         /// Gets contracted id.
         /// </summary>
         /// <returns></returns>
-        public static uint GetContractedId(this Edge edge)
+        public static uint GetContractedId(this MetaEdge edge)
         {
-            return edge.Data[1];
+            return edge.MetaData[0];
         }
     }
 }

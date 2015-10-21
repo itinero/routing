@@ -148,7 +148,7 @@ namespace OsmSharp.Routing
         public static void AddContracted(this RouterDb db, Profiles.Profile profile)
         {
             // create the raw directed graph.
-            var contracted = new DirectedGraph(ContractedEdgeDataSerializer.Size);
+            var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, ContractedEdgeDataSerializer.MetaSize);
             var directedGraphBuilder = new DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
                 {
                     var tags = db.Profiles.Get(p);

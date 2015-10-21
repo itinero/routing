@@ -126,7 +126,7 @@ namespace OsmSharp.Routing
             }
 
             List<uint> path;
-            OsmSharp.Routing.Graphs.Directed.DirectedGraph contracted;
+            OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
             if(_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 path = null;

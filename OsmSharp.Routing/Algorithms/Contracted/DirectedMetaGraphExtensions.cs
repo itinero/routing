@@ -26,12 +26,12 @@ namespace OsmSharp.Routing.Algorithms.Contracted
     /// <summary>
     /// Directed graph extensions assuming it contains contracted data.
     /// </summary>
-    public static class DirectedGraphExtensions
+    public static class DirectedMetaGraphExtensions
     {
         /// <summary>
         /// Expands a the shortest edge between the two given vertices.
         /// </summary>
-        public static void ExpandEdge(this DirectedGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
+        public static void ExpandEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
             bool forward)
         {
             // check if expansion is needed.
@@ -72,29 +72,29 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// Add edge.
         /// </summary>
         /// <returns></returns>
-        public static void AddEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, 
+        public static void AddEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, float weight, 
             bool? direction, uint contractedId)
         {
             graph.AddEdge(vertex1, vertex2, ContractedEdgeDataSerializer.Serialize(
-                weight, direction, contractedId));
+                weight, direction), contractedId);
         }
 
         /// <summary>
         /// Add or update edge.
         /// </summary>
         /// <returns></returns>
-        public static void AddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, 
+        public static void AddOrUpdateEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, float weight, 
             bool? direction, uint contractedId)
         {
-            var current = ContractedEdgeDataSerializer.Serialize(weight, direction, contractedId);
+            var current = ContractedEdgeDataSerializer.Serialize(weight, direction);
             var hasExistingEdge = false;
             var hasExistingEdgeOnlySameDirection = true;
             if(graph.UpdateEdge(vertex1, vertex2, (data) => 
                 {
                     hasExistingEdge = true;
-                    if(ContractedEdgeDataSerializer.HasDirection(data, direction))
+                    if(ContractedEdgeDataSerializer.HasDirection(data[0], direction))
                     { // has the same direction.
-                        if (weight < ContractedEdgeDataSerializer.DeserializeWeight(data))
+                        if (weight < ContractedEdgeDataSerializer.DeserializeWeight(data[0]))
                         { // the weight is better, just update.
                             return true;
                         }
@@ -102,13 +102,13 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     }
                     hasExistingEdgeOnlySameDirection = false;
                     return false;
-                }, current))
+                }, new uint[] { current }, contractedId) != Constants.NO_EDGE)
             { // updating the edge succeeded.
                 return;
             }
             if (!hasExistingEdge)
             { // no edge exists yet.
-                graph.AddEdge(vertex1, vertex2, current);
+                graph.AddEdge(vertex1, vertex2, current, contractedId);
                 return;
             }
             else if (hasExistingEdgeOnlySameDirection)
@@ -145,7 +145,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                         float localWeight;
                         bool? localDirection;
                         uint localContractedId;
-                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.Data1,
+                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.MetaData0,
                             out localWeight, out localDirection, out localContractedId);
                         if(localDirection == null || localDirection.Value)
                         {
@@ -174,20 +174,20 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     forwardWeight == backwardWeight &&
                     forwardContractedId == backwardContractedId)
                 { // add one bidirectional edge.
-                    graph.AddEdge(vertex1, vertex2, 
-                        ContractedEdgeDataSerializer.Serialize(forwardWeight, null, forwardContractedId));
+                    graph.AddEdge(vertex1, vertex2,
+                        ContractedEdgeDataSerializer.Serialize(forwardWeight, null), forwardContractedId);
                 }
                 else
                 { // add two unidirectional edges if needed.
                     if(forward)
                     { // there is a forward edge.
-                        graph.AddEdge(vertex1, vertex2, 
-                            ContractedEdgeDataSerializer.Serialize(forwardWeight, true, forwardContractedId));
+                        graph.AddEdge(vertex1, vertex2,
+                            ContractedEdgeDataSerializer.Serialize(forwardWeight, true), forwardContractedId);
                     }
                     if (backward)
                     { // there is a backward edge.
                         graph.AddEdge(vertex1, vertex2,
-                            ContractedEdgeDataSerializer.Serialize(backwardWeight, false, backwardContractedId));
+                            ContractedEdgeDataSerializer.Serialize(backwardWeight, false), backwardContractedId);
                     }
                 }
             }
@@ -197,10 +197,9 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// Tries adding or updating an edge and returns #added and #removed edges.
         /// </summary>
         /// <returns></returns>
-        public static void TryAddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+        public static void TryAddOrUpdateEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
             out int added, out int removed)
         {
-            var current = ContractedEdgeDataSerializer.Serialize(weight, direction, contractedId);
             var hasExistingEdge = false;
             var hasExistingEdgeOnlySameDirection = true;
             var edgeCount = 0;
@@ -211,9 +210,9 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 {
                     edgeCount++;
                     hasExistingEdge = true;
-                    if (ContractedEdgeDataSerializer.HasDirection(edgeEnumerator.Data, direction))
+                    if (ContractedEdgeDataSerializer.HasDirection(edgeEnumerator.Data0, direction))
                     { // has the same direction.
-                        if (weight < ContractedEdgeDataSerializer.DeserializeWeight(edgeEnumerator.Data))
+                        if (weight < ContractedEdgeDataSerializer.DeserializeWeight(edgeEnumerator.Data0))
                         { // the weight is better, just update.
                             added = 1;
                             removed = 1;
@@ -266,7 +265,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                         float localWeight;
                         bool? localDirection;
                         uint localContractedId;
-                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.Data1,
+                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.MetaData0,
                             out localWeight, out localDirection, out localContractedId);
                         if (localDirection == null || localDirection.Value)
                         {

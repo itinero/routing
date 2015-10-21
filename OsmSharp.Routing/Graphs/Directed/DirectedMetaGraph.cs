@@ -68,12 +68,27 @@ namespace OsmSharp.Routing.Graphs.Directed
         }
 
         /// <summary>
+        /// Gets the basic graph.
+        /// </summary>
+        public DirectedGraph Graph
+        {
+            get
+            {
+                return _graph;
+            }
+        }
+
+        /// <summary>
         /// Switched two edges.
         /// </summary>
         private void SwitchEdge(uint oldId, uint newId)
         {
             var oldEdgePointer = oldId * _edgeDataSize;
             var newEdgePointer = newId * _edgeDataSize;
+            if(newEdgePointer + _edgeDataSize >= _edgeData.Length)
+            {
+                this.IncreaseSizeEdgeData((uint)(newEdgePointer + _edgeDataSize));
+            }
             for (var i = 0; i < _edgeDataSize; i++)
             {
                 _edgeData[newEdgePointer + i] = _edgeData[oldEdgePointer + i];
@@ -97,12 +112,48 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// Adds a new edge.
         /// </summary>
         /// <returns></returns>
+        public uint AddEdge(uint vertex1, uint vertex2, uint data, uint metaData)
+        {
+            if (_edgeDataSize != 1) { throw new ArgumentOutOfRangeException("Dimension of meta-data doesn't match."); }
+
+            var edgeId = _graph.AddEdge(vertex1, vertex2, data);
+            if (edgeId >= _edgeData.Length)
+            {
+                this.IncreaseSizeEdgeData(edgeId);
+            }
+            var edgePointer = edgeId * _edgeDataSize;
+            _edgeData[edgePointer + 0] = metaData;
+            return edgeId;
+        }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        /// <returns></returns>
         public uint AddEdge(uint vertex1, uint vertex2, uint[] data, params uint[] metaData)
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
             if (edgeId >= _edgeData.Length)
             {
                 this.IncreaseSizeEdgeData(edgeId);
+            }
+            var edgePointer = edgeId * _edgeDataSize;
+            for (var i = 0; i < _edgeDataSize; i++)
+            {
+                _edgeData[edgePointer + i] = metaData[i];
+            }
+            return edgeId;
+        }
+
+        /// <summary>
+        /// Updates and edge's associated data.
+        /// </summary>
+        public uint UpdateEdge(uint vertex1, uint vertex2, Func<uint[], bool> update, uint[] data, params uint[] metaData)
+        {
+            var edgeId = _graph.UpdateEdge(vertex1, vertex2, update, data);
+            if(edgeId == Constants.NO_EDGE)
+            {
+                return Constants.NO_EDGE;
             }
             var edgePointer = edgeId * _edgeDataSize;
             for (var i = 0; i < _edgeDataSize; i++)
@@ -154,7 +205,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         public void Compress()
         {
             _graph.Compress();
-            _edgeData.Resize(_graph.EdgeCount);
+            _edgeData.Resize(_graph.EdgeCount + 1);
         }
 
         /// <summary>
@@ -163,7 +214,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         public void Trim()
         {
             _graph.Trim();
-            _edgeData.Resize(_graph.EdgeCount);
+            _edgeData.Resize(_graph.EdgeCount + 1);
         }
 
         /// <summary>
@@ -240,6 +291,17 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
 
             /// <summary>
+            /// Returns the first entry in the edge data.
+            /// </summary>
+            public uint Data0
+            {
+                get
+                {
+                    return _enumerator.Data0;
+                }
+            }
+
+            /// <summary>
             /// Returns the current edge meta-data.
             /// </summary>
             public uint[] MetaData
@@ -253,6 +315,17 @@ namespace OsmSharp.Routing.Graphs.Directed
                         metaData[i] = _graph._edgeData[edgePointer + i];
                     }
                     return metaData;
+                }
+            }
+
+            /// <summary>
+            /// Returns the current edge meta-data.
+            /// </summary>
+            public uint MetaData0
+            {
+                get
+                {
+                    return _graph._edgeData[(_enumerator.Id * _graph._edgeDataSize) + 0];
                 }
             }
 

@@ -30,7 +30,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
     /// </summary>
     public class EdgeDifferencePriorityCalculator : IPriorityCalculator
     {
-        private readonly DirectedGraph _graph;
+        private readonly DirectedMetaGraph _graph;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
         private readonly IWitnessCalculator _witnessCalculator;
@@ -38,7 +38,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Creates a new priority calculator.
         /// </summary>
-        public EdgeDifferencePriorityCalculator(DirectedGraph graph, IWitnessCalculator witnessCalculator)
+        public EdgeDifferencePriorityCalculator(DirectedMetaGraph graph, IWitnessCalculator witnessCalculator)
         {
             _graph = graph;
             _witnessCalculator = witnessCalculator;
@@ -60,7 +60,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             var added = 0;
             
             // get and keep edges.
-            var edges = new List<Edge>(_graph.GetEdgeEnumerator(vertex));
+            var edges = new List<Edge>(_graph.Graph.GetEdgeEnumerator(vertex));
 
             // remove 'downward' edge to vertex.
             var i = 0;
@@ -102,9 +102,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
                 float edge1Weight;
                 bool? edge1Direction;
-                uint edge1ContractedId;
-                OsmSharp.Routing.Data.Contracted.ContractedEdgeDataSerializer.Deserialize(edge1.Data[0], edge1.Data[1],
-                    out edge1Weight, out edge1Direction, out edge1ContractedId);
+                OsmSharp.Routing.Data.Contracted.ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
+                    out edge1Weight, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
@@ -119,9 +118,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
                     float edge2Weight;
                     bool? edge2Direction;
-                    uint edge2ContractedId;
-                    ContractedEdgeDataSerializer.Deserialize(edge2.Data[0], edge2.Data[1],
-                        out edge2Weight, out edge2Direction, out edge2ContractedId);
+                    ContractedEdgeDataSerializer.Deserialize(edge2.Data[0],
+                        out edge2Weight, out edge2Direction);
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
@@ -132,7 +130,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights, 
+                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights, 
                     ref forwardWitnesses, ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.

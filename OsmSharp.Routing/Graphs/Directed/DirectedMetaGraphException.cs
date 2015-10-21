@@ -23,17 +23,17 @@ namespace OsmSharp.Routing.Graphs.Directed
     /// <summary>
     /// Contains extension methods for the directed graph.
     /// </summary>
-    public static class DirectedGraphException
+    public static class DirectedMetaGraphException
     {
         /// <summary>
         /// Gets the shortest edge between two vertices.
         /// </summary>
         /// <returns></returns>
-        public static Edge GetShortestEdge(this DirectedGraph graph, uint vertex1, uint vertex2, Func<uint[], float?> getWeight)
+        public static MetaEdge GetShortestEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, Func<uint[], float?> getWeight)
         {
             var minWeight = float.MaxValue;
             var edges = graph.GetEdgeEnumerator(vertex1);
-            Edge edge = null;
+            MetaEdge edge = null;
             while(edges.MoveNext())
             {
                 if(edges.Neighbour == vertex2)

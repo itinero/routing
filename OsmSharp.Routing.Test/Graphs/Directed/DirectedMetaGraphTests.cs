@@ -37,7 +37,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edge.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
+            graph.AddEdge(0, 1, 10, 100);
 
             // verify all edges.
             var edges = graph.GetEdgeEnumerator(0);
@@ -50,7 +50,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(0, edges.Count());
 
             // add another edge.
-            graph.AddEdge(1, 2, new uint[] { 20 }, 200);
+            graph.AddEdge(1, 2, 20, 200);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -69,7 +69,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(0, edges.Count());
 
             // add another edge.
-            graph.AddEdge(1, 3, new uint[] { 30 }, 300);
+            graph.AddEdge(1, 3, 30, 300);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -94,7 +94,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(0, edges.Count());
 
             // add another edge but in reverse.
-            graph.AddEdge(3, 1, new uint[] { 30 }, 300);
+            graph.AddEdge(3, 1, 30, 300);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -122,7 +122,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(1, edges.First().Neighbour);
 
             // add another edge and start a new island.
-            graph.AddEdge(4, 5, new uint[] { 40 }, 400);
+            graph.AddEdge(4, 5, 40, 400);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -159,7 +159,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(0, edges.Count());
 
             // connect the islands.
-            graph.AddEdge(5, 3, new uint[] { 50 }, 500);
+            graph.AddEdge(5, 3, 50, 500);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -198,7 +198,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(500, edges.First().MetaData[0]);
             Assert.AreEqual(3, edges.First().Neighbour);
 
-            graph.AddEdge(1, 6, new uint[] { 60 }, 600);
+            graph.AddEdge(1, 6, 60, 600);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -240,7 +240,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             Assert.AreEqual(500, edges.First().MetaData[0]);
             Assert.AreEqual(3, edges.First().Neighbour);
 
-            graph.AddEdge(1, 7, new uint[] { 70 }, 700);
+            graph.AddEdge(1, 7, 70, 700);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(0);
@@ -295,12 +295,12 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edges.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(1, 2, new uint[] { 2 }, 200);
-            graph.AddEdge(1, 3, new uint[] { 3 }, 300);
-            graph.AddEdge(3, 4, new uint[] { 4 }, 400);
-            graph.AddEdge(4, 1, new uint[] { 5 }, 500);
-            graph.AddEdge(5, 1, new uint[] { 6 }, 600);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(1, 2, 2, 200);
+            graph.AddEdge(1, 3, 3, 300);
+            graph.AddEdge(3, 4, 4, 400);
+            graph.AddEdge(4, 1, 5, 500);
+            graph.AddEdge(5, 1, 6, 600);
 
             // get empty edge enumerator.
             var edges = graph.GetEdgeEnumerator();
@@ -344,9 +344,9 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edge.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 11001, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 11001, new uint[] { 2 }, 200);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(0, 11001, 1, 100);
+            graph.AddEdge(0, 11001, 2, 200);
 
             edges = graph.GetEdgeEnumerator();
 
@@ -364,15 +364,15 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and remove edge.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
+            graph.AddEdge(0, 1, 10, 100);
             Assert.AreEqual(0, graph.RemoveEdge(1, 0));
             Assert.AreEqual(1, graph.RemoveEdge(0, 1));
 
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and remove edge.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
-            graph.AddEdge(0, 1, new uint[] { 20 }, 200);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(0, 1, 20, 200);
             Assert.AreEqual(2, graph.GetEdgeEnumerator(0).Count);
             Assert.AreEqual(0, graph.RemoveEdge(1, 0));
             Assert.AreEqual(2, graph.RemoveEdge(0, 1));
@@ -381,8 +381,8 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and remove edge.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
-            graph.AddEdge(0, 1, new uint[] { 20 }, 200);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(0, 1, 20, 200);
             Assert.AreEqual(2, graph.GetEdgeEnumerator(0).Count);
             Assert.AreEqual(0, graph.RemoveEdge(1, 0));
             Assert.AreEqual(2, graph.RemoveEdge(0, 1));
@@ -391,8 +391,8 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
             
             // add and remove edge.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
-            graph.AddEdge(0, 2, new uint[] { 20 }, 200);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(0, 2, 20, 200);
             graph.RemoveEdge(0, 1);
 
             var edges = graph.GetEdgeEnumerator(0);
@@ -409,7 +409,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and remove edge.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
             Assert.AreEqual(0, graph.RemoveEdges(1));
             Assert.AreEqual(1, graph.RemoveEdges(0));
 
@@ -423,8 +423,8 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and remove edges.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 2, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(0, 2, 1, 100);
             Assert.AreEqual(2, graph.RemoveEdges(0));
 
             // verify all edges.
@@ -438,9 +438,9 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and remove edges.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 2, new uint[] { 2 }, 200);
-            graph.AddEdge(1, 2, new uint[] { 3 }, 300);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(0, 2, 2, 200);
+            graph.AddEdge(1, 2, 3, 300);
             Assert.AreEqual(2, graph.RemoveEdges(0));
 
             // verify all edges.
@@ -454,10 +454,10 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and compress.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
-            graph.AddEdge(1, 2, new uint[] { 20 }, 200);
-            graph.AddEdge(2, 3, new uint[] { 30 }, 300);
-            graph.AddEdge(3, 4, new uint[] { 40 }, 400);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(1, 2, 20, 200);
+            graph.AddEdge(2, 3, 30, 300);
+            graph.AddEdge(3, 4, 40, 400);
             Assert.AreEqual(1, graph.RemoveEdge(1, 2));
 
             // verify all edges.
@@ -492,7 +492,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edge.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
 
             // trim.
             graph.Trim();
@@ -501,8 +501,8 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edge.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 11001, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(0, 11001, 1, 100);
 
             // trim.
             graph.Trim();
@@ -524,17 +524,17 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edge.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
             Assert.AreEqual(1, graph.EdgeCount);
 
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add edge.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 11001, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(0, 11001, 1, 100);
             Assert.AreEqual(2, graph.EdgeCount);
 
-            graph.AddEdge(0, 11001, new uint[] { 2 }, 200);
+            graph.AddEdge(0, 11001, 2, 200);
             Assert.AreEqual(3, graph.EdgeCount);
 
             graph.RemoveEdge(0, 11001);
@@ -553,7 +553,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and compress.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
             graph.Compress();
 
             // verify all edges.
@@ -565,10 +565,10 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and compress.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
-            graph.AddEdge(1, 2, new uint[] { 20 }, 200);
-            graph.AddEdge(2, 3, new uint[] { 30 }, 300);
-            graph.AddEdge(3, 4, new uint[] { 40 }, 400);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(1, 2, 20, 200);
+            graph.AddEdge(2, 3, 30, 300);
+            graph.AddEdge(3, 4, 40, 400);
             graph.RemoveEdge(1, 2);
 
             // verify all edges.
@@ -628,7 +628,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             var graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and compress.
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
             graph.Compress();
             var expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
                 graph.VertexCount * 2 * 4 + // the bytes for the vertex-index: 2 uint's.
@@ -649,10 +649,10 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph = new DirectedMetaGraph(1, 1, 10);
 
             // add and compress.
-            graph.AddEdge(0, 1, new uint[] { 10 }, 100);
-            graph.AddEdge(1, 2, new uint[] { 20 }, 200);
-            graph.AddEdge(2, 3, new uint[] { 30 }, 300);
-            graph.AddEdge(3, 4, new uint[] { 40 }, 400);
+            graph.AddEdge(0, 1, 10, 100);
+            graph.AddEdge(1, 2, 20, 200);
+            graph.AddEdge(2, 3, 30, 300);
+            graph.AddEdge(3, 4, 40, 400);
             graph.RemoveEdge(1, 2);
             graph.Compress();
             expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
@@ -673,7 +673,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
         public void TestDeserialize()
         {
             var graph = new DirectedMetaGraph(1, 1, 10);
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
+            graph.AddEdge(0, 1, 1, 100);
 
             // serialize.
             using (var stream = new System.IO.MemoryStream())
@@ -698,14 +698,14 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             }
 
             graph = new DirectedMetaGraph(1, 1, 10);
-            graph.AddEdge(0, 1, new uint[] { 1 }, 100);
-            graph.AddEdge(0, 2, new uint[] { 2 }, 200);
-            graph.AddEdge(0, 3, new uint[] { 3 }, 300);
-            graph.AddEdge(0, 4, new uint[] { 4 }, 400);
-            graph.AddEdge(5, 1, new uint[] { 5 }, 500);
-            graph.AddEdge(5, 2, new uint[] { 6 }, 600);
-            graph.AddEdge(5, 3, new uint[] { 7 }, 700);
-            graph.AddEdge(5, 4, new uint[] { 8 }, 800);
+            graph.AddEdge(0, 1, 1, 100);
+            graph.AddEdge(0, 2, 2, 200);
+            graph.AddEdge(0, 3, 3, 300);
+            graph.AddEdge(0, 4, 4, 400);
+            graph.AddEdge(5, 1, 5, 500);
+            graph.AddEdge(5, 2, 6, 600);
+            graph.AddEdge(5, 3, 7, 700);
+            graph.AddEdge(5, 4, 8, 800);
 
             // serialize.
             using (var stream = new System.IO.MemoryStream())
