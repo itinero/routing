@@ -81,6 +81,7 @@
     <Compile Include="Algorithms\RouteBuilder.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Path.cs" />
+    <Compile Include="Algorithms\Search\IResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />

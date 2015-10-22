@@ -90,7 +90,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Adds a supported profile.
         /// </summary>
-        internal void AddSupportedProfile(Profiles.Profile profile)
+        public void AddSupportedProfile(Profiles.Profile profile)
         {
             _supportedProfiles.Add(profile.Name);
         }

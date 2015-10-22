@@ -16,38 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Algorithms
+namespace OsmSharp.Routing.Algorithms.Search
 {
     /// <summary>
-    /// Abstract representation of an algorithm.
+    /// Abstract representation of a resolver algorithm.
     /// </summary>
-    public interface IAlgorithm
+    public interface IResolver : IAlgorithm
     {
         /// <summary>
-        /// Returns true if this instance has run already.
+        /// Gets the result.
         /// </summary>
-        bool HasRun
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Returns true if this instance has run and it was succesfull.
-        /// </summary>
-        bool HasSucceeded
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Runs the algorithm.
-        /// </summary>
-        void Run();
-
-        /// <summary>
-        /// Returns an error message when the algorithm was not successful.
-        /// </summary>
-        string ErrorMessage
+        RouterPoint Result
         {
             get;
         }

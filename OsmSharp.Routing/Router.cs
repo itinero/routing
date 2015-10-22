@@ -43,6 +43,17 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// A delegate used to inject a custom resolver algorithm.
+        /// </summary>
+        /// <returns></returns>
+        public delegate IResolver CreateResolver(float latitude, float longitude);
+
+        /// <summary>
+        /// Gets or sets the delegate to create a custom resolver.
+        /// </summary>
+        public CreateResolver CreateCustomResolver { get; set; }
+
+        /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
@@ -56,24 +67,33 @@ namespace OsmSharp.Routing
                 });
             }
 
-            var resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, _defaultSearchOffset,
-                _defaultSearchMaxDistance, (edge) =>
-                { // check all profiles, they all need to be traversible.
-                    // get profile.
-                    float distance;
-                    ushort profile;
-                    OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
-                        out distance, out profile);
-                    for(var i = 0; i < profiles.Length; i++)
-                    {
-                        // get factor from profile.
-                        if (profiles[i].Factor(_db.EdgeProfiles.Get(profile)).Value <= 0)
-                        { // cannot be traversed by this profile.
-                            return false;
+            IResolver resolver = null;
+            if (this.CreateCustomResolver == null)
+            { // just use the default resolver algorithm.
+                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, _defaultSearchOffset,
+                    _defaultSearchMaxDistance, (edge) =>
+                    { // check all profiles, they all need to be traversible.
+                        // get profile.
+                        float distance;
+                        ushort edgeProfileId;
+                        OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
+                            out distance, out edgeProfileId);
+                        var edgeProfile = _db.EdgeProfiles.Get(edgeProfileId);
+                        for (var i = 0; i < profiles.Length; i++)
+                        {
+                            // get factor from profile.
+                            if (profiles[i].Factor(edgeProfile).Value <= 0)
+                            { // cannot be traversed by this profile.
+                                return false;
+                            }
                         }
-                    }
-                    return true;
-                });
+                        return true;
+                    });
+            }
+            else
+            { // create the custom resolver algorithm.
+                resolver = this.CreateCustomResolver(latitude, longitude);
+            }
             resolver.Run();
             if(!resolver.HasSucceeded)
             { // something went wrong.

@@ -251,6 +251,15 @@ namespace OsmSharp.Routing.Osm.Vehicles
         }
 
         /// <summary>
+        /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool CanStopOn(TagsCollectionBase tags)
+        {
+            return true;
+        }
+
+        /// <summary>
         /// Returns the Max Speed for the highwaytype in Km/h
         /// </summary>
         /// <param name="highwayType"></param>
@@ -411,20 +420,20 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <returns></returns>
         public Profiles.Profile Fastest()
         {
-            return new Profiles.Profile(this.UniqueName + ".Fastest", (tags) => 
+            return new Profiles.Profile(this.UniqueName + ".Fastest", (tags) =>
                 {
-                    if(this.CanTraverse(tags))
+                    if (this.CanTraverse(tags))
                     {
                         var speed = new OsmSharp.Routing.Profiles.Speed()
                             {
                                 Value = (float)this.ProbableSpeed(tags).Value / 3.6f,
-                                Direction= 0
+                                Direction = 0
                             };
                         var oneway = this.IsOneWay(tags);
-                        
-                        if(oneway.HasValue)
+
+                        if (oneway.HasValue)
                         {
-                            if(oneway.Value)
+                            if (oneway.Value)
                             {
                                 speed.Direction = 1;
                             }
@@ -436,6 +445,10 @@ namespace OsmSharp.Routing.Osm.Vehicles
                         return speed;
                     }
                     return OsmSharp.Routing.Profiles.Speed.NoSpeed;
+                },
+                (tags) =>
+                {
+                    return this.CanStopOn(tags);
                 }, this.VehicleTypes);
         }
 
@@ -469,7 +482,11 @@ namespace OsmSharp.Routing.Osm.Vehicles
                     return speed;
                 }
                 return OsmSharp.Routing.Profiles.Speed.NoSpeed;
-            }, this.VehicleTypes);
+            },
+                (tags) =>
+                {
+                    return this.CanStopOn(tags);
+                }, this.VehicleTypes);
         }
     }
 }

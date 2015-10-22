@@ -50,6 +50,15 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
+        {
+            return router.TryResolve(profiles, latitude, longitude).Value;
+        }
+
+        /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>

@@ -26,14 +26,14 @@ namespace OsmSharp.Routing.Test.Profiles
     /// <summary>
     /// A profile mock.
     /// </summary>
-    public class ProfileMock : Profile
+    public class MockProfile : Profile
     {
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        private ProfileMock(string name, Func<TagsCollectionBase, Speed> getSpeed,
+        private MockProfile(string name, Func<TagsCollectionBase, Speed> getSpeed, 
             HashSet<string> vehicleTypes)
-            : base(name, getSpeed, vehicleTypes)
+            : base(name, getSpeed, x => true, vehicleTypes)
         {
 
         }
@@ -42,9 +42,9 @@ namespace OsmSharp.Routing.Test.Profiles
         /// Creates a mock car profile.
         /// </summary>
         /// <returns></returns>
-        public static ProfileMock CarMock()
+        public static MockProfile CarMock()
         {
-            return ProfileMock.Mock("CarMock", x => new Speed() 
+            return MockProfile.Mock("CarMock", x => new Speed() 
             {
                 Value = 50f / 3.6f,
                 Direction = 0
@@ -55,7 +55,7 @@ namespace OsmSharp.Routing.Test.Profiles
         /// Creates a mock car profile.
         /// </summary>
         /// <returns></returns>
-        public static ProfileMock Mock(string name, Func<TagsCollectionBase, Speed> getSpeed,
+        public static MockProfile Mock(string name, Func<TagsCollectionBase, Speed> getSpeed,
             params string[] vehicleTypes)
         {
             var vehicleTypesSet = new HashSet<string>();
@@ -64,7 +64,7 @@ namespace OsmSharp.Routing.Test.Profiles
                 vehicleTypesSet.Add(vehicleType);
             }
 
-            return new ProfileMock(name, getSpeed, vehicleTypesSet);
+            return new MockProfile(name, getSpeed, vehicleTypesSet);
         }
     }
 }

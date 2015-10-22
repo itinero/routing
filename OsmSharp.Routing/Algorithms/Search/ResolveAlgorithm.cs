@@ -25,7 +25,7 @@ namespace OsmSharp.Routing.Algorithms.Search
     /// <summary>
     /// An algorithm to search for a good location on a routing network to start routing for a given location.
     /// </summary>
-    public class ResolveAlgorithm : AlgorithmBase
+    public class ResolveAlgorithm : AlgorithmBase, IResolver
     {
         private readonly GeometricGraph _graph;
         private readonly float _latitude;

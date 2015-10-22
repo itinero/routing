@@ -109,6 +109,27 @@ namespace OsmSharp.Routing.Osm.Vehicles
         }
 
         /// <summary>
+        /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
+        /// </summary>
+        /// <returns></returns>
+        public override bool CanStopOn(TagsCollectionBase tags)
+        {
+            var highwayType = string.Empty;
+            if(this.TryGetHighwayType(tags, out highwayType))
+            {
+                if(!string.IsNullOrWhiteSpace(highwayType))
+                {
+                    if(highwayType.ToLowerInvariant().Equals("motorway") ||
+                       highwayType.ToLowerInvariant().Equals("motorway_link"))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns the maximum possible speed this vehicle can achieve.
         /// </summary>
         /// <returns></returns>

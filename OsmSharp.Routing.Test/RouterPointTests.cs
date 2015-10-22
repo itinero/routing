@@ -79,7 +79,7 @@ namespace OsmSharp.Routing.Test
             }));
 
             // mock profile.
-            var profile = ProfileMock.CarMock();
+            var profile = MockProfile.CarMock();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
             var paths = point.ToPaths(routerDb, profile, false);
@@ -146,7 +146,7 @@ namespace OsmSharp.Routing.Test
             }));
 
             // mock profile.
-            var profile = ProfileMock.Mock("OnwayMock", x =>
+            var profile = MockProfile.Mock("OnwayMock", x =>
                 {
                     return new Routing.Profiles.Speed()
                     {
@@ -208,7 +208,7 @@ namespace OsmSharp.Routing.Test
             }));
 
             // mock profile.
-            var profile = ProfileMock.Mock("OnwayMock", x =>
+            var profile = MockProfile.Mock("OnwayMock", x =>
             {
                 return new Routing.Profiles.Speed()
                 {
@@ -270,7 +270,7 @@ namespace OsmSharp.Routing.Test
             }));
 
             // mock profile.
-            var profile = ProfileMock.CarMock();
+            var profile = MockProfile.CarMock();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -306,7 +306,7 @@ namespace OsmSharp.Routing.Test
             }));
 
             // mock profile.
-            var profile = ProfileMock.CarMock();
+            var profile = MockProfile.CarMock();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 

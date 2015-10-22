@@ -78,6 +78,7 @@
     <Compile Include="Algorithms\OneToManyTests.cs" />
     <Compile Include="Algorithms\RouteBuilderTests.cs" />
     <Compile Include="Algorithms\Search\HibertTests.cs" />
+    <Compile Include="Algorithms\Search\MockResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializerTests.cs" />
     <Compile Include="Data\EdgeDataSerializerTests.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Osm\Vehicles\VehiclePedestrianTests.cs" />
     <Compile Include="Osm\Vehicles\VehicleSmallTruckTests.cs" />
     <Compile Include="RouterPointTests.cs" />
+    <Compile Include="RouterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\OsmSharp.Routing\OsmSharp.Routing.csproj">

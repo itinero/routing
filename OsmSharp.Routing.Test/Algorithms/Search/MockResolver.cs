@@ -16,40 +16,38 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-namespace OsmSharp.Routing.Algorithms
+using OsmSharp.Routing.Algorithms;
+using OsmSharp.Routing.Algorithms.Search;
+
+namespace OsmSharp.Routing.Test.Algorithms.Search
 {
     /// <summary>
-    /// Abstract representation of an algorithm.
+    /// A mock resolver.
     /// </summary>
-    public interface IAlgorithm
+    class MockResolver : AlgorithmBase, IResolver
     {
-        /// <summary>
-        /// Returns true if this instance has run already.
-        /// </summary>
-        bool HasRun
+        private readonly RouterPoint _result;
+
+        public MockResolver(RouterPoint result)
         {
-            get;
+            _result = result;
         }
 
-        /// <summary>
-        /// Returns true if this instance has run and it was succesfull.
-        /// </summary>
-        bool HasSucceeded
+        public RouterPoint Result
         {
-            get;
+            get { return _result; }
         }
 
-        /// <summary>
-        /// Runs the algorithm.
-        /// </summary>
-        void Run();
-
-        /// <summary>
-        /// Returns an error message when the algorithm was not successful.
-        /// </summary>
-        string ErrorMessage
+        protected override void DoRun()
         {
-            get;
+            if(_result != null)
+            {
+                this.HasSucceeded = true;
+                return;
+            }
+            this.ErrorMessage = "Cannot resolve.";
+            this.HasSucceeded = false;
+            return;
         }
     }
 }

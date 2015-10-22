@@ -29,15 +29,17 @@ namespace OsmSharp.Routing.Profiles
     {
         private readonly string _name;
         private readonly Func<TagsCollectionBase, Speed> _getSpeed;
+        private readonly Func<TagsCollectionBase, bool> _canStop;
         private readonly HashSet<string> _vehicleTypes;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed,
+        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<TagsCollectionBase, bool> canStop,
             HashSet<string> vehicleTypes)
         {
             _getSpeed = getSpeed;
+            _canStop = canStop;
             _vehicleTypes = vehicleTypes;
             _name = name;
         }
@@ -62,6 +64,15 @@ namespace OsmSharp.Routing.Profiles
                 Value = 1.0f / speed.Value,
                 Direction = speed.Direction
             };
+        }
+
+        /// <summary>
+        /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool CanStopOn(TagsCollectionBase attributes)
+        {
+            return _canStop(attributes);
         }
 
         /// <summary>
