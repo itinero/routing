@@ -68,9 +68,9 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
             }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
                 new GeoCoordinate(0.025, 0.025),
@@ -135,9 +135,9 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
             }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
                 new GeoCoordinate(0.025, 0.025),
@@ -197,9 +197,9 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
             }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
                 new GeoCoordinate(0.025, 0.025),
@@ -259,9 +259,9 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
             }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
                 new GeoCoordinate(0.025, 0.025),
@@ -295,9 +295,9 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.Profiles.Add(new TagsCollection(
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.Profiles.Add(new TagsCollection(
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
             }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
                 new GeoCoordinate(0.025, 0.025),

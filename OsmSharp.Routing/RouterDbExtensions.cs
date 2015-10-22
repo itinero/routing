@@ -70,8 +70,8 @@ namespace OsmSharp.Routing
                     }
                     var geometry = new LineString(coordinates);
 
-                    var tags = new TagsCollection(db.Profiles.Get(edgeEnumerator.Data.Profile));
-                    tags.AddOrReplace(db.Meta.Get(edgeEnumerator.Data.MetaId));
+                    var tags = new TagsCollection(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
+                    tags.AddOrReplace(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
                     tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
                     features.Add(new Feature(geometry,
                         new SimpleGeometryAttributeCollection(tags)));
@@ -120,8 +120,8 @@ namespace OsmSharp.Routing
                     }
                     var geometry = new LineString(coordinates);
 
-                    var tags = new TagsCollection(db.Profiles.Get(edgeEnumerator.Data.Profile));
-                    tags.AddOrReplace(db.Meta.Get(edgeEnumerator.Data.MetaId));
+                    var tags = new TagsCollection(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
+                    tags.AddOrReplace(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
                     tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
                     features.Add(new Feature(geometry,
                         new SimpleGeometryAttributeCollection(tags)));
@@ -151,7 +151,7 @@ namespace OsmSharp.Routing
             var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, ContractedEdgeDataSerializer.MetaSize);
             var directedGraphBuilder = new DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
                 {
-                    var tags = db.Profiles.Get(p);
+                    var tags = db.EdgeProfiles.Get(p);
                     return profile.Factor(tags);
                 });
             directedGraphBuilder.Run();

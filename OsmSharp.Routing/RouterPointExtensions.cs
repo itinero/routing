@@ -51,7 +51,7 @@ namespace OsmSharp.Routing
             float distance;
             ushort profileId;
             OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
-            var factor = profile.Factor(routerDb.Profiles.Get(profileId));
+            var factor = profile.Factor(routerDb.EdgeProfiles.Get(profileId));
             var length = graph.Length(edge);
             if(factor.Direction == 0)
             { // bidirectional.

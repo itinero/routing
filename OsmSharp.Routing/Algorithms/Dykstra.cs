@@ -75,7 +75,7 @@ namespace OsmSharp.Routing.Algorithms
             // algorithm always succeeds, it may be dealing with an empty network and there are no targets.
             this.HasSucceeded = true;
 
-            // initialize a dictionary of speeds per profile.
+            // initialize a dictionary of speeds per edge profile.
             _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
@@ -149,13 +149,13 @@ namespace OsmSharp.Routing.Algorithms
 
                 // get the speed from cache or calculate.
                 float distance;
-                ushort profile;
-                EdgeDataSerializer.Deserialize(edge.Data0, out distance, out profile);
+                ushort edgeProfile;
+                EdgeDataSerializer.Deserialize(edge.Data0, out distance, out edgeProfile);
                 var factor = Factor.NoFactor;
-                if (!_factors.TryGetValue(profile, out factor))
+                if (!_factors.TryGetValue(edgeProfile, out factor))
                 { // speed not there, calculate speed.
-                    factor = _getFactor(profile);
-                    _factors.Add(profile, factor);
+                    factor = _getFactor(edgeProfile);
+                    _factors.Add(edgeProfile, factor);
                 }
 
                 // check the tags against the interpreter.

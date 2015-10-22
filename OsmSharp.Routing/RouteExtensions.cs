@@ -538,8 +538,8 @@ namespace OsmSharp.Routing
                     edges.To != nextVertex)
                 {
                     var edge = edges.Current;
-                    var profile = routerDb.Profiles.Get(edge.Data.Profile);
-                    var meta = routerDb.Meta.Get(edge.Data.MetaId);
+                    var profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+                    var meta = routerDb.EdgeMeta.Get(edge.Data.MetaId);
 
                     var tags = new TagsCollection(profile);
                     tags.AddOrReplace(meta);

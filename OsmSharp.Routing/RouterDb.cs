@@ -30,7 +30,7 @@ namespace OsmSharp.Routing
     public class RouterDb
     {
         private readonly RoutingNetwork _network;
-        private readonly ITagsIndex _profiles;
+        private readonly ITagsIndex _edgeProfiles;
         private readonly ITagsIndex _meta;
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
@@ -42,7 +42,7 @@ namespace OsmSharp.Routing
         public RouterDb()
         {
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
-            _profiles = new TagsIndex();
+            _edgeProfiles = new TagsIndex();
             _meta = new TagsIndex();
 
             _supportedProfiles = new HashSet<string>();
@@ -56,7 +56,7 @@ namespace OsmSharp.Routing
             params Profiles.Profile[] supportedProfiles)
         {
             _network = network;
-            _profiles = profiles;
+            _edgeProfiles = profiles;
             _meta = meta;
 
             _supportedProfiles = new HashSet<string>();
@@ -109,18 +109,18 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the profiles index.
         /// </summary>
-        public ITagsIndex Profiles
+        public ITagsIndex EdgeProfiles
         {
             get
             {
-                return _profiles;
+                return _edgeProfiles;
             }
         }
 
         /// <summary>
         /// Returns the meta-data index.
         /// </summary>
-        public ITagsIndex Meta
+        public ITagsIndex EdgeMeta
         {
             get
             {

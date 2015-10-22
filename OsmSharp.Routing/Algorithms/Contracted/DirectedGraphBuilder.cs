@@ -49,7 +49,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         protected override void DoRun()
         {
             float distance;
-            ushort profile;
+            ushort edgeProfile;
             bool? direction = null;
             
             var factors = new Dictionary<ushort, Factor>();
@@ -61,12 +61,12 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 while(edgeEnumerator.MoveNext())
                 {
                     OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, 
-                        out distance, out profile);
+                        out distance, out edgeProfile);
                     var factor = Factor.NoFactor;
-                    if(!factors.TryGetValue(profile, out factor))
-                    { // get from profile.
-                        factor = _getFactor(profile);
-                        factors[profile] = factor;
+                    if(!factors.TryGetValue(edgeProfile, out factor))
+                    { // get from vehicle profile.
+                        factor = _getFactor(edgeProfile);
+                        factors[edgeProfile] = factor;
                     }
 
                     if(factor.Value != 0)

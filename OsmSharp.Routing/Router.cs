@@ -66,9 +66,9 @@ namespace OsmSharp.Routing
                         out distance, out profile);
                     for(var i = 0; i < profiles.Length; i++)
                     {
-                        // get speed from profile.
-                        if (profiles[i].Factor(_db.Profiles.Get(profile)).Value <= 0)
-                        { // cannot be travelled by this profile.
+                        // get factor from profile.
+                        if (profiles[i].Factor(_db.EdgeProfiles.Get(profile)).Value <= 0)
+                        { // cannot be traversed by this profile.
                             return false;
                         }
                     }
@@ -101,7 +101,7 @@ namespace OsmSharp.Routing
 
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
             {
-                return profile.Factor(_db.Profiles.Get(p));
+                return profile.Factor(_db.EdgeProfiles.Get(p));
             }, point.ToPaths(_db, profile, true), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
@@ -146,11 +146,11 @@ namespace OsmSharp.Routing
             { // non-contracted calculation.
                 var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
                 {
-                    return profile.Factor(_db.Profiles.Get(p));
+                    return profile.Factor(_db.EdgeProfiles.Get(p));
                 }, source.ToPaths(_db, profile, true), float.MaxValue, false);
                 var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
                 {
-                    return profile.Factor(_db.Profiles.Get(p));
+                    return profile.Factor(_db.EdgeProfiles.Get(p));
                 }, target.ToPaths(_db, profile, false), float.MaxValue, true);
 
                 var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);

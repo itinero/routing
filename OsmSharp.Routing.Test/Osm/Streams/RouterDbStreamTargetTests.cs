@@ -72,8 +72,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             // get edge-information.
             var edges = routerDb.Network.GetEdgeEnumerator(vertex1);
             var data = edges.First().Data;
-            var profile = routerDb.Profiles.Get(data.Profile);
-            var meta = routerDb.Meta.Get(data.MetaId);
+            var profile = routerDb.EdgeProfiles.Get(data.Profile);
+            var meta = routerDb.EdgeMeta.Get(data.MetaId);
 
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
@@ -119,8 +119,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             // get edge-information.
             var edges = routerDb.Network.GetEdgeEnumerator(vertex1);
             var data = edges.First().Data;
-            var profile = routerDb.Profiles.Get(data.Profile);
-            var meta = routerDb.Meta.Get(data.MetaId);
+            var profile = routerDb.EdgeProfiles.Get(data.Profile);
+            var meta = routerDb.EdgeMeta.Get(data.MetaId);
 
             Assert.IsFalse(edges.First().DataInverted);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
@@ -233,8 +233,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var edge = edges.FirstOrDefault();
             Assert.IsNotNull(edge);
             var data = edge.Data;
-            var profile = routerDb.Profiles.Get(data.Profile);
-            var meta = routerDb.Meta.Get(data.MetaId);
+            var profile = routerDb.EdgeProfiles.Get(data.Profile);
+            var meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -246,8 +246,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.FirstOrDefault(x => x.To == vertex1);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -257,8 +257,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.IsNotNull(edge);
             edge = edges.FirstOrDefault();
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -267,8 +267,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.FirstOrDefault(x => x.To == vertex4);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location4, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -280,8 +280,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.FirstOrDefault(x => x.To == vertex2);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -293,8 +293,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.FirstOrDefault(x => x.To == vertex2);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location4, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -346,8 +346,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var edge = edges.First(x => x.To == vertex2);
             Assert.IsNotNull(edge);
             var data = edge.Data;
-            var profile = routerDb.Profiles.Get(data.Profile);
-            var meta = routerDb.Meta.Get(data.MetaId);
+            var profile = routerDb.EdgeProfiles.Get(data.Profile);
+            var meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -357,8 +357,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex3);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -368,8 +368,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex1);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -379,8 +379,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex3);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -422,8 +422,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex2);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -433,8 +433,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex3);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -444,8 +444,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex1);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
@@ -455,8 +455,8 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge = edges.First(x => x.To == vertex3);
             Assert.IsNotNull(edge);
             data = edge.Data;
-            profile = routerDb.Profiles.Get(data.Profile);
-            meta = routerDb.Meta.Get(data.MetaId);
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
             Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
             Assert.AreEqual(new TagsCollection(), meta);
