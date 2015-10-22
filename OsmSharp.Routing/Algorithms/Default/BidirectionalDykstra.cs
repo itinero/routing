@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Algorithms
+namespace OsmSharp.Routing.Algorithms.Default
 {
     /// <summary>
     /// An implementation of the bi-directional dykstra algorithm.

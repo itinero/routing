@@ -45,7 +45,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Saves a serialized version to a stream.
         /// </summary>
-        public static void Save(this Router route, Stream stream)
+        public static void Save(this Route route, Stream stream)
         {
             var ser = new XmlSerializer(typeof(Route));
             ser.Serialize(stream, route);
@@ -56,7 +56,7 @@ namespace OsmSharp.Routing
         /// Saves the route as a byte stream.
         /// </summary>
         /// <returns></returns>
-        public static byte[] SaveToByteArray(this Router route)
+        public static byte[] SaveToByteArray(this Route route)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -266,7 +266,8 @@ namespace OsmSharp.Routing
                 route.Segments = entries;
 
                 // concatenate tags.
-                var tags = new List<RouteTags>(route1.Tags.Count + route2.Tags.Count);
+                var tags = new List<RouteTags>((route1.Tags == null ? 0 : route1.Tags.Count) +
+                    (route2.Tags == null ? 0 : route2.Tags.Count));
                 if (route1.Tags != null) { tags.AddRange(route1.Tags); }
                 if (route2.Tags != null) { tags.AddRange(route2.Tags); }
                 route.Tags = tags;

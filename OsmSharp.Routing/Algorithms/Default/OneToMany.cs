@@ -21,7 +21,7 @@ using OsmSharp.Routing.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Algorithms
+namespace OsmSharp.Routing.Algorithms.Default
 {
     /// <summary>
     /// An algorithm to calculate one-to-many weights/paths.

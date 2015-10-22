@@ -16,10 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing
 {
@@ -37,6 +39,33 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, ICoordinate coordinate)
+        {
+            return router.TryResolve(new Profile[] { profile }, coordinate);
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate)
+        {
+            return router.TryResolve(profiles, (float)coordinate.Latitude, (float)coordinate.Longitude);
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, float latitude, float longitude)
+        {
+            return router.TryResolve(new Profile[] { profile }, latitude, longitude);
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
         {
             return router.TryResolve(profiles, latitude, longitude, null);
@@ -46,9 +75,36 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter)
+        {
+            return router.TryResolve(profiles, coordinate, isBetter);
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate)
+        {
+            return router.TryResolve(profiles, coordinate).Value;
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
         {
             return router.TryResolve(profiles, latitude, longitude).Value;
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter)
+        {
+            return router.TryResolve(profiles, coordinate, isBetter).Value;
         }
 
         /// <summary>
@@ -66,8 +122,7 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public static bool CheckConnectivity(this IRouter router, Profile profile, RouterPoint point, float radiusInMeters)
         {
-            var result = router.TryCheckConnectivity(profile, point, radiusInMeters);
-            return result.Value;
+            return router.TryCheckConnectivity(profile, point, radiusInMeters).Value;
         }
 
         /// <summary>
@@ -77,6 +132,15 @@ namespace OsmSharp.Routing
         public static bool CheckConnectivity(this IRouter router, Profile profile, RouterPoint point)
         {
             return router.CheckConnectivity(profile, point, DefaultConnectivityRadius);
+        }
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Route Calculate(this IRouter router, Profile profile, ICoordinate source, ICoordinate target)
+        {
+            return router.TryCalculate(profile, source, target).Value;
         }
 
         /// <summary>
@@ -93,6 +157,16 @@ namespace OsmSharp.Routing
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
+        public static Result<Route> TryCalculate(this IRouter router, Profile profile, ICoordinate source, 
+            ICoordinate target)
+        {
+            return router.TryCalculate(profile, source, target);
+        }
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
         public static Result<Route> TryCalculate(this IRouter router, Profile profile,
             float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
         {
@@ -100,6 +174,14 @@ namespace OsmSharp.Routing
             var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
             var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
 
+            if(sourcePoint.IsError)
+            {
+                return sourcePoint.ConvertError<Route>();
+            }
+            if (targetPoint.IsError)
+            {
+                return targetPoint.ConvertError<Route>();
+            }
             return router.TryCalculate(profile, sourcePoint.Value, targetPoint.Value);
         }
 
@@ -107,15 +189,45 @@ namespace OsmSharp.Routing
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public static Result<Route>[] TryCalculate(this IRouter router, Profile profile, RouterPoint source, RouterPoint[] targets)
+        public static Result<Route[]> TryCalculate(this IRouter router, Profile profile, RouterPoint source, RouterPoint[] targets)
         {
-            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets);
-            var routes = new Result<Route>[result.Length];
-            for (var j = 0; j < result.Length; j++)
+            var invalidSources = new HashSet<int>();
+            var invalidTargets = new HashSet<int>();
+            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets, invalidSources, invalidTargets);
+            if (invalidSources.Count > 0)
             {
-                routes[j] = result[0][j];
+                return new Result<Route[]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
+                {
+                    throw new Exceptions.RouteNotFoundException(s);
+                });
             }
-            return routes;
+            if (invalidTargets.Count > 0)
+            {
+                return new Result<Route[]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
+                {
+                    throw new Exceptions.RouteNotFoundException(s);
+                });
+            }
+            if(result.IsError)
+            {
+                return result.ConvertError<Route[]>();
+            }
+
+            var routes = new Route[result.Value.Length];
+            for (var j = 0; j < result.Value.Length; j++)
+            {
+                routes[j] = result.Value[0][j];
+            }
+            return new Result<Route[]>(routes);
+        }
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Route Calculate(this IRouter router, Profile profile, RouterPoint source, RouterPoint target)
+        {
+            return router.TryCalculate(profile, source, target).Value;
         }
 
         /// <summary>
@@ -124,13 +236,7 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public static Route[] Calculate(this IRouter router, Profile profile, RouterPoint source, RouterPoint[] targets)
         {
-            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets);
-            var routes = new Route[result.Length];
-            for (var j = 0; j < result.Length; j++)
-            {
-                routes[j] = result[0][j].Value;
-            }
-            return routes;
+            return router.TryCalculate(profile, source, targets).Value;
         }
 
         /// <summary>
@@ -139,17 +245,177 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public static Route[][] Calculate(this IRouter router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
         {
-            var result = router.TryCalculate(profile, sources, targets);
+            return router.TryCalculate(profile, sources, targets).Value;
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<Route[][]> TryCalculate(this IRouter router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
+        {
+            var invalidSources = new HashSet<int>();
+            var invalidTargets = new HashSet<int>();
+            var result = router.TryCalculate(profile, sources, targets, invalidSources, invalidTargets).Value;
+            if (invalidSources.Count > 0)
+            {
+                return new Result<Route[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
+                {
+                    throw new Exceptions.RouteNotFoundException(s);
+                });
+            }
+            if (invalidTargets.Count > 0)
+            {
+                return new Result<Route[][]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
+                {
+                    throw new Exceptions.RouteNotFoundException(s);
+                });
+            }
+
             var routes = new Route[result.Length][];
-            for(var i = 0; i < result.Length; i++)
+            for (var i = 0; i < result.Length; i++)
             {
                 routes[i] = new Route[result[i].Length];
-                for(var j = 0; j < result[i].Length; j++)
+                for (var j = 0; j < result[i].Length; j++)
                 {
-                    routes[i][j] = result[i][j].Value;
+                    routes[i][j] = result[i][j];
                 }
             }
-            return routes;
+            return new Result<Route[][]>(routes);
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public static Route[][] Calculate(this IRouter router, Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets)
+        {
+            return router.TryCalculate(profile, sources, targets, invalidSources, invalidTargets).Value;
+        }
+
+        /// <summary>
+        /// Calculates the weight between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<float> TryCalculateWeight(this IRouter router, Profile profile, ICoordinate source, ICoordinate target)
+        {
+            return router.TryCalculateWeight(profile, (float)source.Latitude, (float)source.Longitude, (float)target.Latitude, (float)target.Longitude);
+        }
+
+        /// <summary>
+        /// Calculates the weight between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<float> TryCalculateWeight(this IRouter router, Profile profile,
+            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
+        {
+            var profiles = new Profile[] { profile };
+            var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
+            var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
+
+            if (sourcePoint.IsError)
+            {
+                return sourcePoint.ConvertError<float>();
+            }
+            if (targetPoint.IsError)
+            {
+                return targetPoint.ConvertError<float>();
+            }
+            return router.TryCalculateWeight(profile, sourcePoint.Value, targetPoint.Value);
+        }
+
+        /// <summary>
+        /// Calculates all weights between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<float[][]> TryCalculateWeight(this IRouter router, Profile profile, ICoordinate[] sources, ICoordinate[] targets)
+        {
+            var resolvedSources = new RouterPoint[sources.Length];
+            for(var i = 0; i < sources.Length; i++)
+            {
+                var result = router.TryResolve(profile, sources[i]);
+                if(result.IsError)
+                {
+                    return new Result<float[][]>(string.Format("Source at index {0} could not be resolved: {1}",
+                        i, result.ErrorMessage), (s) => 
+                    {
+                        throw new Exceptions.ResolveFailedException(s);
+                    });
+                }
+                resolvedSources[i] = result.Value;
+            }
+            var resolvedTargets = new RouterPoint[targets.Length];
+            for (var i = 0; i < targets.Length; i++)
+            {
+                var result = router.TryResolve(profile, targets[i]);
+                if (result.IsError)
+                {
+                    return new Result<float[][]>(string.Format("Target at index {0} could not be resolved: {1}",
+                        i, result.ErrorMessage), (s) =>
+                        {
+                            throw new Exceptions.ResolveFailedException(s);
+                        });
+                }
+                resolvedTargets[i] = result.Value;
+            }
+
+            var invalidSources = new HashSet<int>();
+            var invalidTargets = new HashSet<int>();
+            var weights = router.TryCalculateWeight(profile, resolvedSources, resolvedTargets, invalidSources, invalidTargets);
+            if(invalidSources.Count > 0)
+            {
+                return new Result<float[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.",(s) =>
+                    {
+                        throw new Exceptions.RouteNotFoundException(s);
+                    });
+            }
+            if (invalidTargets.Count > 0)
+            {
+                return new Result<float[][]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
+                {
+                    throw new Exceptions.RouteNotFoundException(s);
+                });
+            }
+            return weights;
+        }
+
+        /// <summary>
+        /// Calculates all weights between all locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<float[][]> TryCalculateWeight(this IRouter router, Profile profile, RouterPoint[] locations)
+        {
+            var invalids = new HashSet<int>();
+            var result = router.TryCalculateWeight(profile, locations, locations, invalids, invalids);
+            if (invalids.Count > 0)
+            {
+                return new Result<float[][]>("At least one location could not be routed from/to. Most likely there are islands in the loaded network.", (s) =>
+                {
+                    throw new Exceptions.RouteNotFoundException(s);
+                });
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Calculates all weights between all locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<float[][]> TryCalculateWeight(this IRouter router, Profile profile, RouterPoint[] locations,
+            ISet<int> invalids)
+        {
+            return router.TryCalculateWeight(profile, locations, locations, invalids, invalids);
+        }
+
+        /// <summary>
+        /// Calculates all weights between all locations.
+        /// </summary>
+        /// <returns></returns>
+        public static float[][] CalculateWeight(this IRouter router, Profile profile, RouterPoint[] locations,
+            ISet<int> invalids)
+        {
+            return router.TryCalculateWeight(profile, locations, invalids).Value;
         }
     }
 }

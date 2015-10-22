@@ -72,17 +72,19 @@
     <Compile Include="Algorithms\Contracted\Witness\IWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\ManyToManyBidirectionalDykstra.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
-    <Compile Include="Algorithms\BidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Default\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilder.cs" />
-    <Compile Include="Algorithms\Dykstra.cs" />
-    <Compile Include="Algorithms\ManyToMany.cs" />
+    <Compile Include="Algorithms\Default\Dykstra.cs" />
+    <Compile Include="Algorithms\Default\ManyToMany.cs" />
+    <Compile Include="Algorithms\IWeightMatrixAlgorithm.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizer.cs" />
-    <Compile Include="Algorithms\OneToMany.cs" />
+    <Compile Include="Algorithms\Default\OneToMany.cs" />
     <Compile Include="Algorithms\RouteBuilder.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Path.cs" />
     <Compile Include="Algorithms\Search\IResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
+    <Compile Include="Algorithms\WeightMatrixAlgorithm.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />
     <Compile Include="Data\EdgeDataSerializer.cs" />
@@ -148,12 +150,12 @@
     <Compile Include="RouterPointExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OsmSharp, Version=0.0.0.46, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.46-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm, Version=0.0.0.46, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.46-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net">

@@ -18,6 +18,7 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing.Algorithms;
+using OsmSharp.Routing.Algorithms.Default;
 using OsmSharp.Routing.Data;
 using OsmSharp.Routing.Graphs;
 using OsmSharp.Routing.Profiles;

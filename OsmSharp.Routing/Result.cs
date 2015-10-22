@@ -31,11 +31,14 @@ namespace OsmSharp.Routing
         private readonly T _value;
         private readonly Func<string, Exception> _createException;
 
-        internal Result(T result)
+        /// <summary>
+        /// Creates a new result.
+        /// </summary>
+        public Result(T result)
         {
             _value = result;
             this.ErrorMessage = string.Empty;
-            this.Status = ResultStatus.OK;
+            this.IsError = false;
         }
 
         internal Result(string errorMessage, Func<string, Exception> createException)
@@ -43,7 +46,7 @@ namespace OsmSharp.Routing
             _value = default(T);
             _createException = createException;
             this.ErrorMessage = errorMessage;
-            this.Status = ResultStatus.Error;
+            this.IsError = true;
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace OsmSharp.Routing
         {
             get
             {
-                if(this.Status != ResultStatus.OK)
+                if(this.IsError)
                 {
                     throw _createException(this.ErrorMessage);
                 }
@@ -64,12 +67,25 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Gets the status.
         /// </summary>
-        public ResultStatus Status { get; private set; }
+        public bool IsError { get; private set; }
 
         /// <summary>
         /// Gets the error message.
         /// </summary>
         public string ErrorMessage { get; private set; }
+
+        /// <summary>
+        /// Converts this result, when an error to an result of another type.
+        /// </summary>
+        /// <returns></returns>
+        public Result<TNew> ConvertError<TNew>()
+        {
+            if(!this.IsError)
+            {
+                throw new Exception("Cannot convert a result that represents more than an error.");
+            }
+            return new Result<TNew>(this.ErrorMessage, this._createException);
+        }
 
         /// <summary>
         /// Creates a router point result error.
@@ -94,20 +110,5 @@ namespace OsmSharp.Routing
                 return new RouteNotFoundException(m);
             });
         }
-    }
-
-    /// <summary>
-    /// Represents the status of a result.
-    /// </summary>
-    public enum ResultStatus
-    {
-        /// <summary>
-        /// Everything is fine.
-        /// </summary>
-        OK,
-        /// <summary>
-        /// An error occurred.
-        /// </summary>
-        Error
     }
 }

@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Routing.Algorithms;
+using OsmSharp.Routing.Algorithms.Default;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Graphs.Geometric;
@@ -61,6 +62,17 @@ namespace OsmSharp.Routing
         /// Flag to check all resolved points if stopping at the resolved location is possible.
         /// </summary>
         public bool VerifyAllStoppable { get; set; }
+
+        /// <summary>
+        /// Gets the db.
+        /// </summary>
+        public RouterDb Db
+        {
+            get
+            {
+                return _db;
+            }
+        }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
@@ -224,10 +236,30 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Calculates the weight of the route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public Result<float> TryCalculateWeight(Profile profile, RouterPoint source, RouterPoint target)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public Result<Route>[][] TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets)
+        public Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public Result<float[][]> TryCalculateWeight(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             throw new NotImplementedException();
         }
