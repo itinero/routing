@@ -484,5 +484,223 @@ namespace OsmSharp.Routing.Algorithms.Search
             }
             return bestEdge;
         }
+
+        /// <summary>
+        /// Searches for the closest edges under given conditions.
+        /// </summary>
+        /// <returns></returns>
+        public static uint[] SearchClosestEdges(this GeometricGraph graph, float latitude, float longitude,
+            float offset, float maxDistanceMeter, Func<GeometricEdge, bool>[] isOks)
+        {
+            var coordinate = new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude);
+
+            // find vertices within bounding box delta.
+            var vertices = graph.Search(latitude, longitude, offset);
+
+            // build result-structure.
+            var bestEdges = new uint[isOks.Length];
+            var bestDistances = new double[isOks.Length];
+            for (var i = 0; i < bestEdges.Length; i++)
+            {
+                bestEdges[i] = Constants.NO_EDGE;
+                bestDistances[i] = (double)maxDistanceMeter;
+            }
+
+            // get edge enumerator.
+            var edgeEnumerator = graph.GetEdgeEnumerator();
+
+            // TODO: get rid of creating all these object just to do some calculations!
+            // TODO: sort vertices with the first vertices first.
+            foreach (var vertex in vertices)
+            {
+                var vertexLocation = graph.GetVertex(vertex);
+                var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(latitude, longitude,
+                    vertexLocation.Latitude, vertexLocation.Longitude);
+                for (var i = 0; i < isOks.Length; i++)
+                {
+                    if (distance < bestDistances[i])
+                    { // ok, new best vertex yay!
+                        edgeEnumerator.MoveTo(vertex);
+                        while (edgeEnumerator.MoveNext())
+                        {
+                            if (isOks[i](edgeEnumerator.Current))
+                            { // ok, edge is found to be ok.
+                                bestDistances[i] = distance;
+                                bestEdges[i] = edgeEnumerator.Id;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // go over all edges and check max distance box.
+            var maxDistanceBoxes = new OsmSharp.Math.Geo.GeoCoordinateBox[isOks.Length];
+            for(var i =0; i < maxDistanceBoxes.Length; i++)
+            {
+                maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
+                    (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
+                        Math.Geo.Meta.DirectionEnum.NorhtWest),
+                    (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
+                        Math.Geo.Meta.DirectionEnum.SouthEast));
+            }
+
+            var checkedEdges = new HashSet<uint>();
+            foreach (var vertex in vertices)
+            {
+                var sourceLocation = graph.GetVertex(vertex);
+                if (!edgeEnumerator.MoveTo(vertex) ||
+                   !edgeEnumerator.HasData)
+                { // no edges, or vertex not found.
+                    continue;
+                }
+
+                while (edgeEnumerator.MoveNext())
+                { // loop over all edges and all shape-points.
+                    if (checkedEdges.Contains(edgeEnumerator.Id))
+                    { // edge was checked already.
+                        continue;
+                    }
+                    checkedEdges.Add(edgeEnumerator.Id);
+
+                    // check edge.
+                    var edgeIsOks = new bool[isOks.Length];
+                    for(var i = 0; i < isOks.Length; i++)
+                    {
+                        edgeIsOks[i] = isOks[i] == null;
+                    }
+                    ICoordinate previous = sourceLocation;
+                    ICoordinate current = null;
+                    OsmSharp.Math.Geo.GeoCoordinateLine line;
+                    OsmSharp.Math.Primitives.PointF2D projectedPoint;
+                    var shape = edgeEnumerator.Shape;
+                    if (shape != null)
+                    { // loop over shape points.
+                        shape.Reset();
+                        while (shape.MoveNext())
+                        {
+                            current = shape.Current;
+                            var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                        current.Latitude, current.Longitude, latitude, longitude);
+                            for (var i = 0; i < bestEdges.Length; i++)
+                            {
+                                if (distance < bestDistances[i])
+                                { // ok this shape-point is clooose.
+                                    if (!edgeIsOks[i] && isOks[i](edgeEnumerator.Current))
+                                    { // ok, edge is found to be ok.
+                                        edgeIsOks[i] = true;
+                                    }
+                                    if (edgeIsOks[i])
+                                    { // edge is ok, or all edges are ok by default.
+                                        bestDistances[i] = distance;
+                                        bestEdges[i] = edgeEnumerator.Id;
+
+                                        // decrease max distance box.
+                                        maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
+                                            (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
+                                                Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                            (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
+                                                Math.Geo.Meta.DirectionEnum.SouthEast));
+                                    }
+                                }
+                            }
+
+                            if (maxDistanceBoxes.AnyIntersectsPotentially(previous.Longitude, previous.Latitude,
+                                    current.Longitude, current.Latitude))
+                            { // ok, it's possible there is an intersection here, project this point.
+                                line = new OsmSharp.Math.Geo.GeoCoordinateLine(
+                                    new OsmSharp.Math.Geo.GeoCoordinate(previous.Latitude, previous.Longitude),
+                                     new OsmSharp.Math.Geo.GeoCoordinate(current.Latitude, current.Longitude), true, true);
+                                projectedPoint = line.ProjectOn(coordinate);
+                                if (projectedPoint != null)
+                                { // ok, projection succeeded.
+                                    distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                        projectedPoint[1], projectedPoint[0],
+                                        latitude, longitude);
+                                    for (var i = 0; i < bestEdges.Length; i++)
+                                    {
+                                        if (distance < bestDistances[i])
+                                        { // ok, new best edge yay!
+                                            if (!edgeIsOks[i] && isOks[i](edgeEnumerator.Current))
+                                            { // ok, edge is found to be ok.
+                                                edgeIsOks[i] = true;
+                                            }
+                                            if (edgeIsOks[i])
+                                            { // edge is ok, or all edges are ok by default.
+                                                bestDistances[i] = distance;
+                                                bestEdges[i] = edgeEnumerator.Id;
+
+                                                // decrease max distance box.
+                                                maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
+                                                    (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
+                                                        Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                                    (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
+                                                        Math.Geo.Meta.DirectionEnum.SouthEast));
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            previous = current;
+                        }
+                    }
+                    current = graph.GetVertex(edgeEnumerator.To);
+                    if (maxDistanceBoxes.AnyIntersectsPotentially(previous.Longitude, previous.Latitude,
+                            current.Longitude, current.Latitude))
+                    { // ok, it's possible there is an intersection here, project this point.
+                        line = new OsmSharp.Math.Geo.GeoCoordinateLine(
+                            new OsmSharp.Math.Geo.GeoCoordinate(previous.Latitude, previous.Longitude),
+                             new OsmSharp.Math.Geo.GeoCoordinate(current.Latitude, current.Longitude), true, true);
+                        projectedPoint = line.ProjectOn(coordinate);
+                        if (projectedPoint != null)
+                        { // ok, projection succeeded.
+                            var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                projectedPoint[1], projectedPoint[0],
+                                latitude, longitude);
+                            for (var i = 0; i < isOks.Length; i++)
+                            {
+                                if (distance < bestDistances[i])
+                                { // ok, new best edge yay!
+                                    if (!edgeIsOks[i] && isOks[i](edgeEnumerator.Current))
+                                    { // ok, edge is found to be ok.
+                                        edgeIsOks[i] = true;
+                                    }
+                                    if (edgeIsOks[i])
+                                    { // edge is ok, or all edges are ok by default.
+                                        bestDistances[i] = distance;
+                                        bestEdges[i] = edgeEnumerator.Id;
+
+                                        // decrease max distance box.
+                                        maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
+                                            (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
+                                                Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                            (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
+                                                Math.Geo.Meta.DirectionEnum.SouthEast));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return bestEdges;
+        }
+
+        /// <summary>
+        /// Returns true if any of the boxes in the given array intersects potentially.
+        /// </summary>
+        /// <returns></returns>
+        private static bool AnyIntersectsPotentially(this OsmSharp.Math.Geo.GeoCoordinateBox[] boxes,
+            double x1, double y1, double x2, double y2)
+        {
+            for(var i = 0; i < boxes.Length; i++)
+            {
+                if(boxes[i].IntersectsPotentially(x1, y1, x2, y2))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

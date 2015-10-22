@@ -17,7 +17,9 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
+using System;
 
 namespace OsmSharp.Routing
 {
@@ -30,23 +32,14 @@ namespace OsmSharp.Routing
         /// The default connectivity radius.
         /// </summary>
         public const float DefaultConnectivityRadius = 250;
-        
-        /// <summary>
-        /// Searches for the closest point on the routing network that's routable for the given profiles.
-        /// </summary>
-        /// <returns></returns>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, GeoCoordinate location)
-        {
-            return router.TryResolve(profiles, (float)location.Latitude, (float)location.Longitude);
-        }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, GeoCoordinate location)
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
         {
-            return router.TryResolve(profiles, location).Value;
+            return router.TryResolve(profiles, latitude, longitude, null);
         }
 
         /// <summary>
@@ -56,6 +49,15 @@ namespace OsmSharp.Routing
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
         {
             return router.TryResolve(profiles, latitude, longitude).Value;
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude, Func<RoutingEdge, bool> isBetter)
+        {
+            return router.TryResolve(profiles, latitude, longitude, isBetter).Value;
         }
 
         /// <summary>
@@ -82,9 +84,9 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Route Calculate(this IRouter router, Profile profile,
-            GeoCoordinate source, GeoCoordinate target)
+            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
         {
-            return router.TryCalculate(profile, source, target).Value;
+            return router.TryCalculate(profile, sourceLatitude, sourceLongitude, targetLatitude, targetLongitude).Value;
         }
 
         /// <summary>
@@ -92,11 +94,11 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Result<Route> TryCalculate(this IRouter router, Profile profile,
-            GeoCoordinate source, GeoCoordinate target)
+            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
         {
             var profiles = new Profile[] { profile };
-            var sourcePoint = router.TryResolve(profiles, source);
-            var targetPoint = router.TryResolve(profiles, target);
+            var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
+            var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
 
             return router.TryCalculate(profile, sourcePoint.Value, targetPoint.Value);
         }

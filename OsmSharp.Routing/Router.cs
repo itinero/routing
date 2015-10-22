@@ -19,6 +19,8 @@
 using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Exceptions;
+using OsmSharp.Routing.Graphs.Geometric;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using System;
 using System.Collections.Generic;
@@ -48,7 +50,7 @@ namespace OsmSharp.Routing
         /// A delegate used to inject a custom resolver algorithm.
         /// </summary>
         /// <returns></returns>
-        public delegate IResolver CreateResolver(float latitude, float longitude);
+        public delegate IResolver CreateResolver(float latitude, float longitude, Func<RoutingEdge, bool> isBetter);
 
         /// <summary>
         /// Gets or sets the delegate to create a custom resolver.
@@ -64,7 +66,8 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude)
+        public Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, 
+            Func<RoutingEdge, bool> isBetter)
         {
             if(!_db.SupportsAll(profiles))
             {
@@ -77,6 +80,14 @@ namespace OsmSharp.Routing
             IResolver resolver = null;
             if (this.CreateCustomResolver == null)
             { // just use the default resolver algorithm.
+                Func<GeometricEdge, bool> isBetterGeometric = null;
+                if(isBetter != null)
+                { // take into account isBetter function.
+                    isBetterGeometric = (edge) =>
+                        {
+                            return isBetter(_db.Network.GetEdge(edge.Id));
+                        };
+                }
                 resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, _defaultSearchOffset,
                     _defaultSearchMaxDistance, (edge) =>
                     { // check all profiles, they all need to be traversible.
@@ -93,20 +104,20 @@ namespace OsmSharp.Routing
                             { // cannot be traversed by this profile.
                                 return false;
                             }
-                            if(this.VerifyAllStoppable)
+                            if (this.VerifyAllStoppable)
                             { // verify stoppable.
-                                if(!profiles[i].CanStopOn(edgeProfile))
+                                if (!profiles[i].CanStopOn(edgeProfile))
                                 { // this profile cannot stop on this edge.
                                     return false;
                                 }
                             }
                         }
                         return true;
-                    });
+                    }, isBetterGeometric);
             }
             else
             { // create the custom resolver algorithm.
-                resolver = this.CreateCustomResolver(latitude, longitude);
+                resolver = this.CreateCustomResolver(latitude, longitude, isBetter);
             }
             resolver.Run();
             if(!resolver.HasSucceeded)

@@ -38,7 +38,7 @@ namespace OsmSharp.Routing.Test
             routerDb.AddSupportedProfile(MockProfile.CarMock());
             var router = new Router(routerDb);
             var called = false;
-            router.CreateCustomResolver = (latitude, longitude) =>
+            router.CreateCustomResolver = (latitude, longitude, isBetter) =>
                 {
                     called = true;
                     return new MockResolver(new RouterPoint(latitude, longitude, 0, 0));

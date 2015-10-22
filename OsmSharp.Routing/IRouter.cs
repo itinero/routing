@@ -17,8 +17,10 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using OsmSharp.Units.Distance;
+using System;
 
 namespace OsmSharp.Routing
 {
@@ -31,7 +33,7 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude);
+        Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, Func<RoutingEdge, bool> isBetter);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
