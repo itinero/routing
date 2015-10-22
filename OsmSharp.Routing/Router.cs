@@ -40,6 +40,8 @@ namespace OsmSharp.Routing
         public Router(RouterDb db)
         {
             _db = db;
+
+            this.VerifyAllStoppable = false;
         }
 
         /// <summary>
@@ -52,6 +54,11 @@ namespace OsmSharp.Routing
         /// Gets or sets the delegate to create a custom resolver.
         /// </summary>
         public CreateResolver CreateCustomResolver { get; set; }
+
+        /// <summary>
+        /// Flag to check all resolved points if stopping at the resolved location is possible.
+        /// </summary>
+        public bool VerifyAllStoppable { get; set; }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
@@ -85,6 +92,13 @@ namespace OsmSharp.Routing
                             if (profiles[i].Factor(edgeProfile).Value <= 0)
                             { // cannot be traversed by this profile.
                                 return false;
+                            }
+                            if(this.VerifyAllStoppable)
+                            { // verify stoppable.
+                                if(!profiles[i].CanStopOn(edgeProfile))
+                                { // this profile cannot stop on this edge.
+                                    return false;
+                                }
                             }
                         }
                         return true;
