@@ -463,6 +463,171 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         }
 
         /// <summary>
+        /// Tests loading a way with one part of the way a closed path.
+        /// </summary>
+        [Test]
+        public void TestOneWayWithClosedPath()
+        {
+            // build source stream with one way:
+            //         
+            //         (1)
+            //          |
+            //          |
+            //    (3)--(2)--(5)
+            //      \       /   
+            //       \     /
+            //        \   /
+            //         (4)
+            //        
+            // this should result in edges:
+            //   1-2, 2-3, 2-5, 3-(4)-5
+
+            var location1 = new GeoCoordinateSimple() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
+            var location2 = new GeoCoordinateSimple() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
+            var location3 = new GeoCoordinateSimple() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
+            var location4 = new GeoCoordinateSimple() { Latitude = 51.26152881427841f, Longitude = 4.795939922332763f };
+            var location5 = new GeoCoordinateSimple() { Latitude = 51.26134754276387f, Longitude = 4.795937240123749f };
+            var source = new OsmGeo[] {
+                Node.Create(1, location1.Latitude, location1.Longitude),
+                Node.Create(2, location2.Latitude, location2.Longitude),
+                Node.Create(3, location3.Latitude, location3.Longitude),
+                Node.Create(4, location4.Latitude, location4.Longitude),
+                Node.Create(5, location5.Latitude, location5.Longitude),
+                Way.Create(1, new TagsCollection(
+                    Tag.Create("highway", "residential")), 1, 2, 3, 4, 5, 2)
+                }.ToOsmStreamSource();
+
+            // build db from stream.
+            var routerDb = new RouterDb();
+            var target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            // check result.
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(4, routerDb.Network.EdgeCount);
+
+            var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
+            var vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
+            var vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
+            var vertex5 = this.FindVertex(routerDb, location5.Latitude, location5.Longitude);
+
+            // verify 1->2
+            var edges = routerDb.Network.GetEdgeEnumerator(vertex1);
+            var edge = edges.First(x => x.To == vertex2);
+            Assert.IsNotNull(edge);
+            var data = edge.Data;
+            var profile = routerDb.EdgeProfiles.Get(data.Profile);
+            var meta = routerDb.EdgeMeta.Get(data.MetaId);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
+            Assert.AreEqual(new TagsCollection(), meta);
+
+            // verify 2->3
+            edges = routerDb.Network.GetEdgeEnumerator(vertex2);
+            edge = edges.First(x => x.To == vertex3);
+            Assert.IsNotNull(edge);
+            data = edge.Data;
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
+            Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
+            Assert.AreEqual(new TagsCollection(), meta);
+
+            // verify 2->5
+            edges = routerDb.Network.GetEdgeEnumerator(vertex2);
+            edge = edges.First(x => x.To == vertex5);
+            Assert.IsNotNull(edge);
+            data = edge.Data;
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location2, location5), data.Distance, 0.1);
+            Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
+            Assert.AreEqual(new TagsCollection(), meta);
+
+            // verify 3->5
+            edges = routerDb.Network.GetEdgeEnumerator(vertex3);
+            edge = edges.First(x => x.To == vertex5);
+            Assert.IsNotNull(edge);
+            data = edge.Data;
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location4) + GeoCoordinate.DistanceEstimateInMeter(location4, location5), data.Distance, 0.1);
+            Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
+            Assert.AreEqual(new TagsCollection(), meta);
+
+            // build source stream with one way:
+            //         
+            //         (1)
+            //          |
+            //          |
+            //         (2)
+            //          |
+            //          |
+            //         (3)
+            // the the way contains the following sequence of nodes:
+            //  1, 2, 3, 2
+            //        
+            // this should result in edges:
+            //   1-2, 2-3
+
+            location1 = new GeoCoordinateSimple() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
+            location2 = new GeoCoordinateSimple() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
+            location3 = new GeoCoordinateSimple() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
+            source = new OsmGeo[] {
+                Node.Create(1, location1.Latitude, location1.Longitude),
+                Node.Create(2, location2.Latitude, location2.Longitude),
+                Node.Create(3, location3.Latitude, location3.Longitude),
+                Way.Create(1, new TagsCollection(
+                    Tag.Create("highway", "residential")), 1, 2, 3, 2)
+                }.ToOsmStreamSource();
+
+            // build db from stream.
+            routerDb = new RouterDb();
+            target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            // check result.
+            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+
+            vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
+            vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
+            vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
+
+            // verify 1->2
+            edges = routerDb.Network.GetEdgeEnumerator(vertex1);
+            edge = edges.First(x => x.To == vertex2);
+            Assert.IsNotNull(edge);
+            data = edge.Data;
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
+            Assert.AreEqual(new TagsCollection(), meta);
+
+            // verify 2->3
+            edges = routerDb.Network.GetEdgeEnumerator(vertex2);
+            edge = edges.First(x => x.To == vertex3);
+            Assert.IsNotNull(edge);
+            data = edge.Data;
+            profile = routerDb.EdgeProfiles.Get(data.Profile);
+            meta = routerDb.EdgeMeta.Get(data.MetaId);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
+            Assert.AreEqual(new TagsCollection(new Tag("highway", "residential")), profile);
+            Assert.AreEqual(new TagsCollection(), meta);
+        }
+
+        /// <summary>
         /// Finds a vertex in the given router db.
         /// </summary>
         /// <returns></returns>

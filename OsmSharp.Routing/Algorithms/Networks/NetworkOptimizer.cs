@@ -89,7 +89,7 @@ namespace OsmSharp.Routing.Algorithms.Networks
                                     }
                                 }
 
-                                // remove old edges.
+                                // remove edges.
                                 _network.RemoveEdges(vertex);
 
                                 // add edges.

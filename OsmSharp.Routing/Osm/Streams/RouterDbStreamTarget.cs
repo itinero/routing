@@ -39,14 +39,25 @@ namespace OsmSharp.Routing.Osm.Streams
     {
         private readonly RouterDb _db;
         private readonly Vehicle[] _vehicles;
+        private readonly bool _allNodesAreCore;
 
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles)
+            : this(db, vehicles, false)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new router db stream target.
+        /// </summary>
+        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore)
         {
             _db = db;
             _vehicles = vehicles;
+            _allNodesAreCore = allCore;
 
             _routingNodeCoordinates = new CoordinateIndex();
             _routingNodes = new LongIndex();
@@ -125,7 +136,8 @@ namespace OsmSharp.Routing.Osm.Streams
                     for(var i = 0; i < way.Nodes.Count; i++)
                     {
                         var node = way.Nodes[i];
-                        if (_routingNodes.Contains(node))
+                        if (_routingNodes.Contains(node) || 
+                            _allNodesAreCore)
                         { // node already part of another way, definetly part of core.
                             _coreNodes.Add(node);
                         }
@@ -197,6 +209,56 @@ namespace OsmSharp.Routing.Osm.Streams
                         }
 
                         // try to add edge.
+                        if(fromVertex == toVertex)
+                        { // target and source vertex are identical, this must be a loop.
+                            if(intermediates.Count == 1)
+                            { // there is just one intermediate, add that one as a vertex.
+                                var newCoreVertex = _db.Network.VertexCount;
+                                _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
+                                _db.Network.AddEdge(fromVertex, newCoreVertex, new Network.Data.EdgeData()
+                                {
+                                    MetaId = meta,
+                                    Distance = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                        _db.Network.GetVertex(fromVertex), intermediates[0]),
+                                    Profile = (ushort)profile
+                                }, null);
+                            }
+                            else if(intermediates.Count >= 2)
+                            { // there is more than one intermediate, add two new core vertices.
+                                var newCoreVertex1 = _db.Network.VertexCount;
+                                _db.Network.AddVertex(newCoreVertex1, intermediates[0].Latitude, intermediates[0].Longitude);
+                                var newCoreVertex2 = _db.Network.VertexCount;
+                                _db.Network.AddVertex(newCoreVertex2, intermediates[intermediates.Count - 1].Latitude,
+                                    intermediates[intermediates.Count - 1].Longitude);
+                                var distance1 = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                    _db.Network.GetVertex(fromVertex), intermediates[0]);
+                                var distance2 =  (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
+                                    _db.Network.GetVertex(toVertex), intermediates[intermediates.Count - 1]);
+                                intermediates.RemoveAt(0);
+                                intermediates.RemoveAt(intermediates.Count - 1);
+                                _db.Network.AddEdge(fromVertex, newCoreVertex1, new Network.Data.EdgeData()
+                                {
+                                    MetaId = meta,
+                                    Distance = distance1,
+                                    Profile = (ushort)profile
+                                }, null);
+                                _db.Network.AddEdge(newCoreVertex1, newCoreVertex2, new Network.Data.EdgeData()
+                                {
+                                    MetaId = meta,
+                                    Distance = distance - distance2 - distance1,
+                                    Profile = (ushort)profile
+                                }, new CoordinateArrayCollection<ICoordinate>(intermediates.ToArray()));
+                                _db.Network.AddEdge(newCoreVertex2, toVertex, new Network.Data.EdgeData()
+                                {
+                                    MetaId = meta,
+                                    Distance = distance2,
+                                    Profile = (ushort)profile
+                                }, null);
+
+                            }
+                            continue;
+                        }
+
                         var edge = _db.Network.GetEdgeEnumerator(fromVertex).FirstOrDefault(x => x.To == toVertex);
                         if (edge == null && fromVertex != toVertex)
                         { // just add edge.

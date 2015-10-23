@@ -612,28 +612,121 @@ namespace OsmSharp.Routing.Test.Network
         [Test]
         public void TestCompress()
         {
+            // build graph.
             var graph = new RoutingNetwork(new OsmSharp.Routing.Graphs.Geometric.GeometricGraph(1, 100));
-
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 0, 0);
-            var edgeId = graph.AddEdge(0, 1, new EdgeData() { Profile = 10 }, new CoordinateArrayCollection<GeoCoordinateSimple>(
-                new GeoCoordinateSimple[] {
-                    new GeoCoordinateSimple()
+            graph.AddEdge(0, 1, 10, 100, 1000, new GeoCoordinateSimple()
                     {
                         Latitude = 1,
                         Longitude = 1
-                    }
-                }));
+                    });
+
+            // compress.
             graph.Compress();
 
-            var edge = graph.GetEdge(edgeId);
+            // test result.
+            var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.To == 1);
             Assert.IsNotNull(edge);
             Assert.AreEqual(0, edge.From);
             Assert.AreEqual(1, edge.To);
-            Assert.AreEqual(edgeId, edge.Id);
+            Assert.AreEqual(10, edge.Data.Profile);
+            Assert.AreEqual(100, edge.Data.MetaId);
+            Assert.AreEqual(1000, edge.Data.Distance);
             Assert.AreEqual(1, edge.Shape.Count);
             Assert.AreEqual(1, edge.Shape.First().Latitude);
             Assert.AreEqual(1, edge.Shape.First().Longitude);
+
+            // build graph.
+            graph = new RoutingNetwork(new OsmSharp.Routing.Graphs.Geometric.GeometricGraph(1, 100));
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0.1f, 0.1f);
+            graph.AddVertex(2, 0.2f, 0.2f);
+            graph.AddEdge(0, 1, 10, 100, 1000, new GeoCoordinateSimple()
+                    {
+                        Latitude = 0.05f,
+                        Longitude = 0.05f
+                    });
+            graph.AddEdge(1, 2, 20, 200, 2000, new GeoCoordinateSimple()
+                    {
+                        Latitude = 0.15f,
+                        Longitude = 0.15f
+                    });
+
+            // compress.
+            graph.Compress();
+
+            // test result.
+            edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.To == 1);
+            Assert.IsNotNull(edge);
+            Assert.AreEqual(0, edge.From);
+            Assert.AreEqual(1, edge.To);
+            Assert.AreEqual(10, edge.Data.Profile);
+            Assert.AreEqual(100, edge.Data.MetaId);
+            Assert.AreEqual(1000, edge.Data.Distance);
+            Assert.AreEqual(1, edge.Shape.Count);
+            Assert.AreEqual(0.05f, edge.Shape.First().Latitude);
+            Assert.AreEqual(0.05f, edge.Shape.First().Longitude);
+            edge = graph.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.IsNotNull(edge);
+            Assert.AreEqual(1, edge.From);
+            Assert.AreEqual(2, edge.To);
+            Assert.AreEqual(20, edge.Data.Profile);
+            Assert.AreEqual(200, edge.Data.MetaId);
+            Assert.AreEqual(2000, edge.Data.Distance);
+            Assert.AreEqual(1, edge.Shape.Count);
+            Assert.AreEqual(0.15f, edge.Shape.First().Latitude);
+            Assert.AreEqual(0.15f, edge.Shape.First().Longitude);
+
+            // build graph.
+            graph = new RoutingNetwork(new OsmSharp.Routing.Graphs.Geometric.GeometricGraph(1, 100));
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 0.1f, 0.1f);
+            graph.AddVertex(2, 0.2f, 0.2f);
+            graph.AddEdge(0, 1, 10, 100, 1000, new GeoCoordinateSimple()
+            {
+                Latitude = 0.05f,
+                Longitude = 0.05f
+            });
+            graph.AddEdge(1, 2, 20, 200, 2000, new GeoCoordinateSimple()
+            {
+                Latitude = 0.15f,
+                Longitude = 0.15f
+            });
+            graph.RemoveEdges(1);
+            graph.AddEdge(0, 2, 30, 300, 3000, new GeoCoordinateSimple()
+            {
+                Latitude = 0.05f,
+                Longitude = 0.05f
+            }, new GeoCoordinateSimple()
+            {
+                Latitude = 0.1f,
+                Longitude = 0.1f
+            }, new GeoCoordinateSimple()
+            {
+                Latitude = 0.15f,
+                Longitude = 0.15f
+            });
+
+            // compress.
+            graph.Compress();
+
+            // test result.
+            edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.To == 2);
+            Assert.IsNotNull(edge);
+            Assert.AreEqual(0, edge.From);
+            Assert.AreEqual(2, edge.To);
+            Assert.AreEqual(30, edge.Data.Profile);
+            Assert.AreEqual(300, edge.Data.MetaId);
+            Assert.AreEqual(3000, edge.Data.Distance);
+            Assert.AreEqual(3, edge.Shape.Count);
+            var shape = edge.Shape.ToArray();
+            Assert.AreEqual(0.05f, shape[0].Latitude);
+            Assert.AreEqual(0.05f, shape[0].Longitude);
+            Assert.AreEqual(0.1f, shape[1].Latitude);
+            Assert.AreEqual(0.1f, shape[1].Longitude);
+            Assert.AreEqual(0.15f, shape[2].Latitude);
+            Assert.AreEqual(0.15f, shape[2].Longitude);
         }
 
         /// <summary>

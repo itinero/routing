@@ -198,5 +198,32 @@ namespace OsmSharp.Routing.Network
             }
             return false;
         }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance, ICoordinateCollection shape)
+        {
+            return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
+                {
+                    Distance = distance,
+                    MetaId = metaId,
+                    Profile = profile
+                }, shape);
+        }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
+            params ICoordinate[] shape)
+        {
+            return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
+            {
+                Distance = distance,
+                MetaId = metaId,
+                Profile = profile
+            }, new CoordinateArrayCollection<ICoordinate>(shape));
+        }
     }
 }

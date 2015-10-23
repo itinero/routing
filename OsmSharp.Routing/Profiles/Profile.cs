@@ -30,16 +30,18 @@ namespace OsmSharp.Routing.Profiles
         private readonly string _name;
         private readonly Func<TagsCollectionBase, Speed> _getSpeed;
         private readonly Func<TagsCollectionBase, bool> _canStop;
+        private readonly Func<TagsCollectionBase, TagsCollectionBase, bool> _equals;
         private readonly HashSet<string> _vehicleTypes;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
         public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<TagsCollectionBase, bool> canStop,
-            HashSet<string> vehicleTypes)
+            Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes)
         {
             _getSpeed = getSpeed;
             _canStop = canStop;
+            _equals = equals;
             _vehicleTypes = vehicleTypes;
             _name = name;
         }
@@ -47,7 +49,6 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns the multiplication factor for profile over a segment with the given attributes.
         /// </summary>
-        /// <returns></returns>
         public virtual Factor Factor(TagsCollectionBase attributes)
         {
             var speed = _getSpeed(attributes);
@@ -69,7 +70,6 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
         /// </summary>
-        /// <returns></returns>
         public virtual bool CanStopOn(TagsCollectionBase attributes)
         {
             return _canStop(attributes);
@@ -78,10 +78,17 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns the speed a vehicle with this profile would have over a segment with the given attributes.
         /// </summary>
-        /// <returns></returns>
         public virtual Speed Speed(TagsCollectionBase attributes)
         {
             return _getSpeed(attributes);
+        }
+
+        /// <summary>
+        /// Returns true if the two tag collections are equal relative to this profile.
+        /// </summary>
+        public virtual bool Equals(TagsCollectionBase edge1, TagsCollectionBase edge2)
+        {
+            return _equals(edge1, edge2);
         }
 
         /// <summary>

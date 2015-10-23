@@ -446,9 +446,13 @@ namespace OsmSharp.Routing.Osm.Vehicles
                     }
                     return OsmSharp.Routing.Profiles.Speed.NoSpeed;
                 },
-                (tags) =>
+            (tags) =>
                 {
                     return this.CanStopOn(tags);
+                },
+            (edge1, edge2) =>
+                {
+                    return this.IsEqualFor(edge1, edge2);
                 }, this.VehicleTypes);
         }
 
@@ -459,33 +463,37 @@ namespace OsmSharp.Routing.Osm.Vehicles
         public Profiles.Profile Shortest()
         {
             return new Profiles.Profile(this.UniqueName + ".Shortest", (tags) =>
-            {
-                if (this.CanTraverse(tags))
                 {
-                    var speed = new OsmSharp.Routing.Profiles.Speed()
+                    if (this.CanTraverse(tags))
                     {
-                        Value = 1,
-                        Direction = 0
-                    };
-                    var oneway = this.IsOneWay(tags);
-                    if (oneway.HasValue)
-                    {
-                        if (oneway.Value)
+                        var speed = new OsmSharp.Routing.Profiles.Speed()
                         {
-                            speed.Direction = 1;
-                        }
-                        else
+                            Value = 1,
+                            Direction = 0
+                        };
+                        var oneway = this.IsOneWay(tags);
+                        if (oneway.HasValue)
                         {
-                            speed.Direction = 2;
+                            if (oneway.Value)
+                            {
+                                speed.Direction = 1;
+                            }
+                            else
+                            {
+                                speed.Direction = 2;
+                            }
                         }
+                        return speed;
                     }
-                    return speed;
-                }
-                return OsmSharp.Routing.Profiles.Speed.NoSpeed;
-            },
-                (tags) =>
+                    return OsmSharp.Routing.Profiles.Speed.NoSpeed;
+                },
+            (tags) =>
                 {
                     return this.CanStopOn(tags);
+                }, 
+            (edge1, edge2) => 
+                {
+                    return this.IsEqualFor(edge1, edge2);
                 }, this.VehicleTypes);
         }
     }

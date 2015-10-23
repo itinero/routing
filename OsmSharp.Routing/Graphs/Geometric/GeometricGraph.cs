@@ -284,6 +284,21 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Relocates data internally in the most compact way possible.
         /// </summary>
+        /// <param name="updateEdgeId">The edge id's may change. This action can be used to hook into every change.</param>
+        public void Compress(Action<uint, uint> updateEdgeId)
+        {
+            _graph.Compress((originalId, newId) =>
+            {
+                updateEdgeId(originalId, newId);
+                _shapes.Switch(originalId, newId);
+            });
+            _shapes.Resize(_graph.EdgeCount);
+            _shapes.Compress();
+        }
+
+        /// <summary>
+        /// Relocates data internally in the most compact way possible.
+        /// </summary>
         public void Compress()
         {
             _graph.Compress((originalId, newId) =>

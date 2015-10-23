@@ -210,7 +210,10 @@ namespace OsmSharp.Routing.Network
         /// </summary>
         public void Compress()
         {
-            _graph.Compress();
+            _graph.Compress((originalId, newId) =>
+                {
+                    _edgeData[newId] = _edgeData[originalId];
+                });
             _edgeData.Resize(_graph.EdgeCount);
         }
 

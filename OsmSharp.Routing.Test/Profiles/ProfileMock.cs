@@ -33,7 +33,7 @@ namespace OsmSharp.Routing.Test.Profiles
         /// </summary>
         private MockProfile(string name, Func<TagsCollectionBase, Speed> getSpeed, 
             HashSet<string> vehicleTypes)
-            : base(name, getSpeed, x => true, vehicleTypes)
+            : base(name, getSpeed, x => true, (e1, e2) => true, vehicleTypes)
         {
 
         }
