@@ -33,6 +33,35 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
     public class NetworkOptimizerTests
     {
         /// <summary>
+        /// Default delegate to merge edges for these tests.
+        /// </summary>
+        static NetworkOptimizer.MergeDelegate MergeDelegate = (EdgeData edgeData1, bool inverted1,
+                EdgeData edgeData2, bool inverted2, out EdgeData edgeData, out bool inverted) =>
+            {
+                if (inverted2)
+                {
+                    edgeData = new EdgeData()
+                    {
+                        Distance = edgeData1.Distance + edgeData2.Distance,
+                        MetaId = edgeData2.MetaId,
+                        Profile = edgeData2.Profile
+                    };
+                    inverted = true;
+                }
+                else
+                {
+                    edgeData = new EdgeData()
+                    {
+                        Distance = edgeData1.Distance + edgeData2.Distance,
+                        MetaId = edgeData2.MetaId,
+                        Profile = edgeData2.Profile
+                    };
+                    inverted = false;
+                }
+                return true;
+            };
+
+        /// <summary>
         /// Tests two identical edges.
         /// </summary>
         [Test]
@@ -45,17 +74,19 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(0, 1, new EdgeData() { Profile = 1 }, null);
-            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, null);
+            graph.AddEdge(0, 1, new EdgeData() { Profile = 1, MetaId = 1, Distance = 10 }, null);
+            graph.AddEdge(1, 2, new EdgeData() { Profile = 1, MetaId = 1, Distance = 20 }, null);
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
+            var algorithm = new NetworkOptimizer(graph, MergeDelegate);
             algorithm.Run();
 
             // check result.
             var edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(1, edges.First().Data.Profile);
+            Assert.AreEqual(1, edges.First().Data.MetaId);
+            Assert.AreEqual(30, edges.First().Data.Distance);
             var shape = edges.Shape;
             Assert.IsNotNull(shape);
             Assert.AreEqual(1, shape.Count);
@@ -64,15 +95,12 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
         }
 
         /// <summary>
-        /// Tests two identical edges.
+        /// Tests two identical edges but merging would overwrite an existing edge.
         /// </summary>
         [Test]
         public void TestThreeEdges()
         {
-            // create graph with one vertex and start adding 2.
             var graph = new RoutingNetwork(new OsmSharp.Routing.Graphs.Geometric.GeometricGraph(1, 2));
-
-            // make sure to add 1 and 2.
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
@@ -81,7 +109,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, null);
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
+            var algorithm = new NetworkOptimizer(graph, MergeDelegate);
             algorithm.Run();
 
             // check result.
@@ -120,7 +148,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             }));
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
+            var algorithm = new NetworkOptimizer(graph, MergeDelegate);
             algorithm.Run();
 
             // check result.
@@ -151,7 +179,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             }));
 
             // execute algorithm.
-            algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
+            algorithm = new NetworkOptimizer(graph, MergeDelegate);
             algorithm.Run();
 
             // check result.
@@ -182,7 +210,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             }));
 
             // execute algorithm.
-            algorithm = new NetworkOptimizer(graph, (e1, i1, e2, i2) => e1 == e2);
+            algorithm = new NetworkOptimizer(graph, MergeDelegate);
             algorithm.Run();
 
             // check result.

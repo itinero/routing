@@ -391,16 +391,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <returns></returns>
         public virtual bool IsRelevant(string key)
         {
-            if (AccessibleTags != null &&
-                AccessibleTags.ContainsKey(key))
-            { // definetly relevant!
-                return true;
-            }
-            if (VehicleTypes.Contains(key))
-            {
-                return true;
-            }
-            return false;
+            return this.IsRelevantForProfile(key) || this.IsRelevantForMeta(key);
         }
 
         /// <summary>
