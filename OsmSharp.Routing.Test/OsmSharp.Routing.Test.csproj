@@ -87,6 +87,7 @@
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
     <Compile Include="Graphs\GraphTests.cs" />
+    <Compile Include="Navigation\InstructionGeneratorTests.cs" />
     <Compile Include="Network\RoutingNetworkTests.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTargetTests.cs" />
     <Compile Include="Profiles\ProfileMock.cs" />

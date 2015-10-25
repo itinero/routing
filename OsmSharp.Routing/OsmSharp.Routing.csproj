@@ -114,6 +114,7 @@
     </Compile>
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
+    <Compile Include="Navigation\InstructionGenerator.cs" />
     <Compile Include="Network\Data\EdgeData.cs" />
     <Compile Include="Network\RoutingNetworkExtensions.cs" />
     <Compile Include="Osm\HighwayComparer.cs" />
