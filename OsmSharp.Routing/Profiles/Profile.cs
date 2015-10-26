@@ -112,5 +112,29 @@ namespace OsmSharp.Routing.Profiles
                 return _vehicleTypes;
             }
         }
+
+        #region Static profile management
+
+        private static Dictionary<string, Profile> _staticProfiles = 
+            new Dictionary<string,Profile>();
+
+        /// <summary>
+        /// Registers the given profile.
+        /// </summary>
+        public static void Register(Profile profile)
+        {
+            _staticProfiles[profile.Name] = profile;
+            _staticProfiles[profile.Name.ToLowerInvariant()] = profile;
+        }
+
+        /// <summary>
+        /// Tries to get a profile for the given name.
+        /// </summary>
+        public static bool TryGet(string name, out Profile profile)
+        {
+            return _staticProfiles.TryGetValue(name, out profile);
+        }
+
+        #endregion
     }
 }

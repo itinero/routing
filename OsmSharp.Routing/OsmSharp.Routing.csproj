@@ -129,6 +129,7 @@
     <Compile Include="Profiles\Profile.cs" />
     <Compile Include="Profiles\Speed.cs" />
     <Compile Include="Profiles\VehicleTypes.cs" />
+    <Compile Include="ResultExtensions.cs" />
     <Compile Include="RouteExtensions.cs" />
     <Compile Include="Router.cs" />
     <Compile Include="RouterDb.cs" />

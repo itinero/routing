@@ -108,6 +108,9 @@ namespace OsmSharp.Routing.Osm.Vehicles
                 VehiclesByName = new Dictionary<string, Vehicle>();
             }
             VehiclesByName[this.UniqueName.ToLowerInvariant()] = this;
+
+            Profiles.Profile.Register(this.Fastest());
+            Profiles.Profile.Register(this.Shortest());
         }
 
         /// <summary>

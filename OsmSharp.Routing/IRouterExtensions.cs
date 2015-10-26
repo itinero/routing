@@ -36,12 +36,42 @@ namespace OsmSharp.Routing
         public const float DefaultConnectivityRadius = 250;
 
         /// <summary>
+        /// Searches for the closest points on the routing network that's routable for the given profile(s).
+        /// </summary>
+        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile profile, ICoordinate[] coordinates)
+        {
+            if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
+
+            var result = new Result<RouterPoint>[coordinates.Length];
+            for(var i = 0; i < coordinates.Length; i++)
+            {
+                result[i] = router.TryResolve(profile, coordinates[i]);
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, ICoordinate coordinate)
         {
             return router.TryResolve(new Profile[] { profile }, coordinate);
+        }
+
+        /// <summary>
+        /// Searches for the closest points on the routing network that's routable for the given profile(s).
+        /// </summary>
+        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile[] profiles, ICoordinate[] coordinates)
+        {
+            if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
+
+            var result = new Result<RouterPoint>[coordinates.Length];
+            for (var i = 0; i < coordinates.Length; i++)
+            {
+                result[i] = router.TryResolve(profiles, coordinates[i]);
+            }
+            return result;
         }
 
         /// <summary>
