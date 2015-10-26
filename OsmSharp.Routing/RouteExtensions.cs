@@ -555,6 +555,11 @@ namespace OsmSharp.Routing
                         });
                 }
             }
+
+            if(sideStreets.Count > 0)
+            {
+                segment.SideStreets = sideStreets.ToArray();
+            }
         }
 
         /// <summary>
