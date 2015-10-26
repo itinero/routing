@@ -160,7 +160,7 @@ namespace OsmSharp.Routing
         public static Result<Route> TryCalculate(this IRouter router, Profile profile, ICoordinate source, 
             ICoordinate target)
         {
-            return router.TryCalculate(profile, source, target);
+            return router.TryCalculate(profile, source.Latitude, source.Longitude, target.Latitude, target.Longitude);
         }
 
         /// <summary>

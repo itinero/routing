@@ -47,18 +47,64 @@ namespace OsmSharp.Routing.Test.Navigation
                 TotalTime = 0
             };
 
-            var generator = new InstructionGenerator<string>(route, (r, i) =>
-            {
-                return string.Format("Instruction {0}.", i);
-            });
+            var generator = new InstructionGenerator<string>(route,
+                new InstructionGenerator<string>.TryGetDelegate[] 
+                { 
+                    (Route r, int i, out string instruction) =>
+                        {
+                            instruction = string.Format("Instruction {0}", i);
+                            return 1;
+                        }
+                });
             generator.Run();
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
             Assert.AreEqual(3, instructions.Count);
-            Assert.AreEqual(string.Format("Instruction {0}.", 0), instructions[0]);
-            Assert.AreEqual(string.Format("Instruction {0}.", 1), instructions[1]);
-            Assert.AreEqual(string.Format("Instruction {0}.", 2), instructions[2]);
+            Assert.AreEqual(string.Format("Instruction {0}", 0), instructions[0]);
+            Assert.AreEqual(string.Format("Instruction {0}", 1), instructions[1]);
+            Assert.AreEqual(string.Format("Instruction {0}", 2), instructions[2]);
+        }
+
+        /// <summary>
+        /// Tests overwrite previous instructions.
+        /// </summary>
+        [Test]
+        public void TestOverwritingInstructions()
+        {
+            var route = new Route()
+            {
+                Segments = new List<RouteSegment>(new RouteSegment[]
+                    {
+                        new RouteSegment(),
+                        new RouteSegment(),
+                        new RouteSegment()
+                    }),
+                Tags = new List<RouteTags>(),
+                TotalDistance = 0,
+                TotalTime = 0
+            };
+
+            var generator = new InstructionGenerator<string>(route,
+                new InstructionGenerator<string>.TryGetDelegate[] 
+                { 
+                    (Route r, int i, out string instruction) =>
+                        {
+                            if(i == 2)
+                            {
+                                instruction = "The one and only instruction!";
+                                return 3;
+                            }
+                            instruction = string.Format("Instruction {0}", i);
+                            return 1;
+                        }
+                });
+            generator.Run();
+
+            var instructions = generator.Instructions;
+            Assert.IsNotNull(instructions);
+            Assert.AreEqual(1, instructions.Count);
+            Assert.AreEqual("The one and only instruction!", instructions[0]);
         }
 
         /// <summary>
@@ -80,15 +126,21 @@ namespace OsmSharp.Routing.Test.Navigation
                 TotalTime = 0
             };
 
-            var generator = new InstructionGenerator<string>(route, (r, i) =>
-            {
-                return string.Format("Instruction {0}", i);
-            },
-            (r, i1, i2) =>
-            {
-                return string.Format("Merged instruction: {0} -> {1}",
-                    i1, i2);
-            });
+            var generator = new InstructionGenerator<string>(route,
+                new InstructionGenerator<string>.TryGetDelegate[] 
+                { 
+                    (Route r, int i, out string instruction) =>
+                        {
+                            instruction = string.Format("Instruction {0}", i);
+                            return 1;
+                        }
+                },
+                (Route r, string i1, string i2, out string i) =>
+                {
+                    i = string.Format("Merged instruction: {0} -> {1}",
+                        i1, i2);
+                    return true;
+                });
             generator.Run();
 
             var instructions = generator.Instructions;

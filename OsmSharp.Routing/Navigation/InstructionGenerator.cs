@@ -29,14 +29,24 @@ namespace OsmSharp.Routing.Navigation
     public class InstructionGenerator<T> : AlgorithmBase
     {
         private readonly Route _route;
-        private readonly Func<Route, int, T> _getInstruction;
-        private readonly Func<Route, T, T, T> _merge;
+        private readonly TryGetDelegate[] _tryGetInstructions;
+        private readonly MergeDelegate _merge;
+
+        /// <summary>
+        /// A delegate to construct an instruction for a given segment in a route.
+        /// </summary>
+        public delegate int TryGetDelegate(Route route, int i, out T instruction);
+
+        /// <summary>
+        /// A delegate to merge two instructions if needed.
+        /// </summary>
+        public delegate bool MergeDelegate(Route route, T i1, T i2, out T i);
 
         /// <summary>
         /// Creates a new instruction generator.
         /// </summary>
-        public InstructionGenerator(Route route, Func<Route, int, T> getInstruction)
-            : this(route, getInstruction, null)
+        public InstructionGenerator(Route route, TryGetDelegate[] tryGetInstructions)
+            : this(route, tryGetInstructions, null)
         {
 
         }
@@ -44,15 +54,17 @@ namespace OsmSharp.Routing.Navigation
         /// <summary>
         /// Creates a new instruction generator.
         /// </summary>
-        public InstructionGenerator(Route route, Func<Route, int, T> getInstruction,
-            Func<Route, T, T, T> merge)
+        public InstructionGenerator(Route route, TryGetDelegate[] tryGetInstructions,
+            MergeDelegate merge)
         {
             _route = route;
-            _getInstruction = getInstruction;
+            _tryGetInstructions = tryGetInstructions;
             _merge = merge;
         }
 
         private List<T> _instructions;
+        private List<int> _instructionIndexes;
+        private List<int> _instructionSizes;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
@@ -60,13 +72,35 @@ namespace OsmSharp.Routing.Navigation
         protected override void DoRun()
         {
             _instructions = new List<T>();
+            _instructionIndexes = new List<int>();
+            _instructionSizes = new List<int>();
 
             for (var i = 0; i < _route.Segments.Count; i++)
             { // check each part of the route to check for an instruction.
-                var instruction = _getInstruction(_route, i);
-                if (instruction != null)
+                for (var j = 0; j < _tryGetInstructions.Length; j++)
                 {
-                    _instructions.Add(instruction);
+                    T instruction;
+                    var count = _tryGetInstructions[j](_route, i, out instruction);
+                    if (count > 0)
+                    { // ok, some segments have been consumed.
+                        var current = _instructions.Count - 1;
+                        while (current >= 0 &&
+                            _instructionIndexes[current] > i - count)
+                        {
+                            _instructions.RemoveAt(current);
+                            _instructionIndexes.RemoveAt(current);
+                            _instructionSizes.RemoveAt(current);
+
+                            current--;
+                        }
+
+                        // add instructions, index and size.
+                        _instructions.Add(instruction);
+                        _instructionIndexes.Add(i);
+                        _instructionSizes.Add(count);
+                        this.HasSucceeded = true;
+                        break;
+                    }
                 }
             }
 
@@ -74,8 +108,8 @@ namespace OsmSharp.Routing.Navigation
             {
                 for (var i = 1; i < _instructions.Count; i++)
                 { // keep on merging until impossible.
-                    var merged = _merge(_route, _instructions[i - 1], _instructions[i]);
-                    if (merged != null)
+                    T merged;
+                    if(_merge(_route, _instructions[i - 1], _instructions[i], out merged))
                     { // ok, an instruction got merged.
                         _instructions[i - 1] = merged;
                         _instructions.RemoveAt(i);

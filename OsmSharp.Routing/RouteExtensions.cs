@@ -20,13 +20,13 @@ using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Geo.Attributes;
 using OsmSharp.Geo.Features;
-using OsmSharp.Routing.Network;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
+using OsmSharp.Math.Geo.Meta;
 using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using OsmSharp.Units.Distance;
-using OsmSharp.Units.Speed;
 using OsmSharp.Units.Time;
 using System;
 using System.Collections.Generic;
@@ -499,7 +499,8 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Sets the distance/time.
         /// </summary>
-        public static void SetDistanceAndTime(this RouteSegment segment, RouteSegment previous, OsmSharp.Routing.Profiles.Speed speed)
+        public static void SetDistanceAndTime(this RouteSegment segment, RouteSegment previous, 
+            OsmSharp.Routing.Profiles.Speed speed)
         {
             var distance = GeoCoordinate.DistanceEstimateInMeter(
                 new GeoCoordinateSimple()
@@ -554,6 +555,36 @@ namespace OsmSharp.Routing
                         });
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns the turn direction for the segment at the given index.
+        /// </summary>
+        public static RelativeDirection RelativeDirectionAt(this Route route, int i)
+        {
+            if (i < 0 || i >= route.Segments.Count) { throw new ArgumentOutOfRangeException("i"); }
+
+            if (i == 0 || i == route.Segments.Count - 1)
+            { // not possible to calculate a relative direction for the first or last segment.
+                return null;
+            }
+            return RelativeDirectionCalculator.Calculate(
+                new GeoCoordinate(route.Segments[i - 1].Latitude, route.Segments[i - 1].Longitude),
+                new GeoCoordinate(route.Segments[i].Latitude, route.Segments[i].Longitude),
+                new GeoCoordinate(route.Segments[i + 1].Latitude, route.Segments[i + 1].Longitude));
+        }
+
+        /// <summary>
+        /// Returns the direction to the next segment.
+        /// </summary>
+        /// <returns></returns>
+        public static DirectionEnum DirectionToNext(this Route route, int i)
+        {
+            if (i < 0 || i >= route.Segments.Count - 1) { throw new ArgumentOutOfRangeException("i"); }
+
+            return DirectionCalculator.Calculate(
+                new GeoCoordinate(route.Segments[i].Latitude, route.Segments[i].Longitude),
+                new GeoCoordinate(route.Segments[i + 1].Latitude, route.Segments[i + 1].Longitude));
         }
     }
 }
