@@ -515,7 +515,13 @@ namespace OsmSharp.Routing.Graphs.Geometric
         {
             this.Compress();
 
+            var offset = stream.Position; // store current offset.
+
+            // serialize the base graph & make sure to seek to right after.
             var size = _graph.Serialize(stream);
+            stream.Seek(size, System.IO.SeekOrigin.Begin);
+
+            // serialize vertex coordinates and shapes.
             using (var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(
                 new OsmSharp.IO.LimitedStream(stream)))
             {
@@ -582,6 +588,15 @@ namespace OsmSharp.Routing.Graphs.Geometric
                             };
                         });
                 position = position + (graph.VertexCount * 2 * 4);
+
+                if (copy)
+                { // copy the data.
+                    var coordinatesCopy = new HugeArray<GeoCoordinateSimple>(coordinates.Length);
+                    coordinatesCopy.CopyFrom(coordinates);
+                    coordinates = coordinatesCopy;
+
+                    file.Dispose();
+                }
             }
 
             // deserialize shapes.

@@ -204,8 +204,9 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// </summary>
         public void Compress()
         {
-            _graph.Compress();
-            _edgeData.Resize(_graph.EdgeCount + 1);
+            long maxEdgeId;
+            _graph.Compress(false, out maxEdgeId);
+            _edgeData.Resize(maxEdgeId);
         }
 
         /// <summary>
@@ -213,8 +214,9 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// </summary>
         public void Trim()
         {
-            _graph.Trim();
-            _edgeData.Resize(_graph.EdgeCount + 1);
+            long maxEdgeId;
+            _graph.Trim(out maxEdgeId);
+            _edgeData.Resize(maxEdgeId);
         }
 
         /// <summary>
@@ -422,16 +424,15 @@ namespace OsmSharp.Routing.Graphs.Directed
             stream.Write(BitConverter.GetBytes(_edgeDataSize), 0, 4); // write the edge size.
             size = size + 4;
 
-            var edgeCount = _graph.EdgeCount;
-            var edgeSize = 1;
             using (var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(
                 new OsmSharp.IO.LimitedStream(stream)))
             {
                 // write edges (each edge = 4 uints (16 bytes)).
-                var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, edgeCount * edgeSize, 1024);
-                edgeArray.CopyFrom(_edgeData, edgeCount * edgeSize);
+                var edgeArray = new MemoryMappedHugeArrayUInt32(file, _edgeData.Length,
+                    _edgeData.Length, 1024);
+                edgeArray.CopyFrom(_edgeData, _edgeData.Length);
                 edgeArray.Dispose(); // written, get rid of it!
-                size = size + (edgeCount * 4 * edgeSize);
+                size = size + (_edgeData.Length * 4);
             }
             return size;
         }
@@ -458,8 +459,17 @@ namespace OsmSharp.Routing.Graphs.Directed
             var bufferSize = 128;
             var cacheSize = 64 * 8;
             var file = new MemoryMappedStream(new LimitedStream(stream));
-            var edgeData = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, edgeCount * edgeSize, bufferSize,
-                cacheSize * 16);
+            HugeArrayBase<uint> edgeData = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, 
+                edgeCount * edgeSize, bufferSize, cacheSize * 16);
+
+            if (copy)
+            { // copy the data.
+                var edgeDataCopy = new HugeArray<uint>(edgeData.Length);
+                edgeDataCopy.CopyFrom(edgeData);
+                edgeData = edgeDataCopy;
+
+                file.Dispose();
+            }
 
             return new DirectedMetaGraph(graph, edgeSize, edgeData);
         }

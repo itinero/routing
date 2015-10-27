@@ -989,6 +989,20 @@ namespace OsmSharp.Routing.Graphs
         }
 
         /// <summary>
+        /// Returns the size in bytes as if serialized.
+        /// </summary>
+        /// <returns></returns>
+        public long SizeInBytes
+        {
+            get
+            {
+                return 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
+                    this.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
+                    this.EdgeCount * 4 * (4 + 1); // the bytes for the one edge: one edge = 4 uints + edge data size.
+            }
+        }
+
+        /// <summary>
         /// Serializes this graph to disk.
         /// </summary>
         public long Serialize(System.IO.Stream stream)

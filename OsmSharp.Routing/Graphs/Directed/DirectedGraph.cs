@@ -57,6 +57,15 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <summary>
         /// Creates a new graph.
         /// </summary>
+        public DirectedGraph(int edgeDataSize, Action<uint, uint> switchEdge)
+            : this(edgeDataSize, 1000, switchEdge)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new graph.
+        /// </summary>
         public DirectedGraph(int edgeDataSize, long sizeEstimate)
             : this(edgeDataSize, sizeEstimate, null)
         {
@@ -541,6 +550,15 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// </summary>
         public void Trim()
         {
+            long maxEdgeId;
+            this.Trim(out maxEdgeId);
+        }
+
+        /// <summary>
+        /// Trims the internal data structures of this graph.
+        /// </summary>
+        public void Trim(out long maxEdgeId)
+        {
             // remove all vertices without edges at the end.
             var maxVertexId = uint.MinValue;
             for(uint i = 0; i < _vertices.Length / VERTEX_SIZE; i++)
@@ -550,13 +568,12 @@ namespace OsmSharp.Routing.Graphs.Directed
                 for(var e = pointer; e < pointer + (count * _edgeSize); e += _edgeSize)
                 {
                     var vertex = _edges[e];
-                    if(maxVertexId < vertex)
+                    if (maxVertexId < vertex)
                     {
                         maxVertexId = vertex;
                     }
                 }
-                if(count > 0 &&
-                   maxVertexId < i)
+                if (count > 0 && maxVertexId < i)
                 { // also take into account the largest vertex pointing down.
                     maxVertexId = i;
                 }
@@ -570,13 +587,24 @@ namespace OsmSharp.Routing.Graphs.Directed
                 edgesLength = (uint)_edgeSize;
             }
             _edges.Resize(edgesLength);
+
+            // store the max edge id.
+            maxEdgeId = _edges.Length / (uint)_edgeSize;
         }
 
         /// <summary>
         /// Compresses the data in this graph to it's smallest size.
         /// </summary>
-        /// <param name="toReadonly">Flag to make the graph even smaller by converting it to a readonly version.</param>
         public void Compress(bool toReadonly)
+        {
+            long maxEdgeId;
+            this.Compress(toReadonly, out maxEdgeId);
+        }
+
+        /// <summary>
+        /// Compresses the data in this graph to it's smallest size.
+        /// </summary>
+        public void Compress(bool toReadonly, out long maxEdgeId)
         {
             // trim first.
             this.Trim();
@@ -618,8 +646,8 @@ namespace OsmSharp.Routing.Graphs.Directed
                     // report on the move.
                     if (_switchEdge != null)
                     {
-                        _switchEdge((uint)(edgePointer / _edgeSize),
-                            (uint)(pointer / _edgeSize));
+                        _switchEdge((uint)((edgePointer + e) / _edgeSize),
+                            (uint)((pointer + e) / _edgeSize));
                     }
                 }
 
@@ -637,6 +665,10 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
             _nextEdgePointer = pointer;
             _readonly = toReadonly;
+
+            // store the max edge id.
+            _edges.Resize(_nextEdgePointer);
+            maxEdgeId = _edges.Length / (uint)_edgeSize;
         }
 
         /// <summary>

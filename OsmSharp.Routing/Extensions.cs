@@ -37,5 +37,34 @@ namespace OsmSharp.Routing
             }
             return default(TValue);
         }
+
+        /// <summary>
+        /// Gets the next power of two.
+        /// </summary>
+        public static int NextPowerOfTwo(int i)
+        {
+            if(i == 0)
+            {
+                return 0;
+            }
+            else if(i == 1)
+            {
+                return 1;
+            }
+            else if(i == 2)
+            {
+                return 2;
+            }
+            else if (!((i & (i - 1)) == 0))
+            {
+                i |= i >> 1;
+                i |= i >> 2;
+                i |= i >> 4;
+                i |= i >> 8;
+                i |= i >> 16;
+                i++;
+            }
+            return i;
+        }
     }
 }

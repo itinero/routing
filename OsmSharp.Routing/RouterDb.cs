@@ -131,7 +131,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
-        internal void AddContracted(Profiles.Profile profile, DirectedMetaGraph contracted)
+        public void AddContracted(Profiles.Profile profile, DirectedMetaGraph contracted)
         {
             _contracted.Add(profile.Name, contracted);
         }

@@ -42,5 +42,29 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(11, dic.TryGetValueOrDefault(1).Item1);
             Assert.AreEqual(null, dic.TryGetValueOrDefault(2));
         }
+
+        /// <summary>
+        /// Tests the next power of 2.
+        /// </summary>
+        [Test]
+        public void TestNextPowerOf2()
+        {
+            Assert.AreEqual(0, Extensions.NextPowerOfTwo(0));
+            Assert.AreEqual(1, Extensions.NextPowerOfTwo(1));
+            Assert.AreEqual(2, Extensions.NextPowerOfTwo(2));
+            Assert.AreEqual(4, Extensions.NextPowerOfTwo(3));
+            Assert.AreEqual(4, Extensions.NextPowerOfTwo(4));
+            Assert.AreEqual(8, Extensions.NextPowerOfTwo(5));
+            Assert.AreEqual(8, Extensions.NextPowerOfTwo(6));
+            Assert.AreEqual(8, Extensions.NextPowerOfTwo(7));
+            Assert.AreEqual(8, Extensions.NextPowerOfTwo(8));
+            Assert.AreEqual(16, Extensions.NextPowerOfTwo(12));
+            Assert.AreEqual(32, Extensions.NextPowerOfTwo(28));
+            Assert.AreEqual(64, Extensions.NextPowerOfTwo(45));
+            Assert.AreEqual(512, Extensions.NextPowerOfTwo(413));
+            Assert.AreEqual(65536, Extensions.NextPowerOfTwo(41465));
+            Assert.AreEqual(131072, Extensions.NextPowerOfTwo(130072));
+            Assert.AreEqual(524288, Extensions.NextPowerOfTwo(514288));
+        }
     }
 }

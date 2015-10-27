@@ -429,7 +429,13 @@ namespace OsmSharp.Routing.Network
         {
             this.Compress();
 
+            var offset = stream.Position; // store current offset.
+
+            // serialize geometric graph and make sure to seek until right after.
             var size = _graph.Serialize(stream);
+            stream.Seek(offset + size, System.IO.SeekOrigin.Begin);
+
+            // serialize edge data.
             var edgeCount = _graph.EdgeCount;
             var edgeSize = 1;
             using (var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(
@@ -458,8 +464,17 @@ namespace OsmSharp.Routing.Network
             var bufferSize = 128;
             var cacheSize = 64 * 8;
             var file = new MemoryMappedStream(new LimitedStream(stream));
-            var edgeData = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, edgeCount * edgeSize, bufferSize, 
+            HugeArrayBase<uint> edgeData = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, edgeCount * edgeSize, bufferSize,
                 cacheSize * 16);
+
+            if (copy)
+            { // copy the data.
+                var edgeDataCopy = new HugeArray<uint>(edgeData.Length);
+                edgeDataCopy.CopyFrom(edgeData);
+                edgeData = edgeDataCopy;
+
+                file.Dispose();
+            }
 
             return new RoutingNetwork(graph, edgeData);
         }
