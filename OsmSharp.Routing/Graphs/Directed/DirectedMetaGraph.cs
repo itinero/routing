@@ -85,7 +85,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         {
             var oldEdgePointer = oldId * _edgeDataSize;
             var newEdgePointer = newId * _edgeDataSize;
-            if(newEdgePointer + _edgeDataSize >= _edgeData.Length)
+            if(newEdgePointer + _edgeDataSize > _edgeData.Length)
             {
                 this.IncreaseSizeEdgeData((uint)(newEdgePointer + _edgeDataSize));
             }
