@@ -100,7 +100,7 @@ namespace OsmSharp.Routing.Algorithms.Search
             
             if (edgeIds[0] == Constants.NO_EDGE)
             { // oeps, no edge was found, too far from road network.
-                this.ErrorMessage = string.Format("Could not resolve point at [{0},{1}]. Probably too far from closest road or outside of the loaded network.",
+                this.ErrorMessage = string.Format("Could not resolve point at [{0}, {1}]. Probably too far from closest road or outside of the loaded network.",
                     _latitude.ToInvariantString(), _longitude.ToInvariantString());
                 return;
             }

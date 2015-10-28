@@ -138,7 +138,12 @@ namespace OsmSharp.Routing.Algorithms.Default
 
                 if (_current.From != null && 
                     _current.From.Vertex == neighbour)
-                { // don't go back!
+                { // don't go back, but report on the visit if needed.
+                    if(this.WasEdgeFound != null &&
+                       this.WasEdgeFound(_current.Vertex, edge.Id, _current.Weight))
+                    { // edge was found and true was returned, this search should stop.
+                        return false;
+                    }
                     continue;
                 }
 
@@ -206,9 +211,28 @@ namespace OsmSharp.Routing.Algorithms.Default
         public bool MaxReached { get; private set; }
 
         /// <summary>
+        /// The was found delegate.
+        /// </summary>
+        public delegate bool WasFoundDelegate(uint vertex, float weight);
+
+        /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
-        public Func<uint, float, bool> WasFound
+        public WasFoundDelegate WasFound
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The was edge found delegate.
+        /// </summary>
+        public delegate bool WasEdgeFoundDelegate(uint vertex, uint edge, float weight);
+
+        /// <summary>
+        /// Gets or sets the wasfound function to be called when a new vertex is found.
+        /// </summary>
+        public WasEdgeFoundDelegate WasEdgeFound
         {
             get;
             set;

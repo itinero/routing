@@ -84,6 +84,7 @@
     <Compile Include="Algorithms\Path.cs" />
     <Compile Include="Algorithms\Search\IResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
+    <Compile Include="Algorithms\Search\ResolveMultipleAlgorithm.cs" />
     <Compile Include="Algorithms\WeightMatrixAlgorithm.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="Data\EdgeData.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Graphs\GraphExtensions.cs" />
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Navigation\Instruction.cs" />
@@ -127,6 +129,7 @@
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Profiles\Factor.cs" />
     <Compile Include="Profiles\Profile.cs" />
+    <Compile Include="Profiles\ProfileMetric.cs" />
     <Compile Include="Profiles\Speed.cs" />
     <Compile Include="Profiles\VehicleTypes.cs" />
     <Compile Include="ResultExtensions.cs" />

@@ -32,18 +32,20 @@ namespace OsmSharp.Routing.Profiles
         private readonly Func<TagsCollectionBase, bool> _canStop;
         private readonly Func<TagsCollectionBase, TagsCollectionBase, bool> _equals;
         private readonly HashSet<string> _vehicleTypes;
+        private readonly ProfileMetric _metric;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
         public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<TagsCollectionBase, bool> canStop,
-            Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes)
+            Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes, ProfileMetric metric)
         {
             _getSpeed = getSpeed;
             _canStop = canStop;
             _equals = equals;
             _vehicleTypes = vehicleTypes;
             _name = name;
+            _metric = metric;
         }
 
         /// <summary>
@@ -99,6 +101,17 @@ namespace OsmSharp.Routing.Profiles
             get
             {
                 return _name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the metric.
+        /// </summary>
+        public virtual ProfileMetric Metric
+        {
+            get
+            {
+                return _metric;
             }
         }
 

@@ -447,7 +447,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
             (edge1, edge2) =>
                 {
                     return this.IsEqualFor(edge1, edge2);
-                }, this.VehicleTypes);
+                }, this.VehicleTypes, Profiles.ProfileMetric.TimeInSeconds);
         }
 
         /// <summary>
@@ -488,7 +488,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
             (edge1, edge2) => 
                 {
                     return this.IsEqualFor(edge1, edge2);
-                }, this.VehicleTypes);
+                }, this.VehicleTypes, Profiles.ProfileMetric.DistanceInMeters);
         }
     }
 }

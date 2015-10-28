@@ -322,5 +322,23 @@ namespace OsmSharp.Routing.Graphs.Geometric
 
             return features;
         }
+
+        /// <summary>
+        /// Gets the vertex on this edge that is not the given vertex.
+        /// </summary>
+        /// <returns></returns>
+        public static uint GetOther(this GeometricEdge edge, uint vertex)
+        {
+            if (edge.From == vertex)
+            {
+                return edge.To;
+            }
+            else if (edge.To == vertex)
+            {
+                return edge.From;
+            }
+            throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
+                vertex, edge.Id));
+        }
     }
 }
