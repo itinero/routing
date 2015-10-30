@@ -277,5 +277,46 @@ namespace OsmSharp.Routing.Algorithms
             segment.SetStop(_target.Location(), _target.Tags);
             _route.Segments.Add(segment);
         }
+        
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        {
+            return RouteBuilder.TryBuild(db, profile, source, target, path).Value;
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        {
+            var pathList = new List<uint>();
+            path.AddToList(pathList);
+            return RouteBuilder.TryBuild(db, profile, source, target, pathList);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        {
+            return RouteBuilder.TryBuild(db, profile, source, target, path).Value;
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        {
+            var routeBuilder = new RouteBuilder(db, profile, source, target, path);
+            routeBuilder.Run();
+            if(!routeBuilder.HasSucceeded)
+            {
+                return new Result<Route>(
+                    string.Format("Failed to build route: {0}", routeBuilder.ErrorMessage));
+            }
+            return new Result<Route>(routeBuilder.Route);
+        }
     }
 }

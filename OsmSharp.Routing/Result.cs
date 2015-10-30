@@ -41,7 +41,19 @@ namespace OsmSharp.Routing
             this.IsError = false;
         }
 
-        internal Result(string errorMessage, Func<string, Exception> createException)
+        /// <summary>
+        /// Creates a new result.
+        /// </summary>
+        public Result(string errorMessage)
+            : this(errorMessage, (m) => new Exception(m))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new result.
+        /// </summary>
+        public Result(string errorMessage, Func<string, Exception> createException)
         {
             _value = default(T);
             _createException = createException;

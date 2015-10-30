@@ -55,6 +55,15 @@ namespace OsmSharp.Routing.Test.Profiles
         /// Creates a mock car profile.
         /// </summary>
         /// <returns></returns>
+        public static MockProfile CarMock(Func<TagsCollectionBase, Speed> getSpeed)
+        {
+            return MockProfile.Mock("CarMock", getSpeed, VehicleTypes.MotorVehicle, VehicleTypes.Vehicle);
+        }
+
+        /// <summary>
+        /// Creates a mock car profile.
+        /// </summary>
+        /// <returns></returns>
         public static MockProfile Mock(string name, Func<TagsCollectionBase, Speed> getSpeed,
             params string[] vehicleTypes)
         {

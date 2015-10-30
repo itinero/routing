@@ -1,0 +1,51 @@
+﻿{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 0
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.460974931716918,
+          51.22965768754021
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.463152885437011,
+          51.229617377118906
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "meta:name": "Abelshausen Blvd.",
+        "highway": "residential"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.460964202880859,
+            51.22966440594034
+          ],
+          [
+            4.463142156600952,
+            51.229637532333975
+          ]
+        ]
+      }
+    }
+  ]
+}

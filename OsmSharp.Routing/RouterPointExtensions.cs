@@ -20,6 +20,7 @@ using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Graphs.Geometric;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using System;
 using System.Collections.Generic;
@@ -39,22 +40,30 @@ namespace OsmSharp.Routing
         {
             var graph = routerDb.Network.GeometricGraph;
             var edge = graph.GetEdge(point.EdgeId);
-            if (point.Offset == 0)
-            {
-                return new Path[] { new Path(edge.From) };
-            }
-            else if (point.Offset == ushort.MaxValue)
-            {
-                return new Path[] { new Path(edge.To) };
-            }
-            var offset = point.Offset / (float)ushort.MaxValue;
+
             float distance;
             ushort profileId;
             OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
             var factor = profile.Factor(routerDb.EdgeProfiles.Get(profileId));
             var length = graph.Length(edge);
+
+            var offset = point.Offset / (float)ushort.MaxValue;
             if(factor.Direction == 0)
             { // bidirectional.
+                if(offset == 0)
+                { // the first part is just the first vertex.
+                    return new Path[] {
+                        new Path(edge.From),
+                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+                }
+                else if(offset == 1)
+                { // the second path it just the second vertex.
+                    return new Path[] {
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
+                        new Path(edge.To)
+                    };
+                }
                 return new Path[] {
                     new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
                     new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
@@ -64,8 +73,34 @@ namespace OsmSharp.Routing
             { // edge is forward oneway.
                 if (asSource)
                 {
+                    if(offset == 1)
+                    { // just return the to-vertex.
+                        return new Path[] {
+                            new Path(edge.To)
+                        };
+                    }
+                    if (offset == 0)
+                    { // return both, we are at the from-vertex.
+                        return new Path[] {
+                            new Path(edge.From),
+                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                        };
+                    }
                     return new Path[] {
                         new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+                }
+                if(offset == 0)
+                { // just return the from vertex.
+                    return new Path[] {
+                        new Path(edge.From)
+                    };
+                }
+                if(offset == 1)
+                { // return both, we are at the to-vertex.
+                    return new Path[] {
+                        new Path(edge.To),
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
                     };
                 }
                 return new Path[] {
@@ -76,8 +111,34 @@ namespace OsmSharp.Routing
             { // edge is backward oneway.
                 if (!asSource)
                 {
+                    if(offset == 1)
+                    { // just return the to-vertex.
+                        return new Path[] {
+                            new Path(edge.To)
+                        };
+                    }
+                    if(offset == 0)
+                    { // return both, we are at the from-vertex.
+                        return new Path[] {
+                            new Path(edge.From),
+                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                        };
+                    }
                     return new Path[] {
                         new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                    };
+                }
+                if(offset == 0)
+                { // just return the from-vertex.
+                    return new Path[] {
+                        new Path(edge.From)
+                    };
+                }
+                if(offset == 1)
+                { // return both, we are at the to-vertex.
+                    return new Path[] {
+                        new Path(edge.To),
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
                     };
                 }
                 return new Path[] {
@@ -195,7 +256,14 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
-        /// <returns></returns>
+        public static RouterPoint CreateRouterPointForVertex(this RoutingNetwork graph, uint vertex)
+        {
+            return graph.GeometricGraph.CreateRouterPointForVertex(vertex);
+        }
+
+        /// <summary>
+        /// Creates a router point for the given vertex.
+        /// </summary>
         public static RouterPoint CreateRouterPointForVertex(this GeometricGraph graph, uint vertex)
         {
             float latitude, longitude;
@@ -213,6 +281,14 @@ namespace OsmSharp.Routing
                 return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
             }
             return new RouterPoint(latitude, longitude, edges.Id, 0);
+        }
+
+        /// <summary>
+        /// Creates a router point for the given vertex.
+        /// </summary>
+        public static RouterPoint CreateRouterPointForVertex(this RoutingNetwork graph, uint vertex, uint neighbour)
+        {
+            return graph.GeometricGraph.CreateRouterPointForVertex(vertex, neighbour);
         }
 
         /// <summary>
@@ -243,6 +319,38 @@ namespace OsmSharp.Routing
                 return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
             }
             return new RouterPoint(latitude, longitude, edges.Id, 0);
+        }
+
+        /// <summary>
+        /// Calculates the path between this router point and the given router point.
+        /// </summary>
+        public static Path PathTo(this RouterPoint point, RouterDb db, Profile profile, RouterPoint target)
+        {
+            if(point.EdgeId != target.EdgeId)
+            {
+                throw new ArgumentException("Target point must be part of the same edge.");
+            }
+            if(point.Offset == target.Offset)
+            { // path is possible but it has a weight of 0.
+                return new Path(Constants.NO_VERTEX);
+            }
+            var forward = point.Offset < target.Offset;
+            var edge = db.Network.GetEdge(point.EdgeId);
+            var factor = profile.Factor(db.EdgeProfiles.Get(edge.Data.Profile));
+            if(factor.Value <= 0)
+            { // not possible to travel here.
+                return null;
+            }
+            if(factor.Direction == 0 ||
+               (forward && factor.Direction == 1) ||
+               (!forward && factor.Direction == 2))
+            { // ok, directions match.
+                var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) * 
+                    edge.Data.Distance;
+                var weight = distance * factor.Value;
+                return new Path(Constants.NO_VERTEX, weight, new Path(Constants.NO_VERTEX));
+            }
+            return null;
         }
     }
 }

@@ -21,6 +21,7 @@ using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Network.Data;
+using OsmSharp.Routing.Profiles;
 using OsmSharp.Routing.Test.Profiles;
 using System.Linq;
 
@@ -61,13 +62,16 @@ namespace OsmSharp.Routing.Test
         [Test]
         public void TestToPaths()
         {
+            var distance = (float)GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
+                new GeoCoordinate(0.1, 0.1));
+
             // build router db.
             var routerDb = new RouterDb();
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
-                Distance = 1000,
+                Distance = distance,
                 MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
@@ -106,20 +110,26 @@ namespace OsmSharp.Routing.Test
             point = new RouterPoint(0, 0, 0, 0);
             paths = point.ToPaths(routerDb, profile, true);
 
-            Assert.IsNotNull(paths);
-            Assert.AreEqual(1, paths.Length);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
-            Assert.AreEqual(0, paths[0].Vertex);
-            Assert.IsNull(paths[0].From);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
+            Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(.1f, .1f, 0, ushort.MaxValue);
             paths = point.ToPaths(routerDb, profile, true);
 
-            Assert.IsNotNull(paths);
-            Assert.AreEqual(1, paths.Length);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
+            Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
 
-            Assert.AreEqual(1, paths[0].Vertex);
-            Assert.IsNull(paths[0].From);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 1).From);
         }
 
         /// <summary>
@@ -128,13 +138,16 @@ namespace OsmSharp.Routing.Test
         [Test]
         public void TestToPathsOneway()
         {
+            var distance = (float)GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
+                new GeoCoordinate(0.1, 0.1));
+
             // build router db.
             var routerDb = new RouterDb();
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
-                Distance = 1000,
+                Distance = distance,
                 MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
@@ -182,6 +195,52 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(weight0, paths.First(x => x.Vertex == 0).Weight, 0.001);
             Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
+
+            point = new RouterPoint(0, 0, 0, 0);
+            paths = point.ToPaths(routerDb, profile, true);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(2, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 0).From);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
+            Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
+
+            point = new RouterPoint(0, 0, 0, 0);
+            paths = point.ToPaths(routerDb, profile, false);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(1, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 0).From);
+
+            point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
+            paths = point.ToPaths(routerDb, profile, true);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(1, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 1).From);
+
+            point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
+            paths = point.ToPaths(routerDb, profile, false);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(2, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 1).From);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
+            Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
         }
 
         /// <summary>
@@ -190,13 +249,16 @@ namespace OsmSharp.Routing.Test
         [Test]
         public void TestToPathsOnewayReverse()
         {
+            var distance = (float)GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
+                new GeoCoordinate(0.1, 0.1));
+
             // build router db.
             var routerDb = new RouterDb();
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
-                Distance = 1000,
+                Distance = distance,
                 MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
@@ -242,6 +304,52 @@ namespace OsmSharp.Routing.Test
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
             Assert.AreEqual(weight0, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
+            Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
+
+            point = new RouterPoint(0, 0, 0, 0);
+            paths = point.ToPaths(routerDb, profile, false);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(2, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 0).From);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
+            Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
+
+            point = new RouterPoint(0, 0, 0, 0);
+            paths = point.ToPaths(routerDb, profile, true);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(1, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 0).From);
+
+            point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
+            paths = point.ToPaths(routerDb, profile, false);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(1, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 1).From);
+
+            point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
+            paths = point.ToPaths(routerDb, profile, true);
+            Assert.IsNotNull(paths);
+            Assert.AreEqual(2, paths.Length);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 1));
+            Assert.AreEqual(0, paths.First(x => x.Vertex == 1).Weight, 0.001);
+            Assert.IsNull(paths.First(x => x.Vertex == 1).From);
+
+            Assert.IsNotNull(paths.First(x => x.Vertex == 0));
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.001);
             Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
         }
@@ -342,6 +450,102 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(0.075, shape[0].Longitude, 0.001);
             Assert.AreEqual(0.050, shape[1].Latitude, 0.001);
             Assert.AreEqual(0.050, shape[1].Longitude, 0.001);
+        }
+
+        /// <summary>
+        /// Tests calculating weight between two router points.
+        /// </summary>
+        [Test]
+        public void TestPathTo()
+        {
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, .1f, .1f);
+            routerDb.Network.AddEdge(0, 1, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("highway", "residential")))
+            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
+                new GeoCoordinate(0.025, 0.025),
+                new GeoCoordinate(0.050, 0.050),
+                new GeoCoordinate(0.075, 0.075)
+            }));
+
+            // mock profile.
+            var profile = MockProfile.CarMock();
+
+            var point1 = new RouterPoint(0.01f, 0.01f, 0,
+                (ushort)(0.1 * ushort.MaxValue));
+            var point2 = new RouterPoint(0.09f, 0.09f, 0,
+                (ushort)(0.9 * ushort.MaxValue));
+
+            var path = point1.PathTo(routerDb, profile, point2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
+                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+
+            path = point2.PathTo(routerDb, profile, point1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
+                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+
+            path = point1.PathTo(routerDb, profile, point1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001f);
+
+            path = point2.PathTo(routerDb, profile, point2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001f);
+
+            // mock profile and force oneway forward.
+            profile = MockProfile.CarMock(x => new Speed()
+            {
+                Value = 50f / 3.6f,
+                Direction = 1
+            });
+
+            path = point1.PathTo(routerDb, profile, point2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
+                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+
+            path = point2.PathTo(routerDb, profile, point1);
+            Assert.IsNull(path);
+
+            path = point1.PathTo(routerDb, profile, point1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001f);
+
+            path = point2.PathTo(routerDb, profile, point2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001f);
+
+            // mock profile and force oneway backward.
+            profile = MockProfile.CarMock(x => new Speed()
+            {
+                Value = 50f / 3.6f,
+                Direction = 2
+            });
+
+            path = point1.PathTo(routerDb, profile, point2);
+            Assert.IsNull(path);
+
+            path = point2.PathTo(routerDb, profile, point1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
+                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+
+            path = point1.PathTo(routerDb, profile, point1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001f);
+
+            path = point2.PathTo(routerDb, profile, point2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001f);
         }
     }
 }

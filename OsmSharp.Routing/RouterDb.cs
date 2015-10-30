@@ -20,7 +20,9 @@ using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
+using System.Linq;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OsmSharp.Routing
 {
@@ -68,6 +70,24 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Creates a new router database.
+        /// </summary>
+        private RouterDb(RoutingNetwork network, ITagsIndex profiles, ITagsIndex meta,
+            string[] supportedProfiles)
+        {
+            _network = network;
+            _edgeProfiles = profiles;
+            _meta = meta;
+
+            _supportedProfiles = new HashSet<string>();
+            foreach (var supportedProfile in supportedProfiles)
+            {
+                _supportedProfiles.Add(supportedProfile);
+            }
+            _contracted = new Dictionary<string, DirectedMetaGraph>();
+        }
+
+        /// <summary>
         /// Returns true if this router db is empty.
         /// </summary>
         public bool IsEmpty
@@ -81,7 +101,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns true if the given profile is supported.
         /// </summary>
-        /// <returns></returns>
         public bool Supports(Profiles.Profile profile)
         {
             return _supportedProfiles.Contains(profile.Name);
@@ -139,7 +158,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Tries to get a contracted version of the routing network for the given profile.
         /// </summary>
-        /// <returns></returns>
         public bool TryGetContracted(Profiles.Profile profile, out DirectedMetaGraph contracted)
         {
             return _contracted.TryGetValue(profile.Name, out contracted);
@@ -148,11 +166,64 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns true if this routing db has a contracted version of the routing network for the given profile.
         /// </summary>
-        /// <param name="profile"></param>
-        /// <returns></returns>
         public bool HasContractedFor(Profiles.Profile profile)
         {
             return _contracted.ContainsKey(profile.Name);
+        }
+
+        /// <summary>
+        /// Saves the database to the given stream.
+        /// </summary>
+        public long Serialize(Stream stream)
+        {
+            var position = stream.Position;
+
+            // serialize supported profiles.
+            var size = stream.WriteWithSize(_supportedProfiles.ToArray());
+
+            // serialize profiles.
+            size += _edgeProfiles.Serialize(new OsmSharp.IO.LimitedStream(stream));
+            stream.Seek(position + size, SeekOrigin.Begin);
+
+            // serialize meta-data.
+            size += _meta.Serialize(new OsmSharp.IO.LimitedStream(stream));
+            stream.Seek(position + size, SeekOrigin.Begin);
+
+            // serialize network.
+            size += _network.Serialize(new OsmSharp.IO.LimitedStream(stream));
+            stream.Seek(position + size, SeekOrigin.Begin);
+
+            // serialize all contracted networks.
+            foreach(var contracted in _contracted)
+            {
+                size += stream.WriteWithSize(contracted.Key);
+                size += contracted.Value.Serialize(
+                    new OsmSharp.IO.LimitedStream(stream));
+            }
+            return size;
+        }
+
+        /// <summary>
+        /// Deserializes a database from the given stream.
+        /// </summary>
+        public static RouterDb Deserialize(Stream stream)
+        {
+            // deserialize all basic data.
+            var supportedProfiles = stream.ReadWithSizeStringArray();
+            var profiles = TagsIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
+            var meta = TagsIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
+            var network = RoutingNetwork.Deserialize(stream, true);
+
+            // create router db.
+            var routerDb = new RouterDb(network, profiles, meta, supportedProfiles);
+            
+            // read all contracted versions.
+            while(stream.Position < stream.Length)
+            {
+                var profileName = stream.ReadWithSizeString();
+                var contracted = DirectedMetaGraph.Deserialize(stream, false);
+            }
+            return routerDb;
         }
     }
 }
