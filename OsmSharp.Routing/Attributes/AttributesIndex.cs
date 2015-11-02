@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Tags;
+using Reminiscence.Arrays;
 using Reminiscence.Indexes;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
@@ -31,6 +32,7 @@ namespace OsmSharp.Routing.Attributes
     {
         private readonly Index<string> _stringIndex;
         private readonly Index<int[]> _tagsIndex;
+        private readonly ArrayBase<uint> _index;
         private readonly bool _isReadonly = false;
         private const uint NULL_ATTRIBUTES = 0;
         private const uint EMPTY_ATTRIBUTES = 1;
@@ -42,7 +44,7 @@ namespace OsmSharp.Routing.Attributes
         /// Creates a new empty index.
         /// </summary>
         public AttributesIndex()
-            : this(false)
+            : this(false, false)
         {
 
         }
@@ -50,11 +52,16 @@ namespace OsmSharp.Routing.Attributes
         /// <summary>
         /// Creates a new empty index.
         /// </summary>
-        public AttributesIndex(bool readOnly)
+        public AttributesIndex(bool readOnly, bool incrementByOne)
         {
             _stringIndex = new Index<string>();
             _tagsIndex = new Index<int[]>();
             _isReadonly = readOnly;
+            if (incrementByOne)
+            { // create the increment-by-one data structures.
+                _index = new MemoryArray<uint>(1024);
+                _nextId = 0;
+            }
 
             if (!readOnly)
             { // this index is not readonly and duplicates need to be checked.
@@ -91,14 +98,34 @@ namespace OsmSharp.Routing.Attributes
         /// <summary>
         /// Creates a new index.
         /// </summary>
-        public AttributesIndex(MemoryMap file)
+        public AttributesIndex(MemoryMap map)
         {
-            _stringIndex = new Index<string>(file);
-            _tagsIndex = new Index<int[]>(file);
+            _stringIndex = new Index<string>(map);
+            _tagsIndex = new Index<int[]>(map);
             _isReadonly = false;
+            _index = null;
+            _nextId = uint.MaxValue;
 
-            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(file);
-            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(file);
+            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map);
+            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map);
+        }
+
+        /// <summary>
+        /// Creates a new index.
+        /// </summary>
+        public AttributesIndex(MemoryMap map, bool incrementByOne)
+        {
+            _stringIndex = new Index<string>(map);
+            _tagsIndex = new Index<int[]>(map);
+            _isReadonly = false;
+            if (incrementByOne)
+            { // create the increment-by-one data structures.
+                _index = new Array<uint>(map, 1024);
+                _nextId = 0;
+            }
+
+            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map);
+            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map);
         }
 
         /// <summary>
@@ -109,10 +136,29 @@ namespace OsmSharp.Routing.Attributes
             _stringIndex = stringIndex;
             _tagsIndex = tagsIndex;
             _isReadonly = true;
+            _index = null;
+            _nextId = uint.MaxValue;
 
             _stringReverseIndex = null;
             _tagsReverseIndex = null;
         }
+
+        /// <summary>
+        /// Creates a new index.
+        /// </summary>
+        internal AttributesIndex(Index<string> stringIndex, Index<int[]> tagsIndex, ArrayBase<uint> index)
+        {
+            _stringIndex = stringIndex;
+            _tagsIndex = tagsIndex;
+            _isReadonly = true;
+            _index = index;
+            _nextId = uint.MaxValue;
+
+            _stringReverseIndex = null;
+            _tagsReverseIndex = null;
+        }
+
+        private uint _nextId;
 
         /// <summary>
         /// Returns true if this tags index is readonly.
@@ -134,6 +180,11 @@ namespace OsmSharp.Routing.Attributes
             else if(tagsId == 1)
             {
                 return new TagsCollection();
+            }
+            if(_index != null)
+            { // use the index if it's there.
+                tagsId = _index[tagsId - 2];
+                return new InternalTagsCollection(_stringIndex, _tagsIndex.Get(tagsId));
             }
             return new InternalTagsCollection(_stringIndex, _tagsIndex.Get(tagsId - 2));
         }
@@ -195,6 +246,16 @@ namespace OsmSharp.Routing.Attributes
                 }
 
                 tagsId = (uint)_tagsIndex.Add(sorted);
+                if(_index != null)
+                { // use next id.
+                    if(_nextId >= _index.Length)
+                    {
+                        _index.Resize(_index.Length + 1024);
+                    }
+                    _index[_nextId] = tagsId;
+                    tagsId = _nextId;
+                    _nextId++;
+                }
                 _tagsReverseIndex.Add(sorted, tagsId);
                 return tagsId + 2;
             }
@@ -450,8 +511,22 @@ namespace OsmSharp.Routing.Attributes
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            var size = _tagsIndex.CopyToWithSize(stream);
-            return _stringIndex.CopyToWithSize(stream) + size;
+            if (_index == null)
+            {
+                stream.WriteByte(0);
+                var size = _tagsIndex.CopyToWithSize(stream);
+                return _stringIndex.CopyToWithSize(stream) + size + 1;
+            }
+            else
+            {
+                _index.Resize(_nextId);
+                stream.WriteByte(1);
+                var size = _tagsIndex.CopyToWithSize(stream);
+                size += _stringIndex.CopyToWithSize(stream);
+                stream.Write(BitConverter.GetBytes(_index.Length), 0, 8);
+                size += _index.CopyTo(stream);
+                return size + 8 + 1;
+            }
         }
 
         /// <summary>
@@ -459,16 +534,35 @@ namespace OsmSharp.Routing.Attributes
         /// </summary>
         public static AttributesIndex Deserialize(System.IO.Stream stream, bool copy = false)
         {
+            var type = stream.ReadByte();
             long size;
-            var tagsIndex = Index<int[]>.CreateFromWithSize(stream, out size, !copy);
-            var totalSize = size + 8;
-            stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
-            var limitedStream = new LimitedStream(stream);
-            var stringIndex = Index<string>.CreateFromWithSize(limitedStream, out size, !copy);
-            totalSize += size + 8;
-            stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
-
-            return new AttributesIndex(stringIndex, tagsIndex);
+            if (type == 0)
+            {
+                var tagsIndex = Index<int[]>.CreateFromWithSize(stream, out size, !copy);
+                var totalSize = size + 8 + 1;
+                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
+                var limitedStream = new LimitedStream(stream);
+                var stringIndex = Index<string>.CreateFromWithSize(limitedStream, out size, !copy);
+                totalSize += size + 8;
+                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
+                return new AttributesIndex(stringIndex, tagsIndex);
+            }
+            else
+            {
+                var tagsIndex = Index<int[]>.CreateFromWithSize(stream, out size, !copy);
+                var totalSize = size + 8 + 1;
+                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
+                var limitedStream = new LimitedStream(stream);
+                var stringIndex = Index<string>.CreateFromWithSize(limitedStream, out size, !copy);
+                totalSize += size + 8;
+                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
+                var indexLengthBytes = new byte[8];
+                stream.Read(indexLengthBytes, 0, 8);
+                var indexLength = BitConverter.ToInt64(indexLengthBytes, 0);
+                var index = new MemoryArray<uint>(indexLength);
+                index.CopyFrom(stream);
+                return new AttributesIndex(stringIndex, tagsIndex, index);
+            }
         }
 
         #endregion

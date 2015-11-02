@@ -41,12 +41,18 @@ namespace OsmSharp.Routing.Test.Attributes
             var index = new AttributesIndex();
             Assert.IsFalse(index.IsReadonly);
 
-            index = new AttributesIndex(true);
+            index = new AttributesIndex(true, false);
+            Assert.IsTrue(index.IsReadonly);
+
+            index = new AttributesIndex(true, true);
             Assert.IsTrue(index.IsReadonly);
 
             using (var map = new MemoryMapStream())
             {
-                index = new AttributesIndex();
+                index = new AttributesIndex(map);
+                Assert.IsFalse(index.IsReadonly);
+
+                index = new AttributesIndex(map, true);
                 Assert.IsFalse(index.IsReadonly);
             }
         }
@@ -65,6 +71,15 @@ namespace OsmSharp.Routing.Test.Attributes
             Assert.AreEqual(2, index.Add(Tag.Create("key1", "value1")));
             Assert.AreEqual(11, index.Add(Tag.Create("key2", "value1"))); // adds another 9 bytes to index's index, 1 byte for size and two 4-byte points to string-table.
             Assert.AreEqual(20, index.Add(Tag.Create("key2", "value2"))); // adds another 9 bytes to index's index, 1 byte for size and two 4-byte points to string-table.
+
+            index = new AttributesIndex(false, true);
+
+            Assert.AreEqual(0, index.Add(null));
+            Assert.AreEqual(1, index.Add(new TagsCollection()));
+            Assert.AreEqual(2, index.Add(Tag.Create("key1", "value1")));
+            Assert.AreEqual(2, index.Add(Tag.Create("key1", "value1")));
+            Assert.AreEqual(3, index.Add(Tag.Create("key2", "value1")));
+            Assert.AreEqual(4, index.Add(Tag.Create("key2", "value2")));
         }
 
         /// <summary>
@@ -129,6 +144,63 @@ namespace OsmSharp.Routing.Test.Attributes
                     Assert.IsTrue(refAttribute.Value.ContainsKeyValue(attribute.Key, attribute.Value));
                 }
             }
+
+            index = new AttributesIndex(false, true);
+
+            id1 = index.Add(Tag.Create("key1", "value1"));
+            id2 = index.Add(Tag.Create("key2", "value1"));
+            id3 = index.Add(Tag.Create("key2", "value2"));
+
+            attributes = index.Get(id1);
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreEqual("key1", attributes.First<Tag>().Key);
+            Assert.AreEqual("value1", attributes.First<Tag>().Value);
+            attributes = index.Get(id2);
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreEqual("key2", attributes.First<Tag>().Key);
+            Assert.AreEqual("value1", attributes.First<Tag>().Value);
+            attributes = index.Get(id3);
+            Assert.IsNotNull(attributes);
+            Assert.AreEqual(1, attributes.Count);
+            Assert.AreEqual("key2", attributes.First<Tag>().Key);
+            Assert.AreEqual("value2", attributes.First<Tag>().Value);
+
+            OsmSharp.Math.Random.StaticRandomGenerator.Set(116542346);
+            keys = 100;
+            values = 100000;
+            index = new AttributesIndex(false, true);
+            refIndex = new Dictionary<uint, TagsCollectionBase>();
+            for (var i = 0; i < 1000; i++)
+            {
+                attributes = new TagsCollection();
+                for (var j = 0; j < OsmSharp.Math.Random.StaticRandomGenerator.Get().Generate(8); j++)
+                {
+                    attributes.Add(Tag.Create(
+                        string.Format("k{0}", OsmSharp.Math.Random.StaticRandomGenerator.Get().Generate(keys)),
+                        string.Format("v{0}", OsmSharp.Math.Random.StaticRandomGenerator.Get().Generate(values))));
+                }
+
+                var id = index.Add(attributes);
+                refIndex[id] = attributes;
+            }
+
+            foreach (var refAttribute in refIndex)
+            {
+                attributes = index.Get(refAttribute.Key);
+                Assert.AreEqual(refAttribute.Value.Count, attributes.Count);
+
+                foreach (var attribute in refAttribute.Value)
+                {
+                    Assert.IsTrue(attributes.ContainsKeyValue(attribute.Key, attribute.Value));
+                }
+
+                foreach (var attribute in attributes)
+                {
+                    Assert.IsTrue(refAttribute.Value.ContainsKeyValue(attribute.Key, attribute.Value));
+                }
+            }
         }
 
         /// <summary>
@@ -141,16 +213,16 @@ namespace OsmSharp.Routing.Test.Attributes
             {
                 var index = new AttributesIndex();
 
-                Assert.AreEqual(16, index.Serialize(memoryStream));
-                Assert.AreEqual(16, memoryStream.Position);
+                Assert.AreEqual(17, index.Serialize(memoryStream));
+                Assert.AreEqual(17, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
                 var index = new AttributesIndex();
                 index.Add(Tag.Create("1", "2"));
 
-                Assert.AreEqual(31, index.Serialize(memoryStream));
-                Assert.AreEqual(31, memoryStream.Position);
+                Assert.AreEqual(32, index.Serialize(memoryStream));
+                Assert.AreEqual(32, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
@@ -159,8 +231,8 @@ namespace OsmSharp.Routing.Test.Attributes
                 index.Add(Tag.Create("1", "2"));
                 index.Add(Tag.Create("1", "2"));
 
-                Assert.AreEqual(31, index.Serialize(memoryStream));
-                Assert.AreEqual(31, memoryStream.Position);
+                Assert.AreEqual(32, index.Serialize(memoryStream));
+                Assert.AreEqual(32, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
@@ -169,8 +241,45 @@ namespace OsmSharp.Routing.Test.Attributes
                 index.Add(Tag.Create("1", "2"));
                 index.Add(Tag.Create("2", "1"));
 
-                Assert.AreEqual(40, index.Serialize(memoryStream));
-                Assert.AreEqual(40, memoryStream.Position);
+                Assert.AreEqual(41, index.Serialize(memoryStream));
+                Assert.AreEqual(41, memoryStream.Position);
+            }
+
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var index = new AttributesIndex(false, true);
+
+                Assert.AreEqual(16 + 9, index.Serialize(memoryStream));
+                Assert.AreEqual(16 + 9, memoryStream.Position);
+            }
+            using (var memoryStream = new MemoryStream())
+            {
+                var index = new AttributesIndex(false, true);
+                index.Add(Tag.Create("1", "2"));
+
+                Assert.AreEqual(31 + 1 + 8 + 4, index.Serialize(memoryStream));
+                Assert.AreEqual(31 + 1 + 8 + 4, memoryStream.Position);
+            }
+            using (var memoryStream = new MemoryStream())
+            {
+                var index = new AttributesIndex(false, true);
+                index.Add(Tag.Create("1", "2"));
+                index.Add(Tag.Create("1", "2"));
+                index.Add(Tag.Create("1", "2"));
+
+                Assert.AreEqual(31 + 1 + 8 + 4, index.Serialize(memoryStream));
+                Assert.AreEqual(31 + 1 + 8 + 4, memoryStream.Position);
+            }
+            using (var memoryStream = new MemoryStream())
+            {
+                var index = new AttributesIndex(false, true);
+                index.Add(Tag.Create("1", "2"));
+                index.Add(Tag.Create("1", "2"));
+                index.Add(Tag.Create("2", "1"));
+
+                Assert.AreEqual(40 + 1 + 8 + 4 * 2, index.Serialize(memoryStream));
+                Assert.AreEqual(40 + 1 + 8 + 4 * 2, memoryStream.Position);
             }
         }
 
@@ -236,6 +345,122 @@ namespace OsmSharp.Routing.Test.Attributes
             var values = 100000;
             refIndex = new AttributesIndex();
             var refIndexRef = new Dictionary<uint, TagsCollectionBase>();
+            for (var i = 0; i < 1000; i++)
+            {
+                var attributes = new TagsCollection();
+                for (var j = 0; j < OsmSharp.Math.Random.StaticRandomGenerator.Get().Generate(8); j++)
+                {
+                    attributes.Add(Tag.Create(
+                        string.Format("k{0}", OsmSharp.Math.Random.StaticRandomGenerator.Get().Generate(keys)),
+                        string.Format("v{0}", OsmSharp.Math.Random.StaticRandomGenerator.Get().Generate(values))));
+                }
+
+                var id = refIndex.Add(attributes);
+                refIndexRef[id] = attributes;
+            }
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var size = refIndex.Serialize(memoryStream);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                var index = AttributesIndex.Deserialize(memoryStream, false);
+                Assert.AreEqual(size, memoryStream.Position);
+
+                foreach (var refAttribute in refIndexRef)
+                {
+                    var attributes = index.Get(refAttribute.Key);
+                    Assert.AreEqual(refAttribute.Value.Count, attributes.Count);
+
+                    foreach (var attribute in refAttribute.Value)
+                    {
+                        Assert.IsTrue(attributes.ContainsKeyValue(attribute.Key, attribute.Value));
+                    }
+
+                    foreach (var attribute in attributes)
+                    {
+                        Assert.IsTrue(refAttribute.Value.ContainsKeyValue(attribute.Key, attribute.Value));
+                    }
+                }
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                index = AttributesIndex.Deserialize(memoryStream, true);
+                Assert.AreEqual(size, memoryStream.Position);
+
+                foreach (var refAttribute in refIndexRef)
+                {
+                    var attributes = index.Get(refAttribute.Key);
+                    Assert.AreEqual(refAttribute.Value.Count, attributes.Count);
+
+                    foreach (var attribute in refAttribute.Value)
+                    {
+                        Assert.IsTrue(attributes.ContainsKeyValue(attribute.Key, attribute.Value));
+                    }
+
+                    foreach (var attribute in attributes)
+                    {
+                        Assert.IsTrue(refAttribute.Value.ContainsKeyValue(attribute.Key, attribute.Value));
+                    }
+                }
+            }
+
+            refIndex = new AttributesIndex(false, true);
+
+            id1 = refIndex.Add(Tag.Create("key1", "value1"));
+            id2 = refIndex.Add(Tag.Create("key2", "value1"));
+            id3 = refIndex.Add(Tag.Create("key2", "value2"));
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var size = refIndex.Serialize(memoryStream);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                var index = AttributesIndex.Deserialize(memoryStream, false);
+                Assert.AreEqual(size, memoryStream.Position);
+
+                var attributes = index.Get(id1);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key1", attributes.First<Tag>().Key);
+                Assert.AreEqual("value1", attributes.First<Tag>().Value);
+                attributes = index.Get(id2);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key2", attributes.First<Tag>().Key);
+                Assert.AreEqual("value1", attributes.First<Tag>().Value);
+                attributes = index.Get(id3);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key2", attributes.First<Tag>().Key);
+                Assert.AreEqual("value2", attributes.First<Tag>().Value);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                index = AttributesIndex.Deserialize(memoryStream, true);
+                Assert.AreEqual(size, memoryStream.Position);
+
+                attributes = index.Get(id1);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key1", attributes.First<Tag>().Key);
+                Assert.AreEqual("value1", attributes.First<Tag>().Value);
+                attributes = index.Get(id2);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key2", attributes.First<Tag>().Key);
+                Assert.AreEqual("value1", attributes.First<Tag>().Value);
+                attributes = index.Get(id3);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key2", attributes.First<Tag>().Key);
+                Assert.AreEqual("value2", attributes.First<Tag>().Value);
+            }
+
+
+            OsmSharp.Math.Random.StaticRandomGenerator.Set(116542346);
+            keys = 100;
+            values = 100000;
+            refIndex = new AttributesIndex(false, true);
+            refIndexRef = new Dictionary<uint, TagsCollectionBase>();
             for (var i = 0; i < 1000; i++)
             {
                 var attributes = new TagsCollection();

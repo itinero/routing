@@ -44,7 +44,7 @@ namespace OsmSharp.Routing
         public RouterDb()
         {
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
-            _edgeProfiles = new AttributesIndex();
+            _edgeProfiles = new AttributesIndex(false, true);
             _meta = new AttributesIndex();
 
             _supportedProfiles = new HashSet<string>();
