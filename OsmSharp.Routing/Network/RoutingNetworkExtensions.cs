@@ -22,6 +22,7 @@ using OsmSharp.Geo.Attributes;
 using OsmSharp.Geo.Features;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
 
@@ -45,7 +46,7 @@ namespace OsmSharp.Routing.Network
                 {
                     return graph.GetVertex(edge.To);
                 }
-                var shape = edge.Shape;
+                var shape = edge.Shape.GetEnumerator();
                 shape.MoveNext();
                 return shape.Current;
             }
@@ -55,7 +56,7 @@ namespace OsmSharp.Routing.Network
                 {
                     return graph.GetVertex(edge.From);
                 }
-                var shape = edge.Shape.Reverse();
+                var shape = edge.Shape.Reverse().GetEnumerator();
                 shape.MoveNext();
                 return shape.Current;
             }
@@ -96,10 +97,11 @@ namespace OsmSharp.Routing.Network
                 {
                     shape = shape.Reverse();
                 }
-                shape.Reset();
-                while (shape.MoveNext())
+                var shapeEnumerator = shape.GetEnumerator();
+                shapeEnumerator.Reset();
+                while (shapeEnumerator.MoveNext())
                 {
-                    points.Add(shape.Current);
+                    points.Add(shapeEnumerator.Current);
                 }
             }
             points.Add(graph.GetVertex(edge.To));
@@ -202,19 +204,6 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance, ICoordinateCollection shape)
-        {
-            return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
-                {
-                    Distance = distance,
-                    MetaId = metaId,
-                    Profile = profile
-                }, shape);
-        }
-
-        /// <summary>
-        /// Adds a new edge.
-        /// </summary>
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
             params ICoordinate[] shape)
         {
@@ -223,7 +212,39 @@ namespace OsmSharp.Routing.Network
                 Distance = distance,
                 MetaId = metaId,
                 Profile = profile
-            }, new CoordinateArrayCollection<ICoordinate>(shape));
+            }, new ShapeEnumerable(shape));
+        }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
+            params ICoordinate[] shape)
+        {
+            return network.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
+        }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
+            IEnumerable<ICoordinate> shape)
+        {
+            return network.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
+        }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
+            IEnumerable<ICoordinate> shape)
+        {
+            return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
+            {
+                Distance = distance,
+                MetaId = metaId,
+                Profile = profile
+            }, new ShapeEnumerable(shape));
         }
     }
 }

@@ -16,14 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Arrays;
-using OsmSharp.Collections.Arrays.MemoryMapped;
 using OsmSharp.Collections.Coordinates.Collections;
-using OsmSharp.IO;
-using OsmSharp.IO.MemoryMappedFiles;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Graphs.Geometric;
+using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using OsmSharp.Routing.Network.Data;
+using Reminiscence.Arrays;
+using Reminiscence.IO;
+using Reminiscence.IO.Streams;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Network
@@ -34,7 +34,7 @@ namespace OsmSharp.Routing.Network
     public class RoutingNetwork
     {
         private readonly GeometricGraph _graph;
-        private readonly HugeArrayBase<uint> _edgeData;
+        private readonly ArrayBase<uint> _edgeData;
         private readonly int _edgeDataSize = 2;
         private const int BLOCK_SIZE = 1000;
 
@@ -44,13 +44,13 @@ namespace OsmSharp.Routing.Network
         public RoutingNetwork(GeometricGraph graph)
         {
             _graph = graph;
-            _edgeData = new HugeArray<uint>(_edgeDataSize * graph.EdgeCount);
+            _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
         }
 
         /// <summary>
         /// Creates a new routing network from existing data.
         /// </summary>
-        private RoutingNetwork(GeometricGraph graph, HugeArrayBase<uint> edgeData)
+        private RoutingNetwork(GeometricGraph graph, ArrayBase<uint> edgeData)
         {
             _graph = graph;
             _edgeData = edgeData;
@@ -119,7 +119,7 @@ namespace OsmSharp.Routing.Network
         /// Adds a new edge.
         /// </summary>
         /// <returns></returns>
-        public uint AddEdge(uint vertex1, uint vertex2, EdgeData data, ICoordinateCollection shape)
+        public uint AddEdge(uint vertex1, uint vertex2, EdgeData data, ShapeBase shape)
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, 
                 OsmSharp.Routing.Data.EdgeDataSerializer.Serialize(
@@ -344,7 +344,7 @@ namespace OsmSharp.Routing.Network
             /// <summary>
             /// Gets the shape.
             /// </summary>
-            public ICoordinateCollection Shape
+            public ShapeBase Shape
             {
                 get
                 {
@@ -429,51 +429,44 @@ namespace OsmSharp.Routing.Network
         {
             this.Compress();
 
-            var offset = stream.Position; // store current offset.
+            var position = stream.Position; // store current offset.
 
-            // serialize geometric graph and make sure to seek until right after.
+            // serialize geometric graph.
             var size = _graph.Serialize(stream);
-            stream.Seek(offset + size, System.IO.SeekOrigin.Begin);
 
             // serialize edge data.
-            var edgeCount = _graph.EdgeCount;
-            var edgeSize = 1;
-            using (var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(
-                new OsmSharp.IO.LimitedStream(stream)))
-            {
-                // write edges (each edge = 4 uints (16 bytes)).
-                var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, edgeCount * edgeSize, 1024);
-                edgeArray.CopyFrom(_edgeData, edgeCount * edgeSize);
-                edgeArray.Dispose(); // written, get rid of it!
-                size = size + (edgeCount * 4 * edgeSize);
-            }
+            _edgeData.CopyTo(stream);
+            size += _edgeData.Length * 4;
+
             return size;
         }
 
         /// <summary>
         /// Deserializes from a stream.
         /// </summary>
-        /// <returns></returns>
         public static RoutingNetwork Deserialize(System.IO.Stream stream, bool copy)
         {
+            var position = stream.Position;
             var graph = GeometricGraph.Deserialize(stream, copy);
+            var size = stream.Position - position;
 
-            var edgeCount = graph.EdgeCount;
+            var edgeLength = graph.EdgeCount;
             var edgeSize = 1;
 
-            var bufferSize = 128;
-            var cacheSize = 64 * 8;
-            var file = new MemoryMappedStream(new LimitedStream(stream));
-            HugeArrayBase<uint> edgeData = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, edgeCount * edgeSize, bufferSize,
-                cacheSize * 16);
-
+            ArrayBase<uint> edgeData;
             if (copy)
-            { // copy the data.
-                var edgeDataCopy = new HugeArray<uint>(edgeData.Length);
-                edgeDataCopy.CopyFrom(edgeData);
-                edgeData = edgeDataCopy;
-
-                file.Dispose();
+            { // just create arrays and read the data.
+                edgeData = new MemoryArray<uint>(edgeLength * edgeSize);
+                edgeData.CopyFrom(stream);
+                size += edgeLength * edgeSize * 4;
+            }
+            else
+            { // create accessors over the exact part of the stream that represents vertices/edges.
+                position = stream.Position;
+                var map = new MemoryMapStream(new CappedStream(stream, position,
+                    edgeLength * edgeSize * 4));
+                edgeData = new Array<uint>(map.CreateUInt32(edgeLength * edgeSize));
+                size += edgeLength * edgeSize * 4;
             }
 
             return new RoutingNetwork(graph, edgeData);

@@ -751,8 +751,7 @@ namespace OsmSharp.Routing.Test.Network
                 edges * 1 * 4 + // the bytes for the one edge-data: one edge = one edge data object.
                 vertices * 8 + // the bytes for the coordinates.
                 8 + 8 + // the shapes header.
-                edges * 8 // the shape-index.
-                + 8 + // keep at least one coordinate.
+                edges * 8 + // the shape-index.
                 edges * 4; // extra edge data.
             using (var stream = new System.IO.MemoryStream())
             {
@@ -786,8 +785,7 @@ namespace OsmSharp.Routing.Test.Network
                 edges * 1 * 4 + // the bytes for the one edge-data: one edge = one edge data object.
                 vertices * 8 + // the bytes for the coordinates.
                 8 + 8 + // the shapes header.
-                edges * 4 // the shape-index.
-                + 8 + // keep at least one coordinate.
+                edges * 4 + // the shape-index.
                 edges * 8; // extra edge data.
             using (var stream = new System.IO.MemoryStream())
             {

@@ -16,13 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using OsmSharp.Routing.Attributes;
 
 namespace OsmSharp.Routing
 {
@@ -32,8 +32,8 @@ namespace OsmSharp.Routing
     public class RouterDb
     {
         private readonly RoutingNetwork _network;
-        private readonly ITagsIndex _edgeProfiles;
-        private readonly ITagsIndex _meta;
+        private readonly AttributesIndex _edgeProfiles;
+        private readonly AttributesIndex _meta;
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
         private readonly HashSet<string> _supportedProfiles;
@@ -44,8 +44,8 @@ namespace OsmSharp.Routing
         public RouterDb()
         {
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
-            _edgeProfiles = new TagsIndex();
-            _meta = new TagsIndex();
+            _edgeProfiles = new AttributesIndex();
+            _meta = new AttributesIndex();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -54,7 +54,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(RoutingNetwork network, ITagsIndex profiles, ITagsIndex meta,
+        public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta,
             params Profiles.Profile[] supportedProfiles)
         {
             _network = network;
@@ -72,7 +72,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        private RouterDb(RoutingNetwork network, ITagsIndex profiles, ITagsIndex meta,
+        private RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta,
             string[] supportedProfiles)
         {
             _network = network;
@@ -128,7 +128,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the profiles index.
         /// </summary>
-        public ITagsIndex EdgeProfiles
+        public AttributesIndex EdgeProfiles
         {
             get
             {
@@ -139,7 +139,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the meta-data index.
         /// </summary>
-        public ITagsIndex EdgeMeta
+        public AttributesIndex EdgeMeta
         {
             get
             {
@@ -210,8 +210,8 @@ namespace OsmSharp.Routing
         {
             // deserialize all basic data.
             var supportedProfiles = stream.ReadWithSizeStringArray();
-            var profiles = TagsIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
-            var meta = TagsIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
+            var profiles = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
+            var meta = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
             var network = RoutingNetwork.Deserialize(stream, true);
 
             // create router db.

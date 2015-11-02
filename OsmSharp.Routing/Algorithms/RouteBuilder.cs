@@ -230,10 +230,11 @@ namespace OsmSharp.Routing.Algorithms
                 { // invert if data is inverted.
                     shape = shape.Reverse();
                 }
-                shape.Reset();
-                while (shape.MoveNext())
+                var shapeEnumerator = shape.GetEnumerator();
+                shapeEnumerator.Reset();
+                while (shapeEnumerator.MoveNext())
                 { // create the segment and set details.
-                    segment = RouteSegment.CreateNew(shape.Current, _vehicleProfile);
+                    segment = RouteSegment.CreateNew(shapeEnumerator.Current, _vehicleProfile);
                     segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
                     _route.Segments.Add(segment);
                 }

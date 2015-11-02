@@ -102,18 +102,12 @@ namespace OsmSharp.Routing.Algorithms.Networks
                             // add edges.
                             if (!inverted)
                             { // just add 0->1
-                                var shapeCollection = new CoordinateArrayCollection<ICoordinate>(
-                                    shape.ToArray());
-                                _network.AddEdge(edges[0].To, edges[1].To, edgeData,
-                                    shapeCollection);
+                                _network.AddEdge(edges[0].To, edges[1].To, edgeData, shape);
                             }
                             else
                             { // add the reverse 1->0
                                 shape.Reverse();
-                                var shapeCollection = new CoordinateArrayCollection<ICoordinate>(
-                                    shape.ToArray());
-                                _network.AddEdge(edges[1].To, edges[0].To, edgeData,
-                                    shapeCollection);
+                                _network.AddEdge(edges[1].To, edges[0].To, edgeData, shape);
                             }
                         }
                     }

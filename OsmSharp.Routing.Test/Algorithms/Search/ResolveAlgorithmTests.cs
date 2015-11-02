@@ -17,7 +17,6 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Graphs.Geometric;
@@ -86,10 +85,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
             var graph = new GeometricGraph(1);
             graph.AddVertex(0, (float)vertex0.Latitude, (float)vertex0.Longitude);
             graph.AddVertex(1, (float)vertex1.Latitude, (float)vertex1.Longitude);
-            graph.AddEdge(0, 1, new uint[] { 0 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                    shape0,
-                    shape1
-                }));
+            graph.AddEdge(0, 1, new uint[] { 0 }, shape0, shape1);
 
             // resolve on vertex0.
             var location = vertex0;
@@ -252,14 +248,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
             graph.AddVertex(0, (float)vertex0.Latitude, (float)vertex0.Longitude);
             graph.AddVertex(1, (float)vertex1.Latitude, (float)vertex1.Longitude);
             graph.AddVertex(2, (float)vertex2.Latitude, (float)vertex2.Longitude);
-            graph.AddEdge(0, 1, new uint[] { 0 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                    shape0,
-                    shape1
-                }));
-            var expectedEdgeId = graph.AddEdge(0, 2, new uint[] { 1 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                    shape0,
-                    shape1
-                }));
+            graph.AddEdge(0, 1, new uint[] { 0 }, shape0, shape1);
+            var expectedEdgeId = graph.AddEdge(0, 2, new uint[] { 1 }, shape0, shape1);
 
             // resolve on vertex0.
             var location = vertex0;

@@ -22,6 +22,7 @@ using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.LongIndex;
 using OsmSharp.Collections.LongIndex.LongIndex;
 using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Network;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Osm;
 using OsmSharp.Osm.Streams;
@@ -247,7 +248,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                     MetaId = meta,
                                     Distance = distance - distance2 - distance1,
                                     Profile = (ushort)profile
-                                }, new CoordinateArrayCollection<ICoordinate>(intermediates.ToArray()));
+                                }, intermediates);
                                 _db.Network.AddEdge(newCoreVertex2, toVertex, new Network.Data.EdgeData()
                                 {
                                     MetaId = meta,
@@ -267,7 +268,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                 MetaId = meta,
                                 Distance = distance,
                                 Profile = (ushort)profile
-                            }, new CoordinateArrayCollection<ICoordinate>(intermediates.ToArray()));
+                            }, intermediates);
                         }
                         else
                         { // oeps, already an edge there, try and use intermediate points.
@@ -319,7 +320,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                     MetaId = splitMeta,
                                     Distance = System.Math.Max(splitDistance, 0.0f),
                                     Profile = (ushort)splitProfile
-                                }, new CoordinateArrayCollection<ICoordinate>(intermediates.ToArray()));
+                                }, intermediates);
                             }
                         }
                     }

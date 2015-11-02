@@ -36,16 +36,20 @@
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp, Version=0.0.0.9999, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\core\Output\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\net45\OsmSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm, Version=0.0.0.9999, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\core\Output\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Reminiscence, Version=0.0.0.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.0.0.0.15-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -80,12 +84,14 @@
     <Compile Include="Algorithms\Search\HibertTests.cs" />
     <Compile Include="Algorithms\Search\MockResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
+    <Compile Include="Attributes\AttributesIndexTests.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializerTests.cs" />
     <Compile Include="Data\EdgeDataSerializerTests.cs" />
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapesArrayTests.cs" />
     <Compile Include="Graphs\GraphTests.cs" />
     <Compile Include="Navigation\InstructionGeneratorTests.cs" />
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />

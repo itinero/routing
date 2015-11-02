@@ -202,11 +202,9 @@ namespace OsmSharp.Routing.Test.Algorithms
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.25, 0.25),
+            }, new GeoCoordinate(0.25, 0.25),
                 new GeoCoordinate(0.5, 0.5),
-                new GeoCoordinate(0.75, 0.75)
-            }));
+                new GeoCoordinate(0.75, 0.75));
 
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
@@ -313,11 +311,9 @@ namespace OsmSharp.Routing.Test.Algorithms
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.25, 0.25),
+            }, new GeoCoordinate(0.25, 0.25),
                 new GeoCoordinate(0.5, 0.5),
-                new GeoCoordinate(0.75, 0.75)
-            }));
+                new GeoCoordinate(0.75, 0.75));
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
@@ -325,11 +321,9 @@ namespace OsmSharp.Routing.Test.Algorithms
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.75, 1),
+            }, new GeoCoordinate(0.75, 1),
                 new GeoCoordinate(0.5, 1),
-                new GeoCoordinate(0.25, 1)
-            }));
+                new GeoCoordinate(0.25, 1));
 
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
@@ -630,11 +624,9 @@ namespace OsmSharp.Routing.Test.Algorithms
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.25, 0.25),
+            }, new GeoCoordinate(0.25, 0.25),
                 new GeoCoordinate(0.5, 0.5),
-                new GeoCoordinate(0.75, 0.75)
-            }));
+                new GeoCoordinate(0.75, 0.75));
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
@@ -642,11 +634,9 @@ namespace OsmSharp.Routing.Test.Algorithms
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.75, 1),
+            }, new GeoCoordinate(0.75, 1),
                 new GeoCoordinate(0.5, 1),
-                new GeoCoordinate(0.25, 1)
-            }));
+                new GeoCoordinate(0.25, 1));
             routerDb.Network.AddEdge(2, 3, new EdgeData()
             {
                 Distance = 1000,
@@ -654,11 +644,9 @@ namespace OsmSharp.Routing.Test.Algorithms
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0, 1.25),
+            }, new GeoCoordinate(0, 1.25),
                 new GeoCoordinate(0, 1.5),
-                new GeoCoordinate(0, 1.75)
-            }));
+                new GeoCoordinate(0, 1.75));
 
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));

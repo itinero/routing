@@ -20,6 +20,7 @@ using NUnit.Framework;
 using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Profiles;
 using OsmSharp.Routing.Test.Profiles;
@@ -76,11 +77,9 @@ namespace OsmSharp.Routing.Test
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.025, 0.025),
+            }, new GeoCoordinate(0.025, 0.025),
                 new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075)
-            }));
+                new GeoCoordinate(0.075, 0.075));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -152,11 +151,9 @@ namespace OsmSharp.Routing.Test
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.025, 0.025),
+            }, new GeoCoordinate(0.025, 0.025),
                 new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075)
-            }));
+                new GeoCoordinate(0.075, 0.075));
 
             // mock profile.
             var profile = MockProfile.Mock("OnwayMock", x =>
@@ -263,11 +260,9 @@ namespace OsmSharp.Routing.Test
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.025, 0.025),
+            }, new GeoCoordinate(0.025, 0.025),
                 new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075)
-            }));
+                new GeoCoordinate(0.075, 0.075));
 
             // mock profile.
             var profile = MockProfile.Mock("OnwayMock", x =>
@@ -371,11 +366,9 @@ namespace OsmSharp.Routing.Test
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.025, 0.025),
+            }, new GeoCoordinate(0.025, 0.025),
                 new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075)
-            }));
+                new GeoCoordinate(0.075, 0.075));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -407,11 +400,9 @@ namespace OsmSharp.Routing.Test
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.025, 0.025),
+            }, new GeoCoordinate(0.025, 0.025),
                 new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075)
-            }));
+                new GeoCoordinate(0.075, 0.075));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -469,11 +460,9 @@ namespace OsmSharp.Routing.Test
                     new Tag("name", "Abelshausen Blvd."))),
                 Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
                     new Tag("highway", "residential")))
-            }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.025, 0.025),
+            }, new GeoCoordinate(0.025, 0.025),
                 new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075)
-            }));
+                new GeoCoordinate(0.075, 0.075));
 
             // mock profile.
             var profile = MockProfile.CarMock();

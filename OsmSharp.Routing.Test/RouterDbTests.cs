@@ -32,45 +32,45 @@ namespace OsmSharp.Routing.Test
     [TestFixture]
     public class RouterDbTests
     {
-        ///// <summary>
-        ///// Tests saving and then loading test network1.
-        ///// </summary>
-        //[Test]
-        //public void TestSaveLoadNetwork1()
-        //{
-        //    var routerDb = new RouterDb();
-        //    routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
-        //    routerDb.LoadTestNetwork(
-        //        System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
-        //            "OsmSharp.Routing.Test.test_data.networks.network1.geojson"));
+        /// <summary>
+        /// Tests saving and then loading test network1.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork1()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network1.geojson"));
 
-        //    using(var stream = new MemoryStream())
-        //    {
-        //        routerDb.Serialize(stream);
-        //        stream.Seek(0, SeekOrigin.Begin);
-        //        routerDb = RouterDb.Deserialize(stream);
-        //    }
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream);
+            }
 
-        //    // check serialized.
-        //    Assert.AreEqual(2, routerDb.Network.VertexCount);
-        //    Assert.AreEqual(1, routerDb.Network.EdgeCount);
+            // check serialized.
+            Assert.AreEqual(2, routerDb.Network.VertexCount);
+            Assert.AreEqual(1, routerDb.Network.EdgeCount);
 
-        //    var vertex0 = routerDb.Network.GetVertex(0);
-        //    Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
-        //    Assert.AreEqual(51.22965768754021, vertex0.Latitude, 0.00001);
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.22965768754021, vertex0.Latitude, 0.00001);
 
-        //    var vertex1 = routerDb.Network.GetVertex(1);
-        //    Assert.AreEqual(4.463152885437011, vertex1.Longitude, 0.00001);
-        //    Assert.AreEqual(51.22961737711890, vertex1.Latitude, 0.00001);
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463152885437011, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.22961737711890, vertex1.Latitude, 0.00001);
 
-        //    var edge = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-        //    Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
-        //    var edgeProfile = routerDb.EdgeProfiles.Get(
-        //        edge.Data.Profile);
-        //    Assert.IsTrue(edgeProfile.ContainsKeyValue("highway", "residential"));
-        //    var edgeMeta = routerDb.EdgeMeta.Get(
-        //        edge.Data.MetaId);
-        //    Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
-        //}
+            var edge = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
+            var edgeProfile = routerDb.EdgeProfiles.Get(
+                edge.Data.Profile);
+            Assert.IsTrue(edgeProfile.ContainsKeyValue("highway", "residential"));
+            var edgeMeta = routerDb.EdgeMeta.Get(
+                edge.Data.MetaId);
+            Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
+        }
     }
 }

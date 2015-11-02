@@ -22,6 +22,7 @@ using OsmSharp.Geo.Attributes;
 using OsmSharp.Geo.Features;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
 
@@ -74,9 +75,11 @@ namespace OsmSharp.Routing.Graphs.Geometric
 
             ICoordinate previous = graph.GetVertex(edge.From);
             var shape = edge.Shape;
+            IEnumerator<ICoordinate> shapeEnumerator = null;
             if(shape != null)
             {
-                shape.Reset();
+                shapeEnumerator = shape.GetEnumerator();
+                shapeEnumerator.Reset();
             }
             var previousShapeDistance = 0.0f;
             var previousShapeIndex = -1;
@@ -86,9 +89,9 @@ namespace OsmSharp.Routing.Graphs.Geometric
                 // get current point.
                 var isShapePoint = true;
                 ICoordinate current = null;
-                if (shape != null && shape.MoveNext())
+                if (shapeEnumerator != null && shapeEnumerator.MoveNext())
                 { // one more shape point.
-                    current = shape.Current;
+                    current = shapeEnumerator.Current;
                 }
                 else
                 { // no more shape points.
@@ -153,10 +156,11 @@ namespace OsmSharp.Routing.Graphs.Geometric
             var shape = edge.Shape;
             if(shape != null)
             {
-                shape.Reset();
-                while (shape.MoveNext())
+                var shapeEnumerator = shape.GetEnumerator();
+                shapeEnumerator.Reset();
+                while (shapeEnumerator.MoveNext())
                 {
-                    current = shape.Current;
+                    current = shapeEnumerator.Current;
                     totalLength += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
                             previous.Latitude, previous.Longitude,
                             current.Latitude, current.Longitude);
@@ -185,10 +189,11 @@ namespace OsmSharp.Routing.Graphs.Geometric
                 {
                     shape = shape.Reverse();
                 }
-                shape.Reset();
-                while (shape.MoveNext())
+                var shapeEnumerator = shape.GetEnumerator();
+                shapeEnumerator.Reset();
+                while (shapeEnumerator.MoveNext())
                 {
-                    points.Add(shape.Current);
+                    points.Add(shapeEnumerator.Current);
                 }
             }
             points.Add(graph.GetVertex(geometricEdge.To));
@@ -208,7 +213,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
             }
             ICoordinate previous = graph.GetVertex(geometricEdge.From);
             var distance = 0.0f;
-            var shapeEnumerator = geometricEdge.Shape;
+            var shapeEnumerator = geometricEdge.Shape.GetEnumerator();
             shapeEnumerator.Reset();
             while (shapeEnumerator.MoveNext())
             {
@@ -339,6 +344,22 @@ namespace OsmSharp.Routing.Graphs.Geometric
             }
             throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
                 vertex, edge.Id));
+        }
+        
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this GeometricGraph graph, uint vertex1, uint vertex2, uint[] data, params ICoordinate[] shape)
+        {
+            return graph.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
+        }
+
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        public static uint AddEdge(this GeometricGraph graph, uint vertex1, uint vertex2, uint[] data, IEnumerable<ICoordinate> shape)
+        {
+            return graph.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
         }
     }
 }

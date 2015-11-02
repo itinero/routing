@@ -19,6 +19,7 @@
 using NUnit.Framework;
 using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Graphs.Geometric;
 using OsmSharp.Routing.Network;
 using System.IO;
@@ -40,8 +41,8 @@ namespace OsmSharp.Routing.Test
         public void TestNetwork1()
         {
             var routerDb = new RouterDb(new RoutingNetwork(new GeometricGraph(1)),
-                new TagsIndex(new IO.MemoryMappedFiles.MemoryMappedStream(new MemoryStream())),
-                new TagsIndex(new IO.MemoryMappedFiles.MemoryMappedStream(new MemoryStream())),
+                new AttributesIndex(),
+                new AttributesIndex(),
                 OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
             routerDb.LoadTestNetwork(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream(

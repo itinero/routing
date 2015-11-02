@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using OsmSharp.Routing.Network.Data;
 
 namespace OsmSharp.Routing.Network
@@ -30,7 +31,7 @@ namespace OsmSharp.Routing.Network
         /// Creates a new edge.
         /// </summary>
         internal RoutingEdge(uint id, uint from, uint to, EdgeData data, bool edgeDataInverted,
-            ICoordinateCollection shape)
+            ShapeBase shape)
         {
             this.Id = id;
             this.To = to;
@@ -81,7 +82,7 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Gets the shape.
         /// </summary>
-        public ICoordinateCollection Shape
+        public ShapeBase Shape
         {
             get;
             private set;

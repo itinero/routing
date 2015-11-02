@@ -384,10 +384,11 @@ namespace OsmSharp.Routing.Algorithms.Search
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
-                        shape.Reset();
-                        while(shape.MoveNext())
+                        var shapeEnumerator = shape.GetEnumerator();
+                        shapeEnumerator.Reset();
+                        while (shapeEnumerator.MoveNext())
                         {
-                            current = shape.Current;
+                            current = shapeEnumerator.Current;
                             var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
                                         current.Latitude, current.Longitude, latitude, longitude);
                             if (distance < bestDistance)
@@ -576,10 +577,11 @@ namespace OsmSharp.Routing.Algorithms.Search
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
-                        shape.Reset();
-                        while (shape.MoveNext())
+                        var shapeEnumerator = shape.GetEnumerator();
+                        shapeEnumerator.Reset();
+                        while (shapeEnumerator.MoveNext())
                         {
-                            current = shape.Current;
+                            current = shapeEnumerator.Current;
                             var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
                                         current.Latitude, current.Longitude, latitude, longitude);
                             for (var i = 0; i < bestEdges.Length; i++)
@@ -758,10 +760,11 @@ namespace OsmSharp.Routing.Algorithms.Search
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
-                        shape.Reset();
-                        while (shape.MoveNext())
+                        var shapeEnumerator = shape.GetEnumerator();
+                        shapeEnumerator.Reset();
+                        while (shapeEnumerator.MoveNext())
                         {
-                            current = shape.Current;
+                            current = shapeEnumerator.Current;
                             var distance = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
                                         current.Latitude, current.Longitude, latitude, longitude);
                             if (distance < maxDistanceMeter)

@@ -18,6 +18,7 @@
 
 using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Network;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Geo.Streams.GeoJson;
 using OsmSharp.Math.Geo;
@@ -116,7 +117,7 @@ namespace OsmSharp.Routing.Test
                             Distance = (float)distance,
                             MetaId = metaId,
                             Profile = (ushort)profileId
-                        }, new CoordinateArrayCollection<ICoordinate>(shape.ToArray()));
+                        }, shape);
                         shape.Clear();
                         vertex1 = vertex2;
                         distance = 0;

@@ -16,10 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Arrays;
-using OsmSharp.Collections.Arrays.MemoryMapped;
 using OsmSharp.IO;
-using OsmSharp.IO.MemoryMappedFiles;
+using Reminiscence.Arrays;
+using Reminiscence.IO;
 using System;
 using System.Collections.Generic;
 
@@ -31,7 +30,7 @@ namespace OsmSharp.Routing.Graphs.Directed
     public class DirectedMetaGraph
     {
         private readonly DirectedGraph _graph;
-        private readonly HugeArrayBase<uint> _edgeData;
+        private readonly ArrayBase<uint> _edgeData;
         private readonly int _edgeDataSize = int.MaxValue;
         private const int BLOCK_SIZE = 1000;
 
@@ -54,13 +53,13 @@ namespace OsmSharp.Routing.Graphs.Directed
             {
                 this.SwitchEdge(x, y);
             });
-            _edgeData = new HugeArray<uint>(_edgeDataSize * _graph.EdgeCount);
+            _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
         }
 
         /// <summary>
         /// Creates a new graph based on existing data.
         /// </summary>
-        private DirectedMetaGraph(DirectedGraph graph, int edgeDataSize, HugeArrayBase<uint> edgeData)
+        private DirectedMetaGraph(DirectedGraph graph, int edgeDataSize, ArrayBase<uint> edgeData)
         {
             _graph = graph;
             _edgeData = edgeData;
@@ -424,16 +423,8 @@ namespace OsmSharp.Routing.Graphs.Directed
             stream.Write(BitConverter.GetBytes(_edgeDataSize), 0, 4); // write the edge size.
             size = size + 4;
 
-            using (var file = new OsmSharp.IO.MemoryMappedFiles.MemoryMappedStream(
-                new OsmSharp.IO.LimitedStream(stream)))
-            {
-                // write edges (each edge = 4 uints (16 bytes)).
-                var edgeArray = new MemoryMappedHugeArrayUInt32(file, _edgeData.Length,
-                    _edgeData.Length, 1024);
-                edgeArray.CopyFrom(_edgeData, _edgeData.Length);
-                edgeArray.Dispose(); // written, get rid of it!
-                size = size + (_edgeData.Length * 4);
-            }
+            size += _edgeData.CopyTo(stream);
+
             return size;
         }
 
@@ -445,33 +436,35 @@ namespace OsmSharp.Routing.Graphs.Directed
         {
             var graph = DirectedGraph.Deserialize(stream, copy);
 
-            long position = 0;
+            long size = 0;
             var bytes = new byte[4];
             stream.Read(bytes, 0, 4);
-            position = position + 4;
+            size = size + 4;
             var vertexSize = BitConverter.ToInt32(bytes, 0);
             stream.Read(bytes, 0, 4);
-            position = position + 4;
+            size = size + 4;
             var edgeSize = BitConverter.ToInt32(bytes, 0);
 
-            var edgeCount = graph.EdgeCount;
+            var edgeLength = graph.EdgeCount;
 
-            var bufferSize = 128;
-            var cacheSize = 64 * 8;
-            var file = new MemoryMappedStream(new LimitedStream(stream));
-            HugeArrayBase<uint> edgeData = new MemoryMappedHugeArrayUInt32(file, edgeCount * edgeSize, 
-                edgeCount * edgeSize, bufferSize, cacheSize * 16);
-
+            ArrayBase<uint> edges;
             if (copy)
-            { // copy the data.
-                var edgeDataCopy = new HugeArray<uint>(edgeData.Length);
-                edgeDataCopy.CopyFrom(edgeData);
-                edgeData = edgeDataCopy;
-
-                file.Dispose();
+            { // just create arrays and read the data.
+                edges = new MemoryArray<uint>(edgeLength * edgeSize);
+                edges.CopyFrom(stream);
+            }
+            else
+            { // create accessors over the exact part of the stream that represents vertices/edges.
+                var position = stream.Position;
+                var map1 = new MemoryMapStream(new CappedStream(stream, size,
+                    edgeLength * edgeSize * 4));
+                edges = new Array<uint>(map1.CreateUInt32(edgeLength * edgeSize));
             }
 
-            return new DirectedMetaGraph(graph, edgeSize, edgeData);
+            // make sure stream is positioned at the correct location.
+            stream.Seek(size, System.IO.SeekOrigin.Begin);
+
+            return new DirectedMetaGraph(graph, edgeSize, edges);
         }
     }
 }

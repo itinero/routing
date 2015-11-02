@@ -86,6 +86,8 @@
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
     <Compile Include="Algorithms\Search\ResolveMultipleAlgorithm.cs" />
     <Compile Include="Algorithms\WeightMatrixAlgorithm.cs" />
+    <Compile Include="Attributes\AttributesIndex.cs" />
+    <Compile Include="Attributes\AttributesIndexExtensions.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />
     <Compile Include="Data\EdgeDataSerializer.cs" />
@@ -106,6 +108,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Graphs\Geometric\GeometricGraphExtensions.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapeEnumerable.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapesArrayExtensions.cs" />
     <Compile Include="Graphs\Graph.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeData.cs">
       <SubType>Code</SubType>
@@ -114,6 +118,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Graphs\GraphExtensions.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapeBase.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\Shape.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapesArray.cs" />
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Navigation\Instruction.cs" />
@@ -159,14 +166,20 @@
     <Compile Include="RouterPointExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OsmSharp">
-      <HintPath>..\..\..\core\Output\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm">
-      <HintPath>..\..\..\core\Output\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="Reminiscence, Version=0.0.0.15, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.0.0.0.15-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />

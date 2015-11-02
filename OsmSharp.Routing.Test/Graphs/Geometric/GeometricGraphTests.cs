@@ -343,22 +343,15 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 0, 1);
             graph.AddVertex(3, 0, 2);
-            graph.AddEdge(0, 1, new uint[] { 0, 10 }, 
-                new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                    new GeoCoordinate(0.25, 0.25),
+            graph.AddEdge(0, 1, new uint[] { 0, 10 }, new GeoCoordinate(0.25, 0.25),
                     new GeoCoordinate(0.5, 0.5),
-                    new GeoCoordinate(0.75, 0.75)
-                }));
-            graph.AddEdge(1, 2, new uint[] { 10, 20 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0.75, 1),
+                    new GeoCoordinate(0.75, 0.75));
+            graph.AddEdge(1, 2, new uint[] { 10, 20 }, new GeoCoordinate(0.75, 1),
                 new GeoCoordinate(0.5, 1),
-                new GeoCoordinate(0.25, 1)
-            }));
-            graph.AddEdge(2, 3, new uint[] { 20, 30 }, new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
-                new GeoCoordinate(0, 1.25),
+                new GeoCoordinate(0.25, 1));
+            graph.AddEdge(2, 3, new uint[] { 20, 30 }, new GeoCoordinate(0, 1.25),
                 new GeoCoordinate(0, 1.5),
-                new GeoCoordinate(0, 1.75)
-            }));
+                new GeoCoordinate(0, 1.75));
 
             // verify all edges.
             var edges = graph.GetEdgeEnumerator(0);
@@ -468,12 +461,10 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 0, 1);
             graph.AddVertex(3, 0, 2);
-            var edge1 = graph.AddEdge(0, 1, new uint[] { 0, 10 },
-                new CoordinateArrayCollection<ICoordinate>(new GeoCoordinate[] {
+            var edge1 = graph.AddEdge(0, 1, new uint[] { 0, 10 }, 
                     new GeoCoordinate(0.25, 0.25),
                     new GeoCoordinate(0.5, 0.5),
-                    new GeoCoordinate(0.75, 0.75)
-                }));
+                    new GeoCoordinate(0.75, 0.75));
 
             var shape = graph.GetShape(graph.GetEdge(edge1));
             Assert.IsNotNull(shape);
@@ -801,14 +792,11 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
 
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 0, 0);
-            var edgeId = graph.AddEdge(0, 1, new uint[] { 10 }, new CoordinateArrayCollection<GeoCoordinateSimple>(
-                new GeoCoordinateSimple[] {
-                    new GeoCoordinateSimple()
+            var edgeId = graph.AddEdge(0, 1, new uint[] { 10 }, new GeoCoordinateSimple()
                     {
                         Latitude = 1,
                         Longitude = 1
-                    }
-                }));
+                    });
             graph.Compress();
 
             var edge = graph.GetEdge(edgeId);
@@ -835,16 +823,8 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             graph.AddEdge(0, 1, new uint[] { 10 }, null);
 
             // serialize.
-            var vertices = 2;
-            var edges = 1;
-            var expectedSize = 8 + 8 + 8 + // the header: three longs representing size, vertex and edge count.
-                vertices * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
-                edges * 4 * 4 + // the bytes for the one edge: one edge = 4 uints.
-                edges * 1 * 4 + // the bytes for the one edge-data: one edge = one edge data object.
-                vertices * 8 + // the bytes for the coordinates.
-                8 + 8 + // the shapes header.
-                edges * 8 // the shape-index.
-                + 8; // keep at least one coordinate.
+            graph.Compress();
+            var expectedSize = graph.SizeInBytes;
             using (var stream = new System.IO.MemoryStream())
             {
                 Assert.AreEqual(expectedSize, graph.Serialize(stream));
@@ -869,16 +849,8 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             graph.AddEdge(5, 4, new uint[] { 80 }, null);
 
             // serialize.
-            vertices = 6;
-            edges = 8;
-            expectedSize = 8 + 8 + 8 + // the header: three longs representing size, vertex and edge count.
-                vertices * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
-                edges * 4 * 4 + // the bytes for the one edge: one edge = 4 uints.
-                edges * 1 * 4 + // the bytes for the one edge-data: one edge = one edge data object.
-                vertices * 8 + // the bytes for the coordinates.
-                8 + 8 + // the shapes header.
-                edges * 8 // the shape-index.
-                + 8; // keep at least one coordinate.
+            graph.Compress();
+            expectedSize = graph.SizeInBytes;
             using (var stream = new System.IO.MemoryStream())
             {
                 Assert.AreEqual(expectedSize, graph.Serialize(stream));
@@ -901,11 +873,11 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream);
-
+                var size = graph.Serialize(stream);
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
                 var deserializedGraph = GeometricGraph.Deserialize(stream, false);
+                Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
                 Assert.AreEqual(1, deserializedGraph.EdgeCount);
@@ -944,11 +916,11 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream);
-
+                var size = graph.Serialize(stream);
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
                 var deserializedGraph = GeometricGraph.Deserialize(stream, false);
+                Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);

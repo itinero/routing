@@ -16,11 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Arrays;
-using OsmSharp.Collections.Arrays.MemoryMapped;
 using OsmSharp.Collections.Sorting;
 using OsmSharp.IO;
-using OsmSharp.IO.MemoryMappedFiles;
+using Reminiscence.Arrays;
+using Reminiscence.IO;
 using System;
 using System.Collections.Generic;
 
@@ -40,8 +39,8 @@ namespace OsmSharp.Routing.Graphs
 
         private readonly int _edgeSize = -1;
         private readonly int _edgeDataSize = -1;
-        private readonly HugeArrayBase<uint> _vertices; // Holds all vertices pointing to it's first edge.
-        private readonly HugeArrayBase<uint> _edges; // Holds all edges and their data converted to uint's.
+        private readonly ArrayBase<uint> _vertices; // Holds all vertices pointing to it's first edge.
+        private readonly ArrayBase<uint> _edges; // Holds all edges and their data converted to uint's.
 
         /// <summary>
         /// Creates a new graph.
@@ -57,8 +56,8 @@ namespace OsmSharp.Routing.Graphs
         /// </summary>
         public Graph(int edgeDataSize, long sizeEstimate)
             : this(edgeDataSize, sizeEstimate, 
-            new HugeArray<uint>(sizeEstimate),
-            new HugeArray<uint>(sizeEstimate * 3 * (MINIMUM_EDGE_SIZE + edgeDataSize)))
+            new MemoryArray<uint>(sizeEstimate),
+            new MemoryArray<uint>(sizeEstimate * 3 * (MINIMUM_EDGE_SIZE + edgeDataSize)))
         {
 
         }
@@ -67,8 +66,8 @@ namespace OsmSharp.Routing.Graphs
         /// Creates a graph using the existing data in the given arrays.
         /// </summary>
         private Graph(int edgeDataSize,
-            HugeArrayBase<uint> vertices,
-            HugeArrayBase<uint> edges)
+            ArrayBase<uint> vertices,
+            ArrayBase<uint> edges)
         {
             _edgeDataSize = edgeDataSize;
             _edgeSize = MINIMUM_EDGE_SIZE + edgeDataSize;
@@ -88,8 +87,8 @@ namespace OsmSharp.Routing.Graphs
         /// Creates a new empty graph using the given arrays.
         /// </summary>
         private Graph(int edgeDataSize, long sizeEstimate,
-            HugeArrayBase<uint> vertices,
-            HugeArrayBase<uint> edges)
+            ArrayBase<uint> vertices,
+            ArrayBase<uint> edges)
         {
             _edgeDataSize = edgeDataSize;
             _edgeSize = MINIMUM_EDGE_SIZE + edgeDataSize;
@@ -112,13 +111,13 @@ namespace OsmSharp.Routing.Graphs
         /// <summary>
         /// Creates a new using the given file.
         /// </summary>
-        public Graph(MemoryMappedFile file, int edgeDataSize, long estimatedSize)
+        public Graph(MemoryMap file, int edgeDataSize, long estimatedSize)
         {
             _edgeDataSize = edgeDataSize;
             _edgeSize = MINIMUM_EDGE_SIZE + edgeDataSize;
 
-            _vertices = new MemoryMappedHugeArrayUInt32(file, estimatedSize);
-            _edges = new MemoryMappedHugeArrayUInt32(file, estimatedSize * 3 * _edgeSize);
+            _vertices = new Array<uint>(file, estimatedSize);
+            _edges = new Array<uint>(file, estimatedSize * 3 * _edgeSize);
         }
 
         private uint _nextEdgeId;
@@ -716,11 +715,33 @@ namespace OsmSharp.Routing.Graphs
         }
 
         /// <summary>
+        /// Returns the capacity for vertices.
+        /// </summary>
+        public long VertexCapacity
+        {
+            get
+            {
+                return _vertices.Length;
+            }
+        }
+
+        /// <summary>
         /// Returns the number of edges in this graph.
         /// </summary>
         public long EdgeCount
         {
             get { return _edgeCount; }
+        }
+
+        /// <summary>
+        /// Returns the capacity for edges.
+        /// </summary>
+        public long EdgeCapacity
+        {
+            get
+            {
+                return _edges.Length / _edgeSize;
+            }
         }
 
         /// <summary>
@@ -940,7 +961,7 @@ namespace OsmSharp.Routing.Graphs
         /// <summary>
         /// Sorts the graph based on the given transformations.
         /// </summary>
-        public void Sort(HugeArrayBase<uint> transformations)
+        public void Sort(ArrayBase<uint> transformations)
         {
             // update edges.
             for (var i = 0; i < _nextEdgeId; i = i + _edgeSize)
@@ -1018,32 +1039,21 @@ namespace OsmSharp.Routing.Graphs
             var edgeCount = (long)(_nextEdgeId / _edgeSize);
 
             // write vertex and edge count.
-            long position = 0;
+            long size = 0;
             stream.Write(BitConverter.GetBytes(vertexCount), 0, 8); // write exact number of vertices.
-            position = position + 8;
+            size += 8;
             stream.Write(BitConverter.GetBytes(edgeCount), 0, 8); // write exact number of edges.
-            position = position + 8;
+            size += 8;
             stream.Write(BitConverter.GetBytes(1), 0, 4); // write the vertex size.
-            position = position + 4;
+            size += 4;
             stream.Write(BitConverter.GetBytes(_edgeSize), 0, 4); // write edge size.
-            position = position + 4;
+            size += 4;
 
-            // write in this order: vertices, vertexCoordinates, edges, edgeData, edgeShapes.
-            using (var file = new MemoryMappedStream(new LimitedStream(stream)))
-            {
-                // write vertices (each vertex = 1 uint (4 bytes)).
-                var vertexArray = new MemoryMappedHugeArrayUInt32(file, vertexCount, vertexCount, 1024);
-                vertexArray.CopyFrom(_vertices, 0, 0, vertexCount);
-                vertexArray.Dispose(); // written, get rid of it!
-                position = position + ((vertexCount) * 4);
+            // write actual data.
+            size += _vertices.CopyTo(stream);
+            size += _edges.CopyTo(stream);
 
-                // write edges (each edge = 4 uints (16 bytes)).
-                var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeCount * _edgeSize, edgeCount * _edgeSize, 1024);
-                edgeArray.CopyFrom(_edges, edgeCount * _edgeSize);
-                edgeArray.Dispose(); // written, get rid of it!
-                position = position + (edgeCount * 4 * _edgeSize);
-            }
-            return position;
+            return size;
         }
 
         /// <summary>
@@ -1052,43 +1062,51 @@ namespace OsmSharp.Routing.Graphs
         /// <returns></returns>
         public static Graph Deserialize(System.IO.Stream stream, bool copy)
         {
+            var initialPosition = stream.Position;
+
             // read sizes.
-            long position = 0;
+            long size = 0;
             var bytes = new byte[8];
             stream.Read(bytes, 0, 8);
-            position = position + 8;
+            size = size + 8;
             var vertexLength = BitConverter.ToInt64(bytes, 0);
             stream.Read(bytes, 0, 8);
-            position = position + 8;
+            size = size + 8;
             var edgeLength = BitConverter.ToInt64(bytes, 0);
             stream.Read(bytes, 0, 4);
-            position = position + 4;
+            size = size + 4;
             var vertexSize = BitConverter.ToInt32(bytes, 0);
             stream.Read(bytes, 0, 4);
-            position = position + 4;
+            size = size + 4;
             var edgeSize = BitConverter.ToInt32(bytes, 0);
 
-            var bufferSize = 128;
-            var cacheSize = 64 * 8;
-            var file = new MemoryMappedStream(new LimitedStream(stream));
-            var vertexArray = new MemoryMappedHugeArrayUInt32(file, vertexLength, vertexLength, bufferSize, cacheSize);
-            position = position + (vertexLength * 4);
-            var edgeArray = new MemoryMappedHugeArrayUInt32(file, edgeLength * edgeSize, edgeLength * edgeSize, bufferSize, cacheSize * 16);
-            position = position + (edgeLength * 4 * edgeSize);
-
-            if (copy)
-            { // copy the data.
-                var vertexArrayCopy = new HugeArray<uint>(vertexArray.Length);
-                vertexArrayCopy.CopyFrom(vertexArray);
-                var edgeArrayCopy = new HugeArray<uint>(edgeArray.Length);
-                edgeArrayCopy.CopyFrom(edgeArray);
-
-                file.Dispose();
-
-                return new Graph(edgeSize - MINIMUM_EDGE_SIZE, vertexArrayCopy, edgeArrayCopy);
+            ArrayBase<uint> vertices;
+            ArrayBase<uint> edges;
+            if(copy)
+            { // just create arrays and read the data.
+                vertices = new MemoryArray<uint>(vertexLength * vertexSize);
+                vertices.CopyFrom(stream);
+                size += vertexLength * vertexSize * 4;
+                edges = new MemoryArray<uint>(edgeLength * edgeSize);
+                edges.CopyFrom(stream);
+                size += edgeLength * edgeSize * 4;
             }
-            stream.Seek(position, System.IO.SeekOrigin.Begin);
-            return new Graph(edgeSize - MINIMUM_EDGE_SIZE, vertexArray, edgeArray);
+            else
+            { // create accessors over the exact part of the stream that represents vertices/edges.
+                var position = stream.Position;
+                var map1 = new MemoryMapStream(new CappedStream(stream, position, vertexLength * vertexSize * 4));
+                vertices = new Array<uint>(map1.CreateUInt32(vertexLength * vertexSize));
+                size += vertexLength * vertexSize * 4;
+                var map2 = new MemoryMapStream(new CappedStream(stream, position + vertexLength * vertexSize * 4, 
+                    edgeLength * edgeSize * 4));
+                edges = new Array<uint>(map2.CreateUInt32(edgeLength * edgeSize));
+                size += edgeLength * edgeSize * 4;
+            }
+
+            // make sure stream is positioned at the correct location.
+            stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
+
+            return new Graph(edgeSize - MINIMUM_EDGE_SIZE, vertices, edges);
         }
 
         #region Data Management

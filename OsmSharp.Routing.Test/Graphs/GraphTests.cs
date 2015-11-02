@@ -783,12 +783,11 @@ namespace OsmSharp.Routing.Test.Graphs
 
             // serialize.
             graph.Compress();
-            var expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
-                graph.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
-                graph.EdgeCount * 4 * (4 + 1); // the bytes for the one edge: one edge = 4 uints + edge data size.
+            var expectedSize = graph.SizeInBytes;
             using (var stream = new System.IO.MemoryStream())
             {
                 Assert.AreEqual(expectedSize, graph.Serialize(stream));
+                Assert.AreEqual(expectedSize, stream.Position);
             }
 
             graph = new Graph(1, 10);
@@ -811,12 +810,11 @@ namespace OsmSharp.Routing.Test.Graphs
 
             // serialize.
             graph.Compress();
-            expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
-                graph.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
-                graph.EdgeCount * 4 * (4 + 1); // the bytes for the one edge: one edge = 4 uints and edge data size.
+            expectedSize = graph.SizeInBytes;
             using (var stream = new System.IO.MemoryStream())
             {
                 Assert.AreEqual(expectedSize, graph.Serialize(stream));
+                Assert.AreEqual(expectedSize, stream.Position);
             }
         }
 
@@ -834,11 +832,11 @@ namespace OsmSharp.Routing.Test.Graphs
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream);
-
+                var size = graph.Serialize(stream);
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
                 var deserializedGraph = Graph.Deserialize(stream, false);
+                Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
                 Assert.AreEqual(1, deserializedGraph.EdgeCount);
@@ -875,11 +873,12 @@ namespace OsmSharp.Routing.Test.Graphs
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream);
+                var size = graph.Serialize(stream);
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
                 var deserializedGraph = Graph.Deserialize(stream, false);
+                Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);

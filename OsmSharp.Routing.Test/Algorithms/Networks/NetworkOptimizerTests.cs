@@ -138,14 +138,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(0, 1, new EdgeData() { Profile = 1 }, new CoordinateArrayCollection<ICoordinate>(new ICoordinate[] 
-            {
-                new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5)
-            }));
-            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new CoordinateArrayCollection<ICoordinate>(new ICoordinate[] 
-            {
-                new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5)
-            }));
+            graph.AddEdge(0, 1, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5));
+            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5));
 
             // execute algorithm.
             var algorithm = new NetworkOptimizer(graph, MergeDelegate);
@@ -169,14 +163,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new CoordinateArrayCollection<ICoordinate>(new ICoordinate[] 
-            {
-                new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5)
-            }));
-            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new CoordinateArrayCollection<ICoordinate>(new ICoordinate[] 
-            {
-                new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5)
-            }));
+            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5));
+            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5));
 
             // execute algorithm.
             algorithm = new NetworkOptimizer(graph, MergeDelegate);
@@ -200,14 +188,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new CoordinateArrayCollection<ICoordinate>(new ICoordinate[] 
-            {
-                new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5)
-            }));
-            graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, new CoordinateArrayCollection<ICoordinate>(new ICoordinate[] 
-            {
-                new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5)
-            }));
+            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5));
+            graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5));
 
             // execute algorithm.
             algorithm = new NetworkOptimizer(graph, MergeDelegate);
