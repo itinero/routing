@@ -551,13 +551,13 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Deserializes a graph from the stream.
         /// </summary>
-        public static GeometricGraph Deserialize(System.IO.Stream stream, bool copy)
+        public static GeometricGraph Deserialize(System.IO.Stream stream, GeometricGraphProfile profile)
         {
-            var graph = Graph.Deserialize(stream, copy ? null : GraphProfile.Aggressive24);
+            var graph = Graph.Deserialize(stream, profile == null ? null : profile.GraphProfile);
 
             ArrayBase<float> coordinates;
             ShapesArray shapes;
-            if(copy)
+            if (profile == null)
             { // don't use the stream, the read from it.
                 coordinates = new MemoryArray<float>(graph.VertexCount * 2);
                 coordinates.CopyFrom(stream);
@@ -567,7 +567,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
             { // use the stream as a map.
                 var position = stream.Position;
                 var map = new MemoryMapStream(new CappedStream(stream, position, graph.VertexCount * 4 * 2));
-                coordinates = new Array<float>(map.CreateSingle(graph.VertexCount * 2));
+                coordinates = new Array<float>(map.CreateSingle(graph.VertexCount * 2), profile.CoordinatesProfile);
                 stream.Seek(position + graph.VertexCount * 4 * 2, System.IO.SeekOrigin.Begin);
                 shapes = ShapesArray.CreateFrom(stream, false);
             }

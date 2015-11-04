@@ -108,6 +108,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Graphs\Geometric\GeometricGraphExtensions.cs" />
+    <Compile Include="Graphs\Geometric\GeometricGraphProfile.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapeEnumerable.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapesArrayExtensions.cs" />
     <Compile Include="Graphs\Graph.cs" />

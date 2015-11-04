@@ -447,7 +447,7 @@ namespace OsmSharp.Routing.Network
         public static RoutingNetwork Deserialize(System.IO.Stream stream, bool copy)
         {
             var position = stream.Position;
-            var graph = GeometricGraph.Deserialize(stream, copy);
+            var graph = GeometricGraph.Deserialize(stream, copy ? null : GeometricGraphProfile.Default);
             var size = stream.Position - position;
 
             var edgeLength = graph.EdgeCount;

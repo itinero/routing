@@ -876,7 +876,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
                 var size = graph.Serialize(stream);
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = GeometricGraph.Deserialize(stream, false);
+                var deserializedGraph = GeometricGraph.Deserialize(stream, GeometricGraphProfile.Default);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
@@ -919,7 +919,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
                 var size = graph.Serialize(stream);
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = GeometricGraph.Deserialize(stream, false);
+                var deserializedGraph = GeometricGraph.Deserialize(stream, GeometricGraphProfile.Default);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);

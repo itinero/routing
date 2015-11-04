@@ -21,7 +21,7 @@ using Reminiscence.Arrays;
 namespace OsmSharp.Routing.Graphs
 {
     /// <summary>
-    /// A profile with settings for a memory-mapped grap.
+    /// A profile with settings for a memory-mapped graph.
     /// </summary>
     public class GraphProfile
     {
