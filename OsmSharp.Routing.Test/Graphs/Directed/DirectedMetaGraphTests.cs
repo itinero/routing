@@ -638,6 +638,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             using (var stream = new System.IO.MemoryStream())
             {
                 Assert.AreEqual(expectedSize, graph.Serialize(stream));
+                Assert.AreEqual(expectedSize, stream.Position);
             }
 
             // verify all edges.
@@ -663,6 +664,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             using (var stream = new System.IO.MemoryStream())
             {
                 Assert.AreEqual(expectedSize, graph.Serialize(stream));
+                Assert.AreEqual(expectedSize, stream.Position);
             }
         }
 
@@ -678,11 +680,12 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream);
+                var size = graph.Serialize(stream);
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
                 var deserializedGraph = DirectedMetaGraph.Deserialize(stream, false);
+                Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
                 Assert.AreEqual(1, deserializedGraph.EdgeCount);
@@ -710,11 +713,12 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             // serialize.
             using (var stream = new System.IO.MemoryStream())
             {
-                graph.Serialize(stream);
+                var size = graph.Serialize(stream);
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
                 var deserializedGraph = DirectedMetaGraph.Deserialize(stream, false);
+                Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);

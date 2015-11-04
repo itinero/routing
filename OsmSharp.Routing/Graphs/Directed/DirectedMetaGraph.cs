@@ -435,6 +435,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         public static DirectedMetaGraph Deserialize(System.IO.Stream stream, bool copy)
         {
             var graph = DirectedGraph.Deserialize(stream, copy);
+            var initialPosition = stream.Position;
 
             long size = 0;
             var bytes = new byte[4];
@@ -452,6 +453,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             { // just create arrays and read the data.
                 edges = new MemoryArray<uint>(edgeLength * edgeSize);
                 edges.CopyFrom(stream);
+                size += edgeLength * edgeSize * 4;
             }
             else
             { // create accessors over the exact part of the stream that represents vertices/edges.
@@ -459,10 +461,11 @@ namespace OsmSharp.Routing.Graphs.Directed
                 var map1 = new MemoryMapStream(new CappedStream(stream, size,
                     edgeLength * edgeSize * 4));
                 edges = new Array<uint>(map1.CreateUInt32(edgeLength * edgeSize));
+                size += edgeLength * edgeSize * 4;
             }
 
             // make sure stream is positioned at the correct location.
-            stream.Seek(size, System.IO.SeekOrigin.Begin);
+            stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
             return new DirectedMetaGraph(graph, edgeSize, edges);
         }

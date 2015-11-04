@@ -121,6 +121,7 @@
     <Compile Include="Graphs\Geometric\Shapes\ShapeBase.cs" />
     <Compile Include="Graphs\Geometric\Shapes\Shape.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapesArray.cs" />
+    <Compile Include="Graphs\GraphProfile.cs" />
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Navigation\Instruction.cs" />
@@ -166,19 +167,19 @@
     <Compile Include="RouterPointExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OsmSharp, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.48, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.48-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.48, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.48-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
     </Reference>
-    <Reference Include="Reminiscence, Version=0.0.0.15, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Reminiscence.0.0.0.15-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
+    <Reference Include="Reminiscence, Version=0.0.0.16, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.0.0.0.16-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />

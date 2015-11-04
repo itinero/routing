@@ -23,6 +23,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Profiles;
+using System;
 
 namespace OsmSharp.Routing
 {
@@ -181,6 +183,14 @@ namespace OsmSharp.Routing
             // serialize supported profiles.
             var size = stream.WriteWithSize(_supportedProfiles.ToArray());
 
+            // serialize the # of contracted profiles.
+            if(_contracted.Count > byte.MaxValue)
+            {
+                throw new Exception("Cannot serialize a router db with more than 255 contracted graphs.");
+            }
+            stream.WriteByte((byte)_contracted.Count);
+            size += 1;
+
             // serialize profiles.
             size += _edgeProfiles.Serialize(new OsmSharp.IO.LimitedStream(stream));
             stream.Seek(position + size, SeekOrigin.Begin);
@@ -210,6 +220,7 @@ namespace OsmSharp.Routing
         {
             // deserialize all basic data.
             var supportedProfiles = stream.ReadWithSizeStringArray();
+            var contractedCount = stream.ReadByte();
             var profiles = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
             var meta = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
             var network = RoutingNetwork.Deserialize(stream, true);
@@ -218,10 +229,11 @@ namespace OsmSharp.Routing
             var routerDb = new RouterDb(network, profiles, meta, supportedProfiles);
             
             // read all contracted versions.
-            while(stream.Position < stream.Length)
+            for (var i = 0; i < contractedCount; i++)
             {
                 var profileName = stream.ReadWithSizeString();
-                var contracted = DirectedMetaGraph.Deserialize(stream, false);
+                var contracted = DirectedMetaGraph.Deserialize(stream, true);
+                routerDb._contracted[profileName] = contracted;
             }
             return routerDb;
         }

@@ -101,8 +101,11 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[{0},{1}] ({2})",
-                this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString(), 
+            return string.Format("{0}@{1}% [{2},{3}] {4}",
+                this.EdgeId,
+                System.Math.Round(((float)this.Offset / ushort.MaxValue) * 100, 1).ToInvariantString(),
+                this.Latitude.ToInvariantString(), 
+                this.Longitude.ToInvariantString(), 
                 this.Tags.ToInvariantString());
         }
     }

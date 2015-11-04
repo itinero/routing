@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Tags.Index;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Osm.Vehicles;
 
 namespace OsmSharp.Routing.Osm
@@ -30,7 +31,7 @@ namespace OsmSharp.Routing.Osm
         /// Compares two highway tag collections and check if they mean the same but when they have a oneway tags it's opposite.
         /// </summary>
         /// <returns></returns>
-        public static bool CompareOpposite(ITagsIndex tags, uint tags1, uint tags2)
+        public static bool CompareOpposite(AttributesIndex tags, uint tags1, uint tags2)
         {
             var tagsCollection1 = tags.Get(tags1);
             var tagsCollection2 = tags.Get(tags2);
@@ -69,7 +70,7 @@ namespace OsmSharp.Routing.Osm
         /// Compares two highway tag collections and check if they mean the same.
         /// </summary>
         /// <returns></returns>
-        public static bool Compare(ITagsIndex tags, uint tags1, uint tags2)
+        public static bool Compare(AttributesIndex tags, uint tags1, uint tags2)
         {
             var tagsCollection1 = tags.Get(tags1);
             var tagsCollection2 = tags.Get(tags2);

@@ -19,6 +19,7 @@
 using NUnit.Framework;
 using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Graphs.Geometric;
 using OsmSharp.Routing.Network;
 using System.IO;
@@ -71,6 +72,205 @@ namespace OsmSharp.Routing.Test
             var edgeMeta = routerDb.EdgeMeta.Get(
                 edge.Data.MetaId);
             Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network2.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream);
+            }
+
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.2296492895387, vertex0.Latitude, 0.00001);
+
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463168978691101, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.2296224159235, vertex1.Latitude, 0.00001);
+
+            var vertex2 = routerDb.Network.GetVertex(2);
+            Assert.AreEqual(4.465247690677643, vertex2.Longitude, 0.00001);
+            Assert.AreEqual(51.22962073632204, vertex2.Latitude, 0.00001);
+
+            var vertex3 = routerDb.Network.GetVertex(3);
+            Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
+            Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+
+            var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+
+            var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+
+            var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network1 with a contracted graph.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork1ContractedCar()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network1.geojson"));
+
+            // add contracted version.
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream);
+            }
+
+            // check serialized.
+            Assert.AreEqual(2, routerDb.Network.VertexCount);
+            Assert.AreEqual(1, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.22965768754021, vertex0.Latitude, 0.00001);
+
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463152885437011, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.22961737711890, vertex1.Latitude, 0.00001);
+
+            var edge = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
+            var edgeProfile = routerDb.EdgeProfiles.Get(
+                edge.Data.Profile);
+            Assert.IsTrue(edgeProfile.ContainsKeyValue("highway", "residential"));
+            var edgeMeta = routerDb.EdgeMeta.Get(
+                edge.Data.MetaId);
+            Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
+
+            DirectedMetaGraph contracted;
+            Assert.IsTrue(routerDb.TryGetContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network1 with a contracted graph.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2ContractedCar()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+            // add contracted version.
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream);
+            }
+
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.2296492895387, vertex0.Latitude, 0.00001);
+
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463168978691101, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.2296224159235, vertex1.Latitude, 0.00001);
+
+            var vertex2 = routerDb.Network.GetVertex(2);
+            Assert.AreEqual(4.465247690677643, vertex2.Longitude, 0.00001);
+            Assert.AreEqual(51.22962073632204, vertex2.Latitude, 0.00001);
+
+            var vertex3 = routerDb.Network.GetVertex(3);
+            Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
+            Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+
+            var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+
+            var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+
+            var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network2 with two contracted graphs.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2ContractedMultiple()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+            // add contracted version.
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream);
+            }
+
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.2296492895387, vertex0.Latitude, 0.00001);
+
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463168978691101, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.2296224159235, vertex1.Latitude, 0.00001);
+
+            var vertex2 = routerDb.Network.GetVertex(2);
+            Assert.AreEqual(4.465247690677643, vertex2.Longitude, 0.00001);
+            Assert.AreEqual(51.22962073632204, vertex2.Latitude, 0.00001);
+
+            var vertex3 = routerDb.Network.GetVertex(3);
+            Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
+            Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+
+            var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+
+            var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+
+            var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
         }
     }
 }

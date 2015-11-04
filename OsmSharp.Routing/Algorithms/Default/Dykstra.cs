@@ -149,6 +149,11 @@ namespace OsmSharp.Routing.Algorithms.Default
 
                 if (_visits.ContainsKey(neighbour))
                 { // has already been choosen.
+                    if (this.WasEdgeFound != null &&
+                        this.WasEdgeFound(_current.Vertex, edge.Id, _current.Weight))
+                    { // some edges are never in any shortest path between some two vertices.
+                        return false;
+                    }
                     continue;
                 }
 

@@ -246,6 +246,7 @@ namespace OsmSharp.Routing
                     clone.Tags[idx] = this.Tags[idx].Clone() as RouteTags;
                 }
             }
+            clone.Profile = this.Profile;
             clone.Time = this.Time;
             return clone;
         }
@@ -286,8 +287,8 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("Segment: @{0}s {1}m",
-                this.Time, this.Distance);
+            return string.Format("{2} - @{0}s {1}m",
+                this.Time, this.Distance, this.Profile);
         }
     }
 

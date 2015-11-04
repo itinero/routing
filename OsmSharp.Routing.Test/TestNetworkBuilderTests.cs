@@ -68,5 +68,45 @@ namespace OsmSharp.Routing.Test
                 edge.Data.MetaId);
             Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
         }
+
+        /// <summary>
+        /// Tests building network 2.
+        /// </summary>
+        [Test]
+        public void TestNetwork2()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.2296492895387, vertex0.Latitude, 0.00001);
+
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463168978691101, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.2296224159235, vertex1.Latitude, 0.00001);
+
+            var vertex2 = routerDb.Network.GetVertex(2);
+            Assert.AreEqual(4.465247690677643, vertex2.Longitude, 0.00001);
+            Assert.AreEqual(51.22962073632204, vertex2.Latitude, 0.00001);
+
+            var vertex3 = routerDb.Network.GetVertex(3);
+            Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
+            Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+
+            var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+
+            var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+
+            var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+        }
     }
 }

@@ -553,7 +553,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// </summary>
         public static GeometricGraph Deserialize(System.IO.Stream stream, bool copy)
         {
-            var graph = Graph.Deserialize(stream, copy);
+            var graph = Graph.Deserialize(stream, copy ? null : GraphProfile.Aggressive24);
 
             ArrayBase<float> coordinates;
             ShapesArray shapes;

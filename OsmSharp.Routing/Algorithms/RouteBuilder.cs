@@ -153,7 +153,7 @@ namespace OsmSharp.Routing.Algorithms
             var speed = _vehicleProfile.Speed(profile);
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
-            tags.AddOrReplace(meta);
+            if (meta != null) { tags.AddOrReplace(meta); }
 
             // build segments along the shape between the two virtual points.
             var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
@@ -191,7 +191,7 @@ namespace OsmSharp.Routing.Algorithms
             var speed = _vehicleProfile.Speed(profile);
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
-            tags.AddOrReplace(meta);
+            if (meta != null) { tags.AddOrReplace(meta); }
 
             // shapepoints.
             var shapePoints = _source.ShapePointsTo(_routerDb, vertex);
@@ -220,7 +220,7 @@ namespace OsmSharp.Routing.Algorithms
             var speed = _vehicleProfile.Speed(profile);
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
-            tags.AddOrReplace(meta);
+            if (meta != null) { tags.AddOrReplace(meta); }
 
             // expand shape between previous and vertex.
             var shape = edge.Shape;
@@ -260,7 +260,7 @@ namespace OsmSharp.Routing.Algorithms
             var speed = _vehicleProfile.Speed(profile);
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var tags = new TagsCollection(profile);
-            tags.AddOrReplace(meta);
+            if (meta != null) { tags.AddOrReplace(meta); }
 
             // shapepoints.
             var shapePoints = _target.ShapePointsTo(_routerDb, vertex);

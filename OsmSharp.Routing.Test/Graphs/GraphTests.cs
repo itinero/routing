@@ -835,7 +835,7 @@ namespace OsmSharp.Routing.Test.Graphs
                 var size = graph.Serialize(stream);
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = Graph.Deserialize(stream, false);
+                var deserializedGraph = Graph.Deserialize(stream, GraphProfile.Aggressive24);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
@@ -877,7 +877,7 @@ namespace OsmSharp.Routing.Test.Graphs
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = Graph.Deserialize(stream, false);
+                var deserializedGraph = Graph.Deserialize(stream, GraphProfile.Aggressive24);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);

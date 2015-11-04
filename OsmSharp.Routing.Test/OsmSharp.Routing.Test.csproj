@@ -36,20 +36,20 @@
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\net45\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.48, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.48-beta\lib\net45\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm, Version=0.0.0.47, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.0.0.0.47-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.48, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.48-beta\lib\net45\OsmSharp.Osm.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Reminiscence, Version=0.0.0.15, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Reminiscence.0.0.0.15-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
+    <Reference Include="Reminiscence, Version=0.0.0.16, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.0.0.0.16-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -124,6 +124,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <EmbeddedResource Include="test-data\networks\network1.geojson" />
+    <EmbeddedResource Include="test-data\networks\network2.geojson" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

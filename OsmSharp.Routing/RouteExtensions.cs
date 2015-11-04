@@ -277,7 +277,7 @@ namespace OsmSharp.Routing
             }
             else
             {
-                throw new ArgumentOutOfRangeException("Contatenation routes can only be done when the end point of the first route equals the start of the second.");
+                throw new ArgumentOutOfRangeException("Contatenation of routes can only be done when the end point of the first route equals the start of the second.");
             }
         }
 
@@ -540,11 +540,7 @@ namespace OsmSharp.Routing
                     edges.To != nextVertex)
                 {
                     var edge = edges.Current;
-                    var profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
-                    var meta = routerDb.EdgeMeta.Get(edge.Data.MetaId);
-
-                    var tags = new TagsCollection(profile);
-                    tags.AddOrReplace(meta);
+                    var tags = routerDb.GetProfileAndMeta(edge.Data.Profile, edge.Data.MetaId);
 
                     var point = routerDb.Network.GetFirstPoint(edge, edges.From);
                     sideStreets.Add(new RouteSegmentBranch()

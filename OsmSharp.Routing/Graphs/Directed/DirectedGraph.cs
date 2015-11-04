@@ -922,6 +922,8 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <returns></returns>
         public static DirectedGraph Deserialize(System.IO.Stream stream, bool copy)
         {
+            var initialPosition = stream.Position;
+
             // read sizes.
             long size = 0;
             var bytes = new byte[8];
@@ -942,20 +944,27 @@ namespace OsmSharp.Routing.Graphs.Directed
             ArrayBase<uint> edges;
             if (copy)
             { // just create arrays and read the data.
-                vertices = new MemoryArray<uint>(vertexLength);
+                vertices = new MemoryArray<uint>(vertexLength * vertexSize);
                 vertices.CopyFrom(stream);
+                size += vertexLength * vertexSize * 4;
                 edges = new MemoryArray<uint>(edgeLength * edgeSize);
                 edges.CopyFrom(stream);
+                size += edgeLength * edgeSize * 4;
             }
             else
             { // create accessors over the exact part of the stream that represents vertices/edges.
                 var position = stream.Position;
                 var map1 = new MemoryMapStream(new CappedStream(stream, position, vertexLength * vertexSize * 4));
                 vertices = new Array<uint>(map1.CreateUInt32(vertexLength * vertexSize));
-                var map2 = new MemoryMapStream(new CappedStream(stream, position + vertexLength * vertexSize * 4, 
+                size += vertexLength * vertexSize * 4;
+                var map2 = new MemoryMapStream(new CappedStream(stream, position + vertexLength * vertexSize * 4,
                     edgeLength * edgeSize * 4));
                 edges = new Array<uint>(map2.CreateUInt32(edgeLength * edgeSize));
+                size += edgeLength * edgeSize * 4;
             }
+
+            // make sure stream is positioned at the correct location.
+            stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
             return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, edgeLength, vertices, edges);
         }

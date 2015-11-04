@@ -70,8 +70,7 @@ namespace OsmSharp.Routing
                     }
                     var geometry = new LineString(coordinates);
 
-                    var tags = new TagsCollection(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
-                    tags.AddOrReplace(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
+                    var tags = db.GetProfileAndMeta(edgeEnumerator.Data.Profile, edgeEnumerator.Data.MetaId);
                     tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
                     features.Add(new Feature(geometry,
                         new SimpleGeometryAttributeCollection(tags)));
@@ -120,8 +119,7 @@ namespace OsmSharp.Routing
                     }
                     var geometry = new LineString(coordinates);
 
-                    var tags = new TagsCollection(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
-                    tags.AddOrReplace(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
+                    var tags = db.GetProfileAndMeta(edgeEnumerator.Data.Profile, edgeEnumerator.Data.MetaId);
                     tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
                     features.Add(new Feature(geometry,
                         new SimpleGeometryAttributeCollection(tags)));
@@ -184,6 +182,28 @@ namespace OsmSharp.Routing
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Returns one tagcollection containing both the profile and meta tags.
+        /// </summary>
+        public static TagsCollectionBase GetProfileAndMeta(this RouterDb db, uint profileId, uint meta)
+        {
+            var tags = new TagsCollection();
+
+            var metaTags = db.EdgeMeta.Get(meta);
+            if (metaTags != null)
+            {
+                tags.AddOrReplace(metaTags);
+            }
+
+            var profileTags = db.EdgeProfiles.Get(profileId);
+            if (profileTags != null)
+            {
+                tags.AddOrReplace(profileTags);
+            }
+
+            return tags;
         }
     }
 }

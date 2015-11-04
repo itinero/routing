@@ -1060,7 +1060,7 @@ namespace OsmSharp.Routing.Graphs
         /// Deserializes a graph from the given stream.
         /// </summary>
         /// <returns></returns>
-        public static Graph Deserialize(System.IO.Stream stream, bool copy)
+        public static Graph Deserialize(System.IO.Stream stream, GraphProfile profile)
         {
             var initialPosition = stream.Position;
 
@@ -1082,7 +1082,7 @@ namespace OsmSharp.Routing.Graphs
 
             ArrayBase<uint> vertices;
             ArrayBase<uint> edges;
-            if(copy)
+            if (profile == null)
             { // just create arrays and read the data.
                 vertices = new MemoryArray<uint>(vertexLength * vertexSize);
                 vertices.CopyFrom(stream);
@@ -1095,11 +1095,11 @@ namespace OsmSharp.Routing.Graphs
             { // create accessors over the exact part of the stream that represents vertices/edges.
                 var position = stream.Position;
                 var map1 = new MemoryMapStream(new CappedStream(stream, position, vertexLength * vertexSize * 4));
-                vertices = new Array<uint>(map1.CreateUInt32(vertexLength * vertexSize));
+                vertices = new Array<uint>(map1.CreateUInt32(vertexLength * vertexSize), profile.VertexProfile);
                 size += vertexLength * vertexSize * 4;
                 var map2 = new MemoryMapStream(new CappedStream(stream, position + vertexLength * vertexSize * 4, 
                     edgeLength * edgeSize * 4));
-                edges = new Array<uint>(map2.CreateUInt32(edgeLength * edgeSize));
+                edges = new Array<uint>(map2.CreateUInt32(edgeLength * edgeSize), profile.EdgeProfile);
                 size += edgeLength * edgeSize * 4;
             }
 

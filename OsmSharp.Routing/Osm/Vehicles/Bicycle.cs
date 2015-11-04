@@ -32,6 +32,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// </summary>
         public Bicycle()
         {
+            AccessibleTags.Add("service", string.Empty);
             AccessibleTags.Add("cycleway", string.Empty);
             AccessibleTags.Add("path", string.Empty);
             AccessibleTags.Add("road", string.Empty);
