@@ -434,7 +434,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <returns></returns>
         public static DirectedMetaGraph Deserialize(System.IO.Stream stream, bool copy)
         {
-            var graph = DirectedGraph.Deserialize(stream, copy);
+            var graph = DirectedGraph.Deserialize(stream, copy ? null : DirectedGraphProfile.Aggressive24);
             var initialPosition = stream.Position;
 
             long size = 0;

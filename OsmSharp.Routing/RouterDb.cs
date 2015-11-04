@@ -216,14 +216,14 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Deserializes a database from the given stream.
         /// </summary>
-        public static RouterDb Deserialize(Stream stream)
+        public static RouterDb Deserialize(Stream stream, RouterDbProfile profile)
         {
             // deserialize all basic data.
             var supportedProfiles = stream.ReadWithSizeStringArray();
             var contractedCount = stream.ReadByte();
             var profiles = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
             var meta = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
-            var network = RoutingNetwork.Deserialize(stream, true);
+            var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.
             var routerDb = new RouterDb(network, profiles, meta, supportedProfiles);

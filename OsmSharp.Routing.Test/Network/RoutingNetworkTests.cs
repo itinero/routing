@@ -813,7 +813,7 @@ namespace OsmSharp.Routing.Test.Network
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = RoutingNetwork.Deserialize(stream, false);
+                var deserializedGraph = RoutingNetwork.Deserialize(stream, RoutingNetworkProfile.Default);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
                 Assert.AreEqual(1, deserializedGraph.EdgeCount);
@@ -856,7 +856,7 @@ namespace OsmSharp.Routing.Test.Network
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = RoutingNetwork.Deserialize(stream, false);
+                var deserializedGraph = RoutingNetwork.Deserialize(stream, RoutingNetworkProfile.Default);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);

@@ -98,6 +98,7 @@
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Graphs\Directed\DirectedGraphProfile.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphException.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraph.cs" />
     <Compile Include="Graphs\Directed\Edge.cs" />
@@ -132,6 +133,7 @@
     <Compile Include="Navigation\Osm\InstructionCarGenerator.cs" />
     <Compile Include="Network\Data\EdgeData.cs" />
     <Compile Include="Network\RoutingNetworkExtensions.cs" />
+    <Compile Include="Network\RoutingNetworkProfile.cs" />
     <Compile Include="Osm\HighwayComparer.cs" />
     <Compile Include="Osm\RouterDbExtensions.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
@@ -146,6 +148,7 @@
     <Compile Include="Router.cs" />
     <Compile Include="RouterDb.cs" />
     <Compile Include="RouterDbExtensions.cs" />
+    <Compile Include="RouterDbProfile.cs" />
     <Compile Include="RouterPoint.cs" />
     <Compile Include="Network\RoutingEdge.cs" />
     <Compile Include="Network\RoutingNetwork.cs">

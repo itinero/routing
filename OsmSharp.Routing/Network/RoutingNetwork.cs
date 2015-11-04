@@ -444,17 +444,17 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Deserializes from a stream.
         /// </summary>
-        public static RoutingNetwork Deserialize(System.IO.Stream stream, bool copy)
+        public static RoutingNetwork Deserialize(System.IO.Stream stream, RoutingNetworkProfile profile)
         {
             var position = stream.Position;
-            var graph = GeometricGraph.Deserialize(stream, copy ? null : GeometricGraphProfile.Default);
+            var graph = GeometricGraph.Deserialize(stream, profile == null ? null : profile.GeometricGraphProfile);
             var size = stream.Position - position;
 
             var edgeLength = graph.EdgeCount;
             var edgeSize = 1;
 
             ArrayBase<uint> edgeData;
-            if (copy)
+            if (profile == null)
             { // just create arrays and read the data.
                 edgeData = new MemoryArray<uint>(edgeLength * edgeSize);
                 edgeData.CopyFrom(stream);
@@ -465,7 +465,7 @@ namespace OsmSharp.Routing.Network
                 position = stream.Position;
                 var map = new MemoryMapStream(new CappedStream(stream, position,
                     edgeLength * edgeSize * 4));
-                edgeData = new Array<uint>(map.CreateUInt32(edgeLength * edgeSize));
+                edgeData = new Array<uint>(map.CreateUInt32(edgeLength * edgeSize), profile.EdgeDataProfile);
                 size += edgeLength * edgeSize * 4;
             }
 

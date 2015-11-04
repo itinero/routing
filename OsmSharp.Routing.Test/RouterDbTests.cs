@@ -49,7 +49,7 @@ namespace OsmSharp.Routing.Test
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                routerDb = RouterDb.Deserialize(stream);
+                routerDb = RouterDb.Deserialize(stream, null);
             }
 
             // check serialized.
@@ -90,7 +90,7 @@ namespace OsmSharp.Routing.Test
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                routerDb = RouterDb.Deserialize(stream);
+                routerDb = RouterDb.Deserialize(stream, null);
             }
 
             Assert.AreEqual(4, routerDb.Network.VertexCount);
@@ -141,7 +141,7 @@ namespace OsmSharp.Routing.Test
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                routerDb = RouterDb.Deserialize(stream);
+                routerDb = RouterDb.Deserialize(stream, null);
             }
 
             // check serialized.
@@ -188,7 +188,7 @@ namespace OsmSharp.Routing.Test
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                routerDb = RouterDb.Deserialize(stream);
+                routerDb = RouterDb.Deserialize(stream, null);
             }
 
             Assert.AreEqual(4, routerDb.Network.VertexCount);
@@ -241,7 +241,7 @@ namespace OsmSharp.Routing.Test
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
-                routerDb = RouterDb.Deserialize(stream);
+                routerDb = RouterDb.Deserialize(stream, null);
             }
 
             Assert.AreEqual(4, routerDb.Network.VertexCount);
