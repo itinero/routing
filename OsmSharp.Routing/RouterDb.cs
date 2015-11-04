@@ -232,7 +232,7 @@ namespace OsmSharp.Routing
             for (var i = 0; i < contractedCount; i++)
             {
                 var profileName = stream.ReadWithSizeString();
-                var contracted = DirectedMetaGraph.Deserialize(stream, true);
+                var contracted = DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.DirectedMetaGraphProfile);
                 routerDb._contracted[profileName] = contracted;
             }
             return routerDb;

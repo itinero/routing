@@ -432,9 +432,9 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// Deserializes from a stream.
         /// </summary>
         /// <returns></returns>
-        public static DirectedMetaGraph Deserialize(System.IO.Stream stream, bool copy)
+        public static DirectedMetaGraph Deserialize(System.IO.Stream stream, DirectedMetaGraphProfile profile)
         {
-            var graph = DirectedGraph.Deserialize(stream, copy ? null : DirectedGraphProfile.Aggressive24);
+            var graph = DirectedGraph.Deserialize(stream, profile == null ? null : profile.DirectedGraphProfile);
             var initialPosition = stream.Position;
 
             long size = 0;
@@ -449,7 +449,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             var edgeLength = graph.EdgeCount;
 
             ArrayBase<uint> edges;
-            if (copy)
+            if (profile == null)
             { // just create arrays and read the data.
                 edges = new MemoryArray<uint>(edgeLength * edgeSize);
                 edges.CopyFrom(stream);
@@ -460,7 +460,7 @@ namespace OsmSharp.Routing.Graphs.Directed
                 var position = stream.Position;
                 var map1 = new MemoryMapStream(new CappedStream(stream, size,
                     edgeLength * edgeSize * 4));
-                edges = new Array<uint>(map1.CreateUInt32(edgeLength * edgeSize));
+                edges = new Array<uint>(map1.CreateUInt32(edgeLength * edgeSize), profile.EdgeMetaProfile);
                 size += edgeLength * edgeSize * 4;
             }
 

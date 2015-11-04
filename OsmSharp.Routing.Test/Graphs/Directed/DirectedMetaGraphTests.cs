@@ -684,7 +684,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = DirectedMetaGraph.Deserialize(stream, false);
+                var deserializedGraph = DirectedMetaGraph.Deserialize(stream, DirectedMetaGraphProfile.Aggressive40);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
@@ -717,7 +717,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = DirectedMetaGraph.Deserialize(stream, false);
+                var deserializedGraph = DirectedMetaGraph.Deserialize(stream, DirectedMetaGraphProfile.Aggressive40);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);

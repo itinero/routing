@@ -447,6 +447,7 @@ namespace OsmSharp.Routing.Network
         public static RoutingNetwork Deserialize(System.IO.Stream stream, RoutingNetworkProfile profile)
         {
             var position = stream.Position;
+            var initialPosition = stream.Position;
             var graph = GeometricGraph.Deserialize(stream, profile == null ? null : profile.GeometricGraphProfile);
             var size = stream.Position - position;
 
@@ -468,6 +469,9 @@ namespace OsmSharp.Routing.Network
                 edgeData = new Array<uint>(map.CreateUInt32(edgeLength * edgeSize), profile.EdgeDataProfile);
                 size += edgeLength * edgeSize * 4;
             }
+
+            // make stream is positioned correctly.
+            stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
             return new RoutingNetwork(graph, edgeData);
         }

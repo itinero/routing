@@ -49,8 +49,8 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Reminiscence, Version=0.0.0.16, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Reminiscence.0.0.0.16-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
-      <Private>True</Private>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\reminiscence\Output\Reminiscence.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

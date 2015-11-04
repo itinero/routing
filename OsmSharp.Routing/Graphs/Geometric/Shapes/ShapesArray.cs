@@ -354,10 +354,24 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// </summary>
         public static ShapesArray CreateFrom(Stream stream, bool copy)
         {
+            long size;
+            return ShapesArray.CreateFrom(stream, copy, out size);
+        }
+
+        /// <summary>
+        /// Deserializes an shapes index from the given stream.
+        /// </summary>
+        public static ShapesArray CreateFrom(Stream stream, bool copy, out long size)
+        {
+            var initialPosition = stream.Position;
+
+            size = 0;
             var longBytes = new byte[8];
             stream.Read(longBytes, 0, 8);
+            size += 8;
             var indexLength = BitConverter.ToInt64(longBytes, 0);
             stream.Read(longBytes, 0, 8);
+            size += 8;
             var coordinatesLength = BitConverter.ToInt64(longBytes, 0);
 
             ArrayBase<ulong> index;
@@ -366,7 +380,9 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
             { // just create arrays and read the data.
                 index = new MemoryArray<ulong>(indexLength);
                 index.CopyFrom(stream);
+                size += indexLength * 8;
                 coordinates = new MemoryArray<float>(coordinatesLength);
+                size += coordinatesLength * 4;
                 coordinates.CopyFrom(stream);
             }
             else
@@ -374,10 +390,15 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
                 var position = stream.Position;
                 var map1 = new MemoryMapStream(new CappedStream(stream, position, indexLength * 8));
                 index = new Array<ulong>(map1.CreateUInt64(indexLength));
+                size += indexLength * 8;
                 var map2 = new MemoryMapStream(new CappedStream(stream, position + indexLength * 8, 
                     coordinatesLength * 4));
                 coordinates = new Array<float>(map2.CreateSingle(coordinatesLength));
+                size += coordinatesLength * 4;
             }
+
+            // make stream is positioned correctly.
+            stream.Seek(initialPosition + size, SeekOrigin.Begin);
 
             return new ShapesArray(index, coordinates);
         }

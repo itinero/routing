@@ -27,6 +27,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OsmSharp.Routing.Graphs.Geometric
 {
@@ -554,6 +555,8 @@ namespace OsmSharp.Routing.Graphs.Geometric
         public static GeometricGraph Deserialize(System.IO.Stream stream, GeometricGraphProfile profile)
         {
             var graph = Graph.Deserialize(stream, profile == null ? null : profile.GraphProfile);
+            var initialPosition = stream.Position;
+            var size = 0L;
 
             ArrayBase<float> coordinates;
             ShapesArray shapes;
@@ -561,16 +564,25 @@ namespace OsmSharp.Routing.Graphs.Geometric
             { // don't use the stream, the read from it.
                 coordinates = new MemoryArray<float>(graph.VertexCount * 2);
                 coordinates.CopyFrom(stream);
-                shapes = ShapesArray.CreateFrom(stream, true);
+                size += graph.VertexCount * 2 * 4;
+                long shapeSize;
+                shapes = ShapesArray.CreateFrom(stream, true, out shapeSize);
+                size += shapeSize;
             }
             else
             { // use the stream as a map.
                 var position = stream.Position;
                 var map = new MemoryMapStream(new CappedStream(stream, position, graph.VertexCount * 4 * 2));
                 coordinates = new Array<float>(map.CreateSingle(graph.VertexCount * 2), profile.CoordinatesProfile);
+                size += graph.VertexCount * 2 * 4;
                 stream.Seek(position + graph.VertexCount * 4 * 2, System.IO.SeekOrigin.Begin);
-                shapes = ShapesArray.CreateFrom(stream, false);
+                long shapeSize;
+                shapes = ShapesArray.CreateFrom(stream, false, out shapeSize);
+                size += shapeSize;
             }
+
+            // make stream is positioned correctly.
+            stream.Seek(initialPosition + size, SeekOrigin.Begin);
 
             return new GeometricGraph(graph, coordinates, shapes);
         }

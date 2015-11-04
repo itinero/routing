@@ -101,6 +101,7 @@
     <Compile Include="Graphs\Directed\DirectedGraphProfile.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphException.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraph.cs" />
+    <Compile Include="Graphs\Directed\DirectedMetaGraphProfile.cs" />
     <Compile Include="Graphs\Directed\Edge.cs" />
     <Compile Include="Graphs\Directed\MetaEdge.cs" />
     <Compile Include="Graphs\Edge.cs" />
