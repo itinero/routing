@@ -241,6 +241,14 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public Result<float> TryCalculateWeight(Profile profile, RouterPoint source, RouterPoint target)
         {
+            if (!_db.Supports(profile))
+            {
+                return new Result<float>("Routing profile is not supported.", (message) =>
+                {
+                    return new Exception(message);
+                });
+            }
+
             throw new NotImplementedException();
         }
 
@@ -251,6 +259,14 @@ namespace OsmSharp.Routing
         public Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
+            if (!_db.Supports(profile))
+            {
+                return new Result<Route[][]>("Routing profile is not supported.", (message) =>
+                {
+                    return new Exception(message);
+                });
+            }
+
             throw new NotImplementedException();
         }
 
@@ -261,7 +277,59 @@ namespace OsmSharp.Routing
         public Result<float[][]> TryCalculateWeight(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
-            throw new NotImplementedException();
+            if (!_db.Supports(profile))
+            {
+                return new Result<float[][]>("Routing profile is not supported.", (message) =>
+                {
+                    return new Exception(message);
+                });
+            }
+
+            // get source paths.
+            var sourcePaths = new List<IEnumerable<Path>>();
+            for(var i = 0; i < sources.Length; i++)
+            {
+                sourcePaths.Add(sources[i].ToPaths(_db, profile, true));
+            }
+
+            // get target paths.
+            var targetPaths = new List<IEnumerable<Path>>();
+            for(var i = 0; i < targets.Length; i++)
+            {
+                targetPaths.Add(targets[i].ToPaths(_db, profile, false));
+            }
+
+            OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
+            if (_db.TryGetContracted(profile, out contracted))
+            { // contracted calculation.
+                var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(contracted,
+                    sourcePaths, targetPaths);
+                algorithm.Run();
+                if (!algorithm.HasSucceeded)
+                {
+                    return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                    {
+                        return new RouteNotFoundException(message);
+                    });
+                }
+                return new Result<float[][]>(algorithm.Weights);
+            }
+            else
+            { // non-contracted calculation.
+                var algorithm = new OsmSharp.Routing.Algorithms.Default.ManyToMany(_db.Network.GeometricGraph.Graph, (p) =>
+                {
+                    return profile.Factor(_db.EdgeProfiles.Get(p));
+                }, sourcePaths, targetPaths, float.MaxValue);
+                algorithm.Run();
+                if (!algorithm.HasSucceeded)
+                {
+                    return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                    {
+                        return new RouteNotFoundException(message);
+                    });
+                }
+                return new Result<float[][]>(algorithm.Weights);
+            }
         }
     }
 }

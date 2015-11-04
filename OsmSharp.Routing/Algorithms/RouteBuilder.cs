@@ -106,11 +106,23 @@ namespace OsmSharp.Routing.Algorithms
             // add intermediate points.
             while(offset < _path.Count - 2)
             {
-                if(_path[offset + 2] == Constants.NO_VERTEX ||
-                   _target.IsVertex(_routerDb, _path[offset + 2]))
+                if(_path[offset + 2] == Constants.NO_VERTEX)
                 { // next is target.
                     this.Add(_path[offset + 1], _path[offset + 0], _routerDb.Network.GetEdge(_target.EdgeId).GetOther(
                         _path[offset + 1]));
+
+                    // add the target.
+                    this.AddTarget(_path[_path.Count - 2]);
+                    this.HasSucceeded = true;
+                    break;
+                }
+                else if(_target.IsVertex(_routerDb, _path[offset + 2]))
+                { // next is the target, last is a vertex.
+                    this.Add(_path[offset + 1], _path[offset + 0], _path[offset + 2]);
+
+                    // add the target.
+                    this.AddTarget(_path[_path.Count - 1]);
+                    this.HasSucceeded = true;
                     break;
                 }
                 else
@@ -119,10 +131,6 @@ namespace OsmSharp.Routing.Algorithms
                     offset++; // move to next vertex.
                 }
             }
-
-            // add the target.
-            this.AddTarget(_path[_path.Count - 2]);
-            this.HasSucceeded = true;
         }
 
         /// <summary>

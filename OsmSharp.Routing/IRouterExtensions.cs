@@ -107,7 +107,7 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter)
         {
-            return router.TryResolve(profiles, coordinate, isBetter);
+            return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude, isBetter);
         }
 
         /// <summary>

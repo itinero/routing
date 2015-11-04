@@ -65,6 +65,26 @@ namespace OsmSharp.Routing.Algorithms.Default
         }
 
         /// <summary>
+        /// Gets all weights.
+        /// </summary>
+        public float[][] Weights
+        {
+            get
+            {
+                var weights = new float[_sources.Count][];
+                for (uint s = 0; s < _sources.Count; s++)
+                {
+                    weights[s] = new float[_targets.Count];
+                    for (uint t = 0; t < _targets.Count; t++)
+                    {
+                        weights[s][t] = this.GetBestWeight(s, t);
+                    }
+                }
+                return weights;
+            }
+        }
+
+        /// <summary>
         /// Gets the best weight for the source/target at the given index.
         /// </summary>
         /// <returns></returns>
