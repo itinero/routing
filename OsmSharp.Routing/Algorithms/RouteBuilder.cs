@@ -97,11 +97,18 @@ namespace OsmSharp.Routing.Algorithms
                 return;
             }
 
-            // next one is a regular vertex.
-            this.AddSource(_path[1], _routerDb.Network.GetEdge(_source.EdgeId).GetOther(_path[1]),
-                _path[2]);
-
-            var offset = 1; // move to next vertex.
+            // add source.
+            var offset = 1;
+            if(_source.IsVertex(_routerDb, _path[0]))
+            { // just add the first edge as normal.
+                this.AddSource(_path[0]);
+                offset = 0;
+            }
+            else
+            { // add the source.
+                this.AddSource(_path[1], _routerDb.Network.GetEdge(_source.EdgeId).GetOther(_path[1]),
+                    _path[2]);
+            }
 
             // add intermediate points.
             while(offset < _path.Count - 2)
@@ -180,6 +187,17 @@ namespace OsmSharp.Routing.Algorithms
             segment = RouteSegment.CreateNew(_target.Location(), _vehicleProfile);
             segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
             segment.SetStop(_target.Location(), _target.Tags);
+            _route.Segments.Add(segment);
+        }
+
+        /// <summary>
+        /// Adds the segments from source to the given vertex.
+        /// </summary>
+        private void AddSource(uint vertex)
+        {
+            // add source.
+            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
+            segment.SetStop(_source.Location(), _source.Tags);
             _route.Segments.Add(segment);
         }
 

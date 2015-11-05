@@ -1156,5 +1156,124 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
         }
+
+        /// <summary>
+        /// Tests a route with three edges and the last point in the path is a vertex but the routepoint is on an edge not in the path.
+        /// </summary>
+        [Test]
+        public void TestThreeEdgeFirstVertexRouterPointDifferentEdge()
+        {
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.EdgeMeta.Add(new TagsCollection());
+            routerDb.EdgeProfiles.Add(new TagsCollection());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 0, 1);
+            routerDb.Network.AddVertex(3, 0, 2);
+            routerDb.Network.AddVertex(4, 1, 2);
+            routerDb.Network.AddEdge(0, 1, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
+                    new Tag("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("highway", "residential")))
+            });
+            routerDb.Network.AddEdge(1, 2, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
+                    new Tag("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("highway", "residential")))
+            });
+            routerDb.Network.AddEdge(2, 3, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
+                    new Tag("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("highway", "residential")))
+            });
+            routerDb.Network.AddEdge(4, 3, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
+                    new Tag("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("highway", "residential")))
+            });
+
+            // build route.
+            var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "source"));
+            var target = new RouterPoint(1, 2, 3, 0, new Tag("type", "target"));
+            var profile = MockProfile.CarMock();
+            var routeBuilder = new RouteBuilder(routerDb, profile,
+                source, target, new List<uint>(new uint[] { 1, 2, 3, 4 }));
+            routeBuilder.Run();
+
+            // check result.
+            var route = routeBuilder.Route;
+            Assert.IsNotNull(route);
+            Assert.IsNotNull(route.Segments);
+            Assert.AreEqual(4, route.Segments.Count);
+
+            var speed = profile.Speed(new TagsCollection(
+                    new Tag("highway", "residential")));
+            var segment = route.Segments[0];
+            Assert.AreEqual(1, segment.Latitude);
+            Assert.AreEqual(1, segment.Longitude);
+            Assert.AreEqual(0, segment.Time);
+            Assert.AreEqual(0, segment.Distance);
+            Assert.AreEqual(profile.Name, segment.Profile);
+            Assert.IsNotNull(segment.Points);
+            Assert.AreEqual(1, segment.Points.Length);
+            Assert.AreEqual(1, segment.Points[0].Tags.Length);
+            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
+            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+
+            var previous = segment;
+            segment = route.Segments[1];
+            Assert.AreEqual(0, segment.Latitude);
+            Assert.AreEqual(1, segment.Longitude);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
+            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
+            Assert.AreEqual(profile.Name, segment.Profile);
+            Assert.IsNotNull(segment.Tags);
+            Assert.AreEqual(2, segment.Tags.Length);
+            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
+            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            previous = segment;
+            segment = route.Segments[2];
+            Assert.AreEqual(0, segment.Latitude);
+            Assert.AreEqual(2, segment.Longitude);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
+            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
+            Assert.AreEqual(profile.Name, segment.Profile);
+            Assert.IsNotNull(segment.Tags);
+            Assert.AreEqual(2, segment.Tags.Length);
+            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
+            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            previous = segment;
+            segment = route.Segments[3];
+            Assert.AreEqual(1, segment.Latitude);
+            Assert.AreEqual(2, segment.Longitude);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
+            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
+                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
+            Assert.AreEqual(profile.Name, segment.Profile);
+            Assert.IsNotNull(segment.Tags);
+            Assert.AreEqual(2, segment.Tags.Length);
+            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
+            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+        }
     }
 }

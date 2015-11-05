@@ -125,6 +125,7 @@
     <None Include="packages.config" />
     <EmbeddedResource Include="test-data\networks\network1.geojson" />
     <EmbeddedResource Include="test-data\networks\network2.geojson" />
+    <EmbeddedResource Include="test-data\networks\network3.geojson" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
