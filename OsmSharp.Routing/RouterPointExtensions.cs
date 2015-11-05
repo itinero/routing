@@ -45,7 +45,7 @@ namespace OsmSharp.Routing
             ushort profileId;
             OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
             var factor = profile.Factor(routerDb.EdgeProfiles.Get(profileId));
-            var length = graph.Length(edge);
+            var length = distance;
 
             var offset = point.Offset / (float)ushort.MaxValue;
             if(factor.Direction == 0)
@@ -54,13 +54,13 @@ namespace OsmSharp.Routing
                 { // the first part is just the first vertex.
                     return new Path[] {
                         new Path(edge.From),
-                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(edge.From))
                     };
                 }
                 else if(offset == 1)
                 { // the second path it just the second vertex.
                     return new Path[] {
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(edge.To)),
                         new Path(edge.To)
                     };
                 }
@@ -83,7 +83,7 @@ namespace OsmSharp.Routing
                     { // return both, we are at the from-vertex.
                         return new Path[] {
                             new Path(edge.From),
-                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(edge.From))
                         };
                     }
                     return new Path[] {
@@ -100,7 +100,7 @@ namespace OsmSharp.Routing
                 { // return both, we are at the to-vertex.
                     return new Path[] {
                         new Path(edge.To),
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(edge.To))
                     };
                 }
                 return new Path[] {
@@ -121,7 +121,7 @@ namespace OsmSharp.Routing
                     { // return both, we are at the from-vertex.
                         return new Path[] {
                             new Path(edge.From),
-                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
+                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(edge.From))
                         };
                     }
                     return new Path[] {
@@ -138,7 +138,7 @@ namespace OsmSharp.Routing
                 { // return both, we are at the to-vertex.
                     return new Path[] {
                         new Path(edge.To),
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
+                        new Path(edge.From, (length * offset) * factor.Value, new Path(edge.To))
                     };
                 }
                 return new Path[] {
@@ -332,7 +332,7 @@ namespace OsmSharp.Routing
             }
             if(point.Offset == target.Offset)
             { // path is possible but it has a weight of 0.
-                return new Path(Constants.NO_VERTEX);
+                return new Path(point.VertexId(db));
             }
             var forward = point.Offset < target.Offset;
             var edge = db.Network.GetEdge(point.EdgeId);
@@ -341,16 +341,33 @@ namespace OsmSharp.Routing
             { // not possible to travel here.
                 return null;
             }
-            if(factor.Direction == 0 ||
+            if (factor.Direction == 0 ||
                (forward && factor.Direction == 1) ||
                (!forward && factor.Direction == 2))
             { // ok, directions match.
-                var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) * 
+                var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) *
                     edge.Data.Distance;
                 var weight = distance * factor.Value;
-                return new Path(Constants.NO_VERTEX, weight, new Path(Constants.NO_VERTEX));
+                return new Path(target.VertexId(db), weight, new Path(point.VertexId(db)));
             }
             return null;
+        }
+
+        /// <summary>
+        /// Returns the vertex id if any.
+        /// </summary>
+        public static uint VertexId(this RouterPoint point, RouterDb db)
+        {
+            var edge = db.Network.GetEdge(point.EdgeId);
+            if (point.Offset == 0)
+            { // offset is zero.
+                return edge.From;
+            }
+            else if (point.Offset == ushort.MaxValue)
+            { // offset is max, maybe there is a match.
+                return edge.To;
+            }
+            return Constants.NO_VERTEX;
         }
     }
 }

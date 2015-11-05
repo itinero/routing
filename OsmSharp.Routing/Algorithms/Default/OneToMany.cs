@@ -28,42 +28,54 @@ namespace OsmSharp.Routing.Algorithms.Default
     /// </summary>
     public class OneToMany : AlgorithmBase
     {
-        private readonly Graph _graph;
-        private readonly IEnumerable<Path> _source;
-        private readonly IList<IEnumerable<Path>> _targets;
-        private readonly Func<ushort, Factor> _getFactor;
+        private readonly RouterDb _routerDb;
+        private readonly RouterPoint _source;
+        private readonly IList<RouterPoint> _targets;
+        private readonly Profile _profile;
         private readonly float _maxSearch;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public OneToMany(Graph graph, Func<ushort, Factor> getFactor, 
-            IEnumerable<Path> source, IList<IEnumerable<Path>> targets, float maxSearch)
+        public OneToMany(RouterDb routerDb, Profile profile,
+            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
         {
-            _graph = graph;
+            _routerDb = routerDb;
             _source = source;
             _targets = targets;
-            _getFactor = getFactor;
+            _profile = profile;
             _maxSearch = float.MaxValue;
         }
 
-        private Tuple<uint, float>[] _best;
-        private Dykstra _dykstra;
+        private Path[] _best;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            _best = new Tuple<uint, float>[_targets.Count];
+            _best = new Path[_targets.Count];
 
+            // register the targets and determine one-edge-paths.
+            var sourcePaths = _source.ToPaths(_routerDb, _profile, true);
             var targetIndexesPerVertex = new Dictionary<uint, LinkedTarget>();
+            var targetPaths = new IEnumerable<Path>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
-                foreach (var targetpath in _targets[i])
+                var targets = _targets[i].ToPaths(_routerDb, _profile, false);
+                targetPaths[i] = targets;
+
+                // determine one-edge-paths.
+                if (_source.EdgeId == _targets[i].EdgeId)
+                { // on same edge.
+                    _best[i] = _source.PathTo(_routerDb, _profile, _targets[i]);
+                }
+
+                // register targets.
+                for (var t = 0; t < targets.Length; t++)
                 {
-                    var target = targetIndexesPerVertex.TryGetValueOrDefault(targetpath.Vertex);
-                    targetIndexesPerVertex[targetpath.Vertex] = new LinkedTarget()
+                    var target = targetIndexesPerVertex.TryGetValueOrDefault(targets[t].Vertex);
+                    targetIndexesPerVertex[targets[t].Vertex] = new LinkedTarget()
                     {
                         Target = i,
                         Next = target
@@ -71,112 +83,108 @@ namespace OsmSharp.Routing.Algorithms.Default
                 }
             }
 
-            _dykstra = new Dykstra(_graph, _getFactor, _source, _maxSearch, false);
-            _dykstra.WasFound += (vertex, weight) =>
+            // determine the best max search radius.
+            var max = 0f;
+            for(var s = 0; s < _best.Length; s++)
+            {
+                if(_best[s] == null)
+                {
+                    max = _maxSearch;
+                }
+                else
+                {
+                    if (_best[s].Weight > max)
+                    {
+                        max = _best[s].Weight;
+                    }
+                }
+            }
+
+            // run the search.
+            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, (p) =>
+            {
+                return _profile.Factor(_routerDb.EdgeProfiles.Get(p));
+            }, sourcePaths, max, false);
+            dykstra.WasFound += (vertex, weight) =>
             {
                 LinkedTarget target;
                 if(targetIndexesPerVertex.TryGetValue(vertex, out target))
                 { // there is a target for this vertex.
                     while(target != null)
                     {
-                        var bestWeight = float.MaxValue;
-                        var best = uint.MaxValue;
-
-                        var current = _best[target.Target];
-
-                        var paths = _targets[target.Target];
-                        foreach(var path in paths)
+                        var best = _best[target.Target];
+                        foreach(var targetPath in targetPaths[target.Target])
                         {
-                            if(path.Vertex == vertex &&
-                               path.Weight + weight < bestWeight)
-                            {
-                                best = path.Vertex;
-                                bestWeight = path.Weight + weight;
-                            }
-                            if(current != null &&
-                               current.Item1 == path.Vertex &&
-                               current.Item2 + weight < bestWeight)
-                            {
-                                best = current.Item1;
-                                bestWeight = current.Item2 + weight;
+                            Path path;
+                            dykstra.TryGetVisit(vertex, out path);
+                            if(targetPath.Vertex == vertex)
+                            { // there is a path here.
+                                if(best == null ||
+                                   targetPath.Weight + weight < best.Weight)
+                                { // not a best path yet, just add this one.
+                                    if (_targets[target.Target].IsVertex(_routerDb, path.Vertex))
+                                    { // target is the exact vertex.
+                                        best = path;
+                                    }
+                                    else
+                                    { // target is not the exact vertex.
+                                        best = new Path(_targets[target.Target].VertexId(_routerDb), 
+                                            targetPath.Weight + weight,
+                                            path);
+                                    }
+                                }
+                                break;
                             }
                         }
 
-                        _best[target.Target] = new Tuple<uint, float>(
-                            best, bestWeight);
+                        // set again.
+                        _best[target.Target] = best;
 
+                        // move to next target.
                         target = target.Next;
                     }
                 }
                 return false;
             };
-            _dykstra.Run();
+            dykstra.Run();
 
             this.HasSucceeded = true;
         }
 
         /// <summary>
-        /// Gets the best weight for the target at the given index.
+        /// Gets the path to the given target.
         /// </summary>
         /// <returns></returns>
-        public float GetBestWeight(uint target)
-        {
-            this.CheckHasRunAndHasSucceeded();
-
-            Tuple<uint, float> best = _best[target];
-            if(best != null)
-            {
-                return best.Item2;
-            }
-            return float.MaxValue;
-        }
-
-        /// <summary>
-        /// Gets the best vertex for the target at the given index.
-        /// </summary>
-        /// <returns></returns>
-        public uint GetBestVertex(uint target)
+        public Path GetPath(int target)
         {
             this.CheckHasRunAndHasSucceeded();
 
             var best = _best[target];
             if (best != null)
             {
-                return best.Item1;
-            }
-            return uint.MaxValue;
-        }
-
-        /// <summary>
-        /// Gets the path from source->target.
-        /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath(uint target)
-        {
-            this.CheckHasRunAndHasSucceeded();
-
-            var best = _best[target];
-
-            if(best != null)
-            {
-                Path toTarget;
-                if (_dykstra.TryGetVisit(best.Item1, out toTarget))
-                {
-                    var path = new List<uint>();
-                    toTarget.AddToList(path);
-                    return path;
-                }
+                return best;
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
         }
 
         /// <summary>
-        /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
+        /// Gets the weights.
         /// </summary>
-        /// <returns></returns>
-        public bool TryGetVisit(uint vertex, out Path visit)
+        public float[] Weights
         {
-            return _dykstra.TryGetVisit(vertex, out visit);
+            get
+            {
+                var weights = new float[_best.Length];
+                for (var i = 0; i < _best.Length; i++)
+                {
+                    weights[i] = float.MaxValue;
+                    if (_best[i] != null)
+                    {
+                        weights[i] = _best[i].Weight;
+                    }
+                }
+                return weights;
+            }
         }
 
         private class LinkedTarget

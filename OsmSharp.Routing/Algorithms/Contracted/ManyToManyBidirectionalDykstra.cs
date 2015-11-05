@@ -17,6 +17,8 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Routing.Graphs.Directed;
+using OsmSharp.Routing.Profiles;
+using System;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Algorithms.Contracted
@@ -26,20 +28,29 @@ namespace OsmSharp.Routing.Algorithms.Contracted
     /// </summary>
     public class ManyToManyBidirectionalDykstra : AlgorithmBase
     {
+        private readonly RouterDb _routerDb;
         private readonly DirectedMetaGraph _graph;
-        private readonly IList<IEnumerable<Path>> _sources;
-        private readonly IList<IEnumerable<Path>> _targets;
+        private readonly Profile _profile;
+        private readonly RouterPoint[] _sources;
+        private readonly RouterPoint[] _targets;
         private readonly Dictionary<uint, Dictionary<int, float>> _buckets;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(DirectedMetaGraph graph, IList<IEnumerable<Path>> sources,
-            IList<IEnumerable<Path>> targets)
+        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, RouterPoint[] sources,
+            RouterPoint[] targets)
         {
-            _graph = graph;
+            _routerDb = routerDb;
+            _profile = profile;
             _sources = sources;
             _targets = targets;
+
+            if (!_routerDb.TryGetContracted(profile, out _graph))
+            {
+                throw new NotSupportedException(
+                    "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");
+            }
 
             _buckets = new Dictionary<uint, Dictionary<int, float>>();
         }
@@ -51,21 +62,32 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// </summary>
         protected override void DoRun()
         {
-            // have default weights.
-            _weights = new float[_sources.Count][];
-            for (var i = 0; i < _sources.Count; i++)
+            // put in default weights and weights for one-edge-paths.
+            _weights = new float[_sources.Length][];
+            for (var i = 0; i < _sources.Length; i++)
             {
-                _weights[i] = new float[_targets.Count];
-                for(var j = 0; j < _targets.Count; j++)
+                var source = _sources[i];
+                _weights[i] = new float[_targets.Length];
+                for (var j = 0; j < _targets.Length; j++)
                 {
+                    var target = _targets[j];
                     _weights[i][j] = float.MaxValue;
+
+                    if(target.EdgeId == source.EdgeId)
+                    {
+                        var path = source.PathTo(_routerDb, _profile, target);
+                        if (path != null)
+                        {
+                            _weights[i][j] = path.Weight;
+                        }
+                    }
                 }
             }
 
             // do forward searches into buckets.
-            for(var i = 0; i < _sources.Count; i++)
+            for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra(_graph, _sources[i], false);
+                var forward = new Dykstra(_graph, _sources[i].ToPaths(_routerDb, _profile, true), false);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -74,9 +96,9 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             }
 
             // do backward searches into buckets.
-            for (var i = 0; i < _targets.Count; i++)
+            for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra(_graph, _targets[i], true);
+                var backward = new Dykstra(_graph, _targets[i].ToPaths(_routerDb, _profile, false), true);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);

@@ -364,6 +364,15 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Calculates all weights between all given locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<float[][]> TryCalculateWeight(this IRouter router, Profile profile, ICoordinate[] locations)
+        {
+            return router.TryCalculateWeight(profile, locations, locations);
+        }
+
+        /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
         /// <returns></returns>

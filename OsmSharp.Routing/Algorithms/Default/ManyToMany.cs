@@ -28,20 +28,21 @@ namespace OsmSharp.Routing.Algorithms.Default
     /// </summary>
     public class ManyToMany : AlgorithmBase
     {
-        private readonly Graph _graph;
-        private readonly Func<ushort, Factor> _getFactor;
-        private readonly IList<IEnumerable<Path>> _sources;
-        private readonly IList<IEnumerable<Path>> _targets;
+        private readonly RouterDb _routerDb;
+        private readonly Profile _profile;
+        private readonly RouterPoint[] _sources;
+        private readonly RouterPoint[] _targets;
         private readonly float _maxSearch;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(Graph graph, Func<ushort, Factor> getFactor, IList<IEnumerable<Path>> sources, IList<IEnumerable<Path>> targets,
+        public ManyToMany(RouterDb routerDb, Profile profile,
+            RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
         {
-            _graph = graph;
-            _getFactor = getFactor;
+            _routerDb = routerDb;
+            _profile = profile;
             _sources = sources;
             _targets = targets;
             _maxSearch = maxSearch;
@@ -54,10 +55,11 @@ namespace OsmSharp.Routing.Algorithms.Default
         /// </summary>
         protected override void DoRun()
         {
-            _sourceSearches = new OneToMany[_sources.Count];
-            for(var i = 0; i < _sources.Count; i++)
+            // search sources.
+            _sourceSearches = new OneToMany[_sources.Length];
+            for (var i = 0; i < _sources.Length; i++)
             {
-                _sourceSearches[i] = new OneToMany(_graph, _getFactor, _sources[i], _targets, _maxSearch);
+                _sourceSearches[i] = new OneToMany(_routerDb, _profile, _sources[i], _targets, _maxSearch);
                 _sourceSearches[i].Run();
             }
 
@@ -71,14 +73,10 @@ namespace OsmSharp.Routing.Algorithms.Default
         {
             get
             {
-                var weights = new float[_sources.Count][];
-                for (uint s = 0; s < _sources.Count; s++)
+                var weights = new float[_sources.Length][];
+                for (var s = 0; s < _sources.Length; s++)
                 {
-                    weights[s] = new float[_targets.Count];
-                    for (uint t = 0; t < _targets.Count; t++)
-                    {
-                        weights[s][t] = this.GetBestWeight(s, t);
-                    }
+                    weights[s] = _sourceSearches[s].Weights;
                 }
                 return weights;
             }
@@ -88,33 +86,31 @@ namespace OsmSharp.Routing.Algorithms.Default
         /// Gets the best weight for the source/target at the given index.
         /// </summary>
         /// <returns></returns>
-        public float GetBestWeight(uint source, uint target)
+        public float GetBestWeight(int source, int target)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _sourceSearches[source].GetBestWeight(target);
-        }
-
-        /// <summary>
-        /// Gets the best vertex for the source/target at the given index.
-        /// </summary>
-        /// <returns></returns>
-        public uint GetBestVertex(uint source, uint target)
-        {
-            this.CheckHasRunAndHasSucceeded();
-
-            return _sourceSearches[source].GetBestVertex(target);
+            var path = _sourceSearches[source].GetPath(target);
+            if(path != null)
+            {
+                return path.Weight;
+            }
+            return float.MaxValue;
         }
 
         /// <summary>
         /// Gets the path from source to target.
         /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath(uint source, uint target)
+        public Path GetPath(int source, int target)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _sourceSearches[source].GetPath(target);
+            var path = _sourceSearches[source].GetPath(target);
+            if (path != null)
+            {
+                return path;
+            }
+            return null;
         }
     }
 }

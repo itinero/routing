@@ -285,25 +285,12 @@ namespace OsmSharp.Routing
                 });
             }
 
-            // get source paths.
-            var sourcePaths = new List<IEnumerable<Path>>();
-            for(var i = 0; i < sources.Length; i++)
-            {
-                sourcePaths.Add(sources[i].ToPaths(_db, profile, true));
-            }
-
-            // get target paths.
-            var targetPaths = new List<IEnumerable<Path>>();
-            for(var i = 0; i < targets.Length; i++)
-            {
-                targetPaths.Add(targets[i].ToPaths(_db, profile, false));
-            }
-
+            float[][] weights = null;
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
             if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
-                var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(contracted,
-                    sourcePaths, targetPaths);
+                var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(_db, profile,
+                    sources, targets);
                 algorithm.Run();
                 if (!algorithm.HasSucceeded)
                 {
@@ -312,14 +299,11 @@ namespace OsmSharp.Routing
                         return new RouteNotFoundException(message);
                     });
                 }
-                return new Result<float[][]>(algorithm.Weights);
+                weights = algorithm.Weights;
             }
             else
             { // non-contracted calculation.
-                var algorithm = new OsmSharp.Routing.Algorithms.Default.ManyToMany(_db.Network.GeometricGraph.Graph, (p) =>
-                {
-                    return profile.Factor(_db.EdgeProfiles.Get(p));
-                }, sourcePaths, targetPaths, float.MaxValue);
+                var algorithm = new OsmSharp.Routing.Algorithms.Default.ManyToMany(_db, profile, sources, targets, float.MaxValue);
                 algorithm.Run();
                 if (!algorithm.HasSucceeded)
                 {
@@ -328,8 +312,51 @@ namespace OsmSharp.Routing
                         return new RouteNotFoundException(message);
                     });
                 }
-                return new Result<float[][]>(algorithm.Weights);
+                weights = algorithm.Weights;
             }
+
+            // extract invalid targets.
+            for(var s = 0; s < weights.Length; s++)
+            {
+                var invalid = true;
+                for(var t = 0; t < weights[s].Length; t++)
+                {
+                    if(t != s)
+                    {
+                        if(weights[s][t] < float.MaxValue)
+                        {
+                            invalid = false;
+                            break;
+                        }
+                    }
+                }
+                if (invalid)
+                {
+                    invalidSources.Add(s);
+                }
+            }
+
+            // extract invalid targets.
+            for (var t = 0; t < weights[0].Length; t++)
+            {
+                var invalid = true;
+                for (var s = 0; s < weights.Length; s++)
+                {
+                    if (t != s)
+                    {
+                        if (weights[s][t] < float.MaxValue)
+                        {
+                            invalid = false;
+                            break;
+                        }
+                    }
+                }
+                if (invalid)
+                {
+                    invalidTargets.Add(t);
+                }
+            }
+            return new Result<float[][]>(weights);
         }
     }
 }

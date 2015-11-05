@@ -384,6 +384,10 @@ namespace OsmSharp.Routing.Algorithms.Search
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
+                        if (edgeEnumerator.DataInverted)
+                        { // invert shape.
+                            shape = shape.Reverse();
+                        }
                         var shapeEnumerator = shape.GetEnumerator();
                         shapeEnumerator.Reset();
                         while (shapeEnumerator.MoveNext())
@@ -577,6 +581,10 @@ namespace OsmSharp.Routing.Algorithms.Search
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
+                        if(edgeEnumerator.DataInverted)
+                        { // invert shape.
+                            shape = shape.Reverse();
+                        }
                         var shapeEnumerator = shape.GetEnumerator();
                         shapeEnumerator.Reset();
                         while (shapeEnumerator.MoveNext())
@@ -760,6 +768,10 @@ namespace OsmSharp.Routing.Algorithms.Search
                     var shape = edgeEnumerator.Shape;
                     if (shape != null)
                     { // loop over shape points.
+                        if (edgeEnumerator.DataInverted)
+                        { // invert shape.
+                            shape = shape.Reverse();
+                        }
                         var shapeEnumerator = shape.GetEnumerator();
                         shapeEnumerator.Reset();
                         while (shapeEnumerator.MoveNext())

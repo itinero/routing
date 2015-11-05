@@ -20,8 +20,12 @@ using NUnit.Framework;
 using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Data.Contracted;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Graphs.Directed;
+using OsmSharp.Routing.Test.Profiles;
 using System.Collections.Generic;
+using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Profiles;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted
 {
@@ -32,26 +36,32 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
     public class ManyToManyTests
     {
         /// <summary>
-        /// Tests routing on a graph with one edge.
+        /// Tests many-to-many path calculations on just one edge.
         /// </summary>
+        /// <remarks>
+        /// Situation:
+        ///  (0)---100m----(1) @ 100km/h
+        /// </remarks>
         [Test]
         public void TestOneEdge()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 0, 0);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.AddContracted(MockProfile.CarMock());
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
+                new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) });
             algorithm.Run();
 
             // check results.
@@ -59,14 +69,129 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.IsTrue(algorithm.HasSucceeded);
 
             Assert.IsNotNull(algorithm.Weights);
-            Assert.AreEqual(2, algorithm.Weights.Length);
-            Assert.AreEqual(2, algorithm.Weights[0].Length);
-            Assert.AreEqual(2, algorithm.Weights[1].Length);
+            Assert.AreEqual(1, algorithm.Weights.Length);
+            Assert.AreEqual(1, algorithm.Weights[0].Length);
+            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 100, algorithm.Weights[0][0], 0.01);
+        }
 
-            Assert.AreEqual(0, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][0]);
-            Assert.AreEqual(0, algorithm.Weights[1][1]);
+        /// <summary>
+        /// Tests many-to-many path calculations on within one edge.
+        /// </summary>
+        /// <remarks>
+        /// Situation:
+        ///  (0)---100m---(1) @ 100km/h
+        /// </remarks>
+        [Test]
+        public void TestWithinOneEdge()
+        {
+            // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 0, 0);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.AddContracted(MockProfile.CarMock());
+
+            // run algorithm.
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
+                new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) });
+            algorithm.Run();
+
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+
+            Assert.IsNotNull(algorithm.Weights);
+            Assert.AreEqual(1, algorithm.Weights.Length);
+            Assert.AreEqual(1, algorithm.Weights[0].Length);
+            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 80, algorithm.Weights[0][0], 0.01);
+        }
+
+        /// <summary>
+        /// Tests many to many calculations between vertices on a triangle.
+        /// </summary>
+        /// <remarks>
+        /// Situation:
+        ///  (0)----100m----(1)
+        ///   \             /
+        ///    \           /           
+        ///     \         /
+        ///     100m    100m
+        ///       \     /
+        ///        \   /
+        ///         (2)
+        /// 
+        /// Result:
+        /// 
+        ///     [  0,100,100]
+        ///     [100,  0,100]
+        ///     [100,100,  0]
+        ///     
+        /// </remarks>
+        [Test]
+        public void TestThreeEdges()
+        {
+            // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(2, 0, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.AddContracted(MockProfile.CarMock());
+
+            // run algorithm (0, 1, 2)->(0, 1, 2).
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
+            algorithm.Run(); Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+
+            var weights = algorithm.Weights;
+            Assert.IsNotNull(weights);
+            Assert.AreEqual(3, weights.Length);
+            Assert.AreEqual(3, weights[0].Length);
+            Assert.AreEqual(0, weights[0][0], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][1], 0.01);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][2], 0.01);
+            Assert.AreEqual(3, weights[1].Length);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][0], 0.01);
+            Assert.AreEqual(0, weights[1][1], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][2], 0.01);
+            Assert.AreEqual(3, weights[2].Length);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][0], 0.01);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][1], 0.01);
+            Assert.AreEqual(0, weights[2][2], 0.001);
         }
 
         /// <summary>
@@ -76,23 +201,43 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesMiddleHighest()
         {
             // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+            // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
             algorithm.Run();
 
             // check results.
@@ -105,15 +250,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
-            Assert.AreEqual(100, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
-            Assert.AreEqual(200, algorithm.Weights[2][0]);
-            Assert.AreEqual(100, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -123,23 +268,43 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesRightHighest()
         {
             // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+            // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
             algorithm.Run();
 
             // check results.
@@ -152,15 +317,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
-            Assert.AreEqual(100, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
-            Assert.AreEqual(200, algorithm.Weights[2][0]);
-            Assert.AreEqual(100, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -170,23 +335,43 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesLeftHighest()
         {
             // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+            // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
             algorithm.Run();
 
             // check results.
@@ -199,15 +384,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
-            Assert.AreEqual(100, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
-            Assert.AreEqual(200, algorithm.Weights[2][0]);
-            Assert.AreEqual(100, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -217,23 +402,49 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesDirectedMiddleHighest()
         {
             // build graph.
+            var oneway = MockProfile.CarMock(t => new Speed()
+                {
+                    Value = MockProfile.CarMock().Speed(null).Value,
+                    Direction = 1
+                });
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(oneway);
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+
+            // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
             algorithm.Run();
 
             // check results.
@@ -246,15 +457,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -264,23 +475,48 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesRightMiddleHighest()
         {
             // build graph.
+            var oneway = MockProfile.CarMock(t => new Speed()
+            {
+                Value = MockProfile.CarMock().Speed(null).Value,
+                Direction = 1
+            });
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(oneway);
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+            // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, true, Constants.NO_VERTEX);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, true, Constants.NO_VERTEX);
+            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, true, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
             algorithm.Run();
 
             // check results.
@@ -293,15 +529,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -311,23 +547,48 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         public void TestTwoEdgesLeftMiddleHighest()
         {
             // build graph.
+            var oneway = MockProfile.CarMock(t => new Speed()
+            {
+                Value = MockProfile.CarMock().Speed(null).Value,
+                Direction = 1
+            });
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(oneway);
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+            // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
+            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, false, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, false, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                });
             algorithm.Run();
 
             // check results.
@@ -340,15 +601,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -357,33 +618,72 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
         [Test]
         public void TestPentagon()
         {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddVertex(3, 3, 3);
+            routerDb.Network.AddVertex(4, 4, 4);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(2, 3, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(3, 4, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(4, 0, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
             // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 4, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 3, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 1, 200, null, 2);
-            graph.AddEdge(4, 1, 200, null, 0);
-            graph.AddEdge(4, 3, 100, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(0, 4, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(2, 3, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            graph.AddEdge(3, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 2);
+            graph.AddEdge(4, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 0);
+            graph.AddEdge(4, 3, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            routerDb.AddContracted(MockProfile.CarMock(), graph);
 
             // create algorithm and run.
-            var algorithm = new OsmSharp.Routing.Algorithms.Contracted.ManyToManyBidirectionalDykstra(graph,
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) },
-                        new Path[] { new Path(3) },
-                        new Path[] { new Path(4) }}),
-                new List<IEnumerable<Path>>(
-                    new IEnumerable<Path>[] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) },
-                        new Path[] { new Path(3) },
-                        new Path[] { new Path(4) }}));
+            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2),
+                    routerDb.Network.CreateRouterPointForVertex(3),
+                    routerDb.Network.CreateRouterPointForVertex(4)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2),
+                    routerDb.Network.CreateRouterPointForVertex(3),
+                    routerDb.Network.CreateRouterPointForVertex(4)
+                });
             algorithm.Run();
 
             // check results.
@@ -399,23 +699,23 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             Assert.AreEqual(5, algorithm.Weights[3].Length);
             Assert.AreEqual(5, algorithm.Weights[4].Length);
 
-            Assert.AreEqual(000, algorithm.Weights[0][0]);
-            Assert.AreEqual(100, algorithm.Weights[0][1]);
-            Assert.AreEqual(200, algorithm.Weights[0][2]);
-            Assert.AreEqual(200, algorithm.Weights[0][3]);
-            Assert.AreEqual(100, algorithm.Weights[0][4]);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][3], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][4], 0.1);
 
-            Assert.AreEqual(100, algorithm.Weights[1][0]);
-            Assert.AreEqual(000, algorithm.Weights[1][1]);
-            Assert.AreEqual(100, algorithm.Weights[1][2]);
-            Assert.AreEqual(200, algorithm.Weights[1][3]);
-            Assert.AreEqual(200, algorithm.Weights[1][4]);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][3], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][4], 0.1);
 
-            Assert.AreEqual(200, algorithm.Weights[2][0]);
-            Assert.AreEqual(100, algorithm.Weights[2][1]);
-            Assert.AreEqual(000, algorithm.Weights[2][2]);
-            Assert.AreEqual(100, algorithm.Weights[2][3]);
-            Assert.AreEqual(200, algorithm.Weights[2][4]);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][3], 0.1);
+            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][4], 0.1);
         }
     }
 }

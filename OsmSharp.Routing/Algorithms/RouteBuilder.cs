@@ -128,7 +128,7 @@ namespace OsmSharp.Routing.Algorithms
                     this.Add(_path[offset + 1], _path[offset + 0], _path[offset + 2]);
 
                     // add the target.
-                    this.AddTarget(_path[_path.Count - 1]);
+                    this.AddTarget(_path[_path.Count - 1], _path[_path.Count - 2]);
                     this.HasSucceeded = true;
                     break;
                 }
@@ -302,6 +302,45 @@ namespace OsmSharp.Routing.Algorithms
             segment = RouteSegment.CreateNew(_target.Location(), _vehicleProfile);
             segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
             segment.SetStop(_target.Location(), _target.Tags);
+            _route.Segments.Add(segment);
+        }
+
+        /// <summary>
+        /// Adds the segments from the previous vertex to the target when the target is a vertex.
+        /// </summary>
+        private void AddTarget(uint vertex, uint previousVertex)
+        {
+            RouteSegment segment;
+
+            // get edge.
+            var edge = _routerDb.Network.GetEdgeEnumerator(previousVertex).First(x => x.To == vertex);
+            var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            var speed = _vehicleProfile.Speed(profile);
+            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
+            var tags = new TagsCollection(profile);
+            if (meta != null) { tags.AddOrReplace(meta); }
+
+            // expand shape between previous and vertex.
+            var shape = edge.Shape;
+            if (shape != null)
+            {
+                if (edge.DataInverted)
+                { // invert if data is inverted.
+                    shape = shape.Reverse();
+                }
+                var shapeEnumerator = shape.GetEnumerator();
+                shapeEnumerator.Reset();
+                while (shapeEnumerator.MoveNext())
+                { // create the segment and set details.
+                    segment = RouteSegment.CreateNew(shapeEnumerator.Current, _vehicleProfile);
+                    segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
+                    _route.Segments.Add(segment);
+                }
+            }
+
+            // add the actual vertex.
+            segment = RouteSegment.CreateNew(_routerDb.Network.GetVertex(vertex), _vehicleProfile);
+            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
             _route.Segments.Add(segment);
         }
         

@@ -17,13 +17,9 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Algorithms.Default;
-using OsmSharp.Routing.Data;
-using OsmSharp.Routing.Graphs;
-using OsmSharp.Routing.Profiles;
-using System;
-using System.Collections.Generic;
+using OsmSharp.Routing.Network;
+using OsmSharp.Routing.Test.Profiles;
 
 namespace OsmSharp.Routing.Test.Algorithms
 {
@@ -34,7 +30,7 @@ namespace OsmSharp.Routing.Test.Algorithms
     class ManyToManyTests
     {
         /// <summary>
-        /// Tests shortest path calculations on just one edge.
+        /// Tests many-to-many path calculations on just one edge.
         /// </summary>
         /// <remarks>
         /// Situation:
@@ -44,42 +40,83 @@ namespace OsmSharp.Routing.Test.Algorithms
         public void TestOneEdge()
         {
             // build graph.
-            var graph = new Graph(EdgeDataSerializer.Size);
-            graph.AddVertex(0);
-            graph.AddVertex(1);
-            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 0, 0);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
             {
                 Distance = 100,
-                Profile = 1
-            }));
-
-            // build speed profile function.
-            var speed = 100f / 3.6f;
-            Func<ushort, OsmSharp.Routing.Profiles.Factor> getFactor = (x) =>
-            {
-                return new OsmSharp.Routing.Profiles.Factor()
-                {
-                    Direction = 0,
-                    Value = 1.0f / speed
-                };
-            };
+                Profile = 0,
+                MetaId = 0
+            });
 
             // run algorithm.
-            var algorithm = new ManyToMany(graph, getFactor, 
-                new List<IEnumerable<Path>>(new Path[][] { new Path[] { new Path(0) } }),
-                new List<IEnumerable<Path>>(new Path[][] { new Path[] { new Path(1) } }), float.MaxValue);
+            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
+                new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) }, float.MaxValue);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            Assert.AreEqual(1, algorithm.GetBestVertex(0, 0));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(0, 0), 0.001f);
-            Assert.AreEqual(new uint[] { 0, 1 }, algorithm.GetPath(0, 0).ToArray());
+            var path = algorithm.GetPath(0, 0);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 100, path.Weight);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Vertex);
+            Assert.AreEqual(0, path.Weight);
+            path = path.From;
+            Assert.IsNull(path);
         }
 
         /// <summary>
-        /// Tests one to many calculations between vertices on a triangle.
+        /// Tests many-to-many path calculations on within one edge.
+        /// </summary>
+        /// <remarks>
+        /// Situation:
+        ///  (0)---100m---(1) @ 100km/h
+        /// </remarks>
+        [Test]
+        public void TestWithinOneEdge()
+        {
+            // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 0, 0);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+
+            // run algorithm.
+            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
+                new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) }, float.MaxValue);
+            algorithm.Run();
+
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+
+            var path = algorithm.GetPath(0, 0);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(Constants.NO_VERTEX, path.Vertex);
+            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 80, path.Weight, 0.01);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(Constants.NO_VERTEX, path.Vertex);
+            Assert.AreEqual(0, path.Weight);
+            path = path.From;
+            Assert.IsNull(path);
+        }
+
+        /// <summary>
+        /// Tests many to many calculations between vertices on a triangle.
         /// </summary>
         /// <remarks>
         /// Situation:
@@ -103,91 +140,147 @@ namespace OsmSharp.Routing.Test.Algorithms
         public void TestThreeEdges()
         {
             // build graph.
-            var graph = new Graph(EdgeDataSerializer.Size);
-            graph.AddVertex(0);
-            graph.AddVertex(1);
-            graph.AddVertex(2);
-            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Routing.Network.Data.EdgeData()
             {
                 Distance = 100,
-                Profile = 1
-            }));
-            graph.AddEdge(1, 2, EdgeDataSerializer.Serialize(new EdgeData()
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Routing.Network.Data.EdgeData()
             {
                 Distance = 100,
-                Profile = 1
-            }));
-            graph.AddEdge(0, 2, EdgeDataSerializer.Serialize(new EdgeData()
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(2, 0, new Routing.Network.Data.EdgeData()
             {
                 Distance = 100,
-                Profile = 1
-            }));
+                Profile = 0,
+                MetaId = 0
+            });
 
-            // build speed profile function.
-            var speed = 100f / 3.6f;
-            Func<ushort, Factor> getFactor = (x) =>
-            {
-                return new Factor()
-                {
-                    Direction = 0,
-                    Value = 1.0f / speed
-                };
-            };
-
-            // run algorithm 0->(1, 2).
-            var algorithm = new ManyToMany(graph, getFactor,
-                new List<IEnumerable<Path>>(
-                    new Path[][] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }
-                    }),
-                new List<IEnumerable<Path>>(
-                    new Path[][] { 
-                        new Path[] { new Path(0) },
-                        new Path[] { new Path(1) },
-                        new Path[] { new Path(2) }
-                    }), float.MaxValue);
-            algorithm.Run();
-
-            Assert.IsTrue(algorithm.HasRun);
+            // run algorithm (0, 1, 2)->(0, 1, 2).
+            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(),
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                },
+                new RouterPoint[] { 
+                    routerDb.Network.CreateRouterPointForVertex(0),
+                    routerDb.Network.CreateRouterPointForVertex(1),
+                    routerDb.Network.CreateRouterPointForVertex(2)
+                }, float.MaxValue);
+            algorithm.Run(); Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            Assert.AreEqual(0, algorithm.GetBestVertex(0, 0));
-            Assert.AreEqual(0, algorithm.GetBestWeight(0, 0), 0.001f);
-            Assert.AreEqual(new uint[] { 0 }, algorithm.GetPath(0, 0).ToArray());
+            var weights = algorithm.Weights;
+            Assert.IsNotNull(weights);
+            Assert.AreEqual(3, weights.Length);
+            Assert.AreEqual(3, weights[0].Length);
+            Assert.AreEqual(0, weights[0][0], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][1], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][2], 0.001);
+            Assert.AreEqual(3, weights[1].Length);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][0], 0.001);
+            Assert.AreEqual(0, weights[1][1], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][2], 0.001);
+            Assert.AreEqual(3, weights[2].Length);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][0], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][1], 0.001);
+            Assert.AreEqual(0, weights[2][2], 0.001);
 
-            Assert.AreEqual(1, algorithm.GetBestVertex(0, 1));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(0, 1), 0.001f);
-            Assert.AreEqual(new uint[] { 0, 1 }, algorithm.GetPath(0, 1).ToArray());
+            var path = algorithm.GetPath(0, 0);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(0, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(2, algorithm.GetBestVertex(0, 2));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(0, 2), 0.001f);
-            Assert.AreEqual(new uint[] { 0, 2 }, algorithm.GetPath(0, 2).ToArray());
+            path = algorithm.GetPath(0, 1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(1, path.Vertex);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(0, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(0, algorithm.GetBestVertex(1, 0));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(1, 0), 0.001f);
-            Assert.AreEqual(new uint[] { 1, 0 }, algorithm.GetPath(1, 0).ToArray());
+            path = algorithm.GetPath(0, 2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(2, path.Vertex);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(0, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(1, algorithm.GetBestVertex(1, 1));
-            Assert.AreEqual(0, algorithm.GetBestWeight(1, 1), 0.001f);
-            Assert.AreEqual(new uint[] { 1 }, algorithm.GetPath(1, 1).ToArray());
+            path = algorithm.GetPath(1, 0);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(0, path.Vertex);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(1, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path); 
+            
+            path = algorithm.GetPath(1, 1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(1, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(2, algorithm.GetBestVertex(1, 2));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(1, 2), 0.001f);
-            Assert.AreEqual(new uint[] { 1, 2 }, algorithm.GetPath(1, 2).ToArray());
+            path = algorithm.GetPath(1, 2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(2, path.Vertex);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(1, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(0, algorithm.GetBestVertex(2, 0));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(2, 0), 0.001f);
-            Assert.AreEqual(new uint[] { 2, 0 }, algorithm.GetPath(2, 0).ToArray());
+            path = algorithm.GetPath(2, 0);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(0, path.Vertex);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(2, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(1, algorithm.GetBestVertex(2, 1));
-            Assert.AreEqual(getFactor(1).Value * 100, algorithm.GetBestWeight(2, 1), 0.001f);
-            Assert.AreEqual(new uint[] { 2, 1 }, algorithm.GetPath(2, 1).ToArray());
+            path = algorithm.GetPath(2, 1);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(1, path.Vertex);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(2, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path);
 
-            Assert.AreEqual(2, algorithm.GetBestVertex(2, 2));
-            Assert.AreEqual(0, algorithm.GetBestWeight(2, 2), 0.001f);
-            Assert.AreEqual(new uint[] { 2 }, algorithm.GetPath(2, 2).ToArray());
+            path = algorithm.GetPath(2, 2);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(0, path.Weight, 0.001);
+            Assert.AreEqual(2, path.Vertex);
+            path = path.From;
+            Assert.IsNull(path); 
         }
     }
 }
