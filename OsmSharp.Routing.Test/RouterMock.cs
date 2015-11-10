@@ -110,7 +110,8 @@ namespace OsmSharp.Routing.Test
             {
                 return new Result<RouterPoint>("Outside of loaded network.");
             }
-            if(!isBetter(null))
+            if(isBetter != null &&
+               !isBetter(null))
             {
                 return new Result<RouterPoint>("Not better.");
             }
