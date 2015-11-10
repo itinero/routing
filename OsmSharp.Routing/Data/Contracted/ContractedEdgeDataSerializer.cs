@@ -34,7 +34,7 @@ namespace OsmSharp.Routing.Data.Contracted
         /// <summary>
         /// Holds the maxium distance that can be stored on an edge.
         /// </summary>
-        public const float MAX_DISTANCE = 4294967000 / 4 / PRECISION_FACTOR;
+        public static float MAX_DISTANCE = 4294967000 / 4 / PRECISION_FACTOR;
 
         /// <summary>
         /// Deserializes edges data.
