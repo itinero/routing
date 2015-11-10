@@ -197,7 +197,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Calculates the shape points along the way from this router point to another routerpoint on the same edge.
         /// </summary>
-        /// <returns></returns>
         public static List<ICoordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, RouterPoint other)
         {
             if (point.EdgeId != other.EdgeId) { throw new ArgumentException("Cannot build shape points list between router points on different edges."); }
@@ -224,7 +223,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the location.
         /// </summary>
-        /// <returns></returns>
         public static ICoordinate Location(this RouterPoint point)
         {
             return new GeoCoordinateSimple()
@@ -232,6 +230,22 @@ namespace OsmSharp.Routing
                 Latitude = point.Latitude,
                 Longitude = point.Longitude
             };
+        }
+
+        /// <summary>
+        /// Returns true if the router point matches exactly with the given vertex.
+        /// </summary>
+        public static bool IsVertex(this RouterPoint point)
+        {
+            if (point.Offset == 0)
+            { // offset is zero.
+                return true;
+            }
+            else if (point.Offset == ushort.MaxValue)
+            { // offset is max.
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -368,6 +382,15 @@ namespace OsmSharp.Routing
                 return edge.To;
             }
             return Constants.NO_VERTEX;
+        }
+
+        /// <summary>
+        /// Returns true if the given point is identical.
+        /// </summary>
+        public static bool IsIdenticalTo(this RouterPoint point, RouterPoint other)
+        {
+            return other.EdgeId == point.EdgeId &&
+                other.Offset == point.Offset;
         }
     }
 }

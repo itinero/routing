@@ -47,14 +47,9 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// Creates a new geometric graph.
         /// </summary>
         public GeometricGraph(int edgeDataSize)
+            : this(edgeDataSize, BLOCKSIZE)
         {
-            _graph = new Graph(edgeDataSize);
-            _coordinates = new MemoryArray<float>(BLOCKSIZE * 2);
-            for (var i = 0; i < _coordinates.Length; i++)
-            {
-                _coordinates[i] = NO_COORDINATE;
-            }
-            _shapes = new ShapesArray(BLOCKSIZE);
+
         }
 
         /// <summary>
@@ -69,6 +64,29 @@ namespace OsmSharp.Routing.Graphs.Geometric
                 _coordinates[i] = NO_COORDINATE;
             }
             _shapes = new ShapesArray(size);
+        }
+
+        /// <summary>
+        /// Creates a new geometric graph.
+        /// </summary>
+        public GeometricGraph(MemoryMap map, int edgeDataSize)
+            : this(map, edgeDataSize, BLOCKSIZE)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new geometric graph.
+        /// </summary>
+        public GeometricGraph(MemoryMap map, int edgeDataSize, int size)
+        {
+            _graph = new Graph(map, edgeDataSize, size);
+            _coordinates = new Array<float>(map, size * 2);
+            for (var i = 0; i < _coordinates.Length; i++)
+            {
+                _coordinates[i] = NO_COORDINATE;
+            }
+            _shapes = new ShapesArray(map, size);
         }
 
         /// <summary>

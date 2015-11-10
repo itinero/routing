@@ -55,89 +55,72 @@ namespace OsmSharp.Routing.Algorithms
         /// </summary>
         protected override void DoRun()
         {
+            if(_path.Count == 0)
+            { // an empty path.
+                this.ErrorMessage = "Path was empty.";
+                this.HasSucceeded = false;
+                return;
+            }
+
+            // check source.
+            var source = _path[0];
+            if (source != Constants.NO_VERTEX &&
+                !_source.IsVertex(_routerDb, source))
+            {
+                this.ErrorMessage = "The source is a vertex but the source is not a match.";
+                this.HasSucceeded = false;
+                return;
+            }
+
+            // check target.
+            var target = _path[_path.Count - 1];
+            if (target != Constants.NO_VERTEX &&
+                !_target.IsVertex(_routerDb, target))
+            {
+                this.ErrorMessage = "The target is a vertex but the target is not a match.";
+                this.HasSucceeded = false;
+                return;
+            }
+
             // build the route.
             _route = new Route();
             _route.Segments = new List<RouteSegment>();
-            if (_path.Count == 1)
-            { // only one vertex, route has length of zero.
-                if (_source.EdgeId != _target.EdgeId ||
-                    _source.Offset != _target.Offset)
-                { // a route of one vertex but source and target do not match.
-                    this.ErrorMessage = "Target and source have to be indentical with a route with only one vertex.";
-                    return;
-                }
-                var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
-                segment.SetStop(new ICoordinate[] { _source.Location(), _target.Location() },
-                    new TagsCollectionBase[] { _source.Tags, _target.Tags });
-                _route.Segments.Add(segment);
-                this.HasSucceeded = true;
-                return;
-            }
-            if (_path.Count == 2 && (
-                _path[1] == Constants.NO_VERTEX ||
-                _target.IsVertex(_routerDb, _path[1])))
-            { // this path represents a short path located within one edge or the edge max.
-                this.AddSourceTarget();
-                this.HasSucceeded = true;
-                return;
-            }
-
-            // path is longer, at least one real vertex in there.
-            // build the route by expanding the edges/shapes.
-
-            // add the source.
-            if (_path.Count ==  3 &&
-                _path[2] == Constants.NO_VERTEX ||
-                _target.IsVertex(_routerDb, _path[2]))
-            { // the next one is the next one of the target.
-                this.AddSource(_path[1], _routerDb.Network.GetEdge(_source.EdgeId).GetOther(_path[1]),
-                    _routerDb.Network.GetEdge(_target.EdgeId).GetOther(_path[1]));
-                this.AddTarget(_path[1]);
-                this.HasSucceeded = true;
-                return;
-            }
 
             // add source.
-            var offset = 1;
-            if(_source.IsVertex(_routerDb, _path[0]))
-            { // just add the first edge as normal.
-                this.AddSource(_path[0]);
-                offset = 0;
+            this.AddSource();
+
+            if(_path.Count == 1)
+            { // there is only the source/target location.
+                this.HasSucceeded = true;
             }
             else
-            { // add the source.
-                this.AddSource(_path[1], _routerDb.Network.GetEdge(_source.EdgeId).GetOther(_path[1]),
-                    _path[2]);
+            { // there are at least two points.
+                var i = 0;
+                for(i = 0; i < _path.Count - 2; i++)
+                {
+                    this.Add(_path[i], _path[i + 1], _path[i + 2]);
+                }
+                this.Add(_path[i], _path[i + 1]);
+                this.HasSucceeded = true;
             }
 
-            // add intermediate points.
-            while(offset < _path.Count - 2)
-            {
-                if(_path[offset + 2] == Constants.NO_VERTEX)
-                { // next is target.
-                    this.Add(_path[offset + 1], _path[offset + 0], _routerDb.Network.GetEdge(_target.EdgeId).GetOther(
-                        _path[offset + 1]));
-
-                    // add the target.
-                    this.AddTarget(_path[_path.Count - 2]);
-                    this.HasSucceeded = true;
-                    break;
-                }
-                else if(_target.IsVertex(_routerDb, _path[offset + 2]))
-                { // next is the target, last is a vertex.
-                    this.Add(_path[offset + 1], _path[offset + 0], _path[offset + 2]);
-
-                    // add the target.
-                    this.AddTarget(_path[_path.Count - 1], _path[_path.Count - 2]);
-                    this.HasSucceeded = true;
-                    break;
-                }
-                else
-                { // next is regular edge.
-                    this.Add(_path[offset + 1], _path[offset + 0], _path[offset + 2]);
-                    offset++; // move to next vertex.
-                }
+            // set stops.
+            if(_route.Segments.Count == 1)
+            { // only a source/target.
+                _route.Segments[0].SetStop(
+                    new ICoordinate[] { 
+                        _source.Location(),
+                        _target.Location() 
+                    },
+                    new TagsCollectionBase[] 
+                    {
+                        _source.Tags,
+                        _target.Tags 
+                    });
+                return;
             }
+            _route.Segments[0].SetStop(_source.Location(), _source.Tags);
+            _route.Segments[_route.Segments.Count - 1].SetStop(_target.Location(), _target.Tags);
         }
 
         /// <summary>
@@ -152,198 +135,183 @@ namespace OsmSharp.Routing.Algorithms
         }
 
         /// <summary>
-        /// Adds all segments between source and target when they are on the same edge.
+        /// Adds the source.
         /// </summary>
-        private void AddSourceTarget()
-        {
-            if (_source.EdgeId != _target.EdgeId)
-            { // a route of one vertex but source and target do not match.
-                this.ErrorMessage = "Target and source have to be on the same vertex with a route with only virtual vertices.";
-                return;
+        private void AddSource()
+        { // add source.
+            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
+            _route.Segments.Add(segment);
+        }
+
+        /// <summary>
+        /// Adds the shape point between from and to and the target location itself.
+        /// </summary>
+        private void Add(uint from, uint to)
+        { 
+            if(from == Constants.NO_VERTEX &&
+                _source.IsVertex())
+            { // replace from with the vertex.
+                from = _source.VertexId(_routerDb);
+            }
+            if (to == Constants.NO_VERTEX &&
+                _target.IsVertex())
+            { // replace to with the vertex.
+                to = _target.VertexId(_routerDb);
+            }
+
+            // get shapepoints and edge.
+            var shape = new List<ICoordinate>(0);
+            RoutingEdge edge = null;
+            ICoordinate targetLocation = null;
+            if(from == Constants.NO_VERTEX &&
+               to == Constants.NO_VERTEX)
+            { // from is the source and to is the target.
+                if (_source.EdgeId != _target.EdgeId)
+                { // a route inside one edge but source and target do not match.
+                    this.ErrorMessage = "Target and source have to be on the same vertex with a route with only virtual vertices.";
+                    return;
+                }
+                shape = _source.ShapePointsTo(_routerDb, _target);
+                edge = _routerDb.Network.GetEdge(_source.EdgeId);
+                targetLocation = _target.Location();
+            }
+            else if(from == Constants.NO_VERTEX)
+            { // from is the source and to is a regular vertex.
+                edge = _routerDb.Network.GetEdge(_source.EdgeId);
+                shape = _source.ShapePointsTo(_routerDb, _routerDb.Network.CreateRouterPointForVertex(to, 
+                    edge.GetOther(to)));
+                targetLocation = _routerDb.Network.GetVertex(to);
+            }
+            else if(to == Constants.NO_VERTEX)
+            { // from is a regular vertex and to is the target.
+                edge = _routerDb.Network.GetEdge(_target.EdgeId);
+                shape = _routerDb.Network.CreateRouterPointForVertex(from, edge.GetOther(from)).ShapePointsTo(
+                    _routerDb, _target);
+                targetLocation = _target.Location();
+            }
+            else
+            { // both are just regular vertices.
+                edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                var shapeEnumerable = edge.Shape;
+                if (shapeEnumerable != null)
+                {
+                    if (edge.DataInverted)
+                    {
+                        shapeEnumerable = shapeEnumerable.Reverse();
+                    }
+                    shape.AddRange(shapeEnumerable);
+                }
+                targetLocation = _routerDb.Network.GetVertex(to);
             }
 
             // get edge details.
-            var edge = _routerDb.Network.GetEdge(_source.EdgeId);
             var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
             var speed = _vehicleProfile.Speed(profile);
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(profile);
-            if (meta != null) { tags.AddOrReplace(meta); }
+            var tags = new TagsCollection(meta);
+            tags.AddOrReplace(profile);
 
-            // build segments along the shape between the two virtual points.
-            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
-            segment.SetStop(_source.Location(), _source.Tags);
-            _route.Segments.Add(segment);
-            var shapePoints = _source.ShapePointsTo(_routerDb, _target);
-
-            for (var i = 0; i < shapePoints.Count; i++)
+            // add shape and target.
+            RouteSegment segment;
+            for (var i = 0; i < shape.Count; i++)
             {
-                segment = RouteSegment.CreateNew(shapePoints[i], _vehicleProfile);
+                segment = RouteSegment.CreateNew(shape[i], _vehicleProfile);
                 segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
                 _route.Segments.Add(segment);
             }
-
-            // add the target.
-            segment = RouteSegment.CreateNew(_target.Location(), _vehicleProfile);
+            segment = RouteSegment.CreateNew(targetLocation, _vehicleProfile);
             segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-            segment.SetStop(_target.Location(), _target.Tags);
             _route.Segments.Add(segment);
         }
 
         /// <summary>
-        /// Adds the segments from source to the given vertex.
+        /// Adds the shape point between from and to and the target location itself.
         /// </summary>
-        private void AddSource(uint vertex)
+        private void Add(uint from, uint to, uint next)
         {
-            // add source.
-            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
-            segment.SetStop(_source.Location(), _source.Tags);
-            _route.Segments.Add(segment);
-        }
+            if (from == Constants.NO_VERTEX &&
+                _source.IsVertex())
+            { // replace from with the vertex.
+                from = _source.VertexId(_routerDb);
+            }
+            if (next == Constants.NO_VERTEX &&
+                _target.IsVertex())
+            { // replace next with the vertex.
+                next = _target.VertexId(_routerDb);
+            }
 
-        /// <summary>
-        /// Adds the segments from source to the given vertex.
-        /// </summary>
-        private void AddSource(uint vertex, uint previousVertex, uint nextVertex)
-        {
-            // add source.
-            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
-            segment.SetStop(_source.Location(), _source.Tags);
-            _route.Segments.Add(segment);
+            // get shapepoints and edge.
+            var shape = new List<ICoordinate>(0);
+            RoutingEdge edge = null;
+            ICoordinate targetLocation = null;
+            if (from == Constants.NO_VERTEX &&
+               to == Constants.NO_VERTEX)
+            { // from is the source and to is the target.
+                if (_source.EdgeId != _target.EdgeId)
+                { // a route inside one edge but source and target do not match.
+                    this.ErrorMessage = "Target and source have to be on the same vertex with a route with only virtual vertices.";
+                    return;
+                }
+                shape = _source.ShapePointsTo(_routerDb, _target);
+                edge = _routerDb.Network.GetEdge(_source.EdgeId);
+                targetLocation = _target.Location();
+            }
+            else if (from == Constants.NO_VERTEX)
+            { // from is the source and to is a regular vertex.
+                edge = _routerDb.Network.GetEdge(_source.EdgeId);
+                shape = _source.ShapePointsTo(_routerDb, _routerDb.Network.CreateRouterPointForVertex(to,
+                    edge.GetOther(to)));
+                targetLocation = _routerDb.Network.GetVertex(to);
+            }
+            else if (to == Constants.NO_VERTEX)
+            { // from is a regular vertex and to is the target.
+                edge = _routerDb.Network.GetEdge(_target.EdgeId);
+                shape = _routerDb.Network.CreateRouterPointForVertex(from, edge.GetOther(from)).ShapePointsTo(
+                    _routerDb, _target);
+                targetLocation = _target.Location();
+            }
+            else
+            { // both are just regular vertices.
+                edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                var shapeEnumerable = edge.Shape;
+                if (shapeEnumerable != null)
+                {
+                    if (edge.DataInverted)
+                    {
+                        shapeEnumerable = shapeEnumerable.Reverse();
+                    }
+                    shape.AddRange(shapeEnumerable);
+                }
+                targetLocation = _routerDb.Network.GetVertex(to);
+            }
 
-            // expand source->first core vertex.
-            var edge = _routerDb.Network.GetEdge(_source.EdgeId);
+            // get edge details.
             var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
             var speed = _vehicleProfile.Speed(profile);
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(profile);
-            if (meta != null) { tags.AddOrReplace(meta); }
+            var tags = new TagsCollection(meta);
+            tags.AddOrReplace(profile);
 
-            // shapepoints.
-            var shapePoints = _source.ShapePointsTo(_routerDb, vertex);
-            for (var i = 0; i < shapePoints.Count; i++)
+            // add shape and target.
+            RouteSegment segment;
+            for (var i = 0; i < shape.Count; i++)
             {
-                segment = RouteSegment.CreateNew(shapePoints[i], _vehicleProfile);
+                segment = RouteSegment.CreateNew(shape[i], _vehicleProfile);
                 segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
                 _route.Segments.Add(segment);
             }
-            segment = RouteSegment.CreateNew(_routerDb.Network.GetVertex(vertex), _vehicleProfile);
+            segment = RouteSegment.CreateNew(targetLocation, _vehicleProfile);
             segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-            segment.SetSideStreets(_routerDb, vertex, _source.EdgeId, nextVertex);
-            _route.Segments.Add(segment);
-        }
 
-        /// <summary>
-        /// Adds the segments from the previous vertex to the given vertex.
-        /// </summary>
-        private void Add(uint vertex, uint previousVertex, uint nextVertex)
-        {
-            RouteSegment segment;
-
-            // get edge.
-            var edge = _routerDb.Network.GetEdgeEnumerator(previousVertex).First(x => x.To == vertex);
-            var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(profile);
-            if (meta != null) { tags.AddOrReplace(meta); }
-
-            // expand shape between previous and vertex.
-            var shape = edge.Shape;
-            if (shape != null)
+            // add sidestreets.
+            if(from == Constants.NO_VERTEX)
             {
-                if (edge.DataInverted)
-                { // invert if data is inverted.
-                    shape = shape.Reverse();
-                }
-                var shapeEnumerator = shape.GetEnumerator();
-                shapeEnumerator.Reset();
-                while (shapeEnumerator.MoveNext())
-                { // create the segment and set details.
-                    segment = RouteSegment.CreateNew(shapeEnumerator.Current, _vehicleProfile);
-                    segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-                    _route.Segments.Add(segment);
-                }
+                from = edge.GetOther(to);
             }
-
-            // add the actual vertex.
-            segment = RouteSegment.CreateNew(_routerDb.Network.GetVertex(vertex), _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-            segment.SetSideStreets(_routerDb, vertex, _source.EdgeId, nextVertex);
+            segment.SetSideStreets(_routerDb, from, edge.Id, next);
             _route.Segments.Add(segment);
         }
 
-        /// <summary>
-        /// Adds the segments from the vertex to the target.
-        /// </summary>
-        private void AddTarget(uint vertex)
-        {
-            RouteSegment segment;
-
-            // get edge.
-            var edge = _routerDb.Network.GetEdge(_target.EdgeId);
-            var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(profile);
-            if (meta != null) { tags.AddOrReplace(meta); }
-
-            // shapepoints.
-            var shapePoints = _target.ShapePointsTo(_routerDb, vertex);
-            shapePoints.Reverse();
-            for (var i = 0; i < shapePoints.Count; i++)
-            {
-                segment = RouteSegment.CreateNew(shapePoints[i], _vehicleProfile);
-                segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-                _route.Segments.Add(segment);
-            }
-
-            // add the actual target.
-            segment = RouteSegment.CreateNew(_target.Location(), _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-            segment.SetStop(_target.Location(), _target.Tags);
-            _route.Segments.Add(segment);
-        }
-
-        /// <summary>
-        /// Adds the segments from the previous vertex to the target when the target is a vertex.
-        /// </summary>
-        private void AddTarget(uint vertex, uint previousVertex)
-        {
-            RouteSegment segment;
-
-            // get edge.
-            var edge = _routerDb.Network.GetEdgeEnumerator(previousVertex).First(x => x.To == vertex);
-            var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(profile);
-            if (meta != null) { tags.AddOrReplace(meta); }
-
-            // expand shape between previous and vertex.
-            var shape = edge.Shape;
-            if (shape != null)
-            {
-                if (edge.DataInverted)
-                { // invert if data is inverted.
-                    shape = shape.Reverse();
-                }
-                var shapeEnumerator = shape.GetEnumerator();
-                shapeEnumerator.Reset();
-                while (shapeEnumerator.MoveNext())
-                { // create the segment and set details.
-                    segment = RouteSegment.CreateNew(shapeEnumerator.Current, _vehicleProfile);
-                    segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-                    _route.Segments.Add(segment);
-                }
-            }
-
-            // add the actual vertex.
-            segment = RouteSegment.CreateNew(_routerDb.Network.GetVertex(vertex), _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-            _route.Segments.Add(segment);
-        }
-        
         /// <summary>
         /// Builds a route.
         /// </summary>

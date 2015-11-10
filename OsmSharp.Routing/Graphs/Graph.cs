@@ -111,13 +111,13 @@ namespace OsmSharp.Routing.Graphs
         /// <summary>
         /// Creates a new using the given file.
         /// </summary>
-        public Graph(MemoryMap file, int edgeDataSize, long estimatedSize)
+        public Graph(MemoryMap map, int edgeDataSize, long estimatedSize)
         {
             _edgeDataSize = edgeDataSize;
             _edgeSize = MINIMUM_EDGE_SIZE + edgeDataSize;
 
-            _vertices = new Array<uint>(file, estimatedSize);
-            _edges = new Array<uint>(file, estimatedSize * 3 * _edgeSize);
+            _vertices = new Array<uint>(map, estimatedSize);
+            _edges = new Array<uint>(map, estimatedSize * 3 * _edgeSize);
         }
 
         private uint _nextEdgeId;

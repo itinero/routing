@@ -79,6 +79,11 @@ namespace OsmSharp.Routing.Algorithms.Default
                 { // still a need to search, not best found or max < best.
                     target = _targetSearch.Step();
                 }
+
+                if(this.HasSucceeded)
+                {
+                    break;
+                }
             }
         }
 

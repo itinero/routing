@@ -25,6 +25,7 @@ using System.IO;
 using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Profiles;
 using System;
+using Reminiscence.IO;
 
 namespace OsmSharp.Routing
 {
@@ -48,6 +49,19 @@ namespace OsmSharp.Routing
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
             _edgeProfiles = new AttributesIndex(false, true);
             _meta = new AttributesIndex();
+
+            _supportedProfiles = new HashSet<string>();
+            _contracted = new Dictionary<string, DirectedMetaGraph>();
+        }
+
+        /// <summary>
+        /// Creates a new router database.
+        /// </summary>
+        public RouterDb(MemoryMap map)
+        {
+            _network = new RoutingNetwork(map, new Graphs.Geometric.GeometricGraph(map, 1));
+            _edgeProfiles = new AttributesIndex(map, true);
+            _meta = new AttributesIndex(map);
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
