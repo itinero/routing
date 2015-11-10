@@ -48,9 +48,9 @@
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Reminiscence, Version=0.0.0.16, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\reminiscence\Output\Reminiscence.dll</HintPath>
+    <Reference Include="Reminiscence, Version=0.0.0.17, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.0.0.0.17-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
