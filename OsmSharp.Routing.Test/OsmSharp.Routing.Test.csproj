@@ -104,6 +104,7 @@
     <Compile Include="Algorithms\Search\HibertTests.cs" />
     <Compile Include="Algorithms\Search\MockResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
+    <Compile Include="Algorithms\WeightMatrixAlgorithmTests.cs" />
     <Compile Include="Attributes\AttributesIndexTests.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializerTests.cs" />
     <Compile Include="Data\EdgeDataSerializerTests.cs" />
@@ -130,6 +131,7 @@
     <Compile Include="Osm\Vehicles\VehiclePedestrianTests.cs" />
     <Compile Include="Osm\Vehicles\VehicleSmallTruckTests.cs" />
     <Compile Include="RouterDbTests.cs" />
+    <Compile Include="RouterMock.cs" />
     <Compile Include="RouterPointTests.cs" />
     <Compile Include="RouterTests.cs" />
     <Compile Include="TestNetworkBuilder.cs" />
