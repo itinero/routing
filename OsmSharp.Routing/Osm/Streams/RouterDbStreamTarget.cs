@@ -22,10 +22,10 @@ using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.LongIndex;
 using OsmSharp.Collections.LongIndex.LongIndex;
 using OsmSharp.Collections.Tags;
-using OsmSharp.Routing.Network;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Osm;
 using OsmSharp.Osm.Streams;
+using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Osm.Vehicles;
 using System;
 using System.Collections.Generic;
@@ -101,6 +101,41 @@ namespace OsmSharp.Routing.Osm.Streams
             _firstPass = false;
 
             return true;
+        }
+
+        /// <summary>
+        /// Registers the source.
+        /// </summary>
+        public override void RegisterSource(OsmStreamSource source)
+        {
+            var eventsFilter = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterWithEvents();
+            eventsFilter.MovedToNextEvent += (osmGeo, param) =>
+                {
+                    if (osmGeo.Type == OsmSharp.Osm.OsmGeoType.Way)
+                    {
+                        var tags = new TagsCollection(osmGeo.Tags);
+                        foreach (var tag in tags)
+                        {
+                            var relevant = false;
+                            for (var i = 0; i < _vehicles.Length; i++)
+                            {
+                                if (_vehicles[i].IsRelevant(tag.Key, tag.Value))
+                                {
+                                    relevant = true;
+                                    break;
+                                }
+                            }
+
+                            if(!relevant)
+                            {
+                                osmGeo.Tags.RemoveKeyValue(tag.Key, tag.Value);
+                            }
+                        }
+                    }
+                };
+            eventsFilter.RegisterSource(source);
+
+            base.RegisterSource(eventsFilter);
         }
 
         /// <summary>
