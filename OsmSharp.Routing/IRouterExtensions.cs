@@ -131,6 +131,21 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
+        public static RouterPoint[] Resolve(this IRouter router, Profile profile, ICoordinate[] coordinates)
+        {
+            var results = router.TryResolve(profile, coordinates);
+            var routerPoints = new RouterPoint[results.Length];
+            for(var i = 0; i < results.Length; i++)
+            {
+                routerPoints[i] = results[i].Value;
+            }
+            return routerPoints;
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
         {
             return router.TryResolve(profiles, latitude, longitude).Value;
