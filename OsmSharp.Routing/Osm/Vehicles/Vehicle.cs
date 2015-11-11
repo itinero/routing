@@ -418,7 +418,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <returns></returns>
         public Profiles.Profile Fastest()
         {
-            return new Profiles.Profile(this.UniqueName + ".Fastest", (tags) =>
+            return new Profiles.Profile(this.UniqueName, (tags) =>
                 {
                     if (this.CanTraverse(tags))
                     {
