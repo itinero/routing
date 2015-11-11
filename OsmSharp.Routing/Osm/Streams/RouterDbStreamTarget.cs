@@ -106,10 +106,12 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Registers the source.
         /// </summary>
-        public override void RegisterSource(OsmStreamSource source)
+        public virtual void RegisterSource(OsmStreamSource source, bool filterNonRoutingTags)
         {
-            var eventsFilter = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterWithEvents();
-            eventsFilter.MovedToNextEvent += (osmGeo, param) =>
+            if (filterNonRoutingTags)
+            { // add filtering.
+                var eventsFilter = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterWithEvents();
+                eventsFilter.MovedToNextEvent += (osmGeo, param) =>
                 {
                     if (osmGeo.Type == OsmSharp.Osm.OsmGeoType.Way)
                     {
@@ -126,16 +128,29 @@ namespace OsmSharp.Routing.Osm.Streams
                                 }
                             }
 
-                            if(!relevant)
+                            if (!relevant)
                             {
                                 osmGeo.Tags.RemoveKeyValue(tag.Key, tag.Value);
                             }
                         }
                     }
                 };
-            eventsFilter.RegisterSource(source);
+                eventsFilter.RegisterSource(source);
 
-            base.RegisterSource(eventsFilter);
+                base.RegisterSource(eventsFilter);
+            }
+            else
+            { // no filtering.
+                base.RegisterSource(source);
+            }
+        }
+
+        /// <summary>
+        /// Registers the source.
+        /// </summary>
+        public override void RegisterSource(OsmStreamSource source)
+        {
+            this.RegisterSource(source, true);
         }
 
         /// <summary>
