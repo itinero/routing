@@ -172,7 +172,7 @@ namespace OsmSharp.Routing
         /// Returns true if all of the given profiles are supported.
         /// </summary>
         /// <returns></returns>
-        public static bool SupportsAll(this RouterDb db, Profiles.Profile[] profiles)
+        public static bool SupportsAll(this RouterDb db, params Profiles.Profile[] profiles)
         {
             for (var i = 0; i < profiles.Length; i++)
             {
