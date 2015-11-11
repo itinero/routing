@@ -149,11 +149,13 @@
     <Compile Include="RouterPointExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OsmSharp">
-      <HintPath>..\..\..\core\Output\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=0.0.0.49, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.49-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp.Osm">
-      <HintPath>..\..\..\core\Output\OsmSharp.Osm.dll</HintPath>
+    <Reference Include="OsmSharp.Osm, Version=0.0.0.49, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.0.0.0.49-beta\lib\portable-net40+sl4+win8+wp7\OsmSharp.Osm.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
