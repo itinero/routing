@@ -141,6 +141,14 @@ namespace OsmSharp.Routing.Profiles
         }
 
         /// <summary>
+        /// Gets all registered profiles.
+        /// </summary>
+        public static IEnumerable<Profile> GetAllRegistered()
+        {
+            return _staticProfiles.Values;
+        }
+
+        /// <summary>
         /// Tries to get a profile for the given name.
         /// </summary>
         public static bool TryGet(string name, out Profile profile)

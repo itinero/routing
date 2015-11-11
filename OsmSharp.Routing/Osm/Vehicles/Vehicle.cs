@@ -116,8 +116,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the vehicle with the given name.
         /// </summary>
-        /// <param name="uniqueName"></param>
-        /// <returns></returns>
         public static Vehicle GetByUniqueName(string uniqueName)
         {
             Vehicle vehicle;
@@ -129,11 +127,17 @@ namespace OsmSharp.Routing.Osm.Vehicles
         }
 
         /// <summary>
+        /// Gets all registered vehicles.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Vehicle> GetAllRegistered()
+        {
+            return VehiclesByName.Values;
+        }
+
+        /// <summary>
         /// Tries to the the vehicle given it's unique name.
         /// </summary>
-        /// <param name="uniqueName"></param>
-        /// <param name="vehicle"></param>
-        /// <returns></returns>
         public static bool TryGetByUniqueName(string uniqueName, out Vehicle vehicle)
         {
             if (uniqueName == null) { throw new ArgumentNullException("uniqueName"); }
