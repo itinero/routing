@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.IO;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
+using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
 
@@ -458,7 +458,7 @@ namespace OsmSharp.Routing.Graphs.Directed
             else
             { // create accessors over the exact part of the stream that represents vertices/edges.
                 var position = stream.Position;
-                var map1 = new MemoryMapStream(new CappedStream(stream, size,
+                var map1 = new MemoryMapStream(new CappedStream(stream, position,
                     edgeLength * edgeSize * 4));
                 edges = new Array<uint>(map1.CreateUInt32(edgeLength * edgeSize), profile.EdgeMetaProfile);
                 size += edgeLength * edgeSize * 4;
