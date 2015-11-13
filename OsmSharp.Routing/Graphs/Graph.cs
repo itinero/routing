@@ -17,9 +17,9 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Sorting;
-using OsmSharp.IO;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
+using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
 
