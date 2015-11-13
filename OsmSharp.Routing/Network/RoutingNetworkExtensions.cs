@@ -246,5 +246,30 @@ namespace OsmSharp.Routing.Network
                 Profile = profile
             }, new ShapeEnumerable(shape));
         }
+
+        /// <summary>
+        /// Merges vertex2 into vertex1.
+        /// </summary>
+        public static void MergeVertices(this RoutingNetwork network, uint vertex1, uint vertex2)
+        {
+            // get and save edge for vertex2.
+            var vertex2Edges = new List<RoutingEdge>(network.GetEdgeEnumerator(vertex2));
+
+            // remove edges.
+            network.RemoveEdges(vertex2);
+
+            // add edges.
+            for(var i = 0; i < vertex2Edges.Count; i++)
+            {
+                if (!vertex2Edges[i].DataInverted)
+                { // not inverted, add as vertex1 -> to.
+                    network.AddEdge(vertex1, vertex2Edges[i].To, vertex2Edges[i].Data, vertex2Edges[i].Shape);
+                }
+                else
+                { // inverted, add as to -> vertex1.
+                    network.AddEdge(vertex2Edges[i].To, vertex1, vertex2Edges[i].Data, vertex2Edges[i].Shape);
+                }
+            }
+        }
     }
 }

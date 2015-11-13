@@ -56,6 +56,7 @@
     <Compile Include="Algorithms\IWeightMatrixAlgorithm.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizer.cs" />
     <Compile Include="Algorithms\Default\OneToMany.cs" />
+    <Compile Include="Algorithms\Networks\ZeroLengthLinksOptimizer.cs" />
     <Compile Include="Algorithms\RouteBuilder.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Path.cs" />
