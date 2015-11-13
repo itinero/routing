@@ -134,6 +134,7 @@ namespace OsmSharp.Routing.Osm.Streams
                             }
                         }
                     }
+                    return osmGeo;
                 };
                 eventsFilter.RegisterSource(source);
 
