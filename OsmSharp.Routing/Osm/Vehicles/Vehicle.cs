@@ -348,6 +348,10 @@ namespace OsmSharp.Routing.Osm.Vehicles
                 {
                     return true;
                 }
+                else if (oneway == "no")
+                { // explicitly tagged as not oneway.
+                    return null;
+                }
                 return false;
             }
             string junction;
