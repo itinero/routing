@@ -44,6 +44,14 @@ namespace OsmSharp.Routing.Osm
         /// </summary>
         public static void LoadOsmData(this RouterDb db, Stream data, params Vehicles.Vehicle[] vehicles)
         {
+            db.LoadOsmData(data, false, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore, params Vehicles.Vehicle[] vehicles)
+        {
             if (!db.IsEmpty)
             {
                 throw new ArgumentException("Can only load a new routing network into an empty router db.");
@@ -59,6 +67,14 @@ namespace OsmSharp.Routing.Osm
         /// </summary>
         public static void LoadOsmData(this RouterDb db, OsmStreamSource source, params Vehicles.Vehicle[] vehicles)
         {
+            db.LoadOsmData(source, false, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore, params Vehicles.Vehicle[] vehicles)
+        {
             if (!db.IsEmpty)
             {
                 throw new ArgumentException("Can only load a new routing network into an empty router db.");
@@ -66,7 +82,7 @@ namespace OsmSharp.Routing.Osm
 
             // load the data.
             var target = new OsmSharp.Routing.Osm.Streams.RouterDbStreamTarget(db,
-                vehicles);
+                vehicles, allCore);
             target.RegisterSource(source);
             target.Pull();
 
