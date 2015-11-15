@@ -152,7 +152,7 @@ namespace OsmSharp.Routing.Attributes
             _tagsIndex = tagsIndex;
             _isReadonly = true;
             _index = index;
-            _nextId = uint.MaxValue;
+            _nextId = (uint)index.Length;
 
             _stringReverseIndex = null;
             _tagsReverseIndex = null;
