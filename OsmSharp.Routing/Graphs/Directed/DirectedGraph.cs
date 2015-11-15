@@ -636,18 +636,21 @@ namespace OsmSharp.Routing.Graphs.Directed
                 _vertices[vertexPointer + FIRST_EDGE] = pointer / (uint)_edgeSize;
                 for (uint e = 0; e < count * (uint)_edgeSize; e += (uint)_edgeSize)
                 {
-                    _edges[pointer + e] = _edges[edgePointer + e];
-                    for (var j = 0; j < _edgeDataSize; j++)
+                    if (pointer != edgePointer)
                     {
-                        _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
-                            _edges[edgePointer + e + MINIMUM_EDGE_SIZE + j];
-                    }
+                        _edges[pointer + e] = _edges[edgePointer + e];
+                        for (var j = 0; j < _edgeDataSize; j++)
+                        {
+                            _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
+                                _edges[edgePointer + e + MINIMUM_EDGE_SIZE + j];
+                        }
 
-                    // report on the move.
-                    if (_switchEdge != null)
-                    {
-                        _switchEdge((uint)((edgePointer + e) / _edgeSize),
-                            (uint)((pointer + e) / _edgeSize));
+                        // report on the move.
+                        if (_switchEdge != null)
+                        {
+                            _switchEdge((uint)((edgePointer + e) / _edgeSize),
+                                (uint)((pointer + e) / _edgeSize));
+                        }
                     }
                 }
 

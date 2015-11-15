@@ -79,7 +79,7 @@ namespace OsmSharp.Routing.Graphs
                 _maxVertex = (uint)(vertices.Length - 1);
             }
             _edges = edges;
-            _nextEdgeId = (uint)(edges.Length + 1);
+            _nextEdgeId = (uint)(edges.Length);
             _edgeCount = _nextEdgeId / _edgeSize;
         }
 
@@ -651,6 +651,12 @@ namespace OsmSharp.Routing.Graphs
         /// <param name="updateEdgeId">The edge id's may change. This action can be used to hook into every change.</param>
         public void Compress(Action<uint, uint> updateEdgeId)
         {
+            //// check if compression is needed.
+            //if (_edgeCount == _edges.Length / _edgeSize)
+            //{ // no need, data structures already at their smallest possible size.
+            //    return;
+            //}
+
             // move edges down.
             uint maxAllocatedEdgeId = 0;
             for (uint edgePointer = 0; edgePointer < _nextEdgeId; edgePointer = (uint)(edgePointer + _edgeSize))

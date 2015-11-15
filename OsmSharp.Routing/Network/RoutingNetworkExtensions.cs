@@ -230,6 +230,10 @@ namespace OsmSharp.Routing.Network
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
             IEnumerable<ICoordinate> shape)
         {
+            if(shape == null)
+            {
+                return network.AddEdge(vertex1, vertex2, data, (ShapeEnumerable)null);
+            }
             return network.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
         }
 

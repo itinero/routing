@@ -146,7 +146,6 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Gets the length of an edge.
         /// </summary>
-        /// <returns></returns>
         public static float Length(this GeometricGraph graph, GeometricEdge edge)
         {
             var totalLength = 0.0f;
@@ -177,7 +176,6 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Gets the shape points including the two vertices.
         /// </summary>
-        /// <returns></returns>
         public static List<ICoordinate> GetShape(this GeometricGraph graph, GeometricEdge geometricEdge)
         {
             var points = new List<ICoordinate>();
