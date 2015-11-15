@@ -651,11 +651,11 @@ namespace OsmSharp.Routing.Graphs
         /// <param name="updateEdgeId">The edge id's may change. This action can be used to hook into every change.</param>
         public void Compress(Action<uint, uint> updateEdgeId)
         {
-            //// check if compression is needed.
-            //if (_edgeCount == _edges.Length / _edgeSize)
-            //{ // no need, data structures already at their smallest possible size.
-            //    return;
-            //}
+            // check if compression is needed.
+            if (_edgeCount == _edges.Length / _edgeSize)
+            { // no need, data structures already at their smallest possible size.
+                return;
+            }
 
             // move edges down.
             uint maxAllocatedEdgeId = 0;
