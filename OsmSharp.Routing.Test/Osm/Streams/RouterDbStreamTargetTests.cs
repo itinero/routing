@@ -628,6 +628,129 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         }
 
         /// <summary>
+        /// Tests adding a very long edge.
+        /// </summary>
+        [Test]
+        public void TestLongEdge()
+        {
+            // build source stream with one way:
+            //         
+            //         (1)
+            //          |
+            //          |
+            //         (2)
+            //        
+
+            var location1 = new GeoCoordinateSimple() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
+            var location2 = new GeoCoordinateSimple() { Latitude = 51.19282276127831f, Longitude = 4.5867919921875f };
+            var location3 = new GeoCoordinateSimple() { Latitude = 51.05807338112719f, Longitude = 4.5867919921875f };
+            var source = new OsmGeo[] {
+                Node.Create(1, location1.Latitude, location1.Longitude),
+                Node.Create(2, location2.Latitude, location2.Longitude),
+                Node.Create(3, location3.Latitude, location3.Longitude),
+                Way.Create(1, new TagsCollection(
+                    Tag.Create("highway", "residential")), 1, 2, 3)
+                }.ToOsmStreamSource();
+
+            // build db from stream.
+            var routerDb = new RouterDb();
+            var target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+            var edge1 = routerDb.Network.GetEdge(0);
+            var edge2 = routerDb.Network.GetEdge(1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3),
+                edge1.Data.Distance + edge2.Data.Distance, 0.2);
+
+            source = new OsmGeo[] {
+                Node.Create(1, location1.Latitude, location1.Longitude),
+                Node.Create(3, location3.Latitude, location3.Longitude),
+                Way.Create(1, new TagsCollection(
+                    Tag.Create("highway", "residential")), 1, 3)
+                }.ToOsmStreamSource();
+
+            // build db from stream.
+            routerDb = new RouterDb();
+            target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            Assert.Catch<System.Exception>(() => target.Pull());
+
+            location1 = new GeoCoordinateSimple() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
+            location2 = new GeoCoordinateSimple() { Latitude = 51.26005008781385f, Longitude = 4.5867919921875f };
+            location3 = new GeoCoordinateSimple() { Latitude = 51.19282276127831f, Longitude = 4.5867919921875f };
+            var location4 = new GeoCoordinateSimple() { Latitude = 51.12549720918989f, Longitude = 4.5867919921875f };
+            var location5 = new GeoCoordinateSimple() { Latitude = 51.05807338112719f, Longitude = 4.5867919921875f };
+
+            source = new OsmGeo[] {
+                Node.Create(1, location1.Latitude, location1.Longitude),
+                Node.Create(2, location2.Latitude, location2.Longitude),
+                Node.Create(3, location3.Latitude, location3.Longitude),
+                Node.Create(4, location4.Latitude, location4.Longitude),
+                Node.Create(5, location5.Latitude, location5.Longitude),
+                Way.Create(1, new TagsCollection(
+                    Tag.Create("highway", "residential")), 1, 2, 3, 4, 5)
+                }.ToOsmStreamSource();
+
+            // build db from stream.
+            routerDb = new RouterDb();
+            target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+            edge1 = routerDb.Network.GetEdge(0);
+            edge2 = routerDb.Network.GetEdge(1);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location5),
+                edge1.Data.Distance + edge2.Data.Distance, 0.2);
+
+            var location6 = new GeoCoordinateSimple() { Latitude = 50.98004704630210f, Longitude = 4.5867919921875f };
+            var location7 = new GeoCoordinateSimple() { Latitude = 50.77902363244571f, Longitude = 4.5867919921875f };
+
+            source = new OsmGeo[] {
+                Node.Create(1, location1.Latitude, location1.Longitude),
+                Node.Create(2, location2.Latitude, location2.Longitude),
+                Node.Create(3, location3.Latitude, location3.Longitude),
+                Node.Create(4, location4.Latitude, location4.Longitude),
+                Node.Create(5, location5.Latitude, location5.Longitude),
+                Node.Create(6, location6.Latitude, location6.Longitude),
+                Node.Create(7, location7.Latitude, location7.Longitude),
+                Way.Create(1, new TagsCollection(
+                    Tag.Create("highway", "residential")), 1, 2, 3, 4, 5, 6, 7)
+                }.ToOsmStreamSource();
+
+            // build db from stream.
+            routerDb = new RouterDb();
+            target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+            edge1 = routerDb.Network.GetEdge(0);
+            edge2 = routerDb.Network.GetEdge(1);
+            var edge3 = routerDb.Network.GetEdge(2);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location7),
+                edge1.Data.Distance + edge2.Data.Distance + edge3.Data.Distance, 0.2);
+        }
+
+        /// <summary>
         /// Finds a vertex in the given router db.
         /// </summary>
         /// <returns></returns>
