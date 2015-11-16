@@ -182,7 +182,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
             if (pointer < 0 || shape.Count < size)
             { // add the coordinates at the end.
                 SetPointerAndSize(id, _nextPointer, shape.Count);
-                if (_nextPointer + (2 * shape.Count) >= _coordinates.Length)
+                while (_nextPointer + (2 * (shape.Count + 1)) >= _coordinates.Length)
                 { // increase the size of the coordinates.
                     _coordinates.Resize(_coordinates.Length + 1024);
                 }
