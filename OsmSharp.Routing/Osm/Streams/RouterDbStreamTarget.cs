@@ -25,7 +25,6 @@ using OsmSharp.Collections.Tags;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Osm;
 using OsmSharp.Osm.Streams;
-using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Osm.Vehicles;
@@ -408,16 +407,26 @@ namespace OsmSharp.Routing.Osm.Streams
             }
             else
             { // edge is too big.
-                if (shape == null ||
-                    shape.Count == 0)
-                {
-                    throw new Exception(string.Format("An edge was found longer than {0}m without an intermediate shapepoint.",
-                        OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE.ToInvariantString()));
-                }
-
                 shape = new List<ICoordinate>(shape);
                 shape.Insert(0, _db.Network.GetVertex(vertex1));
                 shape.Add(_db.Network.GetVertex(vertex2));
+
+                for(var s = 1; s < shape.Count; s++)
+                {
+                    var distance = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
+                    if (distance >= OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+                    { // insert a new intermediate.
+                        shape.Insert(s,
+                            new GeoCoordinateSimple()
+                                {
+                                    Latitude = (float)(((double)shape[s - 1].Latitude + 
+                                        (double)shape[s].Latitude) / 2.0),
+                                    Longitude = (float)(((double)shape[s - 1].Longitude + 
+                                        (double)shape[s].Longitude) / 2.0),
+                                });
+                        s--;
+                    }
+                }
 
                 var i = 0;
                 var shortShape = new List<ICoordinate>();
@@ -428,12 +437,6 @@ namespace OsmSharp.Routing.Osm.Streams
                 while (i < shape.Count)
                 {
                     var distance = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
-                    if (distance >= OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
-                    {
-                        throw new Exception(string.Format("A segment was found longer than {0}m without an intermediate shapepoint.",
-                            OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE.ToInvariantString()));
-                    }
-
                     if (distance + shortDistance > OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
                     { // ok, previous shapepoint was the maximum one.
                         shortPoint = shortShape[shortShape.Count - 1];

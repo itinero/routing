@@ -692,7 +692,29 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 });
             target.RegisterSource(source);
             target.Initialize();
-            Assert.Catch<System.Exception>(() => target.Pull());
+            target.Pull();
+
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+            edge1 = routerDb.Network.GetEdge(0);
+            edge2 = routerDb.Network.GetEdge(1);
+            Assert.IsNull(edge1.Shape);
+            Assert.IsNull(edge2.Shape);
+            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3),
+                edge1.Data.Distance + edge2.Data.Distance, 0.2);
+            var middle = new GeoCoordinateSimple()
+            {
+                Latitude = (float)(((double)location1.Latitude +
+                    (double)location3.Latitude) / 2.0),
+                Longitude = (float)(((double)location1.Longitude +
+                    (double)location3.Longitude) / 2.0),
+            };
+            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);
+            Assert.AreEqual(location1.Longitude, routerDb.Network.GetVertex(0).Longitude);
+            Assert.AreEqual(location3.Latitude, routerDb.Network.GetVertex(1).Latitude);
+            Assert.AreEqual(location3.Longitude, routerDb.Network.GetVertex(1).Longitude);
+            Assert.AreEqual(middle.Latitude, routerDb.Network.GetVertex(2).Latitude);
+            Assert.AreEqual(middle.Longitude, routerDb.Network.GetVertex(2).Longitude);
 
             location1 = new GeoCoordinateSimple() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
             location2 = new GeoCoordinateSimple() { Latitude = 51.26005008781385f, Longitude = 4.5867919921875f };
