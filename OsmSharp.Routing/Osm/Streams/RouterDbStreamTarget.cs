@@ -454,6 +454,7 @@ namespace OsmSharp.Routing.Osm.Streams
 
                         // set new short distance, empty shape.
                         shortShape.Clear();
+                        shortShape.Add(shape[i]);
                         shortDistance = distance;
                         i++;
                     }

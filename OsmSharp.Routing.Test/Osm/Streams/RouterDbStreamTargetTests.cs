@@ -665,8 +665,17 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(2, routerDb.Network.EdgeCount);
             var edge1 = routerDb.Network.GetEdge(0);
             var edge2 = routerDb.Network.GetEdge(1);
+            Assert.IsNull(edge1.Shape);
+            Assert.IsNull(edge2.Shape);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3),
                 edge1.Data.Distance + edge2.Data.Distance, 0.2);
+            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);
+            Assert.AreEqual(location1.Longitude, routerDb.Network.GetVertex(0).Longitude);
+            Assert.AreEqual(location2.Latitude, routerDb.Network.GetVertex(2).Latitude);
+            Assert.AreEqual(location2.Longitude, routerDb.Network.GetVertex(2).Longitude);
+            Assert.AreEqual(location3.Latitude, routerDb.Network.GetVertex(1).Latitude);
+            Assert.AreEqual(location3.Longitude, routerDb.Network.GetVertex(1).Longitude);
 
             source = new OsmGeo[] {
                 Node.Create(1, location1.Latitude, location1.Longitude),
@@ -714,8 +723,21 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(2, routerDb.Network.EdgeCount);
             edge1 = routerDb.Network.GetEdge(0);
             edge2 = routerDb.Network.GetEdge(1);
+            Assert.AreEqual(2, edge1.Shape.Count);
+            Assert.AreEqual(edge1.Shape[0].Latitude, location2.Latitude);
+            Assert.AreEqual(edge1.Shape[0].Longitude, location2.Longitude);
+            Assert.AreEqual(edge1.Shape[1].Latitude, location3.Latitude);
+            Assert.AreEqual(edge1.Shape[1].Longitude, location3.Longitude);
+            Assert.IsTrue(edge2.Shape == null || edge2.Shape.Count == 0);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location5),
                 edge1.Data.Distance + edge2.Data.Distance, 0.2);
+            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);
+            Assert.AreEqual(location1.Longitude, routerDb.Network.GetVertex(0).Longitude);
+            Assert.AreEqual(location5.Latitude, routerDb.Network.GetVertex(1).Latitude);
+            Assert.AreEqual(location5.Longitude, routerDb.Network.GetVertex(1).Longitude);
+            Assert.AreEqual(location4.Latitude, routerDb.Network.GetVertex(2).Latitude);
+            Assert.AreEqual(location4.Longitude, routerDb.Network.GetVertex(2).Longitude);
 
             var location6 = new GeoCoordinateSimple() { Latitude = 50.98004704630210f, Longitude = 4.5867919921875f };
             var location7 = new GeoCoordinateSimple() { Latitude = 50.77902363244571f, Longitude = 4.5867919921875f };
@@ -746,8 +768,26 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge1 = routerDb.Network.GetEdge(0);
             edge2 = routerDb.Network.GetEdge(1);
             var edge3 = routerDb.Network.GetEdge(2);
+            Assert.AreEqual(2, edge1.Shape.Count);
+            Assert.AreEqual(edge1.Shape[0].Latitude, location2.Latitude);
+            Assert.AreEqual(edge1.Shape[0].Longitude, location2.Longitude);
+            Assert.AreEqual(edge1.Shape[1].Latitude, location3.Latitude);
+            Assert.AreEqual(edge1.Shape[1].Longitude, location3.Longitude);
+            Assert.AreEqual(1, edge2.Shape.Count);
+            Assert.AreEqual(edge2.Shape[0].Latitude, location5.Latitude);
+            Assert.AreEqual(edge2.Shape[0].Longitude, location5.Longitude);
+            Assert.IsTrue(edge3.Shape == null || edge3.Shape.Count == 0);
             Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location7),
                 edge1.Data.Distance + edge2.Data.Distance + edge3.Data.Distance, 0.2);
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);
+            Assert.AreEqual(location1.Longitude, routerDb.Network.GetVertex(0).Longitude);
+            Assert.AreEqual(location7.Latitude, routerDb.Network.GetVertex(1).Latitude);
+            Assert.AreEqual(location7.Longitude, routerDb.Network.GetVertex(1).Longitude);
+            Assert.AreEqual(location4.Latitude, routerDb.Network.GetVertex(2).Latitude);
+            Assert.AreEqual(location4.Longitude, routerDb.Network.GetVertex(2).Longitude);
+            Assert.AreEqual(location6.Latitude, routerDb.Network.GetVertex(3).Latitude);
+            Assert.AreEqual(location6.Longitude, routerDb.Network.GetVertex(3).Longitude);
         }
 
         /// <summary>
