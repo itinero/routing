@@ -106,8 +106,33 @@ namespace OsmSharp.Routing.Attributes
             _index = null;
             _nextId = uint.MaxValue;
 
-            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map);
             _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map);
+            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map,
+                    new DelegateEqualityComparer<int[]>(
+                        (obj) =>
+                        { // assumed the array is sorted.
+                            var hash = obj.Length.GetHashCode();
+                            for (int idx = 0; idx < obj.Length; idx++)
+                            {
+                                hash = hash ^ obj[idx].GetHashCode();
+                            }
+                            return hash;
+                        },
+                        (x, y) =>
+                        {
+                            if (x.Length == y.Length)
+                            {
+                                for (int idx = 0; idx < x.Length; idx++)
+                                {
+                                    if (x[idx] != y[idx])
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            return false;
+                        }));
         }
 
         /// <summary>
@@ -124,7 +149,32 @@ namespace OsmSharp.Routing.Attributes
                 _nextId = 0;
             }
 
-            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map);
+            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map,
+                    new DelegateEqualityComparer<int[]>(
+                        (obj) =>
+                        { // assumed the array is sorted.
+                            var hash = obj.Length.GetHashCode();
+                            for (int idx = 0; idx < obj.Length; idx++)
+                            {
+                                hash = hash ^ obj[idx].GetHashCode();
+                            }
+                            return hash;
+                        },
+                        (x, y) =>
+                        {
+                            if (x.Length == y.Length)
+                            {
+                                for (int idx = 0; idx < x.Length; idx++)
+                                {
+                                    if (x[idx] != y[idx])
+                                    {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            return false;
+                        }));
             _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map);
         }
 

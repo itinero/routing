@@ -96,15 +96,15 @@ namespace OsmSharp.Routing.Graphs
             _nextEdgeId = 0;
             _vertices = vertices;
             _vertices.Resize(sizeEstimate);
-            for (int idx = 0; idx < sizeEstimate; idx++)
+            for (int i = 0; i < sizeEstimate; i++)
             {
-                _vertices[idx] = Constants.NO_VERTEX;
+                _vertices[i] = Constants.NO_VERTEX;
             }
             _edges = edges;
             _edges.Resize(sizeEstimate * 3 * _edgeSize);
-            for (int idx = 0; idx < sizeEstimate * 3 * _edgeSize; idx++)
+            for (int i = 0; i < sizeEstimate * 3 * _edgeSize; i++)
             {
-                _edges[idx] = Constants.NO_EDGE;
+                _edges[i] = Constants.NO_EDGE;
             }
         }
 
@@ -117,7 +117,15 @@ namespace OsmSharp.Routing.Graphs
             _edgeSize = MINIMUM_EDGE_SIZE + edgeDataSize;
 
             _vertices = new Array<uint>(map, estimatedSize);
+            for (int i = 0; i < _vertices.Length; i++)
+            {
+                _vertices[i] = Constants.NO_VERTEX;
+            }
             _edges = new Array<uint>(map, estimatedSize * 3 * _edgeSize);
+            for (int i = 0; i < _edges.Length; i++)
+            { 
+                _edges[i] = Constants.NO_EDGE;
+            }
         }
 
         private uint _nextEdgeId;
