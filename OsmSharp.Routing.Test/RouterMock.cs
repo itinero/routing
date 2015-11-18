@@ -103,7 +103,9 @@ namespace OsmSharp.Routing.Test
         }
 
         public Result<RouterPoint> TryResolve(OsmSharp.Routing.Profiles.Profile[] profiles,
-            float latitude, float longitude, System.Func<OsmSharp.Routing.Network.RoutingEdge, bool> isBetter)
+            float latitude, float longitude, System.Func<OsmSharp.Routing.Network.RoutingEdge, bool> isBetter,
+                float searchOffset = Constants.DefaultSearchOffset, 
+                    float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if (latitude < -90 || latitude > 90 ||
                 longitude < -180 || longitude > 180)

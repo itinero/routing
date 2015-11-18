@@ -32,5 +32,15 @@ namespace OsmSharp.Routing
         /// A constant to use when no vertex was found, is available or set.
         /// </summary>
         public const uint NO_VERTEX = uint.MaxValue - 1;
+
+        /// <summary>
+        /// A default search offset.
+        /// </summary>
+        public const float DefaultSearchOffset = .01f;
+
+        /// <summary>
+        /// A maximum search distance.
+        /// </summary>
+        public const float DefaultSearchMaxDistance = 50;
     }
 }

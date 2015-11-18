@@ -34,7 +34,9 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, Func<RoutingEdge, bool> isBetter);
+        Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude,
+            Func<RoutingEdge, bool> isBetter, float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.

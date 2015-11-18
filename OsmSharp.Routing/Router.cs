@@ -34,8 +34,6 @@ namespace OsmSharp.Routing
     public class Router : IRouter
     {
         private readonly RouterDb _db;
-        private readonly float _defaultSearchOffset = .01f;
-        private readonly float _defaultSearchMaxDistance = 50;
 
         /// <summary>
         /// Creates a new router.
@@ -79,7 +77,8 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, 
-            Func<RoutingEdge, bool> isBetter)
+            Func<RoutingEdge, bool> isBetter, float searchOffset = Constants.DefaultSearchOffset, 
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if(!_db.SupportsAll(profiles))
             {
@@ -100,8 +99,8 @@ namespace OsmSharp.Routing
                             return isBetter(_db.Network.GetEdge(edge.Id));
                         };
                 }
-                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, _defaultSearchOffset,
-                    _defaultSearchMaxDistance, (edge) =>
+                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, searchOffset,
+                    maxSearchDistance, (edge) =>
                     { // check all profiles, they all need to be traversible.
                         // get profile.
                         float distance;

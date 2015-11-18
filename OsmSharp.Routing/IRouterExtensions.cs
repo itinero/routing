@@ -38,14 +38,16 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
-        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile profile, ICoordinate[] coordinates)
+        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile profile, ICoordinate[] coordinates,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
 
             var result = new Result<RouterPoint>[coordinates.Length];
             for(var i = 0; i < coordinates.Length; i++)
             {
-                result[i] = router.TryResolve(profile, coordinates[i]);
+                result[i] = router.TryResolve(profile, coordinates[i], searchOffset, maxSearchDistance);
             }
             return result;
         }
@@ -54,22 +56,26 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, ICoordinate coordinate)
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, ICoordinate coordinate,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(new Profile[] { profile }, coordinate);
+            return router.TryResolve(new Profile[] { profile }, coordinate, searchOffset, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
-        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile[] profiles, ICoordinate[] coordinates)
+        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile[] profiles, ICoordinate[] coordinates,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
 
             var result = new Result<RouterPoint>[coordinates.Length];
             for (var i = 0; i < coordinates.Length; i++)
             {
-                result[i] = router.TryResolve(profiles, coordinates[i]);
+                result[i] = router.TryResolve(profiles, coordinates[i], searchOffset, maxSearchDistance);
             }
             return result;
         }
@@ -78,62 +84,79 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate)
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, (float)coordinate.Latitude, (float)coordinate.Longitude);
+            return router.TryResolve(profiles, (float)coordinate.Latitude, (float)coordinate.Longitude,
+                searchOffset, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, float latitude, float longitude)
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, float latitude, float longitude, 
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(new Profile[] { profile }, latitude, longitude);
+            return router.TryResolve(new Profile[] { profile }, latitude, longitude, searchOffset, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, float latitude, float longitude,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, latitude, longitude, null);
+            return router.TryResolve(profiles, latitude, longitude, null, 
+                searchOffset, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter)
+        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude, isBetter);
+            return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude, isBetter, 
+                searchOffset, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this IRouter router, Profile profile, ICoordinate coordinate)
+        public static RouterPoint Resolve(this IRouter router, Profile profile, ICoordinate coordinate,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profile, coordinate).Value;
+            return router.TryResolve(profile, coordinate, searchOffset, maxSearchDistance).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate)
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, coordinate).Value;
+            return router.TryResolve(profiles, coordinate, searchOffset, maxSearchDistance).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static RouterPoint[] Resolve(this IRouter router, Profile profile, ICoordinate[] coordinates)
+        public static RouterPoint[] Resolve(this IRouter router, Profile profile, ICoordinate[] coordinates,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            var results = router.TryResolve(profile, coordinates);
+            var results = router.TryResolve(profile, coordinates, searchOffset, maxSearchDistance);
             var routerPoints = new RouterPoint[results.Length];
             for(var i = 0; i < results.Length; i++)
             {
@@ -146,27 +169,35 @@ namespace OsmSharp.Routing
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude)
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude,
+            float searchOffset = Constants.DefaultSearchOffset,
+                float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, latitude, longitude).Value;
+            return router.TryResolve(profiles, latitude, longitude, searchOffset, maxSearchDistance).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter)
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate,
+            Func<RoutingEdge, bool> isBetter,
+                float searchOffset = Constants.DefaultSearchOffset,
+                    float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, coordinate, isBetter).Value;
+            return router.TryResolve(profiles, coordinate, isBetter, searchOffset, maxSearchDistance).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude, Func<RoutingEdge, bool> isBetter)
+        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude,
+            Func<RoutingEdge, bool> isBetter,
+                float searchOffset = Constants.DefaultSearchOffset,
+                    float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, latitude, longitude, isBetter).Value;
+            return router.TryResolve(profiles, latitude, longitude, isBetter, searchOffset, maxSearchDistance).Value;
         }
 
         /// <summary>
