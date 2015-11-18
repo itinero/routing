@@ -106,8 +106,8 @@ namespace OsmSharp.Routing.Attributes
             _index = null;
             _nextId = uint.MaxValue;
 
-            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map);
-            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map,
+            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map, 1024 * 16);
+            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map, 1024 * 16,
                     new DelegateEqualityComparer<int[]>(
                         (obj) =>
                         { // assumed the array is sorted.
@@ -149,7 +149,7 @@ namespace OsmSharp.Routing.Attributes
                 _nextId = 0;
             }
 
-            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map,
+            _tagsReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map, 1024 * 16,
                     new DelegateEqualityComparer<int[]>(
                         (obj) =>
                         { // assumed the array is sorted.
@@ -175,7 +175,7 @@ namespace OsmSharp.Routing.Attributes
                             }
                             return false;
                         }));
-            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map);
+            _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(map, 1024 * 16);
         }
 
         /// <summary>

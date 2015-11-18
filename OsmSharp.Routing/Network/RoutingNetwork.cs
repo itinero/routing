@@ -46,6 +46,7 @@ namespace OsmSharp.Routing.Network
             _graph = new GeometricGraph(1);
             _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
         }
+        
 
         /// <summary>
         /// Creates a new routing network.
@@ -54,6 +55,23 @@ namespace OsmSharp.Routing.Network
         {
             _graph = new GeometricGraph(map, 1);
             _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
+        }
+
+        /// <summary>
+        /// Creates a new routing network.
+        /// </summary>
+        public RoutingNetwork(MemoryMap map, RoutingNetworkProfile profile)
+        {
+            if (profile == null)
+            {
+                _graph = new GeometricGraph(map, 1);
+                _edgeData = new Array<uint>(map, _edgeDataSize * _graph.EdgeCount);
+            }
+            else
+            {
+                _graph = new GeometricGraph(map, profile.GeometricGraphProfile, 1);
+                _edgeData = new Array<uint>(map, _edgeDataSize * _graph.EdgeCount, profile.EdgeDataProfile);
+            }
         }
 
         /// <summary>

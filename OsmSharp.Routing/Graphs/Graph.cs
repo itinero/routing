@@ -128,6 +128,25 @@ namespace OsmSharp.Routing.Graphs
             }
         }
 
+        /// <summary>
+        /// Creates a new using the given file.
+        /// </summary>
+        public Graph(MemoryMap map, GraphProfile profile, int edgeDataSize, long estimatedSize)
+        {
+            _edgeDataSize = edgeDataSize;
+            _edgeSize = MINIMUM_EDGE_SIZE + edgeDataSize;
+            _vertices = new Array<uint>(map, estimatedSize, profile.VertexProfile);
+            for (int i = 0; i < _vertices.Length; i++)
+            {
+                _vertices[i] = Constants.NO_VERTEX;
+            }
+            _edges = new Array<uint>(map, estimatedSize * 3 * _edgeSize, profile.EdgeProfile);
+            for (int i = 0; i < _edges.Length; i++)
+            {
+                _edges[i] = Constants.NO_EDGE;
+            }
+        }
+
         private uint _nextEdgeId;
         private long _edgeCount = 0;
         private uint? _maxVertex = null;

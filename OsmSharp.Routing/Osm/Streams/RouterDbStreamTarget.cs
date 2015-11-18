@@ -28,6 +28,7 @@ using OsmSharp.Osm.Streams;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Osm.Vehicles;
+using Reminiscence.IO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,6 +51,36 @@ namespace OsmSharp.Routing.Osm.Streams
             : this(db, vehicles, false)
         {
 
+        }
+
+        /// <summary>
+        /// Creates a new router db stream target.
+        /// </summary>
+        public RouterDbStreamTarget(RouterDb db, MemoryMap map, Vehicle[] vehicles)
+            : this(db, map, vehicles, false)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new router db stream target.
+        /// </summary>
+        public RouterDbStreamTarget(RouterDb db, MemoryMap map, Vehicle[] vehicles, bool allCore)
+        {
+            _db = db;
+            _vehicles = vehicles;
+            _allNodesAreCore = allCore;
+
+            _routingNodeCoordinates = new CoordinateIndex();
+            _routingNodes = new LongIndex();
+            _coreNodes = new LongIndex();
+            _coreNodeIdMap = new HugeDictionary<long, uint>();
+
+            foreach (var vehicle in vehicles)
+            {
+                db.AddSupportedProfile(vehicle.Fastest());
+                db.AddSupportedProfile(vehicle.Shortest());
+            }
         }
 
         /// <summary>

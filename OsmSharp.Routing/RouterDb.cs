@@ -70,6 +70,19 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
+        public RouterDb(MemoryMap map, RoutingNetworkProfile profile)
+        {
+            _network = new RoutingNetwork(map, profile);
+            _edgeProfiles = new AttributesIndex(map, true);
+            _meta = new AttributesIndex(map);
+
+            _supportedProfiles = new HashSet<string>();
+            _contracted = new Dictionary<string, DirectedMetaGraph>();
+        }
+
+        /// <summary>
+        /// Creates a new router database.
+        /// </summary>
         public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta,
             params Profiles.Profile[] supportedProfiles)
         {

@@ -92,6 +92,42 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Creates a new geometric graph.
         /// </summary>
+        public GeometricGraph(MemoryMap map, GeometricGraphProfile profile, int edgeDataSize)
+            : this(map, profile, edgeDataSize, BLOCKSIZE)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new geometric graph.
+        /// </summary>
+        public GeometricGraph(MemoryMap map, GeometricGraphProfile profile, int edgeDataSize, int size)
+        {
+            if (profile == null)
+            {
+                _graph = new Graph(map, edgeDataSize, size);
+                _coordinates = new Array<float>(map, size * 2);
+                for (var i = 0; i < _coordinates.Length; i++)
+                {
+                    _coordinates[i] = NO_COORDINATE;
+                }
+                _shapes = new ShapesArray(map, size);
+            }
+            else
+            {
+                _graph = new Graph(map, profile.GraphProfile, edgeDataSize, size);
+                _coordinates = new Array<float>(map, size * 2, profile.CoordinatesProfile);
+                for (var i = 0; i < _coordinates.Length; i++)
+                {
+                    _coordinates[i] = NO_COORDINATE;
+                }
+                _shapes = new ShapesArray(map, size);
+            }
+        }
+
+        /// <summary>
+        /// Creates a new geometric graph.
+        /// </summary>
         private GeometricGraph(Graph graph, ArrayBase<float> coordinates,
             ShapesArray shapes)
         {
