@@ -67,6 +67,8 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, route.Segments[0].Points.Length);
             Assert.IsNotNull(route.Segments[0].Points.FirstOrDefault(x => x.Tags.FirstOrDefault(y => y.Value == "source") != null));
             Assert.IsNotNull(route.Segments[0].Points.FirstOrDefault(x => x.Tags.FirstOrDefault(y => y.Value == "target") != null));
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -121,6 +123,8 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("target", route.Segments[1].Points[0].Tags[0].Value);
             Assert.AreEqual("residential", route.Segments[1].Tags.First(y => y.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", route.Segments[1].Tags.First(y => y.Key == "name").Value);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
 
             // build route with similar path.
             routeBuilder = new RouteBuilder(routerDb, profile,
@@ -152,6 +156,8 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("target", route.Segments[1].Points[0].Tags[0].Value);
             Assert.AreEqual("residential", route.Segments[1].Tags.First(y => y.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", route.Segments[1].Tags.First(y => y.Key == "name").Value);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
 
             // build route with similar path.
             routeBuilder = new RouteBuilder(routerDb, profile,
@@ -183,6 +189,8 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("target", route.Segments[1].Points[0].Tags[0].Value);
             Assert.AreEqual("residential", route.Segments[1].Tags.First(y => y.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", route.Segments[1].Tags.First(y => y.Key == "name").Value);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -289,6 +297,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -465,6 +476,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
 
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+
             // build route.
             routeBuilder = new RouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 0, 1, 2 }));
@@ -601,6 +615,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -844,6 +861,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
 
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+
             // build route.
             routeBuilder = new RouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 0, 1, 2, 3 }));
@@ -1037,6 +1057,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
 
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+
             // build route.
             source = new RouterPoint(0.4f, 0.4f, 0, ushort.MaxValue / 10 * 4, Tag.Create("type", "source"));
             routeBuilder = new RouteBuilder(routerDb, profile,
@@ -1216,6 +1239,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
 
             // build route.
             source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
@@ -1397,6 +1423,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -1516,6 +1545,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -1635,6 +1667,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(2, segment.Tags.Length);
             Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
             Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -1691,6 +1726,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.IsNotNull(route);
             Assert.IsNotNull(route.Segments);
             Assert.AreEqual(2, route.Segments.Count);
+
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
         }
     }
 }

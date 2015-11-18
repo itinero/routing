@@ -121,6 +121,9 @@ namespace OsmSharp.Routing.Algorithms
             }
             _route.Segments[0].SetStop(_source.Location(), _source.Tags);
             _route.Segments[_route.Segments.Count - 1].SetStop(_target.Location(), _target.Tags);
+
+            _route.TotalDistance = _route.Segments[_route.Segments.Count - 1].Distance;
+            _route.TotalTime = _route.Segments[_route.Segments.Count - 1].Time;
         }
 
         /// <summary>
