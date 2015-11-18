@@ -237,6 +237,15 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Route Calculate(this IRouter router, Profile profile, RouterPoint[] locations)
+        {
+            return router.TryCalculate(profile, locations).Value;
+        }
+
+        /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
@@ -275,6 +284,33 @@ namespace OsmSharp.Routing
             for (var i = 2; i < resolved.Length; i++)
             {
                 var nextRoute = router.TryCalculate(profile, resolved[i - 1].Value, resolved[i].Value);
+                if (nextRoute.IsError)
+                {
+                    return nextRoute;
+                }
+                route = new Result<Route>(route.Value.Concatenate(nextRoute.Value));
+            }
+            return route;
+        }
+
+        /// <summary>
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <returns></returns>
+        public static Result<Route> TryCalculate(this IRouter router, Profile profile, RouterPoint[] locations)
+        {
+            if (locations.Length < 2)
+            {
+                throw new ArgumentOutOfRangeException("Cannot calculate a routing along less than two locations.");
+            }
+            var route = router.TryCalculate(profile, locations[0], locations[1]);
+            if (route.IsError)
+            {
+                return route;
+            }
+            for (var i = 2; i < locations.Length; i++)
+            {
+                var nextRoute = router.TryCalculate(profile, locations[i - 1], locations[i]);
                 if (nextRoute.IsError)
                 {
                     return nextRoute;
