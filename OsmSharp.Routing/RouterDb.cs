@@ -16,16 +16,14 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
-using OsmSharp.Routing.Network.Data;
-using System.Linq;
+using Reminiscence.IO;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using OsmSharp.Routing.Attributes;
-using OsmSharp.Routing.Profiles;
-using System;
-using Reminiscence.IO;
+using System.Linq;
 
 namespace OsmSharp.Routing
 {

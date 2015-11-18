@@ -58,14 +58,17 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         public static void Sort(this GeometricGraph graph, int n)
         {
-            QuickSort.Sort((vertex) =>
+            if (graph.VertexCount > 0)
             {
-                return graph.Distance(n, (uint)vertex);
-            },
-            (vertex1, vertex2) =>
-            {
-                graph.Switch((uint)vertex1, (uint)vertex2);
-            }, 0, graph.VertexCount - 1);
+                QuickSort.Sort((vertex) =>
+                {
+                    return graph.Distance(n, (uint)vertex);
+                },
+                (vertex1, vertex2) =>
+                {
+                    graph.Switch((uint)vertex1, (uint)vertex2);
+                }, 0, graph.VertexCount - 1);
+            }
         }
 
         /// <summary>
@@ -73,14 +76,17 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         public static void Sort(this RoutingNetwork graph, int n)
         {
-            QuickSort.Sort((vertex) =>
+            if (graph.VertexCount > 0)
             {
-                return graph.Distance(n, (uint)vertex);
-            },
-            (vertex1, vertex2) =>
-            {
-                graph.Switch((uint)vertex1, (uint)vertex2);
-            }, 0, graph.VertexCount - 1);
+                QuickSort.Sort((vertex) =>
+                {
+                    return graph.Distance(n, (uint)vertex);
+                },
+                (vertex1, vertex2) =>
+                {
+                    graph.Switch((uint)vertex1, (uint)vertex2);
+                }, 0, graph.VertexCount - 1);
+            }
         }
 
         /// <summary>
