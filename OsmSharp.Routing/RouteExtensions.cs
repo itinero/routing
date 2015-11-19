@@ -272,7 +272,12 @@ namespace OsmSharp.Routing
                 if (route2.Tags != null) { tags.AddRange(route2.Tags); }
                 route.Tags = tags;
 
-                // set the vehicle.
+                if (route.Segments != null && route.Segments.Count > 0)
+                {
+                    route.TotalDistance = route.Segments[route.Segments.Count - 1].Distance;
+                    route.TotalTime = route.Segments[route.Segments.Count - 1].Time;
+                }
+
                 return route;
             }
             else
