@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Collections.Tags;
 using System.Collections.Generic;
 using System.IO;
 
@@ -98,6 +99,26 @@ namespace OsmSharp.Routing
             stream.Write(System.BitConverter.GetBytes((long)value.Length), 0, 8);
             stream.Write(value, 0, value.Length);
             return value.Length + 8;
+        }
+
+        /// <summary>
+        /// Writes a tags collection to the given stream and prefixed with it's size.
+        /// </summary>
+        public static long WriteWithSize(this TagsCollectionBase tags, System.IO.Stream stream)
+        {
+            var serializer = new OsmSharp.Collections.Tags.Serializer.TagsCollectionSerializer();
+            var position = stream.Position;
+            serializer.SerializeWithSize(tags, stream);
+            return stream.Position - position;
+        }
+
+        /// <summary>
+        /// Reads a tags collection.
+        /// </summary>
+        public static TagsCollectionBase ReadWithSizeTagsCollection(this System.IO.Stream stream)
+        {
+            var serializer = new OsmSharp.Collections.Tags.Serializer.TagsCollectionSerializer();
+            return serializer.DeserializeWithSize(stream);
         }
 
         /// <summary>

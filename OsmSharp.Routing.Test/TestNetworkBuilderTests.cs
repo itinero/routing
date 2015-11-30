@@ -43,6 +43,7 @@ namespace OsmSharp.Routing.Test
             var routerDb = new RouterDb(new RoutingNetwork(new GeometricGraph(1)),
                 new AttributesIndex(),
                 new AttributesIndex(),
+                new OsmSharp.Collections.Tags.TagsCollection(),
                 OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
             routerDb.LoadTestNetwork(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream(

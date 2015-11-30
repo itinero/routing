@@ -378,5 +378,37 @@ namespace OsmSharp.Routing.Test
                 Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
             }
         }
+
+        /// <summary>
+        /// Tests saving and then loading test network2 with some tags describing what the network is about.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2Meta()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+            // add contracted version.
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+
+            // add meta-data.
+            routerDb.Meta.Add("name", "test-network-2");
+            routerDb.Meta.Add("date", "30-11-2015");
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream, RouterDbProfile.NoCache);
+
+                routerDb.Meta.ContainsKeyValue("name", "test-network-2");
+                routerDb.Meta.ContainsKeyValue("date", "30-11-2015");
+            }
+        }
     }
 }

@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Collections.Tags;
 using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
@@ -35,6 +36,7 @@ namespace OsmSharp.Routing
         private readonly RoutingNetwork _network;
         private readonly AttributesIndex _edgeProfiles;
         private readonly AttributesIndex _meta;
+        private readonly TagsCollectionBase _dbMeta;
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
         private readonly HashSet<string> _supportedProfiles;
@@ -47,6 +49,7 @@ namespace OsmSharp.Routing
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
             _edgeProfiles = new AttributesIndex(false, true);
             _meta = new AttributesIndex();
+            _dbMeta = new TagsCollection();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -60,6 +63,7 @@ namespace OsmSharp.Routing
             _network = new RoutingNetwork(map, new Graphs.Geometric.GeometricGraph(map, 1));
             _edgeProfiles = new AttributesIndex(map, true);
             _meta = new AttributesIndex(map);
+            _dbMeta = new TagsCollection();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -73,6 +77,7 @@ namespace OsmSharp.Routing
             _network = new RoutingNetwork(map, profile);
             _edgeProfiles = new AttributesIndex(map, true);
             _meta = new AttributesIndex(map);
+            _dbMeta = new TagsCollection();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -81,12 +86,13 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta,
+        public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
             params Profiles.Profile[] supportedProfiles)
         {
             _network = network;
             _edgeProfiles = profiles;
             _meta = meta;
+            _dbMeta = dbMeta;
 
             _supportedProfiles = new HashSet<string>();
             foreach(var supportedProfile in supportedProfiles)
@@ -99,12 +105,13 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        private RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta,
+        private RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
             string[] supportedProfiles)
         {
             _network = network;
             _edgeProfiles = profiles;
             _meta = meta;
+            _dbMeta = dbMeta;
 
             _supportedProfiles = new HashSet<string>();
             foreach (var supportedProfile in supportedProfiles)
@@ -175,6 +182,17 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Gets the meta-data collection.
+        /// </summary>
+        public TagsCollectionBase Meta
+        {
+            get
+            {
+                return _dbMeta;
+            }
+        }
+
+        /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
         public void AddContracted(Profiles.Profile profile, DirectedMetaGraph contracted)
@@ -207,6 +225,9 @@ namespace OsmSharp.Routing
 
             // serialize supported profiles.
             var size = stream.WriteWithSize(_supportedProfiles.ToArray());
+
+            // serialize the db-meta.
+            size += _dbMeta.WriteWithSize(stream);
 
             // serialize the # of contracted profiles.
             if(_contracted.Count > byte.MaxValue)
@@ -245,13 +266,14 @@ namespace OsmSharp.Routing
         {
             // deserialize all basic data.
             var supportedProfiles = stream.ReadWithSizeStringArray();
+            var metaDb = stream.ReadWithSizeTagsCollection();
             var contractedCount = stream.ReadByte();
             var profiles = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
             var meta = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.
-            var routerDb = new RouterDb(network, profiles, meta, supportedProfiles);
+            var routerDb = new RouterDb(network, profiles, meta, metaDb, supportedProfiles);
             
             // read all contracted versions.
             for (var i = 0; i < contractedCount; i++)
