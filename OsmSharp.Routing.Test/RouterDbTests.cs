@@ -406,8 +406,8 @@ namespace OsmSharp.Routing.Test
                 stream.Seek(0, SeekOrigin.Begin);
                 routerDb = RouterDb.Deserialize(stream, RouterDbProfile.NoCache);
 
-                routerDb.Meta.ContainsKeyValue("name", "test-network-2");
-                routerDb.Meta.ContainsKeyValue("date", "30-11-2015");
+                Assert.IsTrue(routerDb.Meta.ContainsKeyValue("name", "test-network-2"));
+                Assert.IsTrue(routerDb.Meta.ContainsKeyValue("date", "30-11-2015"));
             }
         }
     }
