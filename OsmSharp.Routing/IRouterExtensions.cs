@@ -39,7 +39,7 @@ namespace OsmSharp.Routing
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
         public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile profile, ICoordinate[] coordinates,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -47,7 +47,7 @@ namespace OsmSharp.Routing
             var result = new Result<RouterPoint>[coordinates.Length];
             for(var i = 0; i < coordinates.Length; i++)
             {
-                result[i] = router.TryResolve(profile, coordinates[i], searchOffset, maxSearchDistance);
+                result[i] = router.TryResolve(profile, coordinates[i], searchOffsetInMeter, maxSearchDistance);
             }
             return result;
         }
@@ -57,17 +57,17 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, ICoordinate coordinate,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(new Profile[] { profile }, coordinate, searchOffset, maxSearchDistance);
+            return router.TryResolve(new Profile[] { profile }, coordinate, searchOffsetInMeter, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
         public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile[] profiles, ICoordinate[] coordinates,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -75,7 +75,7 @@ namespace OsmSharp.Routing
             var result = new Result<RouterPoint>[coordinates.Length];
             for (var i = 0; i < coordinates.Length; i++)
             {
-                result[i] = router.TryResolve(profiles, coordinates[i], searchOffset, maxSearchDistance);
+                result[i] = router.TryResolve(profiles, coordinates[i], searchOffsetInMeter, maxSearchDistance);
             }
             return result;
         }
@@ -85,11 +85,11 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             return router.TryResolve(profiles, (float)coordinate.Latitude, (float)coordinate.Longitude,
-                searchOffset, maxSearchDistance);
+                searchOffsetInMeter, maxSearchDistance);
         }
 
         /// <summary>
@@ -97,10 +97,10 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, float latitude, float longitude, 
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(new Profile[] { profile }, latitude, longitude, searchOffset, maxSearchDistance);
+            return router.TryResolve(new Profile[] { profile }, latitude, longitude, searchOffsetInMeter, maxSearchDistance);
         }
 
         /// <summary>
@@ -108,11 +108,11 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, float latitude, float longitude,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             return router.TryResolve(profiles, latitude, longitude, null, 
-                searchOffset, maxSearchDistance);
+                searchOffsetInMeter, maxSearchDistance);
         }
 
         /// <summary>
@@ -120,21 +120,21 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, ICoordinate coordinate, Func<RoutingEdge, bool> isBetter,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude, isBetter, 
-                searchOffset, maxSearchDistance);
+                searchOffsetInMeter, maxSearchDistance);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this IRouter router, Profile profile, ICoordinate coordinate,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profile, coordinate, searchOffset, maxSearchDistance).Value;
+            return router.TryResolve(profile, coordinate, searchOffsetInMeter, maxSearchDistance).Value;
         }
 
         /// <summary>
@@ -142,10 +142,10 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, coordinate, searchOffset, maxSearchDistance).Value;
+            return router.TryResolve(profiles, coordinate, searchOffsetInMeter, maxSearchDistance).Value;
         }
 
         /// <summary>
@@ -153,10 +153,10 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static RouterPoint[] Resolve(this IRouter router, Profile profile, ICoordinate[] coordinates,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            var results = router.TryResolve(profile, coordinates, searchOffset, maxSearchDistance);
+            var results = router.TryResolve(profile, coordinates, searchOffsetInMeter, maxSearchDistance);
             var routerPoints = new RouterPoint[results.Length];
             for(var i = 0; i < results.Length; i++)
             {
@@ -170,10 +170,10 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude,
-            float searchOffset = Constants.DefaultSearchOffset,
+            float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, latitude, longitude, searchOffset, maxSearchDistance).Value;
+            return router.TryResolve(profiles, latitude, longitude, searchOffsetInMeter, maxSearchDistance).Value;
         }
 
         /// <summary>
@@ -182,10 +182,10 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, ICoordinate coordinate,
             Func<RoutingEdge, bool> isBetter,
-                float searchOffset = Constants.DefaultSearchOffset,
+                float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                     float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, coordinate, isBetter, searchOffset, maxSearchDistance).Value;
+            return router.TryResolve(profiles, coordinate, isBetter, searchOffsetInMeter, maxSearchDistance).Value;
         }
 
         /// <summary>
@@ -194,10 +194,10 @@ namespace OsmSharp.Routing
         /// <returns></returns>
         public static RouterPoint Resolve(this IRouter router, Profile[] profiles, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter,
-                float searchOffset = Constants.DefaultSearchOffset,
+                float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                     float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
-            return router.TryResolve(profiles, latitude, longitude, isBetter, searchOffset, maxSearchDistance).Value;
+            return router.TryResolve(profiles, latitude, longitude, isBetter, searchOffsetInMeter, maxSearchDistance).Value;
         }
 
         /// <summary>

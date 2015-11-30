@@ -36,7 +36,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// A default search offset.
         /// </summary>
-        public const float DefaultSearchOffset = .01f;
+        public const float DefaultSearchOffsetInMeter = Data.EdgeDataSerializer.MAX_DISTANCE;
 
         /// <summary>
         /// A maximum search distance.

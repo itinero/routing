@@ -30,7 +30,7 @@ namespace OsmSharp.Routing.Algorithms.Search
         private readonly GeometricGraph _graph;
         private readonly float _latitude;
         private readonly float _longitude;
-        private readonly float _maxOffset;
+        private readonly float _maxOffsetInMeter;
         private readonly float _maxDistance;
         private readonly Func<GeometricEdge, bool> _isAcceptable;
         private readonly Func<GeometricEdge, bool> _isBetter;
@@ -59,13 +59,13 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// Creates a new resolve algorithm.
         /// </summary>
         public ResolveAlgorithm(GeometricGraph graph, float latitude, float longitude,
-            float maxOffset, float maxDistance, Func<GeometricEdge, bool> isAcceptable, Func<GeometricEdge, bool> isBetter)
+            float maxOffsetInMeter, float maxDistance, Func<GeometricEdge, bool> isAcceptable, Func<GeometricEdge, bool> isBetter)
         {
             _graph = graph;
             _latitude = latitude;
             _longitude = longitude;
             _maxDistance = maxDistance;
-            _maxOffset = maxOffset;
+            _maxOffsetInMeter = maxOffsetInMeter;
             _isAcceptable = isAcceptable;
             _isBetter = isBetter;
         }
@@ -77,18 +77,24 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         protected override void DoRun()
         {
+            // calculate maxOffset in degrees.
+            var offsettedLocation = (new OsmSharp.Math.Geo.GeoCoordinate(_latitude, _longitude)).OffsetWithDistances(_maxOffsetInMeter);
+            var maxOffset = (float)System.Math.Max(
+                System.Math.Abs(_latitude - offsettedLocation[1]),
+                System.Math.Abs(_longitude - offsettedLocation[0]));
+
             // get the closest edge.
             uint[] edgeIds = null;
             if(_isBetter == null)
             { // do not evaluate both, just isOk.
                 edgeIds = new uint[2];
                 edgeIds[0] = _graph.SearchClosestEdge(_latitude, _longitude,
-                    _maxOffset, _maxDistance, _isAcceptable);
+                    maxOffset, _maxDistance, _isAcceptable);
             }
             else
             { // evaluate both.
                 edgeIds = _graph.SearchClosestEdges(_latitude, _longitude,
-                    _maxOffset, _maxDistance, new Func<GeometricEdge, bool>[] { _isAcceptable, (potentialEdge) => 
+                    maxOffset, _maxDistance, new Func<GeometricEdge, bool>[] { _isAcceptable, (potentialEdge) => 
                         { // at least also make sure the edge is acceptable.
                             if (_isAcceptable(potentialEdge))
                             {

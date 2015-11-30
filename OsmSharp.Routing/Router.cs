@@ -77,7 +77,7 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         public Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, 
-            Func<RoutingEdge, bool> isBetter, float searchOffset = Constants.DefaultSearchOffset, 
+            Func<RoutingEdge, bool> isBetter, float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter, 
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance)
         {
             if(!_db.SupportsAll(profiles))
@@ -99,7 +99,7 @@ namespace OsmSharp.Routing
                             return isBetter(_db.Network.GetEdge(edge.Id));
                         };
                 }
-                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, searchOffset,
+                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, searchOffsetInMeter,
                     maxSearchDistance, (edge) =>
                     { // check all profiles, they all need to be traversible.
                         // get profile.

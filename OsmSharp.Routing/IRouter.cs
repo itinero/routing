@@ -35,7 +35,7 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <returns></returns>
         Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float searchOffset = Constants.DefaultSearchOffset,
+            Func<RoutingEdge, bool> isBetter, float searchOffsetInMeter = Constants.DefaultSearchOffsetInMeter,
                 float maxSearchDistance = Constants.DefaultSearchMaxDistance);
 
         /// <summary>
