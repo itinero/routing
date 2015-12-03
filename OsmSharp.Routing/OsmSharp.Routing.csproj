@@ -115,6 +115,8 @@
     <Compile Include="Network\RoutingNetworkProfile.cs" />
     <Compile Include="Osm\HighwayComparer.cs" />
     <Compile Include="Osm\RouterDbExtensions.cs" />
+    <Compile Include="Osm\Streams\NodeCoordinatesCache.cs" />
+    <Compile Include="Osm\Streams\NodeCoordinatesDictionary.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Profiles\Factor.cs" />

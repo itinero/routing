@@ -28,6 +28,7 @@ using OsmSharp.Osm.Streams;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Osm.Vehicles;
+using Reminiscence.Arrays;
 using Reminiscence.IO;
 using System;
 using System.Collections.Generic;
@@ -65,13 +66,13 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
-        public RouterDbStreamTarget(RouterDb db, MemoryMap map, Vehicle[] vehicles, bool allCore)
+        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore)
         {
             _db = db;
             _vehicles = vehicles;
             _allNodesAreCore = allCore;
 
-            _routingNodeCoordinates = new CoordinateIndex();
+            _routingNodeCoordinates = new NodeCoordinatesDictionary();
             _routingNodes = new LongIndex();
             _coreNodes = new LongIndex();
             _coreNodeIdMap = new HugeDictionary<long, uint>();
@@ -86,13 +87,13 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
-        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore)
+        public RouterDbStreamTarget(RouterDb db, MemoryMap map, Vehicle[] vehicles, bool allCore)
         {
             _db = db;
             _vehicles = vehicles;
             _allNodesAreCore = allCore;
 
-            _routingNodeCoordinates = new CoordinateIndex();
+            _routingNodeCoordinates = new NodeCoordinatesDictionary(map);
             _routingNodes = new LongIndex();
             _coreNodes = new LongIndex();
             _coreNodeIdMap = new HugeDictionary<long, uint>();
@@ -106,7 +107,7 @@ namespace OsmSharp.Routing.Osm.Streams
 
         private bool _firstPass = true; // flag for first/second pass.
         private ILongIndex _routingNodes; // nodes that are in one routable way.
-        private ICoordinateIndex _routingNodeCoordinates; // coordinates of nodes that are part of a routable way.
+        private NodeCoordinatesDictionary _routingNodeCoordinates; // coordinates of nodes that are part of a routable way.
         private ILongIndex _coreNodes; // node that are in more than one routable way.
         private HugeDictionary<long, uint> _coreNodeIdMap; // maps nodes in the core onto routing network id's.
 
@@ -195,11 +196,11 @@ namespace OsmSharp.Routing.Osm.Streams
             {
                 if (_routingNodes.Contains(node.Id.Value))
                 { // node is a routing node, store it's coordinates.
-                    _routingNodeCoordinates[node.Id.Value] = new GeoCoordinateSimple()
+                    _routingNodeCoordinates.Add(node.Id.Value, new GeoCoordinateSimple()
                     {
                         Latitude = (float)node.Latitude.Value,
                         Longitude = (float)node.Longitude.Value
-                    };
+                    });
                 }
             }
         }
@@ -263,7 +264,7 @@ namespace OsmSharp.Routing.Osm.Streams
                         var intermediates = new List<ICoordinate>();
                         var distance = 0.0f;
                         ICoordinate coordinate;
-                        if (!_routingNodeCoordinates.TryGet(way.Nodes[node], out coordinate))
+                        if (!_routingNodeCoordinates.TryGetValue(way.Nodes[node], out coordinate))
                         { // an incomplete way, node not in source.
                             return;
                         }
@@ -275,7 +276,7 @@ namespace OsmSharp.Routing.Osm.Streams
                         var toVertex = uint.MaxValue;
                         while (true)
                         {
-                            if (!_routingNodeCoordinates.TryGet(way.Nodes[node], out coordinate))
+                            if (!_routingNodeCoordinates.TryGetValue(way.Nodes[node], out coordinate))
                             { // an incomplete way, node not in source.
                                 return;
                             }

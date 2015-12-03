@@ -98,6 +98,7 @@
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />
     <Compile Include="Navigation\Osm\InstructionCarGeneratorTests.cs" />
     <Compile Include="Network\RoutingNetworkTests.cs" />
+    <Compile Include="Osm\Streams\NodeCoordinatesCacheTests.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTargetTests.cs" />
     <Compile Include="Profiles\ProfileMock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

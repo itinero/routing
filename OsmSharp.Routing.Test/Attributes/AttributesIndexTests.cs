@@ -41,18 +41,12 @@ namespace OsmSharp.Routing.Test.Attributes
             var index = new AttributesIndex();
             Assert.IsFalse(index.IsReadonly);
 
-            index = new AttributesIndex(true, false);
-            Assert.IsTrue(index.IsReadonly);
-
-            index = new AttributesIndex(true, true);
-            Assert.IsTrue(index.IsReadonly);
-
             using (var map = new MemoryMapStream())
             {
                 index = new AttributesIndex(map);
                 Assert.IsFalse(index.IsReadonly);
 
-                index = new AttributesIndex(map, true);
+                index = new AttributesIndex(map, AttributesIndexMode.IncreaseOne);
                 Assert.IsFalse(index.IsReadonly);
             }
         }
@@ -72,7 +66,8 @@ namespace OsmSharp.Routing.Test.Attributes
             Assert.AreEqual(11, index.Add(Tag.Create("key2", "value1"))); // adds another 9 bytes to index's index, 1 byte for size and two 4-byte points to string-table.
             Assert.AreEqual(20, index.Add(Tag.Create("key2", "value2"))); // adds another 9 bytes to index's index, 1 byte for size and two 4-byte points to string-table.
 
-            index = new AttributesIndex(false, true);
+            index = new AttributesIndex(AttributesIndexMode.IncreaseOne | AttributesIndexMode.ReverseStringIndex | 
+                AttributesIndexMode.ReverseCollectionIndex);
 
             Assert.AreEqual(0, index.Add(null));
             Assert.AreEqual(1, index.Add(new TagsCollection()));
@@ -80,6 +75,24 @@ namespace OsmSharp.Routing.Test.Attributes
             Assert.AreEqual(2, index.Add(Tag.Create("key1", "value1")));
             Assert.AreEqual(3, index.Add(Tag.Create("key2", "value1")));
             Assert.AreEqual(4, index.Add(Tag.Create("key2", "value2")));
+
+            index = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
+
+            Assert.AreEqual(0, index.Add(null));
+            Assert.AreEqual(1, index.Add(new TagsCollection()));
+            Assert.AreEqual(2, index.Add(Tag.Create("key1", "value1")));
+            Assert.AreEqual(11, index.Add(Tag.Create("key1", "value1")));
+            Assert.AreEqual(20, index.Add(Tag.Create("key2", "value1")));
+            Assert.AreEqual(29, index.Add(Tag.Create("key2", "value2")));
+
+            index = new AttributesIndex(AttributesIndexMode.None);
+
+            Assert.AreEqual(0, index.Add(null));
+            Assert.AreEqual(1, index.Add(new TagsCollection()));
+            Assert.AreEqual(2, index.Add(Tag.Create("key1", "value1")));
+            Assert.AreEqual(11, index.Add(Tag.Create("key1", "value1")));
+            Assert.AreEqual(20, index.Add(Tag.Create("key2", "value1")));
+            Assert.AreEqual(29, index.Add(Tag.Create("key2", "value2")));
         }
 
         /// <summary>
@@ -145,7 +158,7 @@ namespace OsmSharp.Routing.Test.Attributes
                 }
             }
 
-            index = new AttributesIndex(false, true);
+            index = new AttributesIndex(AttributesIndexMode.IncreaseOne);
 
             id1 = index.Add(Tag.Create("key1", "value1"));
             id2 = index.Add(Tag.Create("key2", "value1"));
@@ -170,7 +183,7 @@ namespace OsmSharp.Routing.Test.Attributes
             OsmSharp.Math.Random.StaticRandomGenerator.Set(116542346);
             keys = 100;
             values = 100000;
-            index = new AttributesIndex(false, true);
+            index = new AttributesIndex(AttributesIndexMode.IncreaseOne);
             refIndex = new Dictionary<uint, TagsCollectionBase>();
             for (var i = 0; i < 1000; i++)
             {
@@ -248,14 +261,14 @@ namespace OsmSharp.Routing.Test.Attributes
 
             using (var memoryStream = new MemoryStream())
             {
-                var index = new AttributesIndex(false, true);
+                var index = new AttributesIndex(AttributesIndexMode.IncreaseOne);
 
                 Assert.AreEqual(16 + 9, index.Serialize(memoryStream));
                 Assert.AreEqual(16 + 9, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
-                var index = new AttributesIndex(false, true);
+                var index = new AttributesIndex(AttributesIndexMode.IncreaseOne);
                 index.Add(Tag.Create("1", "2"));
 
                 Assert.AreEqual(31 + 1 + 8 + 4, index.Serialize(memoryStream));
@@ -263,7 +276,7 @@ namespace OsmSharp.Routing.Test.Attributes
             }
             using (var memoryStream = new MemoryStream())
             {
-                var index = new AttributesIndex(false, true);
+                var index = new AttributesIndex(AttributesIndexMode.IncreaseOne | AttributesIndexMode.ReverseAll);
                 index.Add(Tag.Create("1", "2"));
                 index.Add(Tag.Create("1", "2"));
                 index.Add(Tag.Create("1", "2"));
@@ -273,7 +286,7 @@ namespace OsmSharp.Routing.Test.Attributes
             }
             using (var memoryStream = new MemoryStream())
             {
-                var index = new AttributesIndex(false, true);
+                var index = new AttributesIndex(AttributesIndexMode.IncreaseOne | AttributesIndexMode.ReverseAll);
                 index.Add(Tag.Create("1", "2"));
                 index.Add(Tag.Create("1", "2"));
                 index.Add(Tag.Create("2", "1"));
@@ -404,7 +417,7 @@ namespace OsmSharp.Routing.Test.Attributes
                 }
             }
 
-            refIndex = new AttributesIndex(false, true);
+            refIndex = new AttributesIndex(AttributesIndexMode.IncreaseOne);
 
             id1 = refIndex.Add(Tag.Create("key1", "value1"));
             id2 = refIndex.Add(Tag.Create("key2", "value1"));
@@ -459,7 +472,7 @@ namespace OsmSharp.Routing.Test.Attributes
             OsmSharp.Math.Random.StaticRandomGenerator.Set(116542346);
             keys = 100;
             values = 100000;
-            refIndex = new AttributesIndex(false, true);
+            refIndex = new AttributesIndex(AttributesIndexMode.IncreaseOne);
             refIndexRef = new Dictionary<uint, TagsCollectionBase>();
             for (var i = 0; i < 1000; i++)
             {

@@ -47,8 +47,9 @@ namespace OsmSharp.Routing
         public RouterDb()
         {
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
-            _edgeProfiles = new AttributesIndex(false, true);
-            _meta = new AttributesIndex();
+            _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne 
+                | AttributesIndexMode.ReverseAll);
+            _meta = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
             _dbMeta = new TagsCollection();
 
             _supportedProfiles = new HashSet<string>();
@@ -60,9 +61,10 @@ namespace OsmSharp.Routing
         /// </summary>
         public RouterDb(MemoryMap map)
         {
-            _network = new RoutingNetwork(map, new Graphs.Geometric.GeometricGraph(map, 1));
-            _edgeProfiles = new AttributesIndex(map, true);
-            _meta = new AttributesIndex(map);
+            _network = new RoutingNetwork(map, RoutingNetworkProfile.NoCache);
+            _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne
+                | AttributesIndexMode.ReverseAll);
+            _meta = new AttributesIndex(map, AttributesIndexMode.ReverseStringIndexKeysOnly);
             _dbMeta = new TagsCollection();
 
             _supportedProfiles = new HashSet<string>();
@@ -75,7 +77,8 @@ namespace OsmSharp.Routing
         public RouterDb(MemoryMap map, RoutingNetworkProfile profile)
         {
             _network = new RoutingNetwork(map, profile);
-            _edgeProfiles = new AttributesIndex(map, true);
+            _edgeProfiles = new AttributesIndex(map, AttributesIndexMode.IncreaseOne | 
+                AttributesIndexMode.ReverseCollectionIndex | AttributesIndexMode.ReverseStringIndex);
             _meta = new AttributesIndex(map);
             _dbMeta = new TagsCollection();
 
@@ -257,6 +260,14 @@ namespace OsmSharp.Routing
                     new OsmSharp.IO.LimitedStream(stream));
             }
             return size;
+        }
+
+        /// <summary>
+        /// Deserializes a database from the given stream.
+        /// </summary>
+        public static RouterDb Deserialize(Stream stream)
+        {
+            return RouterDb.Deserialize(stream, null);
         }
 
         /// <summary>
