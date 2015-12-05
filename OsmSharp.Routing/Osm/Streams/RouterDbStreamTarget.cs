@@ -67,12 +67,22 @@ namespace OsmSharp.Routing.Osm.Streams
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore)
+            : this(db, vehicles, allCore, new NodeCoordinatesDictionary())
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new router db stream target.
+        /// </summary>
+        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore,
+            NodeCoordinatesDictionary routingNodeCoordinates)
         {
             _db = db;
             _vehicles = vehicles;
             _allNodesAreCore = allCore;
 
-            _routingNodeCoordinates = new NodeCoordinatesDictionary();
+            _routingNodeCoordinates = routingNodeCoordinates;
             _routingNodes = new LongIndex();
             _coreNodes = new LongIndex();
             _coreNodeIdMap = new HugeDictionary<long, uint>();
