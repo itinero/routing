@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Osm.Vehicles;
 

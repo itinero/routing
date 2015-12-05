@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Routing.Network;
 using OsmSharp.Geo.Geometries;
@@ -24,6 +23,7 @@ using OsmSharp.Geo.Streams.GeoJson;
 using OsmSharp.Math.Geo;
 using System.Collections.Generic;
 using System.IO;
+using OsmSharp.Geo;
 
 namespace OsmSharp.Routing.Test
 {

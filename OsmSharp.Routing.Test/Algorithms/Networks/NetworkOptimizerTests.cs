@@ -22,7 +22,7 @@ using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using System.Linq;
 using System.Collections.Generic;
-using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Geo;
 
 namespace OsmSharp.Routing.Test.Algorithms.Networks
 {

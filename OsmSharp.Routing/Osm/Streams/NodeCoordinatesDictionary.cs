@@ -17,7 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Cache;
-using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Geo;
 using OsmSharp.Math.Geo.Simple;
 using Reminiscence.Arrays;
 using Reminiscence.IO;

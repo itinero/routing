@@ -17,7 +17,6 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Tags.Index;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Graphs.Geometric;

@@ -17,7 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Coordinates.Collections;
+using OsmSharp.Geo;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using Reminiscence.IO;

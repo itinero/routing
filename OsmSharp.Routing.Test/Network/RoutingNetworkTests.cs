@@ -17,7 +17,6 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Coordinates.Collections;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
