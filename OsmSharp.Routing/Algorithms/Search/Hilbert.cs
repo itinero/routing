@@ -87,7 +87,10 @@ namespace OsmSharp.Routing.Algorithms.Search
                 },
                 (vertex1, vertex2) =>
                 {
-                    graph.Switch((uint)vertex1, (uint)vertex2);
+                    if (vertex1 != vertex2)
+                    {
+                        graph.Switch((uint)vertex1, (uint)vertex2);
+                    }
                 }, 0, graph.VertexCount - 1);
             }
         }
