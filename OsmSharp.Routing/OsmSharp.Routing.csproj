@@ -163,8 +163,8 @@
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
     </Reference>
-    <Reference Include="Reminiscence, Version=0.0.0.28, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Reminiscence.0.0.0.28-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
+    <Reference Include="Reminiscence, Version=0.1.0.29, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.0.1.0.29-beta\lib\portable-net40+sl4+win8+wp7\Reminiscence.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />

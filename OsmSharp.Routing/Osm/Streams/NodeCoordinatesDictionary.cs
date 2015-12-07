@@ -36,7 +36,7 @@ namespace OsmSharp.Routing.Osm.Streams
         /// Creates a new node coordinates cache.
         /// </summary>
         public NodeCoordinatesDictionary()
-            : this(new MemoryMapStream(new System.IO.MemoryStream()), 65536)
+            : this(65536)
         {
 
         }
@@ -45,9 +45,8 @@ namespace OsmSharp.Routing.Osm.Streams
         /// Creates a new node coordinates cache.
         /// </summary>
         public NodeCoordinatesDictionary(int hashes)
-            : this(new MemoryMapStream(new System.IO.MemoryStream()), hashes)
         {
-
+            _data = new Reminiscence.Collections.Dictionary<long, long>(hashes);
         }
 
         /// <summary>
@@ -76,7 +75,8 @@ namespace OsmSharp.Routing.Osm.Streams
             BitConverter.GetBytes(latitude).CopyTo(longBytes, 0);
             BitConverter.GetBytes(longitude).CopyTo(longBytes, 4);
 
-            _data[id] = BitConverter.ToInt64(longBytes, 0);
+            var value = BitConverter.ToInt64(longBytes, 0);
+            _data[id] = value;
         }
 
         /// <summary>
