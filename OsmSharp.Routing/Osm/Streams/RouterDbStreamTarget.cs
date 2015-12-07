@@ -172,8 +172,38 @@ namespace OsmSharp.Routing.Osm.Streams
 
                             if (!relevant)
                             {
-                                osmGeo.Tags.RemoveKeyValue(tag.Key, tag.Value);
+                                osmGeo.Tags.RemoveKeyValue(tag);
                             }
+                            else
+                            { // do some cleanup.
+                                if(tag.Key == "oneway")
+                                {
+                                    if(tag.Value == "no")
+                                    { // explicitly tagged as 'not oneway' remove the tag.
+                                        osmGeo.Tags.RemoveKeyValue(tag);
+                                    }
+                                    else if (tag.Value == "-1")
+                                    { // -1 means reverse.
+                                        osmGeo.Tags.AddOrReplace("oneway", "reverse");
+                                    }
+                                    else if(tag.Value != "yes" || tag.Value != "reverse")
+                                    { // this oneway tag doesn't make sense.
+                                        osmGeo.Tags.RemoveKeyValue(tag);
+                                    }
+                                }
+                                else if(tag.Key == "maxspeed")
+                                {
+                                    int maxSpeed;
+                                    if(!int.TryParse(tag.Value, out maxSpeed))
+                                    {
+                                        osmGeo.Tags.RemoveKeyValue(tag);
+                                    }
+                                }
+                            }
+                        }
+                        if (!osmGeo.Tags.ContainsKey("access"))
+                        {
+                            osmGeo.Tags.Add("access", "yes");
                         }
                     }
                     return osmGeo;
