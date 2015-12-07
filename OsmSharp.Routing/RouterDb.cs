@@ -200,7 +200,7 @@ namespace OsmSharp.Routing
         /// </summary>
         public void AddContracted(Profiles.Profile profile, DirectedMetaGraph contracted)
         {
-            _contracted.Add(profile.Name, contracted);
+            _contracted[profile.Name] = contracted;
         }
 
         /// <summary>
