@@ -186,7 +186,7 @@ namespace OsmSharp.Routing.Osm.Streams
                                     { // -1 means reverse.
                                         osmGeo.Tags.AddOrReplace("oneway", "reverse");
                                     }
-                                    else if(tag.Value != "yes" || tag.Value != "reverse")
+                                    else if(tag.Value != "yes" && tag.Value != "reverse")
                                     { // this oneway tag doesn't make sense.
                                         osmGeo.Tags.RemoveKeyValue(tag);
                                     }
