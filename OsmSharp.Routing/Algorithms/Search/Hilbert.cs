@@ -365,7 +365,7 @@ namespace OsmSharp.Routing.Algorithms.Search
             // go over all edges and check max distance box.
             var maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
-                    Math.Geo.Meta.DirectionEnum.NorhtWest),
+                    Math.Geo.Meta.DirectionEnum.NorthWest),
                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
                     Math.Geo.Meta.DirectionEnum.SouthEast));
 
@@ -421,7 +421,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                                     // decrease max distance box.
                                     maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
                                         (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
-                                            Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                            Math.Geo.Meta.DirectionEnum.NorthWest),
                                         (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
                                             Math.Geo.Meta.DirectionEnum.SouthEast));
                                 }
@@ -453,7 +453,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                                             // decrease max distance box.
                                             maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
                                                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
-                                                    Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                                    Math.Geo.Meta.DirectionEnum.NorthWest),
                                                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
                                                     Math.Geo.Meta.DirectionEnum.SouthEast));
                                         }
@@ -490,7 +490,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                                     // decrease max distance box.
                                     maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
                                         (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
-                                            Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                            Math.Geo.Meta.DirectionEnum.NorthWest),
                                         (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistance,
                                             Math.Geo.Meta.DirectionEnum.SouthEast));
                                 }
@@ -557,7 +557,7 @@ namespace OsmSharp.Routing.Algorithms.Search
             {
                 maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
                     (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
-                        Math.Geo.Meta.DirectionEnum.NorhtWest),
+                        Math.Geo.Meta.DirectionEnum.NorthWest),
                     (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
                         Math.Geo.Meta.DirectionEnum.SouthEast));
             }
@@ -620,7 +620,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                                         // decrease max distance box.
                                         maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
                                             (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
-                                                Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                                Math.Geo.Meta.DirectionEnum.NorthWest),
                                             (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
                                                 Math.Geo.Meta.DirectionEnum.SouthEast));
                                     }
@@ -655,7 +655,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                                                 // decrease max distance box.
                                                 maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
                                                     (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
-                                                        Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                                        Math.Geo.Meta.DirectionEnum.NorthWest),
                                                     (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
                                                         Math.Geo.Meta.DirectionEnum.SouthEast));
                                             }
@@ -695,7 +695,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                                         // decrease max distance box.
                                         maxDistanceBoxes[i] = new OsmSharp.Math.Geo.GeoCoordinateBox(
                                             (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
-                                                Math.Geo.Meta.DirectionEnum.NorhtWest),
+                                                Math.Geo.Meta.DirectionEnum.NorthWest),
                                             (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(bestDistances[i],
                                                 Math.Geo.Meta.DirectionEnum.SouthEast));
                                     }
@@ -749,7 +749,7 @@ namespace OsmSharp.Routing.Algorithms.Search
             // go over all edges and check max distance box.
             var maxDistanceBox = new OsmSharp.Math.Geo.GeoCoordinateBox(
                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
-                    Math.Geo.Meta.DirectionEnum.NorhtWest),
+                    Math.Geo.Meta.DirectionEnum.NorthWest),
                 (new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude)).OffsetWithDirection(maxDistanceMeter,
                     Math.Geo.Meta.DirectionEnum.SouthEast));
 

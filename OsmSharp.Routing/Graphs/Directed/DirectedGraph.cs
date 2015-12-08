@@ -617,8 +617,8 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
 
             // sort vertices and coordinates.
-            QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * _vertices.Length +
-                    sortedVertices[i] * VERTEX_SIZE, 
+            QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * sortedVertices.Length +
+                    sortedVertices[i], 
                 (i, j) =>
                     {
                         var tempRef = sortedVertices[i];
