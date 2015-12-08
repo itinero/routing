@@ -714,7 +714,7 @@ namespace OsmSharp.Routing.Algorithms.Search
         public static List<uint> SearchCloserThan(this GeometricGraph graph, float latitude, float longitude,
             float offset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk)
         {
-            var result = new List<uint>();
+            var result = new HashSet<uint>();
 
             var coordinate = new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude);
 
@@ -859,7 +859,7 @@ namespace OsmSharp.Routing.Algorithms.Search
                     }
                 }
             }
-            return result;
+            return new List<uint>(result);
         }
 
         /// <summary>
