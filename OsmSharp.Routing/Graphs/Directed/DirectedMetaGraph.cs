@@ -416,7 +416,7 @@ namespace OsmSharp.Routing.Graphs.Directed
         {
             this.Compress();
 
-            var size = _graph.Serialize(stream);
+            var size = _graph.Serialize(stream, false);
 
             stream.Write(BitConverter.GetBytes(0), 0, 4); // write the vertex size.
             size = size + 4;

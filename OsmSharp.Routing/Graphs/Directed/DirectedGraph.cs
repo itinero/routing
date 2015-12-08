@@ -617,13 +617,14 @@ namespace OsmSharp.Routing.Graphs.Directed
             }
 
             // sort vertices and coordinates.
-            QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE], 
+            QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * _vertices.Length +
+                    sortedVertices[i] * VERTEX_SIZE, 
                 (i, j) =>
-            {
-                var tempRef = sortedVertices[i];
-                sortedVertices[i] = sortedVertices[j];
-                sortedVertices[j] = tempRef;
-            }, 0, this.VertexCount - 1);
+                    {
+                        var tempRef = sortedVertices[i];
+                        sortedVertices[i] = sortedVertices[j];
+                        sortedVertices[j] = tempRef;
+                    }, 0, this.VertexCount - 1);
 
             // move data down.
             uint pointer = 0;
@@ -891,12 +892,24 @@ namespace OsmSharp.Routing.Graphs.Directed
 
         #region Serialization
 
+
         /// <summary>
         /// Serializes this graph to disk.
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            this.Compress();
+            return this.Serialize(stream, true);
+        }
+
+        /// <summary>
+        /// Serializes this graph to disk.
+        /// </summary>
+        public long Serialize(System.IO.Stream stream, bool compress)
+        {
+            if (compress)
+            {
+                this.Compress();
+            }
 
             long vertexCount = this.VertexCount;
             long edgeCount = (_nextEdgePointer / _edgeSize);
