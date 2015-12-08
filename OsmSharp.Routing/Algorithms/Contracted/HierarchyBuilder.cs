@@ -53,7 +53,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// </summary>
         protected override void DoRun()
         {
-            _queue = new BinaryHeap<uint>();
+            _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new OsmSharp.Collections.LongIndex.LongIndex.LongIndex();
             _missesQueue = new Queue<bool>();
 
@@ -149,6 +149,9 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// </summary>
         private void RemoveWitnessedEdges()
         {
+            OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
+                "Removing witnessed edges...");
+
             var edges = new List<MetaEdge>();
             var weights = new List<float>();
             var targets = new List<uint>();
