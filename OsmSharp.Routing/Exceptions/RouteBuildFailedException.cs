@@ -28,7 +28,7 @@ namespace OsmSharp.Routing.Exceptions
         /// <summary>
         /// Creates a new exception.
         /// </summary>
-        internal RouteBuildFailedException(string message)
+        public RouteBuildFailedException(string message)
             : base(message)
         {
 
