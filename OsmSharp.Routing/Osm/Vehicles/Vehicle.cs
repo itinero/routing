@@ -280,6 +280,12 @@ namespace OsmSharp.Routing.Osm.Vehicles
         public abstract KilometerPerHour MaxSpeed();
 
         /// <summary>
+        /// Returns the minimum speed of this vehicle.
+        /// </summary>
+        /// <returns></returns>
+        public abstract KilometerPerHour MinSpeed();
+
+        /// <summary>
         /// Returns the maximum speed.
         /// </summary>
         /// <returns></returns>
@@ -448,6 +454,11 @@ namespace OsmSharp.Routing.Osm.Vehicles
                     }
                     return OsmSharp.Routing.Profiles.Speed.NoSpeed;
                 },
+                () => new OsmSharp.Routing.Profiles.Speed()
+                    {
+                        Value = (float)this.MinSpeed().Value / 3.6f,
+                        Direction = 0
+                    },
             (tags) =>
                 {
                     return this.CanStopOn(tags);
@@ -489,6 +500,11 @@ namespace OsmSharp.Routing.Osm.Vehicles
                     }
                     return OsmSharp.Routing.Profiles.Speed.NoSpeed;
                 },
+                () => new OsmSharp.Routing.Profiles.Speed()
+                    {
+                        Value = (float)this.MinSpeed().Value / 3.6f,
+                        Direction = 0
+                    },
             (tags) =>
                 {
                     return this.CanStopOn(tags);

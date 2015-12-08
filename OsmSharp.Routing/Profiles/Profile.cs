@@ -31,15 +31,17 @@ namespace OsmSharp.Routing.Profiles
         private readonly Func<TagsCollectionBase, Speed> _getSpeed;
         private readonly Func<TagsCollectionBase, bool> _canStop;
         private readonly Func<TagsCollectionBase, TagsCollectionBase, bool> _equals;
+        private readonly Func<Speed> _minSpeed;
         private readonly HashSet<string> _vehicleTypes;
         private readonly ProfileMetric _metric;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<TagsCollectionBase, bool> canStop,
+        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<Speed> minSpeed, Func<TagsCollectionBase, bool> canStop,
             Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes, ProfileMetric metric)
         {
+            _minSpeed = minSpeed;
             _getSpeed = getSpeed;
             _canStop = canStop;
             _equals = equals;
@@ -83,6 +85,15 @@ namespace OsmSharp.Routing.Profiles
         public virtual Speed Speed(TagsCollectionBase attributes)
         {
             return _getSpeed(attributes);
+        }
+
+        /// <summary>
+        /// Returns the minimum speed.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Speed MinSpeed()
+        {
+            return _minSpeed();
         }
 
         /// <summary>

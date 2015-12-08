@@ -137,5 +137,14 @@ namespace OsmSharp.Routing.Osm.Vehicles
         {
             return 200;
         }
+
+        /// <summary>
+        /// Returns the minimum possible speed.
+        /// </summary>
+        /// <returns></returns>
+        public override KilometerPerHour MinSpeed()
+        {
+            return 30;
+        }
     }
 }

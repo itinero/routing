@@ -136,6 +136,15 @@ namespace OsmSharp.Routing.Osm.Vehicles
         }
 
         /// <summary>
+        /// Returns the minimum speed.
+        /// </summary>
+        /// <returns></returns>
+        public override KilometerPerHour MinSpeed()
+        {
+            return 3;
+        }
+
+        /// <summary>
         /// Returns a unique name this vehicle type.
         /// </summary>
         public override string UniqueName
