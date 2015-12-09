@@ -31,6 +31,11 @@ namespace OsmSharp.Routing
     public interface IRouter
     {
         /// <summary>
+        /// Returns true if all given profiles are supported.
+        /// </summary>
+        bool SupportsAll(params Profile[] profiles);
+
+        /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>

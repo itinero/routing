@@ -73,6 +73,15 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Returns true if all profiles are supported.
+        /// </summary>
+        /// <returns></returns>
+        public bool SupportsAll(params Profile[] profiles)
+        {
+            return _db.SupportsAll(profiles);
+        }
+
+        /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
