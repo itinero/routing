@@ -123,6 +123,16 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
+        /// <returns></returns>
+        public static RouterPoint Resolve(this IRouter router, Profile profile, float latitude, float longitude,
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+        {
+            return router.Resolve(new Profile[] { profile }, latitude, longitude, searchDistanceInMeter);
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
         public static RouterPoint Resolve(this IRouter router, Profile profile, ICoordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
