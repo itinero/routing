@@ -224,6 +224,14 @@ namespace OsmSharp.Routing
         /// </summary>
         public long Serialize(Stream stream)
         {
+            return this.Serialize(stream, true);
+        }
+
+        /// <summary>
+        /// Saves the database to the given stream.
+        /// </summary>
+        public long Serialize(Stream stream, bool toReadonly)
+        {
             var position = stream.Position;
 
             // serialize supported profiles.
@@ -257,7 +265,7 @@ namespace OsmSharp.Routing
             {
                 size += stream.WriteWithSize(contracted.Key);
                 size += contracted.Value.Serialize(
-                    new OsmSharp.IO.LimitedStream(stream));
+                    new OsmSharp.IO.LimitedStream(stream), toReadonly);
             }
             return size;
         }

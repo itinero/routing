@@ -203,8 +203,16 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// </summary>
         public void Compress()
         {
+            this.Compress(false);
+        }
+
+        /// <summary>
+        /// Relocates data internally in the most compact way possible.
+        /// </summary>
+        public void Compress(bool toReadonly)
+        {
             long maxEdgeId;
-            _graph.Compress(false, out maxEdgeId);
+            _graph.Compress(toReadonly, out maxEdgeId);
             _edgeData.Resize(maxEdgeId);
         }
 
@@ -414,7 +422,15 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            this.Compress();
+            return this.Serialize(stream, false);
+        }
+
+        /// <summary>
+        /// Serializes to a stream.
+        /// </summary>
+        public long Serialize(System.IO.Stream stream, bool toReadonly)
+        {
+            this.Compress(toReadonly);
 
             var size = _graph.Serialize(stream, false);
 
