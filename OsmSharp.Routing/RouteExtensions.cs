@@ -108,6 +108,21 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Converts this route to a linestring.
+        /// </summary>
+        /// <returns></returns>
+        public static LineString ToLineString(this Route route)
+        {
+            var coordinates = new List<GeoCoordinate>();
+            for (int i = 0; i < route.Segments.Count; i++)
+            {
+                coordinates.Add(new GeoCoordinate(route.Segments[i].Latitude,
+                    route.Segments[i].Longitude));
+            }
+            return new LineString(coordinates);
+        }
+
+        /// <summary>
         /// Converts this route to a feature collection.
         /// </summary>
         /// <returns></returns>
@@ -138,10 +153,6 @@ namespace OsmSharp.Routing
                     }
                     attributesTable.Add("time", route.Segments[i].Time);
                     attributesTable.Add("distance", route.Segments[i].Distance);
-                    //if (route.Segments[i].Vehicle != null)
-                    //{
-                    //    attributesTable.Add("vehicle", route.Segments[i].Vehicle);
-                    //}
                     featureCollection.Add(new Feature(segmentLineString, attributesTable));
                 }
 
