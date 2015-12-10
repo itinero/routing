@@ -210,8 +210,8 @@ namespace OsmSharp.Routing
             var start = route2.Segments[0];
 
             // only do all this if the routes are 'concatenable'.
-            if (end.Latitude == start.Latitude &&
-                end.Longitude == start.Longitude)
+            if (System.Math.Abs(end.Latitude - start.Latitude) < 0.001 &&
+                System.Math.Abs(end.Longitude - start.Longitude) < 0.001)
             {
                 // construct the new route.
                 var route = new Route();
