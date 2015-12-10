@@ -562,5 +562,53 @@ namespace OsmSharp.Routing.Test
             path = path.From;
             Assert.IsNull(path);
         }
+
+        /// <summary>
+        /// Tests getting location of the routerpoint on the network.
+        /// </summary>
+        [Test]
+        public void TestLocationOnNetwork()
+        {
+            var routerDb = new RouterDb();
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, .1f, -.1f);
+            routerDb.Network.AddEdge(0, 1, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
+                    new Tag("highway", "residential")))
+            }, new GeoCoordinate(0.025, -0.025),
+                new GeoCoordinate(0.050, -0.050),
+                new GeoCoordinate(0.075, -0.075));
+
+            // mock profile.
+            var profile = MockProfile.CarMock();
+
+            var point = new RouterPoint(0.04f, -0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
+
+            var location = point.LocationOnNetwork(routerDb);
+            Assert.AreEqual(0.04f, location.Latitude, 0.001f);
+            Assert.AreEqual(-0.04f, location.Longitude, 0.001f);
+
+            point = new RouterPoint(0.08f, -0.08f, 0, (ushort)(0.8 * ushort.MaxValue));
+
+            location = point.LocationOnNetwork(routerDb);
+            Assert.AreEqual(0.08f, location.Latitude, 0.001f);
+            Assert.AreEqual(-0.08f, location.Longitude, 0.001f);
+
+            point = new RouterPoint(0, 0, 0, 0);
+
+            location = point.LocationOnNetwork(routerDb);
+            Assert.AreEqual(0, location.Latitude, 0.001f);
+            Assert.AreEqual(0, location.Longitude, 0.001f);
+
+            point = new RouterPoint(.1f, -.1f, 0, ushort.MaxValue);
+
+            location = point.LocationOnNetwork(routerDb);
+            Assert.AreEqual(.1f, location.Latitude, 0.001f);
+            Assert.AreEqual(-.1f, location.Longitude, 0.001f);
+        }
     }
 }

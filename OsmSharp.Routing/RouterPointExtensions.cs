@@ -233,6 +233,35 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Returns the location on the network.
+        /// </summary>
+        public static ICoordinate LocationOnNetwork(this RouterPoint point, RouterDb db)
+        {
+            var geometricEdge = db.Network.GeometricGraph.GetEdge(point.EdgeId);
+            var shape = db.Network.GeometricGraph.GetShape(geometricEdge);
+            var length = db.Network.GeometricGraph.Length(geometricEdge);
+            var currentLength = 0.0;
+            var targetLength = length * (point.Offset / (double)ushort.MaxValue);
+            for (var i = 1; i < shape.Count; i++)
+            {
+                var segmentLength = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[i - 1], 
+                    shape[i]);
+                if(segmentLength + currentLength > targetLength)
+                {
+                    var segmentOffsetLength = segmentLength + currentLength - targetLength;
+                    var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
+                    return new GeoCoordinateSimple()
+                    {
+                        Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
+                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude)))
+                    };
+                }
+                currentLength += segmentLength;
+            }
+            return shape[shape.Count - 1];
+        }
+
+        /// <summary>
         /// Returns true if the router point matches exactly with the given vertex.
         /// </summary>
         public static bool IsVertex(this RouterPoint point)
