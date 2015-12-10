@@ -201,7 +201,8 @@ namespace OsmSharp.Routing.Osm.Streams
                                 }
                             }
                         }
-                        if (!osmGeo.Tags.ContainsKey("access"))
+                        if (osmGeo.Tags != null &&
+                           !osmGeo.Tags.ContainsKey("access"))
                         {
                             osmGeo.Tags.Add("access", "yes");
                         }
