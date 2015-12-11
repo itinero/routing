@@ -20,6 +20,7 @@ using OsmSharp.Collections.Tags;
 using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
+using OsmSharp.Routing.Profiles;
 using Reminiscence.IO;
 using System;
 using System.Collections.Generic;
@@ -204,6 +205,14 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Removes the contracted version of the routing network for the given profile.
+        /// </summary>
+        public bool RemoveContracted(Profile profile)
+        {
+            return _contracted.Remove(profile.Name);
+        }
+
+        /// <summary>
         /// Tries to get a contracted version of the routing network for the given profile.
         /// </summary>
         public bool TryGetContracted(Profiles.Profile profile, out DirectedMetaGraph contracted)
@@ -220,7 +229,7 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
-        /// Saves the database to the given stream.
+        /// Writes this database to the given stream.
         /// </summary>
         public long Serialize(Stream stream)
         {
@@ -228,7 +237,7 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
-        /// Saves the database to the given stream.
+        /// Writes this database to the given stream.
         /// </summary>
         public long Serialize(Stream stream, bool toReadonly)
         {
@@ -272,6 +281,53 @@ namespace OsmSharp.Routing
                     new OsmSharp.IO.LimitedStream(stream), toReadonly);
             }
             return size;
+        }
+
+        /// <summary>
+        /// Writes the contracted graph for the given profile to the given stream.
+        /// </summary>
+        public long SerializeContracted(Profile profile, Stream stream)
+        {
+            DirectedMetaGraph contracted;
+            if (!this.TryGetContracted(profile, out contracted))
+            {
+                throw new Exception(string.Format("Contracted graph for profile {0} not found.", profile.Name));
+            }
+
+            // write: network guid, name and data.
+
+            var guid = this.Network.Guid;
+            long size = 16;
+            stream.Write(guid.ToByteArray(), 0, 16);
+            size += stream.WriteWithSize(profile.Name);
+            size += contracted.Serialize(stream, true);
+            return size;
+        }
+
+        /// <summary>
+        /// Reads a contracted graph from the given stream and adds it to this db.
+        /// </summary>
+        public void DeserializeAndAddContracted(Stream stream)
+        {
+            this.DeserializeAndAddContracted(stream, null);
+        }
+
+        /// <summary>
+        /// Reads a contracted graph from the given stream and adds it to this db.
+        /// </summary>
+        public void DeserializeAndAddContracted(Stream stream, DirectedMetaGraphProfile profile)
+        {
+            // first read and compare guids.
+            var guidBytes = new byte[16];
+            stream.Read(guidBytes, 0, 16);
+            var guid = new Guid(guidBytes);
+            if (guid != this.Network.Guid)
+            {
+                throw new Exception("Cannot add this contracted graph, network id's do not match.");
+            }
+            var profileName = stream.ReadWithSizeString();
+            var contracted = DirectedMetaGraph.Deserialize(stream, profile);
+            _contracted[profileName] = contracted;
         }
 
         /// <summary>

@@ -409,5 +409,44 @@ namespace OsmSharp.Routing.Test
                 Assert.IsTrue(routerDb.Meta.ContainsKeyValue("date", "30-11-2015"));
             }
         }
+
+        /// <summary>
+        /// Tests saving and then loading a contracted network only.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2ContractedCarOnly()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+            // add contracted version.
+            routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.SerializeContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest(), stream);
+                routerDb.RemoveContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+                Assert.IsFalse(routerDb.HasContractedFor(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest()));
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb.DeserializeAndAddContracted(stream);
+                Assert.IsTrue(routerDb.HasContractedFor(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest()));
+
+                // create a new db.
+                routerDb = new RouterDb();
+                routerDb.AddSupportedProfile(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest());
+                routerDb.LoadTestNetwork(
+                    System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "OsmSharp.Routing.Test.test_data.networks.network2.geojson"));
+
+                stream.Seek(0, SeekOrigin.Begin);
+                Assert.Catch(() =>
+                    {
+                        routerDb.DeserializeAndAddContracted(stream);
+                    });
+            }
+        }
     }
 }

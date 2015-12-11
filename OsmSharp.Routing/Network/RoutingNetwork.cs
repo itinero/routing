@@ -116,6 +116,17 @@ namespace OsmSharp.Routing.Network
         }
 
         /// <summary>
+        /// Returns the guid for this network.
+        /// </summary>
+        public Guid Guid
+        {
+            get
+            {
+                return _guid;
+            }
+        }
+
+        /// <summary>
         /// Returns the geometric graph.
         /// </summary>
         public GeometricGraph GeometricGraph
