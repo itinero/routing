@@ -744,7 +744,7 @@ namespace OsmSharp.Routing.Test.Network
             // serialize.
             var vertices = 2;
             var edges = 1;
-            var expectedSize = 1 + 1 + 1 + 8 + 8 + 8 + // the header: three longs representing size, vertex and edge count.
+            var expectedSize = 1 + 1 + 1 + 16 + 8 + 8 + 8 + // the header: 3 version numbers, a guid, three longs representing size, vertex and edge count.
                 vertices * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
                 edges * 4 * 4 + // the bytes for the one edge: one edge = 4 uints.
                 edges * 1 * 4 + // the bytes for the one edge-data: one edge = one edge data object.
@@ -778,7 +778,7 @@ namespace OsmSharp.Routing.Test.Network
             // serialize.
             vertices = 6;
             edges = 8;
-            expectedSize = 1 + 1 + 1 + 8 + 8 + 8 + // the header: three longs representing size, vertex and edge count.
+            expectedSize = 1 + 1 + 1 + 16 + 8 + 8 + 8 + // the header: 3 version numbers, a guid, three longs representing size, vertex and edge count.
                 vertices * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
                 edges * 4 * 4 + // the bytes for the one edge: one edge = 4 uints.
                 edges * 1 * 4 + // the bytes for the one edge-data: one edge = one edge data object.

@@ -38,6 +38,7 @@ namespace OsmSharp.Routing.Network
         private readonly ArrayBase<uint> _edgeData;
         private readonly int _edgeDataSize = 2;
         private const int BLOCK_SIZE = 1000;
+        private readonly Guid _guid;
 
         /// <summary>
         /// Creates a new routing network.
@@ -46,6 +47,8 @@ namespace OsmSharp.Routing.Network
         {
             _graph = new GeometricGraph(1);
             _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
+
+            _guid = Guid.NewGuid();
         }
         
 
@@ -56,6 +59,8 @@ namespace OsmSharp.Routing.Network
         {
             _graph = new GeometricGraph(map, 1);
             _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -73,6 +78,8 @@ namespace OsmSharp.Routing.Network
                 _graph = new GeometricGraph(map, profile.GeometricGraphProfile, 1);
                 _edgeData = new Array<uint>(map, _edgeDataSize * _graph.EdgeCount, profile.EdgeDataProfile);
             }
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -82,6 +89,8 @@ namespace OsmSharp.Routing.Network
         {
             _graph = graph;
             _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -91,15 +100,19 @@ namespace OsmSharp.Routing.Network
         {
             _graph = graph;
             _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
         /// Creates a new routing network from existing data.
         /// </summary>
-        private RoutingNetwork(GeometricGraph graph, ArrayBase<uint> edgeData)
+        private RoutingNetwork(Guid guid, GeometricGraph graph, ArrayBase<uint> edgeData)
         {
             _graph = graph;
             _edgeData = edgeData;
+
+            _guid = guid;
         }
 
         /// <summary>
@@ -478,6 +491,8 @@ namespace OsmSharp.Routing.Network
             // serialize geometric graph.
             long size = 1;
             stream.WriteByte(1);
+            stream.Write(_guid.ToByteArray(), 0, 16);
+            size += 16;
             size += _graph.Serialize(stream);
 
             // serialize edge data.
@@ -497,6 +512,10 @@ namespace OsmSharp.Routing.Network
             {
                 throw new Exception(string.Format("Cannot deserialize routing network: Invalid version #: {0}.", version));
             }
+
+            var guidBytes = new byte[16];
+            stream.Read(guidBytes, 0, 16);
+            var guid = new Guid(guidBytes);
 
             var position = stream.Position;
             var initialPosition = stream.Position;
@@ -525,7 +544,7 @@ namespace OsmSharp.Routing.Network
             // make stream is positioned correctly.
             stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
-            return new RoutingNetwork(graph, edgeData);
+            return new RoutingNetwork(guid, graph, edgeData);
         }
     }
 }
