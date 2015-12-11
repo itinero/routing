@@ -1050,7 +1050,7 @@ namespace OsmSharp.Routing.Graphs
         {
             get
             {
-                return 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
+                return 1 + 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
                     this.VertexCount * 4 + // the bytes for the vertex-index: 2 vertices, pointing to 0.
                     this.EdgeCount * 4 * (4 + 1); // the bytes for the one edge: one edge = 4 uints + edge data size.
             }
@@ -1072,7 +1072,8 @@ namespace OsmSharp.Routing.Graphs
             var edgeCount = (long)(_nextEdgeId / _edgeSize);
 
             // write vertex and edge count.
-            long size = 0;
+            long size = 1;
+            stream.WriteByte(1); // write default version.
             stream.Write(BitConverter.GetBytes(vertexCount), 0, 8); // write exact number of vertices.
             size += 8;
             stream.Write(BitConverter.GetBytes(edgeCount), 0, 8); // write exact number of edges.
@@ -1098,7 +1099,12 @@ namespace OsmSharp.Routing.Graphs
             var initialPosition = stream.Position;
 
             // read sizes.
-            long size = 0;
+            long size = 1;
+            var version = stream.ReadByte();
+            if(version != 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize graph: Invalid version #: {0}.", version));
+            }
             var bytes = new byte[8];
             stream.Read(bytes, 0, 8);
             size = size + 8;

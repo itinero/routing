@@ -23,7 +23,9 @@ using OsmSharp.Routing.Network.Data;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OsmSharp.Routing.Network
 {
@@ -473,10 +475,10 @@ namespace OsmSharp.Routing.Network
         {
             this.Compress();
 
-            var position = stream.Position; // store current offset.
-
             // serialize geometric graph.
-            var size = _graph.Serialize(stream);
+            long size = 1;
+            stream.WriteByte(1);
+            size += _graph.Serialize(stream);
 
             // serialize edge data.
             _edgeData.CopyTo(stream);
@@ -488,8 +490,14 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Deserializes from a stream.
         /// </summary>
-        public static RoutingNetwork Deserialize(System.IO.Stream stream, RoutingNetworkProfile profile)
+        public static RoutingNetwork Deserialize(Stream stream, RoutingNetworkProfile profile)
         {
+            var version = stream.ReadByte();
+            if (version != 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize routing network: Invalid version #: {0}.", version));
+            }
+
             var position = stream.Position;
             var initialPosition = stream.Position;
             var graph = GeometricGraph.Deserialize(stream, profile == null ? null : profile.GeometricGraphProfile);

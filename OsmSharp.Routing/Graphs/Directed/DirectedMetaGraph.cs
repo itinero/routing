@@ -432,13 +432,13 @@ namespace OsmSharp.Routing.Graphs.Directed
         {
             this.Compress(toReadonly);
 
-            var size = _graph.Serialize(stream, false);
-
+            long size = 1;
+            stream.WriteByte(1);
+            size += _graph.Serialize(stream, false);
             stream.Write(BitConverter.GetBytes(0), 0, 4); // write the vertex size.
-            size = size + 4;
+            size += 4;
             stream.Write(BitConverter.GetBytes(_edgeDataSize), 0, 4); // write the edge size.
-            size = size + 4;
-
+            size += 4;
             size += _edgeData.CopyTo(stream);
 
             return size;
@@ -450,6 +450,12 @@ namespace OsmSharp.Routing.Graphs.Directed
         /// <returns></returns>
         public static DirectedMetaGraph Deserialize(System.IO.Stream stream, DirectedMetaGraphProfile profile)
         {
+            var version = stream.ReadByte();
+            if (version != 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize directed meta graph: Invalid version #: {0}.", version));
+            }
+
             var graph = DirectedGraph.Deserialize(stream, profile == null ? null : profile.DirectedGraphProfile);
             var initialPosition = stream.Position;
 

@@ -404,7 +404,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
         {
             get
             {
-                return _graph.SizeInBytes +
+                return 1 + _graph.SizeInBytes +
                     _coordinates.Length * 4 +
                     _shapes.SizeInBytes;
             }
@@ -588,8 +588,9 @@ namespace OsmSharp.Routing.Graphs.Geometric
             this.Compress();
 
             // serialize the base graph & make sure to seek to right after.
-            var size = _graph.Serialize(stream);
-            stream.Seek(size, System.IO.SeekOrigin.Begin);
+            long size = 1;
+            stream.WriteByte(1);
+            size += _graph.Serialize(stream);
 
             // serialize the coordinates.
             size += _coordinates.CopyTo(stream);
@@ -605,6 +606,11 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// </summary>
         public static GeometricGraph Deserialize(System.IO.Stream stream, GeometricGraphProfile profile)
         {
+            var version = stream.ReadByte();
+            if(version != 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize geometric graph: Invalid version #: {0}.", version));
+            }
             var graph = Graph.Deserialize(stream, profile == null ? null : profile.GraphProfile);
             var initialPosition = stream.Position;
             var size = 0L;

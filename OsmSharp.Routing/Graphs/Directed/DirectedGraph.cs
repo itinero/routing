@@ -915,7 +915,8 @@ namespace OsmSharp.Routing.Graphs.Directed
             long edgeCount = (_nextEdgePointer / _edgeSize);
 
             // write vertex and edge count.
-            long size = 0;
+            long size = 1;
+            stream.WriteByte(1);
             stream.Write(BitConverter.GetBytes(vertexCount), 0, 8); // write exact number of vertices.
             size = size + 8;
             stream.Write(BitConverter.GetBytes(edgeCount), 0, 8); // write exact number of edges.
@@ -941,7 +942,12 @@ namespace OsmSharp.Routing.Graphs.Directed
             var initialPosition = stream.Position;
 
             // read sizes.
-            long size = 0;
+            long size = 1;
+            var version = stream.ReadByte();
+            if (version != 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize directed graph: Invalid version #: {0}.", version));
+            }
             var bytes = new byte[8];
             stream.Read(bytes, 0, 8);
             size = size + 8;

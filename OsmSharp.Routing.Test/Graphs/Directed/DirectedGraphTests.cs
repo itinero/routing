@@ -738,7 +738,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             // add and compress.
             graph.AddEdge(0, 1, 1);
             graph.Compress();
-            var expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
+            var expectedSize = 1 + 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
                 graph.VertexCount * 2 * 4 + // the bytes for the vertex-index: 2 uint's.
                 graph.EdgeCount * 2 * 4; // the bytes for the edges: one edge 1 uint.
             using (var stream = new System.IO.MemoryStream())
@@ -762,7 +762,7 @@ namespace OsmSharp.Routing.Test.Graphs.Directed
             graph.AddEdge(3, 4, 40);
             graph.RemoveEdge(1, 2);
             graph.Compress();
-            expectedSize = 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
+            expectedSize = 1 + 8 + 8 + 4 + 4 + // the header: two longs representing vertex and edge count and one int for edge size and one for vertex size.
                 graph.VertexCount * 2 * 4 + // the bytes for the vertex-index: 2 uint's.
                 graph.EdgeCount * 2 * 4; // the bytes for the edges: one edge 1 uint.
             using (var stream = new System.IO.MemoryStream())

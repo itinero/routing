@@ -234,8 +234,12 @@ namespace OsmSharp.Routing
         {
             var position = stream.Position;
 
+            // write version #.
+            long size = 1;
+            stream.WriteByte(1);
+
             // serialize supported profiles.
-            var size = stream.WriteWithSize(_supportedProfiles.ToArray());
+            size += stream.WriteWithSize(_supportedProfiles.ToArray());
 
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);
@@ -284,6 +288,12 @@ namespace OsmSharp.Routing
         public static RouterDb Deserialize(Stream stream, RouterDbProfile profile)
         {
             // deserialize all basic data.
+            var version = stream.ReadByte();
+            if (version != 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
+            }
+
             var supportedProfiles = stream.ReadWithSizeStringArray();
             var metaDb = stream.ReadWithSizeTagsCollection();
             var contractedCount = stream.ReadByte();
