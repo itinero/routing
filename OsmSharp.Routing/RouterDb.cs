@@ -38,6 +38,7 @@ namespace OsmSharp.Routing
         private readonly AttributesIndex _edgeProfiles;
         private readonly AttributesIndex _meta;
         private readonly TagsCollectionBase _dbMeta;
+        private readonly Guid _guid;
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
         private readonly HashSet<string> _supportedProfiles;
@@ -55,6 +56,8 @@ namespace OsmSharp.Routing
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -70,6 +73,8 @@ namespace OsmSharp.Routing
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -85,6 +90,8 @@ namespace OsmSharp.Routing
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
@@ -104,12 +111,14 @@ namespace OsmSharp.Routing
                 _supportedProfiles.Add(supportedProfile.Name);
             }
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+
+            _guid = Guid.NewGuid();
         }
 
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        private RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
+        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
             string[] supportedProfiles)
         {
             _network = network;
@@ -123,6 +132,17 @@ namespace OsmSharp.Routing
                 _supportedProfiles.Add(supportedProfile);
             }
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+        }
+
+        /// <summary>
+        /// Returns the guid for this db.
+        /// </summary>
+        public Guid Guid
+        {
+            get
+            {
+                return _guid;
+            }
         }
 
         /// <summary>
@@ -247,6 +267,10 @@ namespace OsmSharp.Routing
             long size = 1;
             stream.WriteByte(1);
 
+            // write guid.
+            stream.Write(_guid.ToByteArray(), 0, 16);
+            size += 16;
+
             // serialize supported profiles.
             size += stream.WriteWithSize(_supportedProfiles.ToArray());
 
@@ -294,9 +318,9 @@ namespace OsmSharp.Routing
                 throw new Exception(string.Format("Contracted graph for profile {0} not found.", profile.Name));
             }
 
-            // write: network guid, name and data.
+            // write: guid, name and data.
 
-            var guid = this.Network.Guid;
+            var guid = this.Guid;
             long size = 16;
             stream.Write(guid.ToByteArray(), 0, 16);
             size += stream.WriteWithSize(profile.Name);
@@ -321,9 +345,9 @@ namespace OsmSharp.Routing
             var guidBytes = new byte[16];
             stream.Read(guidBytes, 0, 16);
             var guid = new Guid(guidBytes);
-            if (guid != this.Network.Guid)
+            if (guid != this.Guid)
             {
-                throw new Exception("Cannot add this contracted graph, network id's do not match.");
+                throw new Exception("Cannot add this contracted graph, guid's do not match.");
             }
             var profileName = stream.ReadWithSizeString();
             var contracted = DirectedMetaGraph.Deserialize(stream, profile);
@@ -350,6 +374,10 @@ namespace OsmSharp.Routing
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
 
+            var guidBytes = new byte[16];
+            stream.Read(guidBytes, 0, 16);
+            var guid = new Guid(guidBytes);
+
             var supportedProfiles = stream.ReadWithSizeStringArray();
             var metaDb = stream.ReadWithSizeTagsCollection();
             var contractedCount = stream.ReadByte();
@@ -358,7 +386,7 @@ namespace OsmSharp.Routing
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.
-            var routerDb = new RouterDb(network, profiles, meta, metaDb, supportedProfiles);
+            var routerDb = new RouterDb(guid, network, profiles, meta, metaDb, supportedProfiles);
             
             // read all contracted versions.
             for (var i = 0; i < contractedCount; i++)
