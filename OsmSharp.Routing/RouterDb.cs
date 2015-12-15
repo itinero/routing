@@ -121,6 +121,7 @@ namespace OsmSharp.Routing
         private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
             string[] supportedProfiles)
         {
+            _guid = guid;
             _network = network;
             _edgeProfiles = profiles;
             _meta = meta;
