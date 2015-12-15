@@ -21,13 +21,13 @@ using OsmSharp.Collections.LongIndex;
 using OsmSharp.Collections.LongIndex.LongIndex;
 using OsmSharp.Collections.Tags;
 using OsmSharp.Geo;
+using OsmSharp.Math.Geo;
 using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Osm;
 using OsmSharp.Osm.Streams;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Osm.Vehicles;
-using Reminiscence.Arrays;
 using Reminiscence.IO;
 using System;
 using System.Collections.Generic;
@@ -43,6 +43,8 @@ namespace OsmSharp.Routing.Osm.Streams
         private readonly RouterDb _db;
         private readonly Vehicle[] _vehicles;
         private readonly bool _allNodesAreCore;
+        private readonly int _minimumStages = 1;
+        private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
 
         /// <summary>
         /// Creates a new router db stream target.
@@ -56,17 +58,8 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
-        public RouterDbStreamTarget(RouterDb db, MemoryMap map, Vehicle[] vehicles)
-            : this(db, map, vehicles, false)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new router db stream target.
-        /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore)
-            : this(db, vehicles, allCore, new NodeCoordinatesDictionary())
+            : this(db, vehicles, allCore, 1)
         {
 
         }
@@ -75,37 +68,23 @@ namespace OsmSharp.Routing.Osm.Streams
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore,
-            NodeCoordinatesDictionary routingNodeCoordinates)
+            int minimumStages)
         {
             _db = db;
             _vehicles = vehicles;
             _allNodesAreCore = allCore;
 
-            _routingNodeCoordinates = routingNodeCoordinates;
-            _routingNodes = new LongIndex();
+            _createNodeCoordinatesDictionary = () => 
+                {
+                    return new NodeCoordinatesDictionary();
+                };
+            _stageCoordinates = _createNodeCoordinatesDictionary();
+            _allRoutingNodes = new LongIndex();
+            _anyStageNodes = new LongIndex();
             _coreNodes = new LongIndex();
             _coreNodeIdMap = new HugeDictionary<long, uint>();
-
-            foreach (var vehicle in vehicles)
-            {
-                db.AddSupportedProfile(vehicle.Fastest());
-                db.AddSupportedProfile(vehicle.Shortest());
-            }
-        }
-
-        /// <summary>
-        /// Creates a new router db stream target.
-        /// </summary>
-        public RouterDbStreamTarget(RouterDb db, MemoryMap map, Vehicle[] vehicles, bool allCore)
-        {
-            _db = db;
-            _vehicles = vehicles;
-            _allNodesAreCore = allCore;
-
-            _routingNodeCoordinates = new NodeCoordinatesDictionary(map);
-            _routingNodes = new LongIndex();
-            _coreNodes = new LongIndex();
-            _coreNodeIdMap = new HugeDictionary<long, uint>();
+            _processedWays = new LongIndex();
+            _minimumStages = minimumStages;
 
             foreach (var vehicle in vehicles)
             {
@@ -115,11 +94,19 @@ namespace OsmSharp.Routing.Osm.Streams
         }
 
         private bool _firstPass = true; // flag for first/second pass.
-        private ILongIndex _routingNodes; // nodes that are in one routable way.
-        private NodeCoordinatesDictionary _routingNodeCoordinates; // coordinates of nodes that are part of a routable way.
+        private ILongIndex _allRoutingNodes; // nodes that are in a routable way.
+        private ILongIndex _anyStageNodes; // nodes that are in a routable way that needs to be included in all stages.
+        private ILongIndex _processedWays; // ways that have been processed already.
+        private NodeCoordinatesDictionary _stageCoordinates; // coordinates of nodes that are part of a routable way in the current stage.
         private ILongIndex _coreNodes; // node that are in more than one routable way.
         private HugeDictionary<long, uint> _coreNodeIdMap; // maps nodes in the core onto routing network id's.
 
+        private long _nodeCount = 0;
+        private double _minLatitude = double.MaxValue, _minLongitude = double.MaxValue, 
+            _maxLatitude = double.MinValue, _maxLongitude = double.MinValue;
+        private List<GeoCoordinateBox> _stages = new List<GeoCoordinateBox>();
+        private int _stage = -1;
+        
         /// <summary>
         /// Intializes this target.
         /// </summary>
@@ -135,14 +122,21 @@ namespace OsmSharp.Routing.Osm.Streams
         public override bool OnBeforePull()
         {
             // execute the first pass but ignore nodes.
-            this.DoPull(true, false, true);
+            this.DoPull(false, false, true);
 
-            // reset the source.
-            this.Source.Reset();
-
+            // move to first stage and initial first pass.
+            _stage = 0;
             _firstPass = false;
+            while (_stage < _stages.Count)
+            { // execute next stage, reset source and pull data again.
+                this.Source.Reset();
+                this.DoPull(false, false, false);
+                _stage++;
 
-            return true;
+                _stageCoordinates = _createNodeCoordinatesDictionary();
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -176,9 +170,9 @@ namespace OsmSharp.Routing.Osm.Streams
                             }
                             else
                             { // do some cleanup.
-                                if(tag.Key == "oneway")
+                                if (tag.Key == "oneway")
                                 {
-                                    if(tag.Value == "no")
+                                    if (tag.Value == "no")
                                     { // explicitly tagged as 'not oneway' remove the tag.
                                         osmGeo.Tags.RemoveKeyValue(tag);
                                     }
@@ -186,15 +180,15 @@ namespace OsmSharp.Routing.Osm.Streams
                                     { // -1 means reverse.
                                         osmGeo.Tags.AddOrReplace("oneway", "reverse");
                                     }
-                                    else if(tag.Value != "yes" && tag.Value != "reverse")
+                                    else if (tag.Value != "yes" && tag.Value != "reverse")
                                     { // this oneway tag doesn't make sense.
                                         osmGeo.Tags.RemoveKeyValue(tag);
                                     }
                                 }
-                                else if(tag.Key == "maxspeed")
+                                else if (tag.Key == "maxspeed")
                                 {
                                     int maxSpeed;
-                                    if(!int.TryParse(tag.Value, out maxSpeed))
+                                    if (!int.TryParse(tag.Value, out maxSpeed))
                                     {
                                         osmGeo.Tags.RemoveKeyValue(tag);
                                     }
@@ -232,15 +226,41 @@ namespace OsmSharp.Routing.Osm.Streams
         /// </summary>
         public override void AddNode(Node node)
         {
-            if (!_firstPass)
+            if(_firstPass)
             {
-                if (_routingNodes.Contains(node.Id.Value))
-                { // node is a routing node, store it's coordinates.
-                    _routingNodeCoordinates.Add(node.Id.Value, new GeoCoordinateSimple()
-                    {
-                        Latitude = (float)node.Latitude.Value,
-                        Longitude = (float)node.Longitude.Value
-                    });
+                _nodeCount++;
+                var latitude = node.Latitude.Value;
+                if(latitude < _minLatitude)
+                {
+                    _minLatitude = latitude;
+                }
+                if(latitude > _maxLatitude)
+                {
+                    _maxLatitude = latitude;
+                }
+                var longitude = node.Longitude.Value;
+                if (longitude < _minLongitude)
+                {
+                    _minLongitude = longitude;
+                }
+                if (longitude > _maxLongitude)
+                {
+                    _maxLongitude = longitude;
+                }
+            }
+            else
+            {
+                if (_stages[_stage].Contains(node.Longitude.Value, node.Latitude.Value) ||
+                    _anyStageNodes.Contains(node.Id.Value))
+                {
+                    if (_allRoutingNodes.Contains(node.Id.Value))
+                    { // node is a routing node, store it's coordinates.
+                        _stageCoordinates.Add(node.Id.Value, new GeoCoordinateSimple()
+                        {
+                            Latitude = (float)node.Latitude.Value,
+                            Longitude = (float)node.Longitude.Value
+                        });
+                    }
                 }
             }
         }
@@ -255,18 +275,76 @@ namespace OsmSharp.Routing.Osm.Streams
             if (way.Nodes.Count == 0) { return; }
 
             if (_firstPass)
-            { // just keep 
+            { // just keep.
+                // check boundingbox and node count and descide on # stages.                    
+                var box = new GeoCoordinateBox(
+                    new GeoCoordinate(_minLatitude, _minLongitude),
+                    new GeoCoordinate(_maxLatitude, _maxLongitude));
+                var e = 0.00001;
+                if (_stages.Count == 0)
+                {
+                    if ((_nodeCount > 500000000 ||
+                         _minimumStages > 1))
+                    { // more than half a billion nodes, split in different stages.
+                        var stages = System.Math.Max(System.Math.Ceiling(_nodeCount / 500000000), _minimumStages);
+
+                        if (stages >= 4)
+                        {
+                            stages = 4;
+                            _stages.Add(new GeoCoordinateBox(
+                                new GeoCoordinate(_minLatitude, _minLongitude),
+                                new GeoCoordinate(box.Center.Latitude, box.Center.Longitude)));
+                            _stages[0] = _stages[0].Resize(e);
+                            _stages.Add(new GeoCoordinateBox(
+                                new GeoCoordinate(_minLatitude, box.Center.Longitude),
+                                new GeoCoordinate(box.Center.Latitude, _maxLongitude)));
+                            _stages[1] = _stages[1].Resize(e);
+                            _stages.Add(new GeoCoordinateBox(
+                                new GeoCoordinate(box.Center.Latitude, _minLongitude),
+                                new GeoCoordinate(_maxLatitude, box.Center.Longitude)));
+                            _stages[2] = _stages[2].Resize(e);
+                            _stages.Add(new GeoCoordinateBox(
+                                new GeoCoordinate(box.Center.Latitude, box.Center.Longitude),
+                                new GeoCoordinate(_maxLatitude, _maxLongitude)));
+                            _stages[3] = _stages[3].Resize(e);
+                        }
+                        else if (stages >= 2)
+                        {
+                            stages = 2;
+                            _stages.Add(new GeoCoordinateBox(
+                                new GeoCoordinate(_minLatitude, _minLongitude),
+                                new GeoCoordinate(_maxLatitude, box.Center.Longitude)));
+                            _stages[0] = _stages[0].Resize(e);
+                            _stages.Add(new GeoCoordinateBox(
+                                new GeoCoordinate(_minLatitude, box.Center.Longitude),
+                                new GeoCoordinate(_maxLatitude, _maxLongitude)));
+                            _stages[1] = _stages[1].Resize(e);
+                        }
+                        else
+                        {
+                            stages = 1;
+                            _stages.Add(box);
+                            _stages[0] = _stages[0].Resize(e);
+                        }
+                    }
+                    else
+                    {
+                        _stages.Add(box);
+                        _stages[0] = _stages[0].Resize(e);
+                    }
+                }
+
                 if (_vehicles.AnyCanTraverse(way.Tags))
                 { // way has some use.
                     for (var i = 0; i < way.Nodes.Count; i++)
                     {
                         var node = way.Nodes[i];
-                        if (_routingNodes.Contains(node) ||
+                        if (_allRoutingNodes.Contains(node) ||
                             _allNodesAreCore)
                         { // node already part of another way, definetly part of core.
                             _coreNodes.Add(node);
                         }
-                        _routingNodes.Add(node);
+                        _allRoutingNodes.Add(node);
                     }
                     _coreNodes.Add(way.Nodes[0]);
                     _coreNodes.Add(way.Nodes[way.Nodes.Count - 1]);
@@ -276,6 +354,11 @@ namespace OsmSharp.Routing.Osm.Streams
             {
                 if (_vehicles.AnyCanTraverse(way.Tags))
                 { // way has some use.
+                    if(_processedWays.Contains(way.Id.Value))
+                    { // way was already processed.
+                        return;
+                    }
+
                     // build profile and meta-data.
                     var profileTags = new TagsCollection(way.Tags.Count);
                     var metaTags = new TagsCollection(way.Tags.Count);
@@ -304,8 +387,13 @@ namespace OsmSharp.Routing.Osm.Streams
                         var intermediates = new List<ICoordinate>();
                         var distance = 0.0f;
                         ICoordinate coordinate;
-                        if (!_routingNodeCoordinates.TryGetValue(way.Nodes[node], out coordinate))
+                        if (!_stageCoordinates.TryGetValue(way.Nodes[node], out coordinate))
                         { // an incomplete way, node not in source.
+                            // add all the others to the any stage index.
+                            for (var i = 0; i < way.Nodes.Count; i++)
+                            {
+                                _anyStageNodes.Add(way.Nodes[i]);
+                            }
                             return;
                         }
                         var fromVertex = this.AddCoreNode(way.Nodes[node],
@@ -316,8 +404,13 @@ namespace OsmSharp.Routing.Osm.Streams
                         var toVertex = uint.MaxValue;
                         while (true)
                         {
-                            if (!_routingNodeCoordinates.TryGetValue(way.Nodes[node], out coordinate))
+                            if (!_stageCoordinates.TryGetValue(way.Nodes[node], out coordinate))
                             { // an incomplete way, node not in source.
+                                // add all the others to the any stage index.
+                                for (var i = 0; i < way.Nodes.Count; i++)
+                                {
+                                    _anyStageNodes.Add(way.Nodes[i]);
+                                }
                                 return;
                             }
                             distance += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(
@@ -447,6 +540,8 @@ namespace OsmSharp.Routing.Osm.Streams
                             }
                         }
                     }
+
+                    _processedWays.Add(way.Id.Value);
                 }
             }
         }
@@ -483,19 +578,19 @@ namespace OsmSharp.Routing.Osm.Streams
                 shape.Insert(0, _db.Network.GetVertex(vertex1));
                 shape.Add(_db.Network.GetVertex(vertex2));
 
-                for(var s = 1; s < shape.Count; s++)
+                for (var s = 1; s < shape.Count; s++)
                 {
                     var distance = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
                     if (distance >= OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
                     { // insert a new intermediate.
                         shape.Insert(s,
                             new GeoCoordinateSimple()
-                                {
-                                    Latitude = (float)(((double)shape[s - 1].Latitude + 
-                                        (double)shape[s].Latitude) / 2.0),
-                                    Longitude = (float)(((double)shape[s - 1].Longitude + 
-                                        (double)shape[s].Longitude) / 2.0),
-                                });
+                            {
+                                Latitude = (float)(((double)shape[s - 1].Latitude +
+                                    (double)shape[s].Latitude) / 2.0),
+                                Longitude = (float)(((double)shape[s - 1].Longitude +
+                                    (double)shape[s].Longitude) / 2.0),
+                            });
                         s--;
                     }
                 }

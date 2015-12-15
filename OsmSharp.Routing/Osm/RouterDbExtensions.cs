@@ -80,6 +80,12 @@ namespace OsmSharp.Routing.Osm
                 throw new ArgumentException("Can only load a new routing network into an empty router db.");
             }
 
+            //// load the data.
+            //var target = new OsmSharp.Routing.Osm.Streams.RouterDbStreamTarget(db,
+            //    vehicles, allCore);
+            //target.RegisterSource(source);
+            //target.Pull();
+
             // load the data.
             var target = new OsmSharp.Routing.Osm.Streams.RouterDbStreamTarget(db,
                 vehicles, allCore);

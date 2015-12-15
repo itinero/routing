@@ -18,19 +18,14 @@
 
 using NUnit.Framework;
 using OsmSharp.Routing.Osm.Streams;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OsmSharp.Routing.Test.Osm.Streams
 {
     /// <summary>
-    /// Contains tests for the router db stream target.
+    /// Contains tests for the node coordinates dictionary.
     /// </summary>
     [TestFixture]
-    public class NodeCoordinatesCacheTests
+    public class NodeCoordinatesDictionaryTests
     {
         /// <summary>
         /// Tests adding.
@@ -38,7 +33,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         [Test]
         public void TestAdd()
         {
-            var cache = new NodeCoordinatesCache();
+            var cache = new NodeCoordinatesDictionary();
             cache.Add(0, 0, 0);
             Assert.AreEqual(1, cache.Count);
             cache.Add(1, 1, 10);
@@ -53,23 +48,23 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         [Test]
         public void TestGet()
         {
-            var cache = new NodeCoordinatesCache();
+            var cache = new NodeCoordinatesDictionary();
             cache.Add(0, 0, 0);
             cache.Add(1, 1, 10);
             cache.Add(2, 2, 20);
 
             float lat, lon;
-            Assert.IsTrue(cache.TryGet(0, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(0, out lat, out lon));
             Assert.AreEqual(0, lat);
             Assert.AreEqual(0, lon);
-            Assert.IsTrue(cache.TryGet(1, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(1, out lat, out lon));
             Assert.AreEqual(1, lat);
             Assert.AreEqual(10, lon);
-            Assert.IsTrue(cache.TryGet(2, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(2, out lat, out lon));
             Assert.AreEqual(2, lat);
             Assert.AreEqual(20, lon);
 
-            cache = new NodeCoordinatesCache();
+            cache = new NodeCoordinatesDictionary();
             cache.Add(0, 0, 0);
             cache.Add(1, 1, 10);
             cache.Add(2, 2, 20);
@@ -80,43 +75,43 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             cache.Add(7, 7, 70);
             cache.Add(8, 8, 80);
 
-            Assert.IsTrue(cache.TryGet(0, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(0, out lat, out lon));
             Assert.AreEqual(0, lat);
             Assert.AreEqual(0, lon);
-            Assert.IsTrue(cache.TryGet(1, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(1, out lat, out lon));
             Assert.AreEqual(1, lat);
             Assert.AreEqual(10, lon);
-            Assert.IsTrue(cache.TryGet(2, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(2, out lat, out lon));
             Assert.AreEqual(2, lat);
             Assert.AreEqual(20, lon);
-            Assert.IsTrue(cache.TryGet(3, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(3, out lat, out lon));
             Assert.AreEqual(3, lat);
             Assert.AreEqual(30, lon);
-            Assert.IsTrue(cache.TryGet(4, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(4, out lat, out lon));
             Assert.AreEqual(4, lat);
             Assert.AreEqual(40, lon);
-            Assert.IsTrue(cache.TryGet(5, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(5, out lat, out lon));
             Assert.AreEqual(5, lat);
             Assert.AreEqual(50, lon);
-            Assert.IsTrue(cache.TryGet(6, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(6, out lat, out lon));
             Assert.AreEqual(6, lat);
             Assert.AreEqual(60, lon);
-            Assert.IsTrue(cache.TryGet(7, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(7, out lat, out lon));
             Assert.AreEqual(7, lat);
             Assert.AreEqual(70, lon);
-            Assert.IsTrue(cache.TryGet(8, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(8, out lat, out lon));
             Assert.AreEqual(8, lat);
             Assert.AreEqual(80, lon);
-            Assert.IsTrue(cache.TryGet(7, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(7, out lat, out lon));
             Assert.AreEqual(7, lat);
             Assert.AreEqual(70, lon);
-            Assert.IsTrue(cache.TryGet(4, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(4, out lat, out lon));
             Assert.AreEqual(4, lat);
             Assert.AreEqual(40, lon);
-            Assert.IsTrue(cache.TryGet(1, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(1, out lat, out lon));
             Assert.AreEqual(1, lat);
             Assert.AreEqual(10, lon);
-            Assert.IsTrue(cache.TryGet(3, out lat, out lon));
+            Assert.IsTrue(cache.TryGetValue(3, out lat, out lon));
             Assert.AreEqual(3, lat);
             Assert.AreEqual(30, lon);
         }

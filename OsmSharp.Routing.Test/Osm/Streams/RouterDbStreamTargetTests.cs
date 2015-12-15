@@ -201,7 +201,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 Node.Create(4, location4.Latitude, location4.Longitude),
                 Way.Create(1, new TagsCollection(
                     Tag.Create("highway", "residential")), 1, 2, 3),
-                Way.Create(1, new TagsCollection(
+                Way.Create(2, new TagsCollection(
                     Tag.Create("highway", "residential")), 2, 4)
                 }.ToOsmStreamSource();
 
@@ -316,7 +316,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 Node.Create(3, location3.Latitude, location3.Longitude),
                 Way.Create(1, new TagsCollection(
                     Tag.Create("highway", "residential")), 1, 3),
-                Way.Create(1, new TagsCollection(
+                Way.Create(2, new TagsCollection(
                     Tag.Create("highway", "residential")), 1, 2, 3)
                 }.ToOsmStreamSource();
 
@@ -392,7 +392,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 Node.Create(3, location3.Latitude, location3.Longitude),
                 Way.Create(1, new TagsCollection(
                     Tag.Create("highway", "residential")), 1, 2, 3),
-                Way.Create(1, new TagsCollection(
+                Way.Create(2, new TagsCollection(
                     Tag.Create("highway", "residential")), 1, 3)
                 }.ToOsmStreamSource();
 

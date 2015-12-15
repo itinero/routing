@@ -22,6 +22,7 @@ using OsmSharp.Math.Geo.Simple;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using System;
+using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Osm.Streams
 {
@@ -30,39 +31,14 @@ namespace OsmSharp.Routing.Osm.Streams
     /// </summary>
     public class NodeCoordinatesDictionary
     {
-        private readonly Reminiscence.Collections.Dictionary<long, long> _data;
+        private readonly IDictionary<long, long> _data;
 
         /// <summary>
         /// Creates a new node coordinates cache.
         /// </summary>
         public NodeCoordinatesDictionary()
-            : this(65536)
         {
-
-        }
-
-        /// <summary>
-        /// Creates a new node coordinates cache.
-        /// </summary>
-        public NodeCoordinatesDictionary(int hashes)
-        {
-            _data = new Reminiscence.Collections.Dictionary<long, long>(hashes);
-        }
-
-        /// <summary>
-        /// Creates a new node coordinates cache.
-        /// </summary>
-        public NodeCoordinatesDictionary(MemoryMap map)
-        {
-            _data = new Reminiscence.Collections.Dictionary<long, long>(map, 65536);
-        }
-
-        /// <summary>
-        /// Creates a new node coordinates cache.
-        /// </summary>
-        public NodeCoordinatesDictionary(MemoryMap map, int hashes)
-        {
-            _data = new Reminiscence.Collections.Dictionary<long, long>(map, hashes);
+            _data = new OsmSharp.Collections.HugeDictionary<long, long>();
         }
 
         private byte[] longBytes = new byte[8];
