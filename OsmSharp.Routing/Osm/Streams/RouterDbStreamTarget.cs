@@ -45,6 +45,7 @@ namespace OsmSharp.Routing.Osm.Streams
         private readonly bool _allNodesAreCore;
         private readonly int _minimumStages = 1;
         private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
+        private readonly bool _normalizeTags = true;
 
         /// <summary>
         /// Creates a new router db stream target.
@@ -58,21 +59,13 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
-        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore)
-            : this(db, vehicles, allCore, 1)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new router db stream target.
-        /// </summary>
-        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore,
-            int minimumStages)
+        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
+            int minimumStages = 1, bool normalizeTags = true)
         {
             _db = db;
             _vehicles = vehicles;
             _allNodesAreCore = allCore;
+            _normalizeTags = normalizeTags;
 
             _createNodeCoordinatesDictionary = () => 
                 {
@@ -137,88 +130,6 @@ namespace OsmSharp.Routing.Osm.Streams
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Registers the source.
-        /// </summary>
-        public virtual void RegisterSource(OsmStreamSource source, bool filterNonRoutingTags)
-        {
-            if (filterNonRoutingTags)
-            { // add filtering.
-                var eventsFilter = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterWithEvents();
-                eventsFilter.MovedToNextEvent += (osmGeo, param) =>
-                {
-                    if (osmGeo.Type == OsmSharp.Osm.OsmGeoType.Way)
-                    {
-                        var tags = new TagsCollection(osmGeo.Tags);
-                        foreach (var tag in tags)
-                        {
-                            var relevant = false;
-                            for (var i = 0; i < _vehicles.Length; i++)
-                            {
-                                if (_vehicles[i].IsRelevant(tag.Key, tag.Value))
-                                {
-                                    relevant = true;
-                                    break;
-                                }
-                            }
-
-                            if (!relevant)
-                            {
-                                osmGeo.Tags.RemoveKeyValue(tag);
-                            }
-                            else
-                            { // do some cleanup.
-                                if (tag.Key == "oneway")
-                                {
-                                    if (tag.Value == "no")
-                                    { // explicitly tagged as 'not oneway' remove the tag.
-                                        osmGeo.Tags.RemoveKeyValue(tag);
-                                    }
-                                    else if (tag.Value == "-1")
-                                    { // -1 means reverse.
-                                        osmGeo.Tags.AddOrReplace("oneway", "reverse");
-                                    }
-                                    else if (tag.Value != "yes" && tag.Value != "reverse")
-                                    { // this oneway tag doesn't make sense.
-                                        osmGeo.Tags.RemoveKeyValue(tag);
-                                    }
-                                }
-                                else if (tag.Key == "maxspeed")
-                                {
-                                    int maxSpeed;
-                                    if (!int.TryParse(tag.Value, out maxSpeed))
-                                    {
-                                        osmGeo.Tags.RemoveKeyValue(tag);
-                                    }
-                                }
-                            }
-                        }
-                        if (osmGeo.Tags != null &&
-                           !osmGeo.Tags.ContainsKey("access"))
-                        {
-                            osmGeo.Tags.Add("access", "yes");
-                        }
-                    }
-                    return osmGeo;
-                };
-                eventsFilter.RegisterSource(source);
-
-                base.RegisterSource(eventsFilter);
-            }
-            else
-            { // no filtering.
-                base.RegisterSource(source);
-            }
-        }
-
-        /// <summary>
-        /// Registers the source.
-        /// </summary>
-        public override void RegisterSource(OsmStreamSource source)
-        {
-            this.RegisterSource(source, true);
         }
 
         /// <summary>
@@ -372,6 +283,16 @@ namespace OsmSharp.Routing.Osm.Streams
                         {
                             metaTags.Add(tag);
                         }
+                    }
+
+                    if (_normalizeTags)
+                    { // normalize profile tags.
+                        var normalizedProfileTags = new TagsCollection(profileTags.Count);
+                        if (!profileTags.Normalize(normalizedProfileTags, metaTags))
+                        { // invalid data, no access, or tags make no sense at all.
+                            return;
+                        }
+                        profileTags = normalizedProfileTags;
                     }
 
                     // get profile and meta-data id's.

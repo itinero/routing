@@ -158,6 +158,7 @@ namespace OsmSharp.Routing.Osm
             if (!defaultAccessFound.HasValue)
             { // access needs to be descided on a vehicle by vehicle basis.
                 profileTags.Add("access", access);
+                return true;
             }
             return defaultAccessFound.Value;
         }
