@@ -133,6 +133,57 @@ namespace OsmSharp.Routing.Osm.Streams
         }
 
         /// <summary>
+        /// Registers the source.
+        /// </summary>
+        public virtual void RegisterSource(OsmStreamSource source, bool filterNonRoutingTags)
+        {
+            if (filterNonRoutingTags)
+            { // add filtering.
+                var eventsFilter = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterWithEvents();
+                eventsFilter.MovedToNextEvent += (osmGeo, param) =>
+                {
+                    if (osmGeo.Type == OsmSharp.Osm.OsmGeoType.Way)
+                    {
+                        var tags = new TagsCollection(osmGeo.Tags);
+                        foreach (var tag in tags)
+                        {
+                            var relevant = false;
+                            for (var i = 0; i < _vehicles.Length; i++)
+                            {
+                                if (_vehicles[i].IsRelevant(tag.Key, tag.Value))
+                                {
+                                    relevant = true;
+                                    break;
+                                }
+                            }
+
+                            if (!relevant)
+                            {
+                                osmGeo.Tags.RemoveKeyValue(tag);
+                            }
+                        }
+                    }
+                    return osmGeo;
+                };
+                eventsFilter.RegisterSource(source);
+
+                base.RegisterSource(eventsFilter);
+            }
+            else
+            { // no filtering.
+                base.RegisterSource(source);
+            }
+        }
+
+        /// <summary>
+        /// Registers the source.
+        /// </summary>
+        public override void RegisterSource(OsmStreamSource source)
+        {
+            this.RegisterSource(source, true);
+        }
+
+        /// <summary>
         /// Adds a node.
         /// </summary>
         public override void AddNode(Node node)
