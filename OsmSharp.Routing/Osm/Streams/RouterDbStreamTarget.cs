@@ -376,7 +376,10 @@ namespace OsmSharp.Routing.Osm.Streams
 
                     // get profile and meta-data id's.
                     var profile = _db.EdgeProfiles.Add(profileTags);
-                    if (profile > ushort.MaxValue) { throw new Exception("Maximum supported profiles exeeded, make sure only routing tags are included in the profiles."); }
+                    if (profile > OsmSharp.Routing.Data.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                    {
+                        throw new Exception("Maximum supported profiles exeeded, make sure only routing tags are included in the profiles.");
+                    }
                     var meta = _db.EdgeMeta.Add(metaTags);
 
                     // convert way into one or more edges.

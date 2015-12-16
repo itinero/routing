@@ -199,7 +199,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         }
 
         private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "oneway", "highway", "motor_vehicle", 
-           "bicycle", "foot", "access", "maxspeed", "junction", "type", "barrier" };
+           "bicycle", "foot", "access", "maxspeed", "junction" };
         private static HashSet<string> _relevantMetaKeys = new HashSet<string> { "name" };
 
         /// <summary>
