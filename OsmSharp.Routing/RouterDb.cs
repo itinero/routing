@@ -38,7 +38,7 @@ namespace OsmSharp.Routing
         private readonly AttributesIndex _edgeProfiles;
         private readonly AttributesIndex _meta;
         private readonly TagsCollectionBase _dbMeta;
-        private readonly Guid _guid;
+        private Guid _guid;
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
         private readonly HashSet<string> _supportedProfiles;
@@ -147,6 +147,15 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Generates a new guid.
+        /// </summary>
+        /// <remarks>To use then the network was changed externally and was already writting to disk before.</remarks>
+        public void NewGuid()
+        {
+            _guid = Guid.NewGuid();
+        }
+
+        /// <summary>
         /// Returns true if this router db is empty.
         /// </summary>
         public bool IsEmpty
@@ -214,6 +223,17 @@ namespace OsmSharp.Routing
             get
             {
                 return _dbMeta;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if there is at least one contracted version of the network.
+        /// </summary>
+        public bool HasContracted
+        {
+            get
+            {
+                return _contracted.Count > 0;
             }
         }
 
