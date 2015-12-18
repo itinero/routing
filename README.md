@@ -7,3 +7,7 @@
 - Processing OSM-data into a routable network.
 - Generating turn-by-turn instructions.
 - Routing on mobile devices and lower-resource environments.
+
+### Need more information?
+
+Check the wiki: https://github.com/OsmSharp/routing/wiki
