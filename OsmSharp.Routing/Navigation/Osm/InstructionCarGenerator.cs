@@ -118,7 +118,8 @@ namespace OsmSharp.Routing.Navigation.Osm
                 instruction = new Instruction()
                 {
                     Text = languageReference[string.Format("Start {0}.", direction.ToInvariantString())],
-                    Type = "start"
+                    Type = "start",
+                    Segment = 0
                 };
                 return 1;
             }
@@ -138,7 +139,8 @@ namespace OsmSharp.Routing.Navigation.Osm
                 instruction = new Instruction()
                 {
                     Text = languageReference["Arrived at destination."],
-                    Type = "stop"
+                    Type = "stop",
+                    Segment = r.Segments.Count - 1
                 };
                 return 1;
             }
@@ -157,12 +159,36 @@ namespace OsmSharp.Routing.Navigation.Osm
                 r.Segments[i].SideStreets != null &&
                 r.Segments[i].SideStreets.Length > 0)
             { // not straight on and at least one sidestreet.
-                instruction = new Instruction()
-                {
-                    Text = string.Format("Turn {0}.",
-                        relative.Direction.ToInvariantString()),
-                    Type = "turn"
-                };
+                var name = string.Empty;
+                if (r.Segments[i].Tags != null &&
+                    r.Segments[i].Tags.Any(x =>
+                    {
+                        if (x.Key == "name")
+                        {
+                            name = x.Value;
+                            return true;
+                        }
+                        return false;
+                    }))
+                { // there is a name.
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format("Turn {0} on {1}.",
+                            relative.Direction.ToInvariantString(), name),
+                        Type = "turn",
+                        Segment = i
+                    };
+                }
+                else
+                { // there is no name.
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format("Turn {0}.",
+                            relative.Direction.ToInvariantString()),
+                        Type = "turn",
+                        Segment = i
+                    };
+                }
                 return 1;
             }
             instruction = null;
@@ -212,7 +238,8 @@ namespace OsmSharp.Routing.Navigation.Osm
                         {
                             Text = string.Format(languageReference["Take the first exit at the next roundabout."],
                                 exit),
-                            Type = "roundabout"
+                            Type = "roundabout",
+                            Segment = i
                         };
                     }
                     else if (exit == 2)
@@ -221,7 +248,8 @@ namespace OsmSharp.Routing.Navigation.Osm
                         {
                             Text = string.Format(languageReference["Take the second exit at the next roundabout."],
                                 exit),
-                            Type = "roundabout"
+                            Type = "roundabout",
+                            Segment = i
                         };
                     }
                     else if (exit == 3)
@@ -230,7 +258,8 @@ namespace OsmSharp.Routing.Navigation.Osm
                         {
                             Text = string.Format(languageReference["Take the third exit at the next roundabout."],
                                 exit),
-                            Type = "roundabout"
+                            Type = "roundabout",
+                            Segment = i
                         };
                     }
                     else
@@ -239,7 +268,8 @@ namespace OsmSharp.Routing.Navigation.Osm
                         {
                             Text = string.Format(languageReference["Take the {0}th exit at the next roundabout."],
                                 exit),
-                            Type = "roundabout"
+                            Type = "roundabout",
+                            Segment = i
                         };
                     }
                     return count;

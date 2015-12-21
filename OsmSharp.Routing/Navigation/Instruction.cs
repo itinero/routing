@@ -34,6 +34,11 @@ namespace OsmSharp.Routing.Navigation
         public string Text { get; set; }
 
         /// <summary>
+        /// Gets or sets the id of the original segment.
+        /// </summary>
+        public int Segment { get; set; }
+
+        /// <summary>
         /// Converts the instruction to a string.
         /// </summary>
         /// <returns></returns>
