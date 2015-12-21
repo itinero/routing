@@ -153,6 +153,7 @@ namespace OsmSharp.Routing
                     }
                     attributesTable.Add("time", route.Segments[i].Time);
                     attributesTable.Add("distance", route.Segments[i].Distance);
+                    attributesTable.Add("profile", route.Segments[i].Profile);
                     featureCollection.Add(new Feature(segmentLineString, attributesTable));
                 }
 
