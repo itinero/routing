@@ -58,7 +58,7 @@
     <Compile Include="Algorithms\Default\OneToMany.cs" />
     <Compile Include="Algorithms\Networks\ZeroLengthLinksOptimizer.cs" />
     <Compile Include="Algorithms\RouteBuilder.cs" />
-    <Compile Include="Algorithms\Routes\RouteAggregator.cs" />
+    <Compile Include="Algorithms\Routes\RouteSegmentAggregator.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />
     <Compile Include="Algorithms\Path.cs" />
     <Compile Include="Algorithms\Search\IResolver.cs" />

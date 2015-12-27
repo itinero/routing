@@ -24,6 +24,7 @@ using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
 using OsmSharp.Math.Geo.Meta;
 using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Algorithms.Routes;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using OsmSharp.Units.Distance;
@@ -125,7 +126,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Converts this route to a feature collection.
         /// </summary>
-        /// <returns></returns>
         public static FeatureCollection ToFeatureCollection(this Route route)
         {
             var featureCollection = new FeatureCollection();
@@ -180,6 +180,23 @@ namespace OsmSharp.Routing
                 }
             }
             return featureCollection;
+        }
+
+        /// <summary>
+        /// Converts this route an aggregated feature collection.
+        /// </summary>
+
+        public static FeatureCollection ToFeatureCollection(this Route route, Func<RouteSegment, RouteSegment, RouteSegment> aggregator)
+        {
+            var algorithm = new RouteSegmentAggregator(route, aggregator);
+            algorithm.Run();
+
+            if (algorithm.HasRun &&
+                algorithm.HasSucceeded)
+            {
+                return algorithm.Features;
+            }
+            return new FeatureCollection();
         }
 
         #endregion
