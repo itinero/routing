@@ -81,6 +81,7 @@
     <Compile Include="Algorithms\OneToAllDykstraTests.cs" />
     <Compile Include="Algorithms\OneToManyTests.cs" />
     <Compile Include="Algorithms\RouteBuilderTests.cs" />
+    <Compile Include="Algorithms\Routes\RouteSegmentAggregatorTests.cs" />
     <Compile Include="Algorithms\Search\HibertTests.cs" />
     <Compile Include="Algorithms\Search\MockResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />

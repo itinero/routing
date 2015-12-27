@@ -19,6 +19,7 @@
 using OsmSharp.Collections.Tags;
 using OsmSharp.Geo;
 using OsmSharp.Routing.Profiles;
+using System;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing
@@ -387,8 +388,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Converts a dictionary of tags to a RouteTags array.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
         public static RouteTags[] ConvertFrom(this TagsCollectionBase tags)
         {
             var tagsList = new List<RouteTags>();
@@ -405,8 +404,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Converts a RouteTags array to a list of KeyValuePairs.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
         public static TagsCollectionBase ConvertToTagsCollection(this RouteTags[] tags)
         {
             var tagsList = new TagsCollection();
@@ -423,8 +420,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Converts a dictionary of tags to a RouteTags array.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
         public static RouteTags[] ConvertFrom(this IDictionary<string, string> tags)
         {
             var tags_list = new List<RouteTags>();
@@ -441,8 +436,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Converts a list of KeyValuePairs to a RouteTags array.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
         public static RouteTags[] ConvertFrom(this List<KeyValuePair<string, string>> tags)
         {
             var tagsList = new List<RouteTags>();
@@ -462,8 +455,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Converts a RouteTags array to a list of KeyValuePairs.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
         public static List<KeyValuePair<string, string>> ConvertTo(this RouteTags[] tags)
         {
             var tagsList = new List<KeyValuePair<string, string>>();
@@ -480,9 +471,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the value of the first tag with the key given.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static string GetValueFirst(this RouteTags[] tags, string key)
         {
             string first_value = null;
@@ -503,9 +491,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns all values for a given key.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static List<string> GetValues(this RouteTags[] tags, string key)
         {
             List<string> values = new List<string>();
@@ -520,6 +505,43 @@ namespace OsmSharp.Routing
                 }
             }
             return values;
+        }
+
+        /// <summary>
+        /// Adds or replaces the values in the other tags collection with the ones in 'other'.
+        /// </summary>
+        public static void AddOrReplace(ref RouteTags[] tags, RouteTags[] other)
+        {
+            List<RouteTags> newTags = null;
+            foreach(var tag in other)
+            {
+                var replaced = false;
+                for(var i = 0; i < tags.Length; i++)
+                {
+                    if (tags[i].Key == tag.Key)
+                    {
+                        tags[i].Value = tag.Value;
+                        replaced = true;
+                        break;
+                    }
+                }
+                if (!replaced)
+                {
+                    if(newTags == null)
+                    {
+                        newTags = new List<RouteTags>();
+                    }
+                    newTags.Add(tag);
+                }
+            }
+            if(newTags != null)
+            {
+                Array.Resize<RouteTags>(ref tags, tags.Length + newTags.Count);
+                for(var i = tags.Length - newTags.Count; i < tags.Length; i++)
+                {
+                    tags[i] = newTags[i - tags.Length + newTags.Count];
+                }
+            }
         }
     }
 
