@@ -167,6 +167,19 @@ namespace OsmSharp.Routing.Profiles
             return _staticProfiles.TryGetValue(name, out profile);
         }
 
+        /// <summary>
+        /// Gets the profile for the given name.
+        /// </summary>
+        public static Profile Get(string name)
+        {
+            Profile profile;
+            if(!Profile.TryGet(name, out profile))
+            {
+                throw new Exception(string.Format("Profile {0} not found.", name));
+            }
+            return profile;
+        }
+
         #endregion
     }
 }
