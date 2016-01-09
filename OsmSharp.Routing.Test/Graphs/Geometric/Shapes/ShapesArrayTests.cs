@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
+using NUnit.Framework.Internal;
 using OsmSharp.Geo;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Graphs.Geometric.Shapes;
