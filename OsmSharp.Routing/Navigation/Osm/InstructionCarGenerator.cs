@@ -160,8 +160,9 @@ namespace OsmSharp.Routing.Navigation.Osm
                 r.Segments[i].SideStreets.Length > 0)
             { // not straight on and at least one sidestreet.
                 var name = string.Empty;
-                if (r.Segments[i].Tags != null &&
-                    r.Segments[i].Tags.Any(x =>
+                if (i + 1 < r.Segments.Count &&
+                    r.Segments[i + 1].Tags != null &&
+                    r.Segments[i + 1].Tags.Any(x =>
                     {
                         if (x.Key == "name")
                         {
