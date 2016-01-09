@@ -639,7 +639,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
             }
 
             // make stream is positioned correctly.
-            stream.Seek(initialPosition + size, SeekOrigin.Begin);
+            stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
             return new GeometricGraph(graph, coordinates, shapes);
         }

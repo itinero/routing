@@ -19,6 +19,7 @@
 using OsmSharp.Collections.Tags;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics.Contracts;
 
 namespace OsmSharp.Routing
 {
@@ -152,5 +153,41 @@ namespace OsmSharp.Routing
 
             return System.Text.UnicodeEncoding.Unicode.GetString(data);
         }
+
+        /// <summary>
+        /// Sets the position within the given stream. 
+        /// </summary>
+        public static long SeekBegin(this BinaryWriter stream, long offset)
+        {
+            if(offset <= int.MaxValue)
+            {
+                return stream.Seek((int)offset, SeekOrigin.Begin);
+            }
+            stream.Seek(0, SeekOrigin.Begin);
+            while(offset > int.MaxValue)
+            {
+                stream.Seek(int.MaxValue, SeekOrigin.Current);
+                offset -= int.MaxValue;
+            }
+            return stream.Seek((int)offset, SeekOrigin.Current);
+        }
+
+        ///// <summary>
+        ///// Sets the position within the given stream. 
+        ///// </summary>
+        //public static long SeekBegin(this Stream stream, long offset)
+        //{
+        //    if (offset <= int.MaxValue)
+        //    {
+        //        return stream.Seek((int)offset, SeekOrigin.Begin);
+        //    }
+        //    stream.Seek(0, SeekOrigin.Begin);
+        //    while (offset > int.MaxValue)
+        //    {
+        //        stream.Seek(int.MaxValue, SeekOrigin.Current);
+        //        offset -= int.MaxValue;
+        //    }
+        //    return stream.Seek((int)offset, SeekOrigin.Current);
+        //}
     }
 }

@@ -293,7 +293,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         {
             var initialPosition = stream.Position;
             stream.Write(BitConverter.GetBytes(_index.Length), 0, 8);
-            stream.Seek(stream.Position + 8, SeekOrigin.Begin); // leave room for the coordinates-size.
+            stream.Seek(stream.Position + 8, System.IO.SeekOrigin.Begin); // leave room for the coordinates-size.
 
             // rewrite the coordinates array in the process removing all empty spaces after removing items.
             var position = stream.Position;
@@ -307,7 +307,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
                     int size;
                     for(var i = 0; i < _index.Length; i++)
                     {
-                        coordinatesStream.Seek((int)(newPointer * 4), SeekOrigin.Begin);
+                        coordinatesStream.SeekBegin(newPointer * 4);
                         ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
                         if (size >= 0)
                         {
@@ -317,7 +317,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
                                 coordinatesStream.Write(_coordinates[pointer + (p * 2) + 1]);
                             }
 
-                            indexStream.Seek((int)(i * 8), SeekOrigin.Begin);
+                            indexStream.SeekBegin(i * 8);
                             indexStream.Write(ShapesArray.BuildPointerAndSize(newPointer, size));
                             newPointer += size * 2;
                         }
@@ -326,12 +326,12 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
             }
 
             // write coordinates size.
-            stream.Seek(initialPosition + 8, SeekOrigin.Begin);
+            stream.Seek(initialPosition + 8, System.IO.SeekOrigin.Begin);
             stream.Write(BitConverter.GetBytes(newPointer), 0, 8);
 
             // seek until after.
             var sizeInBytes = 16 + (_index.Length * 8) + (newPointer * 4);
-            stream.Seek(initialPosition + sizeInBytes, SeekOrigin.Begin);
+            stream.Seek(initialPosition + sizeInBytes, System.IO.SeekOrigin.Begin);
             return sizeInBytes;
         }
 
@@ -397,7 +397,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
             }
 
             // make stream is positioned correctly.
-            stream.Seek(initialPosition + size, SeekOrigin.Begin);
+            stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
             return new ShapesArray(index, coordinates);
         }

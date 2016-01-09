@@ -17,8 +17,11 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
+using OsmSharp.IO;
+using OsmSharp.Routing.Test.Mocks;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace OsmSharp.Routing.Test
 {
@@ -65,6 +68,24 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(65536, Extensions.NextPowerOfTwo(41465));
             Assert.AreEqual(131072, Extensions.NextPowerOfTwo(130072));
             Assert.AreEqual(524288, Extensions.NextPowerOfTwo(514288));
+        }
+
+        /// <summary>
+        /// Test seek begin.
+        /// </summary>
+        [Test]
+        public void TestSeekBegin()
+        {
+            var stream = new BinaryWriter(new StreamMock());
+
+            var position = (long)int.MaxValue + 10;
+            Assert.AreEqual(position, stream.SeekBegin(position));
+
+            position = 1000;
+            Assert.AreEqual(position, stream.SeekBegin(position));
+
+            position = (long)int.MaxValue * 32;
+            Assert.AreEqual(position, stream.SeekBegin(position));
         }
     }
 }

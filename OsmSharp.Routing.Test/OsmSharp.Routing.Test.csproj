@@ -118,6 +118,7 @@
     <Compile Include="RouterPointTests.cs" />
     <Compile Include="RouterTests.cs" />
     <Compile Include="RouteTests.cs" />
+    <Compile Include="Mocks\StreamMock.cs" />
     <Compile Include="TestNetworkBuilder.cs" />
     <Compile Include="TestNetworkBuilderTests.cs" />
   </ItemGroup>

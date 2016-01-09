@@ -308,15 +308,15 @@ namespace OsmSharp.Routing
 
             // serialize profiles.
             size += _edgeProfiles.Serialize(new OsmSharp.IO.LimitedStream(stream));
-            stream.Seek(position + size, SeekOrigin.Begin);
+            stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize meta-data.
             size += _meta.Serialize(new OsmSharp.IO.LimitedStream(stream));
-            stream.Seek(position + size, SeekOrigin.Begin);
+            stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize network.
             size += _network.Serialize(new OsmSharp.IO.LimitedStream(stream));
-            stream.Seek(position + size, SeekOrigin.Begin);
+            stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize all contracted networks.
             foreach(var contracted in _contracted)
