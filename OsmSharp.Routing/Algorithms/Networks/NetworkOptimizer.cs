@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,12 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
 using OsmSharp.Geo;
 using OsmSharp.Routing.Data;
 using OsmSharp.Routing.Network;
-using OsmSharp.Routing.Profiles;
-using System;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Algorithms.Networks
@@ -67,8 +64,9 @@ namespace OsmSharp.Routing.Algorithms.Networks
                         _merge(edges[0].Data, !edges[0].DataInverted, edges[1].Data, edges[1].DataInverted,
                             out edgeData, out inverted))
                     { // targets can be merged.
-                        if (!_network.ContainsEdge(edges[0].To, edges[1].To))
-                        { // network does not contain edge yet.
+                        if (edgeData.Distance < EdgeDataSerializer.MAX_DISTANCE &&
+                            !_network.ContainsEdge(edges[0].To, edges[1].To))
+                        { // network does not contain edge yet and new edge < MAX_DISTANCE.
                             var shape = new List<ICoordinate>();
                             var shape1 = edges[0].Shape;
                             if (shape1 != null)
