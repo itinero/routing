@@ -150,7 +150,7 @@ namespace OsmSharp.Routing
             }
 
             // get the get factor function.
-            var getFactor = this.GetGetFactor(_db.EdgeProfiles, profile);
+            var getFactor = this.GetGetFactor(profile);
      
             // build and run dykstra search.
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
@@ -178,7 +178,7 @@ namespace OsmSharp.Routing
             }
 
             // get the get factor function.
-            var getFactor = this.GetGetFactor(_db.EdgeProfiles, profile);
+            var getFactor = this.GetGetFactor(profile);
 
             List<uint> path;
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
@@ -280,7 +280,7 @@ namespace OsmSharp.Routing
             }
 
             // get the get factor function.
-            var getFactor = this.GetGetFactor(_db.EdgeProfiles, profile);
+            var getFactor = this.GetGetFactor(profile);
 
             float[][] weights = null;
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
@@ -401,7 +401,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Gets the get factor function for the given profile.
         /// </summary>
-        protected Func<ushort, Factor> GetGetFactor(Attributes.AttributesIndex edgeProfiles, Profile profile)
+        protected Func<ushort, Factor> GetGetFactor(Profile profile)
         {
             if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profile))
             { // use cached version and don't consult profiles anymore.
@@ -411,7 +411,7 @@ namespace OsmSharp.Routing
             { // use the regular function, and consult profiles continuously.
                 return (p) =>
                 {
-                    return profile.Factor(edgeProfiles.Get(p));
+                    return profile.Factor(Db.EdgeProfiles.Get(p));
                 };
             }
         }
