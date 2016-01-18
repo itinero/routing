@@ -180,6 +180,7 @@ namespace OsmSharp.Routing.Attributes
             _isReadonly = true;
             _index = index;
             _nextId = (uint)index.Length;
+            _mode = AttributesIndexMode.None;
 
             _stringReverseIndex = null;
             _collectionReverseIndex = null;
@@ -211,7 +212,11 @@ namespace OsmSharp.Routing.Attributes
             get
             {
                 if ((_mode & AttributesIndexMode.IncreaseOne) == AttributesIndexMode.IncreaseOne)
-                {
+                { // uses increase one.
+                    return _nextId;
+                }
+                if ((_mode & AttributesIndexMode.None) == AttributesIndexMode.None && _index != null)
+                { // deserialized but used increase one before.
                     return _nextId;
                 }
                 throw new Exception("Count cannot be calculated on a index that doesn't use 'IncreaseOne' mode.");
