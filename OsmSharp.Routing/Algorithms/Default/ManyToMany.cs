@@ -29,7 +29,7 @@ namespace OsmSharp.Routing.Algorithms.Default
     public class ManyToMany : AlgorithmBase
     {
         private readonly RouterDb _routerDb;
-        private readonly Profile _profile;
+        private readonly Func<ushort, Factor> _getFactor;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
         private readonly float _maxSearch;
@@ -40,9 +40,20 @@ namespace OsmSharp.Routing.Algorithms.Default
         public ManyToMany(RouterDb routerDb, Profile profile,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
+            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), sources, targets, maxSearch)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public ManyToMany(RouterDb routerDb, Func<ushort, Factor> getFactor,
+            RouterPoint[] sources, RouterPoint[] targets,
+            float maxSearch)
         {
             _routerDb = routerDb;
-            _profile = profile;
+            _getFactor = getFactor;
             _sources = sources;
             _targets = targets;
             _maxSearch = maxSearch;
@@ -59,7 +70,7 @@ namespace OsmSharp.Routing.Algorithms.Default
             _sourceSearches = new OneToMany[_sources.Length];
             for (var i = 0; i < _sources.Length; i++)
             {
-                _sourceSearches[i] = new OneToMany(_routerDb, _profile, _sources[i], _targets, _maxSearch);
+                _sourceSearches[i] = new OneToMany(_routerDb, _getFactor, _sources[i], _targets, _maxSearch);
                 _sourceSearches[i].Run();
             }
 

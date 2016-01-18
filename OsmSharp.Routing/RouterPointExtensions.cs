@@ -36,7 +36,7 @@ namespace OsmSharp.Routing
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
         /// <returns></returns>
-        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
+        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Func<ushort, Factor> getFactor, bool asSource)
         {
             var graph = routerDb.Network.GeometricGraph;
             var edge = graph.GetEdge(point.EdgeId);
@@ -44,7 +44,7 @@ namespace OsmSharp.Routing
             float distance;
             ushort profileId;
             OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
-            var factor = profile.Factor(routerDb.EdgeProfiles.Get(profileId));
+            var factor = getFactor(profileId);
             var length = distance;
 
             var offset = point.Offset / (float)ushort.MaxValue;
@@ -145,6 +145,14 @@ namespace OsmSharp.Routing
                         new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
                     };
             }
+        }
+        
+        /// <summary>
+        /// Converts the router point to paths leading to the closest 2 vertices.
+        /// </summary>
+        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
+        {
+            return point.ToPaths(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), asSource);
         }
 
         /// <summary>
@@ -369,6 +377,14 @@ namespace OsmSharp.Routing
         /// </summary>
         public static Path PathTo(this RouterPoint point, RouterDb db, Profile profile, RouterPoint target)
         {
+            return point.PathTo(db, (p) => profile.Factor(db.EdgeProfiles.Get(p)), target);
+        }
+
+        /// <summary>
+        /// Calculates the path between this router point and the given router point.
+        /// </summary>
+        public static Path PathTo(this RouterPoint point, RouterDb db, Func<ushort, Factor> getFactor, RouterPoint target)
+        {
             if(point.EdgeId != target.EdgeId)
             {
                 throw new ArgumentException("Target point must be part of the same edge.");
@@ -379,7 +395,7 @@ namespace OsmSharp.Routing
             }
             var forward = point.Offset < target.Offset;
             var edge = db.Network.GetEdge(point.EdgeId);
-            var factor = profile.Factor(db.EdgeProfiles.Get(edge.Data.Profile));
+            var factor = getFactor(edge.Data.Profile);
             if(factor.Value <= 0)
             { // not possible to travel here.
                 return null;

@@ -122,6 +122,7 @@
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Profiles\Factor.cs" />
     <Compile Include="Profiles\Profile.cs" />
+    <Compile Include="Profiles\ProfileFactorCache.cs" />
     <Compile Include="Profiles\ProfileMetric.cs" />
     <Compile Include="Profiles\Speed.cs" />
     <Compile Include="Profiles\VehicleTypes.cs" />

@@ -30,7 +30,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
     {
         private readonly RouterDb _routerDb;
         private readonly DirectedMetaGraph _graph;
-        private readonly Profile _profile;
+        private readonly Func<ushort, Factor> _getFactor;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
         private readonly Dictionary<uint, Dictionary<int, float>> _buckets;
@@ -40,9 +40,19 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// </summary>
         public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, RouterPoint[] sources,
             RouterPoint[] targets)
+            : this(routerDb, profile, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), sources, targets)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, Func<ushort, Factor> getFactor, RouterPoint[] sources,
+            RouterPoint[] targets)
         {
             _routerDb = routerDb;
-            _profile = profile;
+            _getFactor = getFactor;
             _sources = sources;
             _targets = targets;
 
@@ -75,7 +85,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
                     if(target.EdgeId == source.EdgeId)
                     {
-                        var path = source.PathTo(_routerDb, _profile, target);
+                        var path = source.PathTo(_routerDb, _getFactor, target);
                         if (path != null)
                         {
                             _weights[i][j] = path.Weight;
@@ -87,7 +97,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra(_graph, _sources[i].ToPaths(_routerDb, _profile, true), false);
+                var forward = new Dykstra(_graph, _sources[i].ToPaths(_routerDb, _getFactor, true), false);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -98,7 +108,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra(_graph, _targets[i].ToPaths(_routerDb, _profile, false), true);
+                var backward = new Dykstra(_graph, _targets[i].ToPaths(_routerDb, _getFactor, false), true);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);

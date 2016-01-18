@@ -31,7 +31,7 @@ namespace OsmSharp.Routing.Algorithms.Default
         private readonly RouterDb _routerDb;
         private readonly RouterPoint _source;
         private readonly IList<RouterPoint> _targets;
-        private readonly Profile _profile;
+        private readonly Func<ushort, Factor> _getFactor;
         private readonly float _maxSearch;
 
         /// <summary>
@@ -39,11 +39,21 @@ namespace OsmSharp.Routing.Algorithms.Default
         /// </summary>
         public OneToMany(RouterDb routerDb, Profile profile,
             RouterPoint source, IList<RouterPoint> targets, float maxSearch)
+            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), source, targets, maxSearch)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public OneToMany(RouterDb routerDb, Func<ushort, Factor> getFactor,
+            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
         {
             _routerDb = routerDb;
+            _getFactor = getFactor;
             _source = source;
             _targets = targets;
-            _profile = profile;
             _maxSearch = float.MaxValue;
         }
 
@@ -57,18 +67,18 @@ namespace OsmSharp.Routing.Algorithms.Default
             _best = new Path[_targets.Count];
 
             // register the targets and determine one-edge-paths.
-            var sourcePaths = _source.ToPaths(_routerDb, _profile, true);
+            var sourcePaths = _source.ToPaths(_routerDb, _getFactor, true);
             var targetIndexesPerVertex = new Dictionary<uint, LinkedTarget>();
             var targetPaths = new IEnumerable<Path>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
-                var targets = _targets[i].ToPaths(_routerDb, _profile, false);
+                var targets = _targets[i].ToPaths(_routerDb, _getFactor, false);
                 targetPaths[i] = targets;
 
                 // determine one-edge-paths.
                 if (_source.EdgeId == _targets[i].EdgeId)
                 { // on same edge.
-                    _best[i] = _source.PathTo(_routerDb, _profile, _targets[i]);
+                    _best[i] = _source.PathTo(_routerDb, _getFactor, _targets[i]);
                 }
 
                 // register targets.
@@ -101,10 +111,8 @@ namespace OsmSharp.Routing.Algorithms.Default
             }
 
             // run the search.
-            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, (p) =>
-            {
-                return _profile.Factor(_routerDb.EdgeProfiles.Get(p));
-            }, sourcePaths, max, false);
+            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, 
+                sourcePaths, max, false);
             dykstra.WasFound += (vertex, weight) =>
             {
                 LinkedTarget target;

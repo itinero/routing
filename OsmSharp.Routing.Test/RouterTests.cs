@@ -104,7 +104,25 @@ namespace OsmSharp.Routing.Test
             point = router.TryResolve(car, location4);
             Assert.IsFalse(point.IsError);
             Assert.IsTrue(GeoCoordinate.DistanceEstimateInMeter(resolved4, point.Value.Location()) < 10);
-        }
 
+            router.ProfileFactorCache = new Routing.Profiles.ProfileFactorCache(router.Db);
+            router.ProfileFactorCache.CalculateFor(car);
+
+            point = router.TryResolve(car, location1);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(GeoCoordinate.DistanceEstimateInMeter(resolved1, point.Value.Location()) < 10);
+
+            point = router.TryResolve(car, location2);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(GeoCoordinate.DistanceEstimateInMeter(resolved2, point.Value.Location()) < 10);
+
+            point = router.TryResolve(car, location3);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(GeoCoordinate.DistanceEstimateInMeter(resolved3, point.Value.Location()) < 10);
+
+            point = router.TryResolve(car, location4);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(GeoCoordinate.DistanceEstimateInMeter(resolved4, point.Value.Location()) < 10);
+        }
     }
 }

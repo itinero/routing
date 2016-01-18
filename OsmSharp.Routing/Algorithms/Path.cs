@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -199,7 +199,11 @@ namespace OsmSharp.Routing.Algorithms
             var path = this;
             while (path != null)
             {
-                vertices.Add(path.Vertex);
+                if (vertices.Count == 0 || 
+                    vertices[vertices.Count - 1] != path.Vertex)
+                {
+                    vertices.Add(path.Vertex);
+                }
                 path = path.From;
             }
         }

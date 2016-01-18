@@ -204,6 +204,32 @@ namespace OsmSharp.Routing.Attributes
         }
 
         /// <summary>
+        /// Gets the number of collections.
+        /// </summary>
+        public uint Count
+        {
+            get
+            {
+                if ((_mode & AttributesIndexMode.IncreaseOne) == AttributesIndexMode.IncreaseOne)
+                {
+                    return _nextId;
+                }
+                throw new Exception("Count cannot be calculated on a index that doesn't use 'IncreaseOne' mode.");
+            }
+        }
+
+        /// <summary>
+        /// Returns the index mode.
+        /// </summary>
+        public AttributesIndexMode IndexMode
+        {
+            get
+            {
+                return _mode;
+            }
+        }
+
+        /// <summary>
         /// Returns the tags that belong to the given id.
         /// </summary>
         public TagsCollectionBase Get(uint tagsId)

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -44,6 +44,11 @@ namespace OsmSharp.Routing
 
             this.VerifyAllStoppable = false;
         }
+
+        /// <summary>
+        /// Gets or sets the profile factor cache.
+        /// </summary>
+        public ProfileFactorCache ProfileFactorCache { get; set; }
 
         /// <summary>
         /// A delegate used to inject a custom resolver algorithm.
@@ -107,32 +112,13 @@ namespace OsmSharp.Routing
                             return isBetter(_db.Network.GetEdge(edge.Id));
                         };
                 }
+
+                // get is acceptable.
+                var isAcceptable = this.GetIsAcceptable(profiles);
+
+                // create resolver.
                 resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, Constants.SearchOffsetInMeter,
-                    maxSearchDistance, (edge) =>
-                    { // check all profiles, they all need to be traversible.
-                        // get profile.
-                        float distance;
-                        ushort edgeProfileId;
-                        OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
-                            out distance, out edgeProfileId);
-                        var edgeProfile = _db.EdgeProfiles.Get(edgeProfileId);
-                        for (var i = 0; i < profiles.Length; i++)
-                        {
-                            // get factor from profile.
-                            if (profiles[i].Factor(edgeProfile).Value <= 0)
-                            { // cannot be traversed by this profile.
-                                return false;
-                            }
-                            if (this.VerifyAllStoppable)
-                            { // verify stoppable.
-                                if (!profiles[i].CanStopOn(edgeProfile))
-                                { // this profile cannot stop on this edge.
-                                    return false;
-                                }
-                            }
-                        }
-                        return true;
-                    }, isBetterGeometric);
+                    maxSearchDistance, isAcceptable, isBetterGeometric);
             }
             else
             { // create the custom resolver algorithm.
@@ -163,10 +149,12 @@ namespace OsmSharp.Routing
                 });
             }
 
-            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
-            {
-                return profile.Factor(_db.EdgeProfiles.Get(p));
-            }, point.ToPaths(_db, profile, true), radiusInMeters, false);
+            // get the get factor function.
+            var getFactor = this.GetGetFactor(_db.EdgeProfiles, profile);
+     
+            // build and run dykstra search.
+            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                point.ToPaths(_db, getFactor, true), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
             { // something went wrong.
@@ -189,13 +177,16 @@ namespace OsmSharp.Routing
                 });
             }
 
+            // get the get factor function.
+            var getFactor = this.GetGetFactor(_db.EdgeProfiles, profile);
+
             List<uint> path;
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
             if(_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 path = null;
                 var bidirectionalSearch = new OsmSharp.Routing.Algorithms.Contracted.BidirectionalDykstra(contracted,
-                    source.ToPaths(_db, profile, true), target.ToPaths(_db, profile, false));
+                    source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
                 bidirectionalSearch.Run();
                 if (!bidirectionalSearch.HasSucceeded)
                 {
@@ -208,14 +199,10 @@ namespace OsmSharp.Routing
             }
             else
             { // non-contracted calculation.
-                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
-                {
-                    return profile.Factor(_db.EdgeProfiles.Get(p));
-                }, source.ToPaths(_db, profile, true), float.MaxValue, false);
-                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, (p) =>
-                {
-                    return profile.Factor(_db.EdgeProfiles.Get(p));
-                }, target.ToPaths(_db, profile, false), float.MaxValue, true);
+                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                    source.ToPaths(_db, getFactor, true), float.MaxValue, false);
+                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                    target.ToPaths(_db, profile, false), float.MaxValue, true);
 
                 var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
                 bidirectionalSearch.Run();
@@ -292,6 +279,9 @@ namespace OsmSharp.Routing
                 });
             }
 
+            // get the get factor function.
+            var getFactor = this.GetGetFactor(_db.EdgeProfiles, profile);
+
             float[][] weights = null;
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
             if (_db.TryGetContracted(profile, out contracted))
@@ -310,7 +300,7 @@ namespace OsmSharp.Routing
             }
             else
             { // non-contracted calculation.
-                var algorithm = new OsmSharp.Routing.Algorithms.Default.ManyToMany(_db, profile, sources, targets, float.MaxValue);
+                var algorithm = new OsmSharp.Routing.Algorithms.Default.ManyToMany(_db, getFactor, sources, targets, float.MaxValue);
                 algorithm.Run();
                 if (!algorithm.HasSucceeded)
                 {
@@ -364,6 +354,66 @@ namespace OsmSharp.Routing
                 }
             }
             return new Result<float[][]>(weights);
+        }
+
+        /// <summary>
+        /// Returns the IsAcceptable function to use in the default resolver algorithm.
+        /// </summary>
+        /// <param name="profiles"></param>
+        /// <returns></returns>
+        private Func<GeometricEdge, bool> GetIsAcceptable(Profile[] profiles)
+        {
+            if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profiles))
+            { // use cached version and don't consult profiles anymore.
+                return this.ProfileFactorCache.GetIsAcceptable(this.VerifyAllStoppable,
+                    profiles);
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return (edge) =>
+                { // check all profiles, they all need to be traversible.
+                  // get profile.
+                    float distance;
+                    ushort edgeProfileId;
+                    OsmSharp.Routing.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
+                        out distance, out edgeProfileId);
+                    var edgeProfile = _db.EdgeProfiles.Get(edgeProfileId);
+                    for (var i = 0; i < profiles.Length; i++)
+                    {
+                        // get factor from profile.
+                        if (profiles[i].Factor(edgeProfile).Value <= 0)
+                        { // cannot be traversed by this profile.
+                            return false;
+                        }
+                        if (this.VerifyAllStoppable)
+                        { // verify stoppable.
+                            if (!profiles[i].CanStopOn(edgeProfile))
+                            { // this profile cannot stop on this edge.
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                };
+            }
+        }
+
+        /// <summary>
+        /// Gets the get factor function for the given profile.
+        /// </summary>
+        private Func<ushort, Factor> GetGetFactor(Attributes.AttributesIndex edgeProfiles, Profile profile)
+        {
+            if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profile))
+            { // use cached version and don't consult profiles anymore.
+                return this.ProfileFactorCache.GetGetFactor(profile);
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return (p) =>
+                {
+                    return profile.Factor(edgeProfiles.Get(p));
+                };
+            }
         }
     }
 }
