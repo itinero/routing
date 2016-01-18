@@ -103,7 +103,7 @@ namespace OsmSharp.Routing.Profiles
                     {
                         edgeProfileFactors[p][edgeProfile] = new CachedFactor()
                         {
-                            Type = (short)(factor.Direction >> 2),
+                            Type = (short)(factor.Direction + 4),
                             Value = factor.Value
                         };
                     }
@@ -163,7 +163,7 @@ namespace OsmSharp.Routing.Profiles
                 {
                     return new Factor()
                     {
-                        Direction = (short)(cachedFactor.Type << 2),
+                        Direction = (short)(cachedFactor.Type - 4),
                         Value = cachedFactor.Value
                     };
                 }
