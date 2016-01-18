@@ -361,7 +361,7 @@ namespace OsmSharp.Routing
         /// </summary>
         /// <param name="profiles"></param>
         /// <returns></returns>
-        private Func<GeometricEdge, bool> GetIsAcceptable(Profile[] profiles)
+        protected Func<GeometricEdge, bool> GetIsAcceptable(Profile[] profiles)
         {
             if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profiles))
             { // use cached version and don't consult profiles anymore.
@@ -401,7 +401,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Gets the get factor function for the given profile.
         /// </summary>
-        private Func<ushort, Factor> GetGetFactor(Attributes.AttributesIndex edgeProfiles, Profile profile)
+        protected Func<ushort, Factor> GetGetFactor(Attributes.AttributesIndex edgeProfiles, Profile profile)
         {
             if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profile))
             { // use cached version and don't consult profiles anymore.
