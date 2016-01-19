@@ -213,11 +213,11 @@ namespace OsmSharp.Routing.Attributes
             {
                 if ((_mode & AttributesIndexMode.IncreaseOne) == AttributesIndexMode.IncreaseOne)
                 { // uses increase one.
-                    return _nextId;
+                    return _nextId + 2;
                 }
                 if ((_mode & AttributesIndexMode.None) == AttributesIndexMode.None && _index != null)
                 { // deserialized but used increase one before.
-                    return _nextId;
+                    return _nextId + 2;
                 }
                 throw new Exception("Count cannot be calculated on a index that doesn't use 'IncreaseOne' mode.");
             }
