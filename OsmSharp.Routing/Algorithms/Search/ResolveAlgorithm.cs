@@ -79,9 +79,8 @@ namespace OsmSharp.Routing.Algorithms.Search
         {
             // calculate maxOffset in degrees.
             var offsettedLocation = (new OsmSharp.Math.Geo.GeoCoordinate(_latitude, _longitude)).OffsetWithDistances(_maxOffsetInMeter);
-            var maxOffset = (float)System.Math.Max(
-                System.Math.Abs(_latitude - offsettedLocation[1]),
-                System.Math.Abs(_longitude - offsettedLocation[0]));
+            var latitudeOffset = (float)System.Math.Abs(_latitude - offsettedLocation[1]);
+            var longitudeOffset = (float)System.Math.Abs(_longitude - offsettedLocation[0]);
 
             // get the closest edge.
             uint[] edgeIds = null;
@@ -89,12 +88,12 @@ namespace OsmSharp.Routing.Algorithms.Search
             { // do not evaluate both, just isOk.
                 edgeIds = new uint[2];
                 edgeIds[0] = _graph.SearchClosestEdge(_latitude, _longitude,
-                    maxOffset, _maxDistance, _isAcceptable);
+                    latitudeOffset, longitudeOffset, _maxDistance, _isAcceptable);
             }
             else
             { // evaluate both.
                 edgeIds = _graph.SearchClosestEdges(_latitude, _longitude,
-                    maxOffset, _maxDistance, new Func<GeometricEdge, bool>[] { _isAcceptable, (potentialEdge) => 
+                    latitudeOffset, longitudeOffset, _maxDistance, new Func<GeometricEdge, bool>[] { _isAcceptable, (potentialEdge) => 
                         { // at least also make sure the edge is acceptable.
                             if (_isAcceptable(potentialEdge))
                             {

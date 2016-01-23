@@ -33,3 +33,4 @@ test-results*/
 
 packages/*
 !packages/repositories.config
+.vs/*

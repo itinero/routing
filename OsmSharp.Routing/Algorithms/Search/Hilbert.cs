@@ -164,29 +164,70 @@ namespace OsmSharp.Routing.Algorithms.Search
             var vertex1 = (uint)0;
             var vertex2 = (uint)graph.VertexCount - 1;
             float vertexLat, vertexLon;
-            while (targetIdx < targets.Count)
+            while (targetIdx < targets.Count &&
+                vertex1 < graph.VertexCount)
             {
+                // check if there are consequitive distances.
+                var distance = targets[targetIdx];
+                var upper = distance;
+                while (targetIdx < targets.Count - 1 &&
+                    targets[targetIdx + 1] <= upper + 1)
+                {
+                    upper = targets[targetIdx + 1];
+                    targetIdx++;
+                }
+
                 uint vertex;
                 int count;
-                if (Hilbert.Search(graph, targets[targetIdx], n, vertex1, vertex2, out vertex, out count))
-                { // the search was successful.
-                    while (count > 0)
-                    { // there have been vertices found.
-                        if (graph.GetVertex((uint)vertex + (uint)(count - 1), out vertexLat, out vertexLon))
-                        { // the vertex was found.
-                            if (minLatitude < vertexLat &&
-                                minLongitude < vertexLon &&
-                                maxLatitude > vertexLat &&
-                                maxLongitude > vertexLon)
-                            { // within offset.
-                                vertices.Add((uint)vertex + (uint)(count - 1));
+                if (distance == upper)
+                {
+                    if (Hilbert.Search(graph, distance, n, vertex1, vertex2, out vertex, out count))
+                    { // the search was successful.
+                        var foundCount = count;
+                        while (count > 0)
+                        { // there have been vertices found.
+                            if (graph.GetVertex((uint)vertex + (uint)(count - 1), out vertexLat, out vertexLon))
+                            { // the vertex was found.
+                                if (minLatitude < vertexLat &&
+                                    minLongitude < vertexLon &&
+                                    maxLatitude > vertexLat &&
+                                    maxLongitude > vertexLon)
+                                { // within offset.
+                                    vertices.Add((uint)vertex + (uint)(count - 1));
+                                }
                             }
+                            count--;
                         }
-                        count--;
-                    }
 
-                    // update vertex1.
-                    vertex1 = vertex;
+                        // update vertex1.
+                        //vertex1 = vertex;
+                        vertex1 = vertex + (uint)foundCount;
+                    }
+                }
+                else
+                {
+                    if (Hilbert.SearchRange(graph, distance, upper, n, vertex1, vertex2, out vertex, out count))
+                    { // the search was successful.
+                        var foundCount = count;
+                        while (count > 0)
+                        { // there have been vertices found.
+                            if (graph.GetVertex((uint)vertex + (uint)(count - 1), out vertexLat, out vertexLon))
+                            { // the vertex was found.
+                                if (minLatitude < vertexLat &&
+                                    minLongitude < vertexLon &&
+                                    maxLatitude > vertexLat &&
+                                    maxLongitude > vertexLon)
+                                { // within offset.
+                                    vertices.Add((uint)vertex + (uint)(count - 1));
+                                }
+                            }
+                            count--;
+                        }
+
+                        // update vertex1.
+                        //vertex1 = vertex;
+                        vertex1 = vertex + (uint)foundCount;
+                    }
                 }
 
                 // move to next target.
@@ -293,14 +334,209 @@ namespace OsmSharp.Routing.Algorithms.Search
         }
 
         /// <summary>
+        /// Searches the graph for nearby vertices assuming it has been sorted.
+        /// </summary>
+        public static bool SearchRange(this GeometricGraph graph, long minHilbert, long maxHilbert, int n,
+            uint vertex1, uint vertex2, out uint vertex, out int count)
+        {
+            var hilbert1 = Hilbert.Distance(graph, n, vertex1);
+            var hilbert2 = Hilbert.Distance(graph, n, vertex2);
+            while (vertex1 <= vertex2)
+            {
+                // check if both min and max are above or below half.
+                var vertexMiddle = vertex1 + (uint)((vertex2 - vertex1) / 2);
+                var hilbertMiddle = Hilbert.Distance(graph, n, vertexMiddle);
+                if (maxHilbert <= hilbertMiddle)
+                { // both targets in the first part.
+                    vertex2 = vertexMiddle;
+                    hilbert2 = hilbertMiddle;
+                }
+                else if(minHilbert >= hilbertMiddle)
+                { // both targets in the second part.
+                    vertex1 = vertexMiddle;
+                    hilbert1 = hilbertMiddle;
+                }
+                else
+                { // middle is right between min and max hilbert.
+                    // new binary search for minHilbert between vertex1 and middleVertex
+                    //  => it's somewhere there!
+                    var minVertex1 = vertex1;
+                    var maxVertex1 = vertexMiddle;
+                    var minHilbertVertex = uint.MaxValue;
+                    while (minHilbertVertex == uint.MaxValue)
+                    {
+                        if (Hilbert.Distance(graph, n, minVertex1) == minHilbert)
+                        {
+                            minHilbertVertex = minVertex1;
+                        }
+                        else if (Hilbert.Distance(graph, n, maxVertex1) == minHilbert)
+                        {
+                            minHilbertVertex = maxVertex1;
+                        }
+                        else
+                        {
+                            while (minVertex1 <= maxVertex1)
+                            {
+                                var middleVertex1 = minVertex1 + (uint)((maxVertex1 - minVertex1) / 2);
+                                var middleVertex1Hilbert = Hilbert.Distance(graph, n, middleVertex1);
+
+                                if (middleVertex1Hilbert > minHilbert)
+                                { // minHilbert is in the first part.
+                                    maxVertex1 = middleVertex1;
+                                }
+                                else if (middleVertex1Hilbert < minHilbert)
+                                { // minHilbert is in the second part.
+                                    minVertex1 = middleVertex1;
+                                }
+                                else
+                                { // min hilbert was found.
+                                    minHilbertVertex = middleVertex1;
+                                    break;
+                                }
+
+                                if (minVertex1 == maxVertex1 ||
+                                    minVertex1 == maxVertex1 - 1)
+                                { // search is finished.
+                                  // nothing was found.
+                                    break;
+                                }
+                            }
+
+                            if (minHilbertVertex == uint.MaxValue)
+                            { // min hilbert doesn't exist.
+                                minHilbert += 1;
+                                if (minHilbert == maxHilbert)
+                                { // both don't exist.
+                                    vertex = vertex1;
+                                    count = 0;
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+
+                    // new binary search for maxHilbert between middleVertex and vertex2.
+                    //  => it's somewhere there!
+                    var minVertex2 = vertexMiddle;
+                    var maxVertex2 = vertex2;
+                    var maxHilbertVertex = uint.MaxValue;
+                    while (maxHilbertVertex == uint.MaxValue)
+                    {
+                        if (Hilbert.Distance(graph, n, minVertex2) == maxHilbert)
+                        {
+                            maxHilbertVertex = minVertex2;
+                        }
+                        else if (Hilbert.Distance(graph, n, maxVertex2) == maxHilbert)
+                        {
+                            maxHilbertVertex = maxVertex2;
+                        }
+                        else
+                        {
+                            while (minVertex2 <= maxVertex2)
+                            {
+                                var middleVertex2 = minVertex2 + (uint)((maxVertex2 - minVertex2) / 2);
+                                var middleVertex2Hilbert = Hilbert.Distance(graph, n, middleVertex2);
+
+                                if (middleVertex2Hilbert > maxHilbert)
+                                { // minHilbert is in the first part.
+                                    maxVertex2 = middleVertex2;
+                                }
+                                else if (middleVertex2Hilbert < maxHilbert)
+                                { // minHilbert is in the second part.
+                                    minVertex2 = middleVertex2;
+                                }
+                                else
+                                { // min hilbert was found.
+                                    maxHilbertVertex = middleVertex2;
+                                    break;
+                                }
+
+                                if (minVertex2 == maxVertex2 ||
+                                    minVertex2 == maxVertex2 - 1)
+                                { // search is finished.
+                                  // nothing was found.
+                                    break;
+                                }
+                            }
+
+                            if (maxHilbertVertex == uint.MaxValue)
+                            { // max hilbert doesn't exist.
+                                maxHilbert -= 1;
+                                if (minHilbert == maxHilbert)
+                                { // max hilbert doesn't exist, but min hilbert was found.
+                                    maxHilbertVertex = minHilbertVertex;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // move the lowest down to check if there are more with the same hilbert distance.
+                    var lower = minHilbertVertex;
+                    while(true)
+                    {
+                        if(lower == 0)
+                        { // going lower is impossible.
+                            break;
+                        }
+                        var newHilbert = Hilbert.Distance(graph, n, lower - 1);
+                        if(newHilbert != minHilbert)
+                        { // oeps, stop here!
+                            break;
+                        }
+                        lower--;
+                    }
+
+                    // move the highest up to check if there are more with the same hilbert distance.
+                    var upper = maxHilbertVertex;
+                    while(true)
+                    {
+                        if(upper == graph.VertexCount - 1)
+                        { // going higher is impossible.
+                            break;
+                        }
+                        var newHilbert = Hilbert.Distance(graph, n, upper + 1);
+                        if(newHilbert != maxHilbert)
+                        { // oeps, stop here.
+                            break;
+                        }
+                        upper++;
+                    }
+
+                    vertex = lower;
+                    count = (int)(upper - lower) + 1;
+                    return true;
+                }
+
+                // check the current hilbert distances.
+                if (hilbert1 > hilbert2)
+                { // situation is impossible and probably the graph is not sorted.
+                    throw new Exception("Graph not sorted: Binary search using hilbert distance not possible.");
+                }
+
+                if (hilbert1 == hilbert2 ||
+                    vertex1 == vertex2 ||
+                    vertex1 == vertex2 - 1)
+                { // search is finished.
+                    vertex = vertex1;
+                    count = 0;
+                    return true;
+                }
+            }
+            vertex = vertex1;
+            count = 0;
+            return false;
+        }
+
+        /// <summary>
         /// Searches for the closest vertex.
         /// </summary>
         /// <returns></returns>
         public static uint SearchClosest(this GeometricGraph graph, float latitude, float longitude,
-            float offset)
+            float latudeOffset, float longitudeOffset)
         {
             // search for all nearby vertices.
-            var vertices = Hilbert.Search(graph, latitude, longitude, offset);
+            var vertices = Hilbert.Search(graph, latitude, longitude, latudeOffset, longitudeOffset);
 
             var bestDistance = double.MaxValue;
             var bestVertex = Constants.NO_VERTEX;
@@ -325,12 +561,13 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         /// <returns></returns>
         public static uint SearchClosestEdge(this GeometricGraph graph, float latitude, float longitude,
-            float offset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk)
+            float latitudeOffset, float longitudeOffset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk)
         {
             var coordinate = new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude);
 
             // find vertices within bounding box delta.
-            var vertices = graph.Search(latitude, longitude, offset);
+            var vertices = graph.Search(latitude - latitudeOffset, longitude - longitudeOffset, 
+                latitude + latitudeOffset, longitude + longitudeOffset);
 
             // build result-structure.
             var bestEdge = Constants.NO_EDGE;
@@ -507,12 +744,13 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         /// <returns></returns>
         public static uint[] SearchClosestEdges(this GeometricGraph graph, float latitude, float longitude,
-            float offset, float maxDistanceMeter, Func<GeometricEdge, bool>[] isOks)
+            float latitudeOffset, float longitudeOffset, float maxDistanceMeter, Func<GeometricEdge, bool>[] isOks)
         {
             var coordinate = new OsmSharp.Math.Geo.GeoCoordinate(latitude, longitude);
 
             // find vertices within bounding box delta.
-            var vertices = graph.Search(latitude, longitude, offset);
+            var vertices = graph.Search(latitude - latitudeOffset, longitude - longitudeOffset,
+                latitude + latitudeOffset, longitude + longitudeOffset);
 
             // build result-structure.
             var bestEdges = new uint[isOks.Length];
