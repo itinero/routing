@@ -73,11 +73,11 @@ namespace OsmSharp.Routing.Test.Functional.Tests
         /// <summary>
         /// Tests building a router db.
         /// </summary>
-        public static RouterDb TestBuildRouterDb(string file, float maxEdgeDistance, params Vehicle[] vehicles)
+        public static RouterDb TestBuildRouterDb(string file, params Vehicle[] vehicles)
         {
             using (var stream = File.OpenRead(file))
             {
-                var routerdb = new RouterDb(maxEdgeDistance);
+                var routerdb = new RouterDb();
                 var source = new OsmSharp.Osm.PBF.Streams.PBFOsmStreamSource(stream);
                 var progress = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterProgress();
                 progress.RegisterSource(source);
