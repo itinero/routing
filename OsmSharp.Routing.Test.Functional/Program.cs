@@ -32,7 +32,7 @@ namespace OsmSharp.Routing.Test.Functional
         {
             // enable logging.
             OsmSharp.Logging.Log.Enable();
-            OsmSharp.Logging.Log.RegisterListener(new global::OsmSharp.WinForms.UI.Logging.ConsoleTraceListener());
+            OsmSharp.Logging.Log.RegisterListener(new ConsoleTraceListener());
 
             OsmSharp.Routing.Osm.Vehicles.Vehicle.RegisterVehicles();
 
@@ -62,7 +62,7 @@ namespace OsmSharp.Routing.Test.Functional
             var performanceInfoConsumer = new PerformanceInfoConsumer(embeddedResourceId);
             performanceInfoConsumer.Start();
 
-            for (var i = 0; i < 1000; i++)
+            for (var i = 0; i < 10000; i++)
             {
                 Tests.Runner.TestResolve(router, featureCollection,
                     Tests.Runner.Default);
