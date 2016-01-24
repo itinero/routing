@@ -42,7 +42,7 @@ namespace OsmSharp.Routing.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb("belgium-latest.osm.pbf", 2000,
+            var routerDb = Runner.TestBuildRouterDb("belgium-latest.osm.pbf", 5000,
                 Vehicle.Car);
 
             // create test router.
