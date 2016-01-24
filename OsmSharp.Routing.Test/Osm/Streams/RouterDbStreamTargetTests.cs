@@ -653,7 +653,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 }.ToOsmStreamSource();
 
             // build db from stream.
-            var routerDb = new RouterDb();
+            var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             var target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -685,7 +685,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 }.ToOsmStreamSource();
 
             // build db from stream.
-            routerDb = new RouterDb();
+            routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -733,7 +733,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 }.ToOsmStreamSource();
 
             // build db from stream.
-            routerDb = new RouterDb();
+            routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -777,7 +777,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
                 }.ToOsmStreamSource();
 
             // build db from stream.
-            routerDb = new RouterDb();
+            routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car

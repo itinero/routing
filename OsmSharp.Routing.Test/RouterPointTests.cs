@@ -66,7 +66,7 @@ namespace OsmSharp.Routing.Test
                 new GeoCoordinate(0.1, 0.1));
 
             // build router db.
-            var routerDb = new RouterDb();
+            var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
@@ -140,7 +140,7 @@ namespace OsmSharp.Routing.Test
                 new GeoCoordinate(0.1, 0.1));
 
             // build router db.
-            var routerDb = new RouterDb();
+            var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
@@ -249,7 +249,7 @@ namespace OsmSharp.Routing.Test
                 new GeoCoordinate(0.1, 0.1));
 
             // build router db.
-            var routerDb = new RouterDb();
+            var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()

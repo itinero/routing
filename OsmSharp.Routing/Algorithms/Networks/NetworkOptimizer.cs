@@ -64,7 +64,7 @@ namespace OsmSharp.Routing.Algorithms.Networks
                         _merge(edges[0].Data, !edges[0].DataInverted, edges[1].Data, edges[1].DataInverted,
                             out edgeData, out inverted))
                     { // targets can be merged.
-                        if (edgeData.Distance < EdgeDataSerializer.MAX_DISTANCE &&
+                        if (edgeData.Distance < _network.MaxEdgeDistance &&
                             !_network.ContainsEdge(edges[0].To, edges[1].To))
                         { // network does not contain edge yet and new edge < MAX_DISTANCE.
                             var shape = new List<ICoordinate>();

@@ -46,7 +46,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(float maxEdgeDistance = Data.EdgeDataSerializer.MAX_DISTANCE)
+        public RouterDb(float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1), maxEdgeDistance);
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne 
@@ -63,7 +63,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(MemoryMap map, float maxEdgeDistance = Data.EdgeDataSerializer.MAX_DISTANCE)
+        public RouterDb(MemoryMap map, float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _network = new RoutingNetwork(map, RoutingNetworkProfile.NoCache, maxEdgeDistance);
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne
@@ -80,7 +80,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(MemoryMap map, RoutingNetworkProfile profile, float maxEdgeDistance = Data.EdgeDataSerializer.MAX_DISTANCE)
+        public RouterDb(MemoryMap map, RoutingNetworkProfile profile, float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _network = new RoutingNetwork(map, profile, maxEdgeDistance);
             _edgeProfiles = new AttributesIndex(map, AttributesIndexMode.IncreaseOne | 

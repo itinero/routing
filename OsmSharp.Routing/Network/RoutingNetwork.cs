@@ -43,7 +43,7 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Creates a new routing network.
         /// </summary>
-        public RoutingNetwork(float maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+        public RoutingNetwork(float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = new GeometricGraph(1);
             _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
@@ -55,7 +55,7 @@ namespace OsmSharp.Routing.Network
         /// Creates a new routing network.
         /// </summary>
         public RoutingNetwork(MemoryMap map, 
-            float maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+            float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = new GeometricGraph(map, 1);
             _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
@@ -66,7 +66,7 @@ namespace OsmSharp.Routing.Network
         /// Creates a new routing network.
         /// </summary>
         public RoutingNetwork(MemoryMap map, RoutingNetworkProfile profile, 
-            float maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+            float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _maxEdgeDistance = maxEdgeDistance;
             if (profile == null)
@@ -85,7 +85,7 @@ namespace OsmSharp.Routing.Network
         /// Creates a new routing network.
         /// </summary>
         public RoutingNetwork(GeometricGraph graph, 
-            float maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+            float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = graph;
             _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
@@ -96,7 +96,7 @@ namespace OsmSharp.Routing.Network
         /// Creates a new routing network.
         /// </summary>
         public RoutingNetwork(MemoryMap map, GeometricGraph graph, 
-            float maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+            float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = graph;
             _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
@@ -107,7 +107,7 @@ namespace OsmSharp.Routing.Network
         /// Creates a new routing network from existing data.
         /// </summary>
         private RoutingNetwork(GeometricGraph graph, ArrayBase<uint> edgeData, 
-            float maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+            float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = graph;
             _edgeData = edgeData;
@@ -536,7 +536,7 @@ namespace OsmSharp.Routing.Network
             var initialPosition = stream.Position;
 
             // read maxEdgeDistance if version # = 2.
-            var maxEdgeDistance = Routing.Data.EdgeDataSerializer.MAX_DISTANCE;
+            var maxEdgeDistance = Constants.DefaultMaxEdgeDistance;
             if(version == 2)
             {
                 var bytes = new byte[4];

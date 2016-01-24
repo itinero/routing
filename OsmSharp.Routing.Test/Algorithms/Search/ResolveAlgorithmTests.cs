@@ -47,7 +47,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
             // resolve on vertex0.
             var location = vertex0;
             var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, 
-                Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+                Constants.DefaultMaxEdgeDistance, 50f,
                     (edge) => { return true; });
             resolver.Run();
 
@@ -56,7 +56,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex1.
             location = vertex1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -65,7 +65,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve right in between.
             location = (vertex0 + vertex1) / 2;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -91,7 +91,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex0.
             var location = vertex0;
-            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -100,7 +100,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex1.
             location = vertex1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -109,7 +109,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape0.
             location = shape0;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -118,7 +118,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape1.
             location = shape1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -127,7 +127,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape0 a bit to the top-right.
             location = new GeoCoordinate(51.26771847181371f, 4.801915884017944f);
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -136,7 +136,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape1 a bit to the bottom-right.
             location = new GeoCoordinate(51.266986766160414f, 4.8019373416900635f);
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
             resolver.Run();
 
@@ -160,7 +160,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex0.
             var location = vertex0;
-            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return true; });
             resolver.Run();
 
@@ -169,7 +169,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex1.
             location = vertex1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return true; });
             resolver.Run();
 
@@ -178,7 +178,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve right in between.
             location = (vertex0 + vertex1) / 2;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return true; });
             resolver.Run();
 
@@ -205,7 +205,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex0.
             var location = vertex0;
-            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -215,7 +215,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex1.
             location = vertex1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -225,7 +225,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve right in between.
             location = (vertex0 + vertex1) / 2;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -255,7 +255,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex0.
             var location = vertex0;
-            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -265,7 +265,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on vertex1.
             location = vertex1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -275,7 +275,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape0.
             location = shape0;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -285,7 +285,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape1.
             location = shape1;
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -295,7 +295,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape0 a bit to the top-right.
             location = new GeoCoordinate(51.26771847181371f, 4.801915884017944f);
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
@@ -305,7 +305,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
 
             // resolve on shape1 a bit to the bottom-right.
             location = new GeoCoordinate(51.266986766160414f, 4.8019373416900635f);
-            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Routing.Data.EdgeDataSerializer.MAX_DISTANCE, 50f,
+            resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
             resolver.Run();
 
