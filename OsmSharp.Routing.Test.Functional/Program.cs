@@ -17,7 +17,9 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Geo.Features;
+using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Routing.Test.Functional.Staging;
+using OsmSharp.Routing.Test.Functional.Tests;
 using System;
 using System.IO;
 using System.Reflection;
@@ -28,16 +30,24 @@ namespace OsmSharp.Routing.Test.Functional
     {
         static void Main(string[] args)
         {
+            // enable logging.
+            OsmSharp.Logging.Log.Enable();
+            OsmSharp.Logging.Log.RegisterListener(new global::OsmSharp.WinForms.UI.Logging.ConsoleTraceListener());
+
             OsmSharp.Routing.Osm.Vehicles.Vehicle.RegisterVehicles();
-            OsmSharp.Routing.Constants.SearchOffsetInMeter = 2000;
 
             // download and extract test-data.
             Console.WriteLine("Downloading Belgium...");
             Download.DownloadBelgiumAll();
 
+            // test building a router db.
+            Console.WriteLine("Tests building a router db...");
+            var routerDb = Runner.TestBuildRouterDb("belgium-latest.osm.pbf", 2000,
+                Vehicle.Car);
+
             // create test router.
             Console.WriteLine("Loading routing data for Belgium...");
-            var routerDb = RouterDb.Deserialize(File.OpenRead("belgium.a.routing"));
+            //var routerDb = RouterDb.Deserialize(File.OpenRead("belgium.a.routing"));
             var router = new Router(routerDb);
 
             // test resolving.
@@ -52,7 +62,7 @@ namespace OsmSharp.Routing.Test.Functional
             var performanceInfoConsumer = new PerformanceInfoConsumer(embeddedResourceId);
             performanceInfoConsumer.Start();
 
-            for (var i = 0; i < 200; i++)
+            for (var i = 0; i < 1000; i++)
             {
                 Tests.Runner.TestResolve(router, featureCollection,
                     Tests.Runner.Default);

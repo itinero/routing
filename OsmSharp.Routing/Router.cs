@@ -117,8 +117,9 @@ namespace OsmSharp.Routing
                 var isAcceptable = this.GetIsAcceptable(profiles);
 
                 // create resolver.
-                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, Constants.SearchOffsetInMeter,
-                    maxSearchDistance, isAcceptable, isBetterGeometric);
+                resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, 
+                    _db.Network.MaxEdgeDistance / 2,
+                        maxSearchDistance, isAcceptable, isBetterGeometric);
             }
             else
             { // create the custom resolver algorithm.

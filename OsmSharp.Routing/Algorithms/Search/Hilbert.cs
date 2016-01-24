@@ -533,10 +533,11 @@ namespace OsmSharp.Routing.Algorithms.Search
         /// </summary>
         /// <returns></returns>
         public static uint SearchClosest(this GeometricGraph graph, float latitude, float longitude,
-            float latudeOffset, float longitudeOffset)
+            float latitudeOffset, float longitudeOffset)
         {
             // search for all nearby vertices.
-            var vertices = Hilbert.Search(graph, latitude, longitude, latudeOffset, longitudeOffset);
+            var vertices = Hilbert.Search(graph, latitude - latitudeOffset, longitude - longitudeOffset, 
+                latitude + latitudeOffset, longitude + longitudeOffset);
 
             var bestDistance = double.MaxValue;
             var bestVertex = Constants.NO_VERTEX;

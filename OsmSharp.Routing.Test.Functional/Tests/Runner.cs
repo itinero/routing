@@ -21,6 +21,7 @@ using OsmSharp.Geo.Features;
 using OsmSharp.Geo.Geometries;
 using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Osm.Vehicles;
+using OsmSharp.Routing.Profiles;
 using System;
 using System.IO;
 using System.Reflection;
@@ -67,6 +68,24 @@ namespace OsmSharp.Routing.Test.Functional.Tests
                 featureCollection = OsmSharp.Geo.Streams.GeoJson.GeoJsonConverter.ToFeatureCollection(stream.ReadToEnd());
             }
             TestResolve(router, featureCollection, resolve);
+        }
+        
+        /// <summary>
+        /// Tests building a router db.
+        /// </summary>
+        public static RouterDb TestBuildRouterDb(string file, float maxEdgeDistance, params Vehicle[] vehicles)
+        {
+            using (var stream = File.OpenRead(file))
+            {
+                var routerdb = new RouterDb(maxEdgeDistance);
+                var source = new OsmSharp.Osm.PBF.Streams.PBFOsmStreamSource(stream);
+                var progress = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterProgress();
+                progress.RegisterSource(source);
+                var target = new OsmSharp.Routing.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles);
+                target.RegisterSource(progress);
+                target.Pull();
+                return routerdb;
+            }
         }
     }
 }

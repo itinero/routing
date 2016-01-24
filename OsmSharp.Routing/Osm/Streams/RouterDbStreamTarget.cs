@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -46,15 +46,6 @@ namespace OsmSharp.Routing.Osm.Streams
         private readonly int _minimumStages = 1;
         private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
         private readonly bool _normalizeTags = true;
-
-        /// <summary>
-        /// Creates a new router db stream target.
-        /// </summary>
-        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles)
-            : this(db, vehicles, false)
-        {
-
-        }
 
         /// <summary>
         /// Creates a new router db stream target.
@@ -543,7 +534,7 @@ namespace OsmSharp.Routing.Osm.Streams
         /// </summary>
         public void AddCoreEdge(uint vertex1, uint vertex2, EdgeData data, List<ICoordinate> shape)
         {
-            if (data.Distance < OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+            if (data.Distance < _db.Network.MaxEdgeDistance)
             { // edge is ok, smaller than max distance.
                 _db.Network.AddEdge(vertex1, vertex2, data, shape);
             }
@@ -556,7 +547,7 @@ namespace OsmSharp.Routing.Osm.Streams
                 for (var s = 1; s < shape.Count; s++)
                 {
                     var distance = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
-                    if (distance >= OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+                    if (distance >= _db.Network.MaxEdgeDistance)
                     { // insert a new intermediate.
                         shape.Insert(s,
                             new GeoCoordinateSimple()
@@ -579,7 +570,7 @@ namespace OsmSharp.Routing.Osm.Streams
                 while (i < shape.Count)
                 {
                     var distance = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
-                    if (distance + shortDistance > OsmSharp.Routing.Data.EdgeDataSerializer.MAX_DISTANCE)
+                    if (distance + shortDistance > _db.Network.MaxEdgeDistance)
                     { // ok, previous shapepoint was the maximum one.
                         shortPoint = shortShape[shortShape.Count - 1];
                         shortShape.RemoveAt(shortShape.Count - 1);

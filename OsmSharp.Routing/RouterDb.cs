@@ -46,9 +46,9 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb()
+        public RouterDb(float maxEdgeDistance = Data.EdgeDataSerializer.MAX_DISTANCE)
         {
-            _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1));
+            _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1), maxEdgeDistance);
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne 
                 | AttributesIndexMode.ReverseAll);
             _meta = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
@@ -63,9 +63,9 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(MemoryMap map)
+        public RouterDb(MemoryMap map, float maxEdgeDistance = Data.EdgeDataSerializer.MAX_DISTANCE)
         {
-            _network = new RoutingNetwork(map, RoutingNetworkProfile.NoCache);
+            _network = new RoutingNetwork(map, RoutingNetworkProfile.NoCache, maxEdgeDistance);
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne
                 | AttributesIndexMode.ReverseAll);
             _meta = new AttributesIndex(map, AttributesIndexMode.ReverseStringIndexKeysOnly);
@@ -80,9 +80,9 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(MemoryMap map, RoutingNetworkProfile profile)
+        public RouterDb(MemoryMap map, RoutingNetworkProfile profile, float maxEdgeDistance = Data.EdgeDataSerializer.MAX_DISTANCE)
         {
-            _network = new RoutingNetwork(map, profile);
+            _network = new RoutingNetwork(map, profile, maxEdgeDistance);
             _edgeProfiles = new AttributesIndex(map, AttributesIndexMode.IncreaseOne | 
                 AttributesIndexMode.ReverseCollectionIndex | AttributesIndexMode.ReverseStringIndex);
             _meta = new AttributesIndex(map);

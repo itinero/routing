@@ -34,11 +34,6 @@ namespace OsmSharp.Routing
         public const uint NO_VERTEX = uint.MaxValue - 1;
 
         /// <summary>
-        /// A default search offset.
-        /// </summary>
-        public static float SearchOffsetInMeter = Data.EdgeDataSerializer.MAX_DISTANCE;
-
-        /// <summary>
         /// A maximum search distance.
         /// </summary>
         public const float SearchDistanceInMeter = 50;

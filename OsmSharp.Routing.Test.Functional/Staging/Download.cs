@@ -28,6 +28,7 @@ namespace OsmSharp.Routing.Test.Functional.Staging
     public static class Download
     {
         public static string BelgiumAllSource = "ftp://build.osmsharp.com/data/OSM/routing/planet/europe/belgium.a.routing.zip";
+        public static string BelgiumPBF = "ftp://build.osmsharp.com/data/OSM/planet/europe/belgium-latest.osm.pbf";
 
         /// <summary>
         /// Downloads the belgium routing file.
@@ -41,6 +42,12 @@ namespace OsmSharp.Routing.Test.Functional.Staging
                     "belgium.a.routing.zip");
                 ZipFile.ExtractToDirectory("belgium.a.routing.zip", ".");
                 File.Delete("belgium.a.routing.zip");
+            }
+            if(!File.Exists("belgium-latest.osm.pbf"))
+            {
+                var client = new WebClient();
+                client.DownloadFile(Download.BelgiumAllSource,
+                    "belgium-latest.osm.pbf");
             }
         }
     }
