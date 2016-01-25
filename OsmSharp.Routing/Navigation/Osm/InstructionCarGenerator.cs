@@ -114,9 +114,10 @@ namespace OsmSharp.Routing.Navigation.Osm
                 var direction = Math.Geo.Meta.DirectionCalculator.Calculate(
                     new Math.Geo.GeoCoordinate(r.Segments[0].Latitude, r.Segments[0].Longitude),
                     new Math.Geo.GeoCoordinate(r.Segments[1].Latitude, r.Segments[1].Longitude));
+                var directionTranslated = languageReference[direction.ToInvariantString()];
                 instruction = new Instruction()
                 {
-                    Text = languageReference[string.Format("Start {0}.", direction.ToInvariantString())],
+                    Text = languageReference[string.Format("Start {0}.", directionTranslated)],
                     Type = "start",
                     Segment = 0
                 };
