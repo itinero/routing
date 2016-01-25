@@ -117,7 +117,7 @@ namespace OsmSharp.Routing.Navigation.Osm
                 var directionTranslated = languageReference[direction.ToInvariantString()];
                 instruction = new Instruction()
                 {
-                    Text = languageReference[string.Format("Start {0}.", directionTranslated)],
+                    Text = string.Format(languageReference["Start {0}."], directionTranslated),
                     Type = "start",
                     Segment = 0
                 };
