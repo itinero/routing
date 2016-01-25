@@ -1,0 +1,1900 @@
+﻿{
+  "Tags": null,
+  "Metrics": null,
+  "Segments": [
+    {
+      "Latitude": 51.2677956,
+      "Longitude": 4.80136251,
+      "Profile": "Car",
+      "Tags": null,
+      "Metrics": null,
+      "Distance": 0.0,
+      "Time": 0.0,
+      "Points": [
+        {
+          "Latitude": 51.2677956,
+          "Longitude": 4.80136251,
+          "Tags": [],
+          "Metrics": null
+        }
+      ],
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2678337,
+      "Longitude": 4.80135632,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Zand"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 4.2636178535314873,
+      "Time": 0.3069804760859664,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2678871,
+      "Longitude": 4.801295,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Zand"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 11.583430968235502,
+      "Time": 0.83400700426108232,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2679634,
+      "Longitude": 4.80119753,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Zand"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 22.435651524536993,
+      "Time": 1.6153668604695792,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.268055,
+      "Longitude": 4.80110025,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Zand"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 34.660103287576433,
+      "Time": 2.4955273605480519,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2681427,
+          "Longitude": 4.80112171,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Zand"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2683067,
+      "Longitude": 4.800696,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Zand"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 74.348381040062321,
+      "Time": 5.353083271521351,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2689438,
+      "Longitude": 4.80049229,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Zand"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 146.58805166500963,
+      "Time": 10.554339397787818,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2692451,
+          "Longitude": 4.80118,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        },
+        {
+          "Latitude": 50.88261,
+          "Longitude": 4.402066,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Zand"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.26761,
+      "Longitude": 4.797347,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 411.01636299488626,
+      "Time": 29.593177232519714,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.26848,
+          "Longitude": 4.796692,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Brevennendijk"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2672653,
+      "Longitude": 4.796544,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 478.6808670760675,
+      "Time": 34.465021377687876,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2672348,
+      "Longitude": 4.796407,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 488.78877942541754,
+      "Time": 35.192791044631313,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26723,
+      "Longitude": 4.79623175,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 501.004618197864,
+      "Time": 36.072331409406019,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26725,
+      "Longitude": 4.79606676,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 512.67752419100634,
+      "Time": 36.912780615263792,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2673073,
+      "Longitude": 4.795709,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 538.3595350203758,
+      "Time": 38.76188533854819,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2676544,
+          "Longitude": 4.79561663,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Dalenhut"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.267395,
+      "Longitude": 4.795192,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 575.65323007284326,
+      "Time": 41.447031300381695,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26741,
+      "Longitude": 4.79505348,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 585.4224691222696,
+      "Time": 42.150416490474775,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2674179,
+      "Longitude": 4.79483,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 601.00468543805357,
+      "Time": 43.272336030972951,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2674,
+      "Longitude": 4.794038,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 656.14927552360928,
+      "Time": 47.242746395965654,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2672,
+          "Longitude": 4.79405642,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Dalenbergstraat"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2673874,
+      "Longitude": 4.79394436,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 662.774940021694,
+      "Time": 47.7197942252694,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2675133,
+          "Longitude": 4.793814,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Dalenbergstraat"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2673759,
+      "Longitude": 4.793878,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 667.55863646866408,
+      "Time": 48.0642203589402,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26734,
+      "Longitude": 4.79368,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 681.84578377416676,
+      "Time": 49.092894933543732,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26706,
+      "Longitude": 4.79271,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 756.29763674846856,
+      "Time": 54.453428184102968,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2668571,
+      "Longitude": 4.79217243,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 799.92469586292623,
+      "Time": 57.594576344483684,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2667465,
+      "Longitude": 4.791949,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 819.75922766717838,
+      "Time": 59.0226625908081,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26653,
+      "Longitude": 4.791578,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 855.12536115559953,
+      "Time": 61.569024124265638,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26627,
+      "Longitude": 4.79114,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 897.07176522184113,
+      "Time": 64.589165124867648,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.265625,
+      "Longitude": 4.789976,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1005.2246865900647,
+      "Time": 72.376175225739061,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2653847,
+      "Longitude": 4.789478,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1048.9978080032897,
+      "Time": 75.527839871310093,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.26491,
+          "Longitude": 4.78007,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "De Dalen"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            },
+            {
+              "Key": "maxspeed",
+              "Value": "50"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2647934,
+      "Longitude": 4.788283,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1154.9935466702621,
+      "Time": 83.159532822431316,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2647057,
+          "Longitude": 4.788555,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Vendelmansweg"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.26476,
+      "Longitude": 4.788225,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1160.5333473791161,
+      "Time": 83.558398461296392,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2648621,
+          "Longitude": 4.787775,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Pastorijstraat"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2644463,
+      "Longitude": 4.787728,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1209.5968624180396,
+      "Time": 87.0909714362933,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2639656,
+          "Longitude": 4.78808069,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "service"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2643242,
+      "Longitude": 4.787467,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pastorijstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1232.2594071621252,
+      "Time": 88.722674608071827,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2642479,
+          "Longitude": 4.7845583,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Heymansstraat"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.26422,
+      "Longitude": 4.78743839,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1243.8838446407472,
+      "Time": 89.559634080990634,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2643929,
+          "Longitude": 4.78639126,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "service"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.26404,
+      "Longitude": 4.787389,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1264.1164584649887,
+      "Time": 91.0163822318796,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2638474,
+          "Longitude": 4.787684,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "footway"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.26383,
+      "Longitude": 4.787329,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1288.2295713254,
+      "Time": 92.7525263048463,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2637367,
+      "Longitude": 4.787268,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1299.2600426394674,
+      "Time": 93.54672021522228,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2637177,
+      "Longitude": 4.78725672,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1301.5254673347779,
+      "Time": 93.7098307883069,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26362,
+      "Longitude": 4.787172,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1314.0356841139635,
+      "Time": 94.61056636892,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2633,
+      "Longitude": 4.786864,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Heymansstraat"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1355.2530353916984,
+      "Time": 97.57821557035146,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.0256462,
+          "Longitude": 4.746246,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Den Hert"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            },
+            {
+              "Key": "oneway",
+              "Value": "yes"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2632027,
+      "Longitude": 4.786572,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Den Hert"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        },
+        {
+          "Key": "oneway",
+          "Value": "yes"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1378.3597673129461,
+      "Time": 99.241900217909674,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.25219,
+          "Longitude": 4.75428963,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Den Hert"
+            },
+            {
+              "Key": "maxspeed",
+              "Value": "50"
+            },
+            {
+              "Key": "highway",
+              "Value": "secondary"
+            }
+          ]
+        },
+        {
+          "Latitude": 51.264164,
+          "Longitude": 4.78525352,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Gebroeders De Winterstraat"
+            },
+            {
+              "Key": "maxspeed",
+              "Value": "50"
+            },
+            {
+              "Key": "highway",
+              "Value": "secondary"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2631569,
+      "Longitude": 4.786388,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Den Hert"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1392.140989709741,
+      "Time": 100.23414820019789,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26309,
+      "Longitude": 4.7860446,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Den Hert"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1417.2197718275356,
+      "Time": 102.03982045757437,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26301,
+      "Longitude": 4.78592253,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Den Hert"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1429.5278304860635,
+      "Time": 102.9260006539443,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2633438,
+          "Longitude": 4.785585,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Den Hert"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2628,
+      "Longitude": 4.7857666,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1455.2567813053777,
+      "Time": 104.77848505640158,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.25953,
+          "Longitude": 4.788318,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2627678,
+      "Longitude": 4.78574753,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1458.9004680997061,
+      "Time": 105.04083049758708,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.26014,
+          "Longitude": 4.78658962,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "cycleway"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2620125,
+      "Longitude": 4.78552055,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1544.3590982097451,
+      "Time": 111.19385167773457,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.26134,
+      "Longitude": 4.785238,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1621.5630808887013,
+      "Time": 116.75253826098177,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2610359,
+      "Longitude": 4.785081,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1657.2096368919561,
+      "Time": 119.31909021489116,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 49.7845535,
+          "Longitude": 5.70683432,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Pulsebaan"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2608,
+      "Longitude": 4.78496456,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1684.7264028061654,
+      "Time": 121.3002973002526,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2602043,
+      "Longitude": 4.784622,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1755.0555520027774,
+      "Time": 126.36399588787685,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2610359,
+          "Longitude": 4.781717,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Lange weg"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.26,
+      "Longitude": 4.78450871,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1779.2840676765534,
+      "Time": 128.10844896315223,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.25983,
+      "Longitude": 4.784347,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1801.0752419328958,
+      "Time": 129.6774134617279,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2595978,
+      "Longitude": 4.783995,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1836.7000453592243,
+      "Time": 132.24239923014639,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2588921,
+          "Longitude": 4.78560829,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Borgstraat"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.25935,
+      "Longitude": 4.7836194,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        },
+        {
+          "Key": "maxspeed",
+          "Value": "50"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1874.6976564141933,
+      "Time": 134.97822714261332,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2599068,
+          "Longitude": 4.782148,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2590141,
+      "Longitude": 4.783087,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        },
+        {
+          "Key": "maxspeed",
+          "Value": "50"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1927.3000745572604,
+      "Time": 138.76560113333267,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.258625,
+      "Longitude": 4.78250742,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        },
+        {
+          "Key": "maxspeed",
+          "Value": "50"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1986.4376460640208,
+      "Time": 143.02350615187845,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2585449,
+      "Longitude": 4.78238535,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        },
+        {
+          "Key": "maxspeed",
+          "Value": "50"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 1998.7462738759275,
+      "Time": 143.9097273272904,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.25878,
+          "Longitude": 4.781869,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.25722,
+      "Longitude": 4.7803607,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Pulsebaan"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        },
+        {
+          "Key": "maxspeed",
+          "Value": "50"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2202.4977474551424,
+      "Time": 158.5798329772978,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.25663,
+          "Longitude": 4.7795043,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Pulsebaan"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            },
+            {
+              "Key": "maxspeed",
+              "Value": "50"
+            }
+          ]
+        },
+        {
+          "Latitude": 51.2563629,
+          "Longitude": 4.781246,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2573776,
+      "Longitude": 4.78017664,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2224.0965410659178,
+      "Time": 160.13494606981533,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2575073,
+      "Longitude": 4.78009224,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2239.6685613131963,
+      "Time": 161.25613149340353,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2577553,
+      "Longitude": 4.779876,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2271.0712165132741,
+      "Time": 163.51712259880915,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.25796,
+      "Longitude": 4.779684,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2297.5943919610427,
+      "Time": 165.42679117277004,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2580757,
+      "Longitude": 4.77936125,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2323.4123749010691,
+      "Time": 167.285685887723,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.25812,
+      "Longitude": 4.77915049,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2338.9369028240158,
+      "Time": 168.40345186406364,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.25782,
+          "Longitude": 4.778851,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.2581825,
+      "Longitude": 4.77888536,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2358.5946806230459,
+      "Time": 169.81881182240045,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2582359,
+      "Longitude": 4.778726,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2371.1681139779962,
+      "Time": 170.7240989963297,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2582855,
+      "Longitude": 4.77866364,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2378.1896443480755,
+      "Time": 171.22964916754725,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.25833,
+          "Longitude": 4.77865648,
+          "Tags": [
+            {
+              "Key": "name",
+              "Value": "Beulk"
+            },
+            {
+              "Key": "highway",
+              "Value": "residential"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.25818,
+      "Longitude": 4.778479,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2395.6813600975765,
+      "Time": 172.48905266307736,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2581177,
+      "Longitude": 4.778377,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2405.5039546953417,
+      "Time": 173.19627945253359,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.2581177,
+      "Longitude": 4.77826452,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2413.3348537845045,
+      "Time": 173.76010416974674,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.25825,
+      "Longitude": 4.777728,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2453.5081629158694,
+      "Time": 176.6525823389336,
+      "Points": null,
+      "SideStreets": null
+    },
+    {
+      "Latitude": 51.258297,
+      "Longitude": 4.777583,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2464.8068900430671,
+      "Time": 177.46609066726555,
+      "Points": null,
+      "SideStreets": [
+        {
+          "Latitude": 51.2574,
+          "Longitude": 4.77636147,
+          "Tags": [
+            {
+              "Key": "highway",
+              "Value": "track"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "Latitude": 51.258667,
+      "Longitude": 4.77633858,
+      "Profile": "Car",
+      "Tags": [
+        {
+          "Key": "name",
+          "Value": "Beulk"
+        },
+        {
+          "Key": "highway",
+          "Value": "residential"
+        }
+      ],
+      "Metrics": null,
+      "Distance": 2560.6876393601342,
+      "Time": 184.3695044074189,
+      "Points": [
+        {
+          "Latitude": 51.258667,
+          "Longitude": 4.77633858,
+          "Tags": [],
+          "Metrics": null
+        }
+      ],
+      "SideStreets": null
+    }
+  ],
+  "TotalDistance": 2560.6876393601342,
+  "TotalTime": 184.3695044074189
+}

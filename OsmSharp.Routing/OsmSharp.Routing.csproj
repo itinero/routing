@@ -107,6 +107,7 @@
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Navigation\Instruction.cs" />
+    <Compile Include="Navigation\InstructionExtensions.cs" />
     <Compile Include="Navigation\InstructionGenerator.cs" />
     <Compile Include="Navigation\Language\DefaultLanguageReference.cs" />
     <Compile Include="Navigation\Language\ILanguageReference.cs" />

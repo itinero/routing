@@ -307,11 +307,10 @@ namespace OsmSharp.Routing.Algorithms
             segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
 
             // add sidestreets.
-            if(from == Constants.NO_VERTEX)
+            if(to != Constants.NO_VERTEX)
             {
-                from = edge.GetOther(to);
+                segment.SetSideStreets(_routerDb, to, edge.Id, next);
             }
-            segment.SetSideStreets(_routerDb, from, edge.Id, next);
             _route.Segments.Add(segment);
         }
 

@@ -17,9 +17,11 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
+using OsmSharp.Routing.Navigation;
 using OsmSharp.Routing.Navigation.Osm;
 using OsmSharp.Routing.Test.Navigation.Language;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace OsmSharp.Routing.Test.Navigation.Osm
 {
@@ -209,6 +211,24 @@ namespace OsmSharp.Routing.Test.Navigation.Osm
             Assert.AreEqual("start", instructions[0].Type);
             Assert.AreEqual("roundabout", instructions[1].Type);
             Assert.AreEqual("stop", instructions[2].Type);
+        }
+
+        /// <summary>
+        /// Tets generating instructions for test route 1.
+        /// </summary>
+        [Test]
+        public void TestRoute1()
+        {
+            var route = TestRouteBuilder.BuildRoute(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "OsmSharp.Routing.Test.test_data.routes.route1.json"));
+
+            var generator = new InstructionCarGenerator(route, new MockLanguageReference());
+            generator.Run();
+
+            var instructions = generator.Instructions;
+            Assert.IsNotNull(instructions);
+            Assert.AreEqual(8, instructions.Count);
         }
     }
 }

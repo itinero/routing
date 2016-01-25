@@ -17,7 +17,6 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Routing.Navigation.Language;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -154,43 +153,83 @@ namespace OsmSharp.Routing.Navigation.Osm
             out Instruction instruction)
         {
             var relative = r.RelativeDirectionAt(i);
-            if (relative != null &&
-                relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.StraightOn &&
-                r.Segments[i].SideStreets != null &&
-                r.Segments[i].SideStreets.Length > 0)
-            { // not straight on and at least one sidestreet.
-                var name = string.Empty;
-                if (i + 1 < r.Segments.Count &&
-                    r.Segments[i + 1].Tags != null &&
-                    r.Segments[i + 1].Tags.Any(x =>
-                    {
-                        if (x.Key == "name")
+
+            if(relative != null)
+            {
+                var doInstruction = false;
+                if (relative.Direction == Math.Geo.Meta.RelativeDirectionEnum.StraightOn &&
+                   r.Segments[i].SideStreets != null &&
+                   r.Segments[i].SideStreets.Length >= 2)
+                { // straight-on at cross roads.
+                    doInstruction = true;
+                }
+                else if (relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.StraightOn &&
+                    relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.SlightlyLeft &&
+                    relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.SlightlyRight &&
+                    r.Segments[i].SideStreets != null &&
+                    r.Segments[i].SideStreets.Length > 0)
+                { // an actual turn and there is at least on other street around.
+                    doInstruction = true;
+                }
+                if (doInstruction)
+                {
+                    var direction = languageReference[relative.Direction.ToInvariantString()];
+                    var name = string.Empty;
+                    if (i + 1 < r.Segments.Count &&
+                        r.Segments[i + 1].Tags != null &&
+                        r.Segments[i + 1].Tags.Any(x =>
                         {
-                            name = x.Value;
-                            return true;
+                            if (x.Key == "name")
+                            {
+                                name = x.Value;
+                                return true;
+                            }
+                            return false;
+                        }))
+                    { // there is a name.
+                        if (relative.Direction == Math.Geo.Meta.RelativeDirectionEnum.StraightOn)
+                        {
+                            instruction = new Instruction()
+                            {
+                                Text = string.Format(languageReference["Go {0} on {1}."],
+                                    direction, name),
+                                Type = "turn",
+                                Segment = i
+                            };
+                            return 1;
                         }
-                        return false;
-                    }))
-                { // there is a name.
-                    instruction = new Instruction()
-                    {
-                        Text = string.Format("Turn {0} on {1}.",
-                            relative.Direction.ToInvariantString(), name),
-                        Type = "turn",
-                        Segment = i
-                    };
+                        instruction = new Instruction()
+                        {
+                            Text = string.Format(languageReference["Turn {0} on {1}."],
+                                direction, name),
+                            Type = "turn",
+                            Segment = i
+                        };
+                        return 1;
+                    }
+                    else
+                    { // there is no name.
+                        if (relative.Direction == Math.Geo.Meta.RelativeDirectionEnum.StraightOn)
+                        {
+                            instruction = new Instruction()
+                            {
+                                Text = string.Format(languageReference["Go {0}."],
+                                    direction),
+                                Type = "turn",
+                                Segment = i
+                            };
+                        }
+                        
+                        instruction = new Instruction()
+                        {
+                            Text = string.Format(languageReference["Turn {0}."],
+                                direction),
+                            Type = "turn",
+                            Segment = i
+                        };
+                        return 1;
+                    }
                 }
-                else
-                { // there is no name.
-                    instruction = new Instruction()
-                    {
-                        Text = string.Format("Turn {0}.",
-                            relative.Direction.ToInvariantString()),
-                        Type = "turn",
-                        Segment = i
-                    };
-                }
-                return 1;
             }
             instruction = null;
             return 0;

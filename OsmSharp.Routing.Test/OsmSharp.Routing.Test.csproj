@@ -119,6 +119,8 @@
     <Compile Include="RouterTests.cs" />
     <Compile Include="RouteTests.cs" />
     <Compile Include="Mocks\StreamMock.cs" />
+    <Compile Include="TestRouteBuilder.cs" />
+    <EmbeddedResource Include="test-data\routes\route1.json" />
     <Compile Include="TestNetworkBuilder.cs" />
     <Compile Include="TestNetworkBuilderTests.cs" />
   </ItemGroup>

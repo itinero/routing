@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Geo.Features;
+using OsmSharp.IO.Json.Linq;
 using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Routing.Test.Functional.Staging;
 using OsmSharp.Routing.Test.Functional.Tests;
@@ -43,10 +44,6 @@ namespace OsmSharp.Routing.Test.Functional
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
             var routerDb = Runner.TestBuildRouterDb("belgium-latest.osm.pbf", Vehicle.Car);
-
-            // create test router.
-            Console.WriteLine("Loading routing data for Belgium...");
-            //var routerDb = RouterDb.Deserialize(File.OpenRead("belgium.a.routing"));
             var router = new Router(routerDb);
 
             // test resolving.
@@ -67,9 +64,6 @@ namespace OsmSharp.Routing.Test.Functional
                     Tests.Runner.Default);
             }
             performanceInfoConsumer.Stop();
-
-            Console.WriteLine("Done!");
-            Console.ReadLine();
         }
     }
 }
