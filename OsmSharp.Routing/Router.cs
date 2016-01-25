@@ -16,8 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Algorithms.Default;
+using OsmSharp.Routing.Algorithms.Routes;
+using OsmSharp.Routing.Algorithms.Routing;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Graphs.Geometric;
@@ -51,15 +52,14 @@ namespace OsmSharp.Routing
         public ProfileFactorCache ProfileFactorCache { get; set; }
 
         /// <summary>
-        /// A delegate used to inject a custom resolver algorithm.
-        /// </summary>
-        /// <returns></returns>
-        public delegate IResolver CreateResolver(float latitude, float longitude, Func<RoutingEdge, bool> isBetter);
-
-        /// <summary>
         /// Gets or sets the delegate to create a custom resolver.
         /// </summary>
-        public CreateResolver CreateCustomResolver { get; set; }
+        public IResolveExtensions.CreateResolver CreateCustomResolver { get; set; }
+
+        /// <summary>
+        /// Gets or sets the delegate to use a custom route builder.
+        /// </summary>
+        public RouteBuilderExtensions.BuildRoute CustomRouteBuilder { get; set; }
 
         /// <summary>
         /// Flag to check all resolved points if stopping at the resolved location is possible.
@@ -216,18 +216,8 @@ namespace OsmSharp.Routing
                 }
                 path = bidirectionalSearch.GetPath();
             }
-            
-            // generate route.
-            var routeBuilder = new RouteBuilder(_db, profile, source, target, path);
-            routeBuilder.Run();
-            if(!routeBuilder.HasSucceeded)
-            {
-                return new Result<Route>(routeBuilder.ErrorMessage, (message) =>
-                {
-                    return new RouteBuildFailedException(message);
-                });
-            }
-            return new Result<Route>(routeBuilder.Route);
+
+            return this.BuildRoute(profile, source, target, path);
         }
 
         /// <summary>
@@ -262,7 +252,51 @@ namespace OsmSharp.Routing
                 });
             }
 
-            throw new NotImplementedException();
+            // get the get factor function.
+            var getFactor = this.GetGetFactor(profile);
+            
+            OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
+            if (_db.TryGetContracted(profile, out contracted))
+            {
+                OsmSharp.Logging.Log.TraceEvent("Router", Logging.TraceEventType.Warning, 
+                    "Many to many route calculations are not possible yet using contracted algorithms.");
+            }
+
+            // use non-contracted calculation.
+            var algorithm = new OsmSharp.Routing.Algorithms.Default.ManyToMany(_db, getFactor, sources, targets, float.MaxValue);
+            algorithm.Run();
+            if (!algorithm.HasSucceeded)
+            {
+                return new Result<Route[][]>(algorithm.ErrorMessage, (message) =>
+                {
+                    return new RouteNotFoundException(message);
+                });
+            }
+
+            // build all routes.
+            var routes = new Route[sources.Length][];
+            var path = new List<uint>();
+            for(var s = 0; s < sources.Length; s++)
+            {
+                routes[s] = new Route[targets.Length];
+                for (var t = 0; t < targets.Length; t++)
+                {
+                    var localPath = algorithm.GetPath(s, t);
+                    if(localPath != null)
+                    {
+                        path.Clear();
+                        localPath.AddToList(path);
+                        var route = this.BuildRoute(profile, sources[s],
+                            targets[t], path);
+                        if(route.IsError)
+                        {
+                            return route.ConvertError<Route[][]>();
+                        }
+                        routes[s][t] = route.Value;
+                    }
+                }
+            }
+            return new Result<Route[][]>(routes);
         }
 
         /// <summary>
@@ -415,6 +449,29 @@ namespace OsmSharp.Routing
                     return profile.Factor(Db.EdgeProfiles.Get(p));
                 };
             }
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        protected Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        {
+            if(this.CustomRouteBuilder != null)
+            { // there is a custom route builder.
+                return this.CustomRouteBuilder(_db, profile, source, target, path);
+            }
+
+            // use the default.
+            var routeBuilder = new RouteBuilder(_db, profile, source, target, path);
+            routeBuilder.Run();
+            if (!routeBuilder.HasSucceeded)
+            {
+                return new Result<Route>(routeBuilder.ErrorMessage, (message) =>
+                {
+                    return new RouteBuildFailedException(message);
+                });
+            }
+            return new Result<Route>(routeBuilder.Route);
         }
     }
 }

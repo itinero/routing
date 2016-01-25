@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -23,7 +23,7 @@ using OsmSharp.Routing.Profiles;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OsmSharp.Routing.Algorithms
+namespace OsmSharp.Routing.Algorithms.Routing
 {
     /// <summary>
     /// An algorithm to build a route from a path.
