@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Routing.Profiles;
+using System;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Algorithms.Routes
@@ -29,7 +30,7 @@ namespace OsmSharp.Routing.Algorithms.Routes
         /// <summary>
         /// Delegate to create a resolver.
         /// </summary>
-        public delegate Result<Route> BuildRoute(RouterDb routerDb, Profile vehicleProfile, 
+        public delegate Result<Route> BuildRoute(RouterDb routerDb, Profile vehicleProfile, Func<ushort, Factor> getFactor,
             RouterPoint source, RouterPoint target, List<uint> path);
     }
 }

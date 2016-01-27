@@ -57,7 +57,8 @@
     <Compile Include="Algorithms\Networks\NetworkOptimizer.cs" />
     <Compile Include="Algorithms\Default\OneToMany.cs" />
     <Compile Include="Algorithms\Networks\ZeroLengthLinksOptimizer.cs" />
-    <Compile Include="Algorithms\Routes\RouteBuilder.cs" />
+    <Compile Include="Algorithms\Routes\CompleteRouteBuilder.cs" />
+    <Compile Include="Algorithms\Routes\FastRouteBuilder.cs" />
     <Compile Include="Algorithms\Routes\RouteBuilderExtensions.cs" />
     <Compile Include="Algorithms\Routes\RouteSegmentAggregator.cs" />
     <Compile Include="Algorithms\Search\Hilbert.cs" />

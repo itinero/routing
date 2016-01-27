@@ -553,7 +553,8 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Sets the details of the segment.
         /// </summary>
-        public static void Set(this RouteSegment segment, RouteSegment previous, Profile profile, TagsCollectionBase tags, OsmSharp.Routing.Profiles.Speed speed)
+        public static void Set(this RouteSegment segment, RouteSegment previous, Profile profile, TagsCollectionBase tags, 
+            OsmSharp.Routing.Profiles.Speed speed)
         {
             segment.SetDistanceAndTime(previous, speed);
             segment.Tags = tags.ConvertFrom();

@@ -20,42 +20,48 @@ using OsmSharp.Collections.Tags;
 using OsmSharp.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OsmSharp.Routing.Algorithms.Routing
+namespace OsmSharp.Routing.Algorithms.Routes
 {
     /// <summary>
     /// An algorithm to build a route from a path.
     /// </summary>
-    public class RouteBuilder : AlgorithmBase
+    public class FastRouteBuilder : AlgorithmBase
     {
         private readonly RouterDb _routerDb;
         private readonly List<uint> _path;
-        private readonly Profile _vehicleProfile;
+        private readonly Profile _profile;
+        private readonly Func<ushort, Factor> _getFactor;
         private readonly RouterPoint _source;
         private readonly RouterPoint _target;
 
         /// <summary>
         /// Creates a router builder.
         /// </summary>
-        public RouteBuilder(RouterDb routerDb, Profile vehicleProfile, RouterPoint source, RouterPoint target, List<uint> path)
+        public FastRouteBuilder(RouterDb routerDb, Profile profile, Func<ushort, Factor> getFactor, RouterPoint source, RouterPoint target, List<uint> path)
         {
             _routerDb = routerDb;
             _path = path;
             _source = source;
             _target = target;
-            _vehicleProfile = vehicleProfile;
+            _profile = profile;
+            _getFactor = getFactor;
         }
 
         private Route _route;
+        private TagsCollection _empty;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            if(_path.Count == 0)
+            _empty = new TagsCollection();
+
+            if (_path.Count == 0)
             { // an empty path.
                 this.ErrorMessage = "Path was empty.";
                 this.HasSucceeded = false;
@@ -89,14 +95,14 @@ namespace OsmSharp.Routing.Algorithms.Routing
             // add source.
             this.AddSource();
 
-            if(_path.Count == 1)
+            if (_path.Count == 1)
             { // there is only the source/target location.
                 this.HasSucceeded = true;
             }
             else
             { // there are at least two points.
                 var i = 0;
-                for(i = 0; i < _path.Count - 2; i++)
+                for (i = 0; i < _path.Count - 2; i++)
                 {
                     this.Add(_path[i], _path[i + 1], _path[i + 2]);
                 }
@@ -105,17 +111,17 @@ namespace OsmSharp.Routing.Algorithms.Routing
             }
 
             // set stops.
-            if(_route.Segments.Count == 1)
+            if (_route.Segments.Count == 1)
             { // only a source/target.
                 _route.Segments[0].SetStop(
-                    new ICoordinate[] { 
+                    new ICoordinate[] {
                         _source.Location(),
-                        _target.Location() 
+                        _target.Location()
                     },
-                    new TagsCollectionBase[] 
+                    new TagsCollectionBase[]
                     {
                         _source.Tags,
-                        _target.Tags 
+                        _target.Tags
                     });
                 return;
             }
@@ -142,7 +148,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
         /// </summary>
         private void AddSource()
         { // add source.
-            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
+            var segment = RouteSegment.CreateNew(_source.Location(), _profile);
             _route.Segments.Add(segment);
         }
 
@@ -150,8 +156,8 @@ namespace OsmSharp.Routing.Algorithms.Routing
         /// Adds the shape point between from and to and the target location itself.
         /// </summary>
         private void Add(uint from, uint to)
-        { 
-            if(from == Constants.NO_VERTEX &&
+        {
+            if (from == Constants.NO_VERTEX &&
                 _source.IsVertex())
             { // replace from with the vertex.
                 from = _source.VertexId(_routerDb);
@@ -166,7 +172,7 @@ namespace OsmSharp.Routing.Algorithms.Routing
             var shape = new List<ICoordinate>(0);
             RoutingEdge edge = null;
             ICoordinate targetLocation = null;
-            if(from == Constants.NO_VERTEX &&
+            if (from == Constants.NO_VERTEX &&
                to == Constants.NO_VERTEX)
             { // from is the source and to is the target.
                 if (_source.EdgeId != _target.EdgeId)
@@ -178,14 +184,14 @@ namespace OsmSharp.Routing.Algorithms.Routing
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
                 targetLocation = _target.Location();
             }
-            else if(from == Constants.NO_VERTEX)
+            else if (from == Constants.NO_VERTEX)
             { // from is the source and to is a regular vertex.
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
-                shape = _source.ShapePointsTo(_routerDb, _routerDb.Network.CreateRouterPointForVertex(to, 
+                shape = _source.ShapePointsTo(_routerDb, _routerDb.Network.CreateRouterPointForVertex(to,
                     edge.GetOther(to)));
                 targetLocation = _routerDb.Network.GetVertex(to);
             }
-            else if(to == Constants.NO_VERTEX)
+            else if (to == Constants.NO_VERTEX)
             { // from is a regular vertex and to is the target.
                 edge = _routerDb.Network.GetEdge(_target.EdgeId);
                 shape = _routerDb.Network.CreateRouterPointForVertex(from, edge.GetOther(from)).ShapePointsTo(
@@ -207,23 +213,32 @@ namespace OsmSharp.Routing.Algorithms.Routing
                 targetLocation = _routerDb.Network.GetVertex(to);
             }
 
-            // get edge details.
-            var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(meta);
-            tags.AddOrReplace(profile);
+            // get speed.
+            var factor = _getFactor(edge.Data.Profile).Value;
+            var speed = new Speed()
+            {
+                Direction = 0,
+                Value = 1.0f
+            };
+            if(factor != 0)
+            {
+                speed = new Speed()
+                {
+                    Direction = 0,
+                    Value = 1.0f / factor
+                };
+            }
 
             // add shape and target.
             RouteSegment segment;
             for (var i = 0; i < shape.Count; i++)
             {
-                segment = RouteSegment.CreateNew(shape[i], _vehicleProfile);
-                segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
+                segment = RouteSegment.CreateNew(shape[i], _profile);
+                segment.Set(_route.Segments[_route.Segments.Count - 1], _profile, _empty, speed);
                 _route.Segments.Add(segment);
             }
-            segment = RouteSegment.CreateNew(targetLocation, _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
+            segment = RouteSegment.CreateNew(targetLocation, _profile);
+            segment.Set(_route.Segments[_route.Segments.Count - 1], _profile, _empty, speed);
             _route.Segments.Add(segment);
         }
 
@@ -287,67 +302,71 @@ namespace OsmSharp.Routing.Algorithms.Routing
                 }
                 targetLocation = _routerDb.Network.GetVertex(to);
             }
-
-            // get edge details.
-            var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(meta);
-            tags.AddOrReplace(profile);
+            
+            // get speed.
+            var factor = _getFactor(edge.Data.Profile).Value;
+            var speed = new Speed()
+            {
+                Direction = 0,
+                Value = 1.0f
+            };
+            if (factor != 0)
+            {
+                speed = new Speed()
+                {
+                    Direction = 0,
+                    Value = 1.0f / factor
+                };
+            }
 
             // add shape and target.
             RouteSegment segment;
             for (var i = 0; i < shape.Count; i++)
             {
-                segment = RouteSegment.CreateNew(shape[i], _vehicleProfile);
-                segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
+                segment = RouteSegment.CreateNew(shape[i], _profile);
+                segment.Set(_route.Segments[_route.Segments.Count - 1], _profile, _empty, speed);
                 _route.Segments.Add(segment);
             }
-            segment = RouteSegment.CreateNew(targetLocation, _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-
-            // add sidestreets.
-            if(to != Constants.NO_VERTEX)
-            {
-                segment.SetSideStreets(_routerDb, to, edge.Id, next);
-            }
+            segment = RouteSegment.CreateNew(targetLocation, _profile);
+            segment.Set(_route.Segments[_route.Segments.Count - 1], _profile, _empty, speed);
             _route.Segments.Add(segment);
         }
 
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, Path path)
         {
-            return RouteBuilder.TryBuild(db, profile, source, target, path).Value;
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path).Value;
         }
 
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, Path path)
         {
             var pathList = new List<uint>();
             path.AddToList(pathList);
-            return RouteBuilder.TryBuild(db, profile, source, target, pathList);
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, pathList);
         }
 
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, List<uint> path)
         {
-            return RouteBuilder.TryBuild(db, profile, source, target, path).Value;
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path).Value;
         }
 
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, 
+            RouterPoint source, RouterPoint target, List<uint> path)
         {
-            var routeBuilder = new RouteBuilder(db, profile, source, target, path);
+            var routeBuilder = new FastRouteBuilder(db, profile, getFactor, source, target, path);
             routeBuilder.Run();
-            if(!routeBuilder.HasSucceeded)
+            if (!routeBuilder.HasSucceeded)
             {
                 return new Result<Route>(
                     string.Format("Failed to build route: {0}", routeBuilder.ErrorMessage));

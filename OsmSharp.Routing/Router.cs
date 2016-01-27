@@ -18,7 +18,6 @@
 
 using OsmSharp.Routing.Algorithms.Default;
 using OsmSharp.Routing.Algorithms.Routes;
-using OsmSharp.Routing.Algorithms.Routing;
 using OsmSharp.Routing.Algorithms.Search;
 using OsmSharp.Routing.Exceptions;
 using OsmSharp.Routing.Graphs.Geometric;
@@ -458,20 +457,12 @@ namespace OsmSharp.Routing
         {
             if(this.CustomRouteBuilder != null)
             { // there is a custom route builder.
-                return this.CustomRouteBuilder(_db, profile, source, target, path);
+                return this.CustomRouteBuilder(_db, profile, this.GetGetFactor(profile), 
+                    source, target, path);
             }
 
             // use the default.
-            var routeBuilder = new RouteBuilder(_db, profile, source, target, path);
-            routeBuilder.Run();
-            if (!routeBuilder.HasSucceeded)
-            {
-                return new Result<Route>(routeBuilder.ErrorMessage, (message) =>
-                {
-                    return new RouteBuildFailedException(message);
-                });
-            }
-            return new Result<Route>(routeBuilder.Route);
+            return CompleteRouteBuilder.TryBuild(_db, profile, source, target, path);
         }
     }
 }
