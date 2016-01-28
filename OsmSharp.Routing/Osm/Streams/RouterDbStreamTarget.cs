@@ -540,6 +540,11 @@ namespace OsmSharp.Routing.Osm.Streams
             }
             else
             { // edge is too big.
+                if (shape == null)
+                { // make sure there is a shape.
+                    shape = new List<ICoordinate>();
+                }
+
                 shape = new List<ICoordinate>(shape);
                 shape.Insert(0, _db.Network.GetVertex(vertex1));
                 shape.Add(_db.Network.GetVertex(vertex2));
