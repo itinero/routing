@@ -29,6 +29,7 @@ namespace OsmSharp.Routing.Profiles
     {
         private readonly string _name;
         private readonly Func<TagsCollectionBase, Speed> _getSpeed;
+        private readonly Func<TagsCollectionBase, Factor> _getFactor;
         private readonly Func<TagsCollectionBase, bool> _canStop;
         private readonly Func<TagsCollectionBase, TagsCollectionBase, bool> _equals;
         private readonly Func<Speed> _minSpeed;
@@ -41,6 +42,11 @@ namespace OsmSharp.Routing.Profiles
         public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<Speed> minSpeed, Func<TagsCollectionBase, bool> canStop,
             Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes, ProfileMetric metric)
         {
+            if (metric == ProfileMetric.Custom)
+            {
+                throw new ArgumentException("Cannot set a custom metric without a getFactor function.");
+            }
+
             _minSpeed = minSpeed;
             _getSpeed = getSpeed;
             _canStop = canStop;
@@ -48,6 +54,23 @@ namespace OsmSharp.Routing.Profiles
             _vehicleTypes = vehicleTypes;
             _name = name;
             _metric = metric;
+            _getFactor = null;
+        }
+
+        /// <summary>
+        /// Creates a new routing profile.
+        /// </summary>
+        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<Speed> minSpeed, Func<TagsCollectionBase, bool> canStop,
+            Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes, Func<TagsCollectionBase, Factor> getFactor)
+        {
+            _minSpeed = minSpeed;
+            _getSpeed = getSpeed;
+            _canStop = canStop;
+            _equals = equals;
+            _vehicleTypes = vehicleTypes;
+            _name = name;
+            _metric = ProfileMetric.Custom;
+            _getFactor = getFactor;
         }
 
         /// <summary>
@@ -55,20 +78,40 @@ namespace OsmSharp.Routing.Profiles
         /// </summary>
         public virtual Factor Factor(TagsCollectionBase attributes)
         {
+            if (_metric == ProfileMetric.Custom)
+            { // use a custom factor.
+                return _getFactor(attributes);
+            }
+
             var speed = _getSpeed(attributes);
-            if(speed.Value == 0)
-            {
-                return new Factor()
+            if (_metric == ProfileMetric.DistanceInMeters)
+            { // shortest, use a constant factor but take direction from speed.
+                return new Profiles.Factor()
                 {
-                    Value = 0,
-                    Direction = 0
+                    Direction = speed.Direction,
+                    Value = 1
                 };
             }
-            return new Factor()
+            else if (_metric == ProfileMetric.TimeInSeconds)
+            { // fastest, use the speed as the factor.
+                if (speed.Value == 0)
+                {
+                    return new Factor()
+                    {
+                        Value = 0,
+                        Direction = 0
+                    };
+                }
+                return new Factor()
+                {
+                    Value = 1.0f / speed.Value,
+                    Direction = speed.Direction
+                };
+            }
+            else
             {
-                Value = 1.0f / speed.Value,
-                Direction = speed.Direction
-            };
+                throw new Exception(string.Format("Unknown metric used in profile: {0}", _name));
+            }
         }
 
         /// <summary>

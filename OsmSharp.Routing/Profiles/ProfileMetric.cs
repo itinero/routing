@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -26,14 +26,17 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// A profile that uses time in seconds.
         /// </summary>
+        /// <remarks>Means that Factor() = 1/Speed().</remarks>
         TimeInSeconds,
         /// <summary>
         /// A profile that uses distance in meters.
         /// </summary>
+        /// <remarks>Means that Factor() is constant, Speed() returns the actual speed.</remarks>
         DistanceInMeters,
         /// <summary>
         /// A profile that uses a custom metric.
         /// </summary>
+        /// <remarks>Means that Factor() can be anything, Speed() returns the actual speed.</remarks>
         Custom
     }
 }
