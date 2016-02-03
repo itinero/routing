@@ -32,6 +32,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// </summary>
         public Bicycle()
         {
+            AccessibleTags.Add("steps", string.Empty); // only when there is a ramp.
             AccessibleTags.Add("service", string.Empty);
             AccessibleTags.Add("cycleway", string.Empty);
             AccessibleTags.Add("path", string.Empty);
@@ -73,6 +74,14 @@ namespace OsmSharp.Routing.Osm.Vehicles
                 {
                     return false; //  no for bicycle
                 }
+            }
+            if (highwayType == "steps")
+            {
+                if(tags.ContainsKeyValue("ramp", "yes"))
+                {
+                    return true;
+                }
+                return false;
             }
             return AccessibleTags.ContainsKey(highwayType);
         }
