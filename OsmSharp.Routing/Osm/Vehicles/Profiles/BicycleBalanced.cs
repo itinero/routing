@@ -82,6 +82,7 @@ namespace OsmSharp.Routing.Osm.Vehicles.Profiles
                             break;
                         case "path":
                         case "footway":
+                        case "cycleway":
                         case "pedestrian":
                         case "steps":
                             speed.Value = speed.Value * HIGHEST_PREFER_FACTOR;
