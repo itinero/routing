@@ -214,20 +214,7 @@ namespace OsmSharp.Routing.Algorithms.Routes
             }
 
             // get speed.
-            var factor = _getFactor(edge.Data.Profile).Value;
-            var speed = new Speed()
-            {
-                Direction = 0,
-                Value = 1.0f
-            };
-            if(factor != 0)
-            {
-                speed = new Speed()
-                {
-                    Direction = 0,
-                    Value = 1.0f / factor
-                };
-            }
+            var speed = this.GetSpeedFor(edge.Data.Profile);
 
             // add shape and target.
             RouteSegment segment;
@@ -302,22 +289,9 @@ namespace OsmSharp.Routing.Algorithms.Routes
                 }
                 targetLocation = _routerDb.Network.GetVertex(to);
             }
-            
+
             // get speed.
-            var factor = _getFactor(edge.Data.Profile).Value;
-            var speed = new Speed()
-            {
-                Direction = 0,
-                Value = 1.0f
-            };
-            if (factor != 0)
-            {
-                speed = new Speed()
-                {
-                    Direction = 0,
-                    Value = 1.0f / factor
-                };
-            }
+            var speed = this.GetSpeedFor(edge.Data.Profile);
 
             // add shape and target.
             RouteSegment segment;
@@ -330,6 +304,37 @@ namespace OsmSharp.Routing.Algorithms.Routes
             segment = RouteSegment.CreateNew(targetLocation, _profile);
             segment.Set(_route.Segments[_route.Segments.Count - 1], _profile, _empty, speed);
             _route.Segments.Add(segment);
+        }
+
+        /// <summary>
+        /// Gets the speed for the given profile.
+        /// </summary>
+        private Speed GetSpeedFor(ushort profileId)
+        {
+            var speed = new Speed()
+            {
+                Direction = 0,
+                Value = 1.0f
+            };
+            if (_profile.Metric == ProfileMetric.TimeInSeconds)
+            { // in this case factor is 1/speed so just reuse.
+                var factor = _getFactor(profileId).Value;
+                if (factor != 0)
+                {
+                    speed = new Speed()
+                    {
+                        Direction = 0,
+                        Value = 1.0f / factor
+                    };
+                }
+            }
+            else
+            { // here we need to use the slower option of getting the speed from the profile.
+                // factor has nothing to do with the actual speed anymore.
+                var edgeProfile = _routerDb.EdgeProfiles.Get(profileId);
+                speed = _profile.Speed(edgeProfile);
+            }
+            return speed;
         }
 
         /// <summary>
