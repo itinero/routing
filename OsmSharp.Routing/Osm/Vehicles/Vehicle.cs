@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,7 +17,6 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Tags;
-using OsmSharp.Math.Geo;
 using OsmSharp.Osm;
 using OsmSharp.Units.Speed;
 using System;
@@ -101,7 +100,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Registers this vehicle by name.
         /// </summary>
-        public void Register()
+        public virtual void Register()
         {
             if (VehiclesByName == null)
             { // initialize the vehicle by name dictionary.
@@ -109,8 +108,10 @@ namespace OsmSharp.Routing.Osm.Vehicles
             }
             VehiclesByName[this.UniqueName.ToLowerInvariant()] = this;
 
-            Profiles.Profile.Register(this.Fastest());
-            Profiles.Profile.Register(this.Shortest());
+            foreach(var profile in this.GetProfiles())
+            {
+                Routing.Profiles.Profile.Register(profile);
+            }
         }
 
         /// <summary>
@@ -206,7 +207,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// Returns true if the given key is relevant for profile.
         /// </summary>
         /// <returns></returns>
-        public bool IsRelevantForProfile(string key)
+        public virtual bool IsRelevantForProfile(string key)
         {
             return _relevantProfileKeys.Contains(key);
         }
@@ -215,7 +216,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// Returns true if the given key is relevant for meta-data.
         /// </summary>
         /// <returns></returns>
-        public bool IsRelevantForMeta(string key)
+        public virtual bool IsRelevantForMeta(string key)
         {
             return _relevantMetaKeys.Contains(key);
         }
@@ -224,7 +225,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// Holds names of generic vehicle types like 'pedestrian', 'horse', 'carriage',...
         /// </summary>
         /// <remarks>This is used to interpret restrictions.
-        /// See issue: https://github.com/OsmSharp/OsmSharp/issues/192
         /// And OpenStreetMap-wiki: http://wiki.openstreetmap.org/wiki/Key:access#Transport_mode_restrictions</remarks>
         public readonly HashSet<string> VehicleTypes = new HashSet<string>();
 
@@ -426,56 +426,51 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// Returns a profile for this vehicle that can be used for finding fastest routes;.
         /// </summary>
         /// <returns></returns>
-        public Profiles.Profile Fastest()
+        public Routing.Profiles.Profile Fastest()
         {
-            return new Profiles.Profile(this.UniqueName, (tags) =>
-                {
-                    if (this.CanTraverse(tags))
-                    {
-                        var speed = new OsmSharp.Routing.Profiles.Speed()
-                            {
-                                Value = (float)this.ProbableSpeed(tags).Value / 3.6f,
-                                Direction = 0
-                            };
-                        var oneway = this.IsOneWay(tags);
-
-                        if (oneway.HasValue)
-                        {
-                            if (oneway.Value)
-                            {
-                                speed.Direction = 1;
-                            }
-                            else
-                            {
-                                speed.Direction = 2;
-                            }
-                        }
-                        return speed;
-                    }
-                    return OsmSharp.Routing.Profiles.Speed.NoSpeed;
-                },
-                () => new OsmSharp.Routing.Profiles.Speed()
-                    {
-                        Value = (float)this.MinSpeed().Value / 3.6f,
-                        Direction = 0
-                    },
-            (tags) =>
-                {
-                    return this.CanStopOn(tags);
-                },
-            (edge1, edge2) =>
-                {
-                    return this.IsEqualFor(edge1, edge2);
-                }, this.VehicleTypes, Profiles.ProfileMetric.TimeInSeconds);
+            return new Routing.Profiles.Profile(this.UniqueName,
+                this.GetGetSpeed(),
+                this.GetGetMinSpeed(),
+                this.GetCanStop(),
+                this.GetEquals(), 
+                this.VehicleTypes, 
+                Routing.Profiles.ProfileMetric.TimeInSeconds);
         }
 
         /// <summary>
         /// Returns a profile for this vehicle that can be used for finding fastest routes;.
         /// </summary>
         /// <returns></returns>
-        public Profiles.Profile Shortest()
+        public Routing.Profiles.Profile Shortest()
         {
-            return new Profiles.Profile(this.UniqueName, (tags) =>
+            return new Routing.Profiles.Profile(this.UniqueName + ".Shortest", 
+                this.GetGetSpeed(),
+                this.GetGetMinSpeed(),
+                this.GetCanStop(),
+                this.GetEquals(), 
+                this.VehicleTypes, 
+                Routing.Profiles.ProfileMetric.DistanceInMeters);
+        }
+
+        /// <summary>
+        /// Gets all profiles for this vehicles.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Routing.Profiles.Profile[] GetProfiles()
+        {
+            return new Routing.Profiles.Profile[]
+            {
+                this.Fastest(),
+                this.Shortest()
+            };
+        }
+        
+        /// <summary>
+        /// Gets the get speed function.
+        /// </summary>
+        internal Func<TagsCollectionBase, Routing.Profiles.Speed> GetGetSpeed()
+        {
+            return (tags) =>
             {
                 if (this.CanTraverse(tags))
                 {
@@ -500,21 +495,67 @@ namespace OsmSharp.Routing.Osm.Vehicles
                     return speed;
                 }
                 return OsmSharp.Routing.Profiles.Speed.NoSpeed;
-            },
-            () => new OsmSharp.Routing.Profiles.Speed()
+            };
+        }
+
+        /// <summary>
+        /// Gets the get minimum speed function.
+        /// </summary>
+        internal Func<Routing.Profiles.Speed> GetGetMinSpeed()
+        {
+            return () => new OsmSharp.Routing.Profiles.Speed()
             {
                 Value = (float)this.MinSpeed().Value / 3.6f,
                 Direction = 0
-            },
-            (tags) =>
+            };
+        }
+        
+        /// <summary>
+        /// Gets the can stop function.
+        /// </summary>
+        internal Func<TagsCollectionBase, bool> GetCanStop()
+        {
+            return (tags) =>
             {
                 return this.CanStopOn(tags);
-            },
-            (edge1, edge2) =>
+            };
+        }
+
+        /// <summary>
+        /// Gets the equals function.
+        /// </summary>
+        internal Func<TagsCollectionBase, TagsCollectionBase, bool> GetEquals()
+        {
+            return (edge1, edge2) =>
             {
                 return this.IsEqualFor(edge1, edge2);
-            }, 
-            this.VehicleTypes, Profiles.ProfileMetric.DistanceInMeters);
+            };
+        }
+
+        /// <summary>
+        /// Gets the get factor function.
+        /// </summary>
+        /// <returns></returns>
+        internal Func<TagsCollectionBase, Routing.Profiles.Factor> GetGetFactor()
+        {
+            var getSpeed = this.GetGetSpeed();
+            return (tags) =>
+            {
+                var speed = getSpeed(tags);
+                if (speed.Value == 0)
+                {
+                    return new Routing.Profiles.Factor()
+                    {
+                        Value = 0,
+                        Direction = 0
+                    };
+                }
+                return new Routing.Profiles.Factor()
+                {
+                    Value = 1.0f / speed.Value,
+                    Direction = speed.Direction
+                };
+            };
         }
     }
 }

@@ -353,6 +353,46 @@ namespace OsmSharp.Routing.Osm
             }
         }
 
+        private static Dictionary<string, bool?> _rampValues = null;
+
+        /// <summary>
+        /// Gets the possible values for ramp.
+        /// </summary>
+        public static Dictionary<string, bool?> RampValues
+        {
+            get
+            {
+                if (_rampValues == null)
+                {
+                    _rampValues = new Dictionary<string, bool?>();
+                    _rampValues.Add("yes", null);
+                }
+                return _rampValues;
+            }
+        }
+
+        /// <summary>
+        /// Normalizes the ramp tag.
+        /// </summary>
+        public static void NormalizeRamp(this TagsCollection tags, TagsCollection profileTags,
+            TagsCollection metaTags, bool defaultAccess)
+        {
+            string ramp;
+            if (!tags.TryGetValue("ramp", out ramp))
+            { // nothing to normalize.
+                return;
+            }
+            bool? defaultAccessFound;
+            if (!RampValues.TryGetValue(ramp, out defaultAccessFound))
+            { // invalid value.
+                return;
+            }
+
+            if (defaultAccess != defaultAccessFound)
+            {
+                profileTags.Add("ramp", ramp);
+            }
+        }
 
         private static Dictionary<string, bool?> _motorvehicleValues = null;
 

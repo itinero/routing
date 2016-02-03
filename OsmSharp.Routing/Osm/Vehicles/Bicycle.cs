@@ -17,6 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Profiles;
 using OsmSharp.Units.Speed;
 
 namespace OsmSharp.Routing.Osm.Vehicles
@@ -126,6 +127,20 @@ namespace OsmSharp.Routing.Osm.Vehicles
         }
 
         /// <summary>
+        /// Ret
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public override bool IsRelevantForProfile(string key)
+        {
+            if(base.IsRelevantForProfile(key))
+            {
+                return true;
+            }
+            return key == "ramp";
+        }
+
+        /// <summary>
         /// Returns true if the edge is one way forward, false if backward, null if bidirectional.
         /// </summary>
         /// <param name="tags"></param>
@@ -159,6 +174,29 @@ namespace OsmSharp.Routing.Osm.Vehicles
         public override string UniqueName
         {
             get { return "Bicycle"; }
+        }
+
+        /// <summary>
+        /// Gets all profiles for this vehicle.
+        /// </summary>
+        /// <returns></returns>
+        public override Profile[] GetProfiles()
+        {
+            return new Profile[]
+            {
+                this.Fastest(),
+                this.Shortest(),
+                this.Balanced()
+            };
+        }
+
+        /// <summary>
+        /// Returns a profile specifically for bicycle that tries to balance between bicycle infrastructure and fastest route.
+        /// </summary>
+        /// <returns></returns>
+        public Routing.Profiles.Profile Balanced()
+        {
+            return new Profiles.BicycleBalanced(this);
         }
     }
 }

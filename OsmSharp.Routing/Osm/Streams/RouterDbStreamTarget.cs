@@ -72,8 +72,10 @@ namespace OsmSharp.Routing.Osm.Streams
 
             foreach (var vehicle in vehicles)
             {
-                db.AddSupportedProfile(vehicle.Fastest());
-                db.AddSupportedProfile(vehicle.Shortest());
+                foreach(var profiles in vehicle.GetProfiles())
+                {
+                    db.AddSupportedProfile(profiles);
+                }
             }
         }
 

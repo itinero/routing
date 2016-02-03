@@ -123,6 +123,7 @@
     <Compile Include="Osm\RouterDbExtensions.cs" />
     <Compile Include="Osm\Streams\NodeCoordinatesDictionary.cs" />
     <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
+    <Compile Include="Osm\Vehicles\Profiles\BicycleBalanced.cs" />
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Profiles\Factor.cs" />
     <Compile Include="Profiles\Profile.cs" />
