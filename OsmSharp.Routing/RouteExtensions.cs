@@ -100,6 +100,14 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
+        /// Saves the route as Gpx.
+        /// </summary>
+        public static void SaveAsGpx(this Route route, Stream stream)
+        {
+            IO.Gpx.RouteGpx.Save(stream, route);
+        }
+
+        /// <summary>
         /// Returns this route in GeoJson.
         /// </summary>
         /// <returns></returns>

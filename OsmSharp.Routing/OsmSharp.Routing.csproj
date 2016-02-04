@@ -107,6 +107,7 @@
     <Compile Include="Graphs\Geometric\Shapes\Shape.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapesArray.cs" />
     <Compile Include="Graphs\GraphProfile.cs" />
+    <Compile Include="IO\Gpx\RouteGpx.cs" />
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Navigation\Instruction.cs" />
