@@ -181,6 +181,7 @@ namespace OsmSharp.Routing
             var getFactor = this.GetGetFactor(profile);
 
             List<uint> path;
+            float pathWeight;
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
             if(_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
@@ -195,7 +196,7 @@ namespace OsmSharp.Routing
                         return new RouteNotFoundException(message);
                     });
                 }
-                path = bidirectionalSearch.GetPath();
+                path = bidirectionalSearch.GetPath(out pathWeight);
             }
             else
             { // non-contracted calculation.
@@ -213,7 +214,22 @@ namespace OsmSharp.Routing
                         return new RouteNotFoundException(message);
                     });
                 }
-                path = bidirectionalSearch.GetPath();
+                path = bidirectionalSearch.GetPath(out pathWeight);
+            }
+
+            if(source.EdgeId == target.EdgeId)
+            { // check for a shorter path on the same edge.
+                var edgePath = source.PathTo(_db, profile, target);
+                if(edgePath != null &&
+                   edgePath.Weight < pathWeight)
+                {
+                    path = new List<uint>(2);
+                    while(edgePath != null)
+                    {
+                        path.Insert(0, edgePath.Vertex);
+                        edgePath = edgePath.From;
+                    }
+                }
             }
 
             return this.BuildRoute(profile, source, target, path);

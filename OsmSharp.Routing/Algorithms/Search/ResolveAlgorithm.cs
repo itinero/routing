@@ -150,7 +150,8 @@ namespace OsmSharp.Routing.Algorithms.Search
 
             if(_isBetter != null)
             { // there was a request to search for better edges.
-                if(edgeIds[0] != edgeIds[1])
+                if(edgeIds[0] != edgeIds[1] &&
+                   edgeIds[1] != Constants.NO_EDGE)
                 { // edges are not equal, check if the better edge is acceptable.
                     // project onto the better edge.
                     var edge1 = _graph.GetEdge(edgeIds[1]);

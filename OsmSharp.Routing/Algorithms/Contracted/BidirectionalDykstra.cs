@@ -284,12 +284,12 @@ namespace OsmSharp.Routing.Algorithms.Contracted
 
             return _backwardVisits.TryGetValue(vertex, out visit);
         }
-
+        
         /// <summary>
         /// Returns the path.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath()
+        public List<uint> GetPath(out float weight)
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -299,6 +299,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 _backwardVisits.TryGetValue(_best.Item1, out toTarget))
             {
                 var vertices = new List<uint>();
+                weight = fromSource.Weight + toTarget.Weight;
 
                 // add vertices from source.
                 vertices.Add(fromSource.Vertex);
@@ -326,6 +327,16 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 return vertices;
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
+        }
+
+        /// <summary>
+        /// Returns the path.
+        /// </summary>
+        /// <returns></returns>
+        public List<uint> GetPath()
+        {
+            float weight;
+            return this.GetPath(out weight);
         }
     }
 }

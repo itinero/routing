@@ -147,16 +147,18 @@ namespace OsmSharp.Routing.Algorithms.Default
         /// Gets the path from source->target.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath()
+        public List<uint> GetPath(out float weight)
         {
             this.CheckHasRunAndHasSucceeded();
 
+            weight = 0;
             Path fromSource;
             Path toTarget;
             if(_sourceSearch.TryGetVisit(_bestVertex, out fromSource) &&
                _targetSearch.TryGetVisit(_bestVertex, out toTarget))
             {
                 var path = new List<uint>();
+                weight = fromSource.Weight + toTarget.Weight;
                 fromSource.AddToList(path);
                 if (toTarget.From != null)
                 {
@@ -165,6 +167,16 @@ namespace OsmSharp.Routing.Algorithms.Default
                 return path;
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
+        }
+
+        /// <summary>
+        /// Returns the path.
+        /// </summary>
+        /// <returns></returns>
+        public List<uint> GetPath()
+        {
+            float weight;
+            return this.GetPath(out weight);
         }
     }
 }
