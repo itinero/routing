@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,14 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 using OsmSharp.Routing.Network;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Geo.Streams.GeoJson;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Geo;
 using System.Collections.Generic;
 using System.IO;
-using OsmSharp.Geo;
 
 namespace OsmSharp.Routing.Test
 {
@@ -50,45 +48,47 @@ namespace OsmSharp.Routing.Test
         /// </summary>
         public static void LoadTestNetwork(this RouterDb db, string geoJson)
         {
-            var features = GeoJsonConverter.ToFeatureCollection(geoJson);
-
-            foreach (var feature in features)
+            var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
+            var features = geoJsonReader.Read<FeatureCollection>(geoJson);
+            
+            foreach (var feature in features.Features)
             {
                 if (feature.Geometry is Point)
                 {
                     var point = feature.Geometry as Point;
                     uint id;
-                    if (feature.Attributes.ContainsKey("id") &&
+                    if (feature.Attributes.Exists("id") &&
                        uint.TryParse(feature.Attributes["id"].ToInvariantString(), out id))
                     { // has and id, add as vertex.
                         db.Network.AddVertex(id,
-                            (float)point.Coordinate.Latitude,
-                            (float)point.Coordinate.Longitude);
+                            (float)point.Coordinate.Y,
+                            (float)point.Coordinate.X);
                     }
                 }
             }
 
-            foreach (var feature in features)
+            foreach (var feature in features.Features)
             {
                 if (feature.Geometry is LineString)
                 {
                     var line = feature.Geometry as LineString;
-                    var profile = new TagsCollection();
-                    foreach (var attribute in feature.Attributes)
+                    var profile = new Routing.Attributes.AttributeCollection();
+                    var names = feature.Attributes.GetNames();
+                    foreach (var name in names)
                     {
-                        if (!attribute.Key.StartsWith("meta:") &&
-                            !attribute.Key.StartsWith("stroke"))
+                        if (!name.StartsWith("meta:") &&
+                            !name.StartsWith("stroke"))
                         {
-                            profile.Add(attribute.Key, attribute.Value.ToInvariantString());
+                            profile.AddOrReplace(name, feature.Attributes[name].ToInvariantString());
                         }
                     }
-                    var meta = new TagsCollection();
-                    foreach (var attribute in feature.Attributes)
+                    var meta = new Routing.Attributes.AttributeCollection();
+                    foreach (var name in names)
                     {
-                        if (attribute.Key.StartsWith("meta:"))
+                        if (name.StartsWith("meta:"))
                         {
-                            meta.Add(attribute.Key.Remove(0, "meta:".Length),
-                                attribute.Value.ToInvariantString());
+                            meta.AddOrReplace(name.Remove(0, "meta:".Length),
+                                feature.Attributes[name].ToInvariantString());
                         }
                     }
 
@@ -96,20 +96,21 @@ namespace OsmSharp.Routing.Test
                     var metaId = db.EdgeMeta.Add(meta);
 
                     var vertex1 = db.SearchVertexFor(
-                        (float)line.Coordinates[0].Latitude,
-                        (float)line.Coordinates[0].Longitude);
+                        (float)line.Coordinates[0].Y,
+                        (float)line.Coordinates[0].X);
                     var distance = 0.0;
-                    var shape = new List<ICoordinate>();
-                    for (var i = 1; i < line.Coordinates.Count; i++)
+                    var shape = new List<Coordinate>();
+                    for (var i = 1; i < line.Coordinates.Length; i++)
                     {
                         var vertex2 = db.SearchVertexFor(
-                            (float)line.Coordinates[i].Latitude,
-                            (float)line.Coordinates[i].Longitude);
-                        distance += GeoCoordinate.DistanceEstimateInMeter(line.Coordinates[i - 1],
-                            line.Coordinates[i]);
+                            (float)line.Coordinates[i].Y,
+                            (float)line.Coordinates[i].X);
+                        distance += Coordinate.DistanceEstimateInMeter(
+                            (float)line.Coordinates[i - 1].Y, (float)line.Coordinates[i - 1].X,
+                            (float)line.Coordinates[i].Y, (float)line.Coordinates[i].X);
                         if (vertex2 == OsmSharp.Routing.Constants.NO_VERTEX)
                         { // add this point as shapepoint.
-                            shape.Add(line.Coordinates[i]);
+                            shape.Add(line.Coordinates[i].FromCoordinate());
                             continue;
                         }
                         db.Network.AddEdge(vertex1, vertex2, new Routing.Network.Data.EdgeData()
@@ -136,7 +137,7 @@ namespace OsmSharp.Routing.Test
                 float lat, lon;
                 if (db.Network.GetVertex(vertex, out lat, out lon))
                 {
-                    var dist = GeoCoordinate.DistanceEstimateInMeter(latitude, longitude,
+                    var dist = Coordinate.DistanceEstimateInMeter(latitude, longitude,
                         lat, lon);
                     if (dist < Tolerance)
                     {

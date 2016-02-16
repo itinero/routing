@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,9 +17,9 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Tags;
-using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Algorithms.Routes;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Test.Profiles;
@@ -47,8 +47,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData(), null);
 
             // build route.
-            var source = new RouterPoint(0, 0, 1, 0, new Tag("type", "source"));
-            var target = new RouterPoint(0, 0, 1, 0, new Tag("type", "target"));
+            var source = new RouterPoint(0, 0, 1, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 0, 1, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX }));
@@ -57,17 +57,23 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(1, route.Segments.Count);
-            Assert.AreEqual(0, route.Segments[0].Latitude);
-            Assert.AreEqual(0, route.Segments[0].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[0].Profile);
-            Assert.IsNotNull(route.Segments[0].Points);
-            Assert.AreEqual(2, route.Segments[0].Points.Length);
-            Assert.IsNotNull(route.Segments[0].Points.FirstOrDefault(x => x.Tags.FirstOrDefault(y => y.Value == "source") != null));
-            Assert.IsNotNull(route.Segments[0].Points.FirstOrDefault(x => x.Tags.FirstOrDefault(y => y.Value == "target") != null));
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(1, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(1, route.ShapeMeta.Length);
+            Assert.AreEqual(profile.Name, route.ShapeMeta[0].Profile);
+
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            Assert.IsNotNull(route.Stops.FirstOrDefault(x => x.Attributes.Contains("type", "source")));
+            Assert.IsNotNull(route.Stops.FirstOrDefault(x => x.Attributes.Contains("type", "target")));
+
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -83,15 +89,15 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             }, null);
 
             // build route.
-            var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
-            var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "target"));
+            var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
@@ -100,30 +106,43 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(2, route.Segments.Count);
 
-            Assert.AreEqual(0, route.Segments[0].Latitude);
-            Assert.AreEqual(0, route.Segments[0].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[0].Profile);
-            Assert.IsNotNull(route.Segments[0].Points);
-            Assert.AreEqual(1, route.Segments[0].Points.Length);
-            Assert.AreEqual(1, route.Segments[0].Points[0].Tags.Length);
-            Assert.AreEqual("type", route.Segments[0].Points[0].Tags[0].Key);
-            Assert.AreEqual("source", route.Segments[0].Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(2, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(1, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
 
-            Assert.AreEqual(1, route.Segments[1].Latitude);
-            Assert.AreEqual(1, route.Segments[1].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[1].Profile);
-            Assert.IsNotNull(route.Segments[1].Points);
-            Assert.AreEqual(1, route.Segments[1].Points.Length);
-            Assert.AreEqual(1, route.Segments[1].Points[0].Tags.Length);
-            Assert.AreEqual("type", route.Segments[1].Points[0].Tags[0].Key);
-            Assert.AreEqual("target", route.Segments[1].Points[0].Tags[0].Value);
-            Assert.AreEqual("residential", route.Segments[1].Tags.First(y => y.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", route.Segments[1].Tags.First(y => y.Key == "name").Value);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(2, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            var speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
+
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route with similar path.
             routeBuilder = new CompleteRouteBuilder(routerDb, profile,
@@ -133,30 +152,43 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(2, route.Segments.Count);
 
-            Assert.AreEqual(0, route.Segments[0].Latitude);
-            Assert.AreEqual(0, route.Segments[0].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[0].Profile);
-            Assert.IsNotNull(route.Segments[0].Points);
-            Assert.AreEqual(1, route.Segments[0].Points.Length);
-            Assert.AreEqual(1, route.Segments[0].Points[0].Tags.Length);
-            Assert.AreEqual("type", route.Segments[0].Points[0].Tags[0].Key);
-            Assert.AreEqual("source", route.Segments[0].Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(2, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(1, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
 
-            Assert.AreEqual(1, route.Segments[1].Latitude);
-            Assert.AreEqual(1, route.Segments[1].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[1].Profile);
-            Assert.IsNotNull(route.Segments[1].Points);
-            Assert.AreEqual(1, route.Segments[1].Points.Length);
-            Assert.AreEqual(1, route.Segments[1].Points[0].Tags.Length);
-            Assert.AreEqual("type", route.Segments[1].Points[0].Tags[0].Key);
-            Assert.AreEqual("target", route.Segments[1].Points[0].Tags[0].Value);
-            Assert.AreEqual("residential", route.Segments[1].Tags.First(y => y.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", route.Segments[1].Tags.First(y => y.Key == "name").Value);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(2, route.ShapeMeta.Length);
+            meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
+
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route with similar path.
             routeBuilder = new CompleteRouteBuilder(routerDb, profile,
@@ -166,30 +198,43 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(2, route.Segments.Count);
 
-            Assert.AreEqual(0, route.Segments[0].Latitude);
-            Assert.AreEqual(0, route.Segments[0].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[0].Profile);
-            Assert.IsNotNull(route.Segments[0].Points);
-            Assert.AreEqual(1, route.Segments[0].Points.Length);
-            Assert.AreEqual(1, route.Segments[0].Points[0].Tags.Length);
-            Assert.AreEqual("type", route.Segments[0].Points[0].Tags[0].Key);
-            Assert.AreEqual("source", route.Segments[0].Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(2, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(1, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
 
-            Assert.AreEqual(1, route.Segments[1].Latitude);
-            Assert.AreEqual(1, route.Segments[1].Longitude);
-            Assert.AreEqual(profile.Name, route.Segments[1].Profile);
-            Assert.IsNotNull(route.Segments[1].Points);
-            Assert.AreEqual(1, route.Segments[1].Points.Length);
-            Assert.AreEqual(1, route.Segments[1].Points[0].Tags.Length);
-            Assert.AreEqual("type", route.Segments[1].Points[0].Tags[0].Key);
-            Assert.AreEqual("target", route.Segments[1].Points[0].Tags[0].Value);
-            Assert.AreEqual("residential", route.Segments[1].Tags.First(y => y.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", route.Segments[1].Tags.First(y => y.Key == "name").Value);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(2, route.ShapeMeta.Length);
+            meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
+
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -205,17 +250,17 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.25, 0.25),
-                new GeoCoordinate(0.5, 0.5),
-                new GeoCoordinate(0.75, 0.75));
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.25f, 0.25f),
+               new Coordinate(0.50f, 0.50f),
+               new Coordinate(0.75f, 0.75f));
 
             // build route.
-            var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
-            var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "target"));
+            var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
@@ -224,81 +269,52 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(5, route.Segments.Count);
 
-            var speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            var speed = profile.Speed(new AttributeCollection(
+                    new Attribute("highway", "residential")));
 
-            var previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(0.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(5, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(.25f, route.Shape[1].Latitude);
+            Assert.AreEqual(.25f, route.Shape[1].Longitude);
+            Assert.AreEqual(.5f, route.Shape[2].Latitude);
+            Assert.AreEqual(.5f, route.Shape[2].Longitude);
+            Assert.AreEqual(.75f, route.Shape[3].Latitude);
+            Assert.AreEqual(.75f, route.Shape[3].Longitude);
+            Assert.AreEqual(1, route.Shape[4].Latitude);
+            Assert.AreEqual(1, route.Shape[4].Longitude);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(2, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -309,174 +325,105 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
         {
             // build router db.
             var routerDb = new RouterDb();
-            routerDb.EdgeProfiles.Add(new TagsCollection());
-            routerDb.EdgeMeta.Add(new TagsCollection());
+            routerDb.EdgeProfiles.Add(new AttributeCollection());
+            routerDb.EdgeMeta.Add(new AttributeCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.25, 0.25),
-                new GeoCoordinate(0.5, 0.5),
-                new GeoCoordinate(0.75, 0.75));
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.25f, 0.25f),
+               new Coordinate(0.5f, 0.5f),
+               new Coordinate(0.75f, 0.75f));
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.75, 1),
-                new GeoCoordinate(0.5, 1),
-                new GeoCoordinate(0.25, 1));
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.75f, 1),
+               new Coordinate(0.5f, 1),
+               new Coordinate(0.25f, 1));
 
             // build route.
-            var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
-            var target = new RouterPoint(0, 1, 1, ushort.MaxValue, new Tag("type", "target"));
+            var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 1, 1, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
-                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, Constants.NO_VERTEX })); 
+                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
             var route = routeBuilder.Route;
-            Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(9, route.Segments.Count);
 
-            var speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            var speed = profile.Speed(new AttributeCollection(
+                    new Attribute("highway", "residential")));
 
-            var previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(0.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(9, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(.25f, route.Shape[1].Latitude);
+            Assert.AreEqual(.25f, route.Shape[1].Longitude);
+            Assert.AreEqual(.5f, route.Shape[2].Latitude);
+            Assert.AreEqual(.5f, route.Shape[2].Longitude);
+            Assert.AreEqual(.75f, route.Shape[3].Latitude);
+            Assert.AreEqual(.75f, route.Shape[3].Longitude);
+            Assert.AreEqual(1, route.Shape[4].Latitude);
+            Assert.AreEqual(1, route.Shape[4].Longitude);
+            Assert.AreEqual(.75f, route.Shape[5].Latitude);
+            Assert.AreEqual(1f, route.Shape[5].Longitude);
+            Assert.AreEqual(.5f, route.Shape[6].Latitude);
+            Assert.AreEqual(1f, route.Shape[6].Longitude);
+            Assert.AreEqual(.25f, route.Shape[7].Latitude);
+            Assert.AreEqual(1f, route.Shape[7].Longitude);
+            Assert.AreEqual(0f, route.Shape[8].Latitude);
+            Assert.AreEqual(1f, route.Shape[8].Longitude);
+            
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(3, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[5];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[6];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[7];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[8];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route.
             routeBuilder = new CompleteRouteBuilder(routerDb, profile,
@@ -485,138 +432,66 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
 
             // check result.
             route = routeBuilder.Route;
-            Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(9, route.Segments.Count);
+            
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(9, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(.25f, route.Shape[1].Latitude);
+            Assert.AreEqual(.25f, route.Shape[1].Longitude);
+            Assert.AreEqual(.5f, route.Shape[2].Latitude);
+            Assert.AreEqual(.5f, route.Shape[2].Longitude);
+            Assert.AreEqual(.75f, route.Shape[3].Latitude);
+            Assert.AreEqual(.75f, route.Shape[3].Longitude);
+            Assert.AreEqual(1, route.Shape[4].Latitude);
+            Assert.AreEqual(1, route.Shape[4].Longitude);
+            Assert.AreEqual(.75f, route.Shape[5].Latitude);
+            Assert.AreEqual(1f, route.Shape[5].Longitude);
+            Assert.AreEqual(.5f, route.Shape[6].Latitude);
+            Assert.AreEqual(1f, route.Shape[6].Longitude);
+            Assert.AreEqual(.25f, route.Shape[7].Latitude);
+            Assert.AreEqual(1f, route.Shape[7].Longitude);
+            Assert.AreEqual(0f, route.Shape[8].Latitude);
+            Assert.AreEqual(1f, route.Shape[8].Longitude);
 
-            speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(3, route.ShapeMeta.Length);
+            meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
 
-            previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(0.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[5];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[6];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[7];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[8];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -627,8 +502,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
         {
             // build router db.
             var routerDb = new RouterDb();
-            routerDb.EdgeMeta.Add(new TagsCollection());
-            routerDb.EdgeProfiles.Add(new TagsCollection());
+            routerDb.EdgeMeta.Add(new AttributeCollection());
+            routerDb.EdgeProfiles.Add(new AttributeCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
@@ -636,232 +511,122 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.25, 0.25),
-                new GeoCoordinate(0.5, 0.5),
-                new GeoCoordinate(0.75, 0.75));
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.25f, 0.25f),
+               new Coordinate(0.50f, 0.50f),
+               new Coordinate(0.75f, 0.75f));
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.75, 1),
-                new GeoCoordinate(0.5, 1),
-                new GeoCoordinate(0.25, 1));
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.75f, 1),
+               new Coordinate(0.50f, 1),
+               new Coordinate(0.25f, 1));
             routerDb.Network.AddEdge(2, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0, 1.25),
-                new GeoCoordinate(0, 1.5),
-                new GeoCoordinate(0, 1.75));
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0, 1.25f),
+               new Coordinate(0, 1.50f),
+               new Coordinate(0, 1.75f));
 
             // build route.
-            var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
-            var target = new RouterPoint(0, 2, 2, ushort.MaxValue, new Tag("type", "target"));
+            var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 2, 2, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
-                source, target,  new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, Constants.NO_VERTEX }));
+                source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(13, route.Segments.Count);
 
-            var speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(13, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(.25f, route.Shape[1].Latitude);
+            Assert.AreEqual(.25f, route.Shape[1].Longitude);
+            Assert.AreEqual(.5f, route.Shape[2].Latitude);
+            Assert.AreEqual(.5f, route.Shape[2].Longitude);
+            Assert.AreEqual(.75f, route.Shape[3].Latitude);
+            Assert.AreEqual(.75f, route.Shape[3].Longitude);
+            Assert.AreEqual(1, route.Shape[4].Latitude);
+            Assert.AreEqual(1, route.Shape[4].Longitude);
+            Assert.AreEqual(.75f, route.Shape[5].Latitude);
+            Assert.AreEqual(1f, route.Shape[5].Longitude);
+            Assert.AreEqual(.5f, route.Shape[6].Latitude);
+            Assert.AreEqual(1f, route.Shape[6].Longitude);
+            Assert.AreEqual(.25f, route.Shape[7].Latitude);
+            Assert.AreEqual(1f, route.Shape[7].Longitude);
+            Assert.AreEqual(0f, route.Shape[8].Latitude);
+            Assert.AreEqual(1f, route.Shape[8].Longitude);
+            Assert.AreEqual(0f, route.Shape[9].Latitude);
+            Assert.AreEqual(1.25f, route.Shape[9].Longitude);
+            Assert.AreEqual(0f, route.Shape[10].Latitude);
+            Assert.AreEqual(1.5f, route.Shape[10].Longitude);
+            Assert.AreEqual(0f, route.Shape[11].Latitude);
+            Assert.AreEqual(1.75f, route.Shape[11].Longitude);
+            Assert.AreEqual(0f, route.Shape[12].Latitude);
+            Assert.AreEqual(2f, route.Shape[12].Longitude);
 
-            var previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(0.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(4, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            var speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
+            meta = route.ShapeMeta[3];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(3000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.01);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[5];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[6];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[7];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[8];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[9];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[10];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[11];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[12];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(2, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route.
             routeBuilder = new CompleteRouteBuilder(routerDb, profile,
@@ -871,196 +636,86 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(13, route.Segments.Count);
 
-            speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(13, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(.25f, route.Shape[1].Latitude);
+            Assert.AreEqual(.25f, route.Shape[1].Longitude);
+            Assert.AreEqual(.5f, route.Shape[2].Latitude);
+            Assert.AreEqual(.5f, route.Shape[2].Longitude);
+            Assert.AreEqual(.75f, route.Shape[3].Latitude);
+            Assert.AreEqual(.75f, route.Shape[3].Longitude);
+            Assert.AreEqual(1, route.Shape[4].Latitude);
+            Assert.AreEqual(1, route.Shape[4].Longitude);
+            Assert.AreEqual(.75f, route.Shape[5].Latitude);
+            Assert.AreEqual(1f, route.Shape[5].Longitude);
+            Assert.AreEqual(.5f, route.Shape[6].Latitude);
+            Assert.AreEqual(1f, route.Shape[6].Longitude);
+            Assert.AreEqual(.25f, route.Shape[7].Latitude);
+            Assert.AreEqual(1f, route.Shape[7].Longitude);
+            Assert.AreEqual(0f, route.Shape[8].Latitude);
+            Assert.AreEqual(1f, route.Shape[8].Longitude);
+            Assert.AreEqual(0f, route.Shape[9].Latitude);
+            Assert.AreEqual(1.25f, route.Shape[9].Longitude);
+            Assert.AreEqual(0f, route.Shape[10].Latitude);
+            Assert.AreEqual(1.5f, route.Shape[10].Longitude);
+            Assert.AreEqual(0f, route.Shape[11].Latitude);
+            Assert.AreEqual(1.75f, route.Shape[11].Longitude);
+            Assert.AreEqual(0f, route.Shape[12].Latitude);
+            Assert.AreEqual(2f, route.Shape[12].Longitude);
 
-            previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(0.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(4, route.ShapeMeta.Length);
+            meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
+            meta = route.ShapeMeta[3];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(3000, meta.Distance, 0.01);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.01);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[5];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[6];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[7];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[8];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[9];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[10];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[11];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[12];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(2, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route.
-            source = new RouterPoint(0.4f, 0.4f, 0, ushort.MaxValue / 10 * 4, Tag.Create("type", "source"));
+            source = new RouterPoint(0.4f, 0.4f, 0, ushort.MaxValue / 10 * 4, new Attribute("type", "source"));
             routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, 3 }));
             routeBuilder.Run();
@@ -1068,183 +723,85 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(12, route.Segments.Count);
 
-            speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            segment = route.Segments[0];
-            Assert.AreEqual(0.4, segment.Latitude, 0.001);
-            Assert.AreEqual(0.4, segment.Longitude, 0.001);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(12, route.Shape.Length);
+            Assert.AreEqual(0.4f, route.Shape[0].Latitude);
+            Assert.AreEqual(0.4f, route.Shape[0].Longitude);
+            Assert.AreEqual(.5f, route.Shape[1].Latitude);
+            Assert.AreEqual(.5f, route.Shape[1].Longitude);
+            Assert.AreEqual(.75f, route.Shape[2].Latitude);
+            Assert.AreEqual(.75f, route.Shape[2].Longitude);
+            Assert.AreEqual(1, route.Shape[3].Latitude);
+            Assert.AreEqual(1, route.Shape[3].Longitude);
+            Assert.AreEqual(.75f, route.Shape[4].Latitude);
+            Assert.AreEqual(1f, route.Shape[4].Longitude);
+            Assert.AreEqual(.5f, route.Shape[5].Latitude);
+            Assert.AreEqual(1f, route.Shape[5].Longitude);
+            Assert.AreEqual(.25f, route.Shape[6].Latitude);
+            Assert.AreEqual(1f, route.Shape[6].Longitude);
+            Assert.AreEqual(0f, route.Shape[7].Latitude);
+            Assert.AreEqual(1f, route.Shape[7].Longitude);
+            Assert.AreEqual(0f, route.Shape[8].Latitude);
+            Assert.AreEqual(1.25f, route.Shape[8].Longitude);
+            Assert.AreEqual(0f, route.Shape[9].Latitude);
+            Assert.AreEqual(1.5f, route.Shape[9].Longitude);
+            Assert.AreEqual(0f, route.Shape[10].Latitude);
+            Assert.AreEqual(1.75f, route.Shape[10].Longitude);
+            Assert.AreEqual(0f, route.Shape[11].Latitude);
+            Assert.AreEqual(2f, route.Shape[11].Longitude);
 
-            previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(4, route.ShapeMeta.Length);
+            meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(600, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(600 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1600, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1600 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[3];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2600, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2600 / speed.Value, meta.Time, 0.1);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[5];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[6];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[7];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[8];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[9];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[10];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[11];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(2, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route.
-            source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
-            target = new RouterPoint(0, 1.6f, 2, ushort.MaxValue / 10 * 6, new Tag("type", "target"));
+            source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
+            target = new RouterPoint(0, 1.6f, 2, ushort.MaxValue / 10 * 6, new Attribute("type", "target"));
             routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 0, 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
@@ -1252,179 +809,81 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(12, route.Segments.Count);
 
-            speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(12, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(.25f, route.Shape[1].Latitude);
+            Assert.AreEqual(.25f, route.Shape[1].Longitude);
+            Assert.AreEqual(.5f, route.Shape[2].Latitude);
+            Assert.AreEqual(.5f, route.Shape[2].Longitude);
+            Assert.AreEqual(.75f, route.Shape[3].Latitude);
+            Assert.AreEqual(.75f, route.Shape[3].Longitude);
+            Assert.AreEqual(1, route.Shape[4].Latitude);
+            Assert.AreEqual(1, route.Shape[4].Longitude);
+            Assert.AreEqual(.75f, route.Shape[5].Latitude);
+            Assert.AreEqual(1f, route.Shape[5].Longitude);
+            Assert.AreEqual(.5f, route.Shape[6].Latitude);
+            Assert.AreEqual(1f, route.Shape[6].Longitude);
+            Assert.AreEqual(.25f, route.Shape[7].Latitude);
+            Assert.AreEqual(1f, route.Shape[7].Longitude);
+            Assert.AreEqual(0f, route.Shape[8].Latitude);
+            Assert.AreEqual(1f, route.Shape[8].Longitude);
+            Assert.AreEqual(0f, route.Shape[9].Latitude);
+            Assert.AreEqual(1.25f, route.Shape[9].Longitude);
+            Assert.AreEqual(0f, route.Shape[10].Latitude);
+            Assert.AreEqual(1.5f, route.Shape[10].Longitude);
+            Assert.AreEqual(0f, route.Shape[11].Latitude);
+            Assert.AreEqual(1.6f, route.Shape[11].Longitude);
 
-            previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(0.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(4, route.ShapeMeta.Length);
+            meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[3];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2600, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2600 / speed.Value, meta.Time, 0.1);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(0.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(0.75, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[4];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[5];
-            Assert.AreEqual(0.75, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[6];
-            Assert.AreEqual(0.5, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[7];
-            Assert.AreEqual(0.25, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[8];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[9];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.25, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[10];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.5, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            previous = segment;
-            segment = route.Segments[11];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1.6, segment.Longitude, 0.011);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -1435,8 +894,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
         {
             // build router db.
             var routerDb = new RouterDb();
-            routerDb.EdgeMeta.Add(new TagsCollection());
-            routerDb.EdgeProfiles.Add(new TagsCollection());
+            routerDb.EdgeMeta.Add(new AttributeCollection());
+            routerDb.EdgeProfiles.Add(new AttributeCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
@@ -1445,39 +904,39 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(2, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(4, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
 
             // build route.
-            var source = new RouterPoint(0, 0, 0, 0, new Tag("type", "source"));
-            var target = new RouterPoint(0, 2, 3, ushort.MaxValue, new Tag("type", "target"));
+            var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 2, 3, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, 3 }));
@@ -1486,67 +945,65 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(4, route.Segments.Count);
 
-            var speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var segment = route.Segments[0];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(0, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(4, route.Shape.Length);
+            Assert.AreEqual(0, route.Shape[0].Latitude);
+            Assert.AreEqual(0, route.Shape[0].Longitude);
+            Assert.AreEqual(1, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
+            Assert.AreEqual(0, route.Shape[2].Latitude);
+            Assert.AreEqual(1, route.Shape[2].Longitude);
+            Assert.AreEqual(0, route.Shape[3].Latitude);
+            Assert.AreEqual(2, route.Shape[3].Longitude);
 
-            var previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(4, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.1);
+            var speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[3];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(3000, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.1);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(2, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -1557,8 +1014,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
         {
             // build router db.
             var routerDb = new RouterDb();
-            routerDb.EdgeMeta.Add(new TagsCollection());
-            routerDb.EdgeProfiles.Add(new TagsCollection());
+            routerDb.EdgeMeta.Add(new AttributeCollection());
+            routerDb.EdgeProfiles.Add(new AttributeCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
@@ -1567,39 +1024,39 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(2, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(4, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
 
             // build route.
-            var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "source"));
-            var target = new RouterPoint(1, 2, 3, 0, new Tag("type", "target"));
+            var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
+            var target = new RouterPoint(1, 2, 3, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 1, 2, 3, 4 }));
@@ -1608,67 +1065,65 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(4, route.Segments.Count);
 
-            var speed = profile.Speed(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var segment = route.Segments[0];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(0, segment.Time);
-            Assert.AreEqual(0, segment.Distance);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Points);
-            Assert.AreEqual(1, segment.Points.Length);
-            Assert.AreEqual(1, segment.Points[0].Tags.Length);
-            Assert.AreEqual("type", segment.Points[0].Tags[0].Key);
-            Assert.AreEqual("source", segment.Points[0].Tags[0].Value);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(4, route.Shape.Length);
+            Assert.AreEqual(1, route.Shape[0].Latitude);
+            Assert.AreEqual(1, route.Shape[0].Longitude);
+            Assert.AreEqual(0, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
+            Assert.AreEqual(0, route.Shape[2].Latitude);
+            Assert.AreEqual(2, route.Shape[2].Longitude);
+            Assert.AreEqual(1, route.Shape[3].Latitude);
+            Assert.AreEqual(2, route.Shape[3].Longitude);
 
-            var previous = segment;
-            segment = route.Segments[1];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(1, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(4, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.1);
+            var speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[2];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(2000, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.1);
+            meta = route.ShapeMeta[3];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(3000, meta.Distance, 0.1);
+            speed = profile.Speed(meta.Attributes);
+            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.1);
 
-            previous = segment;
-            segment = route.Segments[2];
-            Assert.AreEqual(0, segment.Latitude);
-            Assert.AreEqual(2, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
-            previous = segment;
-            segment = route.Segments[3];
-            Assert.AreEqual(1, segment.Latitude);
-            Assert.AreEqual(2, segment.Longitude);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance, segment.Distance, 0.001);
-            Assert.AreEqual((GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(previous.Latitude, previous.Longitude),
-                new GeoCoordinate(segment.Latitude, segment.Longitude)) + previous.Distance) / speed.Value, segment.Time, 0.001);
-            Assert.AreEqual(profile.Name, segment.Profile);
-            Assert.IsNotNull(segment.Tags);
-            Assert.AreEqual(2, segment.Tags.Length);
-            Assert.AreEqual("residential", segment.Tags.First(x => x.Key == "highway").Value);
-            Assert.AreEqual("Abelshausen Blvd.", segment.Tags.First(x => x.Key == "name").Value);
-
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
 
         /// <summary>
@@ -1679,8 +1134,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
         {
             // build router db.
             var routerDb = new RouterDb();
-            routerDb.EdgeMeta.Add(new TagsCollection());
-            routerDb.EdgeProfiles.Add(new TagsCollection());
+            routerDb.EdgeMeta.Add(new AttributeCollection());
+            routerDb.EdgeProfiles.Add(new AttributeCollection());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 0, 1);
@@ -1688,31 +1143,31 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(1, 2, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
             routerDb.Network.AddEdge(2, 3, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeMeta.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
             });
 
             // build route.
-            var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Tag("type", "source"));
-            var target = new RouterPoint(0, 1, 2, 0, new Tag("type", "target"));
+            var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 1, 2, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 1, 2 }));
@@ -1723,11 +1178,41 @@ namespace OsmSharp.Routing.Test.Algorithms.Routes
             // check result.
             var route = routeBuilder.Route;
             Assert.IsNotNull(route);
-            Assert.IsNotNull(route.Segments);
-            Assert.AreEqual(2, route.Segments.Count);
 
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Distance, route.TotalDistance);
-            Assert.AreEqual(route.Segments[route.Segments.Count - 1].Time, route.TotalTime);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(2, route.Shape.Length);
+            Assert.AreEqual(1, route.Shape[0].Latitude);
+            Assert.AreEqual(1, route.Shape[0].Longitude);
+            Assert.AreEqual(0, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
+
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(2, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.1);
+
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
+
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
     }
 }

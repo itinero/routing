@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,8 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Units.Speed;
+using OsmSharp.Routing.Attributes;
 
 namespace OsmSharp.Routing.Osm.Vehicles
 {
@@ -56,22 +55,20 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the vehicle is allowed on the way represented by these tags
         /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        protected override bool IsVehicleAllowed(TagsCollectionBase tags, string highwayType)
+        protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
         {
-            if (tags.ContainsKey("foot"))
+            var foot = string.Empty;
+            if (tags.TryGetValue("foot", out foot))
             {
-                if (tags["foot"] == "designated")
+                if (foot == "designated")
                 {
                     return true; // designated foot
                 }
-                if (tags["foot"] == "yes")
+                if (foot == "yes")
                 {
                     return true; // yes for foot
                 }
-                if (tags["foot"] == "no")
+                if (foot == "no")
                 {
                     return false; // no for foot
                 }
@@ -84,9 +81,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// 
         /// This does not take into account how fast this vehicle can go just the max possible speed.
         /// </summary>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeedAllowed(string highwayType)
+        public override float MaxSpeedAllowed(string highwayType)
         {
             switch (highwayType)
             {
@@ -98,50 +93,46 @@ namespace OsmSharp.Routing.Osm.Vehicles
                 case "path":
                 case "footway":
                 case "living_street":
-                    return 5;
+                    return 5f;
                 case "track":
                 case "road":
-                    return 4.5;
+                    return 4.5f;
                 case "residential":
                 case "unclassified":
-                    return 4.4;
+                    return 4.4f;
                 case "motorway":
                 case "motorway_link":
-                    return 4.3;
+                    return 4.3f;
                 case "trunk":
                 case "trunk_link":
                 case "primary":
                 case "primary_link":
-                    return 4.2;
+                    return 4.2f;
                 default:
-                    return 4;
+                    return 4f;
             }
         }
 
         /// <summary>
-        ///     Returns true if the edge is one way forward, false if backward, null if bidirectional.
+        /// Returns true if the edge is one way forward, false if backward, null if bidirectional.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        public override bool? IsOneWay(TagsCollectionBase tags)
+        public override bool? IsOneWay(IAttributeCollection tags)
         {
             return null;
         }
 
         /// <summary>
-        /// Returns the maximum possible speed this vehicle can achieve.
+        /// Returns the maximum possible speed this vehicle can achieve in Km/h.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeed()
+        public override float MaxSpeed()
         {
             return 5;
         }
 
         /// <summary>
-        /// Returns the minimum speed.
+        /// Returns the minimum speed in Km/h.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MinSpeed()
+        public override float MinSpeed()
         {
             return 3;
         }

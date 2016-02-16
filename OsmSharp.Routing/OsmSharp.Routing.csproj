@@ -39,6 +39,9 @@
       <Link>Properties\SharedAssemblyVersion.cs</Link>
     </Compile>
     <Compile Include="Algorithms\AlgorithmBase.cs" />
+    <Compile Include="Algorithms\Collections\BitArray32.cs" />
+    <Compile Include="Algorithms\Collections\SparseBitArray32.cs" />
+    <Compile Include="Algorithms\Collections\SparseLongIndex.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedMetaGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\Dykstra.cs" />
@@ -57,19 +60,26 @@
     <Compile Include="Algorithms\Networks\NetworkOptimizer.cs" />
     <Compile Include="Algorithms\Default\OneToMany.cs" />
     <Compile Include="Algorithms\Networks\ZeroLengthLinksOptimizer.cs" />
+    <Compile Include="Algorithms\Collections\BinaryHeap.cs" />
     <Compile Include="Algorithms\Routes\CompleteRouteBuilder.cs" />
     <Compile Include="Algorithms\Routes\FastRouteBuilder.cs" />
     <Compile Include="Algorithms\Routes\RouteBuilderExtensions.cs" />
     <Compile Include="Algorithms\Routes\RouteSegmentAggregator.cs" />
-    <Compile Include="Algorithms\Search\Hilbert.cs" />
+    <Compile Include="Algorithms\Search\Hilbert\HilbertExtensions.cs" />
     <Compile Include="Algorithms\Path.cs" />
+    <Compile Include="Algorithms\Search\Hilbert\HilbertCurve.cs" />
     <Compile Include="Algorithms\Search\IResolveExtensions.cs" />
     <Compile Include="Algorithms\Search\IResolver.cs" />
     <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
     <Compile Include="Algorithms\Search\ResolveMultipleAlgorithm.cs" />
+    <Compile Include="Algorithms\Sorting\QuickSort.cs" />
     <Compile Include="Algorithms\WeightMatrixAlgorithm.cs" />
+    <Compile Include="Attributes\Attribute.cs" />
+    <Compile Include="Attributes\AttributeCollection.cs" />
     <Compile Include="Attributes\AttributesIndex.cs" />
     <Compile Include="Attributes\AttributesIndexExtensions.cs" />
+    <Compile Include="Attributes\IAttributeCollection.cs" />
+    <Compile Include="Attributes\IAttributeCollectionExtension.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />
     <Compile Include="Data\EdgeDataSerializer.cs" />
@@ -77,6 +87,10 @@
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Geo\Box.cs" />
+    <Compile Include="Geo\Coordinate.cs" />
+    <Compile Include="Geo\Line.cs" />
+    <Compile Include="Geo\Tools.cs" />
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -107,9 +121,18 @@
     <Compile Include="Graphs\Geometric\Shapes\Shape.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapesArray.cs" />
     <Compile Include="Graphs\GraphProfile.cs" />
-    <Compile Include="IO\Gpx\RouteGpx.cs" />
+    <Compile Include="IO\Json\JsonTools.cs" />
+    <Compile Include="IO\Json\JsonWriter.cs" />
+    <Compile Include="IO\Xml\Route.Xml.cs" />
+    <Compile Include="IO\Xml\XmlExtensions.cs" />
     <Compile Include="IRouter.cs" />
     <Compile Include="IRouterExtensions.cs" />
+    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Logging\TraceEventType.cs" />
+    <Compile Include="Navigation\Directions\DirectionEnum.cs" />
+    <Compile Include="Navigation\Directions\DirectionCalculator.cs" />
+    <Compile Include="Navigation\Directions\RelativeDirection.cs" />
+    <Compile Include="Navigation\Directions\RelativeDirectionEnum.cs" />
     <Compile Include="Navigation\Instruction.cs" />
     <Compile Include="Navigation\InstructionExtensions.cs" />
     <Compile Include="Navigation\InstructionGenerator.cs" />
@@ -121,17 +144,30 @@
     <Compile Include="Network\RoutingNetworkProfile.cs" />
     <Compile Include="Osm\HighwayComparer.cs" />
     <Compile Include="Osm\OsmRoutingTagNormalizer.cs" />
-    <Compile Include="Osm\RouterDbExtensions.cs" />
-    <Compile Include="Osm\Streams\NodeCoordinatesDictionary.cs" />
-    <Compile Include="Osm\Streams\RouterDbStreamTarget.cs" />
+    <Compile Include="Osm\Vehicles\Bicycle.cs" />
+    <Compile Include="Osm\Vehicles\BigTruck.cs" />
+    <Compile Include="Osm\Vehicles\Bus.cs" />
+    <Compile Include="Osm\Vehicles\Car.cs" />
+    <Compile Include="Osm\Vehicles\Moped.cs" />
+    <Compile Include="Osm\Vehicles\MotorCycle.cs" />
+    <Compile Include="Osm\Vehicles\MotorVehicle.cs" />
+    <Compile Include="Osm\Vehicles\Pedestrian.cs" />
     <Compile Include="Osm\Vehicles\Profiles\BicycleBalanced.cs" />
+    <Compile Include="Osm\Vehicles\SmallTruck.cs" />
+    <Compile Include="Osm\Vehicles\Vehicle.cs" />
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
+    <Compile Include="Osm\Vehicles\VehicleType.cs" />
     <Compile Include="Profiles\Factor.cs" />
     <Compile Include="Profiles\Profile.cs" />
     <Compile Include="Profiles\ProfileFactorCache.cs" />
     <Compile Include="Profiles\ProfileMetric.cs" />
     <Compile Include="Profiles\Speed.cs" />
     <Compile Include="Profiles\VehicleTypes.cs" />
+    <Compile Include="Refactoring\DelegateEqualityComparer.cs" />
+    <Compile Include="Refactoring\DirectionCalculator.cs" />
+    <Compile Include="Refactoring\Direction.cs" />
+    <Compile Include="Refactoring\RelativeDirection.cs" />
+    <Compile Include="Refactoring\SortedSet.cs" />
     <Compile Include="ResultExtensions.cs" />
     <Compile Include="RouteExtensions.cs" />
     <Compile Include="Router.cs" />
@@ -146,33 +182,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="Route.cs" />
-    <Compile Include="Osm\Vehicles\Bicycle.cs" />
-    <Compile Include="Osm\Vehicles\BigTruck.cs" />
-    <Compile Include="Osm\Vehicles\Bus.cs" />
-    <Compile Include="Osm\Vehicles\Car.cs" />
-    <Compile Include="Osm\Vehicles\Moped.cs" />
-    <Compile Include="Osm\Vehicles\MotorCycle.cs" />
-    <Compile Include="Osm\Vehicles\MotorVehicle.cs" />
-    <Compile Include="Osm\Vehicles\Pedestrian.cs" />
-    <Compile Include="Osm\Vehicles\SmallTruck.cs" />
-    <Compile Include="Osm\Vehicles\Vehicle.cs" />
-    <Compile Include="Osm\Vehicles\VehicleType.cs" />
     <Compile Include="RouterPointExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="OsmSharp, Version=1.2.0.118, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.1.2.0-rc1-0118\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\OsmSharp.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="OsmSharp.Osm, Version=1.2.0.118, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.1.2.0-rc1-0118\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\OsmSharp.Osm.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\portable-sl4+net40+wp7+windows8\protobuf-net.dll</HintPath>
-    </Reference>
-    <Reference Include="Reminiscence, Version=1.0.1.39, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Reminiscence.1.0.1\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Reminiscence.dll</HintPath>
+    <Reference Include="Reminiscence, Version=1.0.2.41, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.1.0.2-rc1-0041\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Reminiscence.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Xml" />

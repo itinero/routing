@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,12 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Refactoring;
 using Reminiscence.Arrays;
 using Reminiscence.Indexes;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
+using System.Collections;
 
 namespace OsmSharp.Routing.Attributes
 {
@@ -68,7 +69,7 @@ namespace OsmSharp.Routing.Attributes
             if ((_mode & AttributesIndexMode.ReverseCollectionIndex) == AttributesIndexMode.ReverseCollectionIndex)
             {
                 _collectionReverseIndex = new System.Collections.Generic.Dictionary<int[], uint>(
-                    new DelegateEqualityComparer<int[]>(
+                    new Refactoring.DelegateEqualityComparer<int[]>(
                         (obj) =>
                         { // assumed the array is sorted.
                             var hash = obj.Length.GetHashCode();
@@ -235,9 +236,9 @@ namespace OsmSharp.Routing.Attributes
         }
 
         /// <summary>
-        /// Returns the tags that belong to the given id.
+        /// Returns the attributes that belong to the given id.
         /// </summary>
-        public TagsCollectionBase Get(uint tagsId)
+        public IAttributeCollection Get(uint tagsId)
         {
             if(tagsId == 0)
             {
@@ -245,20 +246,20 @@ namespace OsmSharp.Routing.Attributes
             }
             else if(tagsId == 1)
             {
-                return new TagsCollection();
+                return new AttributeCollection();
             }
             if(_index != null)
             { // use the index if it's there.
                 tagsId = _index[tagsId - 2];
-                return new InternalTagsCollection(_stringIndex, _collectionIndex.Get(tagsId));
+                return new InternalAttributeCollection(_stringIndex, _collectionIndex.Get(tagsId));
             }
-            return new InternalTagsCollection(_stringIndex, _collectionIndex.Get(tagsId - 2));
+            return new InternalAttributeCollection(_stringIndex, _collectionIndex.Get(tagsId - 2));
         }
 
         /// <summary>
-        /// Adds new tags.
+        /// Adds new attributes.
         /// </summary>
-        public uint Add(TagsCollectionBase tags)
+        public uint Add(IAttributeCollection tags)
         {
             if(tags == null)
             {
@@ -275,7 +276,7 @@ namespace OsmSharp.Routing.Attributes
             }
             else
             { // add new collection.
-                var sortedSet = new OsmSharp.Collections.SortedSet<long>();
+                var sortedSet = new Refactoring.SortedSet<long>();
                 foreach(var tag in tags)
                 {
                     sortedSet.Add((long)this.AddString(tag.Key, true) +
@@ -353,24 +354,24 @@ namespace OsmSharp.Routing.Attributes
         /// <summary>
         /// An implementation of a tags collection.
         /// </summary>
-        private class InternalTagsCollection : TagsCollectionBase
+        private class InternalAttributeCollection : IAttributeCollection
         {
             private Index<string> _stringIndex; // Holds the string index.
             private int[] _tags; // Holds the tags.
 
             /// <summary>
-            /// Creates a new internal tags collection.
+            /// Creates a new internal attributes collection.
             /// </summary>
-            public InternalTagsCollection(Index<string> stringIndex, int[] tags)
+            public InternalAttributeCollection(Index<string> stringIndex, int[] tags)
             {
                 _stringIndex = stringIndex;
                 _tags = tags;
             }
 
             /// <summary>
-            /// Returns the number of tags in this collection.
+            /// Returns the number of attributes in this collection.
             /// </summary>
-            public override int Count
+            public int Count
             {
                 get { return _tags.Length / 2; }
             }
@@ -378,144 +379,73 @@ namespace OsmSharp.Routing.Attributes
             /// <summary>
             /// Returns true if this collection is readonly.
             /// </summary>
-            public override bool IsReadonly
+            public bool IsReadonly
             {
                 get { return true; }
             }
 
             /// <summary>
-            /// Adds a key-value pair to this tags collection.
-            /// </summary>
-            /// <param name="key"></param>
-            /// <param name="value"></param>
-            public override void Add(string key, string value)
-            {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
-            }
-
-            /// <summary>
-            /// Adds a tag.
-            /// </summary>
-            /// <param name="tag"></param>
-            public override void Add(Tag tag)
-            {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
-            }
-
-            /// <summary>
-            /// Adds a tag or replace the existing value if any.
-            /// </summary>
-            /// <param name="key"></param>
-            /// <param name="value"></param>
-            public override void AddOrReplace(string key, string value)
-            {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
-            }
-
-            /// <summary>
-            /// Adds a tag or replace the existing value if any.
-            /// </summary>
-            /// <param name="tag"></param>
-            public override void AddOrReplace(Tag tag)
-            {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
-            }
-
-            /// <summary>
             /// Returns true if the given tag exists.
             /// </summary>
-            /// <param name="key"></param>
-            /// <returns></returns>
-            public override bool ContainsKey(string key)
+            public bool TryGetValue(string key, out string value)
             {
-                for(int idx = 0; idx < _tags.Length; idx = idx + 2)
+                for (var i = 0; i < _tags.Length; i = i + 2)
                 {
-                    if(key == _stringIndex.Get(_tags[idx]))
-                    { // key found!
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            /// <summary>
-            /// Returns true if the given tag exists.
-            /// </summary>
-            public override bool TryGetValue(string key, out string value)
-            {
-                for (int idx = 0; idx < _tags.Length; idx = idx + 2)
-                {
-                    if (key == _stringIndex.Get(_tags[idx]))
-                    { // key found!
-                        value = _stringIndex.Get(_tags[idx + 1]);
+                    if (key == _stringIndex.Get(_tags[i]))
+                    {
+                        value = _stringIndex.Get(_tags[i + 1]);
                         return true;
                     }
                 }
                 value = null;
                 return false;
             }
-
+            
             /// <summary>
-            /// Returns true if the given tag exists with the given value.
+            /// Removes the attribute with the given key.
             /// </summary>
-            public override bool ContainsKeyValue(string key, string value)
+            public bool RemoveKey(string key)
             {
-                for (int idx = 0; idx < _tags.Length; idx = idx + 2)
-                {
-                    if (key == _stringIndex.Get(_tags[idx]) &&
-                        value == _stringIndex.Get(_tags[idx + 1]))
-                    { // key found!
-                        return true;
-                    }
-                }
-                return false;
+                throw new InvalidOperationException("This attribute collection is readonly. Check IsReadonly.");
             }
 
             /// <summary>
-            /// Removes all tags with the given key.
+            /// Adds or replaces an attribute.
             /// </summary>
-            public override bool RemoveKey(string key)
+            public void AddOrReplace(string key, string value)
             {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
+                throw new InvalidOperationException("This attribute collection is readonly. Check IsReadonly.");
             }
 
             /// <summary>
-            /// Removes the given tag.
+            /// Clears all attributes.
             /// </summary>
-            public override bool RemoveKeyValue(string key, string value)
+            public void Clear()
             {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
-            }
-
-            /// <summary>
-            /// Clears all tags.
-            /// </summary>
-            public override void Clear()
-            {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
-            }
-
-            /// <summary>
-            /// Removes all tags that match the given criteria.
-            /// </summary>
-            public override void RemoveAll(System.Predicate<Tag> predicate)
-            {
-                throw new InvalidOperationException("This tags collection is readonly. Check IsReadonly.");
+                throw new InvalidOperationException("This attribute collection is readonly. Check IsReadonly.");
             }
 
             /// <summary>
             /// Returns the enumerator for this enumerable.
             /// </summary>
-            public override System.Collections.Generic.IEnumerator<Tag> GetEnumerator()
+            public System.Collections.Generic.IEnumerator<Attribute> GetEnumerator()
             {
                 return new InternalTagsEnumerator(_stringIndex, _tags);
+            }
+
+            /// <summary>
+            /// Returns the enumerator for this enumerable.
+            /// </summary>
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                throw new NotImplementedException();
             }
         }
 
         /// <summary>
-        /// An internal implementation of a tags enumerator.
+        /// An internal implementation of an attribute enumerator.
         /// </summary>
-        private class InternalTagsEnumerator : System.Collections.Generic.IEnumerator<Tag>
+        private class InternalTagsEnumerator : System.Collections.Generic.IEnumerator<Attribute>
         {
             private Index<string> _stringIndex; // Holds the string index.
             private int[] _tags; // Holds the tags.
@@ -538,11 +468,11 @@ namespace OsmSharp.Routing.Attributes
             /// Returns the current tag.
             /// </summary>
 
-            public Tag Current
+            public Attribute Current
             {
                 get
                 {
-                    return new Tag()
+                    return new Attribute()
                     {
                         Key = _stringIndex.Get(_tags[_idx]),
                         Value = _stringIndex.Get(_tags[_idx + 1])
@@ -557,7 +487,7 @@ namespace OsmSharp.Routing.Attributes
             {
                 get
                 {
-                    return new Tag()
+                    return new Attribute()
                     {
                         Key = _stringIndex.Get(_tags[_idx]),
                         Value = _stringIndex.Get(_tags[_idx + 1])
@@ -566,9 +496,8 @@ namespace OsmSharp.Routing.Attributes
             }
 
             /// <summary>
-            /// Move to the next tag.
+            /// Move to the next attribute.
             /// </summary>
-            /// <returns></returns>
             public bool MoveNext()
             {
                 _idx = _idx + 2;

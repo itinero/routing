@@ -16,9 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.IO.Json.Linq;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Osm.Vehicles;
 using OsmSharp.Routing.Test.Functional.Staging;
 using OsmSharp.Routing.Test.Functional.Tests;
@@ -33,8 +34,14 @@ namespace OsmSharp.Routing.Test.Functional
         static void Main(string[] args)
         {
             // enable logging.
-            OsmSharp.Logging.Log.Enable();
-            OsmSharp.Logging.Log.RegisterListener(new ConsoleTraceListener());
+            OsmSharp.Logging.Logger.LogAction = (origin, level, message, parameters) =>
+            {
+                Console.WriteLine(string.Format("[{0}] {1} - {2}", origin, level, message));
+            };
+            OsmSharp.Routing.Logging.Logger.LogAction = (origin, level, message, parameters) =>
+            {
+                Console.WriteLine(string.Format("[{0}] {1} - {2}", origin, level, message));
+            };
 
             OsmSharp.Routing.Osm.Vehicles.Vehicle.RegisterVehicles();
 
@@ -42,22 +49,33 @@ namespace OsmSharp.Routing.Test.Functional
             Console.WriteLine("Downloading Belgium...");
             Download.DownloadBelgiumAll();
 
-            //// test building a router db.
-            //Console.WriteLine("Tests building a router db...");
-            //var routerDb = Runner.TestBuildRouterDb("belgium-latest.osm.pbf", Vehicle.Car);
-            //routerDb.AddContracted(Vehicle.Car.Fastest());
-            var routerDb = RouterDb.Deserialize(
-                File.OpenRead(@"D:\work\data\routing\planet\europe\belgium.c.cf.routing"));
+            // test building a router db.
+            Console.WriteLine("Tests building a router db...");
+            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\kempen.osm.pbf", Vehicle.Car);
+            //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.new.routing"));
+
+            //////routerDb.AddContracted(Vehicle.Car.Fastest());
+            //var routerDb = RouterDb.Deserialize(
+            //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
 
-            // test resolving.
-            var embeddedResourceId = "OsmSharp.Routing.Test.Functional.Tests.Belgium.resolve1.geojson";
+            var route = router.Calculate(Vehicle.Car.Fastest(), 51.2677956f, 4.80136251f, 51.258667f, 4.77633858f);
 
-            FeatureCollection featureCollection;
-            using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))
-            {
-                featureCollection = OsmSharp.Geo.Streams.GeoJson.GeoJsonConverter.ToFeatureCollection(stream.ReadToEnd());
-            }
+            var features = routerDb.GetFeaturesIn(51.258667f, 4.77633858f, 51.2677956f, 4.80136251f, false);
+
+            var geoJsonWriter = new NetTopologySuite.IO.GeoJsonWriter();
+            var geoJson = geoJsonWriter.Write(features);
+
+            //// test resolving.
+            //var embeddedResourceId = "OsmSharp.Routing.Test.Functional.Tests.Belgium.resolve1.geojson";
+
+            //FeatureCollection featureCollection;
+            //using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))
+            //{
+            //    var jsonReader = new JsonTextReader(stream);
+            //    var geoJsonSerializer = new NetTopologySuite.IO.GeoJsonSerializer();
+            //    featureCollection = geoJsonSerializer.Deserialize(jsonReader) as FeatureCollection;
+            //}
 
             //var performanceInfoConsumer = new PerformanceInfoConsumer(embeddedResourceId);
             //performanceInfoConsumer.Start();
@@ -69,35 +87,35 @@ namespace OsmSharp.Routing.Test.Functional
             //}
             //performanceInfoConsumer.Stop();
 
-            var performanceInfoConsumer = new PerformanceInfoConsumer("Routing");
-            performanceInfoConsumer.Start();
+            //var performanceInfoConsumer = new PerformanceInfoConsumer("Routing");
+            //performanceInfoConsumer.Start();
 
-            for (var i = 0; i < 10; i++)
-            {
-                foreach(var source in featureCollection)
-                {
-                    var sourcePoint = router.TryResolve(Vehicle.Car.Fastest(), 
-                        (source.Geometry as Point).Coordinate);
-                    if(sourcePoint.IsError)
-                    {
-                        continue;
-                    }
-                    foreach (var target in featureCollection)
-                    {
-                        var targetPoint = router.TryResolve(Vehicle.Car.Fastest(),
-                            (target.Geometry as Point).Coordinate);
-                        if (targetPoint.IsError)
-                        {
-                            continue;
-                        }
-                        
-                        var route = router.Calculate(Vehicle.Car.Fastest(),
-                            sourcePoint.Value, targetPoint.Value);
-                    }
-                }
-            }
+            //for (var i = 0; i < 10; i++)
+            //{
+            //    foreach(var source in featureCollection.Features)
+            //    {
+            //        var sourcePoint = router.TryResolve(Vehicle.Car.Fastest(), 
+            //            (source.Geometry as Point).Coordinate);
+            //        if(sourcePoint.IsError)
+            //        {
+            //            continue;
+            //        }
+            //        foreach (var target in featureCollection.Features)
+            //        {
+            //            var targetPoint = router.TryResolve(Vehicle.Car.Fastest(),
+            //                (target.Geometry as Point).Coordinate);
+            //            if (targetPoint.IsError)
+            //            {
+            //                continue;
+            //            }
 
-            performanceInfoConsumer.Stop();
+            //            var route = router.Calculate(Vehicle.Car.Fastest(),
+            //                sourcePoint.Value, targetPoint.Value);
+            //        }
+            //    }
+            //}
+
+            //performanceInfoConsumer.Stop();
 
             Console.ReadLine();
         }

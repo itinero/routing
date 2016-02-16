@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,17 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Geo.Attributes;
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Algorithms.Contracted.Witness;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
-using OsmSharp.Routing.Network;
-using System.Collections.Generic;
 
 namespace OsmSharp.Routing
 {
@@ -35,111 +29,6 @@ namespace OsmSharp.Routing
     /// </summary>
     public static class RouterDbExtensions
     {
-        /// <summary>
-        /// Gets all features inside the given bounding box.
-        /// </summary>
-        /// <returns></returns>
-        public static FeatureCollection GetFeatures(this RouterDb db)
-        {
-            var network = db.Network;
-            var features = new FeatureCollection();
-
-            var edges = new HashSet<long>();
-
-            var edgeEnumerator = network.GetEdgeEnumerator();
-            for (uint vertex = 0; vertex < network.VertexCount; vertex++)
-            {
-                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
-                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
-                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
-                edgeEnumerator.MoveTo(vertex);
-                edgeEnumerator.Reset();
-                while (edgeEnumerator.MoveNext())
-                {
-                    if (edges.Contains(edgeEnumerator.Id))
-                    {
-                        continue;
-                    }
-                    edges.Add(edgeEnumerator.Id);
-
-                    var shape = network.GetShape(edgeEnumerator.Current);
-                    var coordinates = new List<GeoCoordinate>();
-                    foreach (var shapePoint in shape)
-                    {
-                        coordinates.Add(new GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude));
-                    }
-                    var geometry = new LineString(coordinates);
-
-                    var tags = db.GetProfileAndMeta(edgeEnumerator.Data.Profile, edgeEnumerator.Data.MetaId);
-                    tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
-                    features.Add(new Feature(geometry,
-                        new SimpleGeometryAttributeCollection(tags)));
-                }
-            }
-
-            return features;
-        }
-
-        /// <summary>
-        /// Gets all features inside the given bounding box.
-        /// </summary>
-        /// <returns></returns>
-        public static FeatureCollection GetFeaturesIn(this RouterDb db, float minLatitude, float minLongitude,
-            float maxLatitude, float maxLongitude)
-        {
-            var network = db.Network;
-            var features = new FeatureCollection();
-
-            var vertices = OsmSharp.Routing.Algorithms.Search.Hilbert.Search(network.GeometricGraph, minLatitude, minLongitude,
-                maxLatitude, maxLongitude);
-            var edges = new HashSet<long>();
-
-            var edgeEnumerator = network.GetEdgeEnumerator();
-            var extraVertices = new HashSet<uint>();
-            foreach (var vertex in vertices)
-            {
-                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
-                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
-                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
-                edgeEnumerator.MoveTo(vertex);
-                edgeEnumerator.Reset();
-                while (edgeEnumerator.MoveNext())
-                {
-                    if (edges.Contains(edgeEnumerator.Id))
-                    {
-                        continue;
-                    }
-                    edges.Add(edgeEnumerator.Id);
-
-                    var shape = network.GetShape(edgeEnumerator.Current);
-                    var coordinates = new List<GeoCoordinate>();
-                    foreach (var shapePoint in shape)
-                    {
-                        coordinates.Add(new GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude));
-                    }
-                    var geometry = new LineString(coordinates);
-
-                    var tags = db.GetProfileAndMeta(edgeEnumerator.Data.Profile, edgeEnumerator.Data.MetaId);
-                    tags.AddOrReplace(Tag.Create("id", edgeEnumerator.Id.ToInvariantString()));
-                    features.Add(new Feature(geometry,
-                        new SimpleGeometryAttributeCollection(tags)));
-
-                    if(!vertices.Contains(edgeEnumerator.To))
-                    {
-                        extraVertices.Add(edgeEnumerator.To);
-                    }
-                }
-            }
-            foreach (var vertex in extraVertices)
-            {
-                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
-                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
-                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
-            }
-
-            return features;
-        }
-
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
@@ -185,11 +74,11 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
-        /// Returns one tagcollection containing both the profile and meta tags.
+        /// Returns one attribute collection containing both the profile and meta tags.
         /// </summary>
-        public static TagsCollectionBase GetProfileAndMeta(this RouterDb db, uint profileId, uint meta)
+        public static IAttributeCollection GetProfileAndMeta(this RouterDb db, uint profileId, uint meta)
         {
-            var tags = new TagsCollection();
+            var tags = new AttributeCollection();
 
             var metaTags = db.EdgeMeta.Get(meta);
             if (metaTags != null)

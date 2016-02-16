@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,9 +17,8 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Math.Algorithms;
-using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Algorithms.Search;
+using OsmSharp.Routing.Algorithms.Search.Hilbert;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric;
 using System.Collections.Generic;
 
@@ -40,30 +39,30 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
             var n = 4;
 
             // build locations.
-            var locations = new List<GeoCoordinate>();
-            locations.Add(new GeoCoordinate(-90, -180));
-            locations.Add(new GeoCoordinate(-90, -60));
-            locations.Add(new GeoCoordinate(-90, 60));
-            locations.Add(new GeoCoordinate(-90, 180));
-            locations.Add(new GeoCoordinate(-30, -180));
-            locations.Add(new GeoCoordinate(-30, -60));
-            locations.Add(new GeoCoordinate(-30, 60));
-            locations.Add(new GeoCoordinate(-30, 180));
-            locations.Add(new GeoCoordinate(30, -180));
-            locations.Add(new GeoCoordinate(30, -60));
-            locations.Add(new GeoCoordinate(30, 60));
-            locations.Add(new GeoCoordinate(30, 180));
-            locations.Add(new GeoCoordinate(90, -180));
-            locations.Add(new GeoCoordinate(90, -60));
-            locations.Add(new GeoCoordinate(90, 60));
-            locations.Add(new GeoCoordinate(90, 180));
+            var locations = new List<Coordinate>();
+            locations.Add(new Coordinate(-90, -180));
+            locations.Add(new Coordinate(-90, -60));
+            locations.Add(new Coordinate(-90, 60));
+            locations.Add(new Coordinate(-90, 180));
+            locations.Add(new Coordinate(-30, -180));
+            locations.Add(new Coordinate(-30, -60));
+            locations.Add(new Coordinate(-30, 60));
+            locations.Add(new Coordinate(-30, 180));
+            locations.Add(new Coordinate(30, -180));
+            locations.Add(new Coordinate(30, -60));
+            locations.Add(new Coordinate(30, 60));
+            locations.Add(new Coordinate(30, 180));
+            locations.Add(new Coordinate(90, -180));
+            locations.Add(new Coordinate(90, -60));
+            locations.Add(new Coordinate(90, 60));
+            locations.Add(new Coordinate(90, 180));
 
             // build graph.
             var graph = new GeometricGraph(1);
             for (var vertex = 0; vertex < locations.Count; vertex++)
             {
-                graph.AddVertex((uint)vertex, (float)locations[vertex].Latitude,
-                    (float)locations[vertex].Longitude);
+                graph.AddVertex((uint)vertex, locations[vertex].Latitude,
+                    locations[vertex].Longitude);
             }
 
             // build a sorted version in-place.
@@ -80,8 +79,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Search
             // sort locations.
             locations.Sort((x, y) =>
             {
-                return HilbertCurve.HilbertDistance((float)x.Latitude, (float)x.Longitude, n).CompareTo(
-                     HilbertCurve.HilbertDistance((float)y.Latitude, (float)y.Longitude, n));
+                return HilbertCurve.HilbertDistance(x.Latitude, x.Longitude, n).CompareTo(
+                     HilbertCurve.HilbertDistance(y.Latitude, y.Longitude, n));
             });
 
             // confirm sort.

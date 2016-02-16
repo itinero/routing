@@ -16,10 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo.Attributes;
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using System;
 using System.Collections.Generic;
 
@@ -31,12 +29,12 @@ namespace OsmSharp.Routing.Algorithms.Routes
     public class RouteSegmentAggregator : AlgorithmBase
     {
         private readonly Route _route;
-        private readonly Func<RouteSegment, RouteSegment, RouteSegment> _aggregate;
+        private readonly Func<Route.Meta, Route.Meta, Route.Meta> _aggregate;
 
         /// <summary>
         /// Creates a new route segment aggregator.
         /// </summary>
-        public RouteSegmentAggregator(Route route, Func<RouteSegment, RouteSegment, RouteSegment> aggregate)
+        public RouteSegmentAggregator(Route route, Func<Route.Meta, Route.Meta, Route.Meta> aggregate)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (aggregate == null) { throw new ArgumentNullException("aggregate"); }
@@ -45,16 +43,16 @@ namespace OsmSharp.Routing.Algorithms.Routes
             _aggregate = aggregate;
         }
 
-        private FeatureCollection _features;
+        private Route _aggregatedRoute;
 
         /// <summary>
-        /// Gets the features.
+        /// Gets the aggregated route.
         /// </summary>
-        public FeatureCollection Features
+        public Route AggregatedRoute
         {
             get
             {
-                return _features;
+                return _aggregatedRoute;
             }
         }
 
@@ -63,127 +61,93 @@ namespace OsmSharp.Routing.Algorithms.Routes
         /// </summary>
         protected override void DoRun()
         {
-            _features = new FeatureCollection();
-            if (_route.Segments == null ||
-                _route.Segments.Count == 0)
+            if (_route.Shape == null || 
+                _route.Shape.Length == 0 ||
+                _route.ShapeMeta == null ||
+                _route.ShapeMeta.Length == 0)
             {
                 return;
             }
-            RouteSegment current = null;
-            var currentShape = new List<GeoCoordinate>();
-            currentShape.Add(new GeoCoordinate(_route.Segments[0].Latitude, _route.Segments[0].Longitude));
-            this.AddPoints(_route.Segments[0]);
-            for (int i = 1; i < _route.Segments.Count; i++)
+
+            _aggregatedRoute = new Route();
+            if (_route.Attributes != null)
+            {
+                _aggregatedRoute.Attributes = new AttributeCollection(_route.Attributes);
+            }
+            _aggregatedRoute.Shape = _route.Shape.Clone() as Coordinate[];
+            if (_route.Stops != null)
+            {
+                _aggregatedRoute.Stops = new Route.Stop[_route.Stops.Length];
+                for(var s = 0; s < _route.Stops.Length; s++)
+                {
+                    _aggregatedRoute.Stops[s] = _route.Stops[s].Clone();
+                }
+            }
+            if (_route.Branches != null)
+            {
+                _aggregatedRoute.Branches = new Route.Branch[_route.Branches.Length];
+                for (var s = 0; s < _route.Branches.Length; s++)
+                {
+                    _aggregatedRoute.Branches[s] = _route.Branches[s].Clone();
+                }
+            }
+
+            Route.Meta current = null;
+            var metas = new List<Route.Meta>();
+            if (_route.ShapeMeta[0].Shape == 0)
+            {
+                metas.Add(_route.ShapeMeta[0].Clone());
+            }
+            for (int i = 1; i < _route.ShapeMeta.Length; i++)
             {
                 // try to aggregate.
                 if (current == null)
                 { // there is no current yet, set it.
-                    current = _route.Segments[i];
+                    current = _route.ShapeMeta[i].Clone();
                 }
                 else
                 { // try to merge the current segment with the next one.
-                    var aggregated = _aggregate(current, _route.Segments[i]);
+                    var aggregated = _aggregate(current, _route.ShapeMeta[i]); // expecting an already new object.
                     if (aggregated == null)
-                    { // convert the current segment.
-                        this.AddSegment(current, currentShape);
-
-                        currentShape.Clear();
-                        currentShape.Add(new GeoCoordinate(current.Latitude, current.Longitude));
-                        current = _route.Segments[i];
+                    { // the current segment could not be merged with the next, add it to the final route.
+                        metas.Add(current);
+                        
+                        current = _route.ShapeMeta[i].Clone();
                     }
                     else
                     { // keep the aggregated as current.
+                        aggregated.Shape = _route.ShapeMeta[i].Shape; // make sure to set the shape-index correctly.
                         current = aggregated;
                     }
                 }
-
-                // add to shape.
-                currentShape.Add(new GeoCoordinate(_route.Segments[i].Latitude, _route.Segments[i].Longitude));
-
-                // add points for the current segment.
-                this.AddPoints(_route.Segments[i]);
             }
 
             if (current != null)
             { // add the final segment.
-                this.AddSegment(_route.Segments[_route.Segments.Count - 1], currentShape);
+                metas.Add(current);
             }
+
+            _aggregatedRoute.ShapeMeta = metas.ToArray();
 
             this.HasSucceeded = true;
         }
-
-        /// <summary>
-        /// Adds a segment with the given shape.
-        /// </summary>
-        private void AddSegment(RouteSegment segment, List<GeoCoordinate> shape)
-        {
-            var segmentLineString = new LineString(shape);
-
-            var segmentTags = segment.Tags;
-            var attributesTable = new SimpleGeometryAttributeCollection();
-            if (segmentTags != null)
-            { // there are tags.
-                foreach (var tag in segmentTags)
-                {
-                    attributesTable.Add(tag.Key, tag.Value);
-                }
-            }
-            attributesTable.Add("time", segment.Time);
-            attributesTable.Add("distance", segment.Distance);
-            attributesTable.Add("profile", segment.Profile);
-            _features.Add(new Feature(segmentLineString, attributesTable));
-        }
-
-        /// <summary>
-        /// Adds the points for the given segment if any.
-        /// </summary>
-        private void AddPoints(RouteSegment segment)
-        {
-            // create points.
-            if (segment.Points != null)
-            {
-                foreach (var point in segment.Points)
-                {
-                    // build attributes.
-                    var currentPointTags = point.Tags;
-                    var attributesTable = new SimpleGeometryAttributeCollection();
-                    if (currentPointTags != null)
-                    { // there are tags.
-                        foreach (var tag in currentPointTags)
-                        {
-                            attributesTable.Add(tag.Key, tag.Value);
-                        }
-                    }
-
-                    // build feature.
-                    var pointGeometry = new Point(new GeoCoordinate(point.Latitude, point.Longitude));
-                    _features.Add(new Feature(pointGeometry, attributesTable));
-                }
-            }
-        }
-
+        
         /// <summary>
         /// A default function to aggregate per mode (or profile).
         /// </summary>
-        public static Func<RouteSegment, RouteSegment, RouteSegment> ModalAggregator = (x, y) =>
+        public static Func<Route.Meta, Route.Meta, Route.Meta> ModalAggregator = (x, y) =>
             {
+                var xProfile = string.Empty;
+                var yProfile = string.Empty;
                 if (x.Profile == y.Profile)
                 {
-                    var tags = x.Tags;
-                    if (tags != null && y.Tags != null)
+                    var attributes = new AttributeCollection(x.Attributes);
+                    attributes.AddOrReplace(y.Attributes);
+
+                    return new Route.Meta()
                     {
-                        RouteTagsExtensions.AddOrReplace(ref tags, y.Tags);
-                    }
-                    return new RouteSegment()
-                    {
-                        Distance = y.Distance,
-                        Latitude = y.Latitude,
-                        Longitude = y.Longitude,
-                        Profile = y.Profile,
-                        Time = y.Time,
-                        Tags = tags,
-                        Metrics = y.Metrics,
-                        SideStreets = y.SideStreets
+                        Shape = y.Shape,
+                        Attributes = attributes
                     };
                 }
                 return null;

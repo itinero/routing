@@ -19,7 +19,6 @@
 using NUnit.Framework;
 using OsmSharp.Routing;
 using OsmSharp.Routing.Osm.Vehicles;
-using OsmSharp.Units.Speed;
 
 namespace OsmSharp.Routing.Test.Osm.Vehicles
 {
@@ -80,7 +79,7 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
 
             //base.TextMaxSpeed(Vehicle.Car, 5, "highway", "pedestrian");
 
-            base.TextMaxSpeed(vehicle, vehicle.MaxSpeed().Value, "highway", "living_street");
+            base.TextMaxSpeed(vehicle, vehicle.MaxSpeed(), "highway", "living_street");
             base.TextMaxSpeed(vehicle, 30, "highway", "road");
             base.TextMaxSpeed(vehicle, 30, "highway", "track");
             base.TextMaxSpeed(vehicle, 50, "highway", "unclassified");
@@ -97,7 +96,7 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
             base.TextMaxSpeed(vehicle, 120, "highway", "motorway_link");
 
             base.TextMaxSpeed(vehicle, 30, "highway", "primary", "maxspeed", "30");
-            base.TextMaxSpeed(vehicle, ((KilometerPerHour)(MilesPerHour)20).Value, "highway", "primary", "maxspeed", "20 mph");
+            base.TextMaxSpeed(vehicle, 20 * 1.60934f, "highway", "primary", "maxspeed", "20 mph");
         }
 
         /// <summary>
@@ -108,10 +107,8 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
         {
             Vehicle vehicle = Vehicle.Bicycle;
             double max = 15;
-
-            //base.TextMaxSpeed(Vehicle.Car, 5, "highway", "pedestrian");
-
-            base.TextProbableSpeed(vehicle, System.Math.Min(vehicle.MaxSpeed().Value, max), "highway", "living_street");
+            
+            base.TextProbableSpeed(vehicle, System.Math.Min(vehicle.MaxSpeed(), max), "highway", "living_street");
             base.TextProbableSpeed(vehicle, System.Math.Min(30, max), "highway", "road");
             base.TextProbableSpeed(vehicle, System.Math.Min(30, max), "highway", "track");
             base.TextProbableSpeed(vehicle, System.Math.Min(50, max), "highway", "unclassified");
@@ -128,7 +125,7 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
             base.TextProbableSpeed(vehicle, System.Math.Min(120, max), "highway", "motorway_link");
 
             base.TextProbableSpeed(vehicle, System.Math.Min(30, max), "highway", "primary", "maxspeed", "30");
-            base.TextProbableSpeed(vehicle, System.Math.Min(((KilometerPerHour)(MilesPerHour)20).Value, max), "highway", "primary", "maxspeed", "20 mph");
+            base.TextProbableSpeed(vehicle, System.Math.Min(20 * 1.60934f, max), "highway", "primary", "maxspeed", "20 mph");
         }
     }
 }

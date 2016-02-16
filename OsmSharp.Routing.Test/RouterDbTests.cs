@@ -17,11 +17,10 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Directed;
-using OsmSharp.Routing.Graphs.Geometric;
-using OsmSharp.Routing.Network;
 using System.IO;
+using OsmSharp.Routing.Attributes;
 using System.Linq;
 
 namespace OsmSharp.Routing.Test
@@ -64,13 +63,13 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(51.22961737711890, vertex1.Latitude, 0.00001);
 
             var edge = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
             var edgeProfile = routerDb.EdgeProfiles.Get(
                 edge.Data.Profile);
-            Assert.IsTrue(edgeProfile.ContainsKeyValue("highway", "residential"));
+            Assert.IsTrue(edgeProfile.Contains("highway", "residential"));
             var edgeMeta = routerDb.EdgeMeta.Get(
                 edge.Data.MetaId);
-            Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
+            Assert.IsTrue(edgeMeta.Contains("name", "Abelshausen Blvd."));
         }
 
         /// <summary>
@@ -112,13 +111,13 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
 
             var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
 
             var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
 
             var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
         }
 
         /// <summary>
@@ -156,13 +155,13 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(51.22961737711890, vertex1.Latitude, 0.00001);
 
             var edge = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 0.2);
             var edgeProfile = routerDb.EdgeProfiles.Get(
                 edge.Data.Profile);
-            Assert.IsTrue(edgeProfile.ContainsKeyValue("highway", "residential"));
+            Assert.IsTrue(edgeProfile.Contains("highway", "residential"));
             var edgeMeta = routerDb.EdgeMeta.Get(
                 edge.Data.MetaId);
-            Assert.IsTrue(edgeMeta.ContainsKeyValue("name", "Abelshausen Blvd."));
+            Assert.IsTrue(edgeMeta.Contains("name", "Abelshausen Blvd."));
 
             DirectedMetaGraph contracted;
             Assert.IsTrue(routerDb.TryGetContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
@@ -210,13 +209,13 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
 
             var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
 
             var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
 
             var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
         }
 
         /// <summary>
@@ -263,13 +262,13 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
 
             var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
 
             var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
 
             var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
         }
 
         /// <summary>
@@ -315,13 +314,13 @@ namespace OsmSharp.Routing.Test
                 Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
 
                 var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-                Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
 
                 var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
-                Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
 
                 var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
-                Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
             }
         }
 
@@ -368,13 +367,13 @@ namespace OsmSharp.Routing.Test
                 Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
 
                 var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
-                Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
 
                 var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
-                Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
 
                 var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
-                Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
             }
         }
 
@@ -396,8 +395,8 @@ namespace OsmSharp.Routing.Test
             routerDb.AddContracted(OsmSharp.Routing.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
 
             // add meta-data.
-            routerDb.Meta.Add("name", "test-network-2");
-            routerDb.Meta.Add("date", "30-11-2015");
+            routerDb.Meta.AddOrReplace("name", "test-network-2");
+            routerDb.Meta.AddOrReplace("date", "30-11-2015");
 
             using (var stream = new MemoryStream())
             {
@@ -405,8 +404,8 @@ namespace OsmSharp.Routing.Test
                 stream.Seek(0, SeekOrigin.Begin);
                 routerDb = RouterDb.Deserialize(stream, RouterDbProfile.NoCache);
 
-                Assert.IsTrue(routerDb.Meta.ContainsKeyValue("name", "test-network-2"));
-                Assert.IsTrue(routerDb.Meta.ContainsKeyValue("date", "30-11-2015"));
+                Assert.IsTrue(routerDb.Meta.Contains("name", "test-network-2"));
+                Assert.IsTrue(routerDb.Meta.Contains("date", "30-11-2015"));
             }
         }
 

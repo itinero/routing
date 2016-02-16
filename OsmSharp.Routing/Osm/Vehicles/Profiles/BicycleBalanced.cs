@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Profiles;
 using System;
 
@@ -42,7 +42,7 @@ namespace OsmSharp.Routing.Osm.Vehicles.Profiles
         /// <summary>
         /// Gets a custom factor for the given tags. 
         /// </summary>
-        private static Func<TagsCollectionBase, Factor> InternalGetFactor(Bicycle bicycle)
+        private static Func<IAttributeCollection, Factor> InternalGetFactor(Bicycle bicycle)
         {
             // adjusts to a hypothetical speed indicating preference.
 

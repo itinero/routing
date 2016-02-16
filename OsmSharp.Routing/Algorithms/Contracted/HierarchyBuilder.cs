@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.LongIndex;
-using OsmSharp.Collections.PriorityQueues;
-using OsmSharp.Logging;
+using OsmSharp.Routing.Algorithms.Collections;
 using OsmSharp.Routing.Algorithms.Contracted.Witness;
+using OsmSharp.Routing.Algorithms.PriorityQueues;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
+using OsmSharp.Routing.Logging;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Algorithms.Contracted
@@ -34,6 +34,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         private readonly DirectedMetaGraph _graph;
         private readonly IPriorityCalculator _priorityCalculator;
         private readonly IWitnessCalculator _witnessCalculator;
+        private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
 
         /// <summary>
         /// Creates a new hierarchy builder.
@@ -46,7 +47,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
-        private ILongIndex _contractedFlags; // contains flags for contracted vertices.
+        private BitArray32 _contractedFlags; // contains flags for contracted vertices.
 
         /// <summary>
         /// Excutes the actual run.
@@ -54,7 +55,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         protected override void DoRun()
         {
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
-            _contractedFlags = new OsmSharp.Collections.LongIndex.LongIndex.LongIndex();
+            _contractedFlags = new BitArray32(_graph.VertexCount);
             _missesQueue = new Queue<bool>();
 
             // remove all edges that have witness paths, meaning longer than the shortest path
@@ -85,16 +86,14 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 if (progress != latestProgress)
                 {
                     latestProgress = progress;
-
-                    //if (progress % 1 == 0)
-                    //{
+                    
                     int totaEdges = 0;
                     int totalUncontracted = 0;
                     int maxCardinality = 0;
                     var neighbourCount = new Dictionary<uint, int>();
                     for (uint v = 0; v < _graph.VertexCount; v++)
                     {
-                        if (!_contractedFlags.Contains(v))
+                        if (!_contractedFlags[v])
                         {
                             neighbourCount.Clear();
                             var edges = _graph.GetEdgeEnumerator(v);
@@ -112,15 +111,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     }
 
                     var density = (double)totaEdges / (double)totalUncontracted;
-                    OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
-                        "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}", progress, current, total, _queue.Count,
-                            density, maxCardinality);
-                    //}
-                    //else
-                    //{
-                    //    OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
-                    //        "Preprocessing... {0}% [{1}/{2}]", progress, current, total);
-                    //}
+                    _logger.Log(TraceEventType.Information, "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}", 
+                        progress, current, total, _queue.Count, density, maxCardinality);
                 }
                 current++;
             }
@@ -131,15 +123,15 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// </summary>
         private void CalculateQueue()
         {
-            OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
-                "Calculating queue...");
+            _logger.Log(TraceEventType.Information, "Calculating queue...");
 
             _queue.Clear();
-            for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
+            for (uint v = 0; v < _graph.VertexCount; v++)
             {
-                if(!_contractedFlags.Contains(vertex))
+                if(!_contractedFlags[v])
                 {
-                    _queue.Push(vertex, _priorityCalculator.Calculate(_contractedFlags, vertex));
+                    _queue.Push(v, _priorityCalculator.Calculate(
+                        _contractedFlags, v));
                 }
             }
         }
@@ -149,8 +141,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// </summary>
         private void RemoveWitnessedEdges()
         {
-            OsmSharp.Logging.Log.TraceEvent("HierarchyBuilder", TraceEventType.Information,
-                "Removing witnessed edges...");
+            _logger.Log(TraceEventType.Information, "Removing witnessed edges...");
 
             var edges = new List<MetaEdge>();
             var weights = new List<float>();
@@ -221,7 +212,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             while (_queue.Count > 0)
             { // get the first vertex and check.
                 var first = _queue.Peek();
-                if (_contractedFlags.Contains(first))
+                if (_contractedFlags[first])
                 { // already contracted, priority was updated.
                     _queue.Pop();
                     continue;
@@ -256,8 +247,6 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     // clear misses.
                     _missesQueue.Clear();
                     _misses = 0;
-
-                    // TODO: investigate if compression of target graph is useful here.
                 }
                 else
                 { // no recalculation.
@@ -289,7 +278,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
             {
                 _graph.RemoveEdge(edges[i].Neighbour, vertex);
 
-                if(_contractedFlags.Contains(edges[i].Neighbour))
+                if(_contractedFlags[edges[i].Neighbour])
                 { // neighbour was already contracted, remove 'downward' edge and exclude it.
                     _graph.RemoveEdge(vertex, edges[i].Neighbour);
                     edges.RemoveAt(i);
@@ -337,7 +326,8 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses, ref backwardWitnesses, vertex);
+                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses, 
+                    ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.
                 for (var k = 0; k < j; k++)
@@ -373,7 +363,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                 }
             }
 
-            _contractedFlags.Add(vertex);
+            _contractedFlags[vertex] = true;
             _priorityCalculator.NotifyContracted(vertex);
         }
     }

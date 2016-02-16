@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
 using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using Reminiscence.IO;
+using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,7 +37,7 @@ namespace OsmSharp.Routing
         private readonly RoutingNetwork _network;
         private readonly AttributesIndex _edgeProfiles;
         private readonly AttributesIndex _meta;
-        private readonly TagsCollectionBase _dbMeta;
+        private readonly IAttributeCollection _dbMeta;
         private Guid _guid;
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
@@ -52,7 +52,7 @@ namespace OsmSharp.Routing
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne 
                 | AttributesIndexMode.ReverseAll);
             _meta = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
-            _dbMeta = new TagsCollection();
+            _dbMeta = new AttributeCollection();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -69,7 +69,7 @@ namespace OsmSharp.Routing
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne
                 | AttributesIndexMode.ReverseAll);
             _meta = new AttributesIndex(map, AttributesIndexMode.ReverseStringIndexKeysOnly);
-            _dbMeta = new TagsCollection();
+            _dbMeta = new AttributeCollection();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -86,7 +86,7 @@ namespace OsmSharp.Routing
             _edgeProfiles = new AttributesIndex(map, AttributesIndexMode.IncreaseOne | 
                 AttributesIndexMode.ReverseCollectionIndex | AttributesIndexMode.ReverseStringIndex);
             _meta = new AttributesIndex(map);
-            _dbMeta = new TagsCollection();
+            _dbMeta = new AttributeCollection();
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
@@ -97,7 +97,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
+        public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, IAttributeCollection dbMeta,
             params Profiles.Profile[] supportedProfiles)
         {
             _network = network;
@@ -106,7 +106,7 @@ namespace OsmSharp.Routing
             _dbMeta = dbMeta;
 
             _supportedProfiles = new HashSet<string>();
-            foreach(var supportedProfile in supportedProfiles)
+            foreach (var supportedProfile in supportedProfiles)
             {
                 _supportedProfiles.Add(supportedProfile.Name);
             }
@@ -118,7 +118,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, TagsCollectionBase dbMeta,
+        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, IAttributeCollection dbMeta,
             string[] supportedProfiles)
         {
             _guid = guid;
@@ -218,7 +218,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Gets the meta-data collection.
         /// </summary>
-        public TagsCollectionBase Meta
+        public IAttributeCollection Meta
         {
             get
             {
@@ -307,15 +307,15 @@ namespace OsmSharp.Routing
             size += 1;
 
             // serialize profiles.
-            size += _edgeProfiles.Serialize(new OsmSharp.IO.LimitedStream(stream));
+            size += _edgeProfiles.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize meta-data.
-            size += _meta.Serialize(new OsmSharp.IO.LimitedStream(stream));
+            size += _meta.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize network.
-            size += _network.Serialize(new OsmSharp.IO.LimitedStream(stream));
+            size += _network.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize all contracted networks.
@@ -323,7 +323,7 @@ namespace OsmSharp.Routing
             {
                 size += stream.WriteWithSize(contracted.Key);
                 size += contracted.Value.Serialize(
-                    new OsmSharp.IO.LimitedStream(stream), toReadonly);
+                    new LimitedStream(stream), toReadonly);
             }
             return size;
         }
@@ -400,10 +400,10 @@ namespace OsmSharp.Routing
             var guid = new Guid(guidBytes);
 
             var supportedProfiles = stream.ReadWithSizeStringArray();
-            var metaDb = stream.ReadWithSizeTagsCollection();
+            var metaDb = stream.ReadWithSizeAttributesCollection();
             var contractedCount = stream.ReadByte();
-            var profiles = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
-            var meta = AttributesIndex.Deserialize(new OsmSharp.IO.LimitedStream(stream), true);
+            var profiles = AttributesIndex.Deserialize(new LimitedStream(stream), true);
+            var meta = AttributesIndex.Deserialize(new LimitedStream(stream), true);
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.

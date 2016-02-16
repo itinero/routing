@@ -1,7 +1,25 @@
-﻿using NUnit.Framework;
-using OsmSharp.Collections.Tags;
-using OsmSharp.Math.Random;
+﻿// OsmSharp - OpenStreetMap (OSM) SDK
+// Copyright (C) 2016 Abelshausen Ben
+// 
+// This file is part of OsmSharp.
+// 
+// OsmSharp is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// OsmSharp is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
+
+using NUnit.Framework;
 using OsmSharp.Routing.Algorithms;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Osm.Vehicles;
 using System.Collections.Generic;
 
@@ -19,13 +37,11 @@ namespace OsmSharp.Routing.Test.Algorithms
         [Test]
         public void Test1TwoPoints()
         {
-            OsmSharp.Math.Random.StaticRandomGenerator.Set(4541247);
-
             // build test case.
             var router = new RouterMock();
-            var locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(0, 0),
-                    new Math.Geo.GeoCoordinate(1, 1) };
+            var locations = new Coordinate[] { 
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 1)};
             var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
 
             // run.
@@ -38,8 +54,8 @@ namespace OsmSharp.Routing.Test.Algorithms
             var matrix = matrixAlgorithm.Weights;
             Assert.IsNotNull(matrix);
             Assert.AreEqual(0, matrix[0][0]);
-            Assert.AreEqual(locations[0].DistanceReal(locations[1]).Value, matrix[0][1], 0.1);
-            Assert.AreEqual(locations[1].DistanceReal(locations[0]).Value, matrix[1][0], 0.1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(locations[0], locations[1]), matrix[0][1], 0.1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(locations[1], locations[0]), matrix[1][0], 0.1);
             Assert.AreEqual(0, matrix[1][1]);
             Assert.AreEqual(2, matrixAlgorithm.RouterPoints.Count);
             Assert.AreEqual(0, matrixAlgorithm.IndexOf(0));
@@ -52,13 +68,11 @@ namespace OsmSharp.Routing.Test.Algorithms
         [Test]
         public void Test2TwoPoints()
         {
-            StaticRandomGenerator.Set(4541247);
-
             // build test case.
             var router = new RouterMock();
-            var locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(0, 0),
-                    new Math.Geo.GeoCoordinate(180, 1) };
+            var locations = new Coordinate[] { 
+                    new Coordinate(0, 0),
+                    new Coordinate(180, 1) };
             var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
 
             // run.
@@ -77,9 +91,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             Assert.AreEqual(0, matrixAlgorithm.LocationIndexOf(0));
 
             // build test case.
-            locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(180, 0),
-                    new Math.Geo.GeoCoordinate(1, 1) };
+            locations = new Coordinate[] { 
+                    new Coordinate(180, 0),
+                    new Coordinate(1, 1) };
             matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
 
             // run.
@@ -104,15 +118,13 @@ namespace OsmSharp.Routing.Test.Algorithms
         [Test]
         public void Test3TwoPoints()
         {
-            StaticRandomGenerator.Set(4541247);
-
             // build test case.
             var invalidSet = new HashSet<int>();
             invalidSet.Add(1);
             var router = new RouterMock(invalidSet);
-            var locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(0, 0),
-                    new Math.Geo.GeoCoordinate(1, 1) };
+            var locations = new Coordinate[] { 
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 1) };
             var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
 
             // run.
@@ -134,9 +146,9 @@ namespace OsmSharp.Routing.Test.Algorithms
             invalidSet.Clear();
             invalidSet.Add(0);
             router = new RouterMock(invalidSet);
-            locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(0, 0),
-                    new Math.Geo.GeoCoordinate(1, 1) };
+            locations = new Coordinate[] { 
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 1) };
             matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
 
             // run.
@@ -161,13 +173,11 @@ namespace OsmSharp.Routing.Test.Algorithms
         [Test]
         public void Test1TwoPointsWithMatching()
         {
-            StaticRandomGenerator.Set(4541247);
-
             // build test case.
-            var router = new RouterMock(new TagsCollection(new Tag("highway", "residential")));
-            var locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(0, 0),
-                    new Math.Geo.GeoCoordinate(1, 1) };
+            var router = new RouterMock(new AttributeCollection(new Attribute("highway", "residential")));
+            var locations = new Coordinate[] { 
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 1) };
             var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations,
                 (edge, i) =>
                 {
@@ -184,18 +194,18 @@ namespace OsmSharp.Routing.Test.Algorithms
             var matrix = matrixAlgorithm.Weights;
             Assert.IsNotNull(matrix);
             Assert.AreEqual(0, matrix[0][0]);
-            Assert.AreEqual(locations[0].DistanceReal(locations[1]).Value, matrix[0][1], 0.1);
-            Assert.AreEqual(locations[1].DistanceReal(locations[0]).Value, matrix[1][0], 0.1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(locations[0], locations[1]), matrix[0][1], 0.1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(locations[1], locations[0]), matrix[1][0], 0.1);
             Assert.AreEqual(0, matrix[1][1]);
             Assert.AreEqual(2, matrixAlgorithm.RouterPoints.Count);
             Assert.AreEqual(0, matrixAlgorithm.IndexOf(0));
             Assert.AreEqual(1, matrixAlgorithm.IndexOf(1));
 
             // build test case.
-            router = new RouterMock(new TagsCollection(new Tag("highway", "primary")));
-            locations = new Math.Geo.GeoCoordinate[] { 
-                    new Math.Geo.GeoCoordinate(0, 0),
-                    new Math.Geo.GeoCoordinate(1, 1) };
+            router = new RouterMock(new AttributeCollection(new Attribute("highway", "primary")));
+            locations = new Coordinate[] { 
+                    new Coordinate(0, 0),
+                    new Coordinate(1, 1) };
             matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations,
                 (edge, i) =>
                 {

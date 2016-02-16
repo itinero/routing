@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Test", "Os
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Test.Functional", "OsmSharp.Routing.Test.Functional\OsmSharp.Routing.Test.Functional.csproj", "{C901CE41-31E1-4CD8-BF81-D3B59443620D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.IO.Osm", "OsmSharp.Routing.IO.Osm\OsmSharp.Routing.IO.Osm.csproj", "{0E89A73F-FF3D-418F-8ED6-5025DB2CDE8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsmSharp.Routing.Geo", "OsmSharp.Routing.Geo\OsmSharp.Routing.Geo.csproj", "{CE277E7D-A9E3-4C76-A4DC-1760BC33977D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{C901CE41-31E1-4CD8-BF81-D3B59443620D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C901CE41-31E1-4CD8-BF81-D3B59443620D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C901CE41-31E1-4CD8-BF81-D3B59443620D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E89A73F-FF3D-418F-8ED6-5025DB2CDE8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E89A73F-FF3D-418F-8ED6-5025DB2CDE8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E89A73F-FF3D-418F-8ED6-5025DB2CDE8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E89A73F-FF3D-418F-8ED6-5025DB2CDE8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE277E7D-A9E3-4C76-A4DC-1760BC33977D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE277E7D-A9E3-4C76-A4DC-1760BC33977D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE277E7D-A9E3-4C76-A4DC-1760BC33977D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE277E7D-A9E3-4C76-A4DC-1760BC33977D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

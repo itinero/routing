@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,8 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using System;
@@ -32,13 +31,13 @@ namespace OsmSharp.Routing.Algorithms
     {
         private readonly IRouter _router;
         private readonly Profile _profile;
-        private readonly GeoCoordinate[] _locations;
+        private readonly Coordinate[] _locations;
         private readonly Func<RoutingEdge, int, bool> _matchEdge;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(IRouter router, Profile profile, GeoCoordinate[] locations)
+        public WeightMatrixAlgorithm(IRouter router, Profile profile, Coordinate[] locations)
             : this(router, profile, locations, null)
         {
 
@@ -47,7 +46,7 @@ namespace OsmSharp.Routing.Algorithms
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(IRouter router, Profile profile, GeoCoordinate[] locations,
+        public WeightMatrixAlgorithm(IRouter router, Profile profile, Coordinate[] locations,
             Func<RoutingEdge, int, bool> matchEdge)
         {
             _router = router;
@@ -107,7 +106,7 @@ namespace OsmSharp.Routing.Algorithms
                 }
                 else
                 { // resolve is ok.
-                    resolvedPoints[i].Tags.Add(new Tag("index", i.ToInvariantString()));
+                    resolvedPoints[i].Attributes.AddOrReplace("index", i.ToInvariantString());
 
                     _resolvedPointsIndices.Add(i);
                     _resolvedPoints.Add(resolvedPoints[i]);

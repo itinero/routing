@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.IO.Json.Linq;
 using System.IO;
 
 namespace OsmSharp.Routing.Test
@@ -42,8 +41,9 @@ namespace OsmSharp.Routing.Test
         /// </summary>
         public static Route BuildRoute(string json)
         {
-            var serializer = new OsmSharp.IO.Json.JsonSerializer();
-            return serializer.Deserialize(new StringReader(json), typeof(Route)) as Route;
+            throw new System.NotImplementedException();
+            //var serializer = new OsmSharp.IO.Json.JsonSerializer();
+            //return serializer.Deserialize(new StringReader(json), typeof(Route)) as Route;
         }
     }
 }

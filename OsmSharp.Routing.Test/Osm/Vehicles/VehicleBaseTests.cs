@@ -17,7 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Osm.Vehicles;
 
 namespace OsmSharp.Routing.Test.Osm.Vehicles
@@ -32,11 +32,10 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
         /// </summary>
         protected void TestVehicleCanTranverse(Vehicle vehicle, bool result, params string[] tags)
         {
-            // build tags collection.
-            TagsCollection tagsCollection = new TagsCollection();
+            var tagsCollection = new AttributeCollection();
             for (int idx = 0; idx < tags.Length; idx = idx + 2)
             {
-                tagsCollection.Add(tags[idx], tags[idx + 1]);
+                tagsCollection.AddOrReplace(tags[idx], tags[idx + 1]);
             }
 
             if (result)
@@ -52,37 +51,31 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
         /// <summary>
         /// Tests the maxspeeds.
         /// </summary>
-        /// <param name="vehicle"></param>
-        /// <param name="speed"></param>
-        /// <param name="tags"></param>
         protected void TextMaxSpeed(Vehicle vehicle, double speed, params string[] tags)
         {
             // build tags collection.
-            TagsCollection tagsCollection = new TagsCollection();
+            var tagsCollection = new AttributeCollection();
             for (int idx = 0; idx < tags.Length; idx = idx + 2)
             {
-                tagsCollection.Add(tags[idx], tags[idx + 1]);
+                tagsCollection.AddOrReplace(tags[idx], tags[idx + 1]);
             }
 
-            Assert.AreEqual(speed, vehicle.MaxSpeedAllowed(tagsCollection).Value);
+            Assert.AreEqual(speed, vehicle.MaxSpeedAllowed(tagsCollection), 0.001f);
         }
 
         /// <summary>
         /// Tests the probable speed.
         /// </summary>
-        /// <param name="vehicle"></param>
-        /// <param name="speed"></param>
-        /// <param name="tags"></param>
         protected void TextProbableSpeed(Vehicle vehicle, double speed, params string[] tags)
         {
             // build tags collection.
-            TagsCollection tagsCollection = new TagsCollection();
+            var tagsCollection = new AttributeCollection();
             for (int idx = 0; idx < tags.Length; idx = idx + 2)
             {
-                tagsCollection.Add(tags[idx], tags[idx + 1]);
+                tagsCollection.AddOrReplace(tags[idx], tags[idx + 1]);
             }
 
-            Assert.AreEqual(speed, vehicle.ProbableSpeed(tagsCollection).Value);
+            Assert.AreEqual(speed, vehicle.ProbableSpeed(tagsCollection), 0.001f);
         }
     }
 }

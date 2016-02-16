@@ -17,11 +17,11 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Routing.Navigation;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Navigation.Osm;
 using OsmSharp.Routing.Test.Navigation.Language;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace OsmSharp.Routing.Test.Navigation.Osm
 {
@@ -39,20 +39,22 @@ namespace OsmSharp.Routing.Test.Navigation.Osm
         {
             var route = new Route()
             {
-                Segments = new List<RouteSegment>(new RouteSegment[]
+                Shape = new Coordinate[]
+                {
+                    new Coordinate(51.267819164340295f, 4.801352620124817f),
+                    new Coordinate(51.268218575855880f, 4.801352620124817f)
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
                     {
-                        new RouteSegment()
-                        {
-                            Latitude = 51.267819164340295f,
-                            Longitude = 4.801352620124817f
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.26821857585588f,
-                            Longitude = 4.801352620124817f
-                        }
-                    }),
-                Tags = new List<RouteTags>(),
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1
+                    }
+                },
                 TotalDistance = 0,
                 TotalTime = 0
             };
@@ -75,34 +77,35 @@ namespace OsmSharp.Routing.Test.Navigation.Osm
         {
             var route = new Route()
             {
-                Segments = new List<RouteSegment>(new RouteSegment[]
+                Shape = new Coordinate[]
+                {
+                    new Coordinate(51.267436531565470f, 4.8017871379852295f),
+                    new Coordinate(51.267879579750364f, 4.8017871379852295f),
+                    new Coordinate(51.267879579750364f, 4.8025381565093985f)
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
                     {
-                        new RouteSegment()
-                        {
-                            Latitude = 51.26743653156547f,
-                            Longitude = 4.8017871379852295f
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.267879579750364f,
-                            Longitude = 4.8017871379852295f,
-                            SideStreets = new RouteSegmentBranch[]
-                            {
-                                new RouteSegmentBranch()
-                                {
-                                    Latitude = 51.267879579750364f,
-                                    Longitude = 4.801073670387268f,
-                                    Tags = null
-                                }
-                            }
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.267879579750364f,
-                            Longitude = 4.8025381565093985f
-                        }
-                    }),
-                Tags = new List<RouteTags>(),
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2
+                    }
+                },
+                Branches = new Route.Branch[]
+                {
+                    new Route.Branch()
+                    {
+                        Shape = 1,
+                        Coordinate = new Coordinate(51.267879579750364f, 4.801073670387268f)
+                    }
+                },
                 TotalDistance = 0,
                 TotalTime = 0
             };
@@ -126,78 +129,54 @@ namespace OsmSharp.Routing.Test.Navigation.Osm
         {
             var route = new Route()
             {
-                Segments = new List<RouteSegment>(new RouteSegment[]
+                Shape = new Coordinate[]
+                {
+                    new Coordinate(51.267258639804595f, 4.801588654518127f),
+                    new Coordinate(51.267718471813710f, 4.801631569862366f),
+                    new Coordinate(51.267946707890620f, 4.802243113517761f),
+                    new Coordinate(51.268309198153570f, 4.801674485206603f),
+                    new Coordinate(51.268903273234820f, 4.801695942878722f),
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
                     {
-                        new RouteSegment()
-                        {
-                            Latitude = 51.267258639804595f,
-                            Longitude = 4.801588654518127f
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.26771847181371f,
-                            Longitude = 4.801631569862366f,
-                            SideStreets = new RouteSegmentBranch[]
-                            {
-                                new RouteSegmentBranch()
-                                {
-                                    Latitude = 51.26800712313301f,
-                                    Longitude = 4.801154136657715f,
-                                    Tags = null
-                                }
-                            }
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.26794670789062f,
-                            Longitude = 4.802243113517761f,
-                            SideStreets = new RouteSegmentBranch[]
-                            {
-                                new RouteSegmentBranch()
-                                {
-                                    Latitude = 51.26795006429507f,
-                                    Longitude = 4.80301022529602f,
-                                    Tags = null
-                                }
-                            },
-                            Tags = new RouteTags[]
-                            {
-                                new RouteTags()
-                                {
-                                    Key = "junction",
-                                    Value = "roundabout"
-                                }
-                            }
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.26830919815357f,
-                            Longitude = 4.801674485206603f,
-                            SideStreets = new RouteSegmentBranch[]
-                            {
-                                new RouteSegmentBranch()
-                                {
-                                    Latitude = 51.26800712313301f,
-                                    Longitude = 4.801154136657715f,
-                                    Tags = null
-                                }
-                            },
-                            Tags = new RouteTags[]
-                            {
-                                new RouteTags()
-                                {
-                                    Key = "junction",
-                                    Value = "roundabout"
-                                }
-                            }
-                        },
-                        new RouteSegment()
-                        {
-                            Latitude = 51.26890327323482f,
-                            Longitude = 4.801695942878722f
-                        }
-                    }),
-                Tags = new List<RouteTags>(),
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2,
+                        Attributes = new AttributeCollection(
+                            new Attribute("junction", "roundabout"))
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 3,
+                        Attributes = new AttributeCollection(
+                            new Attribute("junction", "roundabout"))
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 4
+                    }
+                },
+                Branches = new Route.Branch[]
+                {
+                    new Route.Branch()
+                    {
+                        Shape = 2,
+                        Coordinate = new Coordinate(51.26800712313301f, 4.801154136657715f)
+                    },
+                    new Route.Branch()
+                    {
+                        Shape = 3,
+                        Coordinate = new Coordinate(51.26795006429507f, 4.803010225296020f)
+                    }
+                },
                 TotalDistance = 0,
                 TotalTime = 0
             };
@@ -219,9 +198,9 @@ namespace OsmSharp.Routing.Test.Navigation.Osm
         [Test]
         public void TestRoute1()
         {
-            var route = TestRouteBuilder.BuildRoute(
+            var route = RouteExtensions.ReadXml(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                    "OsmSharp.Routing.Test.test_data.routes.route1.json"));
+                    "OsmSharp.Routing.Test.test_data.routes.route1.xml"));
 
             var generator = new InstructionCarGenerator(route, new MockLanguageReference());
             generator.Run();

@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo;
-using OsmSharp.Routing.Data;
+using OsmSharp.Routing.Geo;
+using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using OsmSharp.Routing.Network;
 using System.Collections.Generic;
 
@@ -67,7 +67,7 @@ namespace OsmSharp.Routing.Algorithms.Networks
                         if (edgeData.Distance < _network.MaxEdgeDistance &&
                             !_network.ContainsEdge(edges[0].To, edges[1].To))
                         { // network does not contain edge yet and new edge < MAX_DISTANCE.
-                            var shape = new List<ICoordinate>();
+                            var shape = new List<Coordinate>();
                             var shape1 = edges[0].Shape;
                             if (shape1 != null)
                             { // add coordinates of first shape.

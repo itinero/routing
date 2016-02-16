@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -42,11 +42,11 @@ namespace OsmSharp.Routing.Osm
             { // both have values but not opposite ones.
                 return false;
             }
-            foreach(var tag1 in tagsCollection1)
+            foreach (var tag1 in tagsCollection1)
             {
                 if(tag1.Key != "oneway")
                 {
-                    if(!tagsCollection2.ContainsKeyValue(tag1.Key, tag1.Value))
+                    if(!tagsCollection2.Contains(tag1.Key, tag1.Value))
                     {
                         return false;
                     }
@@ -56,7 +56,7 @@ namespace OsmSharp.Routing.Osm
             {
                 if (tag2.Key != "oneway")
                 {
-                    if (!tagsCollection1.ContainsKeyValue(tag2.Key, tag2.Value))
+                    if (!tagsCollection1.Contains(tag2.Key, tag2.Value))
                     {
                         return false;
                     }
@@ -85,7 +85,7 @@ namespace OsmSharp.Routing.Osm
             {
                 if (tag1.Key != "oneway")
                 {
-                    if (!tagsCollection2.ContainsKeyValue(tag1.Key, tag1.Value))
+                    if (!tagsCollection2.Contains(tag1.Key, tag1.Value))
                     {
                         return false;
                     }
@@ -95,7 +95,7 @@ namespace OsmSharp.Routing.Osm
             {
                 if (tag2.Key != "oneway")
                 {
-                    if (!tagsCollection1.ContainsKeyValue(tag2.Key, tag2.Value))
+                    if (!tagsCollection1.Contains(tag2.Key, tag2.Value))
                     {
                         return false;
                     }

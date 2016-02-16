@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Routing.Algorithms.Search.Hilbert;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric;
 using System;
 
@@ -77,9 +79,9 @@ namespace OsmSharp.Routing.Algorithms.Search
         protected override void DoRun()
         {
             // calculate maxOffset in degrees.
-            var offsettedLocation = (new OsmSharp.Math.Geo.GeoCoordinate(_latitude, _longitude)).OffsetWithDistances(_maxOffsetInMeter);
-            var latitudeOffset = (float)System.Math.Abs(_latitude - offsettedLocation[1]);
-            var longitudeOffset = (float)System.Math.Abs(_longitude - offsettedLocation[0]);
+            var offsettedLocation = (new Coordinate(_latitude, _longitude)).OffsetWithDistances(_maxOffsetInMeter);
+            var latitudeOffset = System.Math.Abs(_latitude - offsettedLocation.Latitude);
+            var longitudeOffset = System.Math.Abs(_longitude - offsettedLocation.Longitude);
 
             // get the closest edge.
             uint[] edgeIds = null;
@@ -123,19 +125,18 @@ namespace OsmSharp.Routing.Algorithms.Search
 
                 var bestProjectedDistanceFromFirst = 0.0f;
                 projectedDistanceFromFirst = 0;
-                var bestDistanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(previous.Latitude, previous.Longitude,
-                    _latitude, _longitude);
+                var bestDistanceToProjected = Coordinate.DistanceEstimateInMeter(previous,
+                    new Coordinate(_latitude, _longitude));
                 projectedLatitude = previous.Latitude;
                 projectedLongitude = previous.Longitude;
                 for (var i = 1; i < points.Count; i++)
                 {
                     var current = points[i];
-                    projectedDistanceFromFirst += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
-                        previous.Latitude, previous.Longitude);
-                    distanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
-                        _latitude, _longitude);
+                    projectedDistanceFromFirst += Coordinate.DistanceEstimateInMeter(current, previous);
+                    distanceToProjected = Coordinate.DistanceEstimateInMeter(current,
+                        new Coordinate(_latitude, _longitude));
                     if (distanceToProjected < bestDistanceToProjected)
-                    { // improvement.
+                    {
                         bestDistanceToProjected = distanceToProjected;
                         bestProjectedDistanceFromFirst = projectedDistanceFromFirst;
                         projectedLatitude = current.Latitude;
@@ -167,19 +168,18 @@ namespace OsmSharp.Routing.Algorithms.Search
 
                         var bestProjectedDistanceFromFirst = 0.0f;
                         projectedDistanceFromFirst1 = 0;
-                        var bestDistanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(previous.Latitude, previous.Longitude,
-                            _latitude, _longitude);
+                        var bestDistanceToProjected = Coordinate.DistanceEstimateInMeter(previous,
+                            new Coordinate(_latitude, _longitude));
                         projectedLatitude1 = previous.Latitude;
                         projectedLongitude1 = previous.Longitude;
                         for (var i = 1; i < points.Count; i++)
                         {
                             var current = points[i];
-                            projectedDistanceFromFirst1 += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
-                                previous.Latitude, previous.Longitude);
-                            distanceToProjected1 = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
-                                _latitude, _longitude);
+                            projectedDistanceFromFirst1 += Coordinate.DistanceEstimateInMeter(current, previous);
+                            distanceToProjected1 = Coordinate.DistanceEstimateInMeter(current,
+                                new Coordinate(_latitude, _longitude));
                             if (distanceToProjected1 < bestDistanceToProjected)
-                            { // improvement.
+                            {
                                 bestDistanceToProjected = distanceToProjected1;
                                 bestProjectedDistanceFromFirst = projectedDistanceFromFirst1;
                                 projectedLatitude1 = current.Latitude;

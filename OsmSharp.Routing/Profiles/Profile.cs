@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 using System;
 using System.Collections.Generic;
 
@@ -28,10 +28,10 @@ namespace OsmSharp.Routing.Profiles
     public class Profile
     {
         private readonly string _name;
-        private readonly Func<TagsCollectionBase, Speed> _getSpeed;
-        private readonly Func<TagsCollectionBase, Factor> _getFactor;
-        private readonly Func<TagsCollectionBase, bool> _canStop;
-        private readonly Func<TagsCollectionBase, TagsCollectionBase, bool> _equals;
+        private readonly Func<IAttributeCollection, Speed> _getSpeed;
+        private readonly Func<IAttributeCollection, Factor> _getFactor;
+        private readonly Func<IAttributeCollection, bool> _canStop;
+        private readonly Func<IAttributeCollection, IAttributeCollection, bool> _equals;
         private readonly Func<Speed> _minSpeed;
         private readonly HashSet<string> _vehicleTypes;
         private readonly ProfileMetric _metric;
@@ -39,8 +39,8 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<Speed> minSpeed, Func<TagsCollectionBase, bool> canStop,
-            Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes, ProfileMetric metric)
+        public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
+            Func<IAttributeCollection, IAttributeCollection, bool> equals, HashSet<string> vehicleTypes, ProfileMetric metric)
         {
             if (metric == ProfileMetric.Custom)
             {
@@ -60,8 +60,8 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        public Profile(string name, Func<TagsCollectionBase, Speed> getSpeed, Func<Speed> minSpeed, Func<TagsCollectionBase, bool> canStop,
-            Func<TagsCollectionBase, TagsCollectionBase, bool> equals, HashSet<string> vehicleTypes, Func<TagsCollectionBase, Factor> getFactor)
+        public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
+            Func<IAttributeCollection, IAttributeCollection, bool> equals, HashSet<string> vehicleTypes, Func<IAttributeCollection, Factor> getFactor)
         {
             _minSpeed = minSpeed;
             _getSpeed = getSpeed;
@@ -76,7 +76,7 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns the multiplication factor for profile over a segment with the given attributes.
         /// </summary>
-        public virtual Factor Factor(TagsCollectionBase attributes)
+        public virtual Factor Factor(IAttributeCollection attributes)
         {
             if (_metric == ProfileMetric.Custom)
             { // use a custom factor.
@@ -117,7 +117,7 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
         /// </summary>
-        public virtual bool CanStopOn(TagsCollectionBase attributes)
+        public virtual bool CanStopOn(IAttributeCollection attributes)
         {
             return _canStop(attributes);
         }
@@ -125,7 +125,7 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns the speed a vehicle with this profile would have over a segment with the given attributes.
         /// </summary>
-        public virtual Speed Speed(TagsCollectionBase attributes)
+        public virtual Speed Speed(IAttributeCollection attributes)
         {
             return _getSpeed(attributes);
         }
@@ -142,7 +142,7 @@ namespace OsmSharp.Routing.Profiles
         /// <summary>
         /// Returns true if the two tag collections are equal relative to this profile.
         /// </summary>
-        public virtual bool Equals(TagsCollectionBase edge1, TagsCollectionBase edge2)
+        public virtual bool Equals(IAttributeCollection edge1, IAttributeCollection edge2)
         {
             return _equals(edge1, edge2);
         }

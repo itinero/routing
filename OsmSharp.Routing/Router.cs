@@ -273,7 +273,7 @@ namespace OsmSharp.Routing
             OsmSharp.Routing.Graphs.Directed.DirectedMetaGraph contracted;
             if (_db.TryGetContracted(profile, out contracted))
             {
-                OsmSharp.Logging.Log.TraceEvent("Router", Logging.TraceEventType.Warning, 
+                Logging.Logger.Log("Router", Logging.TraceEventType.Warning, 
                     "Many to many route calculations are not possible yet using contracted algorithms.");
             }
 

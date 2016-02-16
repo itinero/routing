@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo;
+using OsmSharp.Routing.Geo;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Graphs.Geometric.Shapes
@@ -26,24 +26,24 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
     /// </summary>
     public class ShapeEnumerable : ShapeBase
     {
-        private readonly List<ICoordinate> _coordinates;
+        private readonly List<Coordinate> _coordinates;
         private readonly bool _reversed;
 
         /// <summary>
         /// Creates a new shape based on a coordinate enumerable.
         /// </summary>
-        public ShapeEnumerable(IEnumerable<ICoordinate> coordinates)
+        public ShapeEnumerable(IEnumerable<Coordinate> coordinates)
         {
-            _coordinates = new List<ICoordinate>(coordinates);
+            _coordinates = new List<Coordinate>(coordinates);
             _reversed = false;
         }
 
         /// <summary>
         /// Creates a new shape based on a coordinate enumerable.
         /// </summary>
-        public ShapeEnumerable(IEnumerable<ICoordinate> coordinates, bool reversed)
+        public ShapeEnumerable(IEnumerable<Coordinate> coordinates, bool reversed)
         {
-            _coordinates = new List<ICoordinate>(coordinates);
+            _coordinates = new List<Coordinate>(coordinates);
             _reversed = reversed;
         }
 
@@ -58,7 +58,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// <summary>
         /// Gets or sets the coordinate.
         /// </summary>
-        public override ICoordinate this[int i]
+        public override Coordinate this[int i]
         {
             get
             {

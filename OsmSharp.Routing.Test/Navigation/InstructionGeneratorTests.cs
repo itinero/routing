@@ -17,8 +17,10 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Navigation;
-using System.Collections.Generic;
+using OsmSharp.Routing.Navigation.Language;
+using OsmSharp.Routing.Test.Navigation.Language;
 
 namespace OsmSharp.Routing.Test.Navigation
 {
@@ -36,26 +38,40 @@ namespace OsmSharp.Routing.Test.Navigation
         {
             var route = new Route()
             {
-                Segments = new List<RouteSegment>(new RouteSegment[]
+                Shape = new Coordinate[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 0)
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
                     {
-                        new RouteSegment(),
-                        new RouteSegment(),
-                        new RouteSegment()
-                    }),
-                Tags = new List<RouteTags>(),
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2
+                    }
+                },
                 TotalDistance = 0,
                 TotalTime = 0
             };
 
             var generator = new InstructionGenerator<string>(route,
-                new InstructionGenerator<string>.TryGetDelegate[] 
-                { 
-                    (Route r, int i, out string instruction) =>
+                new InstructionGenerator<string>.TryGetDelegate[]
+                {
+                    (RoutePosition pos, ILanguageReference langRef, out string instruction) =>
                         {
-                            instruction = string.Format("Instruction {0}", i);
+                            instruction = string.Format("Instruction {0}", pos.Shape);
                             return 1;
                         }
-                });
+                }, new MockLanguageReference());
             generator.Run();
 
             var instructions = generator.Instructions;
@@ -74,31 +90,45 @@ namespace OsmSharp.Routing.Test.Navigation
         {
             var route = new Route()
             {
-                Segments = new List<RouteSegment>(new RouteSegment[]
+                Shape = new Coordinate[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 0)
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
                     {
-                        new RouteSegment(),
-                        new RouteSegment(),
-                        new RouteSegment()
-                    }),
-                Tags = new List<RouteTags>(),
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2
+                    }
+                },
                 TotalDistance = 0,
                 TotalTime = 0
             };
 
             var generator = new InstructionGenerator<string>(route,
-                new InstructionGenerator<string>.TryGetDelegate[] 
-                { 
-                    (Route r, int i, out string instruction) =>
+                new InstructionGenerator<string>.TryGetDelegate[]
+                {
+                    (RoutePosition pos, ILanguageReference langRef, out string instruction) =>
                         {
-                            if(i == 2)
+                            if(pos.Shape == 2)
                             {
                                 instruction = "The one and only instruction!";
                                 return 3;
                             }
-                            instruction = string.Format("Instruction {0}", i);
+                            instruction = string.Format("Instruction {0}", pos.Shape);
                             return 1;
                         }
-                });
+                }, new MockLanguageReference());
             generator.Run();
 
             var instructions = generator.Instructions;
@@ -115,38 +145,52 @@ namespace OsmSharp.Routing.Test.Navigation
         {
             var route = new Route()
             {
-                Segments = new List<RouteSegment>(new RouteSegment[]
+                Shape = new Coordinate[]
+                {
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 0),
+                    new Coordinate(0, 0)
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
                     {
-                        new RouteSegment(),
-                        new RouteSegment(),
-                        new RouteSegment()
-                    }),
-                Tags = new List<RouteTags>(),
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2
+                    }
+                },
                 TotalDistance = 0,
                 TotalTime = 0
             };
 
             var generator = new InstructionGenerator<string>(route,
-                new InstructionGenerator<string>.TryGetDelegate[] 
-                { 
-                    (Route r, int i, out string instruction) =>
+                new InstructionGenerator<string>.TryGetDelegate[]
+                {
+                    (RoutePosition pos, ILanguageReference langRef, out string instruction) =>
                         {
-                            instruction = string.Format("Instruction {0}", i);
+                            instruction = string.Format("Instruction {0}", pos.Shape);
                             return 1;
                         }
                 },
-                (Route r, string i1, string i2, out string i) =>
+                (Route r, ILanguageReference langRef, string i1, string i2, out string i) =>
                 {
                     i = string.Format("Merged instruction: {0} -> {1}",
                         i1, i2);
                     return true;
-                });
+                }, new MockLanguageReference());
             generator.Run();
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
             Assert.AreEqual(1, instructions.Count);
-            Assert.AreEqual("Merged instruction: Merged instruction: Instruction 0 -> Instruction 1 -> Instruction 2", 
+            Assert.AreEqual("Merged instruction: Merged instruction: Instruction 0 -> Instruction 1 -> Instruction 2",
                 instructions[0]);
         }
     }

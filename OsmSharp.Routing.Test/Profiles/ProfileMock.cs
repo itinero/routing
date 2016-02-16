@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Profiles;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace OsmSharp.Routing.Test.Profiles
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        private MockProfile(string name, Func<TagsCollectionBase, Speed> getSpeed, 
+        private MockProfile(string name, Func<IAttributeCollection, Speed> getSpeed, 
             HashSet<string> vehicleTypes)
             : base(name, getSpeed, () => new Speed() { Value = 5, Direction = 0 }, x => true, (e1, e2) => true, vehicleTypes, 
                   ProfileMetric.TimeInSeconds)
@@ -56,7 +56,7 @@ namespace OsmSharp.Routing.Test.Profiles
         /// Creates a mock car profile.
         /// </summary>
         /// <returns></returns>
-        public static MockProfile CarMock(Func<TagsCollectionBase, Speed> getSpeed)
+        public static MockProfile CarMock(Func<IAttributeCollection, Speed> getSpeed)
         {
             return MockProfile.Mock("CarMock", getSpeed, VehicleTypes.MotorVehicle, VehicleTypes.Vehicle);
         }
@@ -65,7 +65,7 @@ namespace OsmSharp.Routing.Test.Profiles
         /// Creates a mock car profile.
         /// </summary>
         /// <returns></returns>
-        public static MockProfile Mock(string name, Func<TagsCollectionBase, Speed> getSpeed,
+        public static MockProfile Mock(string name, Func<IAttributeCollection, Speed> getSpeed,
             params string[] vehicleTypes)
         {
             var vehicleTypesSet = new HashSet<string>();

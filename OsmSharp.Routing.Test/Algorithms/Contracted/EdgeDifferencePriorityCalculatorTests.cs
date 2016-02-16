@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,12 +17,10 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.LongIndex.LongIndex;
+using OsmSharp.Routing.Algorithms.Collections;
 using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
-using System;
-using System.Linq;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted
 {
@@ -46,7 +44,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, 
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -66,7 +64,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(-1, priority);
         }
@@ -88,7 +86,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -112,7 +110,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(3, priority);
         }
@@ -134,7 +132,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(0, priority);
 
@@ -149,7 +147,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -171,7 +169,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new LongIndex(), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
 
             Assert.AreEqual(-2, priority);
         }
@@ -189,8 +187,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
-            var contractedFlags = new LongIndex();
-            contractedFlags.Add(1);
+            var contractedFlags = new BitArray32(graph.VertexCount);
+            contractedFlags[1] = true;
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
             var priority = priorityCalculator.Calculate(contractedFlags, 0);
@@ -213,8 +211,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
-            var contractedFlags = new LongIndex();
-            contractedFlags.Add(1);
+            var contractedFlags = new BitArray32(graph.VertexCount);
+            contractedFlags[1] = true;
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
             var priority = priorityCalculator.Calculate(contractedFlags, 0);
@@ -235,8 +233,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
-            var contractedFlags = new LongIndex();
-            contractedFlags.Add(1);
+            var contractedFlags = new BitArray32(graph.VertexCount);
+            contractedFlags[1] = true;
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
             priorityCalculator.NotifyContracted(1);
@@ -260,8 +258,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
 
             // create a witness calculator and the priority calculator.
-            var contractedFlags = new LongIndex();
-            contractedFlags.Add(1);
+            var contractedFlags = new BitArray32(graph.VertexCount);
+            contractedFlags[1] = true;
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
             priorityCalculator.NotifyContracted(1);
@@ -290,7 +288,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             graph.Compress();
 
             // create a witness calculator and the priority calculator.
-            var contractedFlags = new LongIndex();
+            var contractedFlags = new BitArray32(graph.VertexCount);
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock(new uint[][]
                     {

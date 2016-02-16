@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,8 +17,8 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Tags;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using OsmSharp.Routing.Profiles;
@@ -46,14 +46,14 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(2, point.EdgeId);
             Assert.AreEqual(3, point.Offset);
 
-            point = new RouterPoint(0, 1, 2, 3, new Tag("key", "value"));
+            point = new RouterPoint(0, 1, 2, 3, new Attribute("key", "value"));
 
             Assert.AreEqual(0, point.Latitude);
             Assert.AreEqual(1, point.Longitude);
             Assert.AreEqual(2, point.EdgeId);
             Assert.AreEqual(3, point.Offset);
-            Assert.AreEqual(1, point.Tags.Count);
-            Assert.IsTrue(point.Tags.ContainsKeyValue("key", "value"));
+            Assert.AreEqual(1, point.Attributes.Count);
+            Assert.IsTrue(point.Attributes.Contains("key", "value"));
         }
 
         /// <summary>
@@ -62,8 +62,8 @@ namespace OsmSharp.Routing.Test
         [Test]
         public void TestToPaths()
         {
-            var distance = (float)GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.1, 0.1));
+            var distance = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.1f, 0.1f));
 
             // build router db.
             var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -72,13 +72,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = distance,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, 0.025),
-                new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -86,12 +86,12 @@ namespace OsmSharp.Routing.Test
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
             var paths = point.ToPaths(routerDb, profile, false);
 
-            var factor = profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var weight0 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.04, 0.04)) * factor.Value;
-            var weight1 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(.1, .1),
-                new GeoCoordinate(0.04, 0.04)) * factor.Value;
+            var factor = profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential")));
+            var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
+            var weight1 = Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -136,8 +136,8 @@ namespace OsmSharp.Routing.Test
         [Test]
         public void TestToPathsOneway()
         {
-            var distance = (float)GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.1, 0.1));
+            var distance = (float)Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.1f, 0.1f));
 
             // build router db.
             var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -146,13 +146,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = distance,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, 0.025),
-                new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
 
             // mock profile.
             var profile = MockProfile.Mock("OnwayMock", x =>
@@ -167,12 +167,12 @@ namespace OsmSharp.Routing.Test
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
             var paths = point.ToPaths(routerDb, profile, true);
-            var factor = profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var weight0 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.04, 0.04)) * factor.Value;
-            var weight1 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(.1, .1),
-                new GeoCoordinate(0.04, 0.04)) * factor.Value;
+            var factor = profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential")));
+            var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
+            var weight1 = Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -182,8 +182,8 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
             paths = point.ToPaths(routerDb, profile, false);
-            factor = profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential")));
+            factor = profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential")));
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -245,8 +245,8 @@ namespace OsmSharp.Routing.Test
         [Test]
         public void TestToPathsOnewayReverse()
         {
-            var distance = (float)GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.1, 0.1));
+            var distance = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.1f, 0.1f));
 
             // build router db.
             var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -255,13 +255,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = distance,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, 0.025),
-                new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
 
             // mock profile.
             var profile = MockProfile.Mock("OnwayMock", x =>
@@ -276,12 +276,12 @@ namespace OsmSharp.Routing.Test
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
             var paths = point.ToPaths(routerDb, profile, false);
-            var factor = profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential")));
-            var weight0 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.04, 0.04)) * factor.Value;
-            var weight1 = GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(.1, .1),
-                new GeoCoordinate(0.04, 0.04)) * factor.Value;
+            var factor = profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential")));
+            var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
+            var weight1 = Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -291,8 +291,8 @@ namespace OsmSharp.Routing.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
             paths = point.ToPaths(routerDb, profile, true);
-            factor = profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential")));
+            factor = profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential")));
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -361,13 +361,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, 0.025),
-                new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -375,12 +375,12 @@ namespace OsmSharp.Routing.Test
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
             var distance = point.DistanceTo(routerDb, 0);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(0, 0),
-                new GeoCoordinate(0.04, 0.04)), distance, 0.001);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.04f, 0.04f)), distance, 0.001);
 
             distance = point.DistanceTo(routerDb, 1);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(new GeoCoordinate(.1, .1),
-                new GeoCoordinate(0.04, 0.04)), distance, 0.001);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
+                new Coordinate(0.04f, 0.04f)), distance, 0.001);
         }
 
         /// <summary>
@@ -395,13 +395,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, 0.025),
-                new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -455,13 +455,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, 0.025),
-                new GeoCoordinate(0.050, 0.050),
-                new GeoCoordinate(0.075, 0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
 
             // mock profile.
             var profile = MockProfile.CarMock();
@@ -473,13 +473,13 @@ namespace OsmSharp.Routing.Test
 
             var path = point1.PathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
-            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+            Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
             path = point2.PathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+            Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
             path = point1.PathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
@@ -498,8 +498,8 @@ namespace OsmSharp.Routing.Test
 
             path = point1.PathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
-            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+            Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
             path = point2.PathTo(routerDb, profile, point1);
             Assert.IsNull(path);
@@ -524,8 +524,8 @@ namespace OsmSharp.Routing.Test
 
             path = point2.PathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(800 * profile.Factor(new TagsCollection(
-                    new Tag("highway", "residential"))).Value, path.Weight, 0.001f);
+            Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
             path = point1.PathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
@@ -575,13 +575,13 @@ namespace OsmSharp.Routing.Test
             routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
-                MetaId = routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("name", "Abelshausen Blvd."))),
-                Profile = (ushort)routerDb.EdgeProfiles.Add(new TagsCollection(
-                    new Tag("highway", "residential")))
-            }, new GeoCoordinate(0.025, -0.025),
-                new GeoCoordinate(0.050, -0.050),
-                new GeoCoordinate(0.075, -0.075));
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, -0.025f),
+                new Coordinate(0.050f, -0.050f),
+                new Coordinate(0.075f, -0.075f));
 
             // mock profile.
             var profile = MockProfile.CarMock();

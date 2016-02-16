@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,23 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Geo.Attributes;
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Math.Geo;
-using OsmSharp.Routing.Algorithms.Contracted;
-using OsmSharp.Routing.Algorithms.Search;
-using OsmSharp.Routing.Algorithms.Contracted.Witness;
-using OsmSharp.Routing.Data.Contracted;
-using OsmSharp.Routing.Graphs.Directed;
-using OsmSharp.Routing.Network;
+using OsmSharp.Routing.Algorithms.Search.Hilbert;
+using OsmSharp.Streams;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using OsmSharp.Osm.Streams;
 
-namespace OsmSharp.Routing.Osm
+namespace OsmSharp.Routing.IO.Osm
 {
     /// <summary>
     /// Contains extension methods for the router db.
@@ -42,7 +31,7 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, params Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, Stream data, params Routing.Osm.Vehicles.Vehicle[] vehicles)
         {
             db.LoadOsmData(data, false, vehicles);
         }
@@ -50,7 +39,7 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore, params Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore, params Routing.Osm.Vehicles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -58,14 +47,14 @@ namespace OsmSharp.Routing.Osm
             }
 
             // load the data.
-            var source = new OsmSharp.Osm.PBF.Streams.PBFOsmStreamSource(data);
+            var source = new PBFOsmStreamSource(data);
             db.LoadOsmData(source, vehicles);
         }
 
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, params Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, params Routing.Osm.Vehicles.Vehicle[] vehicles)
         {
             db.LoadOsmData(source, false, vehicles);
         }
@@ -73,7 +62,7 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore, params Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore, params Routing.Osm.Vehicles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -81,7 +70,7 @@ namespace OsmSharp.Routing.Osm
             }
 
             // load the data.
-            var target = new OsmSharp.Routing.Osm.Streams.RouterDbStreamTarget(db,
+            var target = new Streams.RouterDbStreamTarget(db,
                 vehicles, allCore);
             target.RegisterSource(source);
             target.Pull();

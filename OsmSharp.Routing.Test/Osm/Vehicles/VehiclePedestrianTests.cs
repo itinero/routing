@@ -17,9 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Routing;
 using OsmSharp.Routing.Osm.Vehicles;
-using OsmSharp.Units.Speed;
 
 namespace OsmSharp.Routing.Test.Osm.Vehicles
 {
@@ -97,7 +95,7 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
             base.TextMaxSpeed(vehicle, 4.3, "highway", "motorway_link");
 
             base.TextMaxSpeed(vehicle, 30, "highway", "primary", "maxspeed", "30");
-            base.TextMaxSpeed(vehicle, ((KilometerPerHour)(MilesPerHour)20).Value, "highway", "primary", "maxspeed", "20 mph");
+            base.TextMaxSpeed(vehicle, 20 * 1.60934f, "highway", "primary", "maxspeed", "20 mph");
         }
 
         /// <summary>
@@ -128,7 +126,7 @@ namespace OsmSharp.Routing.Test.Osm.Vehicles
             base.TextProbableSpeed(vehicle, System.Math.Min(4.3, max), "highway", "motorway_link");
 
             base.TextProbableSpeed(vehicle, System.Math.Min(30, max), "highway", "primary", "maxspeed", "30");
-            base.TextProbableSpeed(vehicle, System.Math.Min(((KilometerPerHour)(MilesPerHour)20).Value, max), "highway", "primary", "maxspeed", "20 mph");
+            base.TextProbableSpeed(vehicle, System.Math.Min(20 * 1.60934f, max), "highway", "primary", "maxspeed", "20 mph");
         }
     }
 }

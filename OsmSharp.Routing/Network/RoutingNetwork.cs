@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric;
 using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using OsmSharp.Routing.Network.Data;
@@ -160,8 +160,7 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Gets the vertex.
         /// </summary>
-        /// <returns></returns>
-        public GeoCoordinateSimple GetVertex(uint vertex)
+        public Coordinate GetVertex(uint vertex)
         {
             return _graph.GetVertex(vertex);
         }

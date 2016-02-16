@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Routing.Algorithms.Collections;
 using OsmSharp.Routing.Algorithms.Contracted;
 using System.Collections.Generic;
 
@@ -30,7 +31,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Contracted
             _priorities = priorities;
         }
 
-        public float Calculate(Collections.LongIndex.ILongIndex contractedFlags, uint vertex)
+        public float Calculate(BitArray32 contractedFlags, uint vertex)
         {
             return _priorities[vertex];
         }

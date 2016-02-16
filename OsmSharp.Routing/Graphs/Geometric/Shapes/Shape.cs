@@ -16,10 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo;
-using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Geo;
 using Reminiscence.Arrays;
-using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Graphs.Geometric.Shapes
 {
@@ -66,19 +64,19 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// <summary>
         /// Gets the coordinate at the given index.
         /// </summary>
-        public override ICoordinate this[int i]
+        public override Coordinate this[int i]
         {
             get
             {
                 if (_reversed)
                 {
-                    return new GeoCoordinateSimple()
+                    return new Coordinate()
                     {
                         Latitude = _coordinates[_pointer + ((_size - 1) * 2) - (i * 2)],
                         Longitude = _coordinates[_pointer + ((_size - 1) * 2) - (i * 2) + 1],
                     };
                 }
-                return new GeoCoordinateSimple()
+                return new Coordinate()
                 {
                     Latitude = _coordinates[_pointer + (i * 2)],
                     Longitude = _coordinates[_pointer + (i * 2) + 1]

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,8 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo;
-using System;
+using OsmSharp.Routing.Geo;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Graphs.Geometric.Shapes
@@ -25,7 +24,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
     /// <summary>
     /// Abstract representation of a shape.
     /// </summary>
-    public abstract class ShapeBase : IEnumerable<ICoordinate>
+    public abstract class ShapeBase : IEnumerable<Coordinate>
     {
         /// <summary>
         /// Returns the number of coordinates in this shape.
@@ -38,7 +37,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// <summary>
         /// Gets the coordinate at the given index.
         /// </summary>
-        public abstract ICoordinate this[int i]
+        public abstract Coordinate this[int i]
         {
             get;
         }
@@ -51,7 +50,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// <summary>
         /// Gets the enumerator.
         /// </summary>
-        public IEnumerator<ICoordinate> GetEnumerator()
+        public IEnumerator<Coordinate> GetEnumerator()
         {
             return new ShapeBaseEnumerator(this);
         }
@@ -64,7 +63,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
             return new ShapeBaseEnumerator(this);
         }
 
-        private struct ShapeBaseEnumerator : IEnumerator<ICoordinate>, System.Collections.IEnumerator
+        private struct ShapeBaseEnumerator : IEnumerator<Coordinate>, System.Collections.IEnumerator
         {
             private readonly ShapeBase _shape;
 
@@ -76,7 +75,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
 
             private int _i;
 
-            public ICoordinate Current
+            public Coordinate Current
             {
                 get { return _shape[_i]; }
             }

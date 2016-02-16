@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
+
 namespace OsmSharp.Routing.Osm.Vehicles
 {
     /// <summary>
@@ -27,8 +28,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if any vehicle in the given array can traverse a way with the given tags.
         /// </summary>
-        /// <returns></returns>
-        public static bool AnyCanTraverse(this Vehicle[] vehicles, TagsCollectionBase tags)
+        public static bool AnyCanTraverse(this Vehicle[] vehicles, IAttributeCollection tags)
         {
             for(var i  = 0; i < vehicles.Length; i++)
             {
@@ -43,7 +43,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the key is relevant for meta-data.
         /// </summary>
-        /// <returns></returns>
         public static bool IsRelevantForMeta(this Vehicle[] vehicles, string key)
         {
             if (string.IsNullOrEmpty(key))
@@ -64,7 +63,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the key is relevant for profile-data.
         /// </summary>
-        /// <returns></returns>
         public static bool IsRelevantForProfile(this Vehicle[] vehicles, string key)
         {
             if (string.IsNullOrEmpty(key))

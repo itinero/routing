@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Geo;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
 using System.Collections.Generic;
@@ -32,31 +32,34 @@ namespace OsmSharp.Routing.Algorithms.Routes
     {
         private readonly RouterDb _routerDb;
         private readonly List<uint> _path;
-        private readonly Profile _vehicleProfile;
+        private readonly Profile _profile;
         private readonly RouterPoint _source;
         private readonly RouterPoint _target;
 
         /// <summary>
         /// Creates a router builder.
         /// </summary>
-        public CompleteRouteBuilder(RouterDb routerDb, Profile vehicleProfile,
+        public CompleteRouteBuilder(RouterDb routerDb, Profile profile,
             RouterPoint source, RouterPoint target, List<uint> path)
         {
             _routerDb = routerDb;
             _path = path;
             _source = source;
             _target = target;
-            _vehicleProfile = vehicleProfile;
+            _profile = profile;
         }
 
         private Route _route;
+        private List<Coordinate> _shape;
+        private List<Route.Meta> _shapeMeta;
+        private List<Route.Branch> _branches;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            if(_path.Count == 0)
+            if (_path.Count == 0)
             { // an empty path.
                 this.ErrorMessage = "Path was empty.";
                 this.HasSucceeded = false;
@@ -84,8 +87,9 @@ namespace OsmSharp.Routing.Algorithms.Routes
             }
 
             // build the route.
-            _route = new Route();
-            _route.Segments = new List<RouteSegment>();
+            _shape = new List<Coordinate>();
+            _shapeMeta = new List<Route.Meta>();
+            _branches = new List<Route.Branch>();
 
             // add source.
             this.AddSource();
@@ -106,25 +110,31 @@ namespace OsmSharp.Routing.Algorithms.Routes
             }
 
             // set stops.
-            if(_route.Segments.Count == 1)
-            { // only a source/target.
-                _route.Segments[0].SetStop(
-                    new ICoordinate[] { 
-                        _source.Location(),
-                        _target.Location() 
-                    },
-                    new TagsCollectionBase[] 
-                    {
-                        _source.Tags,
-                        _target.Tags 
-                    });
-                return;
-            }
-            _route.Segments[0].SetStop(_source.Location(), _source.Tags);
-            _route.Segments[_route.Segments.Count - 1].SetStop(_target.Location(), _target.Tags);
+            var stops = new Route.Stop[]
+            {
+                new Route.Stop()
+                {
+                    Shape = 0,
+                    Attributes = new AttributeCollection(_source.Attributes),
+                    Coordinate = _source.Location()
+                },
+                new Route.Stop()
+                {
+                    Shape = _shape.Count - 1,
+                    Attributes = new AttributeCollection(_target.Attributes),
+                    Coordinate = _target.Location()
+                }
+            };
 
-            _route.TotalDistance = _route.Segments[_route.Segments.Count - 1].Distance;
-            _route.TotalTime = _route.Segments[_route.Segments.Count - 1].Time;
+            // build route.
+            _route = new Route()
+            {
+                Shape = _shape.ToArray(),
+                ShapeMeta = _shapeMeta.ToArray(),
+                Stops = stops,
+                TotalDistance = _shapeMeta.Last().Distance,
+                TotalTime = _shapeMeta.Last().Time
+            };
         }
 
         /// <summary>
@@ -142,9 +152,14 @@ namespace OsmSharp.Routing.Algorithms.Routes
         /// Adds the source.
         /// </summary>
         private void AddSource()
-        { // add source.
-            var segment = RouteSegment.CreateNew(_source.Location(), _vehicleProfile);
-            _route.Segments.Add(segment);
+        {
+            _shape.Add(_source.Location());
+            _shapeMeta.Add(new Route.Meta()
+            {
+                Attributes = new AttributeCollection(
+                    new Attributes.Attribute("profile", _profile.Name)),
+                Shape = _shape.Count - 1
+            });
         }
 
         /// <summary>
@@ -164,9 +179,10 @@ namespace OsmSharp.Routing.Algorithms.Routes
             }
 
             // get shapepoints and edge.
-            var shape = new List<ICoordinate>(0);
+            var shape = new List<Coordinate>(0);
             RoutingEdge edge = null;
-            ICoordinate targetLocation = null;
+            Coordinate? targetLocation = null;
+            var distance = 0f;
             if(from == Constants.NO_VERTEX &&
                to == Constants.NO_VERTEX)
             { // from is the source and to is the target.
@@ -176,26 +192,35 @@ namespace OsmSharp.Routing.Algorithms.Routes
                     return;
                 }
                 shape = _source.ShapePointsTo(_routerDb, _target);
+                distance = _source.DistanceTo(_routerDb, _target);
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
                 targetLocation = _target.Location();
+                shape.Add(targetLocation.Value);
             }
             else if(from == Constants.NO_VERTEX)
             { // from is the source and to is a regular vertex.
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
-                shape = _source.ShapePointsTo(_routerDb, _routerDb.Network.CreateRouterPointForVertex(to, 
-                    edge.GetOther(to)));
+                var toOnEdge = _routerDb.Network.CreateRouterPointForVertex(to,
+                    edge.GetOther(to));
+                shape = _source.ShapePointsTo(_routerDb, toOnEdge);
+                distance = _source.DistanceTo(_routerDb, toOnEdge);
                 targetLocation = _routerDb.Network.GetVertex(to);
+                shape.Add(targetLocation.Value);
             }
             else if(to == Constants.NO_VERTEX)
             { // from is a regular vertex and to is the target.
                 edge = _routerDb.Network.GetEdge(_target.EdgeId);
-                shape = _routerDb.Network.CreateRouterPointForVertex(from, edge.GetOther(from)).ShapePointsTo(
-                    _routerDb, _target);
+                var fromOnEdge = _routerDb.Network.CreateRouterPointForVertex(from,
+                    edge.GetOther(from));
+                shape = fromOnEdge.ShapePointsTo(_routerDb, _target);
+                distance = fromOnEdge.DistanceTo(_routerDb, _target);
                 targetLocation = _target.Location();
+                shape.Add(targetLocation.Value);
             }
             else
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                distance = edge.Data.Distance;
                 var shapeEnumerable = edge.Shape;
                 if (shapeEnumerable != null)
                 {
@@ -206,26 +231,33 @@ namespace OsmSharp.Routing.Algorithms.Routes
                     shape.AddRange(shapeEnumerable);
                 }
                 targetLocation = _routerDb.Network.GetVertex(to);
+                shape.Add(targetLocation.Value);
             }
 
             // get edge details.
             var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(meta);
-            tags.AddOrReplace(profile);
-
-            // add shape and target.
-            RouteSegment segment;
-            for (var i = 0; i < shape.Count; i++)
+            var speed = this._profile.Speed(profile);
+            var time = 0f;
+            if (speed.Value != 0)
             {
-                segment = RouteSegment.CreateNew(shape[i], _vehicleProfile);
-                segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-                _route.Segments.Add(segment);
+                time = distance / speed.Value;
             }
-            segment = RouteSegment.CreateNew(targetLocation, _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-            _route.Segments.Add(segment);
+            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
+            var attributes = new AttributeCollection(meta);
+            attributes.AddOrReplace(profile);
+            attributes.AddOrReplace("profile", _profile.Name);
+            
+            // add shape and meta.
+            _shape.AddRange(shape);
+            var previousMeta = _shapeMeta[_shapeMeta.Count - 1];
+            var shapeMeta = new Route.Meta()
+            {
+                Shape = _shape.Count - 1,
+                Attributes = attributes
+            };
+            shapeMeta.Distance = distance + previousMeta.Distance;
+            shapeMeta.Time = time + previousMeta.Time;
+            _shapeMeta.Add(shapeMeta);
         }
 
         /// <summary>
@@ -245,9 +277,10 @@ namespace OsmSharp.Routing.Algorithms.Routes
             }
 
             // get shapepoints and edge.
-            var shape = new List<ICoordinate>(0);
+            var shape = new List<Coordinate>(0);
             RoutingEdge edge = null;
-            ICoordinate targetLocation = null;
+            Coordinate? targetLocation = null;
+            var distance = 0f;
             if (from == Constants.NO_VERTEX &&
                to == Constants.NO_VERTEX)
             { // from is the source and to is the target.
@@ -257,26 +290,35 @@ namespace OsmSharp.Routing.Algorithms.Routes
                     return;
                 }
                 shape = _source.ShapePointsTo(_routerDb, _target);
+                distance = _source.DistanceTo(_routerDb, _target);
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
                 targetLocation = _target.Location();
+                shape.Add(targetLocation.Value);
             }
             else if (from == Constants.NO_VERTEX)
             { // from is the source and to is a regular vertex.
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
-                shape = _source.ShapePointsTo(_routerDb, _routerDb.Network.CreateRouterPointForVertex(to,
-                    edge.GetOther(to)));
+                var toOnEdge = _routerDb.Network.CreateRouterPointForVertex(to,
+                    edge.GetOther(to));
+                shape = _source.ShapePointsTo(_routerDb, toOnEdge);
+                distance = _source.DistanceTo(_routerDb, toOnEdge);
                 targetLocation = _routerDb.Network.GetVertex(to);
+                shape.Add(targetLocation.Value);
             }
             else if (to == Constants.NO_VERTEX)
             { // from is a regular vertex and to is the target.
                 edge = _routerDb.Network.GetEdge(_target.EdgeId);
-                shape = _routerDb.Network.CreateRouterPointForVertex(from, edge.GetOther(from)).ShapePointsTo(
-                    _routerDb, _target);
+                var fromOnEdge = _routerDb.Network.CreateRouterPointForVertex(from,
+                    edge.GetOther(from));
+                shape = fromOnEdge.ShapePointsTo(_routerDb, _target);
+                distance = fromOnEdge.DistanceTo(_routerDb, _target);
                 targetLocation = _target.Location();
+                shape.Add(targetLocation.Value);
             }
             else
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                distance = edge.Data.Distance;
                 var shapeEnumerable = edge.Shape;
                 if (shapeEnumerable != null)
                 {
@@ -287,32 +329,39 @@ namespace OsmSharp.Routing.Algorithms.Routes
                     shape.AddRange(shapeEnumerable);
                 }
                 targetLocation = _routerDb.Network.GetVertex(to);
+                shape.Add(targetLocation.Value);
             }
 
             // get edge details.
             var profile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
-            var speed = _vehicleProfile.Speed(profile);
-            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
-            var tags = new TagsCollection(meta);
-            tags.AddOrReplace(profile);
-
-            // add shape and target.
-            RouteSegment segment;
-            for (var i = 0; i < shape.Count; i++)
+            var speed = this._profile.Speed(profile);
+            var time = 0f;
+            if (speed.Value != 0)
             {
-                segment = RouteSegment.CreateNew(shape[i], _vehicleProfile);
-                segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
-                _route.Segments.Add(segment);
+                time = distance / speed.Value;
             }
-            segment = RouteSegment.CreateNew(targetLocation, _vehicleProfile);
-            segment.Set(_route.Segments[_route.Segments.Count - 1], _vehicleProfile, tags, speed);
+            var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
+            var attributes = new AttributeCollection(meta);
+            attributes.AddOrReplace(profile);
+            attributes.AddOrReplace("profile", _profile.Name);
+
+            // add shape and meta.
+            _shape.AddRange(shape);
+            var previousMeta = _shapeMeta[_shapeMeta.Count - 1];
+            var shapeMeta = new Route.Meta()
+            {
+                Shape = _shape.Count - 1,
+                Attributes = attributes
+            };
+            shapeMeta.Distance = distance + previousMeta.Distance;
+            shapeMeta.Time = time + previousMeta.Time;
+            _shapeMeta.Add(shapeMeta);
 
             // add sidestreets.
-            if(to != Constants.NO_VERTEX)
+            if (to != Constants.NO_VERTEX)
             {
-                segment.SetSideStreets(_routerDb, to, edge.Id, next);
+                _branches.AddBranches(_routerDb, _shape.Count - 1, to, edge.Id, next);
             }
-            _route.Segments.Add(segment);
         }
 
         /// <summary>

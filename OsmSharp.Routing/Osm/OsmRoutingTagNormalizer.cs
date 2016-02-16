@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Osm
@@ -30,8 +30,8 @@ namespace OsmSharp.Routing.Osm
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
         /// <returns></returns>
-        public static bool Normalize(this TagsCollection tags, TagsCollection profileTags, 
-            TagsCollection metaTags)
+        public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags, 
+            AttributeCollection metaTags)
         {
             string highway;
             if(!tags.TryGetValue("highway", out highway))
@@ -65,7 +65,7 @@ namespace OsmSharp.Routing.Osm
                     tags.NormalizeFoot(profileTags, metaTags, false);
                     tags.NormalizeBicycle(profileTags, metaTags, false);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, true);
-                    profileTags.Add("highway", highway);
+                    profileTags.AddOrReplace("highway", highway);
                     break;
                 case "secondary":
                 case "secondary_link":
@@ -81,19 +81,19 @@ namespace OsmSharp.Routing.Osm
                     tags.NormalizeFoot(profileTags, metaTags, true);
                     tags.NormalizeBicycle(profileTags, metaTags, true);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, true);
-                    profileTags.Add("highway", highway);
+                    profileTags.AddOrReplace("highway", highway);
                     break;
                 case "cycleway":
                     tags.NormalizeFoot(profileTags, metaTags, false);
                     tags.NormalizeBicycle(profileTags, metaTags, true);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
-                    profileTags.Add("highway", highway);
+                    profileTags.AddOrReplace("highway", highway);
                     break;
                 case "path":
                     tags.NormalizeFoot(profileTags, metaTags, true);
                     tags.NormalizeBicycle(profileTags, metaTags, true);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
-                    profileTags.Add("highway", highway);
+                    profileTags.AddOrReplace("highway", highway);
                     break;
                 case "pedestrian":
                 case "footway":
@@ -101,7 +101,7 @@ namespace OsmSharp.Routing.Osm
                     tags.NormalizeFoot(profileTags, metaTags, true);
                     tags.NormalizeBicycle(profileTags, metaTags, false);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
-                    profileTags.Add("highway", highway);
+                    profileTags.AddOrReplace("highway", highway);
                     break;
             }
 
@@ -140,9 +140,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the access tags and adds them to the profile tags or meta tags.
         /// </summary>
-        /// <returns></returns>
-        public static bool NormalizeAccess(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags)
+        public static bool NormalizeAccess(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags)
         {
             string access;
             if (!tags.TryGetValue("access", out access))
@@ -157,7 +156,7 @@ namespace OsmSharp.Routing.Osm
 
             if (!defaultAccessFound.HasValue)
             { // access needs to be descided on a vehicle by vehicle basis.
-                profileTags.Add("access", access);
+                profileTags.AddOrReplace("access", access);
                 return true;
             }
             return defaultAccessFound.Value;
@@ -187,9 +186,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the oneway tag.
         /// </summary>
-        /// <returns></returns>
-        public static void NormalizeOneway(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags)
+        public static void NormalizeOneway(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags)
         {
             string oneway;
             if (!tags.TryGetValue("oneway", out oneway))
@@ -204,19 +202,19 @@ namespace OsmSharp.Routing.Osm
 
             if (defaultOnewayFound)
             {
-                profileTags.Add("oneway", "yes");
+                profileTags.AddOrReplace("oneway", "yes");
             }
             else
             {
-                profileTags.Add("oneway", "-1");
+                profileTags.AddOrReplace("oneway", "-1");
             }
         }
 
         /// <summary>
         /// Normalizes maxspeed.
         /// </summary>
-        public static void NormalizeMaxspeed(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags)
+        public static void NormalizeMaxspeed(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags)
         {
             string maxspeed;
             if (!tags.TryGetValue("maxspeed", out maxspeed))
@@ -227,14 +225,14 @@ namespace OsmSharp.Routing.Osm
             if (int.TryParse(maxspeed, out maxSpeedValue) &&
                 maxSpeedValue > 0 && maxSpeedValue <= 200)
             {
-                profileTags.Add("maxspeed", maxspeed);
+                profileTags.AddOrReplace("maxspeed", maxspeed);
             }
             else if(maxspeed.EndsWith("mph"))
             {
                 if (int.TryParse(maxspeed.Substring(0, maxspeed.Length - 4), out maxSpeedValue) &&
                     maxSpeedValue > 0 && maxSpeedValue <= 150)
                 {
-                    profileTags.Add("maxspeed", maxspeed);
+                    profileTags.AddOrReplace("maxspeed", maxspeed);
                 }
             }
         }
@@ -242,9 +240,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the junction tag.
         /// </summary>
-        /// <returns></returns>
-        public static void NormalizeJunction(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags)
+        public static void NormalizeJunction(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags)
         {
             string junction;
             if (!tags.TryGetValue("junction", out junction))
@@ -253,7 +250,7 @@ namespace OsmSharp.Routing.Osm
             }
             if(junction == "roundabout")
             {
-                profileTags.Add("junction", "roundabout");
+                profileTags.AddOrReplace("junction", "roundabout");
             }
         }
 
@@ -285,8 +282,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the foot tag.
         /// </summary>
-        public static void NormalizeFoot(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags, bool defaultAccess)
+        public static void NormalizeFoot(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags, bool defaultAccess)
         {
             string foot;
             if (!tags.TryGetValue("foot", out foot))
@@ -301,7 +298,7 @@ namespace OsmSharp.Routing.Osm
 
             if (defaultAccess != defaultAccessFound)
             {
-                profileTags.Add("foot", foot);
+                profileTags.AddOrReplace("foot", foot);
             }
         }
 
@@ -333,8 +330,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the bicycle tag.
         /// </summary>
-        public static void NormalizeBicycle(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags, bool defaultAccess)
+        public static void NormalizeBicycle(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags, bool defaultAccess)
         {
             string bicycle;
             if(!tags.TryGetValue("bicycle", out bicycle))
@@ -349,7 +346,7 @@ namespace OsmSharp.Routing.Osm
 
             if (defaultAccess != defaultAccessFound)
             {
-                profileTags.Add("bicycle", bicycle);
+                profileTags.AddOrReplace("bicycle", bicycle);
             }
         }
 
@@ -374,8 +371,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the ramp tag.
         /// </summary>
-        public static void NormalizeRamp(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags, bool defaultAccess)
+        public static void NormalizeRamp(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags, bool defaultAccess)
         {
             string ramp;
             if (!tags.TryGetValue("ramp", out ramp))
@@ -390,7 +387,7 @@ namespace OsmSharp.Routing.Osm
 
             if (defaultAccess != defaultAccessFound)
             {
-                profileTags.Add("ramp", ramp);
+                profileTags.AddOrReplace("ramp", ramp);
             }
         }
 
@@ -424,8 +421,8 @@ namespace OsmSharp.Routing.Osm
         /// <summary>
         /// Normalizes the motorvehicle tag.
         /// </summary>
-        public static void NormalizeMotorvehicle(this TagsCollection tags, TagsCollection profileTags,
-            TagsCollection metaTags, bool defaultAccess)
+        public static void NormalizeMotorvehicle(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags, bool defaultAccess)
         {
             string motorvehicle;
             if (!tags.TryGetValue("motorvehicle", out motorvehicle))
@@ -440,7 +437,7 @@ namespace OsmSharp.Routing.Osm
 
             if (defaultAccess != defaultAccessFound)
             {
-                profileTags.Add("motorvehicle", motorvehicle);
+                profileTags.AddOrReplace("motorvehicle", motorvehicle);
             }
         }
     }

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,8 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Units.Speed;
+using OsmSharp.Routing.Attributes;
 
 namespace OsmSharp.Routing.Osm.Vehicles
 {
@@ -54,14 +53,12 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the vehicle is allowed on the way represented by these tags
         /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        protected override bool IsVehicleAllowed(TagsCollectionBase tags, string highwayType)
+        protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
         {
-            if (tags.ContainsKey("motor_vehicle"))
+            string motorVehicle = string.Empty;
+            if (tags.TryGetValue("motor_vehicle", out motorVehicle))
             {
-                if (tags["motor_vehicle"] == "no")
+                if (motorVehicle == "no")
                 {
                     return false;
                 }
@@ -74,9 +71,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// 
         /// This does not take into account how fast this vehicle can go just the max possible speed.
         /// </summary>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeedAllowed(string highwayType)
+        public override float MaxSpeedAllowed(string highwayType)
         {
             switch (highwayType)
             {
@@ -111,13 +106,12 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
         /// </summary>
-        /// <returns></returns>
-        public override bool CanStopOn(TagsCollectionBase tags)
+        public override bool CanStopOn(IAttributeCollection tags)
         {
             var highwayType = string.Empty;
-            if(this.TryGetHighwayType(tags, out highwayType))
+            if (this.TryGetHighwayType(tags, out highwayType))
             {
-                if(!string.IsNullOrWhiteSpace(highwayType))
+                if (!string.IsNullOrWhiteSpace(highwayType))
                 {
                     if(highwayType.ToLowerInvariant().Equals("motorway") ||
                        highwayType.ToLowerInvariant().Equals("motorway_link"))
@@ -132,8 +126,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the maximum possible speed this vehicle can achieve.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeed()
+        public override float MaxSpeed()
         {
             return 200;
         }
@@ -141,8 +134,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the minimum possible speed.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MinSpeed()
+        public override float MinSpeed()
         {
             return 30;
         }

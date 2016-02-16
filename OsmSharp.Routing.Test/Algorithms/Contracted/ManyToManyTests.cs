@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,14 +17,11 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Routing.Algorithms;
 using OsmSharp.Routing.Algorithms.Contracted;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Graphs.Directed;
 using OsmSharp.Routing.Test.Profiles;
-using System.Collections.Generic;
-using OsmSharp.Collections.Tags;
 using OsmSharp.Routing.Profiles;
 
 namespace OsmSharp.Routing.Test.Algorithms.Contracted

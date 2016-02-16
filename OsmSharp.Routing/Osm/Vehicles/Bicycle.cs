@@ -16,13 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 using OsmSharp.Routing.Profiles;
-using OsmSharp.Units.Speed;
 
 namespace OsmSharp.Routing.Osm.Vehicles
 {
-
     /// <summary>
     /// Represents a bicycle
     /// </summary>
@@ -55,30 +53,28 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the vehicle is allowed on the way represented by these tags
         /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        protected override bool IsVehicleAllowed(TagsCollectionBase tags, string highwayType)
+        protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
         {
             // do the designated tags.
-            if (tags.ContainsKey("bicycle"))
+            var bicycle = string.Empty;
+            if (tags.TryGetValue("bicycle", out bicycle))
             {
-                if (tags["bicycle"] == "designated")
+                if (bicycle == "designated")
                 {
                     return true; // designated bicycle
                 }
-                if (tags["bicycle"] == "yes")
+                if (bicycle == "yes")
                 {
                     return true; // yes for bicycle
                 }
-                if (tags["bicycle"] == "no")
+                if (bicycle == "no")
                 {
                     return false; //  no for bicycle
                 }
             }
             if (highwayType == "steps")
             {
-                if(tags.ContainsKeyValue("ramp", "yes"))
+                if (tags.Contains("ramp", "yes"))
                 {
                     return true;
                 }
@@ -92,9 +88,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// 
         /// This does not take into account how fast this vehicle can go just the max possible speed.
         /// </summary>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeedAllowed(string highwayType)
+        public override float MaxSpeedAllowed(string highwayType)
         {
             switch (highwayType)
             {
@@ -109,28 +103,26 @@ namespace OsmSharp.Routing.Osm.Vehicles
                     return this.MaxSpeed();
                 case "track":
                 case "road":
-                    return 30;
+                    return 30f;
                 case "residential":
                 case "unclassified":
-                    return 50;
+                    return 50f;
                 case "motorway":
                 case "motorway_link":
-                    return 120;
+                    return 120f;
                 case "trunk":
                 case "trunk_link":
                 case "primary":
                 case "primary_link":
-                    return 90;
+                    return 90f;
                 default:
-                    return 70;
+                    return 70f;
             }
         }
 
         /// <summary>
-        /// Ret
+        /// Returns true if the given key is relevant for this profile.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public override bool IsRelevantForProfile(string key)
         {
             if(base.IsRelevantForProfile(key))
@@ -143,9 +135,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the edge is one way forward, false if backward, null if bidirectional.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        public override bool? IsOneWay(TagsCollectionBase tags)
+        public override bool? IsOneWay(IAttributeCollection tags)
         {
             return null;
         }
@@ -153,8 +143,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the maximum possible speed this vehicle can achieve.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeed()
+        public override float MaxSpeed()
         {
             return 15;
         }
@@ -162,8 +151,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the minimum speed.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MinSpeed()
+        public override float MinSpeed()
         {
             return 3;
         }
@@ -179,7 +167,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets all profiles for this vehicle.
         /// </summary>
-        /// <returns></returns>
         public override Profile[] GetProfiles()
         {
             return new Profile[]
@@ -193,7 +180,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns a profile specifically for bicycle that tries to balance between bicycle infrastructure and fastest route.
         /// </summary>
-        /// <returns></returns>
         public Routing.Profiles.Profile Balanced()
         {
             return new Profiles.BicycleBalanced(this);

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.PriorityQueues;
+using OsmSharp.Routing.Algorithms.PriorityQueues;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
 using System.Collections.Generic;
@@ -49,8 +49,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
             _heap = new BinaryHeap<SettledVertex>();
             _maxSettles = maxSettles;
         }
-
-
+        
         private int _hopLimit;
         private int _maxSettles;
 
@@ -336,11 +335,6 @@ namespace OsmSharp.Routing.Algorithms.Contracted.Witness
             /// <summary>
             /// Creates a new settled vertex.
             /// </summary>
-            /// <param name="vertex"></param>
-            /// <param name="weight"></param>
-            /// <param name="hops"></param>
-            /// <param name="forward"></param>
-            /// <param name="backward"></param>
             public SettledVertex(uint vertex, float weight, uint hops, bool forward, bool backward)
             {
                 this.VertexId = vertex;

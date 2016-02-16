@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,9 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Geo;
-using OsmSharp.Math.Geo;
-using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric;
 using System;
 using System.Collections.Generic;
@@ -343,29 +341,29 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 0, 1);
             graph.AddVertex(3, 0, 2);
-            graph.AddEdge(0, 1, new uint[] { 0, 10 }, new GeoCoordinate(0.25, 0.25),
-                    new GeoCoordinate(0.5, 0.5),
-                    new GeoCoordinate(0.75, 0.75));
-            graph.AddEdge(1, 2, new uint[] { 10, 20 }, new GeoCoordinate(0.75, 1),
-                new GeoCoordinate(0.5, 1),
-                new GeoCoordinate(0.25, 1));
-            graph.AddEdge(2, 3, new uint[] { 20, 30 }, new GeoCoordinate(0, 1.25),
-                new GeoCoordinate(0, 1.5),
-                new GeoCoordinate(0, 1.75));
+            graph.AddEdge(0, 1, new uint[] { 0, 10 }, new Coordinate(0.25f, 0.25f),
+                    new Coordinate(0.5f, 0.5f),
+                    new Coordinate(0.75f, 0.75f));
+            graph.AddEdge(1, 2, new uint[] { 10, 20 }, new Coordinate(0.75f, 1),
+                new Coordinate(0.5f, 1),
+                new Coordinate(0.25f, 1));
+            graph.AddEdge(2, 3, new uint[] { 20, 30 }, new Coordinate(0, 1.25f),
+                new Coordinate(0, 1.5f),
+                new Coordinate(0, 1.75f));
 
             // verify all edges.
             var edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(1, edges.First().To);
             Assert.IsNotNull(edges.First().Shape);
-            var shape = new List<ICoordinate>(edges.First().Shape);
+            var shape = new List<Coordinate>(edges.First().Shape);
             Assert.AreEqual(0.25, shape[0].Latitude);
             Assert.AreEqual(0.25, shape[0].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
             Assert.AreEqual(0.5, shape[1].Longitude);
             Assert.AreEqual(0.75, shape[2].Latitude);
             Assert.AreEqual(0.75, shape[2].Longitude);
-            shape = new List<ICoordinate>(edges.First().Shape.Reverse());
+            shape = new List<Coordinate>(edges.First().Shape.Reverse());
             Assert.AreEqual(0.25, shape[2].Latitude);
             Assert.AreEqual(0.25, shape[2].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
@@ -374,28 +372,28 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             Assert.AreEqual(0.75, shape[0].Longitude);
 
             edges = graph.GetEdgeEnumerator(1);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 0).Shape);
+            shape = new List<Coordinate>(edges.First(x => x.To == 0).Shape);
             Assert.AreEqual(0.25, shape[0].Latitude);
             Assert.AreEqual(0.25, shape[0].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
             Assert.AreEqual(0.5, shape[1].Longitude);
             Assert.AreEqual(0.75, shape[2].Latitude);
             Assert.AreEqual(0.75, shape[2].Longitude);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 0).Shape.Reverse());
+            shape = new List<Coordinate>(edges.First(x => x.To == 0).Shape.Reverse());
             Assert.AreEqual(0.25, shape[2].Latitude);
             Assert.AreEqual(0.25, shape[2].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
             Assert.AreEqual(0.5, shape[1].Longitude);
             Assert.AreEqual(0.75, shape[0].Latitude);
             Assert.AreEqual(0.75, shape[0].Longitude);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 2).Shape);
+            shape = new List<Coordinate>(edges.First(x => x.To == 2).Shape);
             Assert.AreEqual(0.75, shape[0].Latitude);
             Assert.AreEqual(1, shape[0].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
             Assert.AreEqual(1, shape[1].Longitude);
             Assert.AreEqual(0.25, shape[2].Latitude);
             Assert.AreEqual(1, shape[2].Longitude);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 2).Shape.Reverse());
+            shape = new List<Coordinate>(edges.First(x => x.To == 2).Shape.Reverse());
             Assert.AreEqual(0.75, shape[2].Latitude);
             Assert.AreEqual(1, shape[2].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
@@ -404,28 +402,28 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             Assert.AreEqual(1, shape[0].Longitude);
 
             edges = graph.GetEdgeEnumerator(2);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 1).Shape);
+            shape = new List<Coordinate>(edges.First(x => x.To == 1).Shape);
             Assert.AreEqual(0.75, shape[0].Latitude);
             Assert.AreEqual(1, shape[0].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
             Assert.AreEqual(1, shape[1].Longitude);
             Assert.AreEqual(0.25, shape[2].Latitude);
             Assert.AreEqual(1, shape[2].Longitude);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 1).Shape.Reverse());
+            shape = new List<Coordinate>(edges.First(x => x.To == 1).Shape.Reverse());
             Assert.AreEqual(0.75, shape[2].Latitude);
             Assert.AreEqual(1, shape[2].Longitude);
             Assert.AreEqual(0.5, shape[1].Latitude);
             Assert.AreEqual(1, shape[1].Longitude);
             Assert.AreEqual(0.25, shape[0].Latitude);
             Assert.AreEqual(1, shape[0].Longitude);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 3).Shape);
+            shape = new List<Coordinate>(edges.First(x => x.To == 3).Shape);
             Assert.AreEqual(0, shape[0].Latitude);
             Assert.AreEqual(1.25, shape[0].Longitude);
             Assert.AreEqual(0, shape[1].Latitude);
             Assert.AreEqual(1.5, shape[1].Longitude);
             Assert.AreEqual(0, shape[2].Latitude);
             Assert.AreEqual(1.75, shape[2].Longitude);
-            shape = new List<ICoordinate>(edges.First(x => x.To == 3).Shape.Reverse());
+            shape = new List<Coordinate>(edges.First(x => x.To == 3).Shape.Reverse());
             Assert.AreEqual(0, shape[2].Latitude);
             Assert.AreEqual(1.25, shape[2].Longitude);
             Assert.AreEqual(0, shape[1].Latitude);
@@ -434,14 +432,14 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             Assert.AreEqual(1.75, shape[0].Longitude);
 
             edges = graph.GetEdgeEnumerator(3);
-            shape = new List<ICoordinate>(edges.First().Shape);
+            shape = new List<Coordinate>(edges.First().Shape);
             Assert.AreEqual(0, shape[0].Latitude);
             Assert.AreEqual(1.25, shape[0].Longitude);
             Assert.AreEqual(0, shape[1].Latitude);
             Assert.AreEqual(1.5, shape[1].Longitude);
             Assert.AreEqual(0, shape[2].Latitude);
             Assert.AreEqual(1.75, shape[2].Longitude);
-            shape = new List<ICoordinate>(edges.First().Shape.Reverse());
+            shape = new List<Coordinate>(edges.First().Shape.Reverse());
             Assert.AreEqual(0, shape[2].Latitude);
             Assert.AreEqual(1.25, shape[2].Longitude);
             Assert.AreEqual(0, shape[1].Latitude);
@@ -462,9 +460,9 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
             graph.AddVertex(2, 0, 1);
             graph.AddVertex(3, 0, 2);
             var edge1 = graph.AddEdge(0, 1, new uint[] { 0, 10 }, 
-                    new GeoCoordinate(0.25, 0.25),
-                    new GeoCoordinate(0.5, 0.5),
-                    new GeoCoordinate(0.75, 0.75));
+                    new Coordinate(0.25f, 0.25f),
+                    new Coordinate(0.50f, 0.50f),
+                    new Coordinate(0.75f, 0.75f));
 
             var shape = graph.GetShape(graph.GetEdge(edge1));
             Assert.IsNotNull(shape);
@@ -792,7 +790,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric
 
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 0, 0);
-            var edgeId = graph.AddEdge(0, 1, new uint[] { 10 }, new GeoCoordinateSimple()
+            var edgeId = graph.AddEdge(0, 1, new uint[] { 10 }, new Coordinate()
                     {
                         Latitude = 1,
                         Longitude = 1

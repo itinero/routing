@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,12 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Geo;
-using OsmSharp.Geo.Attributes;
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
@@ -36,10 +31,9 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Gets the first point on the given edge starting a the given vertex.
         /// </summary>
-        /// <returns></returns>
-        public static ICoordinate GetFirstPoint(this RoutingNetwork graph, RoutingEdge edge, uint vertex)
+        public static Coordinate GetFirstPoint(this RoutingNetwork graph, RoutingEdge edge, uint vertex)
         {
-            var points = new List<ICoordinate>();
+            var points = new List<Coordinate>();
             if (edge.From == vertex)
             { // start at from.
                 if (edge.Shape == null)
@@ -67,7 +61,6 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Gets the vertex on this edge that is not the given vertex.
         /// </summary>
-        /// <returns></returns>
         public static uint GetOther(this RoutingEdge edge, uint vertex)
         {
             if(edge.From == vertex)
@@ -85,10 +78,9 @@ namespace OsmSharp.Routing.Network
         /// <summary>
         /// Gets the shape points including the two vertices.
         /// </summary>
-        /// <returns></returns>
-        public static List<ICoordinate> GetShape(this RoutingNetwork graph, RoutingEdge edge)
+        public static List<Coordinate> GetShape(this RoutingNetwork graph, RoutingEdge edge)
         {
-            var points = new List<ICoordinate>();
+            var points = new List<Coordinate>();
             points.Add(graph.GetVertex(edge.From));
             var shape = edge.Shape;
             if (shape != null)
@@ -109,85 +101,8 @@ namespace OsmSharp.Routing.Network
         }
 
         /// <summary>
-        /// Gets all features.
-        /// </summary>
-        /// <returns></returns>
-        public static FeatureCollection GetFeatures(this RoutingNetwork network)
-        {
-            return network.GetFeaturesIn(float.MinValue, float.MinValue, float.MaxValue, float.MaxValue);
-        }
-
-        /// <summary>
-        /// Gets all features inside the given bounding box.
-        /// </summary>
-        /// <returns></returns>
-        public static FeatureCollection GetFeaturesIn(this RoutingNetwork network, float minLatitude, float minLongitude,
-            float maxLatitude, float maxLongitude)
-        {
-            var features = new FeatureCollection();
-
-            var vertices = OsmSharp.Routing.Algorithms.Search.Hilbert.Search(network.GeometricGraph, minLatitude, minLongitude,
-                maxLatitude, maxLongitude);
-            var edges = new HashSet<long>();
-
-            var edgeEnumerator = network.GetEdgeEnumerator();
-            foreach (var vertex in vertices)
-            {
-                var vertexLocation = network.GeometricGraph.GetVertex(vertex);
-                features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
-                    new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
-                edgeEnumerator.MoveTo(vertex);
-                edgeEnumerator.Reset();
-                while (edgeEnumerator.MoveNext())
-                {
-                    if (edges.Contains(edgeEnumerator.Id))
-                    {
-                        continue;
-                    }
-                    edges.Add(edgeEnumerator.Id);
-
-                    var shape = network.GetShape(edgeEnumerator.Current);
-                    var coordinates = new List<GeoCoordinate>();
-                    foreach (var shapePoint in shape)
-                    {
-                        coordinates.Add(new GeoCoordinate(shapePoint.Latitude, shapePoint.Longitude));
-                    }
-                    var geometry = new LineString(coordinates);
-
-                    features.Add(new Feature(geometry,
-                        new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", edgeEnumerator.Id.ToInvariantString()) })));
-                }
-            }
-
-            return features;
-        }
-
-        /// <summary>
-        /// Gets features for all the given vertices.
-        /// </summary>
-        /// <returns></returns>
-        public static FeatureCollection GetFeaturesFor(this RoutingNetwork network, List<uint> vertices)
-        {
-            var features = new FeatureCollection();
-
-            foreach (var vertex in vertices)
-            {
-                float latitude1, longitude1;
-                if(network.GeometricGraph.GetVertex(vertex, out latitude1, out longitude1))
-                {
-                    var vertexLocation = new GeoCoordinate(latitude1, longitude1);
-                    features.Add(new Feature(new Point(new GeoCoordinate(vertexLocation.Latitude, vertexLocation.Longitude)),
-                        new SimpleGeometryAttributeCollection(new Tag[] { Tag.Create("id", vertex.ToInvariantString()) })));
-                }
-            }
-
-            return features;
-        }
-
-        /// <summary>
         /// Returns true if the routing network contains an edge between the two given vertices.
         /// </summary>
-        /// <returns></returns>
         public static bool ContainsEdge(this RoutingNetwork network, uint vertex1, uint vertex2)
         {
             var edges = network.GetEdgeEnumerator(vertex1);
@@ -205,7 +120,7 @@ namespace OsmSharp.Routing.Network
         /// Adds a new edge.
         /// </summary>
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
-            params ICoordinate[] shape)
+            params Coordinate[] shape)
         {
             return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
             {
@@ -219,7 +134,7 @@ namespace OsmSharp.Routing.Network
         /// Adds a new edge.
         /// </summary>
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
-            params ICoordinate[] shape)
+            params Coordinate[] shape)
         {
             return network.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
         }
@@ -228,7 +143,7 @@ namespace OsmSharp.Routing.Network
         /// Adds a new edge.
         /// </summary>
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
-            IEnumerable<ICoordinate> shape)
+            IEnumerable<Coordinate> shape)
         {
             if(shape == null)
             {
@@ -241,7 +156,7 @@ namespace OsmSharp.Routing.Network
         /// Adds a new edge.
         /// </summary>
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
-            IEnumerable<ICoordinate> shape)
+            IEnumerable<Coordinate> shape)
         {
             return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
             {

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,15 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric.Shapes;
-using Reminiscence;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
-using System.IO;
 
 namespace OsmSharp.Routing.Graphs.Geometric
 {
@@ -147,13 +145,12 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Gets the given vertex.
         /// </summary>
-        /// <returns></returns>
-        public GeoCoordinateSimple GetVertex(uint vertex)
+        public Coordinate GetVertex(uint vertex)
         {
             if (vertex >= _coordinates.Length) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
             if (_coordinates[vertex].Equals(NO_COORDINATE)) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
 
-            return new GeoCoordinateSimple()
+            return new Coordinate()
             {
                 Latitude = _coordinates[vertex * 2],
                 Longitude = _coordinates[vertex * 2 + 1]
@@ -163,15 +160,14 @@ namespace OsmSharp.Routing.Graphs.Geometric
         /// <summary>
         /// Gets the given vertex.
         /// </summary>
-        /// <returns></returns>
         public bool GetVertex(uint vertex, out float latitude, out float longitude)
         {
             if (vertex * 2 + 1 < _coordinates.Length)
-            { // vertex exists.
+            {
                 latitude = _coordinates[vertex * 2];
                 longitude = _coordinates[vertex * 2 + 1];
                 if (!latitude.Equals(NO_COORDINATE))
-                { // there is a coordinate set.
+                {
                     return true;
                 }
             }
@@ -186,7 +182,7 @@ namespace OsmSharp.Routing.Graphs.Geometric
         public bool RemoveVertex(uint vertex)
         {
             if (_graph.RemoveVertex(vertex))
-            { // removes the vertex.
+            {
                 _coordinates[vertex * 2] = NO_COORDINATE;
                 _coordinates[vertex * 2 + 1] = NO_COORDINATE;
                 return true;

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Attributes
@@ -27,19 +26,19 @@ namespace OsmSharp.Routing.Attributes
     public static class AttributesIndexExtensions
     {
         /// <summary>
-        /// Adds a new tag collection.
+        /// Adds a new attributes collection.
         /// </summary>
-        public static uint Add(this AttributesIndex index, IEnumerable<Tag> tags)
+        public static uint Add(this AttributesIndex index, IEnumerable<Attribute> attributes)
         {
-            return index.Add(new TagsCollection(tags));
+            return index.Add(new AttributeCollection(attributes));
         }
 
         /// <summary>
         /// Adds a new tag collection.
         /// </summary>
-        public static uint Add(this AttributesIndex index, params Tag[] tags)
+        public static uint Add(this AttributesIndex index, params Attribute[] attributes)
         {
-            return index.Add(new TagsCollection(tags));
+            return index.Add(new AttributeCollection(attributes));
         }
     }
 }

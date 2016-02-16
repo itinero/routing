@@ -22,7 +22,7 @@ using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using System.Linq;
 using System.Collections.Generic;
-using OsmSharp.Geo;
+using OsmSharp.Routing.Geo;
 
 namespace OsmSharp.Routing.Test.Algorithms.Networks
 {
@@ -138,8 +138,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(0, 1, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5));
-            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5));
+            graph.AddEdge(0, 1, new EdgeData() { Profile = 1 }, new Coordinate(0.5f, 0.5f));
+            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new Coordinate(1.5f, 1.5f));
 
             // execute algorithm.
             var algorithm = new NetworkOptimizer(graph, MergeDelegate);
@@ -149,7 +149,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             var edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(1, edges.First().Data.Profile);
-            var shape = new List<ICoordinate>(edges.Shape);
+            var shape = new List<Coordinate>(edges.Shape);
             Assert.AreEqual(3, shape.Count);
             Assert.AreEqual(0.5, shape[0].Latitude);
             Assert.AreEqual(0.5, shape[0].Longitude);
@@ -163,8 +163,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5));
-            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5));
+            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new Coordinate(0.5f, 0.5f));
+            graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new Coordinate(1.5f, 1.5f));
 
             // execute algorithm.
             algorithm = new NetworkOptimizer(graph, MergeDelegate);
@@ -174,7 +174,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             edges = graph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(1, edges.First().Data.Profile);
-            shape = new List<ICoordinate>(edges.Shape);
+            shape = new List<Coordinate>(edges.Shape);
             Assert.AreEqual(3, shape.Count);
             Assert.AreEqual(0.5, shape[0].Latitude);
             Assert.AreEqual(0.5, shape[0].Longitude);
@@ -188,8 +188,8 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 1, 1);
             graph.AddVertex(2, 2, 2);
-            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(0.5, 0.5));
-            graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, new OsmSharp.Math.Geo.GeoCoordinate(1.5, 1.5));
+            graph.AddEdge(1, 0, new EdgeData() { Profile = 1 }, new Coordinate(0.5f, 0.5f));
+            graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, new Coordinate(1.5f, 1.5f));
 
             // execute algorithm.
             algorithm = new NetworkOptimizer(graph, MergeDelegate);
@@ -200,7 +200,7 @@ namespace OsmSharp.Routing.Test.Algorithms.Networks
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(1, edges.First().Data.Profile);
             Assert.AreEqual(true, edges.First().DataInverted);
-            shape = new List<ICoordinate>(edges.Shape);
+            shape = new List<Coordinate>(edges.Shape);
             Assert.AreEqual(3, shape.Count);
             Assert.AreEqual(1.5, shape[0].Latitude);
             Assert.AreEqual(1.5, shape[0].Longitude);

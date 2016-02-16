@@ -17,7 +17,7 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Math.Geo.Simple;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Network.Data;
 using System;
@@ -615,7 +615,7 @@ namespace OsmSharp.Routing.Test.Network
             var graph = new RoutingNetwork(new OsmSharp.Routing.Graphs.Geometric.GeometricGraph(1, 100));
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 0, 0);
-            graph.AddEdge(0, 1, 10, 100, 1000, new GeoCoordinateSimple()
+            graph.AddEdge(0, 1, 10, 100, 1000, new Coordinate()
                     {
                         Latitude = 1,
                         Longitude = 1
@@ -641,12 +641,12 @@ namespace OsmSharp.Routing.Test.Network
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 0.1f, 0.1f);
             graph.AddVertex(2, 0.2f, 0.2f);
-            graph.AddEdge(0, 1, 10, 100, 1000, new GeoCoordinateSimple()
+            graph.AddEdge(0, 1, 10, 100, 1000, new Coordinate()
                     {
                         Latitude = 0.05f,
                         Longitude = 0.05f
                     });
-            graph.AddEdge(1, 2, 20, 200, 2000, new GeoCoordinateSimple()
+            graph.AddEdge(1, 2, 20, 200, 2000, new Coordinate()
                     {
                         Latitude = 0.15f,
                         Longitude = 0.15f
@@ -682,26 +682,26 @@ namespace OsmSharp.Routing.Test.Network
             graph.AddVertex(0, 0, 0);
             graph.AddVertex(1, 0.1f, 0.1f);
             graph.AddVertex(2, 0.2f, 0.2f);
-            graph.AddEdge(0, 1, 10, 100, 1000, new GeoCoordinateSimple()
+            graph.AddEdge(0, 1, 10, 100, 1000, new Coordinate()
             {
                 Latitude = 0.05f,
                 Longitude = 0.05f
             });
-            graph.AddEdge(1, 2, 20, 200, 2000, new GeoCoordinateSimple()
+            graph.AddEdge(1, 2, 20, 200, 2000, new Coordinate()
             {
                 Latitude = 0.15f,
                 Longitude = 0.15f
             });
             graph.RemoveEdges(1);
-            graph.AddEdge(0, 2, 30, 300, 3000, new GeoCoordinateSimple()
+            graph.AddEdge(0, 2, 30, 300, 3000, new Coordinate()
             {
                 Latitude = 0.05f,
                 Longitude = 0.05f
-            }, new GeoCoordinateSimple()
+            }, new Coordinate()
             {
                 Latitude = 0.1f,
                 Longitude = 0.1f
-            }, new GeoCoordinateSimple()
+            }, new Coordinate()
             {
                 Latitude = 0.15f,
                 Longitude = 0.15f

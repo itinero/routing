@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -34,9 +34,9 @@ namespace OsmSharp.Routing.Navigation
         public string Text { get; set; }
 
         /// <summary>
-        /// Gets or sets the id of the original segment.
+        /// Gets or sets the shape index.
         /// </summary>
-        public int Segment { get; set; }
+        public int Shape { get; set; }
 
         /// <summary>
         /// Converts the instruction to a string.

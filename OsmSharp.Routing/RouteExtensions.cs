@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,21 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Geo;
-using OsmSharp.Geo.Attributes;
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Math.Geo;
-using OsmSharp.Math.Geo.Meta;
-using OsmSharp.Math.Geo.Simple;
-using OsmSharp.Routing.Algorithms.Routes;
-using OsmSharp.Routing.Network;
-using OsmSharp.Routing.Profiles;
-using OsmSharp.Units.Distance;
-using OsmSharp.Units.Time;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
+using OsmSharp.Routing.Navigation.Directions;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -40,179 +29,10 @@ namespace OsmSharp.Routing
     /// Contains extensions for the route object.
     /// </summary>
     public static class RouteExtensions
-    {
-        #region Save / Load
-
-        /// <summary>
-        /// Saves a serialized version to a stream.
-        /// </summary>
-        public static void Save(this Route route, Stream stream)
-        {
-            var ser = new XmlSerializer(typeof(Route));
-            ser.Serialize(stream, route);
-            stream.Flush();
-        }
-
-        /// <summary>
-        /// Saves the route as a byte stream.
-        /// </summary>
-        /// <returns></returns>
-        public static byte[] SaveToByteArray(this Route route)
-        {
-            using (var memoryStream = new MemoryStream())
-            {
-                route.Save(memoryStream);
-                return memoryStream.ToArray();
-            }
-        }
-
-        /// <summary>
-        /// Reads a route from a data stream.
-        /// </summary>
-        /// <returns></returns>
-        public static Route Load(Stream stream)
-        {
-            var ser = new XmlSerializer(typeof(Route));
-            return ser.Deserialize(stream) as Route;
-        }
-
-        /// <summary>
-        /// Parses a route from a byte array.
-        /// </summary>
-        /// <returns></returns>
-        public static Route Load(byte[] bytes)
-        {
-            using (var memoryStream = new MemoryStream(bytes))
-            {
-                var serializer = new XmlSerializer(typeof(Route));
-                return (serializer.Deserialize(memoryStream) as Route);
-            }
-        }
-
-        /// <summary>
-        /// Save the route as GeoJson.
-        /// </summary>
-        public static void SaveAsGeoJson(this Route route, Stream stream)
-        {
-            var streamWriter = new StreamWriter(stream);
-            streamWriter.Write(route.ToGeoJson());
-            streamWriter.Flush();
-        }
-
-        /// <summary>
-        /// Saves the route as Gpx.
-        /// </summary>
-        public static void SaveAsGpx(this Route route, Stream stream)
-        {
-            IO.Gpx.RouteGpx.Save(stream, route);
-        }
-
-        /// <summary>
-        /// Returns this route in GeoJson.
-        /// </summary>
-        /// <returns></returns>
-        public static string ToGeoJson(this Route route)
-        {
-            return OsmSharp.Geo.Streams.GeoJson.GeoJsonConverter.ToGeoJson(route.ToFeatureCollection());
-        }
-
-        /// <summary>
-        /// Converts this route to a linestring.
-        /// </summary>
-        /// <returns></returns>
-        public static LineString ToLineString(this Route route)
-        {
-            var coordinates = new List<GeoCoordinate>();
-            for (int i = 0; i < route.Segments.Count; i++)
-            {
-                coordinates.Add(new GeoCoordinate(route.Segments[i].Latitude,
-                    route.Segments[i].Longitude));
-            }
-            return new LineString(coordinates);
-        }
-
-        /// <summary>
-        /// Converts this route to a feature collection.
-        /// </summary>
-        public static FeatureCollection ToFeatureCollection(this Route route)
-        {
-            var featureCollection = new FeatureCollection();
-            if (route.Segments == null)
-            {
-                return featureCollection;
-            }
-            for (int i = 0; i < route.Segments.Count; i++)
-            {
-                // create a line string for the current segment.
-                if (i > 0)
-                { // but only do so when there is a previous point available.
-                    var segmentLineString = new LineString(
-                        new GeoCoordinate(route.Segments[i - 1].Latitude, route.Segments[i - 1].Longitude),
-                        new GeoCoordinate(route.Segments[i].Latitude, route.Segments[i].Longitude));
-
-                    var segmentTags = route.Segments[i].Tags;
-                    var attributesTable = new SimpleGeometryAttributeCollection();
-                    if (segmentTags != null)
-                    { // there are tags.
-                        foreach (var tag in segmentTags)
-                        {
-                            attributesTable.Add(tag.Key, tag.Value);
-                        }
-                    }
-                    attributesTable.Add("time", route.Segments[i].Time);
-                    attributesTable.Add("distance", route.Segments[i].Distance);
-                    attributesTable.Add("profile", route.Segments[i].Profile);
-                    featureCollection.Add(new Feature(segmentLineString, attributesTable));
-                }
-
-                // create points.
-                if (route.Segments[i].Points != null)
-                {
-                    foreach (var point in route.Segments[i].Points)
-                    {
-                        // build attributes.
-                        var currentPointTags = point.Tags;
-                        var attributesTable = new SimpleGeometryAttributeCollection();
-                        if (currentPointTags != null)
-                        { // there are tags.
-                            foreach (var tag in currentPointTags)
-                            {
-                                attributesTable.Add(tag.Key, tag.Value);
-                            }
-                        }
-
-                        // build feature.
-                        var pointGeometry = new Point(new GeoCoordinate(point.Latitude, point.Longitude));
-                        featureCollection.Add(new Feature(pointGeometry, attributesTable));
-                    }
-                }
-            }
-            return featureCollection;
-        }
-
-        /// <summary>
-        /// Converts this route an aggregated feature collection.
-        /// </summary>
-
-        public static FeatureCollection ToFeatureCollection(this Route route, Func<RouteSegment, RouteSegment, RouteSegment> aggregator)
-        {
-            var algorithm = new RouteSegmentAggregator(route, aggregator);
-            algorithm.Run();
-
-            if (algorithm.HasRun &&
-                algorithm.HasSucceeded)
-            {
-                return algorithm.Features;
-            }
-            return new FeatureCollection();
-        }
-
-        #endregion
-
+    {        
         /// <summary>
         /// Concatenates two routes.
         /// </summary>
-        /// <returns></returns>
         public static Route Concatenate(this Route route1, Route route2)
         {
             return route1.Concatenate(route2, true);
@@ -221,149 +41,168 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Concatenates two routes.
         /// </summary>
-        /// <returns></returns>
         public static Route Concatenate(this Route route1, Route route2, bool clone)
         {
             if (route1 == null) return route2;
             if (route2 == null) return route1;
-            if (route1.Segments.Count == 0) return route2;
-            if (route2.Segments.Count == 0) return route1;
+            if (route1.Shape == null || route1.Shape.Length == 0) return route2;
+            if (route2.Shape == null || route2.Shape.Length == 0) return route1;
 
-            // get the end/start point.
-            var end = route1.Segments[route1.Segments.Count - 1];
-            var endTime = end.Time;
-            var endDistance = end.Distance;
-            var start = route2.Segments[0];
+            var timeoffset = route1.TotalTime;
+            var distanceoffset = route1.TotalDistance;
+            var shapeoffset = route1.Shape.Length - 1;
 
-            // only do all this if the routes are 'concatenable'.
-            if (System.Math.Abs(end.Latitude - start.Latitude) < 0.001 &&
-                System.Math.Abs(end.Longitude - start.Longitude) < 0.001)
+            // merge shape.
+            var shapeLength = route1.Shape.Length + route2.Shape.Length - 1;
+            var shape = new Coordinate[route1.Shape.Length + route2.Shape.Length - 1];
+            route1.Shape.CopyTo(shape, 0);
+            route2.Shape.CopyTo(shape, route1.Shape.Length - 1);
+
+            // merge metas.
+            var metas1 = route1.ShapeMeta != null ? route1.ShapeMeta.Length : 0;
+            var metas2 = route2.ShapeMeta != null ? route2.ShapeMeta.Length : 0;
+            var metas = new Route.Meta[metas1 + metas2 - 1];
+            if (metas1 + metas2 - 1 > 0)
             {
-                // construct the new route.
-                var route = new Route();
-
-                // concatenate points.
-                var entries = new List<RouteSegment>();
-                for (var idx = 0; idx < route1.Segments.Count - 1; idx++)
+                if (route1.ShapeMeta != null)
                 {
-                    if (clone)
+                    for (var i = 0; i < route1.ShapeMeta.Length; i++)
                     {
-                        entries.Add(route1.Segments[idx].Clone() as RouteSegment);
-                    }
-                    else
-                    {
-                        entries.Add(route1.Segments[idx]);
-                    }
-                }
-
-                // merge last and first entry.
-                var mergedEntry = route1.Segments[route1.Segments.Count - 1].Clone() as RouteSegment;
-                if (route2.Segments[0].Points != null && route2.Segments[0].Points.Length > 0)
-                { // merge in important points from the second route too but do not keep duplicates.
-                    var points = new List<RouteStop>();
-                    if (mergedEntry.Points != null)
-                    { // keep originals.
-                        points.AddRange(mergedEntry.Points);
-                    }
-                    for (int otherIdx = 0; otherIdx < route2.Segments[0].Points.Length; otherIdx++)
-                    { // remove duplicates.
-                        bool found = false;
-                        for (int idx = 0; idx < points.Count; idx++)
+                        metas[i] = new Route.Meta()
                         {
-                            if (points[idx].RepresentsSame(
-                                route2.Segments[0].Points[otherIdx]))
-                            { // the points represent the same info!
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (!found)
-                        { // the point was not in there yet!
-                            points.Add(route2.Segments[0].Points[otherIdx]);
-                        }
+                            Attributes = new AttributeCollection(route1.ShapeMeta[i].Attributes),
+                            Shape = route1.ShapeMeta[i].Shape
+                        };
                     }
-                    mergedEntry.Points = points.ToArray();
                 }
-                entries.Add(mergedEntry);
-
-                // add points of the next route.
-                for (var idx = 1; idx < route2.Segments.Count; idx++)
+                if (route2.ShapeMeta != null)
                 {
-                    if (clone)
+                    for (var i = 1; i < route2.ShapeMeta.Length; i++)
                     {
-                        entries.Add(route2.Segments[idx].Clone() as RouteSegment);
+                        metas[metas1 + i - 1] = new Route.Meta()
+                        {
+                            Attributes = new AttributeCollection(route2.ShapeMeta[i].Attributes),
+                            Shape = route2.ShapeMeta[i].Shape + shapeoffset,
+                            Distance = route2.ShapeMeta[i].Distance + distanceoffset,
+                            Time = route2.ShapeMeta[i].Time + timeoffset
+                        };
                     }
-                    else
-                    {
-                        entries.Add(route2.Segments[idx]);
-                    }
-                    entries[entries.Count - 1].Distance = entries[entries.Count - 1].Distance + endDistance;
-                    entries[entries.Count - 1].Time = entries[entries.Count - 1].Time + endTime;
                 }
-                route.Segments = entries;
+            }
 
-                // concatenate tags.
-                var tags = new List<RouteTags>((route1.Tags == null ? 0 : route1.Tags.Count) +
-                    (route2.Tags == null ? 0 : route2.Tags.Count));
-                if (route1.Tags != null) { tags.AddRange(route1.Tags); }
-                if (route2.Tags != null) { tags.AddRange(route2.Tags); }
-                route.Tags = tags;
-
-                if (route.Segments != null && route.Segments.Count > 0)
+            // merge stops.
+            var stops1 = route1.Stops != null ? route1.Stops.Length : 0;
+            var stops2 = route2.Stops != null ? route2.Stops.Length : 0;
+            var stops = new Route.Stop[stops1 + stops2];
+            if (stops1 + stops2 > 0)
+            {
+                if (route1.Stops != null)
                 {
-                    route.TotalDistance = route.Segments[route.Segments.Count - 1].Distance;
-                    route.TotalTime = route.Segments[route.Segments.Count - 1].Time;
+                    for (var i = 0; i < route1.Stops.Length; i++)
+                    {
+                        var stop = route1.Stops[i];
+                        stops[i] = new Route.Stop()
+                        {
+                            Attributes = new AttributeCollection(stop.Attributes),
+                            Coordinate = stop.Coordinate,
+                            Shape = stop.Shape
+                        };
+                    }
                 }
-
-                return route;
+                if (route2.Stops != null)
+                {
+                    for (var i = 0; i < route2.Stops.Length; i++)
+                    {
+                        var stop = route2.Stops[i];
+                        stops[stops1 + i] = new Route.Stop()
+                        {
+                            Attributes = new AttributeCollection(stop.Attributes),
+                            Coordinate = stop.Coordinate,
+                            Shape = stop.Shape + shapeoffset
+                        };
+                    }
+                }
             }
-            else
+
+            // merge branches.
+            var branches1 = route1.Branches != null ? route1.Branches.Length : 0;
+            var branches2 = route2.Branches != null ? route2.Branches.Length : 0;
+            var branches = new Route.Branch[branches1 + branches2];
+            if (branches1 + branches2 > 0)
             {
-                throw new ArgumentOutOfRangeException("Contatenation of routes can only be done when the end point of the first route equals the start of the second.");
+                if (route1.Branches != null)
+                {
+                    for (var i = 0; i < route1.Branches.Length; i++)
+                    {
+                        var branch = route1.Branches[i];
+                        branches[i] = new Route.Branch()
+                        {
+                            Attributes = new AttributeCollection(branch.Attributes),
+                            Coordinate = branch.Coordinate,
+                            Shape = branch.Shape
+                        };
+                    }
+                }
+                if (route2.Branches != null)
+                {
+                    for (var i = 0; i < route2.Branches.Length; i++)
+                    {
+                        var branch = route2.Branches[i];
+                        branches[branches1 + i] = new Route.Branch()
+                        {
+                            Attributes = new AttributeCollection(branch.Attributes),
+                            Coordinate = branch.Coordinate,
+                            Shape = branch.Shape + shapeoffset
+                        };
+                    }
+                }
             }
-        }
 
-        /// <summary>
-        /// Returns the bounding box around this route.
-        /// </summary>
-        /// <returns></returns>
-        public static GeoCoordinateBox GetBox(this Route route)
-        {
-            return new GeoCoordinateBox(route.GetPoints().ToArray());
-        }
-
-        /// <summary>
-        /// Returns the points along the route for the entire route in the correct order.
-        /// </summary>
-        /// <returns></returns>
-        public static List<GeoCoordinate> GetPoints(this Route route)
-        {
-            var coordinates = new List<GeoCoordinate>(route.Segments.Count);
-            for (int p = 0; p < route.Segments.Count; p++)
+            // merge attributes.
+            var attributes = new AttributeCollection(route1.Attributes);
+            attributes.AddOrReplace(route2.Attributes);
+            var profile = route1.Profile;
+            if (route2.Profile != profile)
             {
-                coordinates.Add(new GeoCoordinate(route.Segments[p].Latitude, route.Segments[p].Longitude));
+                attributes.RemoveKey("profile");
             }
-            return coordinates;
+            
+            // update route.
+            var route =  new Route()
+            {
+                Attributes = attributes,
+                Branches = branches,
+                Shape = shape,
+                ShapeMeta = metas,
+                Stops = stops
+            };
+            route.TotalDistance = route1.TotalDistance + route2.TotalDistance;
+            route.TotalTime = route1.TotalTime + route1.TotalTime;
+            return route;
         }
 
         /// <summary>
         /// Calculates the position on the route after the given distance from the starting point.
         /// </summary>
-        /// <returns></returns>
-        public static GeoCoordinate PositionAfter(this Route route, Meter m)
+        public static Coordinate? PositionAfter(this Route route, float distanceInMeter)
         {
-            var distanceMeter = 0.0;
-            var points = route.GetPoints();
-            for (int idx = 0; idx < points.Count - 1; idx++)
+            var distanceMeter = 0.0f;
+            if (route.Shape == null)
             {
-                var currentDistance = points[idx].DistanceReal(points[idx + 1]).Value;
-                if (distanceMeter + currentDistance >= m.Value)
-                { // the current distance should be in this segment.
-                    var segmentDistance = m.Value - distanceMeter;
-                    var direction = points[idx + 1] - points[idx];
-                    direction = direction * (segmentDistance / currentDistance);
-                    var position = points[idx] + direction;
-                    return new GeoCoordinate(position[1], position[0]);
+                return null;
+            }
+
+            for (int i = 0; i < route.Shape.Length - 1; i++)
+            {
+                var currentDistance = Coordinate.DistanceEstimateInMeter(route.Shape[i], route.Shape[i + 1]);
+                if (distanceMeter + currentDistance >= distanceInMeter)
+                {
+                    var segmentDistance = distanceInMeter - distanceMeter;
+                    var diffLat = route.Shape[i + 1].Latitude - route.Shape[i].Latitude;
+                    var diffLon = route.Shape[i + 1].Longitude - route.Shape[i].Longitude;
+                    var lat = route.Shape[i].Latitude + diffLat * (segmentDistance / currentDistance);
+                    var lon = route.Shape[i].Longitude + diffLon * (segmentDistance / currentDistance);
+                    return new Coordinate(lat, lon);
                 }
                 distanceMeter += currentDistance;
             }
@@ -373,262 +212,444 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
-        /// <returns></returns>
-        public static bool ProjectOn(this Route route, GeoCoordinate coordinates, out GeoCoordinate projectedCoordinates)
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected)
         {
-            int entryIdx;
-            Meter distanceToProjected;
-            Second timeToProjected;
-            return route.ProjectOn(coordinates, out projectedCoordinates, out entryIdx, out distanceToProjected, out timeToProjected);
+            int segment;
+            float distanceToProjectedInMeter;
+            float timeToProjectedInSeconds;
+            return route.ProjectOn(coordinate, out projected, out segment, out distanceToProjectedInMeter, 
+                out timeToProjectedInSeconds);
         }
 
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
-        /// <returns></returns>
-        public static bool ProjectOn(this Route route, GeoCoordinate coordinates, out GeoCoordinate projectedCoordinates, out Meter distanceToProjected, out Second timeFromStart)
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, 
+            out float distanceToProjectedInMeter, out float timeToProjectedInSeconds)
         {
-            int entryIdx;
-            return route.ProjectOn(coordinates, out projectedCoordinates, out entryIdx, out distanceToProjected, out timeFromStart);
+            int segment;
+            return route.ProjectOn(coordinate, out projected, out segment, out distanceToProjectedInMeter, 
+                out timeToProjectedInSeconds);
         }
 
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
-        /// <returns></returns>
-        public static bool ProjectOn(this Route route, GeoCoordinate coordinates, out Meter distanceFromStart)
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out float distanceFromStartInMeter)
         {
-            int entryIdx;
-            GeoCoordinate projectedCoordinates;
-            Second timeFromStart;
-            return route.ProjectOn(coordinates, out projectedCoordinates, out entryIdx, out distanceFromStart, out timeFromStart);
+            int segment;
+            Coordinate projected;
+            float timeFromStartInSeconds;
+            return route.ProjectOn(coordinate, out projected, out segment, out distanceFromStartInMeter, out timeFromStartInSeconds);
         }
 
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
-        /// <returns></returns>
-        public static bool ProjectOn(this Route route, GeoCoordinate coordinates, out GeoCoordinate projectedCoordinates, out int entryIndex, out Meter distanceFromStart, out Second timeFromStart)
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, out int segment, 
+            out float distanceFromStartInMeter, out float timeFromStartInSeconds)
         {
-            double distance = double.MaxValue;
-            distanceFromStart = 0;
-            timeFromStart = 0;
-            double currentDistanceFromStart = 0;
-            projectedCoordinates = null;
-            entryIndex = -1;
+            float distance = float.MaxValue;
+            distanceFromStartInMeter = 0;
+            timeFromStartInSeconds = 0;
+            projected = new Coordinate();
+            segment = -1;
 
-            // loop over all points and try to project onto the line segments.
-            GeoCoordinate projected;
-            double currentDistance;
-            var points = route.GetPoints();
-            for (int idx = 0; idx < points.Count - 1; idx++)
+            if (route.Shape == null)
             {
-                var line = new GeoCoordinateLine(points[idx], points[idx + 1], true, true);
-                var projectedPoint = line.ProjectOn(coordinates);
+                return false;
+            }
+            
+            Coordinate currentProjected;
+            float currentDistanceFromStart = 0;
+            float currentDistance;
+            var shape = route.Shape;
+            for (int i = 0; i < shape.Length - 1; i++)
+            {
+                var line = new Line(shape[i], shape[i + 1]);
+                var projectedPoint = line.ProjectOn(coordinate);
                 if (projectedPoint != null)
                 { // there was a projected point.
-                    projected = new GeoCoordinate(projectedPoint[1], projectedPoint[0]);
-                    currentDistance = coordinates.Distance(projected);
+                    currentProjected = new Coordinate(projectedPoint.Value.Latitude, projectedPoint.Value.Longitude);
+                    currentDistance = Coordinate.DistanceEstimateInMeter(coordinate, currentProjected);
                     if (currentDistance < distance)
                     { // this point is closer.
-                        projectedCoordinates = projected;
-                        entryIndex = idx;
+                        projected = currentProjected;
+                        segment = i;
                         distance = currentDistance;
 
                         // calculate distance/time.
-                        var localDistance = projected.DistanceReal(points[idx]).Value;
-                        distanceFromStart = currentDistanceFromStart + localDistance;
-                        //if (route.HasTimes && idx > 0)
-                        //{ // there should be proper timing information.
-                        //    var timeToSegment = route.Segments[idx].Time;
-                        //    var timeToNextSegment = route.Segments[idx + 1].Time;
-                        //    timeFromStart = timeToSegment + ((timeToNextSegment - timeToSegment) * (localDistance / line.LengthReal.Value));
-                        //}
+                        var localDistance = Coordinate.DistanceEstimateInMeter(currentProjected, shape[i]);
+                        distanceFromStartInMeter = currentDistanceFromStart + localDistance;
                     }
                 }
 
                 // check first point.
-                projected = points[idx];
-                currentDistance = coordinates.Distance(projected);
+                currentProjected = shape[i];
+                currentDistance = Coordinate.DistanceEstimateInMeter(coordinate, currentProjected);
                 if (currentDistance < distance)
                 { // this point is closer.
-                    projectedCoordinates = projected;
-                    entryIndex = idx;
+                    projected = currentProjected;
+                    segment = i;
                     distance = currentDistance;
-                    distanceFromStart = currentDistanceFromStart;
-                    //if (route.HasTimes)
-                    //{ // there should be proper timing information.
-                    //    timeFromStart = route.Segments[idx].Time;
-                    //}
+                    distanceFromStartInMeter = currentDistanceFromStart;
                 }
 
                 // update distance from start.
-                currentDistanceFromStart = currentDistanceFromStart + points[idx].DistanceReal(points[idx + 1]).Value;
+                currentDistanceFromStart = currentDistanceFromStart + Coordinate.DistanceEstimateInMeter(shape[i], shape[i + 1]);
             }
 
             // check last point.
-            projected = points[points.Count - 1];
-            currentDistance = coordinates.Distance(projected);
+            currentProjected = shape[shape.Length - 1];
+            currentDistance = Coordinate.DistanceEstimateInMeter(coordinate, currentProjected);
             if (currentDistance < distance)
             { // this point is closer.
-                projectedCoordinates = projected;
-                entryIndex = points.Count - 1;
+                projected = currentProjected;
+                segment = shape.Length - 1;
                 distance = currentDistance;
-                distanceFromStart = currentDistanceFromStart;
-                //if (route.HasTimes)
-                //{ // there should be proper timing information.
-                //    timeFromStart = route.Segments[points.Count - 1].Time;
-                //}
+                distanceFromStartInMeter = currentDistanceFromStart;
             }
             return true;
         }
-
+        
         /// <summary>
-        /// Sets a stop on the given segment.
-        /// </summary>
-        public static void SetStop(this RouteSegment segment, ICoordinate coordinate)
-        {
-            segment.Points = new RouteStop[]
-            {
-                new RouteStop()
-                {
-                    Latitude = coordinate.Latitude,
-                    Longitude = coordinate.Longitude,
-                    Metrics = null,
-                    Tags = null
-                }
-            };
-        }
-
-        /// <summary>
-        /// Sets a stop on the given segment.
-        /// </summary>
-        public static void SetStop(this RouteSegment segment, ICoordinate coordinate, OsmSharp.Collections.Tags.TagsCollectionBase tags)
-        {
-            segment.Points = new RouteStop[]
-            {
-                new RouteStop()
-                {
-                    Latitude = coordinate.Latitude,
-                    Longitude = coordinate.Longitude,
-                    Metrics = null,
-                    Tags = tags.ConvertFrom()
-                }
-            };
-        }
-
-        /// <summary>
-        /// Sets a stop on the given segment.
-        /// </summary>
-        public static void SetStop(this RouteSegment segment, ICoordinate[] coordinates, 
-            OsmSharp.Collections.Tags.TagsCollectionBase[] tags)
-        {
-            if (coordinates.Length != tags.Length) { throw new ArgumentException("Coordinates and tags arrays must have the same dimensions."); }
-
-            segment.Points = new RouteStop[coordinates.Length];
-            for (var i = 0; i < coordinates.Length;i++)
-            {
-                segment.Points[i] = new RouteStop()
-                {
-                    Latitude = coordinates[i].Latitude,
-                    Longitude = coordinates[i].Longitude,
-                    Metrics = null,
-                    Tags = tags[i] == null ? null : tags[i].ConvertFrom()
-                };
-            }
-        }
-
-        /// <summary>
-        /// Sets the distance/time.
-        /// </summary>
-        public static void SetDistanceAndTime(this RouteSegment segment, RouteSegment previous, 
-            OsmSharp.Routing.Profiles.Speed speed)
-        {
-            var distance = GeoCoordinate.DistanceEstimateInMeter(
-                new GeoCoordinateSimple()
-                {
-                    Latitude = previous.Latitude,
-                    Longitude = previous.Longitude
-                }, new GeoCoordinateSimple()
-                {
-                    Latitude = segment.Latitude,
-                    Longitude = segment.Longitude
-                });
-            segment.Distance = previous.Distance + distance;
-            segment.Time = previous.Time + (distance / speed.Value);
-        }
-
-        /// <summary>
-        /// Sets the details of the segment.
-        /// </summary>
-        public static void Set(this RouteSegment segment, RouteSegment previous, Profile profile, TagsCollectionBase tags, 
-            OsmSharp.Routing.Profiles.Speed speed)
-        {
-            segment.SetDistanceAndTime(previous, speed);
-            segment.Tags = tags.ConvertFrom();
-            segment.Profile = profile.Name;
-        }
-
-        /// <summary>
-        /// Sets the side streets.
-        /// </summary>
-        public static void SetSideStreets(this RouteSegment segment, RouterDb routerDb, uint vertex, uint previousEdge, uint nextVertex)
-        {
-            var sideStreets = new List<RouteSegmentBranch>();
-
-            var edges = routerDb.Network.GetEdgeEnumerator(vertex);
-            while(edges.MoveNext())
-            {
-                if(edges.Id != previousEdge &&
-                    edges.To != nextVertex)
-                {
-                    var edge = edges.Current;
-                    var tags = routerDb.GetProfileAndMeta(edge.Data.Profile, edge.Data.MetaId);
-
-                    var point = routerDb.Network.GetFirstPoint(edge, edges.From);
-                    sideStreets.Add(new RouteSegmentBranch()
-                        {
-                            Latitude = point.Latitude,
-                            Longitude = point.Longitude,
-                            Tags = tags.ConvertFrom()
-                        });
-                }
-            }
-
-            if(sideStreets.Count > 0)
-            {
-                segment.SideStreets = sideStreets.ToArray();
-            }
-        }
-
-        /// <summary>
-        /// Returns the turn direction for the segment at the given index.
+        /// Returns the turn direction for the shape point at the given index.
         /// </summary>
         public static RelativeDirection RelativeDirectionAt(this Route route, int i)
         {
-            if (i < 0 || i >= route.Segments.Count) { throw new ArgumentOutOfRangeException("i"); }
+            if (i < 0 || i >= route.Shape.Length) { throw new ArgumentOutOfRangeException("i"); }
 
-            if (i == 0 || i == route.Segments.Count - 1)
+            if (i == 0 || i == route.Shape.Length - 1)
             { // not possible to calculate a relative direction for the first or last segment.
-                return null;
+                throw new ArgumentOutOfRangeException("i", "It's not possible to calculate a relative direction for the first or last segment.");
             }
-            return RelativeDirectionCalculator.Calculate(
-                new GeoCoordinate(route.Segments[i - 1].Latitude, route.Segments[i - 1].Longitude),
-                new GeoCoordinate(route.Segments[i].Latitude, route.Segments[i].Longitude),
-                new GeoCoordinate(route.Segments[i + 1].Latitude, route.Segments[i + 1].Longitude));
+            return DirectionCalculator.Calculate(
+                new Coordinate(route.Shape[i - 1].Latitude, route.Shape[i - 1].Longitude),
+                new Coordinate(route.Shape[i].Latitude, route.Shape[i].Longitude),
+                new Coordinate(route.Shape[i + 1].Latitude, route.Shape[i + 1].Longitude));
         }
 
         /// <summary>
-        /// Returns the direction to the next segment.
+        /// Returns the direction to the next shape segment.
         /// </summary>
-        /// <returns></returns>
         public static DirectionEnum DirectionToNext(this Route route, int i)
         {
-            if (i < 0 || i >= route.Segments.Count - 1) { throw new ArgumentOutOfRangeException("i"); }
+            if (i < 0 || i >= route.Shape.Length - 1) { throw new ArgumentOutOfRangeException("i"); }
 
             return DirectionCalculator.Calculate(
-                new GeoCoordinate(route.Segments[i].Latitude, route.Segments[i].Longitude),
-                new GeoCoordinate(route.Segments[i + 1].Latitude, route.Segments[i + 1].Longitude));
+                new Coordinate(route.Shape[i].Latitude, route.Shape[i].Longitude),
+                new Coordinate(route.Shape[i + 1].Latitude, route.Shape[i + 1].Longitude));
+        }
+
+        /// <summary>
+        /// Returns this route as json.
+        /// </summary>
+        public static string ToJson(this Route route)
+        {
+            var stringWriter = new StringWriter();
+            route.WriteJson(stringWriter);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Writes the route as json.
+        /// </summary>
+        public static void WriteJson(this Route route, Stream stream)
+        {
+            route.WriteJson(new StreamWriter(stream));
+        }
+
+        /// <summary>
+        /// Writes the route as json.
+        /// </summary>
+        public static void WriteJson(this Route route, TextWriter writer)
+        {
+            if (route == null) { throw new ArgumentNullException("route"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new IO.Json.JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            if (route.Shape != null)
+            {
+                jsonWriter.WritePropertyName("Shape");
+                jsonWriter.WriteArrayOpen();
+                for(var i = 0; i < route.Shape.Length; i++)
+                {
+                    jsonWriter.WriteArrayOpen();
+                    jsonWriter.WriteArrayValue(route.Shape[i].Longitude.ToInvariantString());
+                    jsonWriter.WriteArrayValue(route.Shape[i].Latitude.ToInvariantString());
+                    jsonWriter.WriteArrayClose();
+                }
+                jsonWriter.WriteArrayClose();
+            }
+
+            if (route.ShapeMeta != null)
+            {
+                jsonWriter.WritePropertyName("ShapeMeta");
+                jsonWriter.WriteArrayOpen();
+                for(var i = 0; i < route.ShapeMeta.Length; i++)
+                {
+                    var meta = route.ShapeMeta[i];
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WritePropertyName("Shape");
+                    jsonWriter.WritePropertyValue(meta.Shape.ToInvariantString());
+
+                    if (meta.Attributes != null)
+                    {
+                        jsonWriter.WritePropertyName("Attributes");
+                        jsonWriter.WriteOpen();
+                        foreach(var attribute in meta.Attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                        jsonWriter.WriteClose();
+                    }
+                    jsonWriter.WriteClose();
+                }
+                jsonWriter.WriteArrayClose();
+            }
+
+            if (route.Stops != null)
+            {
+                jsonWriter.WritePropertyName("Stops");
+                jsonWriter.WriteArrayOpen();
+                for (var i = 0; i < route.Stops.Length; i++)
+                {
+                    var stop = route.Stops[i];
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WritePropertyName("Shape");
+                    jsonWriter.WritePropertyValue(stop.Shape.ToInvariantString());
+                    jsonWriter.WritePropertyName("Coordinates");
+                    jsonWriter.WriteArrayOpen();
+                    jsonWriter.WriteArrayValue(route.Stops[i].Coordinate.Longitude.ToInvariantString());
+                    jsonWriter.WriteArrayValue(route.Stops[i].Coordinate.Latitude.ToInvariantString());
+                    jsonWriter.WriteArrayClose();
+
+                    if (stop.Attributes != null)
+                    {
+                        jsonWriter.WritePropertyName("Attributes");
+                        jsonWriter.WriteOpen();
+                        foreach (var attribute in stop.Attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                        jsonWriter.WriteClose();
+                    }
+                    jsonWriter.WriteClose();
+                }
+                jsonWriter.WriteArrayClose();
+            }
+
+            if (route.Branches != null)
+            {
+                jsonWriter.WritePropertyName("Branches");
+                jsonWriter.WriteArrayOpen();
+                for (var i = 0; i < route.Branches.Length; i++)
+                {
+                    var stop = route.Branches[i];
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WritePropertyName("Shape");
+                    jsonWriter.WritePropertyValue(stop.Shape.ToInvariantString());
+                    jsonWriter.WritePropertyName("Coordinates");
+                    jsonWriter.WriteArrayOpen();
+                    jsonWriter.WriteArrayValue(route.Branches[i].Coordinate.Longitude.ToInvariantString());
+                    jsonWriter.WriteArrayValue(route.Branches[i].Coordinate.Latitude.ToInvariantString());
+                    jsonWriter.WriteArrayClose();
+
+                    if (stop.Attributes != null)
+                    {
+                        jsonWriter.WritePropertyName("Attributes");
+                        jsonWriter.WriteOpen();
+                        foreach (var attribute in stop.Attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                        jsonWriter.WriteClose();
+                    }
+                    jsonWriter.WriteClose();
+                }
+                jsonWriter.WriteArrayClose();
+            }
+
+            jsonWriter.WriteClose();
+        }
+
+        /// <summary>
+        /// Returns this route as xml.
+        /// </summary>
+        public static string ToXml(this Route route)
+        {
+            var stringWriter = new StringWriter();
+            route.WriteXml(stringWriter);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Writes the route as xml.
+        /// </summary>
+        public static void WriteXml(this Route route, Stream stream)
+        {
+            route.WriteXml(new StreamWriter(stream));
+        }
+
+        /// <summary>
+        /// Writes the route as xml.
+        /// </summary>
+        public static void WriteXml(this Route route, TextWriter writer)
+        {
+            var ser = new XmlSerializer(typeof(Route));
+            ser.Serialize(writer, route);
+            writer.Flush();
+        }
+
+        /// <summary>
+        /// Reads a route in xml.
+        /// </summary>
+        public static Route ReadXml(Stream stream)
+        {
+            var ser = new XmlSerializer(typeof(Route));
+            return ser.Deserialize(stream) as Route;
+        }
+
+        /// <summary>
+        /// Returns this route as geojson.
+        /// </summary>
+        public static string ToGeoJson(this Route route)
+        {
+            var stringWriter = new StringWriter();
+            route.WriteGeoJson(stringWriter);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Writes the route as geojson.
+        /// </summary>
+        public static void WriteGeoJson(this Route route, Stream stream)
+        {
+            route.WriteGeoJson(new StreamWriter(stream));
+        }
+
+        /// <summary>
+        /// Writes the route as geojson.
+        /// </summary>
+        public static void WriteGeoJson(this Route route, TextWriter writer)
+        {
+            if (route == null) { throw new ArgumentNullException("route"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new IO.Json.JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            if (route.Shape != null)
+            {
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Feature", true, false);
+                jsonWriter.WriteProperty("name", "Shape", true, false);
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteClose();
+                jsonWriter.WritePropertyName("geometry", false);
+
+
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "LineString", true, false);
+                jsonWriter.WritePropertyName("coordinates", false);
+                jsonWriter.WriteArrayOpen();
+                for (var i = 0; i < route.Shape.Length; i++)
+                {
+                    jsonWriter.WriteArrayOpen();
+                    jsonWriter.WriteArrayValue(route.Shape[i].Longitude.ToInvariantString());
+                    jsonWriter.WriteArrayValue(route.Shape[i].Latitude.ToInvariantString());
+                    jsonWriter.WriteArrayClose();
+                }
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteClose();
+
+                jsonWriter.WriteClose();
+            }
+
+            if (route.ShapeMeta != null)
+            {
+                for (var i = 0; i < route.ShapeMeta.Length; i++)
+                {
+                    var meta = route.ShapeMeta[i];
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteProperty("type", "Feature", true, false);
+                    jsonWriter.WriteProperty("name", "ShapeMeta", true, false);
+                    jsonWriter.WriteProperty("Shape", meta.Shape.ToInvariantString(), true, false);
+                    jsonWriter.WritePropertyName("geometry", false);
+
+                    var coordinate = route.Shape[meta.Shape];
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteProperty("type", "Point", true, false);
+                    jsonWriter.WritePropertyName("coordinates", false);
+                    jsonWriter.WriteArrayOpen();
+                    jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                    jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                    jsonWriter.WriteArrayClose();
+                    jsonWriter.WriteClose();
+
+                    jsonWriter.WritePropertyName("properties");
+                    jsonWriter.WriteOpen();
+                    if (meta.Attributes != null)
+                    {
+                        foreach (var attribute in meta.Attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                    }
+                    jsonWriter.WriteClose();
+
+                    jsonWriter.WriteClose();
+                }
+            }
+
+            if (route.Stops != null)
+            {
+                for (var i = 0; i < route.Stops.Length; i++)
+                {
+                    var stop = route.Stops[i];
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteProperty("type", "Feature", true, false);
+                    jsonWriter.WriteProperty("name", "Stop", true, false);
+                    jsonWriter.WriteProperty("Shape", stop.Shape.ToInvariantString(), true, false);
+                    jsonWriter.WritePropertyName("geometry", false);
+                    
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteProperty("type", "Point", true, false);
+                    jsonWriter.WritePropertyName("coordinates", false);
+                    jsonWriter.WriteArrayOpen();
+                    jsonWriter.WriteArrayValue(stop.Coordinate.Longitude.ToInvariantString());
+                    jsonWriter.WriteArrayValue(stop.Coordinate.Latitude.ToInvariantString());
+                    jsonWriter.WriteArrayClose();
+                    jsonWriter.WriteClose();
+
+                    jsonWriter.WritePropertyName("properties");
+                    jsonWriter.WriteOpen();
+                    if (stop.Attributes != null)
+                    {
+                        foreach (var attribute in stop.Attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                    }
+                    jsonWriter.WriteClose();
+
+                    jsonWriter.WriteClose();
+                }
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
         }
     }
 }

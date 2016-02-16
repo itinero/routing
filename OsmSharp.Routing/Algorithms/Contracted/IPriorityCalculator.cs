@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.LongIndex;
+using OsmSharp.Routing.Algorithms.Collections;
+
 namespace OsmSharp.Routing.Algorithms.Contracted
 {
     /// <summary>
@@ -27,8 +28,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Calculate the priority for the given vertex.
         /// </summary>
-        /// <returns></returns>
-        float Calculate(ILongIndex contractedFlags, uint vertex);
+        float Calculate(BitArray32 contractedFlags, uint vertex);
 
         /// <summary>
         /// Notifies this calculator that the given vertex was contracted.

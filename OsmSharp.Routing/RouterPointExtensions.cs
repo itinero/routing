@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,9 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo;
-using OsmSharp.Math.Geo.Simple;
 using OsmSharp.Routing.Algorithms;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric;
 using OsmSharp.Routing.Network;
 using OsmSharp.Routing.Profiles;
@@ -177,12 +176,26 @@ namespace OsmSharp.Routing
         }
 
         /// <summary>
-        /// Calculates the shape points along the way from this router point to one of it's vertices.
+        /// Calculates the distance to one of the vertices on the edge this router point is on.
         /// </summary>
         /// <returns></returns>
-        public static List<ICoordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, uint vertex)
+        public static float DistanceTo(this RouterPoint point, RouterDb routerDb, RouterPoint target)
         {
-            List<ICoordinate> points = null;
+            if (point.EdgeId != target.EdgeId)
+            {
+                throw new ArgumentException("Target point must be part of the same edge.");
+            }
+            var edge = routerDb.Network.GetEdge(point.EdgeId);
+            var diff = (float)System.Math.Abs(point.Offset - target.Offset);
+            return (diff / ushort.MaxValue) * edge.Data.Distance;
+        }
+
+        /// <summary>
+        /// Calculates the shape points along the way from this router point to one of it's vertices.
+        /// </summary>
+        public static List<Coordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, uint vertex)
+        {
+            List<Coordinate> points = null;
             var geometricEdge = routerDb.Network.GeometricGraph.GetEdge(point.EdgeId);
             var edgeDistance = routerDb.Network.GeometricGraph.Length(geometricEdge);
             var offsetDistance = edgeDistance * ((float)point.Offset / (float)ushort.MaxValue);
@@ -205,11 +218,11 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Calculates the shape points along the way from this router point to another routerpoint on the same edge.
         /// </summary>
-        public static List<ICoordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, RouterPoint other)
+        public static List<Coordinate> ShapePointsTo(this RouterPoint point, RouterDb routerDb, RouterPoint other)
         {
             if (point.EdgeId != other.EdgeId) { throw new ArgumentException("Cannot build shape points list between router points on different edges."); }
 
-            List<ICoordinate> points = null;
+            List<Coordinate> points = null;
 
             var geometricEdge = routerDb.Network.GeometricGraph.GetEdge(point.EdgeId);
             var edgeDistance = routerDb.Network.GeometricGraph.Length(geometricEdge);
@@ -231,9 +244,9 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the location.
         /// </summary>
-        public static ICoordinate Location(this RouterPoint point)
+        public static Coordinate Location(this RouterPoint point)
         {
-            return new GeoCoordinateSimple()
+            return new Coordinate()
             {
                 Latitude = point.Latitude,
                 Longitude = point.Longitude
@@ -243,7 +256,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns the location on the network.
         /// </summary>
-        public static ICoordinate LocationOnNetwork(this RouterPoint point, RouterDb db)
+        public static Coordinate LocationOnNetwork(this RouterPoint point, RouterDb db)
         {
             var geometricEdge = db.Network.GeometricGraph.GetEdge(point.EdgeId);
             var shape = db.Network.GeometricGraph.GetShape(geometricEdge);
@@ -252,13 +265,12 @@ namespace OsmSharp.Routing
             var targetLength = length * (point.Offset / (double)ushort.MaxValue);
             for (var i = 1; i < shape.Count; i++)
             {
-                var segmentLength = OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(shape[i - 1], 
-                    shape[i]);
+                var segmentLength = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
                 if(segmentLength + currentLength > targetLength)
                 {
                     var segmentOffsetLength = segmentLength + currentLength - targetLength;
                     var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
-                    return new GeoCoordinateSimple()
+                    return new Coordinate()
                     {
                         Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
                         Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude)))
@@ -288,7 +300,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Returns true if the router point matches exactly with the given vertex.
         /// </summary>
-        /// <returns></returns>
         public static bool IsVertex(this RouterPoint point, RouterDb router, uint vertex)
         {
             if(point.Offset == 0)
@@ -345,7 +356,6 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
-        /// <returns></returns>
         public static RouterPoint CreateRouterPointForVertex(this GeometricGraph graph, uint vertex, uint neighbour)
         {
             float latitude, longitude;

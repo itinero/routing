@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Geo;
+using OsmSharp.Routing.Geo;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Graphs.Geometric.Shapes
@@ -29,7 +29,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// <summary>
         /// Adds a new shape.
         /// </summary>
-        public static void Set(this ShapesArray index, long id, IEnumerable<ICoordinate> shape)
+        public static void Set(this ShapesArray index, long id, IEnumerable<Coordinate> shape)
         {
             index[id] = new ShapeEnumerable(shape);
         }
@@ -37,7 +37,7 @@ namespace OsmSharp.Routing.Graphs.Geometric.Shapes
         /// <summary>
         /// Adds a new shape.
         /// </summary>
-        public static void Set(this ShapesArray index, long id, params ICoordinate[] shape)
+        public static void Set(this ShapesArray index, long id, params Coordinate[] shape)
         {
             index[id] = new ShapeEnumerable(shape);
         }

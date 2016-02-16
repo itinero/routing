@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Routing.Navigation.Directions;
 using OsmSharp.Routing.Navigation.Language;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace OsmSharp.Routing.Navigation.Osm
 {
@@ -31,23 +31,13 @@ namespace OsmSharp.Routing.Navigation.Osm
         /// Creates a new car instruction generator.
         /// </summary>
         public InstructionCarGenerator(Route route, ILanguageReference languageReference)
-            : this(route, languageReference, new TryGetDelegateWithLanguageReference[]
+            : base(route, new TryGetDelegate[]
             {
                 InstructionCarGenerator.GetStartInstruction,
                 InstructionCarGenerator.GetStopInstruction,
                 InstructionCarGenerator.GetRoundaboutInstruction,
                 InstructionCarGenerator.GetTurnInstruction
-            })
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new car instruction generator.
-        /// </summary>
-        public InstructionCarGenerator(Route route, ILanguageReference languageReference,
-            TryGetDelegateWithLanguageReference[] getInstructionDelegates)
-            : base(route, InstructionCarGenerator.GetInstructionDelegatesFrom(getInstructionDelegates, languageReference))
+            }, languageReference)
         {
 
         }
@@ -66,60 +56,22 @@ namespace OsmSharp.Routing.Navigation.Osm
             }
             return new List<Instruction>();
         }
-
-        /// <summary>
-        /// A delegate to construct an instruction for a given segment in a route.
-        /// </summary>
-        public delegate int TryGetDelegateWithLanguageReference(Route route, int i, ILanguageReference languageReference,
-            out Instruction instruction);
-
-        /// <summary>
-        /// Gets an instruction delegate from an instruction delegate with a language reference.
-        /// </summary>
-        private static InstructionGenerator<Instruction>.TryGetDelegate GetInstructionDelegateFrom(TryGetDelegateWithLanguageReference tryGetDelegate,
-            ILanguageReference languageReference)
-        {
-            return (Route r, int i, out Instruction instruction) =>
-                {
-                    return tryGetDelegate(r, i, languageReference, out instruction);
-                };
-        }
-
-        /// <summary>
-        /// Gets instruction delegates from instruction delegates with a language reference.
-        /// </summary>
-        private static InstructionGenerator<Instruction>.TryGetDelegate[] GetInstructionDelegatesFrom(
-            TryGetDelegateWithLanguageReference[] tryGetDelegates,
-            ILanguageReference languageReference)
-        {
-            var delegates = new InstructionGenerator<Instruction>.TryGetDelegate[tryGetDelegates.Length];
-            for(var i = 0; i < delegates.Length; i++)
-            {
-                delegates[i] = InstructionCarGenerator.GetInstructionDelegateFrom(tryGetDelegates[i],
-                    languageReference);
-            }
-            return delegates;
-        }
-
+        
         /// <summary>
         /// Gets the start instruction.
         /// </summary>
-        public static int GetStartInstruction(Route r, int i, ILanguageReference languageReference, 
+        public static int GetStartInstruction(RoutePosition position, ILanguageReference languageReference, 
             out Instruction instruction)
         {
             instruction = null;
-            if(i == 0 &&
-               r.Segments.Count > 0)
-            { // determine direction.
-                var direction = Math.Geo.Meta.DirectionCalculator.Calculate(
-                    new Math.Geo.GeoCoordinate(r.Segments[0].Latitude, r.Segments[0].Longitude),
-                    new Math.Geo.GeoCoordinate(r.Segments[1].Latitude, r.Segments[1].Longitude));
-                var directionTranslated = languageReference[direction.ToInvariantString()];
+            if (position.IsFirst())
+            {
                 instruction = new Instruction()
                 {
-                    Text = string.Format(languageReference["Start {0}."], directionTranslated),
+                    Text = string.Format(languageReference["Start {0}."], 
+                        languageReference[position.Direction().ToInvariantString()]),
                     Type = "start",
-                    Segment = 0
+                    Shape = 0
                 };
                 return 1;
             }
@@ -127,20 +79,19 @@ namespace OsmSharp.Routing.Navigation.Osm
         }
 
         /// <summary>
-        /// Gets the start instruction.
+        /// Gets the stop instruction.
         /// </summary>
-        public static int GetStopInstruction(Route r, int i, ILanguageReference languageReference,
+        public static int GetStopInstruction(RoutePosition position, ILanguageReference languageReference,
             out Instruction instruction)
         {
             instruction = null;
-            if (i == r.Segments.Count - 1 &&
-               r.Segments.Count > 0)
+            if (position.IsLast())
             {
                 instruction = new Instruction()
                 {
                     Text = languageReference["Arrived at destination."],
                     Type = "stop",
-                    Segment = r.Segments.Count - 1
+                    Shape = position.Shape
                 };
                 return 1;
             }
@@ -150,86 +101,74 @@ namespace OsmSharp.Routing.Navigation.Osm
         /// <summary>
         /// Gets the turn instruction function.
         /// </summary>
-        public static int GetTurnInstruction(Route r, int i, ILanguageReference languageReference,
+        public static int GetTurnInstruction(RoutePosition position, ILanguageReference languageReference,
             out Instruction instruction)
         {
-            var relative = r.RelativeDirectionAt(i);
+            var relative = position.RelativeDirection();
 
-            if(relative != null)
+            var doInstruction = false;
+            if (position.HasBranches())
             {
-                var doInstruction = false;
-                if (relative.Direction == Math.Geo.Meta.RelativeDirectionEnum.StraightOn &&
-                   r.Segments[i].SideStreets != null &&
-                   r.Segments[i].SideStreets.Length >= 2)
+                var branches = new List<Route.Branch>(position.Branches());
+                if (relative.Direction == RelativeDirectionEnum.StraightOn &&
+                   branches.Count >= 2)
                 { // straight-on at cross roads.
                     doInstruction = true;
                 }
-                else if (relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.StraightOn &&
-                    relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.SlightlyLeft &&
-                    relative.Direction != Math.Geo.Meta.RelativeDirectionEnum.SlightlyRight &&
-                    r.Segments[i].SideStreets != null &&
-                    r.Segments[i].SideStreets.Length > 0)
+                else if (relative.Direction != RelativeDirectionEnum.StraightOn &&
+                    relative.Direction != RelativeDirectionEnum.SlightlyLeft &&
+                    relative.Direction != RelativeDirectionEnum.SlightlyRight &&
+                    branches.Count > 0)
                 { // an actual turn and there is at least on other street around.
                     doInstruction = true;
                 }
-                if (doInstruction)
-                {
-                    var direction = languageReference[relative.Direction.ToInvariantString()];
-                    var name = string.Empty;
-                    if (i + 1 < r.Segments.Count &&
-                        r.Segments[i + 1].Tags != null &&
-                        r.Segments[i + 1].Tags.Any(x =>
-                        {
-                            if (x.Key == "name")
-                            {
-                                name = x.Value;
-                                return true;
-                            }
-                            return false;
-                        }))
-                    { // there is a name.
-                        if (relative.Direction == Math.Geo.Meta.RelativeDirectionEnum.StraightOn)
-                        {
-                            instruction = new Instruction()
-                            {
-                                Text = string.Format(languageReference["Go {0} on {1}."],
-                                    direction, name),
-                                Type = "turn",
-                                Segment = i
-                            };
-                            return 1;
-                        }
+            }
+            if (doInstruction)
+            {
+                var name = position.GetMetaAttribute("name");
+                if (!string.IsNullOrWhiteSpace(name))
+                { // there is a name.
+                    if (relative.Direction == RelativeDirectionEnum.StraightOn)
+                    {
                         instruction = new Instruction()
                         {
-                            Text = string.Format(languageReference["Turn {0} on {1}."],
-                                direction, name),
+                            Text = string.Format(languageReference["Go {0} on {1}."],
+                                languageReference[relative.Direction.ToInvariantString()], name),
                             Type = "turn",
-                            Segment = i
+                            Shape = position.Shape
                         };
                         return 1;
                     }
-                    else
-                    { // there is no name.
-                        if (relative.Direction == Math.Geo.Meta.RelativeDirectionEnum.StraightOn)
-                        {
-                            instruction = new Instruction()
-                            {
-                                Text = string.Format(languageReference["Go {0}."],
-                                    direction),
-                                Type = "turn",
-                                Segment = i
-                            };
-                        }
-                        
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format(languageReference["Turn {0} on {1}."],
+                            languageReference[relative.Direction.ToInvariantString()], name),
+                        Type = "turn",
+                        Shape = position.Shape
+                    };
+                    return 1;
+                }
+                else
+                { // there is no name.
+                    if (relative.Direction == RelativeDirectionEnum.StraightOn)
+                    {
                         instruction = new Instruction()
                         {
-                            Text = string.Format(languageReference["Turn {0}."],
-                                direction),
+                            Text = string.Format(languageReference["Go {0}."],
+                                languageReference[relative.Direction.ToInvariantString()]),
                             Type = "turn",
-                            Segment = i
+                            Shape = position.Shape
                         };
-                        return 1;
                     }
+
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format(languageReference["Turn {0}."],
+                            languageReference[relative.Direction.ToInvariantString()]),
+                        Type = "turn",
+                        Shape = position.Shape
+                    };
+                    return 1;
                 }
             }
             instruction = null;
@@ -239,82 +178,66 @@ namespace OsmSharp.Routing.Navigation.Osm
         /// <summary>
         /// Gets the roundabout function.
         /// </summary>
-        public static int GetRoundaboutInstruction(Route r, int i, ILanguageReference languageReference, 
+        public static int GetRoundaboutInstruction(RoutePosition position, ILanguageReference languageReference,
             out Instruction instruction)
         {
-            if (r.Segments[i].Tags != null &&
-                r.Segments[i].Tags.Any(x =>
+            if (position.ContainsMetaAttribute("junction", "roundabout") &&
+                !position.IsLast() &&
+                !position.Next().Value.ContainsMetaAttribute("junction", "roundabout"))
+            { // ok, it's a roundabout, if the next segment is not on the roundabout, generate an exit roundabout instruction.
+                var exit = 1;
+                var count = 1;
+                while(position.MovePrevious() &&
+                    position.ContainsMetaAttribute("junction", "roundabout"))
                 {
-                    return x.Key == "junction" && x.Value == "roundabout";
-                }))
-            { // ok, it's a roundabout, is the next segment on the roundabout, if it's not generate an exit roundabout.
-                if (i < r.Segments.Count &&
-                    (r.Segments[i + 1].Tags == null ||
-                    !r.Segments[i + 1].Tags.Any(x =>
+                    if (position.HasBranches())
                     {
-                        return x.Key == "junction" && x.Value == "roundabout";
-                    })))
-                { // ok, the next one isn't a roundabout.
-                    var exit = 1;
-                    var count = 1;
-                    for (var j = i - 1; j >= 0; j--)
-                    {
-                        count++;
-                        if (r.Segments[j].Tags == null ||
-                           !r.Segments[j].Tags.Any(x =>
-                            {
-                                return x.Key == "junction" && x.Value == "roundabout";
-                            }))
-                        { // not a roundabout anymore.
-                            break;
-                        }
-                        if (r.Segments[j].SideStreets != null)
-                        {
-                            exit++;
-                        }
+                        exit++;
                     }
-                    if (exit == 1)
-                    {
-                        instruction = new Instruction()
-                        {
-                            Text = string.Format(languageReference["Take the first exit at the next roundabout."],
-                                exit),
-                            Type = "roundabout",
-                            Segment = i
-                        };
-                    }
-                    else if (exit == 2)
-                    {
-                        instruction = new Instruction()
-                        {
-                            Text = string.Format(languageReference["Take the second exit at the next roundabout."],
-                                exit),
-                            Type = "roundabout",
-                            Segment = i
-                        };
-                    }
-                    else if (exit == 3)
-                    {
-                        instruction = new Instruction()
-                        {
-                            Text = string.Format(languageReference["Take the third exit at the next roundabout."],
-                                exit),
-                            Type = "roundabout",
-                            Segment = i
-                        };
-                    }
-                    else
-                    {
-                        instruction = new Instruction()
-                        {
-                            Text = string.Format(languageReference["Take the {0}th exit at the next roundabout."],
-                                exit),
-                            Type = "roundabout",
-                            Segment = i
-                        };
-                    }
-                    return count;
+                    count++;
                 }
+
+                if (exit == 1)
+                {
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format(languageReference["Take the first exit at the next roundabout."],
+                            exit),
+                        Type = "roundabout",
+                        Shape = position.Shape
+                    };
+                }
+                else if (exit == 2)
+                {
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format(languageReference["Take the second exit at the next roundabout."],
+                            exit),
+                        Type = "roundabout",
+                        Shape = position.Shape
+                    };
+                }
+                else if (exit == 3)
+                {
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format(languageReference["Take the third exit at the next roundabout."],
+                            exit),
+                        Type = "roundabout",
+                        Shape = position.Shape
+                    };
+                }
+                else
+                {
+                    instruction = new Instruction()
+                    {
+                        Text = string.Format(languageReference["Take the {0}th exit at the next roundabout."],
+                            exit),
+                        Type = "roundabout",
+                        Shape = position.Shape
+                    };
+                }
+                return count;
             }
             instruction = null;
             return 0;

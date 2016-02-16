@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,11 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.LongIndex;
+using OsmSharp.Routing.Algorithms.Collections;
 using OsmSharp.Routing.Algorithms.Contracted.Witness;
 using OsmSharp.Routing.Data.Contracted;
 using OsmSharp.Routing.Graphs.Directed;
-using System;
 using System.Collections.Generic;
 
 namespace OsmSharp.Routing.Algorithms.Contracted
@@ -53,8 +52,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Calculates the priority of the given vertex.
         /// </summary>
-        /// <returns></returns>
-        public float Calculate(ILongIndex contractedFlags, uint vertex)
+        public float Calculate(BitArray32 contractedFlags, uint vertex)
         {
             var removed = 0;
             var added = 0;
@@ -76,7 +74,7 @@ namespace OsmSharp.Routing.Algorithms.Contracted
                     }
                 }
 
-                if (contractedFlags.Contains(edges[i].Neighbour))
+                if (contractedFlags[edges[i].Neighbour])
                 { // neighbour was already contracted, remove 'downward' edge and exclude it.
                     edgeEnumerator.MoveTo(vertex);
                     edgeEnumerator.Reset();
@@ -202,7 +200,6 @@ namespace OsmSharp.Routing.Algorithms.Contracted
         /// <summary>
         /// Notifies this calculator that the given vertex was contracted.
         /// </summary>
-        /// <param name="vertex"></param>
         public void NotifyContracted(uint vertex)
         {
             // removes the contractions count.

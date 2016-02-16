@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -18,8 +18,7 @@
 
 using NUnit.Framework;
 using NUnit.Framework.Internal;
-using OsmSharp.Geo;
-using OsmSharp.Math.Geo;
+using OsmSharp.Routing.Geo;
 using OsmSharp.Routing.Graphs.Geometric.Shapes;
 using Reminiscence.IO;
 using System.Collections.Generic;
@@ -62,8 +61,8 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
             using (var map = new MemoryMapStream())
             {
                 var array = new ShapesArray(map, 1024);
-                array.Set(0, new GeoCoordinate(0, 0.1), 
-                    new GeoCoordinate(1, 1.1));
+                array.Set(0, new Coordinate(0, 0.1f),
+                    new Coordinate(1, 1.1f));
 
                 var shape = array[0];
                 Assert.IsNotNull(shape);
@@ -76,9 +75,9 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
 
             using (var map = new MemoryMapStream())
             {
-                var box = new GeoCoordinateBox(
-                    new GeoCoordinate(-90, -180),
-                    new GeoCoordinate(90, 180));
+                var box = new Box(
+                    new Coordinate(-90, -180),
+                    new Coordinate(90, 180));
                 var refArray = new ShapeBase[1024];
                 var array = new ShapesArray(map, 1024);
 
@@ -86,8 +85,8 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
                 for (var i = 0; i < 1024; i++)
                 {
                     var count = rand.Next(10);
-                    var newShape = new List<ICoordinate>(count);
-                    for(var j = 0; j < count; j++)
+                    var newShape = new List<Coordinate>(count);
+                    for (var j = 0; j < count; j++)
                     {
                         newShape.Add(box.GenerateRandomIn());
                     }
@@ -97,7 +96,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
                     array[i] = shape;
                 }
 
-                for(var i = 0; i < refArray.Length; i++)
+                for (var i = 0; i < refArray.Length; i++)
                 {
                     var refShape = refArray[i];
                     var shape = array[i];
@@ -121,7 +120,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
             using (var map = new MemoryMapStream())
             {
                 var array = new ShapesArray(map, 1);
-                array.Set(0, new GeoCoordinate(0, 0.1), new GeoCoordinate(1, 1.1));
+                array.Set(0, new Coordinate(0, 0.1f), new Coordinate(1, 1.1f));
 
                 using (var stream = new MemoryStream())
                 {
@@ -137,19 +136,18 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
 
         public void TestCopyToCreateFrom()
         {
-            var box = new GeoCoordinateBox(
-                new GeoCoordinate(-90, -180),
-                new GeoCoordinate(90, 180));
+            var box = new Box(
+                new Coordinate(-90, -180),
+                new Coordinate(90, 180));
             var refArray = new ShapesArray(1024);
 
-            var rand = OsmSharp.Math.Random.StaticRandomGenerator.Get();
-            OsmSharp.Math.Random.StaticRandomGenerator.Set(46541577);
+            var rand = new System.Random(46541577);
             var totalCoordinateCount = 0;
             for (var i = 0; i < 1024; i++)
             {
-                var count = rand.Generate(10);
+                var count = rand.Next(10);
                 totalCoordinateCount += count;
-                var newShape = new List<ICoordinate>(count);
+                var newShape = new List<Coordinate>(count);
                 for (var j = 0; j < count; j++)
                 {
                     newShape.Add(box.GenerateRandomIn());
@@ -159,7 +157,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
                 refArray[i] = shape;
             }
 
-            using(var stream = new MemoryStream())
+            using (var stream = new MemoryStream())
             {
                 Assert.AreEqual(16 + (1024 * 8) + (totalCoordinateCount * 8),
                     refArray.CopyTo(stream));
@@ -205,7 +203,7 @@ namespace OsmSharp.Routing.Test.Graphs.Geometric.Shapes
             using (var map = new MemoryMapStream())
             {
                 var array = new ShapesArray(map, 10);
-                array.Set(0, new GeoCoordinate(0, 0.1), new GeoCoordinate(1, 1.1));
+                array.Set(0, new Coordinate(0.0f, 0.1f), new Coordinate(1.0f, 1.1f));
 
                 array[0] = null;
 

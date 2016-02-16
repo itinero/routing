@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,16 +17,15 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using OsmSharp.Collections.Tags;
-using OsmSharp.Math.Geo;
-using OsmSharp.Math.Geo.Simple;
-using OsmSharp.Osm;
-using OsmSharp.Osm.Streams;
-using OsmSharp.Routing.Osm.Streams;
+using OsmSharp.Streams;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
+using OsmSharp.Routing.IO.Osm.Streams;
 using OsmSharp.Routing.Osm.Vehicles;
+using OsmSharp.Tags;
 using System.Linq;
 
-namespace OsmSharp.Routing.Test.Osm.Streams
+namespace OsmSharp.Routing.Test.IO.Osm.Streams
 {
     /// <summary>
     /// Contains tests for the router db stream target.
@@ -41,14 +40,28 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         public void TestOneWay()
         {
             // build source stream.
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb();
@@ -75,9 +88,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var profile = routerDb.EdgeProfiles.Get(data.Profile);
             var meta = routerDb.EdgeMeta.Get(data.MetaId);
 
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
         }
 
         /// <summary>
@@ -87,15 +100,29 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         public void TestOneWayOneway()
         {
             // build source stream.
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential"),
-                    Tag.Create("oneway", "yes")), 1, 2)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"),
+                        new Tag("oneway", "yes")),
+                    Nodes = new long[] { 1, 2 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb();
@@ -123,10 +150,10 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var meta = routerDb.EdgeMeta.Get(data.MetaId);
 
             Assert.IsFalse(edges.First().DataInverted);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.IsTrue(profile.ContainsKeyValue("oneway", "yes"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.IsTrue(profile.Contains("oneway", "yes"));
+            Assert.AreEqual(new AttributeCollection(), meta);
         }
 
         /// <summary>
@@ -136,14 +163,28 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         public void TestOneWayIncomplete()
         {
             // build source stream.
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb();
@@ -163,11 +204,25 @@ namespace OsmSharp.Routing.Test.Osm.Streams
 
             // another version of the same incomplete way.
             source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 3, 2, 1)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 3, 2, 1 }
+                }};
 
             // build db from stream.
             routerDb = new RouterDb();
@@ -190,20 +245,49 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         public void TestTwoWays()
         {
             // build source stream.
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
-            var location3 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7978925704956050f };
-            var location4 = new GeoCoordinateSimple() { Latitude = 51.269567822699510f, Longitude = 4.7907257080078125f };
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location3 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7978925704956050f };
+            var location4 = new Coordinate() { Latitude = 51.269567822699510f, Longitude = 4.7907257080078125f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Node.Create(4, location4.Latitude, location4.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3),
-                Way.Create(2, new TagsCollection(
-                    Tag.Create("highway", "residential")), 2, 4)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 2, 4 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb();
@@ -235,9 +319,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var data = edge.Data;
             var profile = routerDb.EdgeProfiles.Get(data.Profile);
             var meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
             Assert.AreEqual(3, edges.Count());
@@ -248,9 +332,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->3
             edge = edges.FirstOrDefault(x => x.To == vertex3);
@@ -259,9 +343,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->4
             edge = edges.FirstOrDefault(x => x.To == vertex4);
@@ -269,9 +353,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location4, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location4, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             edges = routerDb.Network.GetEdgeEnumerator(vertex3);
             Assert.AreEqual(1, edges.Count());
@@ -282,9 +366,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             edges = routerDb.Network.GetEdgeEnumerator(vertex4);
             Assert.AreEqual(1, edges.Count());
@@ -295,9 +379,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location4, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location4, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
         }
 
         /// <summary>
@@ -307,18 +391,42 @@ namespace OsmSharp.Routing.Test.Osm.Streams
         public void TestTwoWaysSameEndNodes()
         {
             // build source stream
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
-            var location3 = new GeoCoordinateSimple() { Latitude = 51.269567822699510f, Longitude = 4.7907257080078125f };
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location3 = new Coordinate() { Latitude = 51.269567822699510f, Longitude = 4.7907257080078125f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 3),
-                Way.Create(2, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 3 }
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb();
@@ -348,9 +456,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var data = edge.Data;
             var profile = routerDb.EdgeProfiles.Get(data.Profile);
             var meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 1->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex1);
@@ -359,9 +467,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location3), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->1
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -370,9 +478,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -381,20 +489,44 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // build source stream
             source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3),
-                Way.Create(2, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 3)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 3 }
+                }};
 
             // build db from stream.
             routerDb = new RouterDb();
@@ -424,9 +556,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 1->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex1);
@@ -435,9 +567,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location3), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->1
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -446,9 +578,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -457,9 +589,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
         }
 
         /// <summary>
@@ -482,20 +614,49 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             // this should result in edges:
             //   1-2, 2-3, 2-5, 3-(4)-5
 
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
-            var location3 = new GeoCoordinateSimple() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
-            var location4 = new GeoCoordinateSimple() { Latitude = 51.26152881427841f, Longitude = 4.795939922332763f };
-            var location5 = new GeoCoordinateSimple() { Latitude = 51.26134754276387f, Longitude = 4.795937240123749f };
+            var location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
+            var location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
+            var location3 = new Coordinate() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
+            var location4 = new Coordinate() { Latitude = 51.26152881427841f, Longitude = 4.795939922332763f };
+            var location5 = new Coordinate() { Latitude = 51.26134754276387f, Longitude = 4.795937240123749f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Node.Create(4, location4.Latitude, location4.Longitude),
-                Node.Create(5, location5.Latitude, location5.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3, 4, 5, 2)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3, 4, 5, 2 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb();
@@ -523,9 +684,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var data = edge.Data;
             var profile = routerDb.EdgeProfiles.Get(data.Profile);
             var meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -534,9 +695,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->5
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -545,9 +706,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location2, location5), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location5), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 3->5
             edges = routerDb.Network.GetEdgeEnumerator(vertex3);
@@ -556,9 +717,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location3, location4) + GeoCoordinate.DistanceEstimateInMeter(location4, location5), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location3, location4) + Coordinate.DistanceEstimateInMeter(location4, location5), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // build source stream with one way:
             //         
@@ -575,16 +736,35 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             // this should result in edges:
             //   1-2, 2-3
 
-            location1 = new GeoCoordinateSimple() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
-            location2 = new GeoCoordinateSimple() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
-            location3 = new GeoCoordinateSimple() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
+            location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
+            location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
+            location3 = new Coordinate() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
             source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3, 2)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3, 2 }
+                }};
 
             // build db from stream.
             routerDb = new RouterDb();
@@ -611,9 +791,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
 
             // verify 2->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
@@ -622,9 +802,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
-            Assert.IsTrue(profile.ContainsKeyValue("highway", "residential"));
-            Assert.AreEqual(new TagsCollection(), meta);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
         }
 
         /// <summary>
@@ -641,16 +821,35 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             //         (2)
             //        
 
-            var location1 = new GeoCoordinateSimple() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
-            var location2 = new GeoCoordinateSimple() { Latitude = 51.19282276127831f, Longitude = 4.5867919921875f };
-            var location3 = new GeoCoordinateSimple() { Latitude = 51.05807338112719f, Longitude = 4.5867919921875f };
+            var location1 = new Coordinate() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
+            var location2 = new Coordinate() { Latitude = 51.19282276127831f, Longitude = 4.5867919921875f };
+            var location3 = new Coordinate() { Latitude = 51.05807338112719f, Longitude = 4.5867919921875f };
             var source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                }};
 
             // build db from stream.
             var routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -667,7 +866,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             var edge2 = routerDb.Network.GetEdge(1);
             Assert.IsNull(edge1.Shape);
             Assert.IsNull(edge2.Shape);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3),
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location3),
                 edge1.Data.Distance + edge2.Data.Distance, 0.2);
             Assert.AreEqual(3, routerDb.Network.VertexCount);
             Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);
@@ -678,11 +877,25 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(location3.Longitude, routerDb.Network.GetVertex(1).Longitude);
 
             source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 3)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 3 }
+                }};
 
             // build db from stream.
             routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -699,9 +912,9 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             edge2 = routerDb.Network.GetEdge(1);
             Assert.IsNull(edge1.Shape);
             Assert.IsNull(edge2.Shape);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location3),
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location3),
                 edge1.Data.Distance + edge2.Data.Distance, 0.2);
-            var middle = new GeoCoordinateSimple()
+            var middle = new Coordinate()
             {
                 Latitude = (float)(((double)location1.Latitude +
                     (double)location3.Latitude) / 2.0),
@@ -716,21 +929,50 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(middle.Latitude, routerDb.Network.GetVertex(2).Latitude);
             Assert.AreEqual(middle.Longitude, routerDb.Network.GetVertex(2).Longitude);
 
-            location1 = new GeoCoordinateSimple() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
-            location2 = new GeoCoordinateSimple() { Latitude = 51.26005008781385f, Longitude = 4.5867919921875f };
-            location3 = new GeoCoordinateSimple() { Latitude = 51.19282276127831f, Longitude = 4.5867919921875f };
-            var location4 = new GeoCoordinateSimple() { Latitude = 51.12549720918989f, Longitude = 4.5867919921875f };
-            var location5 = new GeoCoordinateSimple() { Latitude = 51.05807338112719f, Longitude = 4.5867919921875f };
+            location1 = new Coordinate() { Latitude = 51.32717923968566f, Longitude = 4.5867919921875f };
+            location2 = new Coordinate() { Latitude = 51.26005008781385f, Longitude = 4.5867919921875f };
+            location3 = new Coordinate() { Latitude = 51.19282276127831f, Longitude = 4.5867919921875f };
+            var location4 = new Coordinate() { Latitude = 51.12549720918989f, Longitude = 4.5867919921875f };
+            var location5 = new Coordinate() { Latitude = 51.05807338112719f, Longitude = 4.5867919921875f };
 
             source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Node.Create(4, location4.Latitude, location4.Longitude),
-                Node.Create(5, location5.Latitude, location5.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3, 4, 5)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3, 4, 5 }
+                }};
 
             // build db from stream.
             routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -751,7 +993,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(edge1.Shape[1].Latitude, location3.Latitude);
             Assert.AreEqual(edge1.Shape[1].Longitude, location3.Longitude);
             Assert.IsTrue(edge2.Shape == null || edge2.Shape.Count == 0);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location5),
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location5),
                 edge1.Data.Distance + edge2.Data.Distance, 0.2);
             Assert.AreEqual(3, routerDb.Network.VertexCount);
             Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);
@@ -761,20 +1003,59 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(location4.Latitude, routerDb.Network.GetVertex(2).Latitude);
             Assert.AreEqual(location4.Longitude, routerDb.Network.GetVertex(2).Longitude);
 
-            var location6 = new GeoCoordinateSimple() { Latitude = 50.98004704630210f, Longitude = 4.5867919921875f };
-            var location7 = new GeoCoordinateSimple() { Latitude = 50.77902363244571f, Longitude = 4.5867919921875f };
+            var location6 = new Coordinate() { Latitude = 50.98004704630210f, Longitude = 4.5867919921875f };
+            var location7 = new Coordinate() { Latitude = 50.77902363244571f, Longitude = 4.5867919921875f };
 
             source = new OsmGeo[] {
-                Node.Create(1, location1.Latitude, location1.Longitude),
-                Node.Create(2, location2.Latitude, location2.Longitude),
-                Node.Create(3, location3.Latitude, location3.Longitude),
-                Node.Create(4, location4.Latitude, location4.Longitude),
-                Node.Create(5, location5.Latitude, location5.Longitude),
-                Node.Create(6, location6.Latitude, location6.Longitude),
-                Node.Create(7, location7.Latitude, location7.Longitude),
-                Way.Create(1, new TagsCollection(
-                    Tag.Create("highway", "residential")), 1, 2, 3, 4, 5, 6, 7)
-                }.ToOsmStreamSource();
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Node()
+                {
+                    Id = 6,
+                    Latitude = location6.Latitude,
+                    Longitude = location6.Longitude
+                },
+                new Node()
+                {
+                    Id = 7,
+                    Latitude = location7.Latitude,
+                    Longitude = location7.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3, 4, 5, 6, 7 }
+                }};
 
             // build db from stream.
             routerDb = new RouterDb(Routing.Data.EdgeDataSerializer.MAX_DISTANCE);
@@ -799,7 +1080,7 @@ namespace OsmSharp.Routing.Test.Osm.Streams
             Assert.AreEqual(edge2.Shape[0].Latitude, location5.Latitude);
             Assert.AreEqual(edge2.Shape[0].Longitude, location5.Longitude);
             Assert.IsTrue(edge3.Shape == null || edge3.Shape.Count == 0);
-            Assert.AreEqual(GeoCoordinate.DistanceEstimateInMeter(location1, location7),
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location7),
                 edge1.Data.Distance + edge2.Data.Distance + edge3.Data.Distance, 0.2);
             Assert.AreEqual(4, routerDb.Network.VertexCount);
             Assert.AreEqual(location1.Latitude, routerDb.Network.GetVertex(0).Latitude);

@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
+using OsmSharp.Routing.Attributes;
 
 namespace OsmSharp.Routing
 {
@@ -34,20 +34,20 @@ namespace OsmSharp.Routing
             this.Longitude = longitude;
             this.EdgeId = edgeId;
             this.Offset = offset;
-            this.Tags = new TagsCollection();
+            this.Attributes = new AttributeCollection();
         }
 
         /// <summary>
         /// Creates a new router point.
         /// </summary>
         public RouterPoint(float latitude, float longitude, uint edgeId, ushort offset,
-            params Tag[] tags)
+            params Attribute[] attributes)
         {
             this.Latitude = latitude;
             this.Longitude = longitude;
             this.EdgeId = edgeId;
             this.Offset = offset;
-            this.Tags = new TagsCollection(tags);
+            this.Attributes = new AttributeCollection(attributes);
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace OsmSharp.Routing
         /// <summary>
         /// Gets/sets the tags.
         /// </summary>
-        public TagsCollectionBase Tags
+        public IAttributeCollection Attributes
         {
             get;
             private set;
@@ -106,7 +106,7 @@ namespace OsmSharp.Routing
                 System.Math.Round(((float)this.Offset / ushort.MaxValue) * 100, 1).ToInvariantString(),
                 this.Latitude.ToInvariantString(), 
                 this.Longitude.ToInvariantString(), 
-                this.Tags.ToInvariantString());
+                this.Attributes.ToInvariantString());
         }
     }
 }

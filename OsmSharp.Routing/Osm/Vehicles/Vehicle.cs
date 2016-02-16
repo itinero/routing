@@ -16,9 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Osm;
-using OsmSharp.Units.Speed;
+using OsmSharp.Routing.Attributes;
 using System;
 using System.Collections.Generic;
 
@@ -103,7 +101,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         public virtual void Register()
         {
             if (VehiclesByName == null)
-            { // initialize the vehicle by name dictionary.
+            {
                 VehiclesByName = new Dictionary<string, Vehicle>();
             }
             VehiclesByName[this.UniqueName.ToLowerInvariant()] = this;
@@ -130,7 +128,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets all registered vehicles.
         /// </summary>
-        /// <returns></returns>
         public static IEnumerable<Vehicle> GetAllRegistered()
         {
             return VehiclesByName.Values;
@@ -158,7 +155,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the given tag is relevant for any registered vehicle, false otherwise.
         /// </summary>
-        /// <returns></returns>
         public static bool IsRelevantForOneOrMore(string key)
         {
             // register at least the default vehicles.
@@ -170,7 +166,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
             foreach (var vehicle in VehiclesByName)
             {
                 if (vehicle.Value.IsRelevant(key))
-                { // ok, key is relevant.
+                {
                     return true;
                 }
             }
@@ -180,19 +176,17 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the given key-value pair is relevant for any registered vehicle, false otherwise.
         /// </summary>
-        /// <returns></returns>
         public static bool IsRelevantForOneOrMore(string key, string value)
         {
-            // register at least the default vehicles.
             if (VehiclesByName == null)
-            { // no vehicles have been registered.
+            {
                 Vehicle.RegisterVehicles();
             }
 
             foreach (var vehicle in VehiclesByName)
             {
                 if (vehicle.Value.IsRelevant(key, value))
-                { // ok, key is relevant.
+                {
                     return true;
                 }
             }
@@ -206,7 +200,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the given key is relevant for profile.
         /// </summary>
-        /// <returns></returns>
         public virtual bool IsRelevantForProfile(string key)
         {
             return _relevantProfileKeys.Contains(key);
@@ -236,8 +229,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Trys to return the highwaytype from the tags
         /// </summary>
-        /// <returns></returns>
-        protected bool TryGetHighwayType(TagsCollectionBase tags, out string highwayType)
+        protected bool TryGetHighwayType(IAttributeCollection tags, out string highwayType)
         {
             highwayType = string.Empty;
             return tags != null && tags.TryGetValue("highway", out highwayType);
@@ -246,8 +238,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the edge with the given tags can be traversed by the vehicle.
         /// </summary>
-        /// <returns></returns>
-        public virtual bool CanTraverse(TagsCollectionBase tags)
+        public virtual bool CanTraverse(IAttributeCollection tags)
         {
             string highwayType;
             if (TryGetHighwayType(tags, out highwayType))
@@ -260,8 +251,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
         /// </summary>
-        /// <returns></returns>
-        public virtual bool CanStopOn(TagsCollectionBase tags)
+        public virtual bool CanStopOn(IAttributeCollection tags)
         {
             return true;
         }
@@ -269,29 +259,24 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the Max Speed for the highwaytype in Km/h
         /// </summary>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        public abstract KilometerPerHour MaxSpeedAllowed(string highwayType);
+        public abstract float MaxSpeedAllowed(string highwayType);
 
         /// <summary>
         /// Returns the max speed this vehicle can handle.
         /// </summary>
-        /// <returns></returns>
-        public abstract KilometerPerHour MaxSpeed();
+        public abstract float MaxSpeed();
 
         /// <summary>
         /// Returns the minimum speed of this vehicle.
         /// </summary>
-        /// <returns></returns>
-        public abstract KilometerPerHour MinSpeed();
+        public abstract float MinSpeed();
 
         /// <summary>
         /// Returns the maximum speed.
         /// </summary>
-        /// <returns></returns>
-        public virtual KilometerPerHour MaxSpeedAllowed(TagsCollectionBase tags)
+        public virtual float MaxSpeedAllowed(IAttributeCollection tags)
         {
-            KilometerPerHour speed = 5;
+            float speed = 5;
 
             // get max-speed tag if any.
             if (tags.TryGetMaxSpeed(out speed))
@@ -311,12 +296,11 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Estimates the probable speed of this vehicle on a way with the given tags.
         /// </summary>
-        /// <returns></returns>
-        public virtual KilometerPerHour ProbableSpeed(TagsCollectionBase tags)
+        public virtual float ProbableSpeed(IAttributeCollection tags)
         {
             var maxSpeedAllowed = this.MaxSpeedAllowed(tags);
             var maxSpeed = this.MaxSpeed();
-            if (maxSpeed.Value < maxSpeedAllowed.Value)
+            if (maxSpeed < maxSpeedAllowed)
             {
                 return maxSpeed;
             }
@@ -326,26 +310,20 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the edges with the given properties are equal for the vehicle.
         /// </summary>
-        /// <param name="tags1"></param>
-        /// <param name="tags2"></param>
-        /// <returns></returns>
-        public virtual bool IsEqualFor(TagsCollectionBase tags1, TagsCollectionBase tags2)
+        public virtual bool IsEqualFor(IAttributeCollection tags1, IAttributeCollection tags2)
         {
             if (this.GetName(tags1) != this.GetName(tags2))
             {
                 // the name have to be equal.
                 return false;
             }
-
             return true;
         }
 
         /// <summary>
-        ///     Returns true if the edge is one way forward, false if backward, null if bidirectional.
+        /// Returns true if the edge is one way forward, false if backward, null if bidirectional.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        public virtual bool? IsOneWay(TagsCollectionBase tags)
+        public virtual bool? IsOneWay(IAttributeCollection tags)
         {
             string oneway;
             if (tags.TryGetValue("oneway", out oneway))
@@ -374,14 +352,12 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the name of a given way.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        private string GetName(TagsCollectionBase tags)
+        private string GetName(IAttributeCollection tags)
         {
             var name = string.Empty;
-            if (tags.ContainsKey("name"))
+            if (!tags.TryGetValue("name", out name))
             {
-                name = tags["name"];
+                return string.Empty;
             }
             return name;
         }
@@ -389,10 +365,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the vehicle is allowed on the way represented by these tags
         /// </summary>
-        /// <param name="tags"></param>
-        /// <param name="highwayType"></param>
-        /// <returns></returns>
-        protected abstract bool IsVehicleAllowed(TagsCollectionBase tags, string highwayType);
+        protected abstract bool IsVehicleAllowed(IAttributeCollection tags, string highwayType);
 
         /// <summary>
         /// Returns a unique name this vehicle type.
@@ -405,7 +378,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the key is relevant for this vehicle profile.
         /// </summary>
-        /// <returns></returns>
         public virtual bool IsRelevant(string key)
         {
             return this.IsRelevantForProfile(key) || this.IsRelevantForMeta(key);
@@ -414,18 +386,14 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns true if the key-value pair is relevant for this vehicle profile.
         /// </summary>
-        /// <param name="key"></param>
-        /// <param name="value"></param>
-        /// <returns></returns>
         public virtual bool IsRelevant(string key, string value)
-        { // keep all values, override in specific profiles to keep only relevant values.
+        {
             return this.IsRelevant(key);
         }
 
         /// <summary>
         /// Returns a profile for this vehicle that can be used for finding fastest routes;.
         /// </summary>
-        /// <returns></returns>
         public Routing.Profiles.Profile Fastest()
         {
             return new Routing.Profiles.Profile(this.UniqueName,
@@ -440,7 +408,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns a profile for this vehicle that can be used for finding fastest routes;.
         /// </summary>
-        /// <returns></returns>
         public Routing.Profiles.Profile Shortest()
         {
             return new Routing.Profiles.Profile(this.UniqueName + ".Shortest", 
@@ -455,7 +422,6 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets all profiles for this vehicles.
         /// </summary>
-        /// <returns></returns>
         public virtual Routing.Profiles.Profile[] GetProfiles()
         {
             return new Routing.Profiles.Profile[]
@@ -468,7 +434,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets the get speed function.
         /// </summary>
-        internal Func<TagsCollectionBase, Routing.Profiles.Speed> GetGetSpeed()
+        internal Func<IAttributeCollection, Routing.Profiles.Speed> GetGetSpeed()
         {
             return (tags) =>
             {
@@ -476,7 +442,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
                 {
                     var speed = new OsmSharp.Routing.Profiles.Speed()
                     {
-                        Value = (float)this.ProbableSpeed(tags).Value / 3.6f,
+                        Value = (float)this.ProbableSpeed(tags) / 3.6f,
                         Direction = 0
                     };
                     var oneway = this.IsOneWay(tags);
@@ -505,7 +471,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         {
             return () => new OsmSharp.Routing.Profiles.Speed()
             {
-                Value = (float)this.MinSpeed().Value / 3.6f,
+                Value = (float)this.MinSpeed() / 3.6f,
                 Direction = 0
             };
         }
@@ -513,7 +479,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets the can stop function.
         /// </summary>
-        internal Func<TagsCollectionBase, bool> GetCanStop()
+        internal Func<IAttributeCollection, bool> GetCanStop()
         {
             return (tags) =>
             {
@@ -524,7 +490,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets the equals function.
         /// </summary>
-        internal Func<TagsCollectionBase, TagsCollectionBase, bool> GetEquals()
+        internal Func<IAttributeCollection, IAttributeCollection, bool> GetEquals()
         {
             return (edge1, edge2) =>
             {
@@ -535,8 +501,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Gets the get factor function.
         /// </summary>
-        /// <returns></returns>
-        internal Func<TagsCollectionBase, Routing.Profiles.Factor> GetGetFactor()
+        internal Func<IAttributeCollection, Routing.Profiles.Factor> GetGetFactor()
         {
             var getSpeed = this.GetGetSpeed();
             return (tags) =>

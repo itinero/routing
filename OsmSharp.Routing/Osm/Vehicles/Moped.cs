@@ -16,8 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Units.Speed;
-
 namespace OsmSharp.Routing.Osm.Vehicles
 {
     /// <summary>
@@ -39,8 +37,7 @@ namespace OsmSharp.Routing.Osm.Vehicles
         /// <summary>
         /// Returns the maximum possible speed this vehicle can achieve.
         /// </summary>
-        /// <returns></returns>
-        public override KilometerPerHour MaxSpeed()
+        public override float MaxSpeed()
         {
             return 40;
         }

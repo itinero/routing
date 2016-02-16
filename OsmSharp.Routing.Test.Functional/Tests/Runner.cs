@@ -16,12 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
+using OsmSharp.Routing.Algorithms.Search.Hilbert;
+using OsmSharp.Routing.Geo;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
+using Newtonsoft.Json;
 using NUnit.Framework;
-using OsmSharp.Geo.Features;
-using OsmSharp.Geo.Geometries;
-using OsmSharp.Math.Geo;
 using OsmSharp.Routing.Osm.Vehicles;
-using OsmSharp.Routing.Profiles;
 using System;
 using System.IO;
 using System.Reflection;
@@ -36,7 +37,7 @@ namespace OsmSharp.Routing.Test.Functional.Tests
         /// <summary>
         /// Default resolver test function.
         /// </summary>
-        public static Func<Router, GeoCoordinate, Result<RouterPoint>> Default = (router, coordinate) => 
+        public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) => 
             {
                 return router.TryResolve(Vehicle.Car.Fastest(), coordinate);
             };
@@ -45,9 +46,9 @@ namespace OsmSharp.Routing.Test.Functional.Tests
         /// Tests resolving all points in the given feature collection.
         /// </summary>
         public static void TestResolve(Router router, FeatureCollection features, 
-            Func<Router, GeoCoordinate, Result<RouterPoint>> resolve)
+            Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
-            foreach(var feature in features)
+            foreach(var feature in features.Features)
             {
                 if(feature.Geometry is Point)
                 {
@@ -60,12 +61,14 @@ namespace OsmSharp.Routing.Test.Functional.Tests
         /// Tests resolving all points in the given feature collection.
         /// </summary>
         public static void TestResolve(Router router, string embeddedResourceId, 
-            Func<Router, GeoCoordinate, Result<RouterPoint>> resolve)
+            Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
             FeatureCollection featureCollection;
             using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))
             {
-                featureCollection = OsmSharp.Geo.Streams.GeoJson.GeoJsonConverter.ToFeatureCollection(stream.ReadToEnd());
+                var jsonReader = new JsonTextReader(stream);
+                var geoJsonSerializer = new NetTopologySuite.IO.GeoJsonSerializer();
+                featureCollection = geoJsonSerializer.Deserialize(jsonReader) as FeatureCollection;
             }
             TestResolve(router, featureCollection, resolve);
         }
@@ -78,12 +81,15 @@ namespace OsmSharp.Routing.Test.Functional.Tests
             using (var stream = File.OpenRead(file))
             {
                 var routerdb = new RouterDb();
-                var source = new OsmSharp.Osm.PBF.Streams.PBFOsmStreamSource(stream);
-                var progress = new OsmSharp.Osm.Streams.Filters.OsmStreamFilterProgress();
+                var source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
+                var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
                 progress.RegisterSource(source);
-                var target = new OsmSharp.Routing.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles);
+                var target = new OsmSharp.Routing.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles);
                 target.RegisterSource(progress);
                 target.Pull();
+                
+                routerdb.Network.Sort();
+
                 return routerdb;
             }
         }

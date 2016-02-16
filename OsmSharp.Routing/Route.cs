@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,600 +16,790 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Tags;
-using OsmSharp.Geo;
-using OsmSharp.Routing.Profiles;
-using System;
+using OsmSharp.Routing.Attributes;
+using OsmSharp.Routing.Geo;
 using System.Collections.Generic;
+using System;
+using System.Collections;
+using OsmSharp.Routing.Navigation.Directions;
 
 namespace OsmSharp.Routing
 {
     /// <summary>
-    /// Represents a route and all associate meta-data.
+    /// Represents a route.
     /// </summary>
-    public class Route
+    public partial class Route : IEnumerable<RoutePosition>
     {
         /// <summary>
-        /// Tags for this route.
+        /// Gets or sets the shape.
         /// </summary>
-        public List<RouteTags> Tags { get; set; }
+        public Coordinate[] Shape { get; set; }
 
         /// <summary>
-        /// A number of route metrics.
+        /// Gets or sets the attributes.
         /// </summary>
-        /// <remarks>Can also be use for CO2 calculations or quality estimates.</remarks>
-        public List<RouteMetric> Metrics { get; set; }
-        
+        public IAttributeCollection Attributes { get; set; }
+
         /// <summary>
-        /// An ordered array of route segments.
+        /// Gets or sets the stops.
         /// </summary>
-        public List<RouteSegment> Segments { get; set; }
+        public Stop[] Stops { get; set; }
+
+        /// <summary>
+        /// Gets or sets the meta data.
+        /// </summary>
+        public Meta[] ShapeMeta { get; set; }
+
+        /// <summary>
+        /// Represents a stop.
+        /// </summary>
+        public class Stop
+        {
+            /// <summary>
+            /// Gets or sets the shape index.
+            /// </summary>
+            public int Shape { get; set; }
+
+            /// <summary>
+            /// Gets or sets the coordinates.
+            /// </summary>
+            public Coordinate Coordinate { get; set; }
+
+            /// <summary>
+            /// Gets or sets the attributes.
+            /// </summary>
+            public IAttributeCollection Attributes { get; set; }
+
+            /// <summary>
+            /// Creates a clone of this object.
+            /// </summary>
+            public Stop Clone()
+            {
+                AttributeCollection attributes = null;
+                if (this.Attributes != null)
+                {
+                    attributes = new AttributeCollection(this.Attributes);
+                }
+                return new Stop()
+                {
+                    Attributes = attributes,
+                    Shape = this.Shape,
+                    Coordinate = this.Coordinate
+                };
+            }
+        }
+
+        /// <summary>
+        /// Represents meta-data about a part of this route.
+        /// </summary>
+        public class Meta
+        {
+            /// <summary>
+            /// Gets or sets the shape index.
+            /// </summary>
+            public int Shape { get; set; }
+
+            /// <summary>
+            /// Gets or sets the attributes.
+            /// </summary>
+            public IAttributeCollection Attributes { get; set; }
+
+            /// <summary>
+            /// Gets or sets the profile.
+            /// </summary>
+            public string Profile
+            {
+                get
+                {
+                    if (this.Attributes == null)
+                    {
+                        return string.Empty;
+                    }
+                    string value;
+                    if (!this.Attributes.TryGetValue("profile", out value))
+                    {
+                        return string.Empty;
+                    }
+                    return value;
+                }
+                set
+                {
+                    if (this.Attributes == null)
+                    {
+                        this.Attributes = new AttributeCollection();
+                    }
+                    this.Attributes.AddOrReplace("profile", value);
+                }
+            }
+
+            /// <summary>
+            /// Creates a clone of this meta-object.
+            /// </summary>
+            /// <returns></returns>
+            public Meta Clone()
+            {
+                AttributeCollection attributes = null;
+                if (this.Attributes != null)
+                {
+                    attributes = new AttributeCollection(this.Attributes);
+                }
+                return new Meta()
+                {
+                    Attributes = attributes,
+                    Shape = this.Shape
+                };
+            }
+
+            /// <summary>
+            /// The distance in meter.
+            /// </summary>
+            public float Distance
+            {
+                get
+                {
+                    if (this.Attributes == null)
+                    {
+                        return 0;
+                    }
+                    float value;
+                    if (!this.Attributes.TryGetSingle("distance", out value))
+                    {
+                        return 0;
+                    }
+                    return value;
+                }
+                set
+                {
+                    if (this.Attributes == null)
+                    {
+                        this.Attributes = new AttributeCollection();
+                    }
+                    this.Attributes.SetSingle("distance", value);
+                }
+            }
+
+            /// <summary>
+            /// The time in seconds.
+            /// </summary>
+            public float Time
+            {
+                get
+                {
+                    if (this.Attributes == null)
+                    {
+                        return 0;
+                    }
+                    float value;
+                    if (!this.Attributes.TryGetSingle("time", out value))
+                    {
+                        return 0;
+                    }
+                    return value;
+                }
+                set
+                {
+                    if (this.Attributes == null)
+                    {
+                        this.Attributes = new AttributeCollection();
+                    }
+                    this.Attributes.SetSingle("time", value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the branches.
+        /// </summary>
+        public Branch[] Branches { get; set; }
+
+        /// <summary>
+        /// Represents a branch.
+        /// </summary>
+        public class Branch
+        {
+            /// <summary>
+            /// Gets or sets the shape index.
+            /// </summary>
+            public int Shape { get; set; }
+
+            /// <summary>
+            /// Gets or sets the coordinates.
+            /// </summary>
+            public Coordinate Coordinate { get; set; }
+
+            /// <summary>
+            /// Gets or sets the attributes.
+            /// </summary>
+            public IAttributeCollection Attributes { get; set; }
+
+            /// <summary>
+            /// Creates a clone of this object.
+            /// </summary>
+            public Branch Clone()
+            {
+                AttributeCollection attributes = null;
+                if (this.Attributes != null)
+                {
+                    attributes = new AttributeCollection(this.Attributes);
+                }
+                return new Branch()
+                {
+                    Attributes = attributes,
+                    Shape = this.Shape,
+                    Coordinate = this.Coordinate
+                };
+            }
+        }
 
         /// <summary>
         /// The distance in meter.
         /// </summary>
-        public double TotalDistance { get; set; }
+        public float TotalDistance
+        {
+            get
+            {
+                if (this.Attributes == null)
+                {
+                    return 0;
+                }
+                float value;
+                if (!this.Attributes.TryGetSingle("distance", out value))
+                {
+                    return 0;
+                }
+                return value;
+            }
+            set
+            {
+                if (this.Attributes == null)
+                {
+                    this.Attributes = new AttributeCollection();
+                }
+                this.Attributes.SetSingle("distance", value);
+            }
+        }
 
         /// <summary>
         /// The time in seconds.
         /// </summary>
-        public double TotalTime { get; set; }
+        public float TotalTime
+        {
+            get
+            {
+                if (this.Attributes == null)
+                {
+                    return 0;
+                }
+                float value;
+                if (!this.Attributes.TryGetSingle("time", out value))
+                {
+                    return 0;
+                }
+                return value;
+            }
+            set
+            {
+                if (this.Attributes == null)
+                {
+                    this.Attributes = new AttributeCollection();
+                }
+                this.Attributes.SetSingle("time", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the profile.
+        /// </summary>
+        public string Profile
+        {
+            get
+            {
+                if (this.Attributes == null)
+                {
+                    return string.Empty;
+                }
+                string value;
+                if (!this.Attributes.TryGetValue("profile", out value))
+                {
+                    return string.Empty;
+                }
+                return value;
+            }
+            set
+            {
+                if (this.Attributes == null)
+                {
+                    this.Attributes = new AttributeCollection();
+                }
+                this.Attributes.AddOrReplace("profile", value);
+            }
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<RoutePosition> GetEnumerator()
+        {
+            return new RouteEnumerator(this);
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new RouteEnumerator(this);
+        }
     }
 
     /// <summary>
-    /// Represents a point along the route that is a stop.
+    /// Represents a route enumerator.
     /// </summary>
-    public class RouteStop : ICloneable
+    class RouteEnumerator : IEnumerator<RoutePosition>
+    {
+        private readonly Route _route;
+
+        /// <summary>
+        /// Creates a new route enumerator.
+        /// </summary>
+        internal RouteEnumerator(Route route)
+        {
+            _route = route;
+        }
+
+        private RoutePosition _current;
+
+        /// <summary>
+        /// Resets this enumerator.
+        /// </summary>
+        public void Reset()
+        {
+            _current = new RoutePosition(_route,
+                -1, -1, -1, -1);
+        }
+
+        /// <summary>
+        /// Returns the current object.
+        /// </summary>
+        public RoutePosition Current
+        {
+            get
+            {
+                return _current;
+            }
+        }
+
+        /// <summary>
+        /// Returns the current object.
+        /// </summary>
+        object IEnumerator.Current
+        {
+            get
+            {
+                return _current;
+            }
+        }
+
+        /// <summary>
+        /// Move next.
+        /// </summary>
+        public bool MoveNext()
+        {
+            if (_current.Route == null)
+            {
+                this.Reset();
+            }
+            return _current.MoveNext();
+        }
+
+        /// <summary>
+        /// Disponses native resources associated with this enumerator.
+        /// </summary>
+        public void Dispose()
+        {
+
+        }
+    }
+
+    /// <summary>
+    /// Abstract representation of a route position.
+    /// </summary>
+    public struct RoutePosition
     {
         /// <summary>
-        /// The latitude of the entry.
+        /// Creates a new route position.
         /// </summary>
-        public float Latitude { get; set; }
-
-        /// <summary>
-        /// The longitude of the entry.
-        /// </summary>
-        public float Longitude { get; set; }
-        
-        /// <summary>
-        /// Tags for this route point.
-        /// </summary>
-        public RouteTags[] Tags { get; set; }
-
-        /// <summary>
-        /// A number of route metrics, usually containing time/distance.
-        /// </summary>
-        /// <remarks>Can also be use for CO2 calculations or quality estimates.</remarks>
-        public RouteMetric[] Metrics { get; set; }
-
-        #region ICloneable Members
-
-        /// <summary>
-        /// Clones this object.
-        /// </summary>
-        /// <returns></returns>
-        public object Clone()
+        public RoutePosition(Route route, int shape, int stopIndex, 
+            int metaIndex, int branchIndex)
         {
-            var clone = new RouteStop();
-            clone.Latitude = this.Latitude;
-            clone.Longitude = this.Longitude;
-            if (this.Metrics != null)
+            this.Route = route;
+            this.Shape = shape;
+            this.StopIndex = stopIndex;
+            this.MetaIndex = metaIndex;
+            this.BranchIndex = branchIndex;
+        }
+
+        /// <summary>
+        /// Gets the route.
+        /// </summary>
+        public Route Route { get; private set; }
+
+        /// <summary>
+        /// Gets the shape index.
+        /// </summary>
+        public int Shape { get; private set; }
+
+        /// <summary>
+        /// Gets the stop index.
+        /// </summary>
+        public int StopIndex { get; private set; }
+
+        /// <summary>
+        /// Gets the meta index.
+        /// </summary>
+        public int MetaIndex { get; private set; }
+
+        /// <summary>
+        /// Gets the branch index.
+        /// </summary>
+        public int BranchIndex { get; private set; }
+
+        /// <summary>
+        /// Move to the next position.
+        /// </summary>
+        public bool MoveNext()
+        {
+            this.Shape++;
+            if (this.Route.Shape == null ||
+                this.Shape >= this.Route.Shape.Length)
             {
-                clone.Metrics = new RouteMetric[this.Metrics.Length];
-                for (int idx = 0; idx < this.Metrics.Length; idx++)
+                return false;
+            }
+            
+            if (this.Route.Stops != null)
+            {
+                if (this.StopIndex == -1)
                 {
-                    clone.Metrics[idx] = this.Metrics[idx].Clone() as RouteMetric;
+                    this.StopIndex = 0;
                 }
-            }
-            if (this.Tags != null)
-            {
-                clone.Tags = new RouteTags[this.Tags.Length];
-                for (int idx = 0; idx < this.Tags.Length; idx++)
+                else
                 {
-                    clone.Tags[idx] = this.Tags[idx].Clone() as RouteTags;
-                }
-            }
-            return clone;            
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Returns true if the given point has the same name tags and positiong.
-        /// </summary>
-        /// <param name="routePoint"></param>
-        /// <returns></returns>
-        internal bool RepresentsSame(RouteStop routePoint)
-        {
-            if (routePoint == null) return false;
-
-            if (this.Longitude == routePoint.Longitude &&
-                this.Latitude == routePoint.Latitude)
-            {
-                if (routePoint.Tags != null || routePoint.Tags.Length == 0)
-                { // there are tags in the other point.
-                    if (this.Tags != null || this.Tags.Length == 0)
-                    { // there are also tags in this point.
-                        if (this.Tags.Length == routePoint.Tags.Length)
-                        { // and they have the same number of tags!
-                            for (int idx = 0; idx < this.Tags.Length; idx++)
-                            {
-                                if (this.Tags[idx].Key != routePoint.Tags[idx].Key ||
-                                    this.Tags[idx].Value != routePoint.Tags[idx].Value)
-                                { // tags don't equal.
-                                    return false;
-                                }
-                            }
-                            return true;
-                        }
-                        return false;
-                    }
-                }
-                return (this.Tags != null || this.Tags.Length == 0);
-            }
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Represents a segment, or the smallest possible part of a route.
-    /// </summary>
-    public class RouteSegment : ICloneable
-    {
-        /// <summary>
-        /// The latitude of the entry.
-        /// </summary>
-        public float Latitude { get; set; }
-
-        /// <summary>
-        /// The longitude of the entry.
-        /// </summary>
-        public float Longitude { get; set; }
-
-        /// <summary>
-        /// The name of the vehicle that this entry was calculated for.
-        /// </summary>
-        /// <remarks>This vehicle name is empty for unimodal routes.</remarks>
-        public string Profile { get; set; }
-
-        /// <summary>
-        /// Tags of this entry.
-        /// </summary>
-        public RouteTags[] Tags { get; set; }
-
-        /// <summary>
-        /// A number of route metrics, usually containing time/distance.
-        /// </summary>
-        /// <remarks>Can also be use for CO2 calculations or quality estimates.</remarks>
-        public RouteMetric[] Metrics { get; set; }
-
-        /// <summary>
-        /// Distance in meter to reach this part of the route.
-        /// </summary>
-        public double Distance { get; set; }
-
-        /// <summary>
-        /// Estimated time in seconds to reach this part of the route.
-        /// </summary>
-        public double Time { get; set; }
-
-        /// <summary>
-        /// The important or relevant points for this route at this point.
-        /// </summary>
-        public RouteStop[] Points { get; set; }
-
-        /// <summary>
-        /// The side streets entries.
-        /// </summary>
-        public RouteSegmentBranch[] SideStreets { get; set; }
-
-        #region ICloneable Members
-
-        /// <summary>
-        /// Clones this object.
-        /// </summary>
-        /// <returns></returns>
-        public object Clone()
-        {
-            var clone = new RouteSegment();
-            clone.Distance = this.Distance;
-            clone.Latitude = this.Latitude;
-            clone.Longitude = this.Longitude;
-            if (this.Metrics != null)
-            {
-                clone.Metrics = new RouteMetric[this.Metrics.Length];
-                for (int idx = 0; idx < this.Metrics.Length; idx++)
-                {
-                    clone.Metrics[idx] = this.Metrics[idx].Clone() as RouteMetric;
-                }
-            }
-            if (this.Points != null)
-            {
-                clone.Points = new RouteStop[this.Points.Length];
-                for (int idx = 0; idx < this.Points.Length; idx++)
-                {
-                    clone.Points[idx] = this.Points[idx].Clone() as RouteStop;
-                }
-            }
-            if (this.SideStreets != null)
-            {
-                clone.SideStreets = new RouteSegmentBranch[this.SideStreets.Length];
-                for (int idx = 0; idx < this.SideStreets.Length; idx++)
-                {
-                    clone.SideStreets[idx] = this.SideStreets[idx].Clone() as RouteSegmentBranch;
-                }
-            }
-            if (this.Tags != null)
-            {
-                clone.Tags = new RouteTags[this.Tags.Length];
-                for (int idx = 0; idx < this.Tags.Length; idx++)
-                {
-                    clone.Tags[idx] = this.Tags[idx].Clone() as RouteTags;
-                }
-            }
-            clone.Profile = this.Profile;
-            clone.Time = this.Time;
-            return clone;
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Creates a new route segment.
-        /// </summary>
-        /// <returns></returns>
-        public static RouteSegment CreateNew(ICoordinate coordinate, Profile profile)
-        {
-            return new RouteSegment()
-            {
-                Latitude = coordinate.Latitude,
-                Longitude = coordinate.Longitude,
-                Profile = profile.Name
-            };
-        }
-
-        /// <summary>
-        /// Creates a new route segment.
-        /// </summary>
-        /// <returns></returns>
-        public static RouteSegment CreateNew(float latitude, float longitude, Profile profile)
-        {
-            return new RouteSegment()
-            {
-                Latitude = latitude,
-                Longitude = longitude,
-                Profile = profile.Name
-            };
-        }
-
-        /// <summary>
-        /// Returns a string representation of this segment.
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Format("{2} - @{0}s {1}m",
-                this.Time, this.Distance, this.Profile);
-        }
-    }
-
-    /// <summary>
-    /// Represents a segment that has not been taken but is important to the route.
-    /// </summary>
-    public class RouteSegmentBranch : ICloneable
-    {
-        /// <summary>
-        /// The latitude of the entry.
-        /// </summary>
-        public float Latitude { get; set; }
-
-        /// <summary>
-        /// The longitude of the entry.
-        /// </summary>
-        public float Longitude { get; set; }
-
-        /// <summary>
-        /// Tags of this entry.
-        /// </summary>
-        public RouteTags[] Tags { get; set; }
-
-        #region ICloneable Members
-
-        /// <summary>
-        /// Returns a clone of this object.
-        /// </summary>
-        /// <returns></returns>
-        public object Clone()
-        {
-            RouteSegmentBranch clone = new RouteSegmentBranch();
-            clone.Latitude = this.Latitude;
-            clone.Longitude = this.Longitude;
-            if (this.Tags != null)
-            {
-                clone.Tags = new RouteTags[this.Tags.Length];
-                for (int idx = 0; idx < this.Tags.Length; idx++)
-                {
-                    clone.Tags[idx] = this.Tags[idx].Clone() as RouteTags;
-                }
-            }
-            return clone;
-        }
-
-        #endregion
-    }
-
-    /// <summary>
-    /// Represents a key value pair.
-    /// </summary>
-    public class RouteTags : ICloneable
-    {
-        /// <summary>
-        /// The key.
-        /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// The value.
-        /// </summary>
-        public string Value { get; set; }
-
-        #region ICloneable Members
-
-        /// <summary>
-        /// Returns a clone of this object.
-        /// </summary>
-        /// <returns></returns>
-        public object Clone()
-        {
-            var clone = new RouteTags();
-            clone.Key = this.Key;
-            clone.Value = this.Value;
-            return clone;
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Returns a System.String that represents the current System.Object.
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Format("{0}={1}",
-                this.Key, this.Value);
-        }
-    }
-
-    /// <summary>
-    /// Contains extensions for route tags.
-    /// </summary>
-    public static class RouteTagsExtensions
-    {        
-        /// <summary>
-        /// Converts a dictionary of tags to a RouteTags array.
-        /// </summary>
-        public static RouteTags[] ConvertFrom(this TagsCollectionBase tags)
-        {
-            var tagsList = new List<RouteTags>();
-            foreach (Tag pair in tags)
-            {
-                var tag = new RouteTags();
-                tag.Key = pair.Key;
-                tag.Value = pair.Value;
-                tagsList.Add(tag);
-            }
-            return tagsList.ToArray();
-        }
-
-        /// <summary>
-        /// Converts a RouteTags array to a list of KeyValuePairs.
-        /// </summary>
-        public static TagsCollectionBase ConvertToTagsCollection(this RouteTags[] tags)
-        {
-            var tagsList = new TagsCollection();
-            if (tags != null)
-            {
-                foreach (var pair in tags)
-                {
-                    tagsList.Add(new Tag(pair.Key, pair.Value));
-                }
-            }
-            return tagsList;
-        }
-
-        /// <summary>
-        /// Converts a dictionary of tags to a RouteTags array.
-        /// </summary>
-        public static RouteTags[] ConvertFrom(this IDictionary<string, string> tags)
-        {
-            var tags_list = new List<RouteTags>();
-            foreach (var pair in tags)
-            {
-                RouteTags tag = new RouteTags();
-                tag.Key = pair.Key;
-                tag.Value = pair.Value;
-                tags_list.Add(tag);
-            }
-            return tags_list.ToArray();
-        }
-
-        /// <summary>
-        /// Converts a list of KeyValuePairs to a RouteTags array.
-        /// </summary>
-        public static RouteTags[] ConvertFrom(this List<KeyValuePair<string, string>> tags)
-        {
-            var tagsList = new List<RouteTags>();
-            if (tags != null)
-            {
-                foreach (var pair in tags)
-                {
-                    var tag = new RouteTags();
-                    tag.Key = pair.Key;
-                    tag.Value = pair.Value;
-                    tagsList.Add(tag);
-                }
-            }
-            return tagsList.ToArray();
-        }
-
-        /// <summary>
-        /// Converts a RouteTags array to a list of KeyValuePairs.
-        /// </summary>
-        public static List<KeyValuePair<string, string>> ConvertTo(this RouteTags[] tags)
-        {
-            var tagsList = new List<KeyValuePair<string, string>>();
-            if (tags != null)
-            {
-                foreach (RouteTags pair in tags)
-                {
-                    tagsList.Add(new KeyValuePair<string, string>(pair.Key, pair.Value));
-                }
-            }
-            return tagsList;
-        }
-
-        /// <summary>
-        /// Returns the value of the first tag with the key given.
-        /// </summary>
-        public static string GetValueFirst(this RouteTags[] tags, string key)
-        {
-            string first_value = null;
-            if (tags != null)
-            {
-                foreach (RouteTags tag in tags)
-                {
-                    if (tag.Key == key)
+                    while (this.StopIndex < this.Route.Stops.Length &&
+                        this.Route.Stops[this.StopIndex].Shape < this.Shape)
                     {
-                        first_value = tag.Value;
-                        break;
+                        this.StopIndex++;
                     }
                 }
             }
-            return first_value;
+
+            if (this.Route.ShapeMeta != null)
+            {
+                if (this.MetaIndex == -1)
+                {
+                    this.MetaIndex = 0;
+                }
+                else
+                {
+                    while (this.MetaIndex < this.Route.ShapeMeta.Length &&
+                        this.Route.ShapeMeta[this.MetaIndex].Shape < this.Shape)
+                    {
+                        this.MetaIndex++;
+                    }
+                }
+            }
+
+            if (this.Route.Branches != null)
+            {
+                if (this.BranchIndex == -1)
+                {
+                    this.BranchIndex = 0;
+                }
+                else
+                {
+                    while (this.BranchIndex < this.Route.Branches.Length &&
+                        this.Route.Branches[this.BranchIndex].Shape < this.Shape)
+                    {
+                        this.BranchIndex++;
+                    }
+                }
+            }
+            return true;
         }
 
         /// <summary>
-        /// Returns all values for a given key.
+        /// Move to the next position.
         /// </summary>
-        public static List<string> GetValues(this RouteTags[] tags, string key)
+        public bool MovePrevious()
         {
-            List<string> values = new List<string>();
-            if (tags != null)
+            this.Shape--;
+            if (this.Route.Shape == null ||
+                this.Shape < 0 ||
+                this.Shape >= this.Route.Shape.Length)
             {
-                foreach (RouteTags tag in tags)
-                {
-                    if (tag.Key == key)
-                    {
-                        values.Add(tag.Value);
-                    }
-                }
+                return false;
             }
-            return values;
-        }
 
-        /// <summary>
-        /// Adds or replaces the values in the other tags collection with the ones in 'other'.
-        /// </summary>
-        public static void AddOrReplace(ref RouteTags[] tags, RouteTags[] other)
-        {
-            List<RouteTags> newTags = null;
-            foreach(var tag in other)
+            while (this.Route.Stops != null &&
+                this.StopIndex > 0 &&
+                this.StopIndex < this.Route.Stops.Length &&
+                this.Route.Stops[this.StopIndex].Shape > this.Shape)
             {
-                var replaced = false;
-                for(var i = 0; i < tags.Length; i++)
-                {
-                    if (tags[i].Key == tag.Key)
-                    {
-                        tags[i].Value = tag.Value;
-                        replaced = true;
-                        break;
-                    }
-                }
-                if (!replaced)
-                {
-                    if(newTags == null)
-                    {
-                        newTags = new List<RouteTags>();
-                    }
-                    newTags.Add(tag);
-                }
+                this.StopIndex--;
             }
-            if(newTags != null)
+
+            while (this.Route.ShapeMeta != null &&
+                this.MetaIndex > 0 &&
+                this.MetaIndex < this.Route.ShapeMeta.Length &&
+                this.Route.ShapeMeta[this.MetaIndex].Shape > this.Shape)
             {
-                Array.Resize<RouteTags>(ref tags, tags.Length + newTags.Count);
-                for(var i = tags.Length - newTags.Count; i < tags.Length; i++)
-                {
-                    tags[i] = newTags[i - tags.Length + newTags.Count];
-                }
+                this.MetaIndex--;
             }
+
+            while (this.Route.Branches != null &&
+                this.BranchIndex > 0 &&
+                this.BranchIndex < this.Route.Branches.Length &&
+                this.Route.Branches[this.BranchIndex].Shape > this.Shape)
+            {
+                this.BranchIndex--;
+            }
+            return true;
         }
     }
 
     /// <summary>
-    /// Represents a key value pair.
+    /// Extension methods for the IRoutePosition-interface.
     /// </summary>
-    public class RouteMetric : ICloneable
+    public static class IRoutePositionExtensions
     {
         /// <summary>
-        /// The key.
+        /// Returns true if this position has stops.
         /// </summary>
-        public string Key { get; set; }
-
-        /// <summary>
-        /// The value.
-        /// </summary>
-        public double Value { get; set; }
-
-        /// <summary>
-        /// Convert from a regular tag dictionary.
-        /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        public static RouteMetric[] ConvertFrom(IDictionary<string, double> tags)
+        public static bool HasStops(this RoutePosition position)
         {
-            var tagsList = new List<RouteMetric>();
-            foreach (KeyValuePair<string, double> pair in tags)
-            {
-                RouteMetric tag = new RouteMetric();
-                tag.Key = pair.Key;
-                tag.Value = pair.Value;
-                tagsList.Add(tag);
-            }
-            return tagsList.ToArray();
+            return position.Route.Stops != null &&
+                position.Route.Stops.Length > position.StopIndex &&
+                position.Route.Stops[position.StopIndex].Shape == position.Shape;
         }
 
         /// <summary>
-        /// Converts to regular tags list.
+        /// Returns the stops at this position.
         /// </summary>
-        /// <param name="tags"></param>
-        /// <returns></returns>
-        public static List<KeyValuePair<string, double>> ConvertTo(RouteMetric[] tags)
+        public static IEnumerable<Route.Stop> Stops(this RoutePosition position)
         {
-            var tagsList = new List<KeyValuePair<string, double>>();
-            if (tags != null)
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Returns true if this position has branches.
+        /// </summary>
+        public static bool HasBranches(this RoutePosition position)
+        {
+            return position.Route.Branches != null &&
+                position.Route.Branches.Length > position.BranchIndex &&
+                position.Route.Branches[position.BranchIndex].Shape == position.Shape;
+        }
+
+        /// <summary>
+        /// Returns the branches at this position.
+        /// </summary>
+        public static IEnumerable<Route.Branch> Branches(this RoutePosition position)
+        {
+            var branches = new List<Route.Branch>();
+            if (position.Route.Branches != null &&
+                position.Route.Branches.Length > position.BranchIndex &&
+                position.Route.Branches[position.BranchIndex].Shape == position.Shape)
             {
-                foreach (RouteMetric pair in tags)
+                var branchIndex = position.BranchIndex;
+                while (position.Route.Branches.Length > branchIndex && 
+                    position.Route.Branches[branchIndex].Shape == position.Shape)
                 {
-                    tagsList.Add(new KeyValuePair<string, double>(pair.Key, pair.Value));
+                    branches.Add(position.Route.Branches[branchIndex]);
+                    branchIndex++;
                 }
             }
-            return tagsList;
+            return branches;
         }
-
-        #region ICloneable Members
 
         /// <summary>
-        /// Returns a clone of this object.
+        /// Returns true if this position has current meta.
         /// </summary>
-        /// <returns></returns>
-        public object Clone()
+        public static bool HasCurrentMeta(this RoutePosition position)
         {
-            RouteMetric clone = new RouteMetric();
-            clone.Key = this.Key;
-            clone.Value = this.Value;
-            return clone;
+            return position.Route.ShapeMeta != null &&
+                position.Route.ShapeMeta.Length > position.MetaIndex &&
+                position.Route.ShapeMeta[position.MetaIndex].Shape == position.Shape;
         }
 
-        #endregion
+        /// <summary>
+        /// Returns the current meta.
+        /// </summary>
+        public static Route.Meta CurrentMeta(this RoutePosition position)
+        {
+            if (position.HasCurrentMeta())
+            {
+                return position.Route.ShapeMeta[position.MetaIndex];
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns the meta that applies to this position.
+        /// </summary>
+        public static Route.Meta Meta(this RoutePosition position)
+        {
+            if (position.Route.ShapeMeta != null &&
+                position.Route.ShapeMeta.Length > position.MetaIndex)
+            {
+                return position.Route.ShapeMeta[position.MetaIndex];
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Returns true if this position is the first position.
+        /// </summary>
+        public static bool IsFirst(this RoutePosition position)
+        {
+            return position.Shape == 0;
+        }
+
+        /// <summary>
+        /// Returns true if this position is the last position.
+        /// </summary>
+        public static bool IsLast(this RoutePosition position)
+        {
+            return position.Route.Shape.Length - 1 == position.Shape;
+        }
+
+        /// <summary>
+        /// Gets the previous location.
+        /// </summary>
+        public static Coordinate PreviousLocation(this RoutePosition position)
+        {
+            return position.Route.Shape[position.Shape - 1];
+        }
+
+        /// <summary>
+        /// Gets the next location.
+        /// </summary>
+        public static Coordinate NextLocation(this RoutePosition position)
+        {
+            return position.Route.Shape[position.Shape + 1];
+        }
+
+        /// <summary>
+        /// Gets the location.
+        /// </summary>
+        public static Coordinate Location(this RoutePosition position)
+        {
+            return position.Route.Shape[position.Shape];
+        }
+
+        /// <summary>
+        /// Gets the relative direction at this position.
+        /// </summary>
+        public static RelativeDirection RelativeDirection(this RoutePosition position)
+        {
+            return position.Route.RelativeDirectionAt(position.Shape);
+        }
+
+        /// <summary>
+        /// Gets the direction at this position.
+        /// </summary>
+        public static DirectionEnum Direction(this RoutePosition position)
+        {
+            return DirectionCalculator.Calculate(position.Location(), position.NextLocation());
+        }
+
+        /// <summary>
+        /// Gets the meta attribute for route at the current position.
+        /// </summary>
+        public static string GetMetaAttribute(this RoutePosition position, string key)
+        {
+            var meta = position.Meta();
+            if (meta == null ||
+                meta.Attributes == null)
+            {
+                return string.Empty;
+            }
+            string value = string.Empty;
+            if (!meta.Attributes.TryGetValue(key, out value))
+            {
+                return string.Empty;
+            }
+            return value;
+        }
+
+        /// <summary>
+        /// Returns true if the meta attribute for the route at the current position contains the given attribute.
+        /// </summary>
+        public static bool ContainsMetaAttribute(this RoutePosition position, string key, string value)
+        {
+            var meta = position.Meta();
+            if (meta == null ||
+                meta.Attributes == null)
+            {
+                return false;
+            }
+            return meta.Attributes.Contains(key, value);
+        }
+
+        /// <summary>
+        /// Gets the next route position.
+        /// </summary>
+        public static RoutePosition? Next(this RoutePosition position)
+        {
+            if(position.MoveNext())
+            {
+                return position;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the previous route position.
+        /// </summary>
+        public static RoutePosition? Previous(this RoutePosition position)
+        {
+            if (position.MovePrevious())
+            {
+                return position;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the next position until a given stop condition is met.
+        /// </summary>
+        public static RoutePosition? GetNextUntil(this RoutePosition position, Func<RoutePosition, bool> stopHere)
+        {
+            var next = position.Next();
+            while (next != null)
+            {
+                if (stopHere(next.Value))
+                {
+                    return next;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the previous position until a given stop condition is met.
+        /// </summary>
+        public static RoutePosition? GetPreviousUntil(this RoutePosition position, Func<RoutePosition, bool> stopHere)
+        {
+            var next = position.Previous();
+            while (next != null)
+            {
+                if (stopHere(next.Value))
+                {
+                    return next;
+                }
+            }
+            return null;
+        }
     }
 }

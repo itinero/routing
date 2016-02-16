@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -16,15 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Collections.Cache;
-using OsmSharp.Geo;
-using OsmSharp.Math.Geo.Simple;
-using Reminiscence.Arrays;
-using Reminiscence.IO;
+using OsmSharp.Routing.Geo;
 using System;
 using System.Collections.Generic;
 
-namespace OsmSharp.Routing.Osm.Streams
+namespace OsmSharp.Routing.IO.Osm.Streams
 {
     /// <summary>
     /// A cache for node coordinates.
@@ -38,7 +34,7 @@ namespace OsmSharp.Routing.Osm.Streams
         /// </summary>
         public NodeCoordinatesDictionary()
         {
-            _data = new OsmSharp.Collections.HugeDictionary<long, long>();
+            _data = new HugeDictionary<long, long>();
         }
 
         private byte[] longBytes = new byte[8];
@@ -58,7 +54,7 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Sets the coordinate for the given node.
         /// </summary>
-        public void Add(long id, ICoordinate coordinate)
+        public void Add(long id, Coordinate coordinate)
         {
             this.Add(id, coordinate.Latitude, coordinate.Longitude);
         }
@@ -69,7 +65,7 @@ namespace OsmSharp.Routing.Osm.Streams
         public bool TryGetValue(long id, out float latitude, out float longitude)
         {
             long longValue;
-            if(_data.TryGetValue(id, out longValue))
+            if (_data.TryGetValue(id, out longValue))
             {
                 var bytes = BitConverter.GetBytes(longValue);
                 latitude = BitConverter.ToSingle(bytes, 0);
@@ -84,19 +80,19 @@ namespace OsmSharp.Routing.Osm.Streams
         /// <summary>
         /// Gets the coordinate for the given node.
         /// </summary>
-        public bool TryGetValue(long id, out ICoordinate coordinate)
+        public bool TryGetValue(long id, out Coordinate coordinate)
         {
             float lat, lon;
             if (this.TryGetValue(id, out lat, out lon))
             {
-                coordinate = new GeoCoordinateSimple()
+                coordinate = new Coordinate()
                 {
                     Latitude = lat,
                     Longitude = lon
                 };
                 return true;
             }
-            coordinate = null;
+            coordinate = default(Coordinate);
             return false;
         }
 

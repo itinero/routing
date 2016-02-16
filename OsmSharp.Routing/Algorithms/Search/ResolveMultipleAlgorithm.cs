@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of OsmSharp.
 // 
@@ -17,9 +17,10 @@
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
 using OsmSharp.Routing.Graphs.Geometric;
-using OsmSharp.Routing.Profiles;
+using OsmSharp.Routing.Algorithms.Search.Hilbert;
 using System;
 using System.Collections.Generic;
+using OsmSharp.Routing.Geo;
 
 namespace OsmSharp.Routing.Algorithms.Search
 {
@@ -78,25 +79,24 @@ namespace OsmSharp.Routing.Algorithms.Search
                 if (!_graph.ProjectOn(edge, _latitude, _longitude,
                     out projectedLatitude, out projectedLongitude, out projectedDistanceFromFirst,
                     out projectedShapeIndex, out distanceToProjected, out totalLength))
-                { // oeps, could not project onto edge.              
+                {        
                     var points = _graph.GetShape(edge);
                     var previous = points[0];
 
                     var bestProjectedDistanceFromFirst = 0.0f;
                     projectedDistanceFromFirst = 0;
-                    var bestDistanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(previous.Latitude, previous.Longitude,
-                        _latitude, _longitude);
+                    var bestDistanceToProjected = Coordinate.DistanceEstimateInMeter(previous,
+                        new Coordinate(_latitude, _longitude));
                     projectedLatitude = previous.Latitude;
                     projectedLongitude = previous.Longitude;
                     for (var i = 1; i < points.Count; i++)
                     {
                         var current = points[i];
-                        projectedDistanceFromFirst += (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
-                            previous.Latitude, previous.Longitude);
-                        distanceToProjected = (float)OsmSharp.Math.Geo.GeoCoordinate.DistanceEstimateInMeter(current.Latitude, current.Longitude,
-                            _latitude, _longitude);
+                        projectedDistanceFromFirst += Coordinate.DistanceEstimateInMeter(current, previous);
+                        distanceToProjected = Coordinate.DistanceEstimateInMeter(current, 
+                            new Coordinate(_latitude, _longitude));
                         if (distanceToProjected < bestDistanceToProjected)
-                        { // improvement.
+                        {
                             bestDistanceToProjected = distanceToProjected;
                             bestProjectedDistanceFromFirst = projectedDistanceFromFirst;
                             projectedLatitude = current.Latitude;
