@@ -16,7 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+namespace Itinero.Navigation.Directions
+{
+    /// <summary>
+    /// Represents a relative direction.
+    /// </summary>
+    public class RelativeDirection
+    {
+        /// <summary>
+        /// Gets or sets the direction
+        /// </summary>
+        public RelativeDirectionEnum Direction { get; set; }
 
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+        /// <summary>
+        /// Gets or sets the angle.
+        /// </summary>
+        public float Angle { get; set; }
+    }
+}

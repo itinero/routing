@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+// Itinero - OpenStreetMap (OSM) SDK
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -16,7 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+namespace Itinero.Data
+{
+    /// <summary>
+    /// A simple edge represting distance and profile.
+    /// </summary>
+    public struct EdgeData
+    {
+        /// <summary>
+        /// Gets or sets the profile id.
+        /// </summary>
+        public ushort Profile { get; set; }
 
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+        /// <summary>
+        /// Gets or sets the distance.
+        /// </summary>
+        public float Distance { get; set; }
+    }
+}

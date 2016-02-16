@@ -16,7 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+namespace Itinero.Attributes
+{
+    /// <summary>
+    /// Represents an attributes.
+    /// </summary>
+    public struct Attribute
+    {
+        /// <summary>
+        /// Creates a new attribute.
+        /// </summary>
+        public Attribute(string key, string value)
+        {
+            this.Key = key;
+            this.Value = value;
+        }
 
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+        /// <summary>
+        /// Gets or sets the key.
+        /// </summary>
+        public string Key { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value.
+        /// </summary>
+        public string Value { get; set; }
+    }
+}

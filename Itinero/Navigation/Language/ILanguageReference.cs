@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,7 +16,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
-
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+namespace Itinero.Navigation.Language
+{
+    /// <summary>
+    /// An abstract representation of language reference.
+    /// </summary>
+    public interface ILanguageReference
+    {
+        /// <summary>
+        /// Returns a translated version of the given value.
+        /// </summary>
+        /// <returns></returns>
+        string this[string value]
+        {
+            get;
+        }
+    }
+}

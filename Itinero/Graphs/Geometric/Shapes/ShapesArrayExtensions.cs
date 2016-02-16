@@ -16,7 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+using Itinero.Geo;
+using System.Collections.Generic;
 
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+namespace Itinero.Graphs.Geometric.Shapes
+{
+    /// <summary>
+    /// Contains extension methods for the shape index.
+    /// </summary>
+    public static class ShapesArrayExtensions
+    {
+        /// <summary>
+        /// Adds a new shape.
+        /// </summary>
+        public static void Set(this ShapesArray index, long id, IEnumerable<Coordinate> shape)
+        {
+            index[id] = new ShapeEnumerable(shape);
+        }
+
+        /// <summary>
+        /// Adds a new shape.
+        /// </summary>
+        public static void Set(this ShapesArray index, long id, params Coordinate[] shape)
+        {
+            index[id] = new ShapeEnumerable(shape);
+        }
+    }
+}

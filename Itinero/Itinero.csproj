@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2F4D2B40-D557-4640-96E1-693D598012A6}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Itinero</RootNamespace>
+    <AssemblyName>Itinero</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile147</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\Output\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\Output\Itinero.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\Output\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\Output\Itinero.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyVersion.cs">
+      <Link>Properties\SharedAssemblyVersion.cs</Link>
+    </Compile>
+    <Compile Include="Algorithms\AlgorithmBase.cs" />
+    <Compile Include="Algorithms\Collections\BitArray32.cs" />
+    <Compile Include="Algorithms\Collections\SparseBitArray32.cs" />
+    <Compile Include="Algorithms\Collections\SparseLongIndex.cs" />
+    <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Contracted\DirectedMetaGraphExtensions.cs" />
+    <Compile Include="Algorithms\Contracted\Dykstra.cs" />
+    <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\HierarchyBuilder.cs" />
+    <Compile Include="Algorithms\Contracted\IPriorityCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\Witness\IWitnessCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\ManyToManyBidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\IAlgorithm.cs" />
+    <Compile Include="Algorithms\Default\BidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Contracted\DirectedGraphBuilder.cs" />
+    <Compile Include="Algorithms\Default\Dykstra.cs" />
+    <Compile Include="Algorithms\Default\ManyToMany.cs" />
+    <Compile Include="Algorithms\IWeightMatrixAlgorithm.cs" />
+    <Compile Include="Algorithms\Networks\NetworkOptimizer.cs" />
+    <Compile Include="Algorithms\Default\OneToMany.cs" />
+    <Compile Include="Algorithms\Networks\ZeroLengthLinksOptimizer.cs" />
+    <Compile Include="Algorithms\Collections\BinaryHeap.cs" />
+    <Compile Include="Algorithms\Routes\CompleteRouteBuilder.cs" />
+    <Compile Include="Algorithms\Routes\FastRouteBuilder.cs" />
+    <Compile Include="Algorithms\Routes\RouteBuilderExtensions.cs" />
+    <Compile Include="Algorithms\Routes\RouteSegmentAggregator.cs" />
+    <Compile Include="Algorithms\Search\Hilbert\HilbertExtensions.cs" />
+    <Compile Include="Algorithms\Path.cs" />
+    <Compile Include="Algorithms\Search\Hilbert\HilbertCurve.cs" />
+    <Compile Include="Algorithms\Search\IResolveExtensions.cs" />
+    <Compile Include="Algorithms\Search\IResolver.cs" />
+    <Compile Include="Algorithms\Search\ResolveAlgorithm.cs" />
+    <Compile Include="Algorithms\Search\ResolveMultipleAlgorithm.cs" />
+    <Compile Include="Algorithms\Sorting\QuickSort.cs" />
+    <Compile Include="Algorithms\WeightMatrixAlgorithm.cs" />
+    <Compile Include="Attributes\Attribute.cs" />
+    <Compile Include="Attributes\AttributeCollection.cs" />
+    <Compile Include="Attributes\AttributesIndex.cs" />
+    <Compile Include="Attributes\AttributesIndexExtensions.cs" />
+    <Compile Include="Attributes\IAttributeCollection.cs" />
+    <Compile Include="Attributes\IAttributeCollectionExtension.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Data\Contracted\ContractedEdgeDataSerializer.cs" />
+    <Compile Include="Data\EdgeDataSerializer.cs" />
+    <Compile Include="Exceptions\ResolveFailedException.cs" />
+    <Compile Include="Exceptions\RouteBuildFailedException.cs" />
+    <Compile Include="Exceptions\RouteNotFoundException.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Geo\Box.cs" />
+    <Compile Include="Geo\Coordinate.cs" />
+    <Compile Include="Geo\Line.cs" />
+    <Compile Include="Geo\Tools.cs" />
+    <Compile Include="Graphs\Directed\DirectedGraph.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphs\Directed\DirectedGraphProfile.cs" />
+    <Compile Include="Graphs\Directed\DirectedMetaGraphException.cs" />
+    <Compile Include="Graphs\Directed\DirectedMetaGraph.cs" />
+    <Compile Include="Graphs\Directed\DirectedMetaGraphProfile.cs" />
+    <Compile Include="Graphs\Directed\Edge.cs" />
+    <Compile Include="Graphs\Directed\MetaEdge.cs" />
+    <Compile Include="Graphs\Edge.cs" />
+    <Compile Include="Graphs\Geometric\GeometricEdge.cs" />
+    <Compile Include="Graphs\Geometric\GeometricGraph.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphs\Geometric\GeometricGraphExtensions.cs" />
+    <Compile Include="Graphs\Geometric\GeometricGraphProfile.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapeEnumerable.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapesArrayExtensions.cs" />
+    <Compile Include="Graphs\Graph.cs" />
+    <Compile Include="Data\Contracted\ContractedEdgeData.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Data\EdgeData.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Graphs\GraphExtensions.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapeBase.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\Shape.cs" />
+    <Compile Include="Graphs\Geometric\Shapes\ShapesArray.cs" />
+    <Compile Include="Graphs\GraphProfile.cs" />
+    <Compile Include="IO\Json\JsonTools.cs" />
+    <Compile Include="IO\Json\JsonWriter.cs" />
+    <Compile Include="IO\Xml\Route.Xml.cs" />
+    <Compile Include="IO\Xml\XmlExtensions.cs" />
+    <Compile Include="IRouter.cs" />
+    <Compile Include="IRouterExtensions.cs" />
+    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="Logging\TraceEventType.cs" />
+    <Compile Include="Navigation\Directions\DirectionEnum.cs" />
+    <Compile Include="Navigation\Directions\DirectionCalculator.cs" />
+    <Compile Include="Navigation\Directions\RelativeDirection.cs" />
+    <Compile Include="Navigation\Directions\RelativeDirectionEnum.cs" />
+    <Compile Include="Navigation\Instruction.cs" />
+    <Compile Include="Navigation\InstructionExtensions.cs" />
+    <Compile Include="Navigation\InstructionGenerator.cs" />
+    <Compile Include="Navigation\Language\DefaultLanguageReference.cs" />
+    <Compile Include="Navigation\Language\ILanguageReference.cs" />
+    <Compile Include="Navigation\Osm\InstructionCarGenerator.cs" />
+    <Compile Include="Network\Data\EdgeData.cs" />
+    <Compile Include="Network\RoutingNetworkExtensions.cs" />
+    <Compile Include="Network\RoutingNetworkProfile.cs" />
+    <Compile Include="Osm\HighwayComparer.cs" />
+    <Compile Include="Osm\OsmRoutingTagNormalizer.cs" />
+    <Compile Include="Osm\Vehicles\Bicycle.cs" />
+    <Compile Include="Osm\Vehicles\BigTruck.cs" />
+    <Compile Include="Osm\Vehicles\Bus.cs" />
+    <Compile Include="Osm\Vehicles\Car.cs" />
+    <Compile Include="Osm\Vehicles\Moped.cs" />
+    <Compile Include="Osm\Vehicles\MotorCycle.cs" />
+    <Compile Include="Osm\Vehicles\MotorVehicle.cs" />
+    <Compile Include="Osm\Vehicles\Pedestrian.cs" />
+    <Compile Include="Osm\Vehicles\Profiles\BicycleBalanced.cs" />
+    <Compile Include="Osm\Vehicles\SmallTruck.cs" />
+    <Compile Include="Osm\Vehicles\Vehicle.cs" />
+    <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
+    <Compile Include="Osm\Vehicles\VehicleType.cs" />
+    <Compile Include="Profiles\Factor.cs" />
+    <Compile Include="Profiles\Profile.cs" />
+    <Compile Include="Profiles\ProfileFactorCache.cs" />
+    <Compile Include="Profiles\ProfileMetric.cs" />
+    <Compile Include="Profiles\Speed.cs" />
+    <Compile Include="Profiles\VehicleTypes.cs" />
+    <Compile Include="Refactoring\DelegateEqualityComparer.cs" />
+    <Compile Include="Refactoring\DirectionCalculator.cs" />
+    <Compile Include="Refactoring\Direction.cs" />
+    <Compile Include="Refactoring\RelativeDirection.cs" />
+    <Compile Include="Refactoring\SortedSet.cs" />
+    <Compile Include="ResultExtensions.cs" />
+    <Compile Include="RouteExtensions.cs" />
+    <Compile Include="Router.cs" />
+    <Compile Include="RouterDb.cs" />
+    <Compile Include="RouterDbExtensions.cs" />
+    <Compile Include="RouterDbProfile.cs" />
+    <Compile Include="RouterPoint.cs" />
+    <Compile Include="Network\RoutingEdge.cs" />
+    <Compile Include="Network\RoutingNetwork.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Result.cs" />
+    <Compile Include="Route.cs" />
+    <Compile Include="RouterPointExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Reminiscence, Version=1.0.2.41, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Reminiscence.1.0.2-rc1-0041\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Reminiscence.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml.Serialization" />
+    <Reference Include="Zlib.Portable, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Zlib.Portable.1.11.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Zlib.Portable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

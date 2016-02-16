@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,7 +16,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+namespace Itinero.Profiles
+{
+    /// <summary>
+    /// A factor returned by a routing profile to influence routing.
+    /// </summary>
+    public struct Factor
+    {
+        /// <summary>
+        /// Gets or sets the actual factor.
+        /// </summary>
+        public float Value { get; set; }
 
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+        /// <summary>
+        /// Gets or sets the direction.
+        /// </summary>
+        /// 0=bidirectional, 1=forward, 2=backward.
+        public short Direction { get; set; }
+
+        /// <summary>
+        /// Returns a non-value.
+        /// </summary>
+        public static Factor NoFactor { get { return new Factor() { Direction = 0, Value = 0 }; } }
+    }
+}

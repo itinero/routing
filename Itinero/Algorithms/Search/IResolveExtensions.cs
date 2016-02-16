@@ -16,7 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+using Itinero.Network;
+using System;
 
-[assembly: AssemblyVersion("0.5.2")] // semantic versioning Major.Minor.Patch.Build (9999 will be updated by CI server)
-[assembly: AssemblyInformationalVersion("0.5.2-rc1")] // do not change this; build server update this automatically (.9999 will be updated by CI server with -{buildnumber})
+namespace Itinero.Algorithms.Search
+{
+    /// <summary>
+    /// Contains extensions and helper functions related to resolvers.
+    /// </summary>
+    public static class IResolveExtensions
+    {
+        /// <summary>
+        /// Delegate to create a resolver.
+        /// </summary>
+        public delegate IResolver CreateResolver(float latitude, float longitude, Func<RoutingEdge, bool> isBetter);
+    }
+}
