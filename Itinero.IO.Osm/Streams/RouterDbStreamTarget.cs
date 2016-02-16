@@ -18,7 +18,7 @@
 
 using Itinero.Algorithms.Collections;
 using Itinero.Network.Data;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
 using Itinero.Network;
 using OsmSharp.Streams;

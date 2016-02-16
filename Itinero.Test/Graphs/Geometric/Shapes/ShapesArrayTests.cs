@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using NUnit.Framework.Internal;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric.Shapes;
 using Reminiscence.IO;
 using System.Collections.Generic;

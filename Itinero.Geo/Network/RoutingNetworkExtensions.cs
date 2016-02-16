@@ -91,7 +91,7 @@ namespace Itinero.Geo.Network
                 float latitude1, longitude1;
                 if (network.GeometricGraph.GetVertex(vertex, out latitude1, out longitude1))
                 {
-                    var vertexLocation = new Coordinate(latitude1, longitude1);
+                    var vertexLocation = new LocalGeo.Coordinate(latitude1, longitude1);
                     var attributes = new AttributesTable();
                     attributes.AddAttribute("id", vertex.ToInvariantString());
                     features.Add(new Feature(new Point(vertexLocation.ToCoordinate()),

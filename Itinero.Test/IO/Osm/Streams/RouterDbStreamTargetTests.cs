@@ -19,7 +19,7 @@
 using NUnit.Framework;
 using OsmSharp.Streams;
 using Itinero.Attributes;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.IO.Osm.Streams;
 using Itinero.Osm.Vehicles;
 using OsmSharp.Tags;

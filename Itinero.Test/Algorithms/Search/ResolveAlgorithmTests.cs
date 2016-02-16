@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Search;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 
 namespace Itinero.Test.Algorithms.Search

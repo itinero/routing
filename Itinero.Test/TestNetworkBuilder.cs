@@ -19,9 +19,10 @@
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Itinero.Network;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using System.Collections.Generic;
 using System.IO;
+using Itinero.Geo;
 
 namespace Itinero.Test
 {

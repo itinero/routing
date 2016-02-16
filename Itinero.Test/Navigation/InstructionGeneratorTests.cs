@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Navigation;
 using Itinero.Navigation.Language;
 using Itinero.Test.Navigation.Language;

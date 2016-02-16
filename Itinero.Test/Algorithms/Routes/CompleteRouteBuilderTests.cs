@@ -19,7 +19,7 @@
 using NUnit.Framework;
 using Itinero.Algorithms.Routes;
 using Itinero.Attributes;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Network;
 using Itinero.Network.Data;
 using Itinero.Test.Profiles;

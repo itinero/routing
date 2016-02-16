@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using Itinero.Attributes;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Network;
 using Itinero.Network.Data;
 using Itinero.Profiles;

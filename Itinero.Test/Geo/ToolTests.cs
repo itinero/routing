@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 
 namespace Itinero.Test.Geo
 {

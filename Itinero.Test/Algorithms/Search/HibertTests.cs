@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Search.Hilbert;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using System.Collections.Generic;
 

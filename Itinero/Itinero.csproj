@@ -87,10 +87,10 @@
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Geo\Box.cs" />
-    <Compile Include="Geo\Coordinate.cs" />
-    <Compile Include="Geo\Line.cs" />
-    <Compile Include="Geo\Tools.cs" />
+    <Compile Include="LocalGeo\Box.cs" />
+    <Compile Include="LocalGeo\Coordinate.cs" />
+    <Compile Include="LocalGeo\Line.cs" />
+    <Compile Include="LocalGeo\Tools.cs" />
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>
     </Compile>

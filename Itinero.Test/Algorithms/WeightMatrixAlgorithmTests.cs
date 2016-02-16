@@ -19,7 +19,7 @@
 using NUnit.Framework;
 using Itinero.Algorithms;
 using Itinero.Attributes;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
 using System.Collections.Generic;
 

@@ -19,7 +19,7 @@
 using System;
 using Itinero.Navigation.Directions;
 
-namespace Itinero.Geo
+namespace Itinero.LocalGeo
 {
     /// <summary>
     /// Represents a coordinate.

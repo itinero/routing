@@ -20,9 +20,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using Itinero.IO.Xml;
-using Itinero.Geo;
-using System.Collections.Generic;
-using System;
+using Itinero.LocalGeo;
 
 namespace Itinero
 {

@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Geo
+namespace Itinero.LocalGeo
 {
     /// <summary>
     /// Some tools for angles and other geo-stuff.

@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Network;
 using Itinero.Profiles;
 using System.Collections.Generic;

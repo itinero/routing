@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Sorting;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using Itinero.Graphs.Geometric.Shapes;
 using Itinero.Navigation.Directions;

@@ -28,7 +28,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts the coordinate to a geoapi coordinate.
         /// </summary>
-        public static GeoAPI.Geometries.Coordinate ToCoordinate(this Coordinate coordinate)
+        public static GeoAPI.Geometries.Coordinate ToCoordinate(this LocalGeo.Coordinate coordinate)
         {
             return new GeoAPI.Geometries.Coordinate(coordinate.Longitude, coordinate.Latitude);
         }
@@ -36,15 +36,15 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts a geoapi coordinate to a coordinate.
         /// </summary>
-        public static Coordinate FromCoordinate(this GeoAPI.Geometries.Coordinate coordinate)
+        public static LocalGeo.Coordinate FromCoordinate(this GeoAPI.Geometries.Coordinate coordinate)
         {
-            return new Coordinate((float)coordinate.Y, (float)coordinate.X);
+            return new LocalGeo.Coordinate((float)coordinate.Y, (float)coordinate.X);
         }
 
         /// <summary>
         /// Converts a list of coordinates to geoapi coordinates.
         /// </summary>
-        public static List<GeoAPI.Geometries.Coordinate> ToCoordinates(this List<Coordinate> coordinates)
+        public static List<GeoAPI.Geometries.Coordinate> ToCoordinates(this List<LocalGeo.Coordinate> coordinates)
         {
             if (coordinates == null)
             {
@@ -62,7 +62,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts a list of coordinates to geoapi coordinates.
         /// </summary>
-        public static GeoAPI.Geometries.Coordinate[] ToCoordinatesArray(this List<Coordinate> coordinates)
+        public static GeoAPI.Geometries.Coordinate[] ToCoordinatesArray(this List<LocalGeo.Coordinate> coordinates)
         {
             if (coordinates == null)
             {
@@ -80,7 +80,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts a list of coordinates to geoapi coordinates.
         /// </summary>
-        public static List<GeoAPI.Geometries.Coordinate> ToCoordinates(this Coordinate[] coordinates)
+        public static List<GeoAPI.Geometries.Coordinate> ToCoordinates(this LocalGeo.Coordinate[] coordinates)
         {
             if (coordinates == null)
             {
@@ -98,7 +98,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts an array of coordinates to an array of geoapi coordinates.
         /// </summary>
-        public static GeoAPI.Geometries.Coordinate[] ToCoordinatesArray(this Coordinate[] coordinates)
+        public static GeoAPI.Geometries.Coordinate[] ToCoordinatesArray(this LocalGeo.Coordinate[] coordinates)
         {
             if (coordinates == null)
             {

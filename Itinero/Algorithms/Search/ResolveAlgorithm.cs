@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Search.Hilbert;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using System;
 

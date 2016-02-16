@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using Itinero.Attributes;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 using Itinero.Navigation.Osm;
 using Itinero.Test.Navigation.Language;
 using System.Collections.Generic;

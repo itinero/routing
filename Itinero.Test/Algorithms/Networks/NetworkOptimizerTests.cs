@@ -22,7 +22,7 @@ using Itinero.Network;
 using Itinero.Network.Data;
 using System.Linq;
 using System.Collections.Generic;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 
 namespace Itinero.Test.Algorithms.Networks
 {

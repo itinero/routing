@@ -20,7 +20,7 @@ using Itinero.Graphs.Geometric;
 using Itinero.Algorithms.Search.Hilbert;
 using System;
 using System.Collections.Generic;
-using Itinero.Geo;
+using Itinero.LocalGeo;
 
 namespace Itinero.Algorithms.Search
 {

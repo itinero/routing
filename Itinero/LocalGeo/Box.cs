@@ -19,7 +19,7 @@
 using System;
 using Itinero.Graphs.Geometric.Shapes;
 
-namespace Itinero.Geo
+namespace Itinero.LocalGeo
 {
     /// <summary>
     /// Represents a box.
