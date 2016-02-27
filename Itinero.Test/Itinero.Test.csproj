@@ -52,8 +52,8 @@
       <HintPath>..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.2.0.0-alpha\lib\net45\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=2.0.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.2.0.6-alpha\lib\net45\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PowerCollections, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2573bf8a1bdddcd5, processorArchitecture=MSIL">
