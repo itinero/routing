@@ -53,12 +53,21 @@ namespace Itinero.Algorithms
             _profile = profile;
             _locations = locations;
             _matchEdge = matchEdge;
+
+            this.SearchDistanceInMeter = Constants.SearchDistanceInMeter;
         }
 
         private Dictionary<int, LocationError> _errors; // all errors per original location idx.
         private List<int> _resolvedPointsIndices; // the original location per resolved point index.
         private List<RouterPoint> _resolvedPoints; // only the valid resolved points.
         private float[][] _weights; // the weights between all valid resolved points.
+
+
+        /// <summary>
+        /// Gets or sets the value for the search distance in meter to use in the resolve methods.
+        /// </summary>
+        public float SearchDistanceInMeter { get; set; }
+
 
         /// <summary>
         /// Executes the algorithm.
@@ -80,11 +89,11 @@ namespace Itinero.Algorithms
                     resolveResult = _router.TryResolve(profiles, _locations[i], (edge) =>
                     {
                         return _matchEdge(edge, i);
-                    });
+                    }, this.SearchDistanceInMeter);
                 }
                 else
                 { // don't use an edge-matcher.
-                    resolveResult = _router.TryResolve(profiles, _locations[i]);
+                    resolveResult = _router.TryResolve(profiles, _locations[i], this.SearchDistanceInMeter);
                 }
 
                 if (!resolveResult.IsError)
