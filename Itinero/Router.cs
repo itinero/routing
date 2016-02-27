@@ -362,45 +362,30 @@ namespace Itinero
                 weights = algorithm.Weights;
             }
 
-            // extract invalid targets.
-            for(var s = 0; s < weights.Length; s++)
+            // check for invalids.
+            var invalidTargetCounts = new int[targets.Length];
+            for (var s = 0; s < weights.Length; s++)
             {
-                var invalid = true;
-                for(var t = 0; t < weights[s].Length; t++)
-                {
-                    if(t != s)
-                    {
-                        if(weights[s][t] < float.MaxValue)
-                        {
-                            invalid = false;
-                            break;
-                        }
-                    }
-                }
-                if (invalid)
-                {
-                    invalidSources.Add(s);
-                }
-            }
-
-            // extract invalid targets.
-            for (var t = 0; t < weights[0].Length; t++)
-            {
-                var invalid = true;
-                for (var s = 0; s < weights.Length; s++)
+                var invalids = 0;
+                for (var t = 0; t < weights[s].Length; t++)
                 {
                     if (t != s)
                     {
-                        if (weights[s][t] < float.MaxValue)
+                        if (weights[s][t] == float.MaxValue)
                         {
-                            invalid = false;
-                            break;
+                            invalids++;
+                            invalidTargetCounts[t]++;
+                            if (invalidTargetCounts[t] > (sources.Length - 1) / 2)
+                            {
+                                invalidTargets.Add(t);
+                            }
                         }
                     }
                 }
-                if (invalid)
+
+                if (invalids > (targets.Length - 1) / 2)
                 {
-                    invalidTargets.Add(t);
+                    invalidSources.Add(s);
                 }
             }
             return new Result<float[][]>(weights);
