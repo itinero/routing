@@ -20,7 +20,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Net;
 
-namespace OsmSharp.Routing.Test.Functional.Staging
+namespace Itinero.Test.Functional.Staging
 {
     /// <summary>
     /// Downloads all data needed for testing.

@@ -19,15 +19,15 @@
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
-using OsmSharp.Routing.Geo;
-using OsmSharp.Routing.Osm.Vehicles;
-using OsmSharp.Routing.Test.Functional.Staging;
-using OsmSharp.Routing.Test.Functional.Tests;
+using Itinero.Geo;
+using Itinero.Osm.Vehicles;
+using Itinero.Test.Functional.Staging;
+using Itinero.Test.Functional.Tests;
 using System;
 using System.IO;
 using System.Reflection;
 
-namespace OsmSharp.Routing.Test.Functional
+namespace Itinero.Test.Functional
 {
     class Program
     {
@@ -38,12 +38,12 @@ namespace OsmSharp.Routing.Test.Functional
             {
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", origin, level, message));
             };
-            OsmSharp.Routing.Logging.Logger.LogAction = (origin, level, message, parameters) =>
+            Itinero.Logging.Logger.LogAction = (origin, level, message, parameters) =>
             {
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", origin, level, message));
             };
 
-            OsmSharp.Routing.Osm.Vehicles.Vehicle.RegisterVehicles();
+            Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 
             // download and extract test-data.
             Console.WriteLine("Downloading Belgium...");
@@ -51,8 +51,11 @@ namespace OsmSharp.Routing.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\kempen.osm.pbf", Vehicle.Car);
-            //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.new.routing"));
+            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\planet\europe\belgium-latest.osm.pbf", 
+                Vehicle.Car);
+            routerDb.AddContracted(Vehicle.Car.Fastest());
+
+            routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
 
             //////routerDb.AddContracted(Vehicle.Car.Fastest());
             //var routerDb = RouterDb.Deserialize(
@@ -67,7 +70,7 @@ namespace OsmSharp.Routing.Test.Functional
             var geoJson = geoJsonWriter.Write(features);
 
             //// test resolving.
-            //var embeddedResourceId = "OsmSharp.Routing.Test.Functional.Tests.Belgium.resolve1.geojson";
+            //var embeddedResourceId = "Itinero.Test.Functional.Tests.Belgium.resolve1.geojson";
 
             //FeatureCollection featureCollection;
             //using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))

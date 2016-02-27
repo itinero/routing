@@ -16,18 +16,18 @@
 // You should have received a copy of the GNU General Public License
 // along with OsmSharp. If not, see <http://www.gnu.org/licenses/>.
 
-using OsmSharp.Routing.Algorithms.Search.Hilbert;
-using OsmSharp.Routing.Geo;
+using Itinero.Algorithms.Search.Hilbert;
+using Itinero.Geo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using OsmSharp.Routing.Osm.Vehicles;
+using Itinero.Osm.Vehicles;
 using System;
 using System.IO;
 using System.Reflection;
 
-namespace OsmSharp.Routing.Test.Functional.Tests
+namespace Itinero.Test.Functional.Tests
 {
     /// <summary>
     /// The test runner.
@@ -84,7 +84,7 @@ namespace OsmSharp.Routing.Test.Functional.Tests
                 var source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
                 var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
                 progress.RegisterSource(source);
-                var target = new OsmSharp.Routing.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles);
+                var target = new Itinero.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles);
                 target.RegisterSource(progress);
                 target.Pull();
                 

@@ -33,10 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Antlr3.Runtime.PCL.3.5.0.2\lib\portable-win+net40+sl40+wp\Antlr3.Runtime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="GeoAPI, Version=1.7.4.0, Culture=neutral, PublicKeyToken=a1a0da7def465678, processorArchitecture=MSIL">
       <HintPath>..\packages\GeoAPI.1.7.4\lib\net45\GeoAPI.dll</HintPath>
       <Private>True</Private>
@@ -57,9 +53,9 @@
       <HintPath>..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp, Version=1.2.0.118, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\bwaste\OSM.Editing\core\Output\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=2.0.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.2.0.6-alpha\lib\net45\OsmSharp.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PowerCollections, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2573bf8a1bdddcd5, processorArchitecture=MSIL">
       <HintPath>..\packages\NetTopologySuite.1.14\lib\net45\PowerCollections.dll</HintPath>
@@ -83,8 +79,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="Zlib.Portable, Version=1.9.1.9000, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Zlib.Portable.1.9.2\lib\portable-net4+sl4+wp71+win8\Zlib.Portable.dll</HintPath>
+    <Reference Include="Zlib.Portable, Version=1.11.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Zlib.Portable.1.11.0\lib\portable-net4+sl5+wp8+win8+wpa81+MonoTouch+MonoAndroid\Zlib.Portable.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -101,15 +97,15 @@
     <EmbeddedResource Include="Tests\Belgium\resolve1.geojson" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OsmSharp.Routing.Geo\OsmSharp.Routing.Geo.csproj">
+    <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj">
       <Project>{ce277e7d-a9e3-4c76-a4dc-1760bc33977d}</Project>
       <Name>OsmSharp.Routing.Geo</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OsmSharp.Routing.IO.Osm\OsmSharp.Routing.IO.Osm.csproj">
+    <ProjectReference Include="..\Itinero.IO.Osm\Itinero.IO.Osm.csproj">
       <Project>{0e89a73f-ff3d-418f-8ed6-5025db2cde8e}</Project>
       <Name>OsmSharp.Routing.IO.Osm</Name>
     </ProjectReference>
-    <ProjectReference Include="..\OsmSharp.Routing\OsmSharp.Routing.csproj">
+    <ProjectReference Include="..\Itinero\Itinero.csproj">
       <Project>{2f4d2b40-d557-4640-96e1-693d598012a6}</Project>
       <Name>OsmSharp.Routing</Name>
     </ProjectReference>

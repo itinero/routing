@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace OsmSharp.Routing.Test.Functional
+namespace Itinero.Test.Functional
 {
     /// <summary>
     /// A class that consumes perfomance information.

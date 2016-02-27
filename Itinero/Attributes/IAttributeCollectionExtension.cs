@@ -394,6 +394,8 @@ namespace Itinero.Attributes
         /// </summary>
         public static void AddOrReplace(this IAttributeCollection attributes, IEnumerable<Attribute> other)
         {
+            if (other == null) { return; }
+
             foreach (var attribute in other)
             {
                 attributes.AddOrReplace(attribute.Key, attribute.Value);
