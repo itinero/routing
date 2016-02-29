@@ -87,6 +87,7 @@
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Network\Restrictions\RestrictionsDb.cs" />
     <Compile Include="LocalGeo\Box.cs" />
     <Compile Include="LocalGeo\Coordinate.cs" />
     <Compile Include="LocalGeo\Line.cs" />

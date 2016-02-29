@@ -118,6 +118,7 @@
     <Compile Include="Navigation\InstructionGeneratorTests.cs" />
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />
     <Compile Include="Navigation\Osm\InstructionCarGeneratorTests.cs" />
+    <Compile Include="Network\Restrictions\RestrictionsDbTests.cs" />
     <Compile Include="Network\RoutingNetworkTests.cs" />
     <Compile Include="Osm\OsmRoutingTagNormalizer.cs" />
     <Compile Include="IO\Osm\Streams\NodeCoordinatesDictionaryTests.cs" />
@@ -168,6 +169,9 @@
       <Project>{2f4d2b40-d557-4640-96e1-693d598012a6}</Project>
       <Name>Itinero</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Graphs\Restrictions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
