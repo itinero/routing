@@ -21,6 +21,7 @@ using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Attributes;
 using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
+using Itinero.Network.Restrictions;
 
 namespace Itinero
 {
@@ -93,6 +94,28 @@ namespace Itinero
             }
 
             return tags;
+        }
+
+        /// <summary>
+        /// Returns true if this db contains restrictions for the given vehicle type.
+        /// </summary>
+        public static bool HasRestrictions(this RouterDb db, string vehicleType)
+        {
+            RestrictionsDb restrictions;
+            return db.TryGetRestrictions(vehicleType, out restrictions);
+        }
+
+        /// <summary>
+        /// Returns true if this db contains complex restrictions for the given vehicle type.
+        /// </summary>
+        public static bool HasComplexRestrictions(this RouterDb db, string vehicleType)
+        {
+            RestrictionsDb restrictions;
+            if (db.TryGetRestrictions(vehicleType, out restrictions))
+            {
+                return restrictions.HasComplexRestrictions;
+            }
+            return false;
         }
     }
 }

@@ -22,6 +22,7 @@ using Itinero.Graphs.Directed;
 using System.IO;
 using Itinero.Attributes;
 using System.Linq;
+using Itinero.Network.Restrictions;
 
 namespace Itinero.Test
 {
@@ -446,6 +447,19 @@ namespace Itinero.Test
                         routerDb.DeserializeAndAddContracted(stream);
                     });
             }
+        }
+
+        /// <summary>
+        /// Tests adding a restriction db.
+        /// </summary>
+        [Test]
+        public void TestAddRestrictionDb()
+        {
+            var routerDb = new RouterDb();
+            var restrictions = new RestrictionsDb();
+            routerDb.AddRestrictions("vehicle", restrictions);
+
+            Assert.IsTrue(routerDb.TryGetRestrictions("vehicle", out restrictions));
         }
     }
 }

@@ -19,6 +19,7 @@
 using Itinero.Attributes;
 using Itinero.Graphs.Directed;
 using Itinero.Network;
+using Itinero.Network.Restrictions;
 using Itinero.Profiles;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
@@ -42,6 +43,7 @@ namespace Itinero
 
         private readonly Dictionary<string, DirectedMetaGraph> _contracted;
         private readonly HashSet<string> _supportedProfiles;
+        private readonly Dictionary<string, RestrictionsDb> _restrictionDbs;
 
         /// <summary>
         /// Creates a new router database.
@@ -56,6 +58,7 @@ namespace Itinero
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -73,6 +76,7 @@ namespace Itinero
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -90,6 +94,7 @@ namespace Itinero
 
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -111,6 +116,7 @@ namespace Itinero
                 _supportedProfiles.Add(supportedProfile.Name);
             }
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -133,6 +139,7 @@ namespace Itinero
                 _supportedProfiles.Add(supportedProfile);
             }
             _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _restrictionDbs = new Dictionary<string, RestrictionsDb>();
         }
 
         /// <summary>
@@ -267,6 +274,33 @@ namespace Itinero
         public bool HasContractedFor(Profiles.Profile profile)
         {
             return _contracted.ContainsKey(profile.Name);
+        }
+
+        /// <summary>
+        /// Returns true if there are restrictions in this database.
+        /// </summary>
+        public bool HasRestrictions
+        {
+            get
+            {
+                return _restrictionDbs.Count > 0;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if this routing db has a restriction db for the given vehicle type.
+        /// </summary>
+        public bool TryGetRestrictions(string vehicleType, out RestrictionsDb restrictions)
+        {
+            return _restrictionDbs.TryGetValue(vehicleType, out restrictions);
+        }
+
+        /// <summary>
+        /// Adds the restrictions for the given vehicle type.
+        /// </summary>
+        public void AddRestrictions(string vehicleType, RestrictionsDb restrictions)
+        {
+            _restrictionDbs[vehicleType] = restrictions;
         }
 
         /// <summary>
