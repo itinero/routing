@@ -47,7 +47,8 @@ namespace Itinero.Test.Algorithms.Default.Edge
             {
                 Direction = 0,
                 Value = 1
-            }, new EdgePath[]
+            }, null,
+            new EdgePath[]
             {
                 new EdgePath(1, 50, new EdgePath(Constants.NO_EDGE)),
                 new EdgePath(-1, 50, new EdgePath(Constants.NO_EDGE))
@@ -70,7 +71,7 @@ namespace Itinero.Test.Algorithms.Default.Edge
         }
 
         /// <summary>
-        /// Tests a simple one-hop.
+        /// Tests a simple two-hop.
         /// </summary>
         [Test]
         public void TestTwoHops()
@@ -88,7 +89,8 @@ namespace Itinero.Test.Algorithms.Default.Edge
             {
                 Direction = 0,
                 Value = 1
-            }, new EdgePath[]
+            }, null, 
+            new EdgePath[]
             {
                 new EdgePath(1, 50, new EdgePath(Constants.NO_EDGE)),
                 new EdgePath(-1, 50, new EdgePath(Constants.NO_EDGE))
@@ -132,7 +134,8 @@ namespace Itinero.Test.Algorithms.Default.Edge
             {
                 Direction = 0,
                 Value = 1
-            }, new EdgePath[]
+            }, null, 
+            new EdgePath[]
             {
                 new EdgePath(1, 50, new EdgePath(Constants.NO_EDGE)),
                 new EdgePath(-1, 50, new EdgePath(Constants.NO_EDGE))
@@ -160,6 +163,102 @@ namespace Itinero.Test.Algorithms.Default.Edge
             Assert.IsTrue(dykstra.TryGetVisit(-3, out visit));
             Assert.AreEqual(-3, visit.DirectedEdge);
             Assert.AreEqual(150, visit.Weight);
+        }
+
+        /// <summary>
+        /// Tests a simple one-hop but with a restriction.
+        /// </summary>
+        [Test]
+        public void TestOneHopRestricted()
+        {
+            var graph = new Graph(1);
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(100, 1));
+            graph.AddEdge(1, 2, EdgeDataSerializer.Serialize(100, 1));
+
+            var dykstra = new Dykstra(graph, (profile) => new Itinero.Profiles.Factor()
+            {
+                Direction = 0,
+                Value = 1
+            }, (vertex) =>
+            {
+                if(vertex == 1)
+                {
+                    return new uint [] { 1 };
+                }
+                return null;
+            },
+            new EdgePath[]
+            {
+                new EdgePath(1, 50, new EdgePath(Constants.NO_EDGE)),
+                new EdgePath(-1, 50, new EdgePath(Constants.NO_EDGE))
+            }, float.MaxValue, false);
+            dykstra.Run();
+
+            Assert.IsTrue(dykstra.HasRun);
+            Assert.IsTrue(dykstra.HasSucceeded);
+            EdgePath visit;
+            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.AreEqual(-1, visit.DirectedEdge);
+            Assert.AreEqual(50, visit.Weight);
+            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.AreEqual(1, visit.DirectedEdge);
+            Assert.AreEqual(50, visit.Weight);
+            Assert.IsFalse(dykstra.TryGetVisit(2, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
+        }
+
+        /// <summary>
+        /// Tests a simple one-hop but with a restriction.
+        /// </summary>
+        [Test]
+        public void TestTwoHopRestricted()
+        {
+            var graph = new Graph(1);
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            graph.AddVertex(3);
+            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(100, 1));
+            graph.AddEdge(1, 2, EdgeDataSerializer.Serialize(100, 1));
+            graph.AddEdge(2, 3, EdgeDataSerializer.Serialize(100, 1));
+
+            var dykstra = new Dykstra(graph, (profile) => new Itinero.Profiles.Factor()
+            {
+                Direction = 0,
+                Value = 1
+            }, (vertex) =>
+            {
+                if (vertex == 1)
+                {
+                    return new uint[] { 1, 2, 3 };
+                }
+                return null;
+            },
+            new EdgePath[]
+            {
+                new EdgePath(1, 50, new EdgePath(Constants.NO_EDGE)),
+                new EdgePath(-1, 50, new EdgePath(Constants.NO_EDGE))
+            }, float.MaxValue, false);
+            dykstra.Run();
+
+            Assert.IsTrue(dykstra.HasRun);
+            Assert.IsTrue(dykstra.HasSucceeded);
+            EdgePath visit;
+            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.AreEqual(-1, visit.DirectedEdge);
+            Assert.AreEqual(50, visit.Weight);
+            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.AreEqual(1, visit.DirectedEdge);
+            Assert.AreEqual(50, visit.Weight);
+            Assert.IsTrue(dykstra.TryGetVisit(2, out visit));
+            Assert.AreEqual(2, visit.DirectedEdge);
+            Assert.AreEqual(150, visit.Weight);
+            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(3, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
         }
     }
 }

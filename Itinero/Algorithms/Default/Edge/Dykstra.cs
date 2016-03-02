@@ -33,13 +33,14 @@ namespace Itinero.Algorithms.Default.Edge
         private readonly Graph _graph;
         private readonly IEnumerable<EdgePath> _sources;
         private readonly Func<ushort, Factor> _getFactor;
+        private readonly Func<uint, uint[]> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Factor> getFactor,
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint[]> getRestriction,
             IEnumerable<EdgePath> sources, float sourceMax, bool backward)
         {
             _graph = graph;
@@ -47,6 +48,7 @@ namespace Itinero.Algorithms.Default.Edge
             _getFactor = getFactor;
             _sourceMax = sourceMax;
             _backward = backward;
+            _getRestriction = getRestriction;
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
@@ -54,6 +56,8 @@ namespace Itinero.Algorithms.Default.Edge
         private EdgePath _current;
         private BinaryHeap<EdgePath> _heap;
         private Dictionary<uint, Factor> _factors;
+        private Dictionary<long, LinkedRestriction> _edgeRestrictions;
+        private HashSet<uint> _vertexRestrictions;
 
         /// <summary>
         /// Executes the algorithm.
@@ -81,15 +85,35 @@ namespace Itinero.Algorithms.Default.Edge
             // intialize dykstra data structures.
             _visits = new Dictionary<long, EdgePath>();
             _heap = new BinaryHeap<EdgePath>(1000);
+            _edgeRestrictions = new Dictionary<long, LinkedRestriction>();
+            _vertexRestrictions = new HashSet<uint>();
+            
+            // gets the edge enumerator.
+            _edgeEnumerator = _graph.GetEdgeEnumerator();
 
             // queue all sources.
             foreach (var source in _sources)
             {
+                if (_getRestriction != null)
+                {
+                    var targetVertex = _edgeEnumerator.GetTargetVertex(source.DirectedEdge);
+                    var sourceVertex = _edgeEnumerator.GetSourceVertex(source.DirectedEdge);
+                    var restriction = _getRestriction(sourceVertex);
+                    if (restriction != null &&
+                        restriction.Length > 1)
+                    {
+                        if (restriction[1] == targetVertex)
+                        {
+                            _edgeRestrictions[source.DirectedEdge] = new LinkedRestriction()
+                            {
+                                Restriction = restriction,
+                                Next = null
+                            };
+                        }
+                    }
+                }
                 _heap.Push(source, source.Weight);
             }
-
-            // gets the edge enumerator.
-            _edgeEnumerator = _graph.GetEdgeEnumerator();
         }
 
         /// <summary>
@@ -123,8 +147,41 @@ namespace Itinero.Algorithms.Default.Edge
                 return false;
             }
 
-            // get neighbouring edges at target vertex.
+            // move to the current edge's target vertex.
             _edgeEnumerator.MoveToTargetVertex(_current.DirectedEdge);
+
+            // check for restrictions.
+            var targetVertex = _edgeEnumerator.From;
+            LinkedRestriction restrictions = null;
+            if (_edgeRestrictions.TryGetValue(_current.DirectedEdge, out restrictions))
+            {
+                _edgeRestrictions.Remove(_current.DirectedEdge);
+            }
+            if (_vertexRestrictions.Contains(targetVertex))
+            { // restricted vertex, no need to check outgoing edges.
+                return true;
+            }
+            if (_getRestriction != null)
+            {
+                var restriction = _getRestriction(targetVertex);
+                if (restriction != null &&
+                    restriction.Length > 0)
+                {
+                    if (restriction.Length == 1)
+                    { // a simple restriction, restricted vertex, no need to check outgoing edges.
+                        _vertexRestrictions.Add(restriction[0]);
+                        return true;
+                    }
+                    else
+                    { // a complex restriction.
+                        restrictions = new LinkedRestriction()
+                        {
+                            Restriction = restriction,
+                            Next = restrictions
+                        };
+                    }
+                }
+            }
             while (_edgeEnumerator.MoveNext())
             {
                 var edge = _edgeEnumerator;
@@ -138,6 +195,43 @@ namespace Itinero.Algorithms.Default.Edge
                 if (_visits.ContainsKey(directedEdgeId))
                 { // has already been choosen.
                     continue;
+                }
+
+                // verify restriction(s).
+                LinkedRestriction newRestrictions = null;
+                _edgeRestrictions.TryGetValue(directedEdgeId, out newRestrictions);
+                var currentRestriction = restrictions;
+                var forbidden = false;
+                while (currentRestriction != null)
+                { // check if some restriction prohibits this move or if we need add a new restriction
+                    // for the current edge.
+                    if (currentRestriction.Restriction[1] == _edgeEnumerator.To)
+                    { // ok restrictions applies to this edge and the previous one.
+                        if (currentRestriction.Restriction.Length == 2)
+                        { // ok this is the last edge in this restriction, prohibit this move.
+                            forbidden = true;
+                            break;
+                        }
+                        else
+                        { // append this restriction to the restrictions in for the current edge.
+                            var newRestriction = new uint[currentRestriction.Restriction.Length - 1];
+                            currentRestriction.Restriction.CopyTo(newRestriction, 0, 1, newRestriction.Length);
+                            newRestrictions = new LinkedRestriction()
+                            {
+                                Restriction = newRestriction,
+                                Next = newRestrictions
+                            };
+                        }
+                    }
+                    currentRestriction = currentRestriction.Next;
+                }
+                if (forbidden)
+                { // move to next neighbour.
+                    continue;
+                }
+                if (newRestrictions != null)
+                {
+                    _edgeRestrictions[directedEdgeId] = newRestrictions;
                 }
 
                 // get the speed from cache or calculate.
@@ -242,6 +336,22 @@ namespace Itinero.Algorithms.Default.Edge
             {
                 return _current;
             }
+        }
+
+        /// <summary>
+        /// A linked restriction.
+        /// </summary>
+        private class LinkedRestriction
+        {
+            /// <summary>
+            /// Gets the restriction.
+            /// </summary>
+            public uint[] Restriction { get; set; }
+
+            /// <summary>
+            /// Gets the next linked restriction.
+            /// </summary>
+            public LinkedRestriction Next { get; set; }
         }
     }
 }

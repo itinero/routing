@@ -62,6 +62,68 @@ namespace Itinero.Graphs
         }
 
         /// <summary>
+        /// Gets the target vertex.
+        /// </summary>
+        public static uint GetTargetVertex(this Graph.EdgeEnumerator enumerator, long directedEdgeId)
+        {
+            enumerator.MoveToEdge(directedEdgeId);
+
+            if (directedEdgeId > 0)
+            {
+                if (!enumerator.DataInverted)
+                {
+                    return enumerator.To;
+                }
+                else
+                {
+                    return enumerator.From;
+                }
+            }
+            else
+            {
+                if (enumerator.DataInverted)
+                {
+                    return enumerator.To;
+                }
+                else
+                {
+                    return enumerator.From;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the source vertex.
+        /// </summary>
+        public static uint GetSourceVertex(this Graph.EdgeEnumerator enumerator, long directedEdgeId)
+        {
+            enumerator.MoveToEdge(directedEdgeId);
+
+            if (directedEdgeId > 0)
+            {
+                if (!enumerator.DataInverted)
+                {
+                    return enumerator.From;
+                }
+                else
+                {
+                    return enumerator.To;
+                }
+            }
+            else
+            {
+                if (enumerator.DataInverted)
+                {
+                    return enumerator.From;
+                }
+                else
+                {
+                    return enumerator.To;
+                }
+            }
+        }
+
+        /// <summary>
         /// Moves this enumerator to the target vertex of the given directed edge-id.
         /// </summary>
         public static void MoveToTargetVertex(this Graph.EdgeEnumerator enumerator, long directedEdgeId)
