@@ -51,6 +51,8 @@
     <Compile Include="Algorithms\Contracted\IPriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\Witness\IWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\ManyToManyBidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Default\Edge\Dykstra.cs" />
+    <Compile Include="Algorithms\EdgePath.cs" />
     <Compile Include="Algorithms\IAlgorithm.cs" />
     <Compile Include="Algorithms\Default\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilder.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Graphs\EdgeExtensions.cs" />
     <Compile Include="Network\Restrictions\RestrictionsDb.cs" />
     <Compile Include="LocalGeo\Box.cs" />
     <Compile Include="LocalGeo\Coordinate.cs" />
