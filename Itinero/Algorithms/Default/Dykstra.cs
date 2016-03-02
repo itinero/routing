@@ -33,13 +33,14 @@ namespace Itinero.Algorithms.Default
         private readonly Graph _graph;
         private readonly IEnumerable<Path> _sources;
         private readonly Func<ushort, Factor> _getFactor;
+        private readonly Func<uint, uint> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Factor> getFactor,
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint> getRestriction,
             IEnumerable<Path> sources, float sourceMax, bool backward)
         {
             _graph = graph;
@@ -47,6 +48,7 @@ namespace Itinero.Algorithms.Default
             _getFactor = getFactor;
             _sourceMax = sourceMax;
             _backward = backward;
+            _getRestriction = getRestriction;
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
@@ -129,7 +131,19 @@ namespace Itinero.Algorithms.Default
                 return false;
             }
 
-            // get neighbours.
+            // check for restrictions.
+            var restriction = Constants.NO_VERTEX;
+            if (_getRestriction != null)
+            {
+                restriction = _getRestriction(_current.Vertex);
+            }
+            if (restriction != Constants.NO_VERTEX)
+            { // this vertex is restricted, step is a success but just move 
+                // to the next one because this vertex's neighbours are not allowed.
+                return true;
+            }
+
+            // get neighbours and queue them.
             _edgeEnumerator.MoveTo(_current.Vertex);
             while (_edgeEnumerator.MoveNext())
             {

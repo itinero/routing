@@ -111,7 +111,7 @@ namespace Itinero.Algorithms.Default
             }
 
             // run the search.
-            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, 
+            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, null,
                 sourcePaths, max, false);
             dykstra.WasFound += (vertex, weight) =>
             {

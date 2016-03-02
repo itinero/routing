@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -30,7 +30,7 @@ namespace Itinero.Test.Algorithms
     /// Executes tests
     /// </summary>
     [TestFixture]
-    class OneToAllDykstraTests
+    class DykstraTests
     {
         /// <summary>
         /// Tests shortest path calculations on just one edge.
@@ -64,7 +64,7 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) }, 
+            var algorithm = new Dykstra(graph, getFactor, null, new Path[] { new Path(0) }, 
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -116,7 +116,7 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) },
+            var algorithm = new Dykstra(graph, getFactor, null, new Path[] { new Path(0) },
                 (100 / speed) / 2, false);
             algorithm.Run();
 
@@ -166,7 +166,7 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) },
+            var algorithm = new Dykstra(graph, getFactor, null, new Path[] { new Path(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -194,7 +194,7 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            algorithm = new Dykstra(graph, getFactor, new Path[] { new Path(0) },
+            algorithm = new Dykstra(graph, getFactor, null, new Path[] { new Path(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -262,7 +262,7 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, new Path[] { 
+            var algorithm = new Dykstra(graph, getFactor, null, new Path[] { 
                 new Path(0, 10 / speed, new Path(uint.MaxValue)),
                 new Path(1, 90 / speed, new Path(uint.MaxValue))},
                 float.MaxValue, false);

@@ -95,7 +95,7 @@
     <Compile Include="Algorithms\Default\Edge\DykstraTests.cs" />
     <Compile Include="Algorithms\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />
-    <Compile Include="Algorithms\OneToAllDykstraTests.cs" />
+    <Compile Include="Algorithms\Default\DykstraTests.cs" />
     <Compile Include="Algorithms\OneToManyTests.cs" />
     <Compile Include="Algorithms\Routes\CompleteRouteBuilderTests.cs" />
     <Compile Include="Algorithms\Routes\RouteSegmentAggregatorTests.cs" />

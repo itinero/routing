@@ -153,7 +153,7 @@ namespace Itinero
             var getFactor = this.GetGetFactor(profile);
      
             // build and run dykstra search.
-            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
                 point.ToPaths(_db, getFactor, true), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
@@ -200,9 +200,9 @@ namespace Itinero
             }
             else
             { // non-contracted calculation.
-                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null, 
                     source.ToPaths(_db, getFactor, true), float.MaxValue, false);
-                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null, 
                     target.ToPaths(_db, profile, false), float.MaxValue, true);
 
                 var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
