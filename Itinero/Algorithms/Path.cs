@@ -50,17 +50,17 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the vertex.
         /// </summary>
-        public uint Vertex { get; private set; }
+        public uint Vertex { get; set; }
 
         /// <summary>
         /// Gets the weight.
         /// </summary>
-        public float Weight { get; private set; }
+        public float Weight { get; set; }
 
         /// <summary>
         /// Gets previous path.
         /// </summary>
-        public Path From { get; private set; }
+        public Path From { get; set; }
 
         /// <summary>
         /// Returns the reverse of this path segment.

@@ -96,19 +96,29 @@ namespace Itinero.Algorithms.Default.Edge
             {
                 if (_getRestriction != null)
                 {
-                    var targetVertex = _edgeEnumerator.GetTargetVertex(source.DirectedEdge);
                     var sourceVertex = _edgeEnumerator.GetSourceVertex(source.DirectedEdge);
                     var restriction = _getRestriction(sourceVertex);
                     if (restriction != null &&
                         restriction.Length > 1)
                     {
-                        if (restriction[1] == targetVertex)
-                        {
-                            _edgeRestrictions[source.DirectedEdge] = new LinkedRestriction()
-                            {
-                                Restriction = restriction,
-                                Next = null
-                            };
+                        var targetVertex = _edgeEnumerator.GetTargetVertex(source.DirectedEdge);
+                        if (restriction.Length == 2)
+                        { // a restriction of two, an edge is forbidden.
+                            if (restriction[1] == targetVertex)
+                            { // don't queue this edge, it's forbidden.
+                                continue;
+                            }
+                        }
+                        else
+                        { // a restriction bigger than two, check if this edge is the first one.
+                            if (restriction[1] == targetVertex)
+                            { // this edge is the first, queue the restriction too.
+                                _edgeRestrictions[source.DirectedEdge] = new LinkedRestriction()
+                                {
+                                    Restriction = restriction,
+                                    Next = null
+                                };
+                            }
                         }
                     }
                 }
@@ -199,15 +209,21 @@ namespace Itinero.Algorithms.Default.Edge
 
                 // verify restriction(s).
                 LinkedRestriction newRestrictions = null;
-                _edgeRestrictions.TryGetValue(directedEdgeId, out newRestrictions);
+                if(_edgeRestrictions.TryGetValue(directedEdgeId, out newRestrictions))
+                { // restriction for this edge, check if the entire edge is forbidden.
+                    if (newRestrictions.ContainsAnyLength(2))
+                    { // move to the next edge, this one is forbidden.
+                        continue;
+                    }
+                }
                 var currentRestriction = restrictions;
                 var forbidden = false;
                 while (currentRestriction != null)
                 { // check if some restriction prohibits this move or if we need add a new restriction
                     // for the current edge.
-                    if (currentRestriction.Restriction[1] == _edgeEnumerator.To)
+                    if (currentRestriction.Restriction[2] == _edgeEnumerator.To)
                     { // ok restrictions applies to this edge and the previous one.
-                        if (currentRestriction.Restriction.Length == 2)
+                        if (currentRestriction.Restriction.Length == 3)
                         { // ok this is the last edge in this restriction, prohibit this move.
                             forbidden = true;
                             break;
@@ -352,6 +368,23 @@ namespace Itinero.Algorithms.Default.Edge
             /// Gets the next linked restriction.
             /// </summary>
             public LinkedRestriction Next { get; set; }
+
+            /// <summary>
+            /// Returns true if any restriction exists with a given length.
+            /// </summary>
+            public bool ContainsAnyLength(int length)
+            {
+                var cur = this;
+                while(cur != null)
+                {
+                    if (cur.Restriction != null &&
+                        cur.Restriction.Length == length)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
     }
 }

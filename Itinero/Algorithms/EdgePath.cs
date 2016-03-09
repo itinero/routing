@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Itinero.Graphs;
 
 namespace Itinero.Algorithms
 {
@@ -214,6 +215,45 @@ namespace Itinero.Algorithms
             {
                 edges.Add(reversed[i]);
             }
+        }
+
+        /// <summary>
+        /// Converts this edge path to a graph.
+        /// </summary>
+        public Path ToPath(Graph graph)
+        {
+            var edgeEnumerator = graph.GetEdgeEnumerator();
+            Path first = null;
+            if (this.DirectedEdge == Constants.NO_EDGE)
+            {
+                first = new Path(Constants.NO_VERTEX, this.Weight, null);
+            }
+            else
+            {
+                var target = edgeEnumerator.GetTargetVertex(this.DirectedEdge);
+                first = new Path(target, this.Weight, null);
+            }
+
+            var current = this.From;
+            var currentPath = first;
+            while(current != null)
+            {
+                Path next = null;
+                if (current.DirectedEdge == Constants.NO_EDGE)
+                {
+                    next = new Path(Constants.NO_VERTEX, current.Weight, null);
+                }
+                else
+                {
+                    var target = edgeEnumerator.GetTargetVertex(current.DirectedEdge);
+                    next = new Path(target, current.Weight, null);
+                }
+                currentPath.From = next;
+                currentPath = next;
+
+                current = current.From;
+            }
+            return first;  
         }
     }
 }
