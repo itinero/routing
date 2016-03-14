@@ -89,6 +89,8 @@
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Graphs\Directed\DirectedDynamicGraph.cs" />
+    <Compile Include="Graphs\Directed\Extensions.cs" />
     <Compile Include="Graphs\EdgeExtensions.cs" />
     <Compile Include="Network\Restrictions\RestrictionsDb.cs" />
     <Compile Include="LocalGeo\Box.cs" />

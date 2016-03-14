@@ -110,6 +110,7 @@
     <Compile Include="Geo\CoordinateTests.cs" />
     <Compile Include="Geo\LineTests.cs" />
     <Compile Include="Geo\ToolTests.cs" />
+    <Compile Include="Graphs\Directed\DirectedDynamicGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
