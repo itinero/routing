@@ -21,7 +21,7 @@ using Itinero.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Network
+namespace Itinero.Data.Network
 {
     /// <summary>
     /// Contains extension methods for the routing network.
@@ -122,7 +122,7 @@ namespace Itinero.Network
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
             params Coordinate[] shape)
         {
-            return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
+            return network.AddEdge(vertex1, vertex2, new Edges.EdgeData()
             {
                 Distance = distance,
                 MetaId = metaId,
@@ -133,7 +133,7 @@ namespace Itinero.Network
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Edges.EdgeData data,
             params Coordinate[] shape)
         {
             return network.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
@@ -142,7 +142,7 @@ namespace Itinero.Network
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Data.EdgeData data,
+        public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, Edges.EdgeData data,
             IEnumerable<Coordinate> shape)
         {
             if(shape == null)
@@ -158,7 +158,7 @@ namespace Itinero.Network
         public static uint AddEdge(this RoutingNetwork network, uint vertex1, uint vertex2, ushort profile, uint metaId, float distance,
             IEnumerable<Coordinate> shape)
         {
-            return network.AddEdge(vertex1, vertex2, new Data.EdgeData()
+            return network.AddEdge(vertex1, vertex2, new Edges.EdgeData()
             {
                 Distance = distance,
                 MetaId = metaId,

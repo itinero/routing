@@ -21,7 +21,7 @@ using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using Itinero.Graphs.Geometric.Shapes;
 using Itinero.Navigation.Directions;
-using Itinero.Network;
+using Itinero.Data.Network;
 using System;
 using System.Collections.Generic;
 

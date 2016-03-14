@@ -19,9 +19,10 @@
 using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Attributes;
-using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
-using Itinero.Network.Restrictions;
+using Itinero.Data.Network.Restrictions;
+using Itinero.Data.Contracted.Edges;
+using Itinero.Data.Contracted;
 
 namespace Itinero
 {
@@ -55,7 +56,7 @@ namespace Itinero
             hierarchyBuilder.Run();
 
             // add the graph.
-            db.AddContracted(profile, contracted);
+            db.AddContracted(profile, new ContractedDb(contracted));
         }
 
         /// <summary>

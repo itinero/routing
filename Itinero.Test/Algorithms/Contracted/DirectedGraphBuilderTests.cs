@@ -18,12 +18,12 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Contracted;
-using Itinero.Data;
-using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
 using System.Linq;
+using Itinero.Data.Edges;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Test.Algorithms.Contracted
 {

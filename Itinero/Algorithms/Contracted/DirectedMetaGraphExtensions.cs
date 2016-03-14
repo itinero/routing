@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;

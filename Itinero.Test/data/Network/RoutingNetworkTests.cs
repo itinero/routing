@@ -18,12 +18,12 @@
 
 using NUnit.Framework;
 using Itinero.LocalGeo;
-using Itinero.Network;
-using Itinero.Network.Data;
+using Itinero.Data.Network;
+using Itinero.Data.Network.Edges;
 using System;
 using System.Linq;
 
-namespace Itinero.Test.Network
+namespace Itinero.Test.Data.Network
 {
     /// <summary>
     /// Contains tests for the routing network.

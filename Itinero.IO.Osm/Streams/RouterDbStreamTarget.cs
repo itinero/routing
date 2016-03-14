@@ -17,10 +17,9 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Collections;
-using Itinero.Network.Data;
 using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
-using Itinero.Network;
+using Itinero.Data.Network;
 using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
@@ -338,7 +337,7 @@ namespace Itinero.IO.Osm.Streams
 
                     // get profile and meta-data id's.
                     var profile = _db.EdgeProfiles.Add(profileTags);
-                    if (profile > Itinero.Data.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                    if (profile > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
                     {
                         throw new Exception("Maximum supported profiles exeeded, make sure only routing tags are included in the profiles.");
                     }
@@ -398,7 +397,7 @@ namespace Itinero.IO.Osm.Streams
                             { // there is just one intermediate, add that one as a vertex.
                                 var newCoreVertex = _db.Network.VertexCount;
                                 _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
-                                this.AddCoreEdge(fromVertex, newCoreVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(fromVertex, newCoreVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = Coordinate.DistanceEstimateInMeter(
@@ -419,19 +418,19 @@ namespace Itinero.IO.Osm.Streams
                                     _db.Network.GetVertex(toVertex), intermediates[intermediates.Count - 1]);
                                 intermediates.RemoveAt(0);
                                 intermediates.RemoveAt(intermediates.Count - 1);
-                                this.AddCoreEdge(fromVertex, newCoreVertex1, new Network.Data.EdgeData()
+                                this.AddCoreEdge(fromVertex, newCoreVertex1, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance1,
                                     Profile = (ushort)profile
                                 }, null);
-                                this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Network.Data.EdgeData()
+                                this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance - distance2 - distance1,
                                     Profile = (ushort)profile
                                 }, intermediates);
-                                this.AddCoreEdge(newCoreVertex2, toVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(newCoreVertex2, toVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance2,
@@ -444,7 +443,7 @@ namespace Itinero.IO.Osm.Streams
                         var edge = _db.Network.GetEdgeEnumerator(fromVertex).FirstOrDefault(x => x.To == toVertex);
                         if (edge == null && fromVertex != toVertex)
                         { // just add edge.
-                            this.AddCoreEdge(fromVertex, toVertex, new Network.Data.EdgeData()
+                            this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
                             {
                                 MetaId = meta,
                                 Distance = distance,
@@ -469,7 +468,7 @@ namespace Itinero.IO.Osm.Streams
                                 splitDistance = edge.Data.Distance;
 
                                 // just add edge.
-                                this.AddCoreEdge(fromVertex, toVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = System.Math.Max(distance, 0.0f),
@@ -487,7 +486,7 @@ namespace Itinero.IO.Osm.Streams
                                 splitDistance -= newDistance;
 
                                 // add first part.
-                                this.AddCoreEdge(fromVertex, newCoreVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(fromVertex, newCoreVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = splitMeta,
                                     Distance = System.Math.Max(newDistance, 0.0f),
@@ -496,7 +495,7 @@ namespace Itinero.IO.Osm.Streams
 
                                 // add second part.
                                 intermediates.RemoveAt(0);
-                                this.AddCoreEdge(newCoreVertex, toVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(newCoreVertex, toVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = splitMeta,
                                     Distance = System.Math.Max(splitDistance, 0.0f),
@@ -531,7 +530,7 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        public void AddCoreEdge(uint vertex1, uint vertex2, EdgeData data, List<Coordinate> shape)
+        public void AddCoreEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData data, List<Coordinate> shape)
         {
             if (data.Distance < _db.Network.MaxEdgeDistance)
             { // edge is ok, smaller than max distance.
@@ -585,7 +584,7 @@ namespace Itinero.IO.Osm.Streams
                             shortPoint.Value.Longitude);
 
                         // add edge.
-                        _db.Network.AddEdge(vertex1, shortVertex, new EdgeData()
+                        _db.Network.AddEdge(vertex1, shortVertex, new Data.Network.Edges.EdgeData()
                         {
                             Distance = (float)shortDistance,
                             MetaId = data.MetaId,
@@ -614,7 +613,7 @@ namespace Itinero.IO.Osm.Streams
                 }
 
                 // add edge.
-                _db.Network.AddEdge(vertex1, vertex2, new EdgeData()
+                _db.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
                 {
                     Distance = (float)shortDistance,
                     MetaId = data.MetaId,

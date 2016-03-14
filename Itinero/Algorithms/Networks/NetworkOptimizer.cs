@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.LocalGeo;
-using Itinero.Network;
+using Itinero.Data.Network;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Networks
@@ -27,19 +27,19 @@ namespace Itinero.Algorithms.Networks
     /// </summary>
     public class NetworkOptimizer : AlgorithmBase
     {
-        private readonly Network.RoutingNetwork _network;
+        private readonly RoutingNetwork _network;
         private readonly MergeDelegate _merge;
 
         /// <summary>
         /// A delegate to control the merging of two edges.
         /// </summary>
-        public delegate bool MergeDelegate(Network.Data.EdgeData edgeData1, bool inverted1,
-            Network.Data.EdgeData edgeData2, bool inverted2, out Network.Data.EdgeData mergedEdgeData, out bool mergedInverted);
+        public delegate bool MergeDelegate(Data.Network.Edges.EdgeData edgeData1, bool inverted1,
+            Data.Network.Edges.EdgeData edgeData2, bool inverted2, out Data.Network.Edges.EdgeData mergedEdgeData, out bool mergedInverted);
 
         /// <summary>
         /// Creates a new network optimizer algorithm.
         /// </summary>
-        public NetworkOptimizer(Network.RoutingNetwork network, MergeDelegate merge)
+        public NetworkOptimizer(RoutingNetwork network, MergeDelegate merge)
         {
             _network = network;
             _merge = merge;
@@ -50,7 +50,7 @@ namespace Itinero.Algorithms.Networks
         /// </summary>
         protected override void DoRun()
         {
-            var edges = new List<Network.RoutingEdge>();
+            var edges = new List<RoutingEdge>();
             for (uint vertex = 0; vertex < _network.VertexCount; vertex++)
             {
                 edges.Clear();
@@ -58,7 +58,7 @@ namespace Itinero.Algorithms.Networks
                 if (edges.Count == 2)
                 {
                     bool inverted;
-                    Network.Data.EdgeData edgeData;
+                    Data.Network.Edges.EdgeData edgeData;
                     if (edges[0].To != edges[1].To &&
                         _merge(edges[0].Data, !edges[0].DataInverted, edges[1].Data, edges[1].DataInverted,
                             out edgeData, out inverted))

@@ -21,10 +21,12 @@ using Itinero.Algorithms.Routes;
 using Itinero.Algorithms.Search;
 using Itinero.Exceptions;
 using Itinero.Graphs.Geometric;
-using Itinero.Network;
+using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using Itinero.Data.Contracted;
+using Itinero.Data.Edges;
 
 namespace Itinero
 {
@@ -182,11 +184,15 @@ namespace Itinero
 
             List<uint> path;
             float pathWeight;
-            Itinero.Graphs.Directed.DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if(_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
+                if (!contracted.HasNodeBasedGraph)
+                {
+                    throw new NotSupportedException("Edge-based routing not yet supported.");
+                }
                 path = null;
-                var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted,
+                var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
                     source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
                 bidirectionalSearch.Run();
                 if (!bidirectionalSearch.HasSucceeded)
@@ -270,7 +276,7 @@ namespace Itinero
             // get the get factor function.
             var getFactor = this.GetGetFactor(profile);
             
-            Itinero.Graphs.Directed.DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
             {
                 Logging.Logger.Log("Router", Logging.TraceEventType.Warning, 
@@ -333,7 +339,7 @@ namespace Itinero
             var getFactor = this.GetGetFactor(profile);
 
             float[][] weights = null;
-            Itinero.Graphs.Directed.DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra(_db, profile,
@@ -410,7 +416,7 @@ namespace Itinero
                   // get profile.
                     float distance;
                     ushort edgeProfileId;
-                    Itinero.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
+                    EdgeDataSerializer.Deserialize(edge.Data[0],
                         out distance, out edgeProfileId);
                     var edgeProfile = _db.EdgeProfiles.Get(edgeProfileId);
                     for (var i = 0; i < profiles.Length; i++)

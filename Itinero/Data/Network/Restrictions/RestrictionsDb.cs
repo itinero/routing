@@ -19,7 +19,7 @@
 using Reminiscence.Arrays;
 using System;
 
-namespace Itinero.Network.Restrictions
+namespace Itinero.Data.Network.Restrictions
 {
     /// <summary>
     /// Represents a restriction database.

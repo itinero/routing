@@ -18,7 +18,7 @@
 
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using Itinero.Network;
+using Itinero.Data.Network;
 using System.Collections.Generic;
 
 namespace Itinero.Geo.Network

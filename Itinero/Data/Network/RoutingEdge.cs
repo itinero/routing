@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Data.Network.Edges;
 using Itinero.Graphs.Geometric.Shapes;
-using Itinero.Network.Data;
 
-namespace Itinero.Network
+namespace Itinero.Data.Network
 {
     /// <summary>
     /// Represents an edge in a routing network.

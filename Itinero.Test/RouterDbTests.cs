@@ -22,7 +22,8 @@ using Itinero.Graphs.Directed;
 using System.IO;
 using Itinero.Attributes;
 using System.Linq;
-using Itinero.Network.Restrictions;
+using Itinero.Data.Network.Restrictions;
+using Itinero.Data.Contracted;
 
 namespace Itinero.Test
 {
@@ -164,7 +165,7 @@ namespace Itinero.Test
                 edge.Data.MetaId);
             Assert.IsTrue(edgeMeta.Contains("name", "Abelshausen Blvd."));
 
-            DirectedMetaGraph contracted;
+            ContractedDb contracted;
             Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
         }
 

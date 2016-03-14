@@ -18,7 +18,7 @@
 
 using Itinero.Attributes;
 using Itinero.LocalGeo;
-using Itinero.Network;
+using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;

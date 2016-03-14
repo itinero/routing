@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Data.Contracted;
+using Itinero.Data.Network;
 using Itinero.Graphs.Directed;
-using Itinero.Network;
-using System.Collections.Generic;
 
 namespace Itinero
 {
@@ -33,16 +33,16 @@ namespace Itinero
         public RoutingNetworkProfile RoutingNetworkProfile { get; set; }
 
         /// <summary>
-        /// Gets or sets the directed meta graph profile.
+        /// Gets or sets the contracted db profile.
         /// </summary>
-        public DirectedMetaGraphProfile DirectedMetaGraphProfile { get; set; }
+        public ContractedDbProfile ContractedDbProfile { get; set; }
 
         /// <summary>
         /// A profile telling the router db to do no caching.
         /// </summary>
         public static RouterDbProfile NoCache = new RouterDbProfile()
         {
-            DirectedMetaGraphProfile = DirectedMetaGraphProfile.NoCache,
+            ContractedDbProfile = ContractedDbProfile.NoCache,
             RoutingNetworkProfile = RoutingNetworkProfile.NoCache
         };
 
@@ -51,7 +51,7 @@ namespace Itinero
         /// </summary>
         public static RouterDbProfile MobileLowEnd = new RouterDbProfile()
         {
-            DirectedMetaGraphProfile = DirectedMetaGraphProfile.Aggressive40,
+            ContractedDbProfile = ContractedDbProfile.Aggressive24,
             RoutingNetworkProfile = RoutingNetworkProfile.NoCache
         };
 
@@ -60,7 +60,7 @@ namespace Itinero
         /// </summary>
         public static RouterDbProfile MobileHighEnd = new RouterDbProfile()
         {
-            DirectedMetaGraphProfile = DirectedMetaGraphProfile.Aggressive40,
+            ContractedDbProfile = ContractedDbProfile.Aggressive24,
             RoutingNetworkProfile = RoutingNetworkProfile.Default
         };
 
@@ -69,7 +69,7 @@ namespace Itinero
         /// </summary>
         public static RouterDbProfile Default = new RouterDbProfile()
         {
-            DirectedMetaGraphProfile = DirectedMetaGraphProfile.Aggressive40,
+            ContractedDbProfile = ContractedDbProfile.Aggressive24,
             RoutingNetworkProfile = RoutingNetworkProfile.Default
         };
     }

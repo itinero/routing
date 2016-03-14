@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System.Collections.Generic;
 

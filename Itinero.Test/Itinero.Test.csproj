@@ -104,8 +104,8 @@
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
     <Compile Include="Algorithms\WeightMatrixAlgorithmTests.cs" />
     <Compile Include="Attributes\AttributesIndexTests.cs" />
-    <Compile Include="Data\Contracted\ContractedEdgeDataSerializerTests.cs" />
-    <Compile Include="Data\EdgeDataSerializerTests.cs" />
+    <Compile Include="Data\Contracted\Edges\ContractedEdgeDataSerializerTests.cs" />
+    <Compile Include="Data\Edges\EdgeDataSerializerTests.cs" />
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="Geo\CoordinateTests.cs" />
     <Compile Include="Geo\LineTests.cs" />
@@ -120,8 +120,8 @@
     <Compile Include="Navigation\InstructionGeneratorTests.cs" />
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />
     <Compile Include="Navigation\Osm\InstructionCarGeneratorTests.cs" />
-    <Compile Include="Network\Restrictions\RestrictionsDbTests.cs" />
-    <Compile Include="Network\RoutingNetworkTests.cs" />
+    <Compile Include="Data\Network\Restrictions\RestrictionsDbTests.cs" />
+    <Compile Include="Data\Network\RoutingNetworkTests.cs" />
     <Compile Include="Osm\OsmRoutingTagNormalizer.cs" />
     <Compile Include="IO\Osm\Streams\NodeCoordinatesDictionaryTests.cs" />
     <Compile Include="IO\Osm\Streams\RouterDbStreamTargetTests.cs" />

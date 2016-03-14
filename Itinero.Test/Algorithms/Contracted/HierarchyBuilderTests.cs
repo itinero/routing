@@ -19,10 +19,10 @@
 using NUnit.Framework;
 using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Contracted.Witness;
-using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using System.Collections.Generic;
 using System.Linq;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Test.Algorithms.Contracted
 {

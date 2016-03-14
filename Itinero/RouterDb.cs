@@ -18,8 +18,8 @@
 
 using Itinero.Attributes;
 using Itinero.Graphs.Directed;
-using Itinero.Network;
-using Itinero.Network.Restrictions;
+using Itinero.Data.Network;
+using Itinero.Data.Network.Restrictions;
 using Itinero.Profiles;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Itinero.Data.Contracted;
 
 namespace Itinero
 {
@@ -41,7 +42,7 @@ namespace Itinero
         private readonly IAttributeCollection _dbMeta;
         private Guid _guid;
 
-        private readonly Dictionary<string, DirectedMetaGraph> _contracted;
+        private readonly Dictionary<string, ContractedDb> _contracted;
         private readonly HashSet<string> _supportedProfiles;
         private readonly Dictionary<string, RestrictionsDb> _restrictionDbs;
 
@@ -57,7 +58,7 @@ namespace Itinero
             _dbMeta = new AttributeCollection();
 
             _supportedProfiles = new HashSet<string>();
-            _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
@@ -75,7 +76,7 @@ namespace Itinero
             _dbMeta = new AttributeCollection();
 
             _supportedProfiles = new HashSet<string>();
-            _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
@@ -93,7 +94,7 @@ namespace Itinero
             _dbMeta = new AttributeCollection();
 
             _supportedProfiles = new HashSet<string>();
-            _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
@@ -115,7 +116,7 @@ namespace Itinero
             {
                 _supportedProfiles.Add(supportedProfile.Name);
             }
-            _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
 
             _guid = Guid.NewGuid();
@@ -138,7 +139,7 @@ namespace Itinero
             {
                 _supportedProfiles.Add(supportedProfile);
             }
-            _contracted = new Dictionary<string, DirectedMetaGraph>();
+            _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
         }
 
@@ -247,7 +248,7 @@ namespace Itinero
         /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
-        public void AddContracted(Profiles.Profile profile, DirectedMetaGraph contracted)
+        public void AddContracted(Profiles.Profile profile, ContractedDb contracted)
         {
             _contracted[profile.Name] = contracted;
         }
@@ -263,7 +264,7 @@ namespace Itinero
         /// <summary>
         /// Tries to get a contracted version of the routing network for the given profile.
         /// </summary>
-        public bool TryGetContracted(Profiles.Profile profile, out DirectedMetaGraph contracted)
+        public bool TryGetContracted(Profiles.Profile profile, out ContractedDb contracted)
         {
             return _contracted.TryGetValue(profile.Name, out contracted);
         }
@@ -367,7 +368,7 @@ namespace Itinero
         /// </summary>
         public long SerializeContracted(Profile profile, Stream stream)
         {
-            DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if (!this.TryGetContracted(profile, out contracted))
             {
                 throw new Exception(string.Format("Contracted graph for profile {0} not found.", profile.Name));
@@ -394,7 +395,7 @@ namespace Itinero
         /// <summary>
         /// Reads a contracted graph from the given stream and adds it to this db.
         /// </summary>
-        public void DeserializeAndAddContracted(Stream stream, DirectedMetaGraphProfile profile)
+        public void DeserializeAndAddContracted(Stream stream, ContractedDbProfile profile)
         {
             // first read and compare guids.
             var guidBytes = new byte[16];
@@ -405,7 +406,7 @@ namespace Itinero
                 throw new Exception("Cannot add this contracted graph, guid's do not match.");
             }
             var profileName = stream.ReadWithSizeString();
-            var contracted = DirectedMetaGraph.Deserialize(stream, profile);
+            var contracted = ContractedDb.Deserialize(stream, profile);
             _contracted[profileName] = contracted;
         }
 
@@ -447,7 +448,7 @@ namespace Itinero
             for (var i = 0; i < contractedCount; i++)
             {
                 var profileName = stream.ReadWithSizeString();
-                var contracted = DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.DirectedMetaGraphProfile);
+                var contracted = ContractedDb.Deserialize(stream, profile == null ? null : profile.ContractedDbProfile);
                 routerDb._contracted[profileName] = contracted;
             }
             return routerDb;

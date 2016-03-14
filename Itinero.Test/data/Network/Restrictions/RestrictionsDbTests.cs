@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Network.Restrictions;
+using Itinero.Data.Network.Restrictions;
 using NUnit.Framework;
 
-namespace Itinero.Test.Network.Restrictions
+namespace Itinero.Test.Data.Network.Restrictions
 {
     /// <summary>
     /// Contains tests for the restriction db.

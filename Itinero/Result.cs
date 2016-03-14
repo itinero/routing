@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Exceptions;
-using Itinero.Network;
+using Itinero.Data.Network;
 using System;
 
 namespace Itinero

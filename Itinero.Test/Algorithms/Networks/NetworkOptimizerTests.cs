@@ -18,8 +18,8 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Networks;
-using Itinero.Network;
-using Itinero.Network.Data;
+using Itinero.Data.Network;
+using Itinero.Data.Network.Edges;
 using System.Linq;
 using System.Collections.Generic;
 using Itinero.LocalGeo;

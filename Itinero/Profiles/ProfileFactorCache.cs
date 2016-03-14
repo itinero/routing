@@ -133,7 +133,7 @@ namespace Itinero.Profiles
             {
                 float distance;
                 ushort edgeProfileId;
-                Itinero.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
+                Data.Edges.EdgeDataSerializer.Deserialize(edge.Data[0],
                     out distance, out edgeProfileId);
                 for (var i = 0; i < profiles.Length; i++)
                 {

@@ -22,6 +22,7 @@ using Itinero.Algorithms.Contracted;
 using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using System.Collections.Generic;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Test.Algorithms.Contracted
 {

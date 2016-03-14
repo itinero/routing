@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Data.Contracted.Edges;
+using Itinero.Data.Edges;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
@@ -59,7 +61,7 @@ namespace Itinero.Algorithms.Contracted
                 edgeEnumerator.Reset();
                 while(edgeEnumerator.MoveNext())
                 {
-                    Itinero.Data.EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, 
+                    EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, 
                         out distance, out edgeProfile);
                     var factor = Factor.NoFactor;
                     if(!factors.TryGetValue(edgeProfile, out factor))
@@ -87,7 +89,7 @@ namespace Itinero.Algorithms.Contracted
                                 direction = true;
                             }
                         }
-                        var data = Itinero.Data.Contracted.ContractedEdgeDataSerializer.Serialize(
+                        var data = ContractedEdgeDataSerializer.Serialize(
                             distance * factor.Value, direction);
 
                         _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data, Constants.NO_VERTEX);

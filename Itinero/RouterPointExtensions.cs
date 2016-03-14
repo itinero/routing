@@ -19,10 +19,11 @@
 using Itinero.Algorithms;
 using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
-using Itinero.Network;
+using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using Itinero.Data.Edges;
 
 namespace Itinero
 {
@@ -42,7 +43,7 @@ namespace Itinero
 
             float distance;
             ushort profileId;
-            Itinero.Data.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
+            EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
             var factor = getFactor(profileId);
             var length = distance;
 

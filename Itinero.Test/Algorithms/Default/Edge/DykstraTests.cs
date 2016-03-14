@@ -19,6 +19,7 @@
 using Itinero.Algorithms;
 using Itinero.Algorithms.Default.Edge;
 using Itinero.Data;
+using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
 

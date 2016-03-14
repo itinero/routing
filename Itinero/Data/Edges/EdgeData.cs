@@ -1,5 +1,5 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Itinero - OpenStreetMap (OSM) SDK
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Network.Data
+namespace Itinero.Data.Edges
 {
     /// <summary>
-    /// Represents data attached to an edge in a routing network.
+    /// A simple edge represting distance and profile.
     /// </summary>
     public struct EdgeData
     {
@@ -32,10 +32,5 @@ namespace Itinero.Network.Data
         /// Gets or sets the distance.
         /// </summary>
         public float Distance { get; set; }
-
-        /// <summary>
-        /// Gets or sets the attributes id.
-        /// </summary>
-        public uint MetaId { get; set; }
     }
 }

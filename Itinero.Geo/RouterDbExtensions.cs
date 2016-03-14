@@ -1,7 +1,7 @@
 ﻿using GeoAPI.Geometries;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using Itinero.Network;
+using Itinero.Data.Network;
 using System;
 using System.Collections.Generic;
 using System.Linq;

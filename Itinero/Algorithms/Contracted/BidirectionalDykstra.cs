@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.PriorityQueues;
-using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;

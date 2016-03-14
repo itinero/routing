@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Data;
+using Itinero.Data.Edges;
 using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
