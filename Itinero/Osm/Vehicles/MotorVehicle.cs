@@ -63,6 +63,10 @@ namespace Itinero.Osm.Vehicles
                     return false;
                 }
             }
+            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
+            {
+                return false;
+            }
             return AccessibleTags.ContainsKey(highwayType);
         }
 

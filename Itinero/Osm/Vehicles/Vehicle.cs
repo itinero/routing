@@ -202,7 +202,19 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public virtual bool IsRelevantForProfile(string key)
         {
-            return _relevantProfileKeys.Contains(key);
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return false;
+            }
+            if (_relevantProfileKeys.Contains(key))
+            {
+                return true;
+            }
+            if (key.StartsWith("oneway"))
+            {
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

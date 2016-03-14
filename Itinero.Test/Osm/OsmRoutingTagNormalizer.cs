@@ -40,19 +40,19 @@ namespace Itinero.Test.Osm
 
             Assert.IsFalse(tags.Normalize(profileTags, metaTags));
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
+            tags.AddOrReplace("highway", "residential");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "footway"));
+            tags.AddOrReplace("highway", "footway");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "footway"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "motorway"));
+            tags.AddOrReplace("highway", "motorway");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "motorway"));
             profileTags.Clear();
@@ -69,32 +69,32 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("bicycle", "yes"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("bicycle", "yes");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("bicycle", "yes"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("bicycle", "no"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("bicycle", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("bicycle", "no"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("bicycle", "mistake"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("bicycle", "mistake");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("bicycle", "mistake"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "footway"));
-            tags.AddOrReplace(new Attribute("bicycle", "no"));
+            tags.AddOrReplace("highway", "footway");
+            tags.AddOrReplace("bicycle", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "footway"));
             Assert.IsFalse(profileTags.Contains("bicycle", "no"));
@@ -112,35 +112,35 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("foot", "yes"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("foot", "yes");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("foot", "yes"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("foot", "no"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("foot", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("foot", "no"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("foot", "mistake"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("foot", "mistake");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("foot", "mistake"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "cycleway"));
-            tags.AddOrReplace(new Attribute("foot", "no"));
+            tags.AddOrReplace("highway", "cycleway");
+            tags.AddOrReplace("foot", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "cycleway"));
-            Assert.IsFalse(profileTags.Contains("foot", "no"));
+            Assert.IsTrue(profileTags.Contains("foot", "no"));
             profileTags.Clear();
             tags.Clear();
         }
@@ -155,32 +155,32 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("motorvehicle", "yes"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("motorvehicle", "yes");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("motorvehicle", "yes"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("motorvehicle", "no"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("motorvehicle", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("motorvehicle", "no"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("motorvehicle", "mistake"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("motorvehicle", "mistake");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("motorvehicle", "mistake"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "cycleway"));
-            tags.AddOrReplace(new Attribute("motorvehicle", "no"));
+            tags.AddOrReplace("highway", "cycleway");
+            tags.AddOrReplace("motorvehicle", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "cycleway"));
             Assert.IsFalse(profileTags.Contains("motorvehicle", "no"));
@@ -198,24 +198,24 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("oneway", "no"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("oneway", "no");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("oneway", "no"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("oneway", "yes"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("oneway", "yes");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("oneway", "yes"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("oneway", "-1"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("oneway", "-1");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("oneway", "-1"));
@@ -233,22 +233,16 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("access", "no"));
-            Assert.IsFalse(tags.Normalize(profileTags, metaTags));
-            profileTags.Clear();
-            tags.Clear();
-
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("access", "yes"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("access", "yes");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
-            Assert.IsFalse(profileTags.Contains("access", "yes"));
+            Assert.IsTrue(profileTags.Contains("access", "yes"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("access", "mistake"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("access", "mistake");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("access", "mistake"));
@@ -266,16 +260,16 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("junction", "roundabout"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("junction", "roundabout");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("junction", "roundabout"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("junction", "mistake"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("junction", "mistake");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("junction", "mistake"));
@@ -293,27 +287,46 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("maxspeed", "50"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("maxspeed", "50");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("maxspeed", "50"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("maxspeed", "mistake"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("maxspeed", "mistake");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("maxspeed", "mistake"));
             profileTags.Clear();
             tags.Clear();
 
-            tags.AddOrReplace(new Attribute("highway", "residential"));
-            tags.AddOrReplace(new Attribute("maxspeed", "50 mph"));
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("maxspeed", "50 mph");
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("maxspeed", "50 mph"));
+            profileTags.Clear();
+            tags.Clear();
+        }
+
+        /// <summary>
+        /// Tests normalization with steps and ramp.
+        /// </summary>
+        [Test]
+        public void TestRamp()
+        {
+            var tags = new AttributeCollection();
+            var profileTags = new AttributeCollection();
+            var metaTags = new AttributeCollection();
+
+            tags.AddOrReplace("highway", "steps");
+            tags.AddOrReplace("ramp", "yes");
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags));
+            Assert.IsTrue(profileTags.Contains("highway", "steps"));
+            Assert.IsTrue(profileTags.Contains("ramp", "yes"));
             profileTags.Clear();
             tags.Clear();
         }

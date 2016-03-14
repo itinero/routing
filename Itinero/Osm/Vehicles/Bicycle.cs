@@ -20,7 +20,7 @@ using Itinero.Attributes;
 using Itinero.Profiles;
 
 namespace Itinero.Osm.Vehicles
-{
+{  
     /// <summary>
     /// Represents a bicycle
     /// </summary>
@@ -103,29 +103,29 @@ namespace Itinero.Osm.Vehicles
                     return this.MaxSpeed();
                 case "track":
                 case "road":
-                    return 30f;
+                    return 30;
                 case "residential":
                 case "unclassified":
-                    return 50f;
+                    return 50;
                 case "motorway":
                 case "motorway_link":
-                    return 120f;
+                    return 120;
                 case "trunk":
                 case "trunk_link":
                 case "primary":
                 case "primary_link":
-                    return 90f;
+                    return 90;
                 default:
-                    return 70f;
+                    return 70;
             }
         }
 
         /// <summary>
-        /// Returns true if the given key is relevant for this profile.
+        /// Returns true if the given key is relevant for the given profile.
         /// </summary>
         public override bool IsRelevantForProfile(string key)
         {
-            if(base.IsRelevantForProfile(key))
+            if (base.IsRelevantForProfile(key))
             {
                 return true;
             }
@@ -137,12 +137,48 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public override bool? IsOneWay(IAttributeCollection tags)
         {
+            string oneway;
+            if (tags.TryGetValue("oneway:bicycle", out oneway))
+            {
+                if (oneway == "yes")
+                {
+                    return true;
+                }
+                else if (oneway == "no")
+                {
+                    return null;
+                }
+                return false;
+            }
+
+            if (tags.TryGetValue("oneway", out oneway))
+            {
+                if (oneway == "yes")
+                {
+                    return true;
+                }
+                else if (oneway == "no")
+                {
+                    return null;
+                }
+                return false;
+            }
+
+            string junction;
+            if (tags.TryGetValue("junction", out junction))
+            {
+                if (junction == "roundabout")
+                {
+                    return true;
+                }
+            }
             return null;
         }
 
         /// <summary>
         /// Returns the maximum possible speed this vehicle can achieve.
         /// </summary>
+        /// <returns></returns>
         public override float MaxSpeed()
         {
             return 15;
@@ -151,6 +187,7 @@ namespace Itinero.Osm.Vehicles
         /// <summary>
         /// Returns the minimum speed.
         /// </summary>
+        /// <returns></returns>
         public override float MinSpeed()
         {
             return 3;
@@ -167,6 +204,7 @@ namespace Itinero.Osm.Vehicles
         /// <summary>
         /// Gets all profiles for this vehicle.
         /// </summary>
+        /// <returns></returns>
         public override Profile[] GetProfiles()
         {
             return new Profile[]
@@ -180,7 +218,8 @@ namespace Itinero.Osm.Vehicles
         /// <summary>
         /// Returns a profile specifically for bicycle that tries to balance between bicycle infrastructure and fastest route.
         /// </summary>
-        public Itinero.Profiles.Profile Balanced()
+        /// <returns></returns>
+        public Profile Balanced()
         {
             return new Profiles.BicycleBalanced(this);
         }

@@ -28,6 +28,7 @@ using Itinero.Attributes;
 using Itinero.Osm;
 using OsmSharp.Tags;
 using OsmSharp;
+using Itinero.Data.Network.Edges;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -62,7 +63,7 @@ namespace Itinero.IO.Osm.Streams
             _allRoutingNodes = new SparseLongIndex();
             _anyStageNodes = new SparseLongIndex();
             _coreNodes = new SparseLongIndex();
-            _coreNodeIdMap = new HugeDictionary<long, uint>();
+            _coreNodeIdMap = new CoreNodeIdMap();
             _processedWays = new SparseLongIndex();
             _minimumStages = minimumStages;
 
@@ -81,7 +82,7 @@ namespace Itinero.IO.Osm.Streams
         private SparseLongIndex _processedWays; // ways that have been processed already.
         private NodeCoordinatesDictionary _stageCoordinates; // coordinates of nodes that are part of a routable way in the current stage.
         private SparseLongIndex _coreNodes; // node that are in more than one routable way.
-        private HugeDictionary<long, uint> _coreNodeIdMap; // maps nodes in the core onto routing network id's.
+        private CoreNodeIdMap _coreNodeIdMap; // maps nodes in the core onto routing network id's.
 
         private long _nodeCount = 0;
         private float _minLatitude = float.MaxValue, _minLongitude = float.MaxValue,
@@ -362,10 +363,12 @@ namespace Itinero.IO.Osm.Streams
                         }
                         var fromVertex = this.AddCoreNode(way.Nodes[node],
                             coordinate.Latitude, coordinate.Longitude);
+                        var fromNode = way.Nodes[node];
                         var previousCoordinate = coordinate;
                         node++;
 
                         var toVertex = uint.MaxValue;
+                        var toNode = long.MaxValue;
                         while (true)
                         {
                             if (!_stageCoordinates.TryGetValue(way.Nodes[node], out coordinate))
@@ -383,6 +386,7 @@ namespace Itinero.IO.Osm.Streams
                             { // node is part of the core.
                                 toVertex = this.AddCoreNode(way.Nodes[node],
                                     coordinate.Latitude, coordinate.Longitude);
+                                toNode = way.Nodes[node];
                                 break;
                             }
                             intermediates.Add(coordinate);
@@ -451,56 +455,95 @@ namespace Itinero.IO.Osm.Streams
                             }, intermediates);
                         }
                         else
-                        { // oeps, already an edge there, try and use intermediate points.
-                            var splitMeta = meta;
-                            var splitProfile = profile;
-                            var splitDistance = distance;
-                            if (intermediates.Count == 0 &&
-                                edge != null &&
-                                edge.Shape != null)
-                            { // no intermediates in current edge.
-                                // save old edge data.
-                                intermediates = new List<Coordinate>(edge.Shape);
-                                fromVertex = edge.From;
-                                toVertex = edge.To;
-                                splitMeta = edge.Data.MetaId;
-                                splitProfile = edge.Data.Profile;
-                                splitDistance = edge.Data.Distance;
-
-                                // just add edge.
-                                this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = System.Math.Max(distance, 0.0f),
-                                    Profile = (ushort)profile
-                                }, null);
+                        { // oeps, already an edge there.
+                            if (edge.Data.Distance == distance &&
+                                edge.Data.Profile == profile &&
+                                edge.Data.MetaId == meta)
+                            {
+                                // do nothing, identical duplicate data.
                             }
-                            if (intermediates.Count > 0)
-                            { // intermediates found, use the first intermediate as the core-node.
-                                var newCoreVertex = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
+                            else
+                            { // try and use intermediate points if any.
+                              // try and use intermediate points.
+                                var splitMeta = meta;
+                                var splitProfile = profile;
+                                var splitDistance = distance;
+                                if (intermediates.Count == 0 &&
+                                    edge != null &&
+                                    edge.Shape != null)
+                                { // no intermediates in current edge.
+                                  // save old edge data.
+                                    intermediates = new List<Coordinate>(edge.Shape);
+                                    fromVertex = edge.From;
+                                    toVertex = edge.To;
+                                    splitMeta = edge.Data.MetaId;
+                                    splitProfile = edge.Data.Profile;
+                                    splitDistance = edge.Data.Distance;
 
-                                // calculate new distance and update old distance.
-                                var newDistance = Coordinate.DistanceEstimateInMeter(
-                                    _db.Network.GetVertex(fromVertex), intermediates[0]);
-                                splitDistance -= newDistance;
+                                    // just add edge.
+                                    this.AddCoreEdge(fromVertex, toVertex, new EdgeData()
+                                    {
+                                        MetaId = meta,
+                                        Distance = System.Math.Max(distance, 0.0f),
+                                        Profile = (ushort)profile
+                                    }, null);
+                                }
 
-                                // add first part.
-                                this.AddCoreEdge(fromVertex, newCoreVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = splitMeta,
-                                    Distance = System.Math.Max(newDistance, 0.0f),
-                                    Profile = (ushort)splitProfile
-                                }, null);
+                                if (intermediates.Count > 0)
+                                { // intermediates found, use the first intermediate as the core-node.
+                                    var newCoreVertex = _db.Network.VertexCount;
+                                    _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
 
-                                // add second part.
-                                intermediates.RemoveAt(0);
-                                this.AddCoreEdge(newCoreVertex, toVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = splitMeta,
-                                    Distance = System.Math.Max(splitDistance, 0.0f),
-                                    Profile = (ushort)splitProfile
-                                }, intermediates);
+                                    // calculate new distance and update old distance.
+                                    var newDistance = Coordinate.DistanceEstimateInMeter(
+                                        _db.Network.GetVertex(fromVertex), intermediates[0]);
+                                    splitDistance -= newDistance;
+
+                                    // add first part.
+                                    this.AddCoreEdge(fromVertex, newCoreVertex, new EdgeData()
+                                    {
+                                        MetaId = splitMeta,
+                                        Distance = System.Math.Max(newDistance, 0.0f),
+                                        Profile = (ushort)splitProfile
+                                    }, null);
+
+                                    // add second part.
+                                    intermediates.RemoveAt(0);
+                                    this.AddCoreEdge(newCoreVertex, toVertex, new EdgeData()
+                                    {
+                                        MetaId = splitMeta,
+                                        Distance = System.Math.Max(splitDistance, 0.0f),
+                                        Profile = (ushort)splitProfile
+                                    }, intermediates);
+                                }
+                                else
+                                { // no intermediate or shapepoint found in either one. two identical edge overlayed with different profiles.
+                                  // add two other vertices with identical positions as the ones given.
+                                  // connect them with an edge of length '0'.
+                                    var fromLocation = _db.Network.GetVertex(fromVertex);
+                                    var newFromVertex = this.AddNewCoreNode(fromNode, fromLocation.Latitude, fromLocation.Longitude);
+                                    this.AddCoreEdge(fromVertex, newFromVertex, new EdgeData()
+                                    {
+                                        Distance = 0,
+                                        MetaId = splitMeta,
+                                        Profile = (ushort)splitProfile
+                                    }, null);
+                                    var toLocation = _db.Network.GetVertex(toVertex);
+                                    var newToVertex = this.AddNewCoreNode(toNode, fromLocation.Latitude, fromLocation.Longitude);
+                                    this.AddCoreEdge(newToVertex, toVertex, new EdgeData()
+                                    {
+                                        Distance = 0,
+                                        MetaId = splitMeta,
+                                        Profile = (ushort)splitProfile
+                                    }, null);
+
+                                    this.AddCoreEdge(newFromVertex, newToVertex, new EdgeData()
+                                    {
+                                        Distance = splitDistance,
+                                        MetaId = splitMeta,
+                                        Profile = (ushort)splitProfile
+                                    }, null);
+                                }
                             }
                         }
                     }
@@ -517,13 +560,21 @@ namespace Itinero.IO.Osm.Streams
         private uint AddCoreNode(long node, float latitude, float longitude)
         {
             var vertex = uint.MaxValue;
-            if (_coreNodeIdMap.TryGetValue(node, out vertex))
+            if (_coreNodeIdMap.TryGetFirst(node, out vertex))
             { // node was already added.
                 return vertex;
             }
-            vertex = _db.Network.VertexCount;
+            return this.AddNewCoreNode(node, latitude, longitude);
+        }
+
+        /// <summary>
+        /// Adds a new core-node, doesn't check if there is already a vertex.
+        /// </summary>
+        private uint AddNewCoreNode(long node, float latitude, float longitude)
+        {
+            var vertex = _db.Network.VertexCount;
             _db.Network.AddVertex(vertex, latitude, longitude);
-            _coreNodeIdMap[node] = vertex;
+            _coreNodeIdMap.Add(node, vertex);
             return vertex;
         }
 
@@ -633,7 +684,7 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Gets the core node id map.
         /// </summary>
-        public HugeDictionary<long, uint> CoreNodeIdMap
+        public CoreNodeIdMap CoreNodeIdMap
         {
             get
             {

@@ -84,11 +84,9 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Returns true if contains the given key.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public bool ContainsKey(TKey key)
         {
-            for (int idx = _dictionary.Count; idx < _dictionary.Count; idx++)
+            for (int idx = 0; idx < _dictionary.Count; idx++)
             {
                 if (_dictionary[idx].ContainsKey(key))
                 {

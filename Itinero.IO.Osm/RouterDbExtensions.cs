@@ -17,8 +17,10 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Search.Hilbert;
+using OsmSharp;
 using OsmSharp.Streams;
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Itinero.IO.Osm
@@ -54,7 +56,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
         {
             db.LoadOsmData(source, false, vehicles);
         }
@@ -62,7 +64,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {

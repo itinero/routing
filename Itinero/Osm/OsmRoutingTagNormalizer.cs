@@ -29,32 +29,29 @@ namespace Itinero.Osm
         /// <summary>
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
-        /// <returns></returns>
-        public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags, 
+        public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags,
             AttributeCollection metaTags)
         {
             string highway;
-            if(!tags.TryGetValue("highway", out highway))
+            if (!tags.TryGetValue("highway", out highway))
             { // there is no highway tag, don't continue the search.
                 return false;
             }
 
             // normalize access tags.
-            if(!tags.NormalizeAccess(profileTags, metaTags))
-            { // access is denied, don't use this way.
-                return false;
-            }
+            var defaultAccess = tags.NormalizeAccess(profileTags, metaTags);
 
             // normalize maxspeed tags.
             tags.NormalizeMaxspeed(profileTags, metaTags);
 
             // normalize oneway tags.
             tags.NormalizeOneway(profileTags, metaTags);
+            tags.NormalizeOnewayBicycle(profileTags, metaTags);
 
             // normalize junction=roundabout tag.
             tags.NormalizeJunction(profileTags, metaTags);
 
-            switch(highway)
+            switch (highway)
             {
                 case "motorway":
                 case "motorway_link":
@@ -64,7 +61,7 @@ namespace Itinero.Osm
                 case "primary_link":
                     tags.NormalizeFoot(profileTags, metaTags, false);
                     tags.NormalizeBicycle(profileTags, metaTags, false);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, true);
+                    tags.NormalizeMotorvehicle(profileTags, metaTags, defaultAccess);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "secondary":
@@ -78,29 +75,30 @@ namespace Itinero.Osm
                 case "services":
                 case "living_street":
                 case "track":
-                    tags.NormalizeFoot(profileTags, metaTags, true);
-                    tags.NormalizeBicycle(profileTags, metaTags, true);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeMotorvehicle(profileTags, metaTags, defaultAccess);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "cycleway":
-                    tags.NormalizeFoot(profileTags, metaTags, false);
-                    tags.NormalizeBicycle(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "path":
-                    tags.NormalizeFoot(profileTags, metaTags, true);
-                    tags.NormalizeBicycle(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "pedestrian":
                 case "footway":
                 case "steps":
-                    tags.NormalizeFoot(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
                     tags.NormalizeBicycle(profileTags, metaTags, false);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
+                    tags.NormalizeRamp(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
             }
@@ -140,6 +138,7 @@ namespace Itinero.Osm
         /// <summary>
         /// Normalizes the access tags and adds them to the profile tags or meta tags.
         /// </summary>
+        /// <returns></returns>
         public static bool NormalizeAccess(this AttributeCollection tags, AttributeCollection profileTags,
             AttributeCollection metaTags)
         {
@@ -158,6 +157,14 @@ namespace Itinero.Osm
             { // access needs to be descided on a vehicle by vehicle basis.
                 profileTags.AddOrReplace("access", access);
                 return true;
+            }
+            if (defaultAccessFound.Value)
+            {
+                profileTags.AddOrReplace("access", "yes");
+            }
+            else
+            {
+                profileTags.AddOrReplace("access", "no");
             }
             return defaultAccessFound.Value;
         }
@@ -211,6 +218,23 @@ namespace Itinero.Osm
         }
 
         /// <summary>
+        /// Normalizes the oneway bicycle tag.
+        /// </summary>
+        public static void NormalizeOnewayBicycle(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags)
+        {
+            string oneway;
+            if (!tags.TryGetValue("oneway:bicycle", out oneway))
+            { // nothing to normalize.
+                return;
+            }
+            if (oneway == "no")
+            {
+                profileTags.AddOrReplace("oneway:bicycle", "no");
+            }
+        }
+
+        /// <summary>
         /// Normalizes maxspeed.
         /// </summary>
         public static void NormalizeMaxspeed(this AttributeCollection tags, AttributeCollection profileTags,
@@ -227,7 +251,7 @@ namespace Itinero.Osm
             {
                 profileTags.AddOrReplace("maxspeed", maxspeed);
             }
-            else if(maxspeed.EndsWith("mph"))
+            else if (maxspeed.EndsWith("mph"))
             {
                 if (int.TryParse(maxspeed.Substring(0, maxspeed.Length - 4), out maxSpeedValue) &&
                     maxSpeedValue > 0 && maxSpeedValue <= 150)
@@ -240,6 +264,7 @@ namespace Itinero.Osm
         /// <summary>
         /// Normalizes the junction tag.
         /// </summary>
+        /// <returns></returns>
         public static void NormalizeJunction(this AttributeCollection tags, AttributeCollection profileTags,
             AttributeCollection metaTags)
         {
@@ -248,7 +273,7 @@ namespace Itinero.Osm
             { // nothing to normalize.
                 return;
             }
-            if(junction == "roundabout")
+            if (junction == "roundabout")
             {
                 profileTags.AddOrReplace("junction", "roundabout");
             }
@@ -311,7 +336,7 @@ namespace Itinero.Osm
         {
             get
             {
-                if(_bicycleValues == null)
+                if (_bicycleValues == null)
                 {
                     _bicycleValues = new Dictionary<string, bool?>();
                     _bicycleValues.Add("yes", true);
@@ -330,24 +355,25 @@ namespace Itinero.Osm
         /// <summary>
         /// Normalizes the bicycle tag.
         /// </summary>
-        public static void NormalizeBicycle(this AttributeCollection tags, AttributeCollection profileTags,
+        public static bool? NormalizeBicycle(this AttributeCollection tags, AttributeCollection profileTags,
             AttributeCollection metaTags, bool defaultAccess)
         {
             string bicycle;
-            if(!tags.TryGetValue("bicycle", out bicycle))
+            if (!tags.TryGetValue("bicycle", out bicycle))
             { // nothing to normalize.
-                return;
+                return null;
             }
             bool? defaultAccessFound;
-            if(!BicycleValues.TryGetValue(bicycle, out defaultAccessFound))
+            if (!BicycleValues.TryGetValue(bicycle, out defaultAccessFound))
             { // invalid value.
-                return;
+                return null;
             }
 
             if (defaultAccess != defaultAccessFound)
             {
                 profileTags.AddOrReplace("bicycle", bicycle);
             }
+            return defaultAccessFound;
         }
 
         private static Dictionary<string, bool?> _rampValues = null;
