@@ -23,7 +23,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Contracted
+namespace Itinero.Algorithms.Contracted.EdgeBased
 {
     /// <summary>
     /// Builds a directed graph from a regular graph.
@@ -31,19 +31,19 @@ namespace Itinero.Algorithms.Contracted
     public class DirectedGraphBuilder : AlgorithmBase
     {
         private readonly Itinero.Graphs.Graph _source;
-        private readonly DirectedMetaGraph _target;
+        private readonly DirectedDynamicGraph _target;
         private readonly Func<ushort, Factor> _getFactor;
 
         /// <summary>
         /// Creates a new graph builder.
         /// </summary>
-        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedMetaGraph target, Func<ushort, Factor> getFactor)
+        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, Func<ushort, Factor> getFactor)
         {
             _source = source;
             _target = target;
             _getFactor = getFactor;
         }
-
+        
         /// <summary>
         /// Executes the actual run.
         /// </summary>
@@ -52,31 +52,31 @@ namespace Itinero.Algorithms.Contracted
             float distance;
             ushort edgeProfile;
             bool? direction = null;
-            
+
             var factors = new Dictionary<ushort, Factor>();
             var edgeEnumerator = _source.GetEdgeEnumerator();
-            for(uint vertex = 0; vertex < _source.VertexCount; vertex++)
+            for (uint vertex = 0; vertex < _source.VertexCount; vertex++)
             {
                 edgeEnumerator.MoveTo(vertex);
                 edgeEnumerator.Reset();
-                while(edgeEnumerator.MoveNext())
+                while (edgeEnumerator.MoveNext())
                 {
-                    EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, 
+                    EdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
                         out distance, out edgeProfile);
                     var factor = Factor.NoFactor;
-                    if(!factors.TryGetValue(edgeProfile, out factor))
+                    if (!factors.TryGetValue(edgeProfile, out factor))
                     { // get from vehicle profile.
                         factor = _getFactor(edgeProfile);
                         factors[edgeProfile] = factor;
                     }
 
-                    if(factor.Value != 0)
+                    if (factor.Value != 0)
                     {
                         direction = null;
                         if (factor.Direction == 1)
                         {
                             direction = true;
-                            if(edgeEnumerator.DataInverted)
+                            if (edgeEnumerator.DataInverted)
                             {
                                 direction = false;
                             }

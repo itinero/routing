@@ -33,8 +33,9 @@ namespace Itinero.Data.Network.Restrictions
         private const int DEFAULT_HASHCOUNT = 1024 * 1024;
         private const uint NO_DATA = uint.MaxValue;
         private const uint POS_SIZE = 0;
-        private const uint POS_NEXT_POINTER = 1;
-        private const uint POS_FIRST_VERTEX = 2;
+        private const uint POS_NEXT_POINTER_FIRST = 1;
+        private const uint POS_NEXT_POINTER_LAST = 2;
+        private const uint POS_FIRST_VERTEX = 3;
 
         private bool _hasComplexRestrictions; // flag to indicate presence of complex restrictions.
 
@@ -44,7 +45,7 @@ namespace Itinero.Data.Network.Restrictions
         public RestrictionsDb(int hashes = DEFAULT_HASHCOUNT)
         {
             _hasComplexRestrictions = false;
-            _hashes = new MemoryArray<uint>(hashes);
+            _hashes = new MemoryArray<uint>(hashes * 2);
             for (var i = 0; i < _hashes.Length; i++)
             {
                 _hashes[i] = NO_DATA;
@@ -62,8 +63,10 @@ namespace Itinero.Data.Network.Restrictions
             if (restriction == null) { throw new ArgumentNullException("restriction"); }
             if (restriction.Length == 0) { throw new ArgumentException("Restriction should contain one or more vertices.", "restriction"); }
 
-            var vertex = restriction[0];
-            var hash = CalculateHash(vertex, (int)_hashes.Length);
+            var firstVertex = restriction[0];
+            var firstHash = CalculateHash(firstVertex, (int)(_hashes.Length / 2));
+            var lastVertex = restriction[restriction.Length - 1];
+            var lastHash = CalculateHash(lastVertex, (int)(_hashes.Length / 2));
 
             uint size = (uint)(POS_FIRST_VERTEX + restriction.Length);
             while (_nextPointer + size >= _restrictions.Length)
@@ -71,23 +74,38 @@ namespace Itinero.Data.Network.Restrictions
                 _restrictions.Resize(_restrictions.Length + BLOCKSIZE);
             }
 
-            var pointer = _hashes[hash];
-            if (pointer == NO_DATA)
+            var firstPointer = _hashes[firstHash];
+            if (firstPointer == NO_DATA)
             { // start new.
-                _hashes[hash] = _nextPointer;
+                _hashes[firstHash] = _nextPointer;
             }
             else
             { // add at the end and change last pointer.
-                while (_restrictions[pointer + POS_NEXT_POINTER] != NO_DATA)
+                while (_restrictions[firstPointer + POS_NEXT_POINTER_FIRST] != NO_DATA)
                 {
-                    pointer = _restrictions[pointer];
+                    firstPointer = _restrictions[firstPointer + POS_NEXT_POINTER_FIRST];
                 }
-                _restrictions[pointer + POS_NEXT_POINTER] = _nextPointer;
+                _restrictions[firstPointer + POS_NEXT_POINTER_FIRST] = _nextPointer;
+            }
+
+            var lastPointer = _hashes[lastHash + 1];
+            if (lastPointer == NO_DATA)
+            { // start new.
+                _hashes[lastHash + 1] = _nextPointer;
+            }
+            else
+            { // add at the end and change last pointer.
+                while (_restrictions[lastPointer + POS_NEXT_POINTER_LAST] != NO_DATA)
+                {
+                    lastPointer = _restrictions[lastPointer + POS_NEXT_POINTER_LAST];
+                }
+                _restrictions[lastPointer + POS_NEXT_POINTER_LAST] = _nextPointer;
             }
 
             // add the data.
             _restrictions[_nextPointer + POS_SIZE] = (uint)restriction.Length;
-            _restrictions[_nextPointer + POS_NEXT_POINTER] = NO_DATA;
+            _restrictions[_nextPointer + POS_NEXT_POINTER_FIRST] = NO_DATA;
+            _restrictions[_nextPointer + POS_NEXT_POINTER_LAST] = NO_DATA;
             for (var i = 0; i < restriction.Length; i++)
             {
                 _restrictions[_nextPointer + POS_FIRST_VERTEX + i] = restriction[i];
@@ -146,32 +164,69 @@ namespace Itinero.Data.Network.Restrictions
             private uint _vertex;
             private uint _pointer;
             private bool? _data = false; // keep status: false, no data available, null, data available, true no data available but ready to move next.
+            private bool? _isFirst = null;
 
             /// <summary>
-            /// Moves to restrictions for the given vertex. 
+            /// Moves to restrictions with the given vertex as the start. 
             /// </summary>
             /// <returns>Returns true if there is a restriction for this vertex.</returns>
-            public bool MoveTo(uint vertex)
+            public bool MoveToFirst(uint vertex)
             {
                 var hash = CalculateHash(vertex, (int)_db._hashes.Length);
                 var pointer = _db._hashes[hash];
                 if (pointer == NO_DATA)
                 { // a quick negative answer is the important part here!
                     _data = false;
+                    _isFirst = null;
                     return false;
                 }
 
                 while (pointer != NO_DATA)
                 {
-                    if (_db._restrictions[pointer + 2] == vertex)
+                    if (_db._restrictions[pointer + POS_FIRST_VERTEX] == vertex)
                     {
                         _data = true;
                         _pointer = pointer;
                         _vertex = vertex;
+                        _isFirst = true;
                         return true;
                     }
-                    pointer = _db._restrictions[pointer + 1];
+                    pointer = _db._restrictions[pointer + POS_NEXT_POINTER_FIRST];
                 }
+                _isFirst = null;
+                return false;
+            }
+
+            /// <summary>
+            /// Moves to restrictions with the given vertex as the end. 
+            /// </summary>
+            /// <returns>Returns true if there is a restriction for this vertex.</returns>
+            public bool MoveToLast(uint vertex)
+            {
+                var hash = CalculateHash(vertex, (int)_db._hashes.Length);
+                var pointer = _db._hashes[hash + 1];
+                if (pointer == NO_DATA)
+                { // a quick negative answer is the important part here!
+                    _data = false;
+                    _isFirst = null;
+                    return false;
+                }
+
+                while (pointer != NO_DATA)
+                {
+                    var size = _db._restrictions[pointer + POS_SIZE];
+                    if (_db._restrictions[pointer + size - 1 + POS_FIRST_VERTEX] == vertex)
+                    {
+                        _data = true;
+                        _pointer = pointer;
+                        _vertex = vertex;
+                        _isFirst = false;
+                        return true;
+                    }
+                    pointer = _db._restrictions[pointer + POS_NEXT_POINTER_LAST];
+                    size = _db._restrictions[pointer + POS_SIZE];
+                }
+                _isFirst = null;
                 return false;
             }
 
@@ -193,20 +248,46 @@ namespace Itinero.Data.Network.Restrictions
                     }
                 }
 
-                // move next.
-                _pointer = _db._restrictions[_pointer + POS_NEXT_POINTER];
-
-                // make sure the move is to the correct vertex.
-                while (_pointer != NO_DATA)
+                if (_isFirst == null)
                 {
-                    if (_db._restrictions[_pointer + POS_FIRST_VERTEX] == _vertex)
-                    {
-                        return true;
-                    }
-                    _pointer = _db._restrictions[_pointer + POS_NEXT_POINTER];
+                    return false;
                 }
-                _data = false;
-                return false;
+
+                if (_isFirst.Value)
+                {
+                    // move next.
+                    _pointer = _db._restrictions[_pointer + POS_NEXT_POINTER_FIRST];
+
+                    // make sure the move is to the correct vertex.
+                    while (_pointer != NO_DATA)
+                    {
+                        if (_db._restrictions[_pointer + POS_FIRST_VERTEX] == _vertex)
+                        {
+                            return true;
+                        }
+                        _pointer = _db._restrictions[_pointer + POS_NEXT_POINTER_FIRST];
+                    }
+                    _data = false;
+                    return false;
+                }
+                else
+                {
+                    // move next.
+                    _pointer = _db._restrictions[_pointer + POS_NEXT_POINTER_LAST];
+
+                    // make sure the move is to the correct vertex.
+                    while (_pointer != NO_DATA)
+                    {
+                        var size = _db._restrictions[_pointer + POS_SIZE];
+                        if (_db._restrictions[_pointer + size - 1 + POS_FIRST_VERTEX] == _vertex)
+                        {
+                            return true;
+                        }
+                        _pointer = _db._restrictions[_pointer + POS_NEXT_POINTER_LAST];
+                    }
+                    _data = false;
+                    return false;
+                }
             }
 
             /// <summary>
