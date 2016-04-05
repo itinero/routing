@@ -29,6 +29,8 @@ using Itinero.Osm;
 using OsmSharp.Tags;
 using OsmSharp;
 using Itinero.Data.Network.Edges;
+using Itinero.IO.Osm.Restrictions;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -43,15 +45,27 @@ namespace Itinero.IO.Osm.Streams
         private readonly int _minimumStages = 1;
         private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
         private readonly bool _normalizeTags = true;
+        private readonly HashSet<string> _vehicleTypes;
+        private readonly List<ITwoPassProcessor> _processors; // holds an extra set of processors as addons.
 
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
-            int minimumStages = 1, bool normalizeTags = true)
+            int minimumStages = 1, bool normalizeTags = true, IEnumerable<ITwoPassProcessor> processors = null)
         {
             _db = db;
             _vehicles = vehicles;
+
+            _vehicleTypes = new HashSet<string>();
+            foreach(var vehicle in _vehicles)
+            {
+                foreach (var vehicleType in vehicle.VehicleTypes)
+                {
+                    _vehicleTypes.Add(vehicleType);
+                }
+            }
+
             _allNodesAreCore = allCore;
             _normalizeTags = normalizeTags;
 
@@ -74,6 +88,36 @@ namespace Itinero.IO.Osm.Streams
                     db.AddSupportedProfile(profiles);
                 }
             }
+
+            if (processors == null)
+            {
+                processors = new List<ITwoPassProcessor>();
+            }
+            _processors = new List<ITwoPassProcessor>(processors);
+            _processors.Add(new RestrictionProcessor(_vehicleTypes, (node) =>
+            {
+                uint vertex;
+                if (!_coreNodeIdMap.TryGetFirst(node, out vertex))
+                {
+                    return uint.MaxValue;
+                }
+                return vertex;
+            },
+            (vehicleType, sequence) =>
+            {
+                if (vehicleType == null)
+                {
+                    vehicleType = string.Empty;
+                }
+                RestrictionsDb restrictions;
+                if(!_db.TryGetRestrictions(vehicleType, out restrictions))
+                {
+                    restrictions = new RestrictionsDb();
+                    _db.AddRestrictions(vehicleType, restrictions);
+                }
+
+                restrictions.Add(sequence.ToArray());
+            }));
         }
 
         private bool _firstPass = true; // flag for first/second pass.
@@ -104,8 +148,8 @@ namespace Itinero.IO.Osm.Streams
         /// <returns></returns>
         public override bool OnBeforePull()
         {
-            // execute the first pass but ignore nodes.
-            this.DoPull(false, false, true);
+            // execute the first pass.
+            this.DoPull();
 
             // move to first stage and initial first pass.
             _stage = 0;
@@ -113,7 +157,7 @@ namespace Itinero.IO.Osm.Streams
             while (_stage < _stages.Count)
             { // execute next stage, reset source and pull data again.
                 this.Source.Reset();
-                this.DoPull(false, false, false);
+                this.DoPull();
                 _stage++;
 
                 _stageCoordinates = _createNodeCoordinatesDictionary();
@@ -199,9 +243,19 @@ namespace Itinero.IO.Osm.Streams
                 {
                     _maxLongitude = longitude;
                 }
+
+                foreach(var processor in _processors)
+                {
+                    processor.FirstPass(node);
+                }
             }
             else
             {
+                foreach (var processor in _processors)
+                {
+                    processor.SecondPass(node);
+                }
+
                 if (_stages[_stage].Overlaps(node.Latitude.Value, node.Longitude.Value) ||
                     _anyStageNodes.Contains(node.Id.Value))
                 {
@@ -228,6 +282,11 @@ namespace Itinero.IO.Osm.Streams
 
             if (_firstPass)
             { // just keep.
+                foreach (var processor in _processors)
+                {
+                    processor.FirstPass(way);
+                }
+
                 // check boundingbox and node count and descide on # stages.                    
                 var box = new Box(
                     new Coordinate(_minLatitude, _minLongitude),
@@ -304,13 +363,18 @@ namespace Itinero.IO.Osm.Streams
             }
             else
             {
+                foreach (var processor in _processors)
+                {
+                    processor.SecondPass(way);
+                }
+
                 if (_vehicles.AnyCanTraverse(way.Tags.ToAttributes()))
                 { // way has some use.
                     if (_processedWays.Contains(way.Id.Value))
                     { // way was already processed.
                         return;
                     }
-
+                    
                     // build profile and meta-data.
                     var profileTags = new AttributeCollection();
                     var metaTags = new AttributeCollection();
@@ -676,9 +740,22 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Adds a relation.
         /// </summary>
-        public override void AddRelation(Relation simpleRelation)
+        public override void AddRelation(Relation relation)
         {
-
+            if (_firstPass)
+            {
+                foreach (var processor in _processors)
+                {
+                    processor.FirstPass(relation);
+                }
+            }
+            else
+            {
+                foreach (var processor in _processors)
+                {
+                    processor.SecondPass(relation);
+                }
+            }
         }
 
         /// <summary>

@@ -297,7 +297,7 @@ namespace Itinero.Data.Network.Restrictions
             {
                 get
                 {
-                    if (_data != null)
+                    if (_data == null)
                     {
                         throw new InvalidOperationException("No current data available.");
                     }
@@ -312,7 +312,7 @@ namespace Itinero.Data.Network.Restrictions
             {
                 get
                 {
-                    if (_data != null)
+                    if (_data == null)
                     {
                         throw new InvalidOperationException("No current data available.");
                     }
