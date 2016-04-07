@@ -33,14 +33,14 @@ namespace Itinero.Profiles
         private readonly Func<IAttributeCollection, bool> _canStop;
         private readonly Func<IAttributeCollection, IAttributeCollection, bool> _equals;
         private readonly Func<Speed> _minSpeed;
-        private readonly HashSet<string> _vehicleTypes;
+        private readonly List<string> _vehicleTypes;
         private readonly ProfileMetric _metric;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
         public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
-            Func<IAttributeCollection, IAttributeCollection, bool> equals, HashSet<string> vehicleTypes, ProfileMetric metric)
+            Func<IAttributeCollection, IAttributeCollection, bool> equals, List<string> vehicleTypes, ProfileMetric metric)
         {
             if (metric == ProfileMetric.Custom)
             {
@@ -61,7 +61,7 @@ namespace Itinero.Profiles
         /// Creates a new routing profile.
         /// </summary>
         public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
-            Func<IAttributeCollection, IAttributeCollection, bool> equals, HashSet<string> vehicleTypes, Func<IAttributeCollection, Factor> getFactor)
+            Func<IAttributeCollection, IAttributeCollection, bool> equals, List<string> vehicleTypes, Func<IAttributeCollection, Factor> getFactor)
         {
             _minSpeed = minSpeed;
             _getSpeed = getSpeed;
@@ -172,7 +172,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the vehicle types.
         /// </summary>
-        public virtual HashSet<string> VehicleType
+        public virtual List<string> VehicleType
         {
             get
             {

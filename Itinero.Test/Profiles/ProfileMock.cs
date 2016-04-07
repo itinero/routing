@@ -32,7 +32,7 @@ namespace Itinero.Test.Profiles
         /// Creates a new routing profile.
         /// </summary>
         private MockProfile(string name, Func<IAttributeCollection, Speed> getSpeed, 
-            HashSet<string> vehicleTypes)
+            List<string> vehicleTypes)
             : base(name, getSpeed, () => new Speed() { Value = 5, Direction = 0 }, x => true, (e1, e2) => true, vehicleTypes, 
                   ProfileMetric.TimeInSeconds)
         {
@@ -68,13 +68,7 @@ namespace Itinero.Test.Profiles
         public static MockProfile Mock(string name, Func<IAttributeCollection, Speed> getSpeed,
             params string[] vehicleTypes)
         {
-            var vehicleTypesSet = new HashSet<string>();
-            foreach(var vehicleType in vehicleTypes)
-            {
-                vehicleTypesSet.Add(vehicleType);
-            }
-
-            return new MockProfile(name, getSpeed, vehicleTypesSet);
+            return new MockProfile(name, getSpeed, new List<string>(vehicleTypes));
         }
     }
 }

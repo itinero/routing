@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using System.Collections.Generic;
 
 namespace Itinero.Osm.Vehicles
 {
@@ -78,6 +79,72 @@ namespace Itinero.Osm.Vehicles
                 }
             }
             return false;
+        }
+
+        private static Dictionary<string, bool?> _accessValues = null;
+
+        private static Dictionary<string, bool?> GetAccessValues()
+        {
+            if (_accessValues == null)
+            {
+                _accessValues = new Dictionary<string, bool?>();
+                _accessValues.Add("private", false);
+                _accessValues.Add("yes", true);
+                _accessValues.Add("no", false);
+                _accessValues.Add("permissive", true);
+                _accessValues.Add("destination", true);
+                _accessValues.Add("customers", false);
+                _accessValues.Add("agricultural", null);
+                _accessValues.Add("forestry", null);
+                _accessValues.Add("designated", true);
+                _accessValues.Add("public", true);
+                _accessValues.Add("discouraged", null);
+                _accessValues.Add("delivery", true);
+                _accessValues.Add("use_sidepath", false);
+            }
+            return _accessValues;
+        }
+
+        /// <summary>
+        /// Interprets a given access tag value.
+        /// </summary>
+        public static bool? InterpretAccessValue(this IAttributeCollection tags, string key)
+        {
+            string accessValue;
+            if (tags.TryGetValue(key, out accessValue))
+            {
+                bool? value;
+                if (VehicleExtensions.GetAccessValues().TryGetValue(accessValue, out value))
+                {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Interpreters a series of access tags for a series of vehicle types.
+        /// </summary>
+        public static bool InterpretAccessValues(this IAttributeCollection tags, IEnumerable<string> keys, params string[] rootKeys)
+        {
+            bool? value = null;
+            for (var i = 0; i < rootKeys.Length; i++)
+            {
+                var currentAccess = tags.InterpretAccessValue(rootKeys[i]);
+                if (currentAccess != null)
+                {
+                    value = currentAccess;
+                }
+            }
+            foreach (var key in keys)
+            {
+                var currentAccess = tags.InterpretAccessValue(key);
+                if (currentAccess != null)
+                {
+                    value = currentAccess;
+                }
+            }
+            return !value.HasValue || value.Value;
         }
     }
 }

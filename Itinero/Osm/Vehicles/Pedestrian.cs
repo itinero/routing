@@ -49,7 +49,7 @@ namespace Itinero.Osm.Vehicles
             AccessibleTags.Add("tertiary", string.Empty);
             AccessibleTags.Add("tertiary_link", string.Empty);
 
-            VehicleTypes.Add("pedestrian");
+            VehicleTypes.Add("foot");
         }
 
         /// <summary>
@@ -57,6 +57,11 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
         {
+            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
+            {
+                return false;
+            }
+
             var foot = string.Empty;
             if (tags.TryGetValue("foot", out foot))
             {

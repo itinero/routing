@@ -329,7 +329,7 @@ namespace Itinero.IO.Osm.Streams
                     if (_normalizeTags)
                     { // normalize profile tags.
                         var normalizedProfileTags = new AttributeCollection();
-                        if (!profileTags.Normalize(normalizedProfileTags, metaTags))
+                        if (!profileTags.Normalize(normalizedProfileTags, metaTags, _vehicles))
                         { // invalid data, no access, or tags make no sense at all.
                             return;
                         }

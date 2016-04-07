@@ -120,7 +120,7 @@
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />
     <Compile Include="Navigation\Osm\InstructionCarGeneratorTests.cs" />
     <Compile Include="Network\RoutingNetworkTests.cs" />
-    <Compile Include="Osm\OsmRoutingTagNormalizer.cs" />
+    <Compile Include="Osm\OsmRoutingTagNormalizerTests.cs" />
     <Compile Include="IO\Osm\Streams\NodeCoordinatesDictionaryTests.cs" />
     <Compile Include="IO\Osm\Streams\RouterDbStreamTargetTests.cs" />
     <Compile Include="Osm\RouterTests.cs" />

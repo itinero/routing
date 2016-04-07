@@ -47,6 +47,7 @@ namespace Itinero.Osm.Vehicles
             AccessibleTags.Add("tertiary", string.Empty);
             AccessibleTags.Add("tertiary_link", string.Empty);
 
+            VehicleTypes.Add("vehicle"); // a bicycle is a generic vehicle.
             VehicleTypes.Add("bicycle");
         }
 
@@ -55,6 +56,11 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
         {
+            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
+            {
+                return false;
+            }
+
             // do the designated tags.
             var bicycle = string.Empty;
             if (tags.TryGetValue("bicycle", out bicycle))

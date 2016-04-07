@@ -193,7 +193,7 @@ namespace Itinero.Osm.Vehicles
             return false;
         }
 
-        private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "oneway", "highway", "motor_vehicle", 
+        private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "oneway", "highway", "vehicle", "motor_vehicle", 
            "bicycle", "foot", "access", "maxspeed", "junction" };
         private static HashSet<string> _relevantMetaKeys = new HashSet<string> { "name" };
 
@@ -215,11 +215,11 @@ namespace Itinero.Osm.Vehicles
         }
 
         /// <summary>
-        /// Holds names of generic vehicle types like 'pedestrian', 'horse', 'carriage',...
+        /// Holds names of the hierarchy of vehicle types for this vehicle.
         /// </summary>
         /// <remarks>This is used to interpret restrictions.
         /// And OpenStreetMap-wiki: http://wiki.openstreetmap.org/wiki/Key:access#Transport_mode_restrictions</remarks>
-        public readonly HashSet<string> VehicleTypes = new HashSet<string>();
+        public readonly List<string> VehicleTypes = new List<string>();
 
         /// <summary>
         /// Contains Accessiblity Rules

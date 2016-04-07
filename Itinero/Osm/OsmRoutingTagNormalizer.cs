@@ -17,7 +17,9 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Osm.Vehicles;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Osm
 {
@@ -29,18 +31,14 @@ namespace Itinero.Osm
         /// <summary>
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
-        /// <returns></returns>
-        public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags, 
-            AttributeCollection metaTags)
+        public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags, IEnumerable<Vehicle> vehicles)
         {
             string highway;
             if (!tags.TryGetValue("highway", out highway))
             { // there is no highway tag, don't continue the search.
                 return false;
             }
-
-            // normalize access tags.
-            var defaultAccess = tags.NormalizeAccess(profileTags, metaTags);
 
             // normalize maxspeed tags.
             tags.NormalizeMaxspeed(profileTags, metaTags);
@@ -60,9 +58,6 @@ namespace Itinero.Osm
                 case "trunk_link":
                 case "primary":
                 case "primary_link":
-                    tags.NormalizeFoot(profileTags, metaTags, false);
-                    tags.NormalizeBicycle(profileTags, metaTags, false);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, defaultAccess);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "secondary":
@@ -76,35 +71,66 @@ namespace Itinero.Osm
                 case "services":
                 case "living_street":
                 case "track":
-                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, defaultAccess);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "cycleway":
-                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "path":
-                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "pedestrian":
                 case "footway":
                 case "steps":
-                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
-                    tags.NormalizeBicycle(profileTags, metaTags, false);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     tags.NormalizeRamp(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
             }
 
+            // normalize access tags.
+            foreach (var vehicle in vehicles)
+            {
+                tags.NormalizeAccess(vehicle, highway, profileTags);
+            }
+
             return true;
+        }
+
+        /// <summary>
+        /// Normalizes nothing but the access tags.
+        /// </summary>
+        public static void NormalizeAccess(this AttributeCollection tags, Vehicle vehicle, string highwayType, AttributeCollection profileTags)
+        {
+            var access = vehicle.CanTraverse(new AttributeCollection(new Attribute("highway", highwayType)));
+            tags.NormalizeAccess(profileTags, access, vehicle.VehicleTypes.ToArray());
+        }
+
+        /// <summary>
+        /// Normalizes access for the given hierarchy of access tags.
+        /// </summary>
+        public static void NormalizeAccess(this AttributeCollection tags, AttributeCollection profileTags, bool defaultAccess, params string[] accessTags)
+        {
+            bool? access = tags.InterpretAccessValue("access");
+            for (var i = 0; i < accessTags.Length; i++)
+            {
+                var currentAccess = tags.InterpretAccessValue(accessTags[i]);
+                if (currentAccess != null)
+                {
+                    access = currentAccess;
+                }
+            }
+
+            if (access != null && access.Value != defaultAccess)
+            {
+                if (access.Value)
+                {
+                    profileTags.AddOrReplace(accessTags[accessTags.Length - 1], "yes");
+                }
+                else
+                {
+                    profileTags.AddOrReplace(accessTags[accessTags.Length - 1], "no");
+                }
+            }
         }
 
         private static Dictionary<string, bool?> _accessValues = null;
@@ -270,102 +296,6 @@ namespace Itinero.Osm
             }
         }
 
-        private static Dictionary<string, bool?> _footValues = null;
-
-        /// <summary>
-        /// Gets the possible values for foots.
-        /// </summary>
-        public static Dictionary<string, bool?> FootValues
-        {
-            get
-            {
-                if (_footValues == null)
-                {
-                    _footValues = new Dictionary<string, bool?>();
-                    _footValues.Add("yes", true);
-                    _footValues.Add("designated", true);
-                    _footValues.Add("no", false);
-                    _footValues.Add("permissive", true);
-                    _footValues.Add("official", true);
-                    _footValues.Add("destination", true);
-                    _footValues.Add("private", false);
-                    _footValues.Add("use_sidewalk", true);
-                }
-                return _footValues;
-            }
-        }
-
-        /// <summary>
-        /// Normalizes the foot tag.
-        /// </summary>
-        public static void NormalizeFoot(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, bool defaultAccess)
-        {
-            string foot;
-            if (!tags.TryGetValue("foot", out foot))
-            { // nothing to normalize.
-                return;
-            }
-            bool? defaultAccessFound;
-            if (!FootValues.TryGetValue(foot, out defaultAccessFound))
-            { // invalid value.
-                return;
-            }
-
-            if (defaultAccess != defaultAccessFound)
-            {
-                profileTags.AddOrReplace("foot", foot);
-            }
-        }
-
-        private static Dictionary<string, bool?> _bicycleValues = null;
-
-        /// <summary>
-        /// Gets the possible values for bicycles.
-        /// </summary>
-        public static Dictionary<string, bool?> BicycleValues
-        {
-            get
-            {
-                if(_bicycleValues == null)
-                {
-                    _bicycleValues = new Dictionary<string, bool?>();
-                    _bicycleValues.Add("yes", true);
-                    _bicycleValues.Add("no", false);
-                    _bicycleValues.Add("designated", true);
-                    _bicycleValues.Add("dismount", null);
-                    _bicycleValues.Add("use_sidepath", true);
-                    _bicycleValues.Add("private", false);
-                    _bicycleValues.Add("official", true);
-                    _bicycleValues.Add("destination", true);
-                }
-                return _bicycleValues;
-            }
-        }
-
-        /// <summary>
-        /// Normalizes the bicycle tag.
-        /// </summary>
-        public static void NormalizeBicycle(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, bool defaultAccess)
-        {
-            string bicycle;
-            if(!tags.TryGetValue("bicycle", out bicycle))
-            { // nothing to normalize.
-                return;
-            }
-            bool? defaultAccessFound;
-            if(!BicycleValues.TryGetValue(bicycle, out defaultAccessFound))
-            { // invalid value.
-                return;
-            }
-
-            if (defaultAccess != defaultAccessFound)
-            {
-                profileTags.AddOrReplace("bicycle", bicycle);
-            }
-        }
-
         private static Dictionary<string, bool?> _rampValues = null;
 
         /// <summary>
@@ -404,56 +334,6 @@ namespace Itinero.Osm
             if (defaultAccess != defaultAccessFound)
             {
                 profileTags.AddOrReplace("ramp", ramp);
-            }
-        }
-
-        private static Dictionary<string, bool?> _motorvehicleValues = null;
-
-        /// <summary>
-        /// Gets the possible values for motorvehicles.
-        /// </summary>
-        public static Dictionary<string, bool?> MotorvehicleValues
-        {
-            get
-            {
-                if (_motorvehicleValues == null)
-                {
-                    _motorvehicleValues = new Dictionary<string, bool?>();
-                    _motorvehicleValues.Add("no", false);
-                    _motorvehicleValues.Add("yes", true);
-                    _motorvehicleValues.Add("private", false);
-                    _motorvehicleValues.Add("agricultural", null);
-                    _motorvehicleValues.Add("destination", true);
-                    _motorvehicleValues.Add("forestry", null);
-                    _motorvehicleValues.Add("designated", true);
-                    _motorvehicleValues.Add("permissive", false);
-                    _motorvehicleValues.Add("delivery", null);
-                    _motorvehicleValues.Add("official", true);
-                }
-                return _motorvehicleValues;
-            }
-        }
-
-        /// <summary>
-        /// Normalizes the motorvehicle tag.
-        /// </summary>
-        public static void NormalizeMotorvehicle(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, bool defaultAccess)
-        {
-            string motorvehicle;
-            if (!tags.TryGetValue("motorvehicle", out motorvehicle))
-            { // nothing to normalize.
-                return;
-            }
-            bool? defaultAccessFound;
-            if (!MotorvehicleValues.TryGetValue(motorvehicle, out defaultAccessFound))
-            { // invalid value.
-                return;
-            }
-
-            if (defaultAccess != defaultAccessFound)
-            {
-                profileTags.AddOrReplace("motorvehicle", motorvehicle);
             }
         }
     }
