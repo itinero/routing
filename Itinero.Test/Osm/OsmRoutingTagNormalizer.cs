@@ -97,7 +97,7 @@ namespace Itinero.Test.Osm
             tags.AddOrReplace(new Attribute("bicycle", "no"));
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "footway"));
-            Assert.IsTrue(profileTags.Contains("bicycle", "no"));
+            Assert.IsFalse(profileTags.Contains("bicycle", "no"));
             profileTags.Clear();
             tags.Clear();
         }
@@ -183,7 +183,7 @@ namespace Itinero.Test.Osm
             tags.AddOrReplace(new Attribute("motorvehicle", "no"));
             Assert.IsTrue(tags.Normalize(profileTags, metaTags));
             Assert.IsTrue(profileTags.Contains("highway", "cycleway"));
-            Assert.IsTrue(profileTags.Contains("motorvehicle", "no"));
+            Assert.IsFalse(profileTags.Contains("motorvehicle", "no"));
             profileTags.Clear();
             tags.Clear();
         }

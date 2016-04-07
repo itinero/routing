@@ -210,6 +210,109 @@ namespace Itinero.Test.Osm
         }
 
         /// <summary>
+        /// An integration test that loads one way with highway=pedestrian.
+        /// </summary>
+        [Test]
+        public void TestBicycleHighwayPedestrian()
+        {
+            // the input osm-data.
+            var osmGeos = new OsmGeo[]
+            {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = 51.04963322083945f,
+                    Longitude = 3.719692826271057f
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = 51.05062804602733f,
+                    Longitude = 3.7198376655578613f
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Nodes = new long[]
+                    {
+                        1, 2
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "pedestrian"))
+                }
+            };
+
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(osmGeos, Vehicle.Bicycle);
+
+            // test some routes.
+            var router = new Router(routerDb);
+
+            // confirm it's not working for bicycles.
+            var route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
+                new Coordinate(51.04963322083945f, 3.719692826271057f),
+                new Coordinate(51.05062804602733f, 3.7198376655578613f));
+            Assert.IsTrue(route.IsError);
+            route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
+                new Coordinate(51.05062804602733f, 3.7198376655578613f),
+                new Coordinate(51.04963322083945f, 3.719692826271057f));
+            Assert.IsTrue(route.IsError);
+        }
+
+        /// <summary>
+        /// An integration test that loads one way with highway=pedestrian and bicycle=yes.
+        /// </summary>
+        [Test]
+        public void TestBicycleHighwayPedestrianBicycleYes()
+        {
+            // the input osm-data.
+            var osmGeos = new OsmGeo[]
+            {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = 51.04963322083945f,
+                    Longitude = 3.719692826271057f
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = 51.05062804602733f,
+                    Longitude = 3.7198376655578613f
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Nodes = new long[]
+                    {
+                        1, 2
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "pedestrian"),
+                        new Tag("bicycle", "yes"))
+                }
+            };
+
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(osmGeos, Vehicle.Bicycle);
+
+            // test some routes.
+            var router = new Router(routerDb);
+
+            // confirm it's working for bicycles.
+            var route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
+                new Coordinate(51.04963322083945f, 3.719692826271057f),
+                new Coordinate(51.05062804602733f, 3.7198376655578613f));
+            Assert.IsFalse(route.IsError);
+            route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
+                new Coordinate(51.05062804602733f, 3.7198376655578613f),
+                new Coordinate(51.04963322083945f, 3.719692826271057f));
+            Assert.IsFalse(route.IsError);
+        }
+
+        /// <summary>
         /// An integration test that loads two overlapping ways, highway=pedestrian, and highway=residential
         /// </summary>
         [Test]
@@ -332,22 +435,22 @@ namespace Itinero.Test.Osm
 
             // confirm it's working for cars.
             var route = router.TryCalculate(Vehicle.Car.Fastest(),
-                new Coordinate(51.04963322083945f, 3.7196928262710570f),
+                new Coordinate(51.04963322083945f, 3.719692826271057f),
                 new Coordinate(51.05062804602733f, 3.7198376655578613f));
             Assert.IsFalse(route.IsError);
             route = router.TryCalculate(Vehicle.Car.Fastest(),
                 new Coordinate(51.05062804602733f, 3.7198376655578613f),
-                new Coordinate(51.04963322083945f, 3.7196928262710570f));
+                new Coordinate(51.04963322083945f, 3.719692826271057f));
             Assert.IsFalse(route.IsError);
 
             // confirm it's working for pedestrians.
             route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
-                new Coordinate(51.04963322083945f, 3.7196928262710570f),
+                new Coordinate(51.04963322083945f, 3.719692826271057f),
                 new Coordinate(51.05062804602733f, 3.7198376655578613f));
             Assert.IsFalse(route.IsError);
             route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
                 new Coordinate(51.05062804602733f, 3.7198376655578613f),
-                new Coordinate(51.04963322083945f, 3.7196928262710570f));
+                new Coordinate(51.04963322083945f, 3.719692826271057f));
             Assert.IsFalse(route.IsError);
         }
 

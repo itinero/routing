@@ -34,16 +34,13 @@ namespace Itinero.Osm
             AttributeCollection metaTags)
         {
             string highway;
-            if(!tags.TryGetValue("highway", out highway))
+            if (!tags.TryGetValue("highway", out highway))
             { // there is no highway tag, don't continue the search.
                 return false;
             }
 
             // normalize access tags.
-            if(!tags.NormalizeAccess(profileTags, metaTags))
-            { // access is denied, don't use this way.
-                return false;
-            }
+            var defaultAccess = tags.NormalizeAccess(profileTags, metaTags);
 
             // normalize maxspeed tags.
             tags.NormalizeMaxspeed(profileTags, metaTags);
@@ -55,7 +52,7 @@ namespace Itinero.Osm
             // normalize junction=roundabout tag.
             tags.NormalizeJunction(profileTags, metaTags);
 
-            switch(highway)
+            switch (highway)
             {
                 case "motorway":
                 case "motorway_link":
@@ -65,7 +62,7 @@ namespace Itinero.Osm
                 case "primary_link":
                     tags.NormalizeFoot(profileTags, metaTags, false);
                     tags.NormalizeBicycle(profileTags, metaTags, false);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, true);
+                    tags.NormalizeMotorvehicle(profileTags, metaTags, defaultAccess);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "secondary":
@@ -79,29 +76,30 @@ namespace Itinero.Osm
                 case "services":
                 case "living_street":
                 case "track":
-                    tags.NormalizeFoot(profileTags, metaTags, true);
-                    tags.NormalizeBicycle(profileTags, metaTags, true);
-                    tags.NormalizeMotorvehicle(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeMotorvehicle(profileTags, metaTags, defaultAccess);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "cycleway":
-                    tags.NormalizeFoot(profileTags, metaTags, false);
-                    tags.NormalizeBicycle(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "path":
-                    tags.NormalizeFoot(profileTags, metaTags, true);
-                    tags.NormalizeBicycle(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
+                    tags.NormalizeBicycle(profileTags, metaTags, defaultAccess);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
                 case "pedestrian":
                 case "footway":
                 case "steps":
-                    tags.NormalizeFoot(profileTags, metaTags, true);
+                    tags.NormalizeFoot(profileTags, metaTags, defaultAccess);
                     tags.NormalizeBicycle(profileTags, metaTags, false);
                     tags.NormalizeMotorvehicle(profileTags, metaTags, false);
+                    tags.NormalizeRamp(profileTags, metaTags, false);
                     profileTags.AddOrReplace("highway", highway);
                     break;
             }
