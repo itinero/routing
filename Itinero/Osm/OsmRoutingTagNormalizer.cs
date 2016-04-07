@@ -49,8 +49,8 @@ namespace Itinero.Osm
             tags.NormalizeMaxspeed(profileTags, metaTags);
 
             // normalize oneway tags.
-            tags.NormalizeOneway("oneway", profileTags, metaTags);
-            tags.NormalizeOneway("oneway:bicycle", profileTags, metaTags);
+            tags.NormalizeOneway(profileTags, metaTags);
+            tags.NormalizeOnewayBicycle(profileTags, metaTags);
 
             // normalize junction=roundabout tag.
             tags.NormalizeJunction(profileTags, metaTags);
@@ -187,11 +187,11 @@ namespace Itinero.Osm
         /// <summary>
         /// Normalizes the oneway tag.
         /// </summary>
-        public static void NormalizeOneway(this AttributeCollection tags, string key, AttributeCollection profileTags,
+        public static void NormalizeOneway(this AttributeCollection tags, AttributeCollection profileTags,
             AttributeCollection metaTags)
          {
             string oneway;
-            if (!tags.TryGetValue(key, out oneway))
+            if (!tags.TryGetValue("oneway", out oneway))
             { // nothing to normalize.
                 return;
             }
@@ -203,11 +203,28 @@ namespace Itinero.Osm
 
             if (defaultOnewayFound)
             {
-                profileTags.AddOrReplace(key, "yes");
+                profileTags.AddOrReplace("oneway", "yes");
             }
             else
             {
-                profileTags.AddOrReplace(key, "-1");
+                profileTags.AddOrReplace("oneway", "-1");
+            }
+        }
+
+        /// <summary>
+        /// Normalizes the oneway bicycle tag.
+        /// </summary>
+        public static void NormalizeOnewayBicycle(this AttributeCollection tags, AttributeCollection profileTags,
+            AttributeCollection metaTags)
+        {
+            string oneway;
+            if (!tags.TryGetValue("oneway:bicycle", out oneway))
+            { // nothing to normalize.
+                return;
+            }
+            if (oneway == "no")
+            {
+                profileTags.AddOrReplace("oneway:bicycle", "no");
             }
         }
 
