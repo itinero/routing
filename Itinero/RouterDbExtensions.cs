@@ -23,6 +23,7 @@ using Itinero.Graphs.Directed;
 using Itinero.Data.Network.Restrictions;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Data.Contracted;
+using System.Collections.Generic;
 
 namespace Itinero
 {
@@ -117,6 +118,29 @@ namespace Itinero
                 return restrictions.HasComplexRestrictions;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Returns true if this db contains complex restrictions for the given vehicle types.
+        /// </summary>
+        public static bool HasComplexRestrictions(this RouterDb db, IEnumerable<string> vehicleTypes)
+        {
+            foreach(var vehicleType in vehicleTypes)
+            {
+                if (db.HasComplexRestrictions(vehicleType))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if this db contains complex restrictions for the given profile.
+        /// </summary>
+        public static bool HasComplexRestrictions(this RouterDb db, Profiles.Profile profile)
+        {
+            return db.HasComplexRestrictions(profile.VehicleType);
         }
     }
 }

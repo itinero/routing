@@ -191,6 +191,11 @@ namespace Itinero
                 {
                     throw new NotSupportedException("Edge-based routing not yet supported.");
                 }
+                if (_db.HasComplexRestrictions(profile))
+                {
+                    throw new NotSupportedException("Edge-based routing not yet supported.");
+                }
+
                 path = null;
                 var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
                     source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
@@ -206,21 +211,28 @@ namespace Itinero
             }
             else
             { // non-contracted calculation.
-                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null, 
-                    source.ToPaths(_db, getFactor, true), float.MaxValue, false);
-                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null, 
-                    target.ToPaths(_db, profile, false), float.MaxValue, true);
-
-                var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
-                bidirectionalSearch.Run();
-                if (!bidirectionalSearch.HasSucceeded)
+                if (_db.HasComplexRestrictions(profile))
                 {
-                    return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
-                    {
-                        return new RouteNotFoundException(message);
-                    });
+                    throw new NotSupportedException("Edge-based routing not yet supported.");
                 }
-                path = bidirectionalSearch.GetPath(out pathWeight);
+                else
+                {
+                    var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
+                        source.ToPaths(_db, getFactor, true), float.MaxValue, false);
+                    var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
+                        target.ToPaths(_db, profile, false), float.MaxValue, true);
+
+                    var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
+                    {
+                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = bidirectionalSearch.GetPath(out pathWeight);
+                }
             }
 
             if(source.EdgeId == target.EdgeId)

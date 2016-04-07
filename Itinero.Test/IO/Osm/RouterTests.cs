@@ -525,5 +525,136 @@ namespace Itinero.Test.IO.Osm
                 new Coordinate(51.04963322083945f, 3.719692826271057f));
             Assert.IsFalse(route.IsError);
         }
+
+        /// <summary>
+        /// Tests routing along a restricted via-node.
+        /// </summary>
+        [Test]
+        public void TestRestrictionViaNode()
+        {
+            var location1 = new Coordinate(51.265137311403734f, 4.783644676208496f);
+            var location2 = new Coordinate(51.264425704628850f, 4.784331321716309f);
+            var location3 = new Coordinate(51.263975909757960f, 4.784958958625793f);
+            var location4 = new Coordinate(51.264251157888160f, 4.785377383232116f);
+            var location5 = new Coordinate(51.264758012937406f, 4.785699248313904f);
+
+            var osmGeos = new OsmGeo[]
+            {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Nodes = new long[]
+                    {
+                        1, 2
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Nodes = new long[]
+                    {
+                        2, 3
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Way()
+                {
+                    Id = 3,
+                    Nodes = new long[]
+                    {
+                        3, 4
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Way()
+                {
+                    Id = 4,
+                    Nodes = new long[]
+                    {
+                        4, 5
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Relation()
+                {
+                    Id = 1,
+                    Members = new RelationMember[]
+                    {
+                        new RelationMember()
+                        {
+                            Id = 3,
+                            Role = "via",
+                            Type = OsmGeoType.Node
+                        },
+                        new RelationMember()
+                        {
+                            Id = 2,
+                            Role = "from",
+                            Type = OsmGeoType.Way
+                        },
+                        new RelationMember()
+                        {
+                            Id = 3,
+                            Role = "to",
+                            Type = OsmGeoType.Way
+                        }
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("type", "restriction"))
+                }
+            };
+            
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(osmGeos, Vehicle.Car);
+
+            // test some routes.
+            var router = new Router(routerDb);
+
+            // confirm it's working for cars only in one direction.
+            var route = router.TryCalculate(Vehicle.Car.Fastest(),
+                new Coordinate(51.26488892161140f, 4.7838699817657470f),
+                new Coordinate(51.26451297775060f, 4.7856992483139040f));
+            Assert.IsFalse(route.IsError);
+            route = router.TryCalculate(Vehicle.Car.Fastest(),
+                new Coordinate(51.26451297775060f, 4.7856992483139040f),
+                new Coordinate(51.26488892161140f, 4.7838699817657470f));
+            Assert.IsTrue(route.IsError);
+        }
     }
 }
