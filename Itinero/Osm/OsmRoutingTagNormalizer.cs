@@ -133,60 +133,6 @@ namespace Itinero.Osm
             }
         }
 
-        private static Dictionary<string, bool?> _accessValues = null;
-
-        /// <summary>
-        /// Gets the possible values for access.
-        /// </summary>
-        public static Dictionary<string, bool?> AccessValues
-        {
-            get
-            {
-                if (_accessValues == null)
-                {
-                    _accessValues = new Dictionary<string, bool?>();
-                    _accessValues.Add("private", false);
-                    _accessValues.Add("yes", true);
-                    _accessValues.Add("no", false);
-                    _accessValues.Add("permissive", true);
-                    _accessValues.Add("destination", true);
-                    _accessValues.Add("customers", false);
-                    _accessValues.Add("agricultural", null);
-                    _accessValues.Add("forestry", null);
-                    _accessValues.Add("designated", true);
-                    _accessValues.Add("public", true);
-                    _accessValues.Add("discouraged", null);
-                    _accessValues.Add("delivery", true);
-                }
-                return _accessValues;
-            }
-        }
-
-        /// <summary>
-        /// Normalizes the access tags and adds them to the profile tags or meta tags.
-        /// </summary>
-        public static bool NormalizeAccess(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags)
-        {
-            string access;
-            if (!tags.TryGetValue("access", out access))
-            { // nothing to normalize.
-                return true;
-            }
-            bool? defaultAccessFound;
-            if (!AccessValues.TryGetValue(access, out defaultAccessFound))
-            { // invalid value.
-                return true;
-            }
-
-            if (!defaultAccessFound.HasValue)
-            { // access needs to be descided on a vehicle by vehicle basis.
-                profileTags.AddOrReplace("access", access);
-                return true;
-            }
-            return defaultAccessFound.Value;
-        }
-
         private static Dictionary<string, bool> _onewayValues = null;
 
         /// <summary>

@@ -55,13 +55,9 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
         {
-            string motorVehicle = string.Empty;
-            if (tags.TryGetValue("motor_vehicle", out motorVehicle))
+            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
             {
-                if (motorVehicle == "no")
-                {
-                    return false;
-                }
+                return false;
             }
             return AccessibleTags.ContainsKey(highwayType);
         }
