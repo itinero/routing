@@ -27,10 +27,10 @@ namespace Itinero.Osm.Vehicles.Profiles
     /// </summary>
     internal class BicycleBalanced : Profile
     {
-        private const float HIGHEST_AVOID_FACTOR = 0.5f;
-        private const float AVOID_FACTOR = 0.85f;
-        private const float PREFER_FACTOR = 1.15f;
-        private const float HIGHEST_PREFER_FACTOR = 2f;
+        private const float HIGHEST_AVOID_FACTOR = 0.8f;
+        private const float AVOID_FACTOR = 0.9f;
+        private const float PREFER_FACTOR = 1.1f;
+        private const float HIGHEST_PREFER_FACTOR = 1.2f;
 
         internal BicycleBalanced(Bicycle bicycle)
             : base(bicycle.UniqueName + ".Balanced", bicycle.GetGetSpeed(), bicycle.GetGetMinSpeed(), 
