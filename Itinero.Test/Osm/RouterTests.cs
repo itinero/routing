@@ -16,12 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.IO.Osm;
+using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
 using NUnit.Framework;
 using OsmSharp;
 using OsmSharp.Tags;
-using Itinero.IO.Osm;
-using Itinero.LocalGeo;
 
 namespace Itinero.Test.Osm
 {
@@ -743,6 +743,88 @@ namespace Itinero.Test.Osm
                 new Coordinate(51.05062804602733f, 3.7198376655578613f),
                 new Coordinate(51.04963322083945f, 3.719692826271057f));
             Assert.IsTrue(route.IsError);
+        }
+
+        /// <summary>
+        /// An integration test to test handling the bicycle=use_sidepath tag. Expected is that this tag leads to the sidepath being used.
+        /// </summary>
+        [Test]
+        public void TestBicycleUseSidepath()
+        {
+            // the input osm-data.
+            var osmGeos = new OsmGeo[]
+            {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = 12.608657753733688f,
+                    Longitude = -7.966136634349823f
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = 12.608647283636317f,
+                    Longitude = -7.967574298381805f
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = 12.609173405500497f,
+                    Longitude = -7.966713309288025f
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Nodes = new long[]
+                    {
+                        1, 2
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"),
+                        new Tag("bicycle", "use_sidepath"))
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Nodes = new long[]
+                    {
+                        1, 3, 2
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "cycleway"))
+                }
+            };
+
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(osmGeos, Vehicle.Car, Vehicle.Bicycle);
+
+            // test some routes.
+            var router = new Router(routerDb);
+
+            // confirm it's working for bicycles but that the cycleway is used.
+            var route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
+                new Coordinate(12.608657753733688f, -7.966136634349823f),
+                new Coordinate(12.608647283636317f, -7.967574298381805f));
+            Assert.IsFalse(route.IsError);
+            Assert.IsTrue(route.Value.TotalDistance > 180);
+            route = router.TryCalculate(Vehicle.Bicycle.Fastest(),
+                new Coordinate(12.608657753733688f, -7.966136634349823f),
+                new Coordinate(12.608647283636317f, -7.967574298381805f));
+            Assert.IsFalse(route.IsError);
+            Assert.IsTrue(route.Value.TotalDistance > 180);
+
+            // confirm it's not working for cars.
+            route = router.TryCalculate(Vehicle.Car.Fastest(),
+                new Coordinate(12.608657753733688f, -7.966136634349823f),
+                new Coordinate(12.608647283636317f, -7.967574298381805f));
+            Assert.IsFalse(route.IsError);
+            Assert.IsTrue(route.Value.TotalDistance < 180);
+            route = router.TryCalculate(Vehicle.Car.Fastest(),
+                new Coordinate(12.608657753733688f, -7.966136634349823f),
+                new Coordinate(12.608647283636317f, -7.967574298381805f));
+            Assert.IsFalse(route.IsError);
+            Assert.IsTrue(route.Value.TotalDistance < 180);
         }
     }
 }
