@@ -529,7 +529,7 @@ namespace Itinero.IO.Osm.Streams
                                         Profile = (ushort)splitProfile
                                     }, null);
                                     var toLocation = _db.Network.GetVertex(toVertex);
-                                    var newToVertex = this.AddNewCoreNode(toNode, fromLocation.Latitude, fromLocation.Longitude);
+                                    var newToVertex = this.AddNewCoreNode(toNode, toLocation.Latitude, toLocation.Longitude);
                                     this.AddCoreEdge(newToVertex, toVertex, new EdgeData()
                                     {
                                         Distance = 0,

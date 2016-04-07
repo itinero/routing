@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,6 +27,8 @@ namespace Itinero.IO.Osm.Streams
     /// <summary>
     /// A dictionary working around the pre .NET 4.5 memory limitations for one object.
     /// </summary>
+    /// <typeparam name="TKey"></typeparam>
+    /// <typeparam name="TValue"></typeparam>
     public class HugeDictionary<TKey, TValue> : IDictionary<TKey, TValue>
     {
         /// <summary>
@@ -84,11 +87,9 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Returns true if contains the given key.
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public bool ContainsKey(TKey key)
         {
-            for (int idx = _dictionary.Count; idx < _dictionary.Count; idx++)
+            for (int idx = 0; idx < _dictionary.Count; idx++)
             {
                 if (_dictionary[idx].ContainsKey(key))
                 {
@@ -103,7 +104,15 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public ICollection<TKey> Keys
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                var enumerables = new IEnumerable<TKey>[_dictionary.Count];
+                for (var i = 0; i < enumerables.Length; i++)
+                {
+                    enumerables[i] = _dictionary[i].Keys;
+                }
+                return new ReadonlyEnumerableCollection<TKey>(enumerables);
+            }
         }
 
         /// <summary>
@@ -151,7 +160,15 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public ICollection<TValue> Values
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                var enumerables = new IEnumerable<TValue>[_dictionary.Count];
+                for (var i = 0; i < enumerables.Length; i++)
+                {
+                    enumerables[i] = _dictionary[i].Values;
+                }
+                return new ReadonlyEnumerableCollection<TValue>(enumerables);
+            }
         }
 
         /// <summary>
@@ -306,6 +323,76 @@ namespace Itinero.IO.Osm.Streams
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        private class ReadonlyEnumerableCollection<T> : ICollection<T>
+        {
+            private IEnumerable<T> _enumerable;
+
+            public ReadonlyEnumerableCollection(params IEnumerable<T>[] enumerables)
+            {
+                _enumerable = enumerables[0];
+                for (var i = 1; i < enumerables.Length; i++)
+                {
+                    _enumerable = Enumerable.Concat<T>(_enumerable,
+                        enumerables[i]);
+                }
+            }
+
+            int ICollection<T>.Count
+            {
+                get
+                {
+                    return _enumerable.Count();
+                }
+            }
+
+            bool ICollection<T>.IsReadOnly
+            {
+                get
+                {
+                    return true;
+                }
+            }
+
+            void ICollection<T>.Add(T item)
+            {
+                throw new InvalidOperationException("Collection is readonly.");
+            }
+
+            void ICollection<T>.Clear()
+            {
+                throw new InvalidOperationException("Collection is readonly.");
+            }
+
+            bool ICollection<T>.Contains(T item)
+            {
+                return _enumerable.Contains(item);
+            }
+
+            void ICollection<T>.CopyTo(T[] array, int arrayIndex)
+            {
+                foreach (var item in _enumerable)
+                {
+                    array[arrayIndex] = item;
+                    arrayIndex++;
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return _enumerable.GetEnumerator();
+            }
+
+            IEnumerator<T> IEnumerable<T>.GetEnumerator()
+            {
+                return _enumerable.GetEnumerator();
+            }
+
+            bool ICollection<T>.Remove(T item)
+            {
+                throw new InvalidOperationException("Collection is readonly.");
+            }
         }
     }
 }

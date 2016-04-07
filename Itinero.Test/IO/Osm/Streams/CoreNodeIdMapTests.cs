@@ -18,6 +18,7 @@
 
 using Itinero.IO.Osm.Streams;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Itinero.Test.IO.Osm.Streams
 {
@@ -70,6 +71,29 @@ namespace Itinero.Test.IO.Osm.Streams
             Assert.IsTrue(result[2] == 31 || result[2] == 32);
             Assert.AreEqual(1, map.Get(4, ref result));
             Assert.AreEqual(40, result[0]);
+        }
+
+        /// <summary>
+        /// Tests enumerable with all nodes.
+        /// </summary>
+        [Test]
+        public void TestNodesEnumerable()
+        {
+            var map = new CoreNodeIdMap();
+            map.Add(1, 10);
+            map.Add(1, 11);
+            map.Add(2, 20);
+            map.Add(3, 30);
+            map.Add(3, 31);
+            map.Add(3, 32);
+            map.Add(4, 40);
+
+            var nodes = new List<long>(map.Nodes);
+            Assert.AreEqual(4, nodes.Count);
+            Assert.IsTrue(nodes.Contains(1));
+            Assert.IsTrue(nodes.Contains(2));
+            Assert.IsTrue(nodes.Contains(3));
+            Assert.IsTrue(nodes.Contains(4));
         }
     }
 }
