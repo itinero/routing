@@ -49,7 +49,8 @@ namespace Itinero.Osm
             tags.NormalizeMaxspeed(profileTags, metaTags);
 
             // normalize oneway tags.
-            tags.NormalizeOneway(profileTags, metaTags);
+            tags.NormalizeOneway("oneway", profileTags, metaTags);
+            tags.NormalizeOneway("oneway:bicycle", profileTags, metaTags);
 
             // normalize junction=roundabout tag.
             tags.NormalizeJunction(profileTags, metaTags);
@@ -186,11 +187,11 @@ namespace Itinero.Osm
         /// <summary>
         /// Normalizes the oneway tag.
         /// </summary>
-        public static void NormalizeOneway(this AttributeCollection tags, AttributeCollection profileTags,
+        public static void NormalizeOneway(this AttributeCollection tags, string key, AttributeCollection profileTags,
             AttributeCollection metaTags)
-        {
+         {
             string oneway;
-            if (!tags.TryGetValue("oneway", out oneway))
+            if (!tags.TryGetValue(key, out oneway))
             { // nothing to normalize.
                 return;
             }
@@ -202,11 +203,11 @@ namespace Itinero.Osm
 
             if (defaultOnewayFound)
             {
-                profileTags.AddOrReplace("oneway", "yes");
+                profileTags.AddOrReplace(key, "yes");
             }
             else
             {
-                profileTags.AddOrReplace("oneway", "-1");
+                profileTags.AddOrReplace(key, "-1");
             }
         }
 

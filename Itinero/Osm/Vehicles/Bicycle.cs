@@ -137,6 +137,44 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public override bool? IsOneWay(IAttributeCollection tags)
         {
+            string oneway;
+            string highway;
+            if (tags.TryGetValue("oneway:bicycle", out oneway))
+            {
+                if (oneway == "yes")
+                {
+                    return true;
+                }
+                else if (oneway == "no")
+                {
+                    return null;
+                }
+                return false;
+            }
+
+            if (tags.TryGetValue("oneway", out oneway) &&
+                (tags.TryGetValue("highway", out highway) &&
+                 (highway == "cycleway")))
+            {
+                if (oneway == "yes")
+                {
+                    return true;
+                }
+                else if (oneway == "no")
+                {
+                    return null;
+                }
+                return false;
+            }
+
+            string junction;
+            if (tags.TryGetValue("junction", out junction))
+            {
+                if (junction == "roundabout")
+                {
+                    return true;
+                }
+            }
             return null;
         }
 
