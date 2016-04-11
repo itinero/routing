@@ -78,7 +78,7 @@ namespace Itinero.IO.Osm
             target.Pull();
 
             // sort the network.
-            db.Network.Sort();
+            db.Sort();
         }
     }
 }

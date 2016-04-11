@@ -213,7 +213,8 @@ namespace Itinero
             { // non-contracted calculation.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    throw new NotSupportedException("Edge-based routing not yet supported.");
+                    var sourceSearch = new Algorithms.Default.Edge.Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
+                        source.ToEdgePaths(_db, getFactor, true), float.MaxValue, false);
                 }
                 else
                 {

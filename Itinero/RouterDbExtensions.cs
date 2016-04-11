@@ -125,6 +125,10 @@ namespace Itinero
         /// </summary>
         public static bool HasComplexRestrictions(this RouterDb db, IEnumerable<string> vehicleTypes)
         {
+            if (db.HasComplexRestrictions(string.Empty))
+            {
+                return true;
+            }
             foreach(var vehicleType in vehicleTypes)
             {
                 if (db.HasComplexRestrictions(vehicleType))

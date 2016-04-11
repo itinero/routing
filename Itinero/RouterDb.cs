@@ -17,7 +17,6 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using Itinero.Graphs.Directed;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Restrictions;
 using Itinero.Profiles;
@@ -198,6 +197,20 @@ namespace Itinero
             get
             {
                 return _network;
+            }
+        }
+
+        /// <summary>
+        /// Gets all restriction dbs.
+        /// </summary>
+        public IEnumerable<RestrictionsDbMeta> RestrictionDbs
+        {
+            get
+            {
+                foreach(var kv in _restrictionDbs)
+                {
+                    yield return new RestrictionsDbMeta(kv.Key, kv.Value);
+                }
             }
         }
 

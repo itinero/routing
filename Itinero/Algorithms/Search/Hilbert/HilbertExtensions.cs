@@ -40,23 +40,23 @@ namespace Itinero.Algorithms.Search.Hilbert
         /// <summary>
         /// Copies all data from the given graph.
         /// </summary>
-        public static void Sort(this GeometricGraph graph)
+        public static void Sort(this GeometricGraph graph, Action<long, long> swap = null)
         {
-            graph.Sort(HilbertExtensions.DefaultHilbertSteps);
+            graph.Sort(HilbertExtensions.DefaultHilbertSteps, swap);
         }
 
         /// <summary>
         /// Copies all data from the given graph.
         /// </summary>
-        public static void Sort(this RoutingNetwork graph)
+        public static void Sort(this RoutingNetwork graph, Action<long, long> swap = null)
         {
-            graph.Sort(HilbertExtensions.DefaultHilbertSteps);
+            graph.Sort(HilbertExtensions.DefaultHilbertSteps, swap);
         }
-
+        
         /// <summary>
         /// Copies all data from the given graph.
         /// </summary>
-        public static void Sort(this GeometricGraph graph, int n)
+        public static void Sort(this GeometricGraph graph, int n, Action<long, long> swap = null)
         {
             if (graph.VertexCount > 0)
             {
@@ -68,6 +68,10 @@ namespace Itinero.Algorithms.Search.Hilbert
                 {
                     if (vertex1 != vertex2)
                     {
+                        if (swap != null)
+                        {
+                            swap(vertex1, vertex2);
+                        }
                         graph.Switch((uint)vertex1, (uint)vertex2);
                     }
                 }, 0, graph.VertexCount - 1);
@@ -77,7 +81,7 @@ namespace Itinero.Algorithms.Search.Hilbert
         /// <summary>
         /// Copies all data from the given graph.
         /// </summary>
-        public static void Sort(this RoutingNetwork graph, int n)
+        public static void Sort(this RoutingNetwork graph, int n, Action<long, long> swap = null)
         {
             if (graph.VertexCount > 0)
             {
@@ -89,10 +93,32 @@ namespace Itinero.Algorithms.Search.Hilbert
                 {
                     if (vertex1 != vertex2)
                     {
+                        if (swap != null)
+                        {
+                            swap(vertex1, vertex2);
+                        }
                         graph.Switch((uint)vertex1, (uint)vertex2);
                     }
                 }, 0, graph.VertexCount - 1);
             }
+        }
+        
+        /// <summary>
+        /// Sorts the vertices in this router db.
+        /// </summary>
+        public static void Sort(this RouterDb db)
+        {
+            var restrictionDbs = db.RestrictionDbs;
+            db.Network.Sort((vertex1, vertex2) =>
+            {
+                if (vertex1 != vertex2)
+                {
+                    foreach(var restrictionDb in restrictionDbs)
+                    {
+                        restrictionDb.RestrictionsDb.Switch((uint)vertex1, (uint)vertex2);
+                    }
+                }
+            });
         }
 
         /// <summary>

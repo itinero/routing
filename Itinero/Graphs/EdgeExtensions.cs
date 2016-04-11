@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Profiles;
 using System;
 
 namespace Itinero.Graphs
@@ -152,6 +153,51 @@ namespace Itinero.Graphs
                     enumerator.MoveTo(enumerator.From);
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets the weight for the given edge.
+        /// </summary>
+        public static float GetWeight(this Graph.EdgeEnumerator enumerator, long edge, Func<ushort, Factor> getFactor)
+        {
+            short direction;
+            return enumerator.GetWeight(getFactor, out direction);
+        }
+
+        /// <summary>
+        /// Gets the weight for the given edge.
+        /// </summary>
+        public static float GetWeight(this Graph.EdgeEnumerator enumerator, long directedEdgeId, Func<ushort, Factor> getFactor, out short direction)
+        {
+            enumerator.MoveToEdge(directedEdgeId);
+            float distance;
+            ushort edgeProfile;
+            Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0, out distance, out edgeProfile);
+            var factor = getFactor(edgeProfile);
+            direction = factor.Direction;
+            return factor.Value * distance;
+        }
+
+        /// <summary>
+        /// Gets the weight for the current edge.
+        /// </summary>
+        public static float GetWeight(this Graph.EdgeEnumerator enumerator, Func<ushort, Factor> getFactor)
+        {
+            short direction;
+            return enumerator.GetWeight(getFactor, out direction);
+        }
+
+        /// <summary>
+        /// Gets the weight for the current edge.
+        /// </summary>
+        public static float GetWeight(this Graph.EdgeEnumerator enumerator, Func<ushort, Factor> getFactor, out short direction)
+        {
+            float distance;
+            ushort edgeProfile;
+            Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0, out distance, out edgeProfile);
+            var factor = getFactor(edgeProfile);
+            direction = factor.Direction;
+            return factor.Value * distance;
         }
     }
 }

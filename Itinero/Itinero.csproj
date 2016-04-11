@@ -46,6 +46,7 @@
     <Compile Include="Algorithms\Contracted\DirectedMetaGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\Dykstra.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedGraphBuilder.cs" />
+    <Compile Include="Algorithms\Default\Edge\OneToOneDykstraHelper.cs" />
     <Compile Include="Data\Contracted\ContractedDb.cs" />
     <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Data\Contracted\ContractedDbProfile.cs" />
     <Compile Include="Data\Contracted\Edges\ContractedEdgeDataSerializer.cs" />
     <Compile Include="Data\Edges\EdgeDataSerializer.cs" />
+    <Compile Include="Data\Network\Restrictions\RestrictionsDbMeta.cs" />
     <Compile Include="Exceptions\ResolveFailedException.cs" />
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
