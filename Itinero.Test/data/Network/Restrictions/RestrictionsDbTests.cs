@@ -144,6 +144,151 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(12, enumerator[0]);
             Assert.AreEqual(2, enumerator[1]);
             Assert.AreEqual(3, enumerator[2]);
+            
+            db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(1, 2, 3, 4);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+        }
+
+        /// <summary>
+        /// Tests switching two vertices.
+        /// </summary>
+        [Test]
+        public void TestSwitch()
+        {
+            var db = new RestrictionsDb(1024);
+            db.Add(2, 1, 3);
+            db.Switch(2, 1);
+            
+            var enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(1, 2, 3, 4);
+            db.Switch(1, 10);
+            db.Switch(2, 20);
+            db.Switch(3, 30);
+            db.Switch(4, 40);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToFirst(10));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.AreEqual(40, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(3, 2, 1);
+            db.Add(3, 2, 1, 4);
+            db.Add(1, 2, 3, 4);
+            db.Switch(1, 10);
+            db.Switch(2, 20);
+            db.Switch(3, 30);
+            db.Switch(4, 40);
+            
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToFirst(10));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.AreEqual(40, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToFirst(30));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(30, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(10, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(30, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(10, enumerator[2]);
+            Assert.AreEqual(40, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToLast(30));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToLast(10));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(30, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(10, enumerator[2]);
+            Assert.IsFalse(enumerator.MoveNext());
+            
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToLast(40));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.AreEqual(40, enumerator[3]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(30, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(10, enumerator[2]);
+            Assert.AreEqual(40, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
         }
     }
 }

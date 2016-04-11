@@ -18,6 +18,7 @@
 
 using Reminiscence.Arrays;
 using System;
+using System.Collections.Generic;
 
 namespace Itinero.Data.Network.Restrictions
 {
@@ -36,6 +37,7 @@ namespace Itinero.Data.Network.Restrictions
         private const uint POS_NEXT_POINTER_FIRST = 1;
         private const uint POS_NEXT_POINTER_LAST = 2;
         private const uint POS_FIRST_VERTEX = 3;
+        private readonly Dictionary<uint, LinkedNode> _helperIndex; // an index to help at write-time, specifically to help switch vertices.
 
         private bool _hasComplexRestrictions; // flag to indicate presence of complex restrictions.
 
@@ -51,8 +53,17 @@ namespace Itinero.Data.Network.Restrictions
                 _hashes[i] = NO_DATA;
             }
             _restrictions = new MemoryArray<uint>(BLOCKSIZE);
+            _helperIndex = new Dictionary<uint, LinkedNode>();
         }
 
+        /// <summary>
+        /// Creates a new restrictions db.
+        /// </summary>
+        private RestrictionsDb()
+        {
+
+        }
+        
         private uint _nextPointer = 0;
 
         /// <summary>
@@ -60,46 +71,18 @@ namespace Itinero.Data.Network.Restrictions
         /// </summary>
         public void Add(params uint[] restriction)
         {
+            if (this.IsReadonly) { throw new InvalidOperationException("Restrictions db is readonly, check IsReadonly before adding new restrictions."); }
             if (restriction == null) { throw new ArgumentNullException("restriction"); }
             if (restriction.Length == 0) { throw new ArgumentException("Restriction should contain one or more vertices.", "restriction"); }
 
-            var firstVertex = restriction[0];
-            var firstHash = CalculateHash(firstVertex, (int)(_hashes.Length / 2));
-            var lastVertex = restriction[restriction.Length - 1];
-            var lastHash = CalculateHash(lastVertex, (int)(_hashes.Length / 2));
+            if (restriction.Length > 1)
+            {
+                _hasComplexRestrictions = true;
+            }
 
-            uint size = (uint)(POS_FIRST_VERTEX + restriction.Length);
-            while (_nextPointer + size >= _restrictions.Length)
+            while (_nextPointer + (uint)restriction.Length + POS_NEXT_POINTER_FIRST >= _restrictions.Length)
             {
                 _restrictions.Resize(_restrictions.Length + BLOCKSIZE);
-            }
-
-            var firstPointer = _hashes[firstHash];
-            if (firstPointer == NO_DATA)
-            { // start new.
-                _hashes[firstHash] = _nextPointer;
-            }
-            else
-            { // add at the end and change last pointer.
-                while (_restrictions[firstPointer + POS_NEXT_POINTER_FIRST] != NO_DATA)
-                {
-                    firstPointer = _restrictions[firstPointer + POS_NEXT_POINTER_FIRST];
-                }
-                _restrictions[firstPointer + POS_NEXT_POINTER_FIRST] = _nextPointer;
-            }
-
-            var lastPointer = _hashes[lastHash + 1];
-            if (lastPointer == NO_DATA)
-            { // start new.
-                _hashes[lastHash + 1] = _nextPointer;
-            }
-            else
-            { // add at the end and change last pointer.
-                while (_restrictions[lastPointer + POS_NEXT_POINTER_LAST] != NO_DATA)
-                {
-                    lastPointer = _restrictions[lastPointer + POS_NEXT_POINTER_LAST];
-                }
-                _restrictions[lastPointer + POS_NEXT_POINTER_LAST] = _nextPointer;
             }
 
             // add the data.
@@ -110,7 +93,199 @@ namespace Itinero.Data.Network.Restrictions
             {
                 _restrictions[_nextPointer + POS_FIRST_VERTEX + i] = restriction[i];
             }
-            _nextPointer = _nextPointer + size;
+
+            // add by pointer.
+            this.AddByPointer(_nextPointer);
+
+            // add to helper index.
+            this.AddToHelperIndex(_nextPointer, restriction);
+
+            _nextPointer = _nextPointer + POS_FIRST_VERTEX + (uint)restriction.Length;
+        }
+
+        /// <summary>
+        /// Switches the given two vertices.
+        /// </summary>
+        public void Switch(uint vertex1, uint vertex2)
+        {
+            if (this.IsReadonly) { throw new InvalidOperationException("Restrictions db is readonly, check IsReadonly before adding new restrictions."); }
+
+            // collect all relevant restrictions.
+            var pointers = new HashSet<uint>();
+            LinkedNode node;
+            if (_helperIndex.TryGetValue(vertex1, out node))
+            {
+                while(node != null)
+                {
+                    pointers.Add(node.Pointer);
+                    node = node.Next;
+                }
+            }
+            if (_helperIndex.TryGetValue(vertex2, out node))
+            {
+                while (node != null)
+                {
+                    pointers.Add(node.Pointer);
+                    node = node.Next;
+                }
+            }
+            
+            foreach(var pointer in pointers)
+            {
+                // remove using pointer.
+                this.RemoveByPointer(pointer);
+            }
+
+            foreach(var pointer in pointers)
+            {
+                // switch vertices in restrictions.
+                this.SwitchAtPointer(pointer, vertex1, vertex2);
+
+                // add using pointer.
+                this.AddByPointer(pointer);
+            }
+        }
+
+        /// <summary>
+        /// Adds a restriction using just it's pointer.
+        /// </summary>
+        private void AddByPointer(uint pointer)
+        {
+            var restrictionSize = _restrictions[pointer + POS_SIZE];
+            var size = restrictionSize + POS_FIRST_VERTEX;
+            var firstVertex = _restrictions[pointer + POS_FIRST_VERTEX];
+            var firstHash = CalculateHash(firstVertex, (int)(_hashes.Length / 2));
+            var lastVertex = _restrictions[pointer + POS_FIRST_VERTEX + restrictionSize - 1];
+            var lastHash = CalculateHash(lastVertex, (int)(_hashes.Length / 2));
+
+            var firstPointer = _hashes[firstHash];
+            if (firstPointer == NO_DATA)
+            { // start new.
+                _hashes[firstHash] = pointer;
+            }
+            else
+            { // add at the end and change last pointer.
+                while (_restrictions[firstPointer + POS_NEXT_POINTER_FIRST] != NO_DATA)
+                {
+                    firstPointer = _restrictions[firstPointer + POS_NEXT_POINTER_FIRST];
+                }
+                _restrictions[firstPointer + POS_NEXT_POINTER_FIRST] = pointer;
+            }
+
+            var lastPointer = _hashes[lastHash + 1];
+            if (lastPointer == NO_DATA)
+            { // start new.
+                _hashes[lastHash + 1] = pointer;
+            }
+            else
+            { // add at the end and change last pointer.
+                while (_restrictions[lastPointer + POS_NEXT_POINTER_LAST] != NO_DATA)
+                {
+                    lastPointer = _restrictions[lastPointer + POS_NEXT_POINTER_LAST];
+                }
+                _restrictions[lastPointer + POS_NEXT_POINTER_LAST] = pointer;
+            }
+        }
+
+        /// <summary>
+        /// Removes a restriction by pointer. Leaves the data in place.
+        /// </summary>
+        private void RemoveByPointer(uint pointer)
+        {
+            // possible cases for first and last:
+            // - pointer is at hash and there is no next restriction.
+            // - pointer is at hash but there is a next restrictions.
+            // - pointer is not at hash and there is no next restriction.
+            // - pointer is not at hash and there is a next restriction.
+            
+            // do the first vertex.
+            var vertex = _restrictions[pointer + POS_FIRST_VERTEX];
+            var hash = CalculateHash(vertex, (int)(_hashes.Length / 2));
+            var p = _hashes[hash];
+            if (p == NO_DATA)
+            {
+                throw new Exception("Cannot remove this pointer, has it already been removed?");
+            }
+            if (p == pointer)
+            {
+                _hashes[hash] = _restrictions[p + POS_NEXT_POINTER_FIRST];
+                _restrictions[p + POS_NEXT_POINTER_FIRST] = NO_DATA;
+            }
+            else
+            {
+                var previous = p;
+                var next = _restrictions[p + POS_NEXT_POINTER_FIRST];
+                while (true)
+                {
+                    p = next;
+                    if (p == NO_DATA)
+                    {
+                        throw new Exception("Cannot remove this pointer, has it already been removed?");
+                    }
+                    next = _restrictions[p + POS_NEXT_POINTER_FIRST];
+                    if (p == pointer)
+                    { // skip/bypass this restriction but leave it in place.
+                        _restrictions[previous + POS_NEXT_POINTER_FIRST] = next;
+                        _restrictions[p + POS_NEXT_POINTER_FIRST] = NO_DATA;
+                        break;
+                    }
+                }
+            }
+
+            // do the last vertex.
+            var size = _restrictions[pointer + POS_SIZE];
+            vertex = _restrictions[pointer + POS_FIRST_VERTEX + size - 1];
+            hash = CalculateHash(vertex, (int)(_hashes.Length / 2));
+            p = _hashes[hash + 1];
+            if (p == NO_DATA)
+            {
+                throw new Exception("Cannot remove this pointer, has it already been removed?");
+            }
+            if (p == pointer)
+            {
+                _hashes[hash + 1] = _restrictions[p + POS_NEXT_POINTER_LAST];
+                _restrictions[p + POS_NEXT_POINTER_LAST] = NO_DATA;
+            }
+            else
+            {
+                var previous = p;
+                var next = _restrictions[p + POS_NEXT_POINTER_LAST];
+                while (true)
+                {
+                    p = next;
+                    if (p == NO_DATA)
+                    {
+                        throw new Exception("Cannot remove this pointer, has it already been removed?");
+                    }
+                    next = _restrictions[p + POS_NEXT_POINTER_LAST];
+                    if (p == pointer)
+                    { // skip/bypass this restriction but leave it in place.
+                        _restrictions[previous + POS_NEXT_POINTER_LAST] = next;
+                        _restrictions[p + POS_NEXT_POINTER_LAST] = NO_DATA;
+                        break;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Switches vertices in the restriction at the given pointer.
+        /// </summary>
+        private void SwitchAtPointer(uint pointer, uint vertex1, uint vertex2)
+        {
+            var size = _restrictions[pointer + POS_SIZE];
+            for (var p = pointer + POS_FIRST_VERTEX; p < pointer + size + POS_FIRST_VERTEX; p++)
+            {
+                var vertex = _restrictions[p];
+                if (vertex == vertex1)
+                {
+                    _restrictions[p] = vertex2;
+                }
+                else if(vertex == vertex2)
+                { 
+                    _restrictions[p] = vertex1;
+                }
+            }
         }
 
         /// <summary>
@@ -130,6 +305,17 @@ namespace Itinero.Data.Network.Restrictions
             get
             {
                 return _hasComplexRestrictions;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if this db is readonly.
+        /// </summary>
+        public bool IsReadonly
+        {
+            get
+            {
+                return _helperIndex == null;
             }
         }
 
@@ -297,7 +483,7 @@ namespace Itinero.Data.Network.Restrictions
             {
                 get
                 {
-                    if (_data == null)
+                    if (_data != null)
                     {
                         throw new InvalidOperationException("No current data available.");
                     }
@@ -312,13 +498,36 @@ namespace Itinero.Data.Network.Restrictions
             {
                 get
                 {
-                    if (_data == null)
+                    if (_data != null)
                     {
                         throw new InvalidOperationException("No current data available.");
                     }
                     return _db._restrictions[_pointer + POS_FIRST_VERTEX + i];
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds a new restriction and corresponding pointer.
+        /// </summary>
+        private void AddToHelperIndex(uint pointer, uint[] restriction)
+        {
+            foreach(var vertex in restriction)
+            {
+                LinkedNode next = null;
+                _helperIndex.TryGetValue(vertex, out next);
+                _helperIndex[vertex] = new LinkedNode()
+                {
+                    Next = next,
+                    Pointer = pointer
+                };
+            }
+        }
+
+        private class LinkedNode
+        {
+            public uint Pointer { get; set; }
+            public LinkedNode Next { get; set; }
         }
     }
 }
