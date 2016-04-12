@@ -155,7 +155,7 @@ namespace Itinero.Algorithms.Default
                     _current.From.Vertex == neighbour)
                 { // don't go back, but report on the visit if needed.
                     if(this.WasEdgeFound != null &&
-                       this.WasEdgeFound(_current.Vertex, edge.Id, _current.Weight))
+                       this.WasEdgeFound(_current.Vertex, edge.IdDirected(), _current.Weight))
                     { // edge was found and true was returned, this search should stop.
                         return false;
                     }
@@ -165,7 +165,7 @@ namespace Itinero.Algorithms.Default
                 if (_visits.ContainsKey(neighbour))
                 { // has already been choosen.
                     if (this.WasEdgeFound != null &&
-                        this.WasEdgeFound(_current.Vertex, edge.Id, _current.Weight))
+                        this.WasEdgeFound(_current.Vertex, edge.IdDirected(), _current.Weight))
                     { // some edges are never in any shortest path between some two vertices.
                         return false;
                     }
@@ -247,7 +247,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// The was edge found delegate.
         /// </summary>
-        public delegate bool WasEdgeFoundDelegate(uint vertex, uint edge, float weight);
+        public delegate bool WasEdgeFoundDelegate(uint vertex, long directedEdgeId, float weight);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
