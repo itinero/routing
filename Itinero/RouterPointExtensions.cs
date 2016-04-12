@@ -172,8 +172,8 @@ namespace Itinero
             if (factor.Direction == 0)
             { // bidirectional.
                 return new EdgePath[] {
-                    new EdgePath(-edge.Id, (length * offset) * factor.Value),
-                    new EdgePath(edge.Id, (length * (1 - offset)) * factor.Value)
+                    new EdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE)),
+                    new EdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
                 };
             }
             else if (factor.Direction == 1)
@@ -181,11 +181,11 @@ namespace Itinero
                 if (asSource)
                 {
                     return new EdgePath[] {
-                        new EdgePath(edge.To, (length * (1 - offset)) * factor.Value)
+                        new EdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
                     };
                 }
                 return new EdgePath[] {
-                        new EdgePath(-edge.To, (length * offset) * factor.Value)
+                        new EdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE))
                     };
             }
             else
@@ -193,11 +193,11 @@ namespace Itinero
                 if (!asSource)
                 {
                     return new EdgePath[] {
-                        new EdgePath(-edge.To, (length * (1 - offset)) * factor.Value)
+                        new EdgePath(-edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
                     };
                 }
                 return new EdgePath[] {
-                        new EdgePath(edge.To, (length * offset) * factor.Value)
+                        new EdgePath(edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE))
                     };
             }
         }
