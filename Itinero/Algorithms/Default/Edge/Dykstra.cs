@@ -157,6 +157,13 @@ namespace Itinero.Algorithms.Default.Edge
                 return false;
             }
 
+            // report on visit.
+            if (this.WasEdgeFound != null &&
+                this.WasEdgeFound(_current.DirectedEdge, _current.Weight))
+            {
+                return false;
+            }
+
             // move to the current edge's target vertex.
             _edgeEnumerator.MoveToTargetVertex(_current.DirectedEdge);
 
@@ -310,7 +317,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// The was edge found delegate.
         /// </summary>
-        public delegate bool WasEdgeFoundDelegate(uint vertex, uint edge, float weight);
+        public delegate bool WasEdgeFoundDelegate(long directedEdgeId, float weight);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
