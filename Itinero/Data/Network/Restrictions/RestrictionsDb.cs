@@ -112,17 +112,20 @@ namespace Itinero.Data.Network.Restrictions
 
             // collect all relevant restrictions.
             var pointers = new HashSet<uint>();
-            LinkedNode node;
-            if (_helperIndex.TryGetValue(vertex1, out node))
+            LinkedNode nodeVertex1;
+            if (_helperIndex.TryGetValue(vertex1, out nodeVertex1))
             {
-                while(node != null)
+                var node = nodeVertex1;
+                while (node != null)
                 {
                     pointers.Add(node.Pointer);
                     node = node.Next;
                 }
             }
-            if (_helperIndex.TryGetValue(vertex2, out node))
+            LinkedNode nodeVertex2;
+            if (_helperIndex.TryGetValue(vertex2, out nodeVertex2))
             {
+                var node = nodeVertex2;
                 while (node != null)
                 {
                     pointers.Add(node.Pointer);
@@ -143,6 +146,16 @@ namespace Itinero.Data.Network.Restrictions
 
                 // add using pointer.
                 this.AddByPointer(pointer);
+            }
+
+            if (nodeVertex1 != null)
+            {
+                _helperIndex[vertex2] = nodeVertex1;
+            }
+
+            if (nodeVertex2 != null)
+            {
+                _helperIndex[vertex1] = nodeVertex2;
             }
         }
 

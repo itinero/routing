@@ -166,7 +166,7 @@ namespace Itinero.Test.Data.Network.Restrictions
         }
 
         /// <summary>
-        /// Tests switching two vertices.
+        /// Tests switching vertices.
         /// </summary>
         [Test]
         public void TestSwitch()
@@ -288,6 +288,29 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(20, enumerator[1]);
             Assert.AreEqual(10, enumerator[2]);
             Assert.AreEqual(40, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            db = new RestrictionsDb(1024);
+            db.Add(2, 1, 3);
+            db.Switch(4, 1);
+            db.Switch(4, 8);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToFirst(2));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(2, enumerator[0]);
+            Assert.AreEqual(8, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(2, enumerator[0]);
+            Assert.AreEqual(8, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
             Assert.IsFalse(enumerator.MoveNext());
         }
     }
