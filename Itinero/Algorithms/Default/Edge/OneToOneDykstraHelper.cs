@@ -28,7 +28,7 @@ namespace Itinero.Algorithms.Default.Edge
     /// </summary>
     public class OneToOneDykstraHelper : AlgorithmBase
     {
-        private readonly IEnumerable<EdgePath> _targets;
+        private readonly Dictionary<long, List<EdgePath>> _targets;
         private readonly Dykstra _dykstra;
 
         /// <summary>
@@ -38,21 +38,51 @@ namespace Itinero.Algorithms.Default.Edge
             IEnumerable<EdgePath> sources, IEnumerable<EdgePath> targets, float sourceMax, bool backward)
         {
             _dykstra = new Dykstra(graph, getFactor, getRestriction, sources, sourceMax, backward);
-            _dykstra.WasEdgeFound = (vertex, weight) =>
+            _dykstra.WasEdgeFound = (directedEdgeId, weight) =>
             {
-                _maxBackward = weight;
-                return this.ReachedVertexBackward((uint)vertex, weight);
+                return this.WasEdgeFound(directedEdgeId, weight);
             };
 
-            _targets = targets;
+            _targets = new Dictionary<long, List<EdgePath>>();
+            foreach(var target in targets)
+            {
+                List<EdgePath> paths;
+                if (!_targets.TryGetValue(target.DirectedEdge, out paths))
+                {
+                    paths = new List<EdgePath>();
+                    _targets.Add(target.DirectedEdge, paths);
+                }
+                paths.Add(target);
+            }
         }
-        
+
+        private EdgePath _best = null;
+
         /// <summary>
         /// Called when an edge was found.
         /// </summary>
-        private bool WasEdgeFound(uint vertex, uint edge, float weight)
+        private bool WasEdgeFound(long directedEdgeId, float weight)
         {
-
+            EdgePath visit;
+            List<EdgePath> paths;
+            if (_targets.TryGetValue(directedEdgeId, out paths) &&
+                _dykstra.TryGetVisit(directedEdgeId, out visit))
+            {
+                if (visit.From == null)
+                {
+                    throw new NotSupportedException("One-edge paths are not supported.");
+                }
+                foreach (var target in paths)
+                {
+                    var pathToTarget = new EdgePath(Constants.NO_EDGE, target.Weight + visit.From.Weight,
+                        visit.From);
+                    if (_best == null || pathToTarget.Weight < _best.Weight)
+                    {
+                        _best = pathToTarget;
+                    }
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -60,7 +90,37 @@ namespace Itinero.Algorithms.Default.Edge
         /// </summary>
         protected override void DoRun()
         {
-            throw new NotImplementedException();
+            _dykstra.Run();
+
+            this.HasRun = true;
+            this.HasSucceeded = _best != null;
+        }
+
+        /// <summary>
+        /// Gets the best path.
+        /// </summary>
+        public EdgePath BestPath
+        {
+            get
+            {
+                this.CheckHasRunAndHasSucceeded();
+
+                return _best;
+            }
+        }
+
+        /// <summary>
+        /// Gets the path from source->target.
+        /// </summary>
+        /// <returns></returns>
+        public List<uint> GetPath(out float weight)
+        {
+            this.CheckHasRunAndHasSucceeded();
+            
+            var path = new List<uint>();
+            weight = _best.Weight;
+            _best.ToPath(_dykstra.Graph).AddToList(path);
+            return path;
         }
     }
 }

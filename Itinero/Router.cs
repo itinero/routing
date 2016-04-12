@@ -27,6 +27,7 @@ using System;
 using System.Collections.Generic;
 using Itinero.Data.Contracted;
 using Itinero.Data.Edges;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero
 {
@@ -213,8 +214,18 @@ namespace Itinero
             { // non-contracted calculation.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var sourceSearch = new Algorithms.Default.Edge.Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                        source.ToEdgePaths(_db, getFactor, true), float.MaxValue, false);
+                    var search = new Algorithms.Default.Edge.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 
+                        getFactor, this.GetGetRestrictions(profile), source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, profile, false),
+                            float.MaxValue, false);
+                    search.Run();
+                    if (!search.HasSucceeded)
+                    {
+                        return new Result<Route>(search.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = search.GetPath(out pathWeight);
                 }
                 else
                 {
@@ -468,6 +479,31 @@ namespace Itinero
                     return profile.Factor(Db.EdgeProfiles.Get(p));
                 };
             }
+        }
+        
+        /// <summary>
+        /// Gets the get restriction function for the given profile.
+        /// </summary>
+        private Func<uint, uint[]> GetGetRestrictions(Profile profile, bool first)
+        {
+            var vehicleTypes = new List<string>(profile.VehicleType);
+            vehicleTypes.Insert(0, string.Empty);
+            return (vertex) =>
+            { // loop over potential restriction db's from general type to specific.
+                var restriction = 
+                if (first)
+                {
+                    for (var i = 0; i < vehicleTypes.Count; i++)
+                    {
+                        RestrictionsDb restrictionsDb;
+                        if (_db.TryGetRestrictions(vehicleTypes[i], out vehicleTypes[i]))
+                        {
+
+                        }
+                    }
+                }
+                return null;
+            };
         }
 
         /// <summary>
