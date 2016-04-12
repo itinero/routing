@@ -304,5 +304,13 @@ namespace Itinero.Graphs.Geometric
         {
             return graph.AddEdge(vertex1, vertex2, data, new ShapeEnumerable(shape));
         }
+
+        /// <summary>
+        /// Gets a directed edge id. 
+        /// </summary>
+        public static long IdDirected(this GeometricEdge edge)
+        {
+            return edge.Id + 1;
+        }
     }
 }
