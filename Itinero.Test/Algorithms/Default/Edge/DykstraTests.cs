@@ -187,7 +187,7 @@ namespace Itinero.Test.Algorithms.Default.Edge
             {
                 if(vertex == 1)
                 {
-                    return new uint [] { 1 };
+                    return new uint [][] { new uint[] { 1 } };
                 }
                 return null;
             },
@@ -243,7 +243,7 @@ namespace Itinero.Test.Algorithms.Default.Edge
             {
                 if (vertex == 1)
                 {
-                    return new uint[] { 1, 2, 3 };
+                    return new uint[][] { new uint[] { 1, 2, 3 } };
                 }
                 return null;
             },
@@ -310,7 +310,7 @@ namespace Itinero.Test.Algorithms.Default.Edge
             {
                 if (vertex == 0)
                 {
-                    return new uint[] { 0, 1, 4 };
+                    return new uint[][] { new uint[] { 0, 1, 4 } };
                 }
                 return null;
             },

@@ -33,14 +33,14 @@ namespace Itinero.Algorithms.Default.Edge
         private readonly Graph _graph;
         private readonly IEnumerable<EdgePath> _sources;
         private readonly Func<ushort, Factor> _getFactor;
-        private readonly Func<uint, uint[]> _getRestriction;
+        private readonly Func<uint, IEnumerable<uint[]>> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint[]> getRestriction,
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
             IEnumerable<EdgePath> sources, float sourceMax, bool backward)
         {
             _graph = graph;
@@ -97,27 +97,33 @@ namespace Itinero.Algorithms.Default.Edge
                 if (_getRestriction != null)
                 {
                     var sourceVertex = _edgeEnumerator.GetSourceVertex(source.DirectedEdge);
-                    var restriction = _getRestriction(sourceVertex);
-                    if (restriction != null &&
-                        restriction.Length > 1)
+                    var sourceVertexRestrictions = _getRestriction(sourceVertex);
+                    if (sourceVertexRestrictions != null)
                     {
-                        var targetVertex = _edgeEnumerator.GetTargetVertex(source.DirectedEdge);
-                        if (restriction.Length == 2)
-                        { // a restriction of two, an edge is forbidden.
-                            if (restriction[1] == targetVertex)
-                            { // don't queue this edge, it's forbidden.
-                                continue;
-                            }
-                        }
-                        else
-                        { // a restriction bigger than two, check if this edge is the first one.
-                            if (restriction[1] == targetVertex)
-                            { // this edge is the first, queue the restriction too.
-                                _edgeRestrictions[source.DirectedEdge] = new LinkedRestriction()
-                                {
-                                    Restriction = restriction,
-                                    Next = null
-                                };
+                        foreach (var restriction in sourceVertexRestrictions)
+                        {
+                            if (restriction != null &&
+                                restriction.Length > 1)
+                            {
+                                var targetVertex = _edgeEnumerator.GetTargetVertex(source.DirectedEdge);
+                                if (restriction.Length == 2)
+                                { // a restriction of two, an edge is forbidden.
+                                    if (restriction[1] == targetVertex)
+                                    { // don't queue this edge, it's forbidden.
+                                        continue;
+                                    }
+                                }
+                                else
+                                { // a restriction bigger than two, check if this edge is the first one.
+                                    if (restriction[1] == targetVertex)
+                                    { // this edge is the first, queue the restriction too.
+                                        _edgeRestrictions[source.DirectedEdge] = new LinkedRestriction()
+                                        {
+                                            Restriction = restriction,
+                                            Next = null
+                                        };
+                                    }
+                                }
                             }
                         }
                     }
@@ -180,22 +186,28 @@ namespace Itinero.Algorithms.Default.Edge
             }
             if (_getRestriction != null)
             {
-                var restriction = _getRestriction(targetVertex);
-                if (restriction != null &&
-                    restriction.Length > 0)
+                var targetVertexRestriction = _getRestriction(targetVertex);
+                if (targetVertexRestriction != null)
                 {
-                    if (restriction.Length == 1)
-                    { // a simple restriction, restricted vertex, no need to check outgoing edges.
-                        _vertexRestrictions.Add(restriction[0]);
-                        return true;
-                    }
-                    else
-                    { // a complex restriction.
-                        restrictions = new LinkedRestriction()
+                    foreach (var restriction in targetVertexRestriction)
+                    {
+                        if (restriction != null &&
+                            restriction.Length > 0)
                         {
-                            Restriction = restriction,
-                            Next = restrictions
-                        };
+                            if (restriction.Length == 1)
+                            { // a simple restriction, restricted vertex, no need to check outgoing edges.
+                                _vertexRestrictions.Add(restriction[0]);
+                                return true;
+                            }
+                            else
+                            { // a complex restriction.
+                                restrictions = new LinkedRestriction()
+                                {
+                                    Restriction = restriction,
+                                    Next = restrictions
+                                };
+                            }
+                        }
                     }
                 }
             }

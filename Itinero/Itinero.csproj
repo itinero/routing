@@ -89,6 +89,7 @@
     <Compile Include="Data\Contracted\ContractedDbProfile.cs" />
     <Compile Include="Data\Contracted\Edges\ContractedEdgeDataSerializer.cs" />
     <Compile Include="Data\Edges\EdgeDataSerializer.cs" />
+    <Compile Include="Data\Network\Restrictions\RestrictionsDbExtensions.cs" />
     <Compile Include="Data\Network\Restrictions\RestrictionsDbMeta.cs" />
     <Compile Include="Exceptions\ResolveFailedException.cs" />
     <Compile Include="Exceptions\RouteBuildFailedException.cs" />

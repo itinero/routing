@@ -34,7 +34,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public OneToOneDykstraHelper(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint[]> getRestriction,
+        public OneToOneDykstraHelper(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
             IEnumerable<EdgePath> sources, IEnumerable<EdgePath> targets, float sourceMax, bool backward)
         {
             _dykstra = new Dykstra(graph, getFactor, getRestriction, sources, sourceMax, backward);
