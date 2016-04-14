@@ -51,23 +51,19 @@ namespace Itinero.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\planet\europe\belgium-latest.osm.pbf", 
+            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.before.osm", 
                 Vehicle.Car);
-            routerDb.AddContracted(Vehicle.Car.Fastest());
+            //routerDb.AddContracted(Vehicle.Car.Fastest());
 
-            routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
+            //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
 
             //////routerDb.AddContracted(Vehicle.Car.Fastest());
             //var routerDb = RouterDb.Deserialize(
             //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
 
-            var route = router.Calculate(Vehicle.Car.Fastest(), 51.2677956f, 4.80136251f, 51.258667f, 4.77633858f);
-
-            var features = routerDb.GetFeaturesIn(51.258667f, 4.77633858f, 51.2677956f, 4.80136251f, false);
-
-            var geoJsonWriter = new NetTopologySuite.IO.GeoJsonWriter();
-            var geoJson = geoJsonWriter.Write(features);
+            var route = router.Calculate(Vehicle.Car.Fastest(), 51.04863f, 3.72705f,
+                51.04803f, 3.72832f);
 
             //// test resolving.
             //var embeddedResourceId = "Itinero.Test.Functional.Tests.Belgium.resolve1.geojson";

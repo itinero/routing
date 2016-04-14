@@ -47,10 +47,10 @@ namespace Itinero.Algorithms.Default.Edge
             foreach(var target in targets)
             {
                 List<EdgePath> paths;
-                if (!_targets.TryGetValue(target.DirectedEdge, out paths))
+                if (!_targets.TryGetValue(-target.DirectedEdge, out paths))
                 {
                     paths = new List<EdgePath>();
-                    _targets.Add(target.DirectedEdge, paths);
+                    _targets.Add(-target.DirectedEdge, paths);
                 }
                 paths.Add(target);
             }

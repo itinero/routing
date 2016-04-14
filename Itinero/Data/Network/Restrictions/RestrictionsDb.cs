@@ -167,9 +167,9 @@ namespace Itinero.Data.Network.Restrictions
             var restrictionSize = _restrictions[pointer + POS_SIZE];
             var size = restrictionSize + POS_FIRST_VERTEX;
             var firstVertex = _restrictions[pointer + POS_FIRST_VERTEX];
-            var firstHash = CalculateHash(firstVertex, (int)(_hashes.Length / 2));
+            var firstHash = CalculateHash(firstVertex);
             var lastVertex = _restrictions[pointer + POS_FIRST_VERTEX + restrictionSize - 1];
-            var lastHash = CalculateHash(lastVertex, (int)(_hashes.Length / 2));
+            var lastHash = CalculateHash(lastVertex) + 1;
 
             var firstPointer = _hashes[firstHash];
             if (firstPointer == NO_DATA)
@@ -185,10 +185,10 @@ namespace Itinero.Data.Network.Restrictions
                 _restrictions[firstPointer + POS_NEXT_POINTER_FIRST] = pointer;
             }
 
-            var lastPointer = _hashes[lastHash + 1];
+            var lastPointer = _hashes[lastHash];
             if (lastPointer == NO_DATA)
             { // start new.
-                _hashes[lastHash + 1] = pointer;
+                _hashes[lastHash] = pointer;
             }
             else
             { // add at the end and change last pointer.
@@ -213,7 +213,7 @@ namespace Itinero.Data.Network.Restrictions
             
             // do the first vertex.
             var vertex = _restrictions[pointer + POS_FIRST_VERTEX];
-            var hash = CalculateHash(vertex, (int)(_hashes.Length / 2));
+            var hash = CalculateHash(vertex);
             var p = _hashes[hash];
             if (p == NO_DATA)
             {
@@ -248,15 +248,15 @@ namespace Itinero.Data.Network.Restrictions
             // do the last vertex.
             var size = _restrictions[pointer + POS_SIZE];
             vertex = _restrictions[pointer + POS_FIRST_VERTEX + size - 1];
-            hash = CalculateHash(vertex, (int)(_hashes.Length / 2));
-            p = _hashes[hash + 1];
+            hash = CalculateHash(vertex) + 1;
+            p = _hashes[hash];
             if (p == NO_DATA)
             {
                 throw new Exception("Cannot remove this pointer, has it already been removed?");
             }
             if (p == pointer)
             {
-                _hashes[hash + 1] = _restrictions[p + POS_NEXT_POINTER_LAST];
+                _hashes[hash] = _restrictions[p + POS_NEXT_POINTER_LAST];
                 _restrictions[p + POS_NEXT_POINTER_LAST] = NO_DATA;
             }
             else
@@ -335,14 +335,14 @@ namespace Itinero.Data.Network.Restrictions
         /// <summary>
         /// Calculates a hashcode with a fixed size.
         /// </summary>
-        private static int CalculateHash(uint vertex, int size)
+        private int CalculateHash(uint vertex)
         {
-            var hash = (vertex.GetHashCode() % size);
+            var hash = (vertex.GetHashCode() % (_hashes.Length / 2)) * 2;
             if (hash > 0)
             {
-                return hash;
+                return (int)hash;
             }
-            return -hash;
+            return (int)-hash;
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Itinero.Data.Network.Restrictions
             /// <returns>Returns true if there is a restriction for this vertex.</returns>
             public bool MoveToFirst(uint vertex)
             {
-                var hash = CalculateHash(vertex, (int)_db._hashes.Length);
+                var hash = _db.CalculateHash(vertex);
                 var pointer = _db._hashes[hash];
                 if (pointer == NO_DATA)
                 { // a quick negative answer is the important part here!
@@ -402,8 +402,8 @@ namespace Itinero.Data.Network.Restrictions
             /// <returns>Returns true if there is a restriction for this vertex.</returns>
             public bool MoveToLast(uint vertex)
             {
-                var hash = CalculateHash(vertex, (int)_db._hashes.Length);
-                var pointer = _db._hashes[hash + 1];
+                var hash = _db.CalculateHash(vertex) + 1;
+                var pointer = _db._hashes[hash];
                 if (pointer == NO_DATA)
                 { // a quick negative answer is the important part here!
                     _data = false;

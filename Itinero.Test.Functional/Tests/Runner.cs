@@ -81,14 +81,15 @@ namespace Itinero.Test.Functional.Tests
             using (var stream = File.OpenRead(file))
             {
                 var routerdb = new RouterDb();
-                var source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
+                var source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
                 var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
                 progress.RegisterSource(source);
-                var target = new Itinero.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles);
+                var target = new Itinero.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles, 
+                    processRestrictions: true);
                 target.RegisterSource(progress);
                 target.Pull();
                 
-                routerdb.Network.Sort();
+                routerdb.Sort();
 
                 return routerdb;
             }

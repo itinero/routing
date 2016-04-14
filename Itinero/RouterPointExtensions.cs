@@ -193,11 +193,11 @@ namespace Itinero
                 if (!asSource)
                 {
                     return new EdgePath[] {
-                        new EdgePath(-edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                        new EdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
                     };
                 }
                 return new EdgePath[] {
-                        new EdgePath(edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                        new EdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE))
                     };
             }
         }
