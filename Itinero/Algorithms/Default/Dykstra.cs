@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Data;
+using Itinero.Data.Edges;
 using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
@@ -33,13 +34,14 @@ namespace Itinero.Algorithms.Default
         private readonly Graph _graph;
         private readonly IEnumerable<Path> _sources;
         private readonly Func<ushort, Factor> _getFactor;
+        private readonly Func<uint, uint> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Factor> getFactor,
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint> getRestriction,
             IEnumerable<Path> sources, float sourceMax, bool backward)
         {
             _graph = graph;
@@ -47,6 +49,7 @@ namespace Itinero.Algorithms.Default
             _getFactor = getFactor;
             _sourceMax = sourceMax;
             _backward = backward;
+            _getRestriction = getRestriction;
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
@@ -129,7 +132,19 @@ namespace Itinero.Algorithms.Default
                 return false;
             }
 
-            // get neighbours.
+            // check for restrictions.
+            var restriction = Constants.NO_VERTEX;
+            if (_getRestriction != null)
+            {
+                restriction = _getRestriction(_current.Vertex);
+            }
+            if (restriction != Constants.NO_VERTEX)
+            { // this vertex is restricted, step is a success but just move 
+                // to the next one because this vertex's neighbours are not allowed.
+                return true;
+            }
+
+            // get neighbours and queue them.
             _edgeEnumerator.MoveTo(_current.Vertex);
             while (_edgeEnumerator.MoveNext())
             {
@@ -140,7 +155,7 @@ namespace Itinero.Algorithms.Default
                     _current.From.Vertex == neighbour)
                 { // don't go back, but report on the visit if needed.
                     if(this.WasEdgeFound != null &&
-                       this.WasEdgeFound(_current.Vertex, edge.Id, _current.Weight))
+                       this.WasEdgeFound(_current.Vertex, edge.IdDirected(), _current.Weight))
                     { // edge was found and true was returned, this search should stop.
                         return false;
                     }
@@ -150,7 +165,7 @@ namespace Itinero.Algorithms.Default
                 if (_visits.ContainsKey(neighbour))
                 { // has already been choosen.
                     if (this.WasEdgeFound != null &&
-                        this.WasEdgeFound(_current.Vertex, edge.Id, _current.Weight))
+                        this.WasEdgeFound(_current.Vertex, edge.IdDirected(), _current.Weight))
                     { // some edges are never in any shortest path between some two vertices.
                         return false;
                     }
@@ -232,7 +247,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// The was edge found delegate.
         /// </summary>
-        public delegate bool WasEdgeFoundDelegate(uint vertex, uint edge, float weight);
+        public delegate bool WasEdgeFoundDelegate(uint vertex, long directedEdgeId, float weight);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.

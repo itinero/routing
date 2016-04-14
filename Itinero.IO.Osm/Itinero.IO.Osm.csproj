@@ -43,9 +43,12 @@
   <ItemGroup>
     <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Restrictions\Helper.cs" />
+    <Compile Include="Restrictions\RestrictionProcessor.cs" />
     <Compile Include="RouterDbExtensions.cs" />
     <Compile Include="Streams\CoreNodeIdMap.cs" />
     <Compile Include="Streams\HugeDictionary.cs" />
+    <Compile Include="Streams\ITwoPassProcessor.cs" />
     <Compile Include="Streams\NodeCoordinatesDictionary.cs" />
     <Compile Include="Streams\RouterDbStreamTarget.cs" />
   </ItemGroup>

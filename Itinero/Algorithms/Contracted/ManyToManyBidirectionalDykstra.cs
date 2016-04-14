@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
@@ -56,11 +57,18 @@ namespace Itinero.Algorithms.Contracted
             _sources = sources;
             _targets = targets;
 
-            if (!_routerDb.TryGetContracted(profile, out _graph))
+            ContractedDb contractedDb;
+            if (!_routerDb.TryGetContracted(profile, out contractedDb))
             {
                 throw new NotSupportedException(
                     "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");
             }
+            if (!contractedDb.HasNodeBasedGraph)
+            {
+                throw new NotSupportedException(
+                    "Contraction-based node-based many-to-many calculates are not supported in the given router db for the given profile.");
+            }
+            _graph = contractedDb.NodeBasedGraph;
 
             _buckets = new Dictionary<uint, Dictionary<int, float>>();
         }

@@ -17,10 +17,10 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using Itinero.Data.Contracted;
 using System;
+using Itinero.Data.Contracted.Edges;
 
-namespace Itinero.Test.Data.Contracted
+namespace Itinero.Test.Data.Contracted.Edges
 {
     /// <summary>
     /// Tests the edge data serializer.

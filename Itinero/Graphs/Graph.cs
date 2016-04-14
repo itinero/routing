@@ -783,12 +783,12 @@ namespace Itinero.Graphs
         public class EdgeEnumerator : IEnumerable<Edge>, IEnumerator<Edge>
         {
             private readonly Graph _graph;
-            private uint _nextEdgeId;
+            private uint _nextEdgePointer;
             private uint _vertex;
-            private uint _currentEdgeId;
+            private uint _currentEdgePointer;
             private bool _currentEdgeInverted = false;
             private uint _startVertex;
-            private uint _startEdge;
+            private uint _startEdgePointer;
             private uint _neighbour;
 
             /// <summary>
@@ -797,11 +797,11 @@ namespace Itinero.Graphs
             internal EdgeEnumerator(Graph graph)
             {
                 _graph = graph;
-                _currentEdgeId = Constants.NO_EDGE;
+                _currentEdgePointer = Constants.NO_EDGE;
                 _vertex = Constants.NO_EDGE;
 
                 _startVertex = Constants.NO_EDGE;
-                _startEdge = Constants.NO_EDGE;
+                _startEdgePointer = Constants.NO_EDGE;
                 _currentEdgeInverted = false;
             }
 
@@ -823,20 +823,20 @@ namespace Itinero.Graphs
             /// <returns></returns>
             public bool MoveNext()
             {
-                if (_nextEdgeId != Constants.NO_EDGE)
+                if (_nextEdgePointer != Constants.NO_EDGE)
                 { // there is a next edge.
-                    _currentEdgeId = _nextEdgeId;
+                    _currentEdgePointer = _nextEdgePointer;
                     _neighbour = 0; // reset neighbour.
-                    if (_graph._edges[_nextEdgeId + NODEA] == _vertex)
+                    if (_graph._edges[_nextEdgePointer + NODEA] == _vertex)
                     {
-                        _neighbour = _graph._edges[_nextEdgeId + NODEB];
-                        _nextEdgeId = _graph._edges[_nextEdgeId + NEXTNODEA];
+                        _neighbour = _graph._edges[_nextEdgePointer + NODEB];
+                        _nextEdgePointer = _graph._edges[_nextEdgePointer + NEXTNODEA];
                         _currentEdgeInverted = false;
                     }
                     else
                     {
-                        _neighbour = _graph._edges[_nextEdgeId + NODEA];
-                        _nextEdgeId = _graph._edges[_nextEdgeId + NEXTNODEB];
+                        _neighbour = _graph._edges[_nextEdgePointer + NODEA];
+                        _nextEdgePointer = _graph._edges[_nextEdgePointer + NEXTNODEB];
                         _currentEdgeInverted = true;
                     }
                     return true;
@@ -873,7 +873,7 @@ namespace Itinero.Graphs
                     var data = new uint[_graph._edgeDataSize];
                     for (var i = 0; i < _graph._edgeDataSize; i++)
                     {
-                        data[i] = _graph._edges[_currentEdgeId + MINIMUM_EDGE_SIZE + i];
+                        data[i] = _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + i];
                     }
                     return data;
                 }
@@ -886,7 +886,7 @@ namespace Itinero.Graphs
             {
                 get
                 {
-                    return _graph._edges[_currentEdgeId + MINIMUM_EDGE_SIZE + 0];
+                    return _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + 0];
                 }
             }
 
@@ -897,7 +897,7 @@ namespace Itinero.Graphs
             {
                 get
                 {
-                    return _graph._edges[_currentEdgeId + MINIMUM_EDGE_SIZE + 1];
+                    return _graph._edges[_currentEdgePointer + MINIMUM_EDGE_SIZE + 1];
                 }
             }
 
@@ -916,7 +916,7 @@ namespace Itinero.Graphs
             {
                 get
                 {
-                    return (uint)(_currentEdgeId / _graph._edgeSize);
+                    return (uint)(_currentEdgePointer / _graph._edgeSize);
                 }
             }
 
@@ -925,8 +925,8 @@ namespace Itinero.Graphs
             /// </summary>
             public void Reset()
             {
-                _nextEdgeId = _startEdge;
-                _currentEdgeId = 0;
+                _nextEdgePointer = _startEdgePointer;
+                _currentEdgePointer = 0;
                 _vertex = _startVertex;
             }
 
@@ -961,16 +961,34 @@ namespace Itinero.Graphs
             /// </summary>
             public bool MoveTo(uint vertex)
             {
-                var edgeId = _graph._vertices[vertex];
-                _nextEdgeId = edgeId;
-                _currentEdgeId = 0;
+                var edgePointer = _graph._vertices[vertex];
+                _nextEdgePointer = edgePointer;
+                _currentEdgePointer = 0;
                 _vertex = vertex;
 
                 _startVertex = vertex;
-                _startEdge = edgeId;
+                _startEdgePointer = edgePointer;
                 _currentEdgeInverted = false;
 
-                return edgeId != Constants.NO_EDGE;
+                return edgePointer != Constants.NO_EDGE;
+            }
+            
+            /// <summary>
+            /// Moves this enumerator to the given edge.
+            /// </summary>
+            public void MoveToEdge(uint edge)
+            {
+                var edgePointer = edge * (uint)_graph._edgeSize;
+
+                _nextEdgePointer = edgePointer;
+                _currentEdgePointer = _nextEdgePointer;
+
+                _vertex = _graph._edges[_nextEdgePointer + NODEA];
+                _neighbour = _graph._edges[_nextEdgePointer + NODEB];
+
+                _startVertex = _vertex;
+                _startEdgePointer = edgePointer;
+                _currentEdgeInverted = false;
             }
 
             /// <summary>

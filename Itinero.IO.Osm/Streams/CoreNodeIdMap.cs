@@ -143,7 +143,7 @@ namespace Itinero.IO.Osm.Streams
                 return _firstMap.Keys;
             }
         }
-
+		
         private class LinkedListNode
         {
             public uint Value { get; set; }

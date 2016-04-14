@@ -1,5 +1,5 @@
 ﻿ //Itinero - OpenStreetMap (OSM) SDK
- //Copyright (C) 2015 Abelshausen Ben
+ //Copyright (C) 2016 Abelshausen Ben
  
  //This file is part of Itinero.
  
@@ -18,7 +18,7 @@
 
 using System;
 
-namespace Itinero.Data.Contracted
+namespace Itinero.Data.Contracted.Edges
 {
      ///<summary>
      ///Represents the data on a contracted edge.

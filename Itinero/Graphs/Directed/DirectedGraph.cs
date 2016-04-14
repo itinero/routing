@@ -424,7 +424,7 @@ namespace Itinero.Graphs.Directed
                 {
                     currentData[i] = _edges[edgePointer + MINIMUM_EDGE_SIZE + i];
                 }
-                if(_edges[edgePointer] == vertex2)
+                if (_edges[edgePointer] == vertex2)
                 {
                     if (update(currentData))
                     { // yes, update here.
@@ -471,7 +471,7 @@ namespace Itinero.Graphs.Directed
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
             var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
 
-            for (var removeEdgePointer = edgePointer; removeEdgePointer < edgePointer + (edgeCount * (uint)_edgeSize); 
+            for (var removeEdgePointer = edgePointer; removeEdgePointer < edgePointer + (edgeCount * (uint)_edgeSize);
                 removeEdgePointer += (uint)_edgeSize)
             {
                 if (_edges[removeEdgePointer] == vertex2)
@@ -495,7 +495,7 @@ namespace Itinero.Graphs.Directed
                     }
 
                     // report on the move.
-                    if(_switchEdge != null)
+                    if (_switchEdge != null)
                     {
                         _switchEdge((uint)((edgePointer + (edgeCount * (uint)_edgeSize)) / _edgeSize),
                             (uint)(removeEdgePointer / _edgeSize));
@@ -561,11 +561,11 @@ namespace Itinero.Graphs.Directed
         {
             // remove all vertices without edges at the end.
             var maxVertexId = uint.MinValue;
-            for(uint i = 0; i < _vertices.Length / VERTEX_SIZE; i++)
+            for (uint i = 0; i < _vertices.Length / VERTEX_SIZE; i++)
             {
                 var pointer = _vertices[i * VERTEX_SIZE + FIRST_EDGE] * _edgeSize;
                 var count = _vertices[i * VERTEX_SIZE + EDGE_COUNT];
-                for(var e = pointer; e < pointer + (count * _edgeSize); e += _edgeSize)
+                for (var e = pointer; e < pointer + (count * _edgeSize); e += _edgeSize)
                 {
                     var vertex = _edges[e];
                     if (maxVertexId < vertex)
@@ -618,7 +618,7 @@ namespace Itinero.Graphs.Directed
 
             // sort vertices and coordinates.
             QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * sortedVertices.Length +
-                    sortedVertices[i], 
+                    sortedVertices[i],
                 (i, j) =>
                     {
                         var tempRef = sortedVertices[i];

@@ -19,10 +19,11 @@
 using NUnit.Framework;
 using Itinero.Algorithms.Contracted;
 using Itinero.Data.Contracted;
-using Itinero.Network;
+using Itinero.Data.Network;
 using Itinero.Graphs.Directed;
 using Itinero.Test.Profiles;
 using Itinero.Profiles;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Test.Algorithms.Contracted
 {
@@ -47,7 +48,7 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.AddSupportedProfile(MockProfile.CarMock());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -86,7 +87,7 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.AddSupportedProfile(MockProfile.CarMock());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -139,19 +140,19 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(2, 0, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(2, 0, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -203,13 +204,13 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -221,7 +222,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
@@ -270,13 +271,13 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -288,7 +289,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
             graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
@@ -337,13 +338,13 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -355,7 +356,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
@@ -409,13 +410,13 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -428,7 +429,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
@@ -482,13 +483,13 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -500,7 +501,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, true, Constants.NO_VERTEX);
             graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, true, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
@@ -554,13 +555,13 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -572,7 +573,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, false, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, false, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
@@ -622,31 +623,31 @@ namespace Itinero.Test.Algorithms.Contracted
             routerDb.Network.AddVertex(2, 2, 2);
             routerDb.Network.AddVertex(3, 3, 3);
             routerDb.Network.AddVertex(4, 4, 4);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(2, 3, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(2, 3, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(3, 4, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(3, 4, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(4, 0, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(4, 0, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -663,7 +664,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(3, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 2);
             graph.AddEdge(4, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 0);
             graph.AddEdge(4, 3, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(MockProfile.CarMock(), graph);
+            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),

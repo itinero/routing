@@ -19,15 +19,15 @@
 using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using Itinero.Graphs.Geometric.Shapes;
-using Itinero.Network.Data;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Itinero.Data.Network.Edges;
 
-namespace Itinero.Network
+namespace Itinero.Data.Network
 {
     /// <summary>
     /// Represents a routing network.
@@ -191,8 +191,8 @@ namespace Itinero.Network
         {
             if(data.Distance > _maxEdgeDistance) { throw new ArgumentException("data.Distance too big for this network."); }
 
-            var edgeId = _graph.AddEdge(vertex1, vertex2, 
-                Itinero.Data.EdgeDataSerializer.Serialize(
+            var edgeId = _graph.AddEdge(vertex1, vertex2,
+                Data.Edges.EdgeDataSerializer.Serialize(
                     data.Distance, data.Profile), shape);
             if(edgeId >= _edgeData.Length)
             {
@@ -210,7 +210,7 @@ namespace Itinero.Network
         {
             var edge = _graph.GetEdge(edgeId);
 
-            var baseEdgeData = Itinero.Data.EdgeDataSerializer.Deserialize(
+            var baseEdgeData = Data.Edges.EdgeDataSerializer.Deserialize(
                 edge.Data);
             var edgeData = new EdgeData()
             {
@@ -389,7 +389,7 @@ namespace Itinero.Network
             {
                 get
                 {
-                    var baseEdgeData = Itinero.Data.EdgeDataSerializer.Deserialize(
+                    var baseEdgeData = Itinero.Data.Edges.EdgeDataSerializer.Deserialize(
                         _enumerator.Data);
                     return new EdgeData()
                     {

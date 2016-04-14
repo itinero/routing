@@ -39,7 +39,7 @@ namespace Itinero.Osm
             { // there is no highway tag, don't continue the search.
                 return false;
             }
-
+			
             // normalize maxspeed tags.
             tags.NormalizeMaxspeed(profileTags, metaTags);
 
@@ -215,7 +215,7 @@ namespace Itinero.Osm
             {
                 profileTags.AddOrReplace("maxspeed", maxspeed);
             }
-            else if(maxspeed.EndsWith("mph"))
+            else if (maxspeed.EndsWith("mph"))
             {
                 if (int.TryParse(maxspeed.Substring(0, maxspeed.Length - 4), out maxSpeedValue) &&
                     maxSpeedValue > 0 && maxSpeedValue <= 150)
@@ -228,6 +228,7 @@ namespace Itinero.Osm
         /// <summary>
         /// Normalizes the junction tag.
         /// </summary>
+        /// <returns></returns>
         public static void NormalizeJunction(this AttributeCollection tags, AttributeCollection profileTags,
             AttributeCollection metaTags)
         {
@@ -236,7 +237,7 @@ namespace Itinero.Osm
             { // nothing to normalize.
                 return;
             }
-            if(junction == "roundabout")
+            if (junction == "roundabout")
             {
                 profileTags.AddOrReplace("junction", "roundabout");
             }

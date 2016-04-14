@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,26 +16,43 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Network.Data
+using OsmSharp;
+
+namespace Itinero.IO.Osm.Streams
 {
     /// <summary>
-    /// Represents data attached to an edge in a routing network.
+    /// Abstract representation of two-pass based osm-data processor.
     /// </summary>
-    public struct EdgeData
+    public interface ITwoPassProcessor
     {
         /// <summary>
-        /// Gets or sets the profile id.
+        /// Processes the first pass of this node.
         /// </summary>
-        public ushort Profile { get; set; }
+        void FirstPass(Node node);
 
         /// <summary>
-        /// Gets or sets the distance.
+        /// Processes the first pass of this way.
         /// </summary>
-        public float Distance { get; set; }
+        void FirstPass(Way way);
 
         /// <summary>
-        /// Gets or sets the attributes id.
+        /// Processes the first pass of this relation.
         /// </summary>
-        public uint MetaId { get; set; }
+        void FirstPass(Relation relation);
+
+        /// <summary>
+        /// Processes a node in the second pass.
+        /// </summary>
+        void SecondPass(Node node);
+
+        /// <summary>
+        /// Processes a way in the second pass.
+        /// </summary>
+        void SecondPass(Way way);
+
+        /// <summary>
+        /// Processes a relation in a second pass.
+        /// </summary>
+        void SecondPass(Relation relation);
     }
 }

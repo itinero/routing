@@ -25,6 +25,7 @@ using Itinero.Osm.Vehicles;
 using OsmSharp.Tags;
 using System.Linq;
 using OsmSharp;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero.Test.IO.Osm.Streams
 {
@@ -853,7 +854,7 @@ namespace Itinero.Test.IO.Osm.Streams
                 }};
 
             // build db from stream.
-            var routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             var target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -899,7 +900,7 @@ namespace Itinero.Test.IO.Osm.Streams
                 }};
 
             // build db from stream.
-            routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -976,7 +977,7 @@ namespace Itinero.Test.IO.Osm.Streams
                 }};
 
             // build db from stream.
-            routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -1059,7 +1060,7 @@ namespace Itinero.Test.IO.Osm.Streams
                 }};
 
             // build db from stream.
-            routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
@@ -1092,6 +1093,96 @@ namespace Itinero.Test.IO.Osm.Streams
             Assert.AreEqual(location4.Longitude, routerDb.Network.GetVertex(2).Longitude);
             Assert.AreEqual(location6.Latitude, routerDb.Network.GetVertex(3).Latitude);
             Assert.AreEqual(location6.Longitude, routerDb.Network.GetVertex(3).Longitude);
+        }
+
+        /// <summary>
+        /// Tests processing a perfect restriction.
+        /// </summary>
+        [Test]
+        public void TestPerfectRestriction()
+        {
+            // build source stream.
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location3 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7978925704956050f };
+            var source = new OsmGeo[] {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2 }
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 2, 3 }
+                },
+                new Relation()
+                {
+                    Id = 1,
+                    Members = new RelationMember[]
+                    {
+                        new RelationMember()
+                        {
+                            Id = 2,
+                            Role = "via",
+                            Type = OsmGeoType.Node
+                        },
+                        new RelationMember()
+                        {
+                            Id = 1,
+                            Role = "from",
+                            Type = OsmGeoType.Way
+                        },
+                        new RelationMember()
+                        {
+                            Id = 2,
+                            Role = "to",
+                            Type = OsmGeoType.Way
+                        }
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("type", "restriction"))
+                }};
+            
+            // build db from stream.
+            var routerDb = new RouterDb();
+            var target = new RouterDbStreamTarget(
+                routerDb, new Vehicle[] {
+                    Vehicle.Car
+                }, processRestrictions: true);
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            // check result.
+            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+
+            // check for a restriction.
+            RestrictionsDb restrictions;
+            Assert.IsTrue(routerDb.TryGetRestrictions(string.Empty, out restrictions));
         }
 
         /// <summary>

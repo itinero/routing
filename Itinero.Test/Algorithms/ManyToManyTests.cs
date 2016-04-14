@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Default;
-using Itinero.Network;
+using Itinero.Data.Network;
 using Itinero.Test.Profiles;
 
 namespace Itinero.Test.Algorithms
@@ -44,7 +44,7 @@ namespace Itinero.Test.Algorithms
             routerDb.AddSupportedProfile(MockProfile.CarMock());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -87,7 +87,7 @@ namespace Itinero.Test.Algorithms
             routerDb.AddSupportedProfile(MockProfile.CarMock());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
@@ -145,19 +145,19 @@ namespace Itinero.Test.Algorithms
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
-            routerDb.Network.AddEdge(0, 1, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(1, 2, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.Network.AddEdge(2, 0, new Itinero.Network.Data.EdgeData()
+            routerDb.Network.AddEdge(2, 0, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 0,

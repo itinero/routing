@@ -92,9 +92,10 @@
     <Compile Include="Algorithms\Contracted\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Contracted\MockPriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\WitnessCalculatorMock.cs" />
+    <Compile Include="Algorithms\Default\Edge\DykstraTests.cs" />
     <Compile Include="Algorithms\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />
-    <Compile Include="Algorithms\OneToAllDykstraTests.cs" />
+    <Compile Include="Algorithms\Default\DykstraTests.cs" />
     <Compile Include="Algorithms\OneToManyTests.cs" />
     <Compile Include="Algorithms\Routes\CompleteRouteBuilderTests.cs" />
     <Compile Include="Algorithms\Routes\RouteSegmentAggregatorTests.cs" />
@@ -103,26 +104,30 @@
     <Compile Include="Algorithms\Search\ResolveAlgorithmTests.cs" />
     <Compile Include="Algorithms\WeightMatrixAlgorithmTests.cs" />
     <Compile Include="Attributes\AttributesIndexTests.cs" />
-    <Compile Include="Data\Contracted\ContractedEdgeDataSerializerTests.cs" />
-    <Compile Include="Data\EdgeDataSerializerTests.cs" />
+    <Compile Include="Data\Contracted\Edges\ContractedEdgeDataSerializerTests.cs" />
+    <Compile Include="Data\Edges\EdgeDataSerializerTests.cs" />
     <Compile Include="ExtensionTests.cs" />
     <Compile Include="Geo\CoordinateTests.cs" />
     <Compile Include="Geo\LineTests.cs" />
     <Compile Include="Geo\ToolTests.cs" />
+    <Compile Include="Graphs\Directed\DirectedDynamicGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedMetaGraphTests.cs" />
     <Compile Include="Graphs\Directed\DirectedGraphTests.cs" />
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapesArrayTests.cs" />
     <Compile Include="Graphs\GraphTests.cs" />
+    <Compile Include="IO\Osm\Restrictions\RestrictionProcessorTests.cs" />
     <Compile Include="IO\Osm\Streams\CoreNodeIdMapTests.cs" />
     <Compile Include="Navigation\Directions\DirectionCalculatorTests.cs" />
     <Compile Include="Navigation\InstructionGeneratorTests.cs" />
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />
     <Compile Include="Navigation\Osm\InstructionCarGeneratorTests.cs" />
-    <Compile Include="Network\RoutingNetworkTests.cs" />
-    <Compile Include="Osm\OsmRoutingTagNormalizerTests.cs" />
+    <Compile Include="Data\Network\Restrictions\RestrictionsDbTests.cs" />
+    <Compile Include="Data\Network\RoutingNetworkTests.cs" />
     <Compile Include="IO\Osm\Streams\NodeCoordinatesDictionaryTests.cs" />
     <Compile Include="IO\Osm\Streams\RouterDbStreamTargetTests.cs" />
+    <Compile Include="IO\Osm\RouterTests.cs" />
+    <Compile Include="Osm\OsmRoutingTagNormalizerTests.cs" />
     <Compile Include="Osm\RouterTests.cs" />
     <Compile Include="Profiles\ProfileMock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -171,6 +176,7 @@
       <Name>Itinero</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

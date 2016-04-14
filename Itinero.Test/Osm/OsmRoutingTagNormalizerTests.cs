@@ -154,7 +154,7 @@ namespace Itinero.Test.Osm
             Assert.IsFalse(profileTags.Contains("foot", "mistake"));
             profileTags.Clear();
             tags.Clear();
-
+			
             tags.AddOrReplace(new Attribute("highway", "cycleway"));
             tags.AddOrReplace(new Attribute("foot", "no"));
             Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
@@ -349,7 +349,7 @@ namespace Itinero.Test.Osm
         public void TestRamp()
         {
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-
+			
             var tags = new AttributeCollection();
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();

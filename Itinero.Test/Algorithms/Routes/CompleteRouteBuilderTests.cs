@@ -20,11 +20,11 @@ using NUnit.Framework;
 using Itinero.Algorithms.Routes;
 using Itinero.Attributes;
 using Itinero.LocalGeo;
-using Itinero.Network;
-using Itinero.Network.Data;
+using Itinero.Data.Network;
 using Itinero.Test.Profiles;
 using System.Collections.Generic;
 using System.Linq;
+using Itinero.Data.Network.Edges;
 
 namespace Itinero.Test.Algorithms.Routes
 {

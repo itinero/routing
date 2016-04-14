@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Network;
+using Itinero.Data.Network;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -25,18 +25,18 @@ namespace Itinero.Algorithms.Networks
     /// </summary>
     public class ZeroLengthLinksOptimizer : AlgorithmBase
     {
-        private readonly Network.RoutingNetwork _network;
+        private readonly RoutingNetwork _network;
         private readonly CanRemoveDelegate _canRemove;
 
         /// <summary>
         /// A delegate to control the removal of an edge.
         /// </summary>
-        public delegate bool CanRemoveDelegate(Network.Data.EdgeData edge);
+        public delegate bool CanRemoveDelegate(Data.Network.Edges.EdgeData edge);
 
         /// <summary>
         /// Creates a new network optimizer algorithm.
         /// </summary>
-        public ZeroLengthLinksOptimizer(Network.RoutingNetwork network, CanRemoveDelegate canRemove)
+        public ZeroLengthLinksOptimizer(RoutingNetwork network, CanRemoveDelegate canRemove)
         {
             _network = network;
             _canRemove = canRemove;

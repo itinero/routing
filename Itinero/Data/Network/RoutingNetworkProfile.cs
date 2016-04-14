@@ -19,7 +19,7 @@
 using Itinero.Graphs.Geometric;
 using Reminiscence.Arrays;
 
-namespace Itinero.Network
+namespace Itinero.Data.Network
 {
     /// <summary>
     /// A profile with settings for a memory-mapped routing network.

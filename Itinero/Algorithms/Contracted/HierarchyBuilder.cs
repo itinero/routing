@@ -19,7 +19,7 @@
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Algorithms.PriorityQueues;
-using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
 using System.Collections.Generic;
@@ -162,7 +162,7 @@ namespace Itinero.Algorithms.Contracted
 
                     float edgeWeight;
                     bool? edgeDirection;
-                    Itinero.Data.Contracted.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                    Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
                         out edgeWeight, out edgeDirection);
                     var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
                     var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
@@ -296,7 +296,7 @@ namespace Itinero.Algorithms.Contracted
 
                 float edge1Weight;
                 bool? edge1Direction;
-                Itinero.Data.Contracted.ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
+                Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
                     out edge1Weight, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;

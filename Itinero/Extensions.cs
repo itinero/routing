@@ -236,5 +236,29 @@ namespace Itinero
             }
             return false;
         }
+
+        /// <summary>
+        /// Copies elements to the given target.
+        /// </summary>
+        public static void CopyTo<T>(this T[] array, T[] target, int index, int sourceIndex, int count)
+        {
+            for(var i = 0; i < count; i++)
+            {
+                target[index + i] = array[sourceIndex + i];
+            }
+        }
+
+        /// <summary>
+        /// Creates a new sub-array, containing the element starting at index, with the given length.
+        /// </summary>
+        public static T[] SubArray<T>(this T[] array, int index, int length)
+        {
+            var sub = new T[length];
+            for(var i = 0; i < length; i++)
+            {
+                sub[i] = array[i + index];
+            }
+            return sub;
+        }
     }
 }

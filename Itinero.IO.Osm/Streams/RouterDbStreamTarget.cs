@@ -17,10 +17,9 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Collections;
-using Itinero.Network.Data;
 using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
-using Itinero.Network;
+using Itinero.Data.Network;
 using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
@@ -29,6 +28,9 @@ using Itinero.Attributes;
 using Itinero.Osm;
 using OsmSharp.Tags;
 using OsmSharp;
+using Itinero.Data.Network.Edges;
+using Itinero.IO.Osm.Restrictions;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -43,15 +45,27 @@ namespace Itinero.IO.Osm.Streams
         private readonly int _minimumStages = 1;
         private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
         private readonly bool _normalizeTags = true;
+        private readonly HashSet<string> _vehicleTypes;
+        private readonly List<ITwoPassProcessor> _processors; // holds an extra set of processors as addons.
 
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
-            int minimumStages = 1, bool normalizeTags = true)
+            int minimumStages = 1, bool normalizeTags = true, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
         {
             _db = db;
             _vehicles = vehicles;
+
+            _vehicleTypes = new HashSet<string>();
+            foreach(var vehicle in _vehicles)
+            {
+                foreach (var vehicleType in vehicle.VehicleTypes)
+                {
+                    _vehicleTypes.Add(vehicleType);
+                }
+            }
+
             _allNodesAreCore = allCore;
             _normalizeTags = normalizeTags;
 
@@ -73,6 +87,39 @@ namespace Itinero.IO.Osm.Streams
                 {
                     db.AddSupportedProfile(profiles);
                 }
+            }
+
+            if (processors == null)
+            {
+                processors = new List<ITwoPassProcessor>();
+            }
+            _processors = new List<ITwoPassProcessor>(processors);
+            if (processRestrictions)
+            {
+                _processors.Add(new RestrictionProcessor(_vehicleTypes, (node) =>
+                {
+                    uint vertex;
+                    if (!_coreNodeIdMap.TryGetFirst(node, out vertex))
+                    {
+                        return uint.MaxValue;
+                    }
+                    return vertex;
+                },
+                (vehicleType, sequence) =>
+                {
+                    if (vehicleType == null)
+                    {
+                        vehicleType = string.Empty;
+                    }
+                    RestrictionsDb restrictions;
+                    if (!_db.TryGetRestrictions(vehicleType, out restrictions))
+                    {
+                        restrictions = new RestrictionsDb();
+                        _db.AddRestrictions(vehicleType, restrictions);
+                    }
+
+                    restrictions.Add(sequence.ToArray());
+                }));
             }
         }
 
@@ -104,8 +151,8 @@ namespace Itinero.IO.Osm.Streams
         /// <returns></returns>
         public override bool OnBeforePull()
         {
-            // execute the first pass but ignore nodes.
-            this.DoPull(false, false, true);
+            // execute the first pass.
+            this.DoPull();
 
             // move to first stage and initial first pass.
             _stage = 0;
@@ -113,7 +160,7 @@ namespace Itinero.IO.Osm.Streams
             while (_stage < _stages.Count)
             { // execute next stage, reset source and pull data again.
                 this.Source.Reset();
-                this.DoPull(false, false, false);
+                this.DoPull();
                 _stage++;
 
                 _stageCoordinates = _createNodeCoordinatesDictionary();
@@ -199,9 +246,19 @@ namespace Itinero.IO.Osm.Streams
                 {
                     _maxLongitude = longitude;
                 }
+
+                foreach(var processor in _processors)
+                {
+                    processor.FirstPass(node);
+                }
             }
             else
             {
+                foreach (var processor in _processors)
+                {
+                    processor.SecondPass(node);
+                }
+
                 if (_stages[_stage].Overlaps(node.Latitude.Value, node.Longitude.Value) ||
                     _anyStageNodes.Contains(node.Id.Value))
                 {
@@ -228,6 +285,11 @@ namespace Itinero.IO.Osm.Streams
 
             if (_firstPass)
             { // just keep.
+                foreach (var processor in _processors)
+                {
+                    processor.FirstPass(way);
+                }
+
                 // check boundingbox and node count and descide on # stages.                    
                 var box = new Box(
                     new Coordinate(_minLatitude, _minLongitude),
@@ -304,13 +366,18 @@ namespace Itinero.IO.Osm.Streams
             }
             else
             {
+                foreach (var processor in _processors)
+                {
+                    processor.SecondPass(way);
+                }
+
                 if (_vehicles.AnyCanTraverse(way.Tags.ToAttributes()))
                 { // way has some use.
                     if (_processedWays.Contains(way.Id.Value))
                     { // way was already processed.
                         return;
                     }
-
+                    
                     // build profile and meta-data.
                     var profileTags = new AttributeCollection();
                     var metaTags = new AttributeCollection();
@@ -338,7 +405,7 @@ namespace Itinero.IO.Osm.Streams
 
                     // get profile and meta-data id's.
                     var profile = _db.EdgeProfiles.Add(profileTags);
-                    if (profile > Itinero.Data.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                    if (profile > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
                     {
                         throw new Exception("Maximum supported profiles exeeded, make sure only routing tags are included in the profiles.");
                     }
@@ -401,7 +468,7 @@ namespace Itinero.IO.Osm.Streams
                             { // there is just one intermediate, add that one as a vertex.
                                 var newCoreVertex = _db.Network.VertexCount;
                                 _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
-                                this.AddCoreEdge(fromVertex, newCoreVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(fromVertex, newCoreVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = Coordinate.DistanceEstimateInMeter(
@@ -422,19 +489,19 @@ namespace Itinero.IO.Osm.Streams
                                     _db.Network.GetVertex(toVertex), intermediates[intermediates.Count - 1]);
                                 intermediates.RemoveAt(0);
                                 intermediates.RemoveAt(intermediates.Count - 1);
-                                this.AddCoreEdge(fromVertex, newCoreVertex1, new Network.Data.EdgeData()
+                                this.AddCoreEdge(fromVertex, newCoreVertex1, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance1,
                                     Profile = (ushort)profile
                                 }, null);
-                                this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Network.Data.EdgeData()
+                                this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance - distance2 - distance1,
                                     Profile = (ushort)profile
                                 }, intermediates);
-                                this.AddCoreEdge(newCoreVertex2, toVertex, new Network.Data.EdgeData()
+                                this.AddCoreEdge(newCoreVertex2, toVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance2,
@@ -447,7 +514,7 @@ namespace Itinero.IO.Osm.Streams
                         var edge = _db.Network.GetEdgeEnumerator(fromVertex).FirstOrDefault(x => x.To == toVertex);
                         if (edge == null && fromVertex != toVertex)
                         { // just add edge.
-                            this.AddCoreEdge(fromVertex, toVertex, new Network.Data.EdgeData()
+                            this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
                             {
                                 MetaId = meta,
                                 Distance = distance,
@@ -481,7 +548,7 @@ namespace Itinero.IO.Osm.Streams
                                     splitDistance = edge.Data.Distance;
 
                                     // just add edge.
-                                    this.AddCoreEdge(fromVertex, toVertex, new Network.Data.EdgeData()
+                                    this.AddCoreEdge(fromVertex, toVertex, new EdgeData()
                                     {
                                         MetaId = meta,
                                         Distance = System.Math.Max(distance, 0.0f),
@@ -500,7 +567,7 @@ namespace Itinero.IO.Osm.Streams
                                     splitDistance -= newDistance;
 
                                     // add first part.
-                                    this.AddCoreEdge(fromVertex, newCoreVertex, new Network.Data.EdgeData()
+                                    this.AddCoreEdge(fromVertex, newCoreVertex, new EdgeData()
                                     {
                                         MetaId = splitMeta,
                                         Distance = System.Math.Max(newDistance, 0.0f),
@@ -509,7 +576,7 @@ namespace Itinero.IO.Osm.Streams
 
                                     // add second part.
                                     intermediates.RemoveAt(0);
-                                    this.AddCoreEdge(newCoreVertex, toVertex, new Network.Data.EdgeData()
+                                    this.AddCoreEdge(newCoreVertex, toVertex, new EdgeData()
                                     {
                                         MetaId = splitMeta,
                                         Distance = System.Math.Max(splitDistance, 0.0f),
@@ -580,7 +647,7 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        public void AddCoreEdge(uint vertex1, uint vertex2, EdgeData data, List<Coordinate> shape)
+        public void AddCoreEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData data, List<Coordinate> shape)
         {
             if (data.Distance < _db.Network.MaxEdgeDistance)
             { // edge is ok, smaller than max distance.
@@ -634,7 +701,7 @@ namespace Itinero.IO.Osm.Streams
                             shortPoint.Value.Longitude);
 
                         // add edge.
-                        _db.Network.AddEdge(vertex1, shortVertex, new EdgeData()
+                        _db.Network.AddEdge(vertex1, shortVertex, new Data.Network.Edges.EdgeData()
                         {
                             Distance = (float)shortDistance,
                             MetaId = data.MetaId,
@@ -663,7 +730,7 @@ namespace Itinero.IO.Osm.Streams
                 }
 
                 // add edge.
-                _db.Network.AddEdge(vertex1, vertex2, new EdgeData()
+                _db.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
                 {
                     Distance = (float)shortDistance,
                     MetaId = data.MetaId,
@@ -675,9 +742,22 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Adds a relation.
         /// </summary>
-        public override void AddRelation(Relation simpleRelation)
+        public override void AddRelation(Relation relation)
         {
-
+            if (_firstPass)
+            {
+                foreach (var processor in _processors)
+                {
+                    processor.FirstPass(relation);
+                }
+            }
+            else
+            {
+                foreach (var processor in _processors)
+                {
+                    processor.SecondPass(relation);
+                }
+            }
         }
 
         /// <summary>

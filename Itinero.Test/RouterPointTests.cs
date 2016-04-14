@@ -19,8 +19,8 @@
 using NUnit.Framework;
 using Itinero.Attributes;
 using Itinero.LocalGeo;
-using Itinero.Network;
-using Itinero.Network.Data;
+using Itinero.Data.Network;
+using Itinero.Data.Network.Edges;
 using Itinero.Profiles;
 using Itinero.Test.Profiles;
 using System.Linq;
@@ -66,7 +66,7 @@ namespace Itinero.Test
                 new Coordinate(0.1f, 0.1f));
 
             // build router db.
-            var routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
@@ -140,7 +140,7 @@ namespace Itinero.Test
                 new Coordinate(0.1f, 0.1f));
 
             // build router db.
-            var routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()
@@ -249,7 +249,7 @@ namespace Itinero.Test
                 new Coordinate(0.1f, 0.1f));
 
             // build router db.
-            var routerDb = new RouterDb(Itinero.Data.EdgeDataSerializer.MAX_DISTANCE);
+            var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
             routerDb.Network.AddEdge(0, 1, new EdgeData()

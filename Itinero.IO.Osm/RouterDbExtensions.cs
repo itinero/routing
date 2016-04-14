@@ -33,15 +33,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
-        {
-            db.LoadOsmData(data, false, vehicles);
-        }
-
-        /// <summary>
-        /// Loads a routing network created from OSM data.
-        /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -50,7 +42,7 @@ namespace Itinero.IO.Osm
 
             // load the data.
             var source = new PBFOsmStreamSource(data);
-            db.LoadOsmData(source, vehicles);
+            db.LoadOsmData(source, allCore, false, vehicles);
         }
 
         /// <summary>
@@ -58,13 +50,13 @@ namespace Itinero.IO.Osm
         /// </summary>
         public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
         {
-            db.LoadOsmData(source, false, vehicles);
+            db.LoadOsmData(source, false, false, vehicles);
         }
 
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -73,12 +65,12 @@ namespace Itinero.IO.Osm
 
             // load the data.
             var target = new Streams.RouterDbStreamTarget(db,
-                vehicles, allCore);
+                vehicles, allCore, processRestrictions: processRestrictions);
             target.RegisterSource(source);
             target.Pull();
 
             // sort the network.
-            db.Network.Sort();
+            db.Sort();
         }
     }
 }

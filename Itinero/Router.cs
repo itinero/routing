@@ -21,10 +21,13 @@ using Itinero.Algorithms.Routes;
 using Itinero.Algorithms.Search;
 using Itinero.Exceptions;
 using Itinero.Graphs.Geometric;
-using Itinero.Network;
+using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using Itinero.Data.Contracted;
+using Itinero.Data.Edges;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero
 {
@@ -153,7 +156,7 @@ namespace Itinero
             var getFactor = this.GetGetFactor(profile);
      
             // build and run dykstra search.
-            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
                 point.ToPaths(_db, getFactor, true), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
@@ -182,11 +185,20 @@ namespace Itinero
 
             List<uint> path;
             float pathWeight;
-            Itinero.Graphs.Directed.DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if(_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
+                if (!contracted.HasNodeBasedGraph)
+                {
+                    throw new NotSupportedException("Edge-based routing not yet supported.");
+                }
+                if (_db.HasComplexRestrictions(profile))
+                {
+                    throw new NotSupportedException("Edge-based routing not yet supported.");
+                }
+
                 path = null;
-                var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted,
+                var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
                     source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
                 bidirectionalSearch.Run();
                 if (!bidirectionalSearch.HasSucceeded)
@@ -200,21 +212,39 @@ namespace Itinero
             }
             else
             { // non-contracted calculation.
-                var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
-                    source.ToPaths(_db, getFactor, true), float.MaxValue, false);
-                var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
-                    target.ToPaths(_db, profile, false), float.MaxValue, true);
-
-                var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
-                bidirectionalSearch.Run();
-                if (!bidirectionalSearch.HasSucceeded)
+                if (_db.HasComplexRestrictions(profile))
                 {
-                    return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                    var search = new Algorithms.Default.Edge.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 
+                        getFactor, this.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, profile, false),
+                            float.MaxValue, false);
+                    search.Run();
+                    if (!search.HasSucceeded)
                     {
-                        return new RouteNotFoundException(message);
-                    });
+                        return new Result<Route>(search.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = search.GetPath(out pathWeight);
                 }
-                path = bidirectionalSearch.GetPath(out pathWeight);
+                else
+                {
+                    var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
+                        source.ToPaths(_db, getFactor, true), float.MaxValue, false);
+                    var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
+                        target.ToPaths(_db, profile, false), float.MaxValue, true);
+
+                    var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
+                    {
+                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = bidirectionalSearch.GetPath(out pathWeight);
+                }
             }
 
             if(source.EdgeId == target.EdgeId)
@@ -270,7 +300,7 @@ namespace Itinero
             // get the get factor function.
             var getFactor = this.GetGetFactor(profile);
             
-            Itinero.Graphs.Directed.DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
             {
                 Logging.Logger.Log("Router", Logging.TraceEventType.Warning, 
@@ -333,7 +363,7 @@ namespace Itinero
             var getFactor = this.GetGetFactor(profile);
 
             float[][] weights = null;
-            Itinero.Graphs.Directed.DirectedMetaGraph contracted;
+            ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra(_db, profile,
@@ -410,7 +440,7 @@ namespace Itinero
                   // get profile.
                     float distance;
                     ushort edgeProfileId;
-                    Itinero.Data.EdgeDataSerializer.Deserialize(edge.Data[0],
+                    EdgeDataSerializer.Deserialize(edge.Data[0],
                         out distance, out edgeProfileId);
                     var edgeProfile = _db.EdgeProfiles.Get(edgeProfileId);
                     for (var i = 0; i < profiles.Length; i++)
@@ -449,6 +479,33 @@ namespace Itinero
                     return profile.Factor(Db.EdgeProfiles.Get(p));
                 };
             }
+        }
+        
+        /// <summary>
+        /// Gets the get restriction function for the given profile.
+        /// </summary>
+        private Func<uint, IEnumerable<uint[]>> GetGetRestrictions(Profile profile, bool first)
+        {
+            var vehicleTypes = new List<string>(profile.VehicleType);
+            vehicleTypes.Insert(0, string.Empty);
+            return (vertex) =>
+            {
+                var restrictionList = new List<uint[]>();
+                for (var i = 0; i < vehicleTypes.Count; i++)
+                {
+                    RestrictionsDb restrictionsDb;
+                    if (_db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
+                    {
+                        var enumerator = restrictionsDb.GetEnumerator();
+                        if (enumerator.MoveTo(vertex, first) &&
+                            enumerator.MoveNext())
+                        {
+                            restrictionList.Add(enumerator.ToArray(!first));
+                        }
+                    }
+                }
+                return restrictionList;
+            };
         }
 
         /// <summary>
