@@ -1183,17 +1183,6 @@ namespace Itinero.Test.IO.Osm.Streams
             // check for a restriction.
             RestrictionsDb restrictions;
             Assert.IsTrue(routerDb.TryGetRestrictions(string.Empty, out restrictions));
-            var enumerator = restrictions.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(0));
-            Assert.AreEqual(3, enumerator.Count);
-            Assert.AreEqual(0, enumerator[0]);
-            Assert.AreEqual(1, enumerator[1]);
-            Assert.AreEqual(2, enumerator[2]);
-            Assert.IsTrue(enumerator.MoveToLast(2));
-            Assert.AreEqual(3, enumerator.Count);
-            Assert.AreEqual(0, enumerator[0]);
-            Assert.AreEqual(1, enumerator[1]);
-            Assert.AreEqual(2, enumerator[2]);
         }
 
         /// <summary>

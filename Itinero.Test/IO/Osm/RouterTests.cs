@@ -648,13 +648,11 @@ namespace Itinero.Test.IO.Osm
 
             // confirm it's working for cars only in one direction.
             var route = router.TryCalculate(Vehicle.Car.Fastest(),
-                new Coordinate(51.26488892161140f, 4.7838699817657470f),
-                new Coordinate(51.26451297775060f, 4.7856992483139040f));
-            Assert.IsFalse(route.IsError);
-            route = router.TryCalculate(Vehicle.Car.Fastest(),
-                new Coordinate(51.26451297775060f, 4.7856992483139040f),
-                new Coordinate(51.26488892161140f, 4.7838699817657470f));
+                location1, location5);
             Assert.IsTrue(route.IsError);
+            route = router.TryCalculate(Vehicle.Car.Fastest(),
+                location5, location1);
+            Assert.IsFalse(route.IsError);
         }
     }
 }

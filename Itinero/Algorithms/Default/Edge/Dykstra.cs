@@ -56,8 +56,7 @@ namespace Itinero.Algorithms.Default.Edge
         private EdgePath _current;
         private BinaryHeap<EdgePath> _heap;
         private Dictionary<uint, Factor> _factors;
-        private Dictionary<long, LinkedRestriction> _edgeRestrictions;
-        private HashSet<uint> _vertexRestrictions;
+        private Dictionary<EdgePath, LinkedRestriction> _edgeRestrictions;
 
         /// <summary>
         /// Executes the algorithm.
@@ -85,8 +84,7 @@ namespace Itinero.Algorithms.Default.Edge
             // intialize dykstra data structures.
             _visits = new Dictionary<long, EdgePath>();
             _heap = new BinaryHeap<EdgePath>(1000);
-            _edgeRestrictions = new Dictionary<long, LinkedRestriction>();
-            _vertexRestrictions = new HashSet<uint>();
+            _edgeRestrictions = new Dictionary<EdgePath, LinkedRestriction>();
             
             // gets the edge enumerator.
             _edgeEnumerator = _graph.GetEdgeEnumerator();
@@ -117,9 +115,9 @@ namespace Itinero.Algorithms.Default.Edge
                                 { // a restriction bigger than two, check if this edge is the first one.
                                     if (restriction[1] == targetVertex)
                                     { // this edge is the first, queue the restriction too.
-                                        _edgeRestrictions[source.DirectedEdge] = new LinkedRestriction()
+                                        _edgeRestrictions[source] = new LinkedRestriction()
                                         {
-                                            Restriction = restriction,
+                                            Restriction = restriction.SubArray(1, restriction.Length - 1),
                                             Next = null
                                         };
                                     }
@@ -173,20 +171,17 @@ namespace Itinero.Algorithms.Default.Edge
             // move to the current edge's target vertex.
             _edgeEnumerator.MoveToTargetVertex(_current.DirectedEdge);
 
-            // check for restrictions.
+            // get new restrictions at the 'to' vertex of current and merge with existing restrictions at current.
+            var toVertex = _edgeEnumerator.To;
             var targetVertex = _edgeEnumerator.From;
             LinkedRestriction restrictions = null;
-            if (_edgeRestrictions.TryGetValue(_current.DirectedEdge, out restrictions))
+            if (_edgeRestrictions.TryGetValue(_current, out restrictions))
             {
-                _edgeRestrictions.Remove(_current.DirectedEdge);
-            }
-            if (_vertexRestrictions.Contains(targetVertex))
-            { // restricted vertex, no need to check outgoing edges.
-                return true;
+                _edgeRestrictions.Remove(_current);
             }
             if (_getRestriction != null)
             {
-                var targetVertexRestriction = _getRestriction(targetVertex);
+                var targetVertexRestriction = _getRestriction(toVertex);
                 if (targetVertexRestriction != null)
                 {
                     foreach (var restriction in targetVertexRestriction)
@@ -196,7 +191,6 @@ namespace Itinero.Algorithms.Default.Edge
                         {
                             if (restriction.Length == 1)
                             { // a simple restriction, restricted vertex, no need to check outgoing edges.
-                                _vertexRestrictions.Add(restriction[0]);
                                 return true;
                             }
                             else
@@ -226,49 +220,6 @@ namespace Itinero.Algorithms.Default.Edge
                     continue;
                 }
 
-                // verify restriction(s).
-                LinkedRestriction newRestrictions = null;
-                if(_edgeRestrictions.TryGetValue(directedEdgeId, out newRestrictions))
-                { // restriction for this edge, check if the entire edge is forbidden.
-                    if (newRestrictions.ContainsAnyLength(2))
-                    { // move to the next edge, this one is forbidden.
-                        continue;
-                    }
-                }
-                var currentRestriction = restrictions;
-                var forbidden = false;
-                while (currentRestriction != null)
-                { // check if some restriction prohibits this move or if we need add a new restriction
-                    // for the current edge.
-                    if (currentRestriction.Restriction[2] == _edgeEnumerator.To)
-                    { // ok restrictions applies to this edge and the previous one.
-                        if (currentRestriction.Restriction.Length == 3)
-                        { // ok this is the last edge in this restriction, prohibit this move.
-                            forbidden = true;
-                            break;
-                        }
-                        else
-                        { // append this restriction to the restrictions in for the current edge.
-                            var newRestriction = new uint[currentRestriction.Restriction.Length - 1];
-                            currentRestriction.Restriction.CopyTo(newRestriction, 0, 1, newRestriction.Length);
-                            newRestrictions = new LinkedRestriction()
-                            {
-                                Restriction = newRestriction,
-                                Next = newRestrictions
-                            };
-                        }
-                    }
-                    currentRestriction = currentRestriction.Next;
-                }
-                if (forbidden)
-                { // move to next neighbour.
-                    continue;
-                }
-                if (newRestrictions != null)
-                {
-                    _edgeRestrictions[directedEdgeId] = newRestrictions;
-                }
-
                 // get the speed from cache or calculate.
                 float distance;
                 ushort edgeProfile;
@@ -285,12 +236,47 @@ namespace Itinero.Algorithms.Default.Edge
                     (!_backward && (factor.Direction == 1) != edge.DataInverted) ||
                     (_backward && (factor.Direction == 1) == edge.DataInverted)))
                 { // it's ok; the edge can be traversed by the given vehicle.
+
+                    // verify restriction(s).
+                    var currentRestriction = restrictions;
+                    var forbidden = false;
+                    LinkedRestriction newRestrictions = null;
+                    while (currentRestriction != null)
+                    { // check if some restriction prohibits this move or if we need add a new restriction
+                        // for the current edge.
+                        if (currentRestriction.Restriction[1] == _edgeEnumerator.To)
+                        { // ok restrictions applies to this edge and the previous one.
+                            if (currentRestriction.Restriction.Length == 2)
+                            { // ok this is the last edge in this restriction, prohibit this move.
+                                forbidden = true;
+                                break;
+                            }
+                            else
+                            { // append this restriction to the restrictions in for the current edge.
+                                newRestrictions = new LinkedRestriction()
+                                {
+                                    Restriction = currentRestriction.Restriction.SubArray(1, currentRestriction.Restriction.Length - 1),
+                                    Next = newRestrictions
+                                };
+                            }
+                        }
+                        currentRestriction = currentRestriction.Next;
+                    }
+                    if (forbidden)
+                    { // move to next neighbour.
+                        continue;
+                    }
+
                     // calculate neighbors weight.
                     var totalWeight = _current.Weight + (distance * factor.Value);
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
-                        _heap.Push(new EdgePath(directedEdgeId, totalWeight, _current),
-                            totalWeight);
+                        var path = new EdgePath(directedEdgeId, totalWeight, _current);
+                        if (newRestrictions != null)
+                        {
+                            _edgeRestrictions[path] = newRestrictions;
+                        }
+                        _heap.Push(path, totalWeight);
                     }
                 }
             }
