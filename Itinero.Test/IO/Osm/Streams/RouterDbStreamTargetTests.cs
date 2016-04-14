@@ -1171,7 +1171,7 @@ namespace Itinero.Test.IO.Osm.Streams
             var target = new RouterDbStreamTarget(
                 routerDb, new Vehicle[] {
                     Vehicle.Car
-                });
+                }, processRestrictions: true);
             target.RegisterSource(source);
             target.Initialize();
             target.Pull();

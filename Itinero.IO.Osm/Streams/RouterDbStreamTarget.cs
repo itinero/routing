@@ -52,7 +52,7 @@ namespace Itinero.IO.Osm.Streams
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
-            int minimumStages = 1, bool normalizeTags = true, IEnumerable<ITwoPassProcessor> processors = null)
+            int minimumStages = 1, bool normalizeTags = true, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
         {
             _db = db;
             _vehicles = vehicles;
@@ -94,30 +94,33 @@ namespace Itinero.IO.Osm.Streams
                 processors = new List<ITwoPassProcessor>();
             }
             _processors = new List<ITwoPassProcessor>(processors);
-            _processors.Add(new RestrictionProcessor(_vehicleTypes, (node) =>
+            if (processRestrictions)
             {
-                uint vertex;
-                if (!_coreNodeIdMap.TryGetFirst(node, out vertex))
+                _processors.Add(new RestrictionProcessor(_vehicleTypes, (node) =>
                 {
-                    return uint.MaxValue;
-                }
-                return vertex;
-            },
-            (vehicleType, sequence) =>
-            {
-                if (vehicleType == null)
+                    uint vertex;
+                    if (!_coreNodeIdMap.TryGetFirst(node, out vertex))
+                    {
+                        return uint.MaxValue;
+                    }
+                    return vertex;
+                },
+                (vehicleType, sequence) =>
                 {
-                    vehicleType = string.Empty;
-                }
-                RestrictionsDb restrictions;
-                if(!_db.TryGetRestrictions(vehicleType, out restrictions))
-                {
-                    restrictions = new RestrictionsDb();
-                    _db.AddRestrictions(vehicleType, restrictions);
-                }
+                    if (vehicleType == null)
+                    {
+                        vehicleType = string.Empty;
+                    }
+                    RestrictionsDb restrictions;
+                    if (!_db.TryGetRestrictions(vehicleType, out restrictions))
+                    {
+                        restrictions = new RestrictionsDb();
+                        _db.AddRestrictions(vehicleType, restrictions);
+                    }
 
-                restrictions.Add(sequence.ToArray());
-            }));
+                    restrictions.Add(sequence.ToArray());
+                }));
+            }
         }
 
         private bool _firstPass = true; // flag for first/second pass.

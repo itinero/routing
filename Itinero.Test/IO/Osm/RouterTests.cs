@@ -641,7 +641,7 @@ namespace Itinero.Test.IO.Osm
             
             // build router db.
             var routerDb = new RouterDb();
-            routerDb.LoadOsmData(osmGeos, Vehicle.Car);
+            routerDb.LoadOsmData(osmGeos, false, true, Vehicle.Car);
 
             // test some routes.
             var router = new Router(routerDb);
