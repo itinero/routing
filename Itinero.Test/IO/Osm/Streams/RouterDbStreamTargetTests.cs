@@ -1163,7 +1163,8 @@ namespace Itinero.Test.IO.Osm.Streams
                         }
                     },
                     Tags = new TagsCollection(
-                        new Tag("type", "restriction"))
+                        new Tag("type", "restriction"),
+                        new Tag("restriction", "no_left_turn"))
                 }};
             
             // build db from stream.

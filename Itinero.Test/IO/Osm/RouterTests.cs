@@ -635,7 +635,8 @@ namespace Itinero.Test.IO.Osm
                         }
                     },
                     Tags = new TagsCollection(
-                        new Tag("type", "restriction"))
+                        new Tag("type", "restriction"),
+                        new Tag("restriction", "no_right_turn"))
                 }
             };
             
