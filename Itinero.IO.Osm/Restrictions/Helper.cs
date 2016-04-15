@@ -31,9 +31,11 @@ namespace Itinero.IO.Osm.Restrictions
         public static bool IsRestriction(this Relation relation, out string vehicleType)
         {
             var type = string.Empty;
+            var restriction = string.Empty;
             vehicleType = string.Empty;
             if (relation.Tags == null ||
-                !relation.Tags.TryGetValue("type", out type))
+                !relation.Tags.TryGetValue("type", out type) ||
+                !relation.Tags.TryGetValue("restriction", out restriction))
             {
                 return false;
             }
@@ -41,6 +43,10 @@ namespace Itinero.IO.Osm.Restrictions
             {
                 if (!type.StartsWith("restriction:"))
                 {
+                    return false;
+                }
+                if (!restriction.StartsWith("no_"))
+                { // 'only'-restrictions not supported yet.
                     return false;
                 }
                 vehicleType = type.Substring("restriction:".Length, type.Length - "restriction:".Length);
