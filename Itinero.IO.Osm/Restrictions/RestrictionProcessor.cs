@@ -192,7 +192,7 @@ namespace Itinero.IO.Osm.Restrictions
                             Members = new RelationMember[]
                             {
                                 relation.Members.First(x => x.Role == "via"),
-                                relation.Members.First(x => x.Role == "from"),
+                                from,
                                 new RelationMember()
                                 {
                                     Id = way.Id.Value,
@@ -203,7 +203,7 @@ namespace Itinero.IO.Osm.Restrictions
                         });
                     }
                 }
-                if (_positiveRestrictions.TryGetValue(way.Nodes[1], out relations))
+                if (_positiveRestrictions.TryGetValue(way.Nodes[way.Nodes.Length - 1], out relations))
                 {
                     _restrictedWays[way.Id.Value] = way;
                     foreach (var relation in relations)

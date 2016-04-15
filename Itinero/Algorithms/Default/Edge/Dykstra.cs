@@ -96,6 +96,7 @@ namespace Itinero.Algorithms.Default.Edge
                 {
                     var sourceVertex = _edgeEnumerator.GetSourceVertex(source.DirectedEdge);
                     var sourceVertexRestrictions = _getRestriction(sourceVertex);
+                    LinkedRestriction linkedRestriction = null;
                     if (sourceVertexRestrictions != null)
                     {
                         foreach (var restriction in sourceVertexRestrictions)
@@ -115,11 +116,12 @@ namespace Itinero.Algorithms.Default.Edge
                                 { // a restriction bigger than two, check if this edge is the first one.
                                     if (restriction[1] == targetVertex)
                                     { // this edge is the first, queue the restriction too.
-                                        _edgeRestrictions[source] = new LinkedRestriction()
+                                        linkedRestriction = new LinkedRestriction()
                                         {
                                             Restriction = restriction.SubArray(1, restriction.Length - 1),
-                                            Next = null
+                                            Next = linkedRestriction
                                         };
+                                        _edgeRestrictions[source] = linkedRestriction;
                                     }
                                 }
                             }

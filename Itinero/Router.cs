@@ -497,10 +497,12 @@ namespace Itinero
                     if (_db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
                     {
                         var enumerator = restrictionsDb.GetEnumerator();
-                        if (enumerator.MoveTo(vertex, first) &&
-                            enumerator.MoveNext())
+                        if (enumerator.MoveTo(vertex, first))
                         {
-                            restrictionList.Add(enumerator.ToArray(!first));
+                            while (enumerator.MoveNext())
+                            {
+                                restrictionList.Add(enumerator.ToArray(!first));
+                            }
                         }
                     }
                 }
