@@ -21,6 +21,8 @@ using System;
 using System.Collections.Generic;
 using OsmSharp;
 using Itinero.Algorithms.Collections;
+using OsmSharp.Tags;
+using System.Linq;
 
 namespace Itinero.IO.Osm.Restrictions
 {
@@ -46,7 +48,13 @@ namespace Itinero.IO.Osm.Restrictions
             
             _restrictedWayIds = new SparseLongIndex();
             _restrictedWays = new Dictionary<long, Way>();
+
+            _invertedRestrictions = new List<Relation>();
+            _positiveRestrictions = new Dictionary<long, List<Relation>>();
         }
+
+        private List<Relation> _invertedRestrictions; // a restriction db can only store negative restrictions, we need to convert positive into negative restrictions.
+        private Dictionary<long, List<Relation>> _positiveRestrictions; // all positive restrictions indexed by the expected first 'to'-node.
 
         /// <summary>
         /// Processes the given node in the first pass.
@@ -70,7 +78,8 @@ namespace Itinero.IO.Osm.Restrictions
         public void FirstPass(Relation relation)
         {
             var vehicleType = string.Empty;
-            if (!relation.IsRestriction(out vehicleType) ||
+            var positive = false;
+            if (!relation.IsRestriction(out vehicleType, out positive) ||
                 relation.Members == null)
             {
                 return;
@@ -99,11 +108,40 @@ namespace Itinero.IO.Osm.Restrictions
 
             if (from.HasValue && to.HasValue && via.HasValue)
             {
-                _restrictedWayIds.Add(from.Value);
-                _restrictedWayIds.Add(to.Value);
-                if (viaIsWay)
+                if (positive)
                 {
-                    _restrictedWayIds.Add(via.Value);
+                    if (viaIsWay)
+                    {
+                        Logging.Logger.Log("RestrictionProcessor", Logging.TraceEventType.Warning,
+                            "A positive restriction (only_xxx) with a via-way not supported, relation {0} not processed!", relation.Id.Value);
+                        return;
+                    }
+                    else
+                    {
+                        List<Relation> relations;
+                        if (!_positiveRestrictions.TryGetValue(via.Value, out relations))
+                        {
+                            relations = new List<Relation>();
+                            _positiveRestrictions.Add(via.Value, relations);
+                        }
+                        relations.Add(relation);
+                    }
+
+                    _restrictedWayIds.Add(from.Value);
+                    // _restrictedWayIds.Add(to.Value); // don't keep to.
+                    if (viaIsWay)
+                    {
+                        _restrictedWayIds.Add(via.Value);
+                    }
+                }
+                else
+                {
+                    _restrictedWayIds.Add(from.Value);
+                    _restrictedWayIds.Add(to.Value);
+                    if (viaIsWay)
+                    {
+                        _restrictedWayIds.Add(via.Value);
+                    }
                 }
             }
         }
@@ -125,6 +163,82 @@ namespace Itinero.IO.Osm.Restrictions
             {
                 _restrictedWays.Add(way.Id.Value, way);
             }
+
+            if (way.Nodes != null &&
+                way.Nodes.Length > 1)
+            {
+                List<Relation> relations;
+                if (_positiveRestrictions.TryGetValue(way.Nodes[0], out relations))
+                {
+                    _restrictedWays[way.Id.Value] = way;
+                    foreach (var relation in relations)
+                    {
+                        var to = relation.Members.First(x => x.Role == "to");
+                        if (to.Id == way.Id.Value)
+                        {
+                            continue;
+                        }
+                        var from = relation.Members.First(x => x.Role == "from");
+                        if (from.Id == way.Id.Value)
+                        { // u-turns are forbidden anyway.
+                            continue;
+                        }
+                        _invertedRestrictions.Add(new Relation()
+                        {
+                            Id = -1,
+                            Tags = new TagsCollection(
+                                new Tag("type", "restriction"),
+                                new Tag("restriction", "no_turn")),
+                            Members = new RelationMember[]
+                            {
+                                relation.Members.First(x => x.Role == "via"),
+                                relation.Members.First(x => x.Role == "from"),
+                                new RelationMember()
+                                {
+                                    Id = way.Id.Value,
+                                    Role = "to",
+                                    Type = OsmGeoType.Way
+                                }
+                            }
+                        });
+                    }
+                }
+                if (_positiveRestrictions.TryGetValue(way.Nodes[1], out relations))
+                {
+                    _restrictedWays[way.Id.Value] = way;
+                    foreach (var relation in relations)
+                    {
+                        var to = relation.Members.First(x => x.Role == "to");
+                        if (to.Id == way.Id.Value)
+                        {
+                            continue;
+                        }
+                        var from = relation.Members.First(x => x.Role == "from");
+                        if (from.Id == way.Id.Value)
+                        { // u-turns are forbidden anyway.
+                            continue;
+                        }
+                        _invertedRestrictions.Add(new Relation()
+                        {
+                            Id = -1,
+                            Tags = new TagsCollection(
+                                new Tag("type", "restriction"),
+                                new Tag("restriction", "no_turn")),
+                            Members = new RelationMember[]
+                            {
+                                relation.Members.First(x => x.Role == "via"),
+                                from,
+                                new RelationMember()
+                                {
+                                    Id = way.Id.Value,
+                                    Role = "to",
+                                    Type = OsmGeoType.Way
+                                }
+                            }
+                        });
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -132,10 +246,27 @@ namespace Itinero.IO.Osm.Restrictions
         /// </summary>
         public void SecondPass(Relation relation)
         {
+            if (_invertedRestrictions != null)
+            {
+                var invertedRestrictions = _invertedRestrictions;
+                _invertedRestrictions = null;
+
+                foreach(var inverted in invertedRestrictions)
+                {
+                    this.SecondPass(inverted);
+                }
+            }
+
             var vehicleType = string.Empty;
-            if (!relation.IsRestriction(out vehicleType) ||
+            var positive = false;
+            if (!relation.IsRestriction(out vehicleType, out positive) ||
                 relation.Members == null)
             {
+                return;
+            }
+
+            if (positive)
+            { // was already handled and converted to negative equivalents.
                 return;
             }
 

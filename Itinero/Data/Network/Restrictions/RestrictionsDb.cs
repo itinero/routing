@@ -55,7 +55,7 @@ namespace Itinero.Data.Network.Restrictions
             _restrictions = new MemoryArray<uint>(BLOCKSIZE);
             _helperIndex = new Dictionary<uint, LinkedNode>();
         }
-
+        
         /// <summary>
         /// Creates a new restrictions db.
         /// </summary>
@@ -65,6 +65,7 @@ namespace Itinero.Data.Network.Restrictions
         }
         
         private uint _nextPointer = 0;
+        private int _count = 0;
 
         /// <summary>
         /// Adds a new restriction.
@@ -101,6 +102,18 @@ namespace Itinero.Data.Network.Restrictions
             this.AddToHelperIndex(_nextPointer, restriction);
 
             _nextPointer = _nextPointer + POS_FIRST_VERTEX + (uint)restriction.Length;
+            _count++;
+        }
+
+        /// <summary>
+        /// Gets the number of restrictions in this db.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return _count;
+            }
         }
 
         /// <summary>
@@ -242,6 +255,7 @@ namespace Itinero.Data.Network.Restrictions
                         _restrictions[p + POS_NEXT_POINTER_FIRST] = NO_DATA;
                         break;
                     }
+                    previous = p;
                 }
             }
 
@@ -277,6 +291,7 @@ namespace Itinero.Data.Network.Restrictions
                         _restrictions[p + POS_NEXT_POINTER_LAST] = NO_DATA;
                         break;
                     }
+                    previous = p;
                 }
             }
         }

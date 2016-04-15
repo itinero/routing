@@ -28,10 +28,11 @@ namespace Itinero.IO.Osm.Restrictions
         /// <summary>
         /// Returns true if the given relation represents a restriction and 
         /// </summary>
-        public static bool IsRestriction(this Relation relation, out string vehicleType)
+        public static bool IsRestriction(this Relation relation, out string vehicleType, out bool positive)
         {
             var type = string.Empty;
             var restriction = string.Empty;
+            positive = false;
             vehicleType = string.Empty;
             if (relation.Tags == null ||
                 !relation.Tags.TryGetValue("type", out type) ||
@@ -39,14 +40,22 @@ namespace Itinero.IO.Osm.Restrictions
             {
                 return false;
             }
+            if (restriction.StartsWith("no_"))
+            { // 'only'-restrictions not supported yet.
+                positive = false;
+            }
+            else if (restriction.StartsWith("only_"))
+            {
+                positive = true;
+            }
+            else
+            {
+                return false;
+            }
             if (type != "restriction")
             {
                 if (!type.StartsWith("restriction:"))
                 {
-                    return false;
-                }
-                if (!restriction.StartsWith("no_"))
-                { // 'only'-restrictions not supported yet.
                     return false;
                 }
                 vehicleType = type.Substring("restriction:".Length, type.Length - "restriction:".Length);

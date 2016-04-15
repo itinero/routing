@@ -51,7 +51,7 @@ namespace Itinero.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.before.osm", 
+            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm", 
                 Vehicle.Car);
             //routerDb.AddContracted(Vehicle.Car.Fastest());
 
@@ -62,8 +62,8 @@ namespace Itinero.Test.Functional
             //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
 
-            var route = router.Calculate(Vehicle.Car.Fastest(), 51.04863f, 3.72705f,
-                51.04803f, 3.72832f);
+            var route = router.Calculate(Vehicle.Car.Fastest(), 51.051600f, 3.732100f,
+                51.052100f, 3.732400f);
 
             //// test resolving.
             //var embeddedResourceId = "Itinero.Test.Functional.Tests.Belgium.resolve1.geojson";
