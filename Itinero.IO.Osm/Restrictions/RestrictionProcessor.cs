@@ -173,6 +173,14 @@ namespace Itinero.IO.Osm.Restrictions
                     _restrictedWays[way.Id.Value] = way;
                     foreach (var relation in relations)
                     {
+                        var vehicleType = string.Empty;
+                        var positive = false;
+                        if (!relation.IsRestriction(out vehicleType, out positive) ||
+                            relation.Members == null)
+                        {
+                            continue;
+                        }
+
                         var to = relation.Members.First(x => x.Role == "to");
                         if (to.Id == way.Id.Value)
                         {
@@ -183,11 +191,17 @@ namespace Itinero.IO.Osm.Restrictions
                         { // u-turns are forbidden anyway.
                             continue;
                         }
+                        var type = "restriction";
+                        if (!string.IsNullOrWhiteSpace(vehicleType))
+                        {
+                            type = type + ":" + vehicleType;
+                        }
+
                         _invertedRestrictions.Add(new Relation()
                         {
                             Id = -1,
                             Tags = new TagsCollection(
-                                new Tag("type", "restriction"),
+                                new Tag("type", type),
                                 new Tag("restriction", "no_turn")),
                             Members = new RelationMember[]
                             {
@@ -208,6 +222,14 @@ namespace Itinero.IO.Osm.Restrictions
                     _restrictedWays[way.Id.Value] = way;
                     foreach (var relation in relations)
                     {
+                        var vehicleType = string.Empty;
+                        var positive = false;
+                        if (!relation.IsRestriction(out vehicleType, out positive) ||
+                            relation.Members == null)
+                        {
+                            continue;
+                        }
+
                         var to = relation.Members.First(x => x.Role == "to");
                         if (to.Id == way.Id.Value)
                         {
@@ -218,11 +240,17 @@ namespace Itinero.IO.Osm.Restrictions
                         { // u-turns are forbidden anyway.
                             continue;
                         }
+                        var type = "restriction";
+                        if (!string.IsNullOrWhiteSpace(vehicleType))
+                        {
+                            type = type + ":" + vehicleType;
+                        }
+
                         _invertedRestrictions.Add(new Relation()
                         {
                             Id = -1,
                             Tags = new TagsCollection(
-                                new Tag("type", "restriction"),
+                                new Tag("type", type),
                                 new Tag("restriction", "no_turn")),
                             Members = new RelationMember[]
                             {

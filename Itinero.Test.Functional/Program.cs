@@ -51,8 +51,8 @@ namespace Itinero.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.restrictions.osm", 
-                Vehicle.Car);
+            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm", 
+                Vehicle.Car, Vehicle.Bicycle);
             //routerDb.AddContracted(Vehicle.Car.Fastest());
 
             //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
@@ -61,8 +61,10 @@ namespace Itinero.Test.Functional
             //var routerDb = RouterDb.Deserialize(
             //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
-
+            // 51.0516&fLon=3.7321&tLat=51.0522&tLon=3.7324
             var route = router.Calculate(Vehicle.Car.Fastest(), 51.051600f, 3.732100f,
+                51.052100f, 3.732400f);
+            var route1 = router.Calculate(Vehicle.Bicycle.Fastest(), 51.051600f, 3.732100f,
                 51.052100f, 3.732400f);
 
             //// test resolving.
