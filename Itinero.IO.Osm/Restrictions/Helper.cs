@@ -1,4 +1,4 @@
-﻿// OsmSharp - OpenStreetMap (OSM) SDK
+﻿// Itinero - OpenStreetMap (OSM) SDK
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.

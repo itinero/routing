@@ -116,6 +116,7 @@
     <Compile Include="Graphs\Geometric\GeometricGraphTests.cs" />
     <Compile Include="Graphs\Geometric\Shapes\ShapesArrayTests.cs" />
     <Compile Include="Graphs\GraphTests.cs" />
+    <Compile Include="IO\Osm\Relations\RelationTagsProcessorTests.cs" />
     <Compile Include="IO\Osm\Restrictions\RestrictionProcessorTests.cs" />
     <Compile Include="IO\Osm\Streams\CoreNodeIdMapTests.cs" />
     <Compile Include="Navigation\Directions\DirectionCalculatorTests.cs" />
