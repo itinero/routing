@@ -269,13 +269,23 @@ namespace Itinero.Algorithms.Routes
                 _source.IsVertex())
             { // replace from with the vertex.
                 from = _source.VertexId(_routerDb);
+
+                if (from == to)
+                { // nothing to be done.
+                    return;
+                }
             }
             if (next == Constants.NO_VERTEX &&
                 _target.IsVertex())
             { // replace next with the vertex.
                 next = _target.VertexId(_routerDb);
-            }
 
+                if (to == next)
+                { // nothing to be done.
+                    return;
+                }
+            }
+            
             // get shapepoints and edge.
             var shape = new List<Coordinate>(0);
             RoutingEdge edge = null;
