@@ -153,7 +153,32 @@ namespace Itinero.LocalGeo
             var line = new Line(coordinate, second);
 
             // calculate intersection.
-            return thisLine.Intersect(line);
+            var projected = thisLine.Intersect(line);
+
+            // check if coordinate is on this line.
+            if (!projected.HasValue)
+            {
+                return null;
+            }
+            if (!thisLine.Equals(this))
+            {
+                // check if the coordinate is on this line.
+                var dist = this.A * this.A + this.B * this.B;
+                var line1 = new Line(projected.Value, _coordinate1);
+                var distTo1 = line1.A * line1.A + line1.B * line1.B;
+                if (distTo1 > dist)
+                {
+                    return null;
+                }
+                var line2 = new Line(projected.Value, _coordinate2);
+                var distTo2 = line2.A * line2.A + line2.B * line2.B;
+                if (distTo2 > dist)
+                {
+                    return null;
+                }
+                return projected;
+            }
+            return projected;
         }
     }
 }
