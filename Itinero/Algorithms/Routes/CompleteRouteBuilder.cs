@@ -178,6 +178,11 @@ namespace Itinero.Algorithms.Routes
                 to = _target.VertexId(_routerDb);
             }
 
+            if (to == from)
+            { // nothing to be done.
+                return;
+            }
+
             // get shapepoints and edge.
             var shape = new List<Coordinate>(0);
             RoutingEdge edge = null;
