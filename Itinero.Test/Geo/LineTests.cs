@@ -80,5 +80,25 @@ namespace Itinero.Test.Geo
             Assert.AreEqual(-1, result.Value.Latitude, 0.001);
             Assert.AreEqual(-1, result.Value.Longitude, 0.001);
         }
+
+        /// <summary>
+        /// Tests project on.
+        /// </summary>
+        [Test]
+        public void TestProjectOneRegression1()
+        {
+            var point = new Coordinate(51.05349f, 3.731339f);
+
+            var location1 = new Coordinate(51.053382873535156f, 3.7314085960388184f);
+            var location2 = new Coordinate(51.05362319946289f, 3.7312211990356445f);
+            var line = new Line(location1, location2);
+
+            var projected = line.ProjectOn(point);
+            var expectedProject = new Coordinate(51.053487627907394f, 3.7313255667686462f);
+
+            Assert.IsTrue(projected.HasValue);
+            Assert.AreEqual(expectedProject.Latitude, projected.Value.Latitude, 0.00001f);
+            Assert.AreEqual(expectedProject.Longitude, projected.Value.Longitude, 0.00001f);
+        }
     }
 }

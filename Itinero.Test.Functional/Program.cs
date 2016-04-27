@@ -61,12 +61,12 @@ namespace Itinero.Test.Functional
             //var routerDb = RouterDb.Deserialize(
             //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
-            // loc=51.051903,3.730223&loc=51.053751,3.731103&type=old
-            var route = router.Calculate(Vehicle.Car.Fastest(), 51.051903f, 3.730223f,
-                51.053751f, 3.731103f);
-            var route1 = router.Calculate(Vehicle.Bicycle.Fastest(), 51.051903f, 3.730223f,
-                51.053751f, 3.731103f);
-
+            // loc=51.052011,3.729773&loc=51.053484,3.731339
+            var route = router.Calculate(Vehicle.Car.Fastest(), 51.052011f, 3.729773f,
+                51.053484f, 3.731339f);
+            var route1 = router.Calculate(Vehicle.Bicycle.Fastest(), 51.052011f, 3.729773f,
+                51.053484f, 3.731339f);
+            
             //// test resolving.
             //var embeddedResourceId = "Itinero.Test.Functional.Tests.Belgium.resolve1.geojson";
 

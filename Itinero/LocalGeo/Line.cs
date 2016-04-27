@@ -130,8 +130,16 @@ namespace Itinero.LocalGeo
             }
 
             // get direction vector.
-            var diffLat = _coordinate2.Latitude - _coordinate1.Latitude;
-            var diffLon = _coordinate2.Longitude - _coordinate1.Longitude;
+            var diffLat = ((double)_coordinate2.Latitude - (double)_coordinate1.Latitude) * 100.0;
+            var diffLon = ((double)_coordinate2.Longitude - (double)_coordinate1.Longitude) * 100.0;
+
+            // increase this line in length if needed.
+            var thisLine = this;
+            if (this.Length < 50)
+            {
+                thisLine = new Line(_coordinate1, new Coordinate((float)(diffLat + coordinate.Latitude), 
+                    (float)(diffLon + coordinate.Longitude)));
+            }
 
             // rotate 90°.
             var temp = diffLon;
@@ -139,13 +147,13 @@ namespace Itinero.LocalGeo
             diffLat = temp;
 
             // create second point from the given coordinate.
-            var second = new Coordinate(diffLat + coordinate.Latitude, diffLon + coordinate.Longitude);
+            var second = new Coordinate((float)(diffLat + coordinate.Latitude), (float)(diffLon + coordinate.Longitude));
 
             // create a second line.
             var line = new Line(coordinate, second);
 
             // calculate intersection.
-            return this.Intersect(line);
+            return thisLine.Intersect(line);
         }
     }
 }
