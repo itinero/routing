@@ -199,11 +199,7 @@ namespace Itinero.Algorithms
             var path = this;
             while (path != null)
             {
-                if (vertices.Count == 0 || 
-                    vertices[vertices.Count - 1] != path.Vertex)
-                {
-                    vertices.Add(path.Vertex);
-                }
+                vertices.Add(path.Vertex);
                 path = path.From;
             }
         }
