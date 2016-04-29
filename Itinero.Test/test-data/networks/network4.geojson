@@ -1,0 +1,141 @@
+﻿{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 0
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.460974931716918,
+          51.2296492895387
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": 1
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.463168978691101,
+          51.2296224159235
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "meta:name": "Abelshausen Blvd.",
+        "highway": "residential"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.460974931716918,
+            51.2296492895387
+          ],
+          [
+            4.462069272994995,
+            51.22964425073703
+          ],
+          [
+            4.463168978691101,
+            51.2296224159235
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stroke": "#555555",
+        "stroke-width": 2,
+        "stroke-opacity": 1,
+        "meta:name": "Abelshausen Blvd.",
+        "highway": "residential"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.463168978691101,
+            51.2296224159235
+          ],
+          [
+            4.46420431137085,
+            51.229610658711934
+          ],
+          [
+            4.465247690677643,
+            51.22962073632204
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "marker-color": "#7e7e7e",
+        "marker-size": "medium",
+        "marker-symbol": "",
+        "id": 2
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.465247690677643,
+          51.22962073632204
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stroke": "#555555",
+        "stroke-width": 2,
+        "stroke-opacity": 1,
+        "meta:name": "Ben Blvd.",
+        "highway": "residential"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.463168978691101,
+            51.2296224159235
+          ],
+          [
+            4.46317434310913,
+            51.23026905793433
+          ],
+          [
+            4.46317434310913,
+            51.23092072952097
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "marker-color": "#7e7e7e",
+        "marker-size": "medium",
+        "marker-symbol": "",
+        "id": 3
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.46317434310913,
+          51.23092072952097
+        ]
+      }
+    }
+  ]
+}

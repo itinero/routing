@@ -167,6 +167,10 @@ namespace Itinero.Test.Graphs.Geometric.Shapes
                 for (var i = 0; i < refArray.Length; i++)
                 {
                     var refShape = refArray[i];
+                    if (refShape.Count == 0)
+                    {
+                        continue;
+                    }
                     var shape = array[i];
                     Assert.IsNotNull(shape);
 
@@ -182,6 +186,10 @@ namespace Itinero.Test.Graphs.Geometric.Shapes
                 for (var i = 0; i < refArray.Length; i++)
                 {
                     var refShape = refArray[i];
+                    if (refShape.Count == 0)
+                    {
+                        continue;
+                    }
                     var shape = array[i];
                     Assert.IsNotNull(shape);
 

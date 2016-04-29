@@ -168,7 +168,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         private void Set(long id, ShapeBase shape)
         {
             if (id < 0 || id >= _index.Length) { throw new IndexOutOfRangeException(); }
-
+            
             if(shape == null)
             { // reset.
                 _index[id] = 0;
@@ -309,7 +309,7 @@ namespace Itinero.Graphs.Geometric.Shapes
                     {
                         coordinatesStream.SeekBegin(newPointer * 4);
                         ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
-                        if (size >= 0)
+                        if (size > 0)
                         {
                             for (var p = 0; p < size; p++)
                             {
@@ -320,6 +320,11 @@ namespace Itinero.Graphs.Geometric.Shapes
                             indexStream.SeekBegin(i * 8);
                             indexStream.Write(ShapesArray.BuildPointerAndSize(newPointer, size));
                             newPointer += size * 2;
+                        }
+                        else
+                        {
+                            indexStream.SeekBegin(i * 8);
+                            indexStream.Write((ulong)0);
                         }
                     }
                 }
