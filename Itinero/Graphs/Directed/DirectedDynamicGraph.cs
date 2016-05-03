@@ -22,6 +22,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace Itinero.Graphs.Directed
 {
@@ -596,7 +597,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// Represents the internal edge enumerator.
         /// </summary>
-        public class EdgeEnumerator
+        public class EdgeEnumerator : IEnumerable<DynamicEdge>, IEnumerator<DynamicEdge>
         {
             private readonly DirectedDynamicGraph _graph;
             private uint _currentEdgePointer;
@@ -759,6 +760,25 @@ namespace Itinero.Graphs.Directed
             }
 
             /// <summary>
+            /// Gets the current edge.
+            /// </summary>
+            public DynamicEdge Current
+            {
+                get { return new DynamicEdge(this); }
+            }
+
+            /// <summary>
+            /// Gets the current edge.
+            /// </summary>
+            object IEnumerator.Current
+            {
+                get
+                {
+                    return this.Current;
+                }
+            }
+
+            /// <summary>
             /// Returns the edge id.
             /// </summary>
             public uint Id
@@ -790,6 +810,25 @@ namespace Itinero.Graphs.Directed
                 }
                 _startPointer = edgePointer;
                 return true;
+            }
+
+            /// <summary>
+            /// Gets the enumerator.
+            /// </summary>
+            /// <returns></returns>
+            public IEnumerator<DynamicEdge> GetEnumerator()
+            {
+                this.Reset();
+                return this;
+            }
+
+            /// <summary>
+            /// Returns the enumerator.
+            /// </summary>
+            /// <returns></returns>
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return this.GetEnumerator();
             }
 
             /// <summary>

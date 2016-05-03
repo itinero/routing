@@ -260,5 +260,14 @@ namespace Itinero
             }
             return sub;
         }
+
+        /// <summary>
+        /// Reverse the elements in the given array and returns the same array.
+        /// </summary>
+        public static T[] Reverse<T>(this T[] array)
+        {
+            System.Array.Reverse(array);
+            return array;
+        }
     }
 }

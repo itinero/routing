@@ -45,8 +45,14 @@
     <Compile Include="Algorithms\Contracted\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\DirectedMetaGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\Dykstra.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\DirectedDynamicGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedGraphBuilder.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\HierarchyBuilder.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\IPriorityCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\Witness\IWitnessCalculator.cs" />
     <Compile Include="Algorithms\Default\Edge\OneToOneDykstraHelper.cs" />
+    <Compile Include="Algorithms\Extensions.cs" />
+    <Compile Include="Algorithms\Restrictions\RestrictionExtensions.cs" />
     <Compile Include="Data\Contracted\ContractedDb.cs" />
     <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
@@ -96,6 +102,7 @@
     <Compile Include="Exceptions\RouteNotFoundException.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Graphs\Directed\DirectedDynamicGraph.cs" />
+    <Compile Include="Graphs\Directed\DynamicEdge.cs" />
     <Compile Include="Graphs\Directed\Extensions.cs" />
     <Compile Include="Graphs\EdgeExtensions.cs" />
     <Compile Include="Data\Network\Restrictions\RestrictionsDb.cs" />
