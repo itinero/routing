@@ -253,6 +253,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
                     out edge1Weight, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
+                var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
                 if (!edge1CanMoveForward)
                 {
@@ -274,6 +275,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     bool? edge2Direction;
                     ContractedEdgeDataSerializer.Deserialize(edge2.Data[0],
                         out edge2Weight, out edge2Direction);
+                    var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
                     if (!edge2CanMoveBackward)
@@ -281,7 +283,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         continue;
                     }
                     
-                    // check if there are any restrictions here.
+                    // check if there are any restrictions restriction edge1->vertex->edge2
                     var vertexRestrictions = _getRestriction(vertex);
                     var sequence = new List<uint>();
                     if (vertexRestrictions != null)
@@ -296,9 +298,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             continue;
                         }
                     }
-
-                    // calculate witness paths here.
-                    // TODO: Calculate witness paths, for now we're assuming no witnesses.
 
                     // figure out how much of the path needs to be saved at the source vertex.
                     uint[] sequence1 = null;
@@ -324,8 +323,69 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         }
                     }
 
+                    // calculate witness paths here, we need the sequences that are fixed to calculate a witness path.
+                    EdgePath sourcePath = null;
+                    var enumerator = _graph.GetEdgeEnumerator();
+                    if (sequence1 != null &&
+                        sequence1.Length > 0)
+                    {
+                        sourcePath = new EdgePath(enumerator.GetEdge(edge1.Neighbour, sequence1[0]).Id);
+                        for(var s = 1; s < sequence1.Length; s++)
+                        {
+                            sourcePath = new EdgePath(enumerator.GetEdge(sequence1[s - 1], sequence1[s]).Id,
+                                0, sourcePath);
+                        }
+                    }
+                    EdgePath targetPath = null;
+                    if (sequence2 != null &&
+                        sequence2.Length > 0)
+                    {
+                        targetPath = new EdgePath(enumerator.GetEdge(edge2.Neighbour, sequence2[0]).Id);
+                        for (var s = 1; s < sequence2.Length; s++)
+                        {
+                            targetPath = new EdgePath(enumerator.GetEdge(sequence2[s - 1], sequence2[s]).Id,
+                                0, targetPath);
+                        }
+                    }
+                    var forwardWitnessed = !(edge1CanMoveForward && edge2CanMoveBackward);
+                    var backwardWitnessed = !(edge1CanMoveBackward && edge2CanMoveForward);
+                    var maxWeight = edge1Weight + edge2Weight; // TODO: subtract weigths from source and target paths.
+                    if (sourcePath != null && targetPath != null)
+                    {
+                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, sourcePath, targetPath, vertex, maxWeight);
+                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, targetPath, sourcePath, vertex, maxWeight);
+                    }
+                    else if(sourcePath != null)
+                    {
+                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, sourcePath, edge2.Neighbour, vertex, maxWeight);
+                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, edge2.Neighbour, sourcePath, vertex, maxWeight);
+                    }
+                    else if (targetPath != null)
+                    {
+                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, edge1.Neighbour, targetPath, vertex, maxWeight);
+                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, targetPath, edge1.Neighbour, vertex, maxWeight);
+                    }
+                    else
+                    {
+                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, edge1.Neighbour, edge2.Neighbour, vertex, maxWeight);
+                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, edge2.Neighbour, edge1.Neighbour, vertex, maxWeight);
+                    }
+                    bool? direction = null;
+                    if (forwardWitnessed && backwardWitnessed)
+                    { // witnessed paths are not shortest paths.
+                        continue;
+                    }
+                    else if(backwardWitnessed)
+                    { // only forward
+                        direction = true;
+                    }
+                    else if (forwardWitnessed)
+                    { // only backward
+                        direction = false;
+                    }
+                    
                     // build data-array.
-                    var dataSize = 1;
+                    var dataSize = 2;
                     if (sequence1 != null)
                     {
                         dataSize += 1;
@@ -340,18 +400,19 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         dataSize += sequence2.Length;
                     }
                     var data = new uint[dataSize];
-                    data[0] = vertex;
+                    data[0] = ContractedEdgeDataSerializer.Serialize(edge1Weight + edge2Weight, direction);
+                    data[1] = vertex;
                     if (sequence1 != null)
                     {
-                        data[1] = (uint)sequence1.Length;
-                        sequence1.CopyTo(data, 2);
+                        data[2] = (uint)sequence1.Length;
+                        sequence1.CopyTo(data, 3);
                     }
                     if (sequence2 != null)
                     {
-                        var sequence2Start = 2;
+                        var sequence2Start = 3;
                         if (sequence1 == null)
                         {
-                            data[1] = 0;
+                            data[2] = 0;
                         }
                         else
                         {

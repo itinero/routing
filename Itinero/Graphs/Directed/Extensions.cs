@@ -78,5 +78,24 @@ namespace Itinero.Graphs.Directed
             }
             return enumerator;
         }
+
+        /// <summary>
+        /// Gets the edge from vertex1 -> vertex2.
+        /// </summary>
+        public static DynamicEdge GetEdge(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2)
+        {
+            if(!enumerator.MoveTo(vertex1))
+            {
+                throw new Exception("Vexter does not exist.");
+            }
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Neighbour == vertex2)
+                {
+                    return enumerator.Current;
+                }
+            }
+            throw new Exception(string.Format("Edge {0}->{1} not found.", vertex1, vertex2));
+        }
     }
 }
