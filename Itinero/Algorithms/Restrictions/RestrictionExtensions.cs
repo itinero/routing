@@ -25,6 +25,8 @@ namespace Itinero.Algorithms.Restrictions
     /// </summary>
     public static class RestrictionExtensions
     {
+        private static uint[] EMPTY = new uint[0];
+
         /// <summary>
         /// Returns true if the given seqence is allowed for the given restriction.
         /// </summary>
@@ -236,6 +238,102 @@ namespace Itinero.Algorithms.Restrictions
                 }
             }
             return c;
+        }
+        
+        /// <summary>
+        /// Shrinks this restrictions assuming the given sequence has already been travelled. Sequence needs to match first part of the restriction.
+        /// 
+        /// [0, 1, 2, 3] for sequence [0, 1] returns [1, 2, 3]
+        /// [0, 1, 2, 3] for sequence [0, 2] returns []
+        /// [0, 1, 2, 3] for sequence [1, 2] returns []
+        /// </summary>
+        public static uint[] ShrinkFor(this uint[] restriction, uint[] sequence)
+        {
+            if (sequence.Length == 0)
+            {
+                return restriction;
+            }
+            if (restriction.Length <= sequence.Length)
+            {
+                return EMPTY;
+            }
+            for(var i = 0; i < sequence.Length; i++)
+            {
+                if (sequence[i] != restriction[i])
+                {
+                    return EMPTY;
+                }
+            }
+            return restriction.SubArray(sequence.Length - 1, restriction.Length - sequence.Length + 1);
+        }
+
+        /// <summary>
+        /// Shrinks this restrictions assuming the given sequence has already been travelled. Sequence needs to match first part of the restriction.
+        /// 
+        /// [0, 1, 2, 3] for sequence [0, 1] returns [1, 2, 3]
+        /// [0, 1, 2, 3] for sequence [0, 2] returns []
+        /// [0, 1, 2, 3] for sequence [1, 2] returns []
+        /// </summary>
+        public static uint[] ShrinkFor(this uint[] restriction, List<uint> sequence)
+        {
+            if (sequence.Count == 0)
+            {
+                return restriction;
+            }
+            if (restriction.Length <= sequence.Count)
+            {
+                return EMPTY;
+            }
+            for (var i = 0; i < sequence.Count; i++)
+            {
+                if (sequence[i] != restriction[i])
+                {
+                    return EMPTY;
+                }
+            }
+            return restriction.SubArray(sequence.Count - 1, restriction.Length - sequence.Count + 1);
+        }
+
+        /// <summary>
+        /// Shrinks this restriction assuming the given sequence has already been travelled. Last part of the sequence needs to match some of the first part of the restriction.
+        /// </summary>
+        /// 
+        /// [0, 1, 2, 3] for sequence [0, 1] returns [1, 2, 3] because [0, 1] matches.
+        /// [0, 1, 2, 3] for sequence [0, 2] returns [] because no matches.
+        /// [0, 1, 2, 3] for sequence [1, 2] returns [] because no matches.
+        /// [0, 1, 2, 3] for sequence [3, 0, 1] returns [1, 2, 3] because [0, 1] matches.
+        public static uint[] ShrinkForPart(this uint[] restriction, uint[] sequence)
+        {
+            return restriction.ShrinkForPart(new List<uint>(sequence));
+        }
+
+        /// <summary>
+        /// Shrinks this restriction assuming the given sequence has already been travelled. Last part of the sequence needs to match some of the first part of the restriction.
+        /// </summary>
+        /// 
+        /// [0, 1, 2, 3] for sequence [0, 1] returns [1, 2, 3] because [0, 1] matches.
+        /// [0, 1, 2, 3] for sequence [0, 2] returns [] because no matches.
+        /// [0, 1, 2, 3] for sequence [1, 2] returns [] because no matches.
+        /// [0, 1, 2, 3] for sequence [3, 0, 1] returns [1, 2, 3] because [0, 1] matches.
+        public static uint[] ShrinkForPart(this uint[] restriction, List<uint> sequence)
+        {
+            for(var m = System.Math.Min(sequence.Count, restriction.Length); m >= 1 ; m--)
+            {
+                var match = true;
+                for(var i = 0; i < m; i++)
+                {
+                    if (restriction[i] != sequence[sequence.Count - m + i])
+                    {
+                        match = false;
+                        break;
+                    }
+                }
+                if(match)
+                { // definetly the best match.
+                    return restriction.SubArray(m - 1, restriction.Length - m + 1);
+                }
+            }
+            return null;
         }
     }
 }

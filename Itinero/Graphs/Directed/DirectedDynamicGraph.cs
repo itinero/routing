@@ -802,6 +802,7 @@ namespace Itinero.Graphs.Directed
             /// </summary>
             public bool MoveTo(uint vertex)
             {
+                _currentEdgePointer = NO_EDGE;
                 var vertexId = vertex;
                 var edgePointer = _graph._vertices[vertexId];
                 if (edgePointer == NO_EDGE)
@@ -809,6 +810,17 @@ namespace Itinero.Graphs.Directed
                     return false;
                 }
                 _startPointer = edgePointer;
+                return true;
+            }
+
+            /// <summary>
+            /// Moves this enumerator to the given edge.
+            /// </summary>
+            public bool MoveToEdge(uint edge)
+            {
+                _currentEdgePointer = NO_EDGE;
+                _startPointer = edge;
+                _currentEdgePointer = _startPointer;
                 return true;
             }
 

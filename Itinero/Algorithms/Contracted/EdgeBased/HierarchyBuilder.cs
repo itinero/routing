@@ -350,26 +350,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var forwardWitnessed = !(edge1CanMoveForward && edge2CanMoveBackward);
                     var backwardWitnessed = !(edge1CanMoveBackward && edge2CanMoveForward);
                     var maxWeight = edge1Weight + edge2Weight; // TODO: subtract weigths from source and target paths.
-                    if (sourcePath != null && targetPath != null)
-                    {
-                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, sourcePath, targetPath, vertex, maxWeight);
-                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, targetPath, sourcePath, vertex, maxWeight);
-                    }
-                    else if(sourcePath != null)
-                    {
-                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, sourcePath, edge2.Neighbour, vertex, maxWeight);
-                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, edge2.Neighbour, sourcePath, vertex, maxWeight);
-                    }
-                    else if (targetPath != null)
-                    {
-                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, edge1.Neighbour, targetPath, vertex, maxWeight);
-                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, targetPath, edge1.Neighbour, vertex, maxWeight);
-                    }
-                    else
-                    {
-                        forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, edge1.Neighbour, edge2.Neighbour, vertex, maxWeight);
-                        backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, edge2.Neighbour, edge1.Neighbour, vertex, maxWeight);
-                    }
+                    throw new NotImplementedException();
+                    //forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(_graph, edge1.Neighbour, sourcePath, edge2.Neighbour, targetPath, vertex, maxWeight);
+                    //backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(_graph, edge2.Neighbour, targetPath, edge1.Neighbour, sourcePath, vertex, maxWeight);
                     bool? direction = null;
                     if (forwardWitnessed && backwardWitnessed)
                     { // witnessed paths are not shortest paths.
@@ -383,44 +366,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     { // only backward
                         direction = false;
                     }
-                    
+
                     // build data-array.
-                    var dataSize = 2;
-                    if (sequence1 != null)
-                    {
-                        dataSize += 1;
-                        dataSize += sequence1.Length;
-                    }
-                    if (sequence2 != null)
-                    {
-                        if (sequence1 == null)
-                        {
-                            dataSize += 1;
-                        }
-                        dataSize += sequence2.Length;
-                    }
-                    var data = new uint[dataSize];
-                    data[0] = ContractedEdgeDataSerializer.Serialize(edge1Weight + edge2Weight, direction);
-                    data[1] = vertex;
-                    if (sequence1 != null)
-                    {
-                        data[2] = (uint)sequence1.Length;
-                        sequence1.CopyTo(data, 3);
-                    }
-                    if (sequence2 != null)
-                    {
-                        var sequence2Start = 3;
-                        if (sequence1 == null)
-                        {
-                            data[2] = 0;
-                        }
-                        else
-                        {
-                            sequence2Start += sequence1.Length;
-                        }
-                        sequence2.CopyTo(data, sequence2Start);
-                    }
-                    _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, data);
+                    throw new NotImplementedException();
                 }
             }
 
@@ -434,7 +382,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private List<uint> GetSequence(DynamicEdge edge1, uint vertex, DynamicEdge edge2)
         {
             var sequence = new List<uint>();
-            sequence.AddRange(edge1.GetReverseSequence(vertex));
+            sequence.AddRange(edge1.GetSequence2ReverseWithSource(vertex));
             if (sequence.Count > 0 &&
                 sequence[sequence.Count - 1] == vertex)
             {
@@ -449,7 +397,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private List<uint> GetReverseSequence(DynamicEdge edge1, uint vertex, DynamicEdge edge2)
         {
             var sequence = new List<uint>();
-            sequence.AddRange(edge2.GetReverseSequence(vertex));
+            sequence.AddRange(edge2.GetSequence2ReverseWithSource(vertex));
             if (sequence.Count > 0 &&
                 sequence[sequence.Count - 1] == vertex)
             {

@@ -87,6 +87,7 @@
     <Compile Include="Algorithms\Contracted\DirectedGraphExtensionsTests.cs" />
     <Compile Include="Algorithms\Contracted\DykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\DykstraWitnessCalculatorTests.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\Witness\DykstraWitnessCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\HierarchyBuilderTests.cs" />
     <Compile Include="Algorithms\Contracted\ManyToManyTests.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />
     <Compile Include="Algorithms\Default\DykstraTests.cs" />
     <Compile Include="Algorithms\OneToManyTests.cs" />
+    <Compile Include="Algorithms\Restrictions\RestrictionExtensionTests.cs" />
     <Compile Include="Algorithms\Routes\CompleteRouteBuilderTests.cs" />
     <Compile Include="Algorithms\Routes\RouteSegmentAggregatorTests.cs" />
     <Compile Include="Algorithms\Search\HibertTests.cs" />

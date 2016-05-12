@@ -28,21 +28,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        bool Calculate(DirectedDynamicGraph graph, EdgePath source, EdgePath target, uint vertexToSkip, float maxWeight);
-
-        /// <summary>
-        /// Calculates witness paths.
-        /// </summary>
-        bool Calculate(DirectedDynamicGraph graph, uint sourceVertex, EdgePath target, uint vertexToSkip, float maxWeight);
-
-        /// <summary>
-        /// Calculates witness paths.
-        /// </summary>
-        bool Calculate(DirectedDynamicGraph graph, EdgePath source, uint targetVector, uint vertexToSkip, float maxWeight);
-
-        /// <summary>
-        /// Calculates witness paths.
-        /// </summary>
-        bool Calculate(DirectedDynamicGraph graph, uint sourceVertex, uint targetVector, uint vertexToSkip, float maxWeight);
+        bool Calculate(DirectedDynamicGraph graph, uint[] sourceVertices, uint[] targetVertices, uint vertexToSkip, float maxWeight);
     }
 }

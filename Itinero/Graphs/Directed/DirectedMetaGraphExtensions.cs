@@ -23,7 +23,7 @@ namespace Itinero.Graphs.Directed
     /// <summary>
     /// Contains extension methods for the directed graph.
     /// </summary>
-    public static class DirectedMetaGraphException
+    public static class DirectedMetaGraphExtensions
     {
         /// <summary>
         /// Gets the shortest edge between two vertices.

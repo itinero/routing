@@ -92,6 +92,7 @@ namespace Itinero.Algorithms.Default.Edge
             // queue all sources.
             foreach (var source in _sources)
             {
+                var queue = true;
                 if (_getRestriction != null)
                 {
                     var sourceVertex = _edgeEnumerator.GetSourceVertex(source.DirectedEdge);
@@ -109,7 +110,8 @@ namespace Itinero.Algorithms.Default.Edge
                                 { // a restriction of two, an edge is forbidden.
                                     if (restriction[1] == targetVertex)
                                     { // don't queue this edge, it's forbidden.
-                                        continue;
+                                        queue = false;
+                                        break;
                                     }
                                 }
                                 else
@@ -128,7 +130,10 @@ namespace Itinero.Algorithms.Default.Edge
                         }
                     }
                 }
-                _heap.Push(source, source.Weight);
+                if (queue)
+                {
+                    _heap.Push(source, source.Weight);
+                }
             }
         }
 
