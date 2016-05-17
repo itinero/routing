@@ -193,7 +193,7 @@ namespace Itinero.Osm.Vehicles
             return false;
         }
 
-        private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "oneway", "highway", "vehicle", "motor_vehicle", 
+        private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "oneway", "highway", "vehicle", "motor_vehicle",
            "bicycle", "foot", "access", "maxspeed", "junction" };
         private static HashSet<string> _relevantMetaKeys = new HashSet<string> { "name" };
 

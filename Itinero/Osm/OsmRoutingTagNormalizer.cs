@@ -47,6 +47,9 @@ namespace Itinero.Osm
             tags.NormalizeOneway(profileTags, metaTags);
             tags.NormalizeOnewayBicycle(profileTags, metaTags);
 
+            // normalize cyclceway.
+            tags.NormalizeCycleway(profileTags, metaTags);
+
             // normalize junction=roundabout tag.
             tags.NormalizeJunction(profileTags, metaTags);
 
@@ -179,6 +182,28 @@ namespace Itinero.Osm
             {
                 profileTags.AddOrReplace("oneway", "-1");
             }
+        }
+
+        /// <summary>
+        /// Normalize the cycleway tag.
+        /// </summary>
+        public static void NormalizeCycleway(this AttributeCollection tags, AttributeCollection profileTags, AttributeCollection metaTags)
+        {
+            string cycleway;
+            if (!tags.TryGetValue("cycleway", out cycleway))
+            { // nothing to normalize.
+                return;
+            }
+            if (cycleway == "cyclestreet")
+            {
+                profileTags.AddOrReplace("cycleway", "cyclestreet");
+            }
+            else if (cycleway == "lane")
+            {
+                profileTags.AddOrReplace("cycleway", "lane");
+            }
+
+            // TODO: add the unidirectional cycleway stuff. WARNING: direction of 'left' and 'right' depends on country.
         }
 
         /// <summary>

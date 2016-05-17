@@ -18,6 +18,7 @@
 
 using Itinero.Attributes;
 using Itinero.Profiles;
+using System.Collections.Generic;
 
 namespace Itinero.Osm.Vehicles
 {  
@@ -126,6 +127,8 @@ namespace Itinero.Osm.Vehicles
             }
         }
 
+        private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "bicycle", "cycleway", "ramp" };
+
         /// <summary>
         /// Returns true if the given key is relevant for the given profile.
         /// </summary>
@@ -135,7 +138,7 @@ namespace Itinero.Osm.Vehicles
             {
                 return true;
             }
-            return key == "ramp";
+            return _relevantProfileKeys.Contains(key);
         }
 
         /// <summary>

@@ -60,6 +60,17 @@ namespace Itinero.Osm.Vehicles.Profiles
                     };
                 }
 
+                string cycleway;
+                if (tags.TryGetValue("cycleway", out cycleway))
+                {
+                    speed.Value = speed.Value * HIGHEST_PREFER_FACTOR;
+                    return new Factor()
+                    {
+                        Value = 1.0f / speed.Value,
+                        Direction = speed.Direction
+                    };
+                }
+
                 string highwayType;
                 if (tags.TryGetValue("highway", out highwayType))
                 {
@@ -78,18 +89,19 @@ namespace Itinero.Osm.Vehicles.Profiles
                             speed.Value = speed.Value * AVOID_FACTOR;
                             break;
                         case "residential":
-                            speed.Value = speed.Value * PREFER_FACTOR;
                             break;
                         case "path":
-                        case "footway":
                         case "cycleway":
+                            speed.Value = speed.Value * HIGHEST_PREFER_FACTOR;
+                            break;
+                        case "footway":
                         case "pedestrian":
                         case "steps":
-                            speed.Value = speed.Value * HIGHEST_PREFER_FACTOR;
+                            speed.Value = speed.Value * PREFER_FACTOR;
                             break;
                     }
                 }
-                return new Itinero.Profiles.Factor()
+                return new Factor()
                 {
                     Value = 1.0f / speed.Value,
                     Direction = speed.Direction

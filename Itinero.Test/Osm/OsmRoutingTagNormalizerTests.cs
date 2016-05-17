@@ -363,6 +363,27 @@ namespace Itinero.Test.Osm
         }
 
         /// <summary>
+        /// Tests normalization with cycleway.
+        /// </summary>
+        [Test]
+        public void TestCycleway()
+        {
+            Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
+
+            var tags = new AttributeCollection();
+            var profileTags = new AttributeCollection();
+            var metaTags = new AttributeCollection();
+
+            tags.AddOrReplace("highway", "residential");
+            tags.AddOrReplace("cycleway", "cyclestreet");
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Osm.Vehicles.Vehicle.GetAllRegistered()));
+            Assert.IsTrue(profileTags.Contains("highway", "residential"));
+            Assert.IsTrue(profileTags.Contains("cycleway", "cyclestreet"));
+            profileTags.Clear();
+            tags.Clear();
+        }
+
+        /// <summary>
         /// Tests motorway access tags.
         /// </summary>
         [Test]
