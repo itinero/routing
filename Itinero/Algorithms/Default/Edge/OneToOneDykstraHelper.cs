@@ -28,14 +28,14 @@ namespace Itinero.Algorithms.Default.Edge
     /// </summary>
     public class OneToOneDykstraHelper : AlgorithmBase
     {
-        private readonly Dictionary<long, List<EdgePath>> _targets;
+        private readonly Dictionary<long, List<DirectedEdgePath>> _targets;
         private readonly Dykstra _dykstra;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public OneToOneDykstraHelper(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
-            IEnumerable<EdgePath> sources, IEnumerable<EdgePath> targets, float sourceMax, bool backward)
+            IEnumerable<DirectedEdgePath> sources, IEnumerable<DirectedEdgePath> targets, float sourceMax, bool backward)
         {
             _dykstra = new Dykstra(graph, getFactor, getRestriction, sources, sourceMax, backward);
             _dykstra.WasEdgeFound = (directedEdgeId, weight) =>
@@ -43,28 +43,28 @@ namespace Itinero.Algorithms.Default.Edge
                 return this.WasEdgeFound(directedEdgeId, weight);
             };
 
-            _targets = new Dictionary<long, List<EdgePath>>();
+            _targets = new Dictionary<long, List<DirectedEdgePath>>();
             foreach(var target in targets)
             {
-                List<EdgePath> paths;
+                List<DirectedEdgePath> paths;
                 if (!_targets.TryGetValue(-target.DirectedEdge, out paths))
                 {
-                    paths = new List<EdgePath>();
+                    paths = new List<DirectedEdgePath>();
                     _targets.Add(-target.DirectedEdge, paths);
                 }
                 paths.Add(target);
             }
         }
 
-        private EdgePath _best = null;
+        private DirectedEdgePath _best = null;
 
         /// <summary>
         /// Called when an edge was found.
         /// </summary>
         private bool WasEdgeFound(long directedEdgeId, float weight)
         {
-            EdgePath visit;
-            List<EdgePath> paths;
+            DirectedEdgePath visit;
+            List<DirectedEdgePath> paths;
             if (_targets.TryGetValue(directedEdgeId, out paths) &&
                 _dykstra.TryGetVisit(directedEdgeId, out visit))
             {
@@ -74,7 +74,7 @@ namespace Itinero.Algorithms.Default.Edge
                 }
                 foreach (var target in paths)
                 {
-                    var pathToTarget = new EdgePath(Constants.NO_EDGE, target.Weight + visit.From.Weight,
+                    var pathToTarget = new DirectedEdgePath(Constants.NO_EDGE, target.Weight + visit.From.Weight,
                         visit.From);
                     if (_best == null || pathToTarget.Weight < _best.Weight)
                     {
@@ -99,7 +99,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Gets the best path.
         /// </summary>
-        public EdgePath BestPath
+        public DirectedEdgePath BestPath
         {
             get
             {

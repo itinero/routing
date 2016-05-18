@@ -19,9 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Itinero.Graphs;
 
-namespace Itinero.Algorithms
+namespace Itinero.Algorithms.Contracted.EdgeBased
 {
     /// <summary>
     /// Represents a path along a set of edges.
@@ -31,19 +30,29 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Creates a edge path consisting of one edge.
         /// </summary>
-        public EdgePath(long edge)
+        public EdgePath(uint edge)
         {
-            this.DirectedEdge = edge;
+            this.Edge = edge;
             this.Weight = 0;
+            this.From = null;
+        }
+
+        /// <summary>
+        /// Creates a edge path consisting of one edge.
+        /// </summary>
+        public EdgePath(uint edge, float weight)
+        {
+            this.Edge = edge;
+            this.Weight = weight;
             this.From = null;
         }
 
         /// <summary>
         /// Creates a path by existing an existing path.
         /// </summary>
-        public EdgePath(long edge, float weight, EdgePath from)
+        public EdgePath(uint edge, float weight, EdgePath from)
         {
-            this.DirectedEdge = edge;
+            this.Edge = edge;
             this.Weight = weight;
             this.From = from;
         }
@@ -51,7 +60,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the edge.
         /// </summary>
-        public long DirectedEdge { get; private set; }
+        public uint Edge { get; private set; }
 
         /// <summary>
         /// Gets the weight.
@@ -68,11 +77,11 @@ namespace Itinero.Algorithms
         /// </summary>
         public EdgePath Reverse()
         {
-            var route = new EdgePath(this.DirectedEdge);
+            var route = new EdgePath(this.Edge);
             var next = this;
             while (next.From != null)
             {
-                route = new EdgePath(next.From.DirectedEdge,
+                route = new EdgePath(next.From.Edge,
                     (next.Weight - next.From.Weight) + route.Weight, route);
                 next = next.From;
             }
@@ -128,7 +137,7 @@ namespace Itinero.Algorithms
 
             if (comparer == null)
             { // use default equals.
-                if (first.DirectedEdge.Equals(path.DirectedEdge))
+                if (first.Edge.Equals(path.Edge))
                 {
                     first.Weight = pathClone.Weight;
                     first.From = pathClone.From;
@@ -138,7 +147,7 @@ namespace Itinero.Algorithms
             }
             else
             { // use custom comparer.
-                if (comparer.Invoke(first.DirectedEdge, path.DirectedEdge) == 0)
+                if (comparer.Invoke(first.Edge, path.Edge) == 0)
                 {
                     first.Weight = pathClone.Weight;
                     first.From = pathClone.From;
@@ -163,11 +172,11 @@ namespace Itinero.Algorithms
         {
             if (this.From == null)
             { // cloning this case is easy!
-                return new EdgePath(this.DirectedEdge);
+                return new EdgePath(this.Edge);
             }
             else
             { // recursively clone the from segments.
-                return new EdgePath(this.DirectedEdge, this.Weight, this.From.Clone());
+                return new EdgePath(this.Edge, this.Weight, this.From.Clone());
             }
         }
 
@@ -180,10 +189,10 @@ namespace Itinero.Algorithms
             var next = this;
             while (next.From != null)
             {
-                builder.Insert(0, string.Format("-> {0}[{1}]", next.DirectedEdge, next.Weight));
+                builder.Insert(0, string.Format("-> {0}[{1}]", next.Edge, next.Weight));
                 next = next.From;
             }
-            builder.Insert(0, string.Format("{0}[{1}]", next.DirectedEdge, next.Weight));
+            builder.Insert(0, string.Format("{0}[{1}]", next.Edge, next.Weight));
             return builder.ToString();
         }
 
@@ -196,9 +205,9 @@ namespace Itinero.Algorithms
             while (path != null)
             {
                 if (edges.Count == 0 ||
-                    edges[edges.Count - 1] != path.DirectedEdge)
+                    edges[edges.Count - 1] != path.Edge)
                 {
-                    edges.Add(path.DirectedEdge);
+                    edges.Add(path.Edge);
                 }
                 path = path.From;
             }
@@ -215,45 +224,6 @@ namespace Itinero.Algorithms
             {
                 edges.Add(reversed[i]);
             }
-        }
-
-        /// <summary>
-        /// Converts this edge path to a graph.
-        /// </summary>
-        public Path ToPath(Graph graph)
-        {
-            var edgeEnumerator = graph.GetEdgeEnumerator();
-            Path first = null;
-            if (this.DirectedEdge == Constants.NO_EDGE)
-            {
-                first = new Path(Constants.NO_VERTEX, this.Weight, null);
-            }
-            else
-            {
-                var target = edgeEnumerator.GetTargetVertex(this.DirectedEdge);
-                first = new Path(target, this.Weight, null);
-            }
-
-            var current = this.From;
-            var currentPath = first;
-            while(current != null)
-            {
-                Path next = null;
-                if (current.DirectedEdge == Constants.NO_EDGE)
-                {
-                    next = new Path(Constants.NO_VERTEX, current.Weight, null);
-                }
-                else
-                {
-                    var target = edgeEnumerator.GetTargetVertex(current.DirectedEdge);
-                    next = new Path(target, current.Weight, null);
-                }
-                currentPath.From = next;
-                currentPath = next;
-
-                current = current.From;
-            }
-            return first;  
         }
     }
 }

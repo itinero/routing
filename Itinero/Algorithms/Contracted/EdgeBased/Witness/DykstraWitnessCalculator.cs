@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using Itinero.Algorithms.PriorityQueues;
-using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Graphs;
 using Itinero.Algorithms.Default;
@@ -34,7 +33,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
     {
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
         private readonly Func<ushort, Factor> _getFactor;
-        private readonly BinaryHeap<EdgePath> _heap;
+        private readonly BinaryHeap<DirectedEdgePath> _heap;
         private readonly Graph _graph;
 
         /// <summary>
@@ -46,19 +45,19 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             _getFactor = getFactor;
             _graph = graph;
 
-            _heap = new BinaryHeap<EdgePath>();
+            _heap = new BinaryHeap<DirectedEdgePath>();
         }
         
-        private Dictionary<EdgePath, LinkedRestriction> _edgeRestrictions;
-        private Dictionary<long, EdgePath> _visits;
+        private Dictionary<DirectedEdgePath, LinkedRestriction> _edgeRestrictions;
+        private Dictionary<long, DirectedEdgePath> _visits;
 
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
         public bool Calculate(uint[] sourceVertices, uint[] targetVertices, uint vertexToSkip, float maxWeight)
         {
-            _edgeRestrictions = new Dictionary<EdgePath, LinkedRestriction>();
-            _visits = new Dictionary<long, EdgePath>();
+            _edgeRestrictions = new Dictionary<DirectedEdgePath, LinkedRestriction>();
+            _visits = new Dictionary<long, DirectedEdgePath>();
             _heap.Clear();
 
             // initialize.
@@ -73,7 +72,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
             // step until no longer possible.
             var enumerator = _graph.GetEdgeEnumerator();
-            EdgePath current = null;
+            DirectedEdgePath current = null;
             while (true)
             {
                 current = null;
@@ -187,7 +186,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
 
                     // queue path.
-                    var neighbourPath = new EdgePath(enumerator.IdDirected(), weight + current.Weight, current);
+                    var neighbourPath = new DirectedEdgePath(enumerator.IdDirected(), weight + current.Weight, current);
                     if (neighbourPath.Weight > maxWeight - targetWeight)
                     { // exceeded maximum weight, just don't queue and stop here.
                         continue;
@@ -249,7 +248,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 }
                 var weight = factor.Value * distance;
 
-                var neighbourPath = new EdgePath(enumerator.IdDirected(), sourceWeight + weight, new EdgePath(Constants.NO_EDGE));
+                var neighbourPath = new DirectedEdgePath(enumerator.IdDirected(), sourceWeight + weight, new DirectedEdgePath(Constants.NO_EDGE));
 
                 // check if restricted.
                 LinkedRestriction newRestrictions = null;

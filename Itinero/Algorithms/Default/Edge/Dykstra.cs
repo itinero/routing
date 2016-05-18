@@ -31,7 +31,7 @@ namespace Itinero.Algorithms.Default.Edge
     public class Dykstra : AlgorithmBase
     {
         private readonly Graph _graph;
-        private readonly IEnumerable<EdgePath> _sources;
+        private readonly IEnumerable<DirectedEdgePath> _sources;
         private readonly Func<ushort, Factor> _getFactor;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestriction;
         private readonly float _sourceMax;
@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
-            IEnumerable<EdgePath> sources, float sourceMax, bool backward)
+            IEnumerable<DirectedEdgePath> sources, float sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
@@ -52,11 +52,11 @@ namespace Itinero.Algorithms.Default.Edge
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<long, EdgePath> _visits;
-        private EdgePath _current;
-        private BinaryHeap<EdgePath> _heap;
+        private Dictionary<long, DirectedEdgePath> _visits;
+        private DirectedEdgePath _current;
+        private BinaryHeap<DirectedEdgePath> _heap;
         private Dictionary<uint, Factor> _factors;
-        private Dictionary<EdgePath, LinkedRestriction> _edgeRestrictions;
+        private Dictionary<DirectedEdgePath, LinkedRestriction> _edgeRestrictions;
 
         /// <summary>
         /// Executes the algorithm.
@@ -82,9 +82,9 @@ namespace Itinero.Algorithms.Default.Edge
             _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<long, EdgePath>();
-            _heap = new BinaryHeap<EdgePath>(1000);
-            _edgeRestrictions = new Dictionary<EdgePath, LinkedRestriction>();
+            _visits = new Dictionary<long, DirectedEdgePath>();
+            _heap = new BinaryHeap<DirectedEdgePath>(1000);
+            _edgeRestrictions = new Dictionary<DirectedEdgePath, LinkedRestriction>();
             
             // gets the edge enumerator.
             _edgeEnumerator = _graph.GetEdgeEnumerator();
@@ -278,7 +278,7 @@ namespace Itinero.Algorithms.Default.Edge
                     var totalWeight = _current.Weight + (distance * factor.Value);
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
-                        var path = new EdgePath(directedEdgeId, totalWeight, _current);
+                        var path = new DirectedEdgePath(directedEdgeId, totalWeight, _current);
                         if (newRestrictions != null)
                         {
                             _edgeRestrictions[path] = newRestrictions;
@@ -295,7 +295,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// </summary>
         /// <remarks>The algorithm will pick up these visits as if it was one it's own.</remarks>
         /// <returns>True if the visit was set successfully.</returns>
-        public bool SetVisit(EdgePath visit)
+        public bool SetVisit(DirectedEdgePath visit)
         {
             if (!_visits.ContainsKey(visit.DirectedEdge))
             {
@@ -308,7 +308,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Returns true if the given edge was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
-        public bool TryGetVisit(long edge, out EdgePath visit)
+        public bool TryGetVisit(long edge, out DirectedEdgePath visit)
         {
             return _visits.TryGetValue(edge, out visit);
         }
@@ -358,7 +358,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public EdgePath Current
+        public DirectedEdgePath Current
         {
             get
             {
