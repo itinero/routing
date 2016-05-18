@@ -215,7 +215,7 @@ namespace Itinero.Graphs.Directed
 
                         // move existing data to the end and update pointer.
                         _vertices[vertexPointer] = _nextEdgePointer;
-                        for(uint i = startPointer; i < startPointer + size; i++)
+                        for(uint i = 0; i < size; i++)
                         {
                             _edges[_nextEdgePointer + i] = _edges[startPointer + i];
                         }
@@ -619,7 +619,7 @@ namespace Itinero.Graphs.Directed
             /// <returns></returns>
             public bool MoveNext()
             {
-                if (_startPointer == NO_EDGE) { throw new InvalidOperationException("Cannot move to a next edge when no vertex has been selected."); }
+                if (_startPointer == NO_EDGE) { return false; }
 
                 if (_currentEdgePointer == NO_EDGE)
                 {
@@ -802,13 +802,13 @@ namespace Itinero.Graphs.Directed
             /// </summary>
             public bool MoveTo(uint vertex)
             {
-                _currentEdgePointer = NO_EDGE;
-                var vertexId = vertex;
-                var edgePointer = _graph._vertices[vertexId];
-                if (edgePointer == NO_EDGE)
+                if (vertex > _graph.VertexCount)
                 {
                     return false;
                 }
+                _currentEdgePointer = NO_EDGE;
+                var vertexId = vertex;
+                var edgePointer = _graph._vertices[vertexId];
                 _startPointer = edgePointer;
                 return true;
             }
@@ -1057,9 +1057,19 @@ namespace Itinero.Graphs.Directed
         private uint MoveNextEdge(uint edgePointer)
         {
             // move past first fixed-data fields to the last one.
-            edgePointer += (uint)_fixedEdgeDataSize;
             var data = _edges[edgePointer];
-            while (data == NO_EDGE || !DirectedDynamicGraph.IsLastField(data))
+            if (data == NO_EDGE)
+            { // just move to the first non-NO_EDGE field.
+                while (data == NO_EDGE)
+                {
+                    edgePointer++;
+                    data = _edges[edgePointer];
+                }
+                return edgePointer;
+            }
+            edgePointer += (uint)_fixedEdgeDataSize;
+            data = _edges[edgePointer];
+            while (!DirectedDynamicGraph.IsLastField(data))
             { // move until the last data field.
                 edgePointer++;
                 data = _edges[edgePointer];
@@ -1070,7 +1080,7 @@ namespace Itinero.Graphs.Directed
             }
             edgePointer++;
             data = _edges[edgePointer];
-            while(data == NO_EDGE)
+            while (data == NO_EDGE)
             {
                 edgePointer++;
                 data = _edges[edgePointer];
@@ -1085,6 +1095,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public uint RemoveEdge(uint vertex, uint previousEdgePointer, uint edgePointer, uint nextPointer)
         {
+            var originalEdgePointer = edgePointer;
             if (previousEdgePointer == NO_EDGE && nextPointer == NO_EDGE)
             { // only one edge left.
                 _vertices[vertex] = NO_EDGE;
@@ -1107,12 +1118,36 @@ namespace Itinero.Graphs.Directed
             }
             if (DirectedDynamicGraph.IsLastFieldInLastEdge(data))
             { // if the last data field is the last edge then just stop.
-                _edges[previousEdgePointer] = DirectedDynamicGraph.AddLastEdgeAndLastFieldFlag(
-                     _edges[previousEdgePointer]);
+                if(!this.MarkAsLast(previousEdgePointer))
+                { // there is no data at the previous edge, this can only mean one thing: no more edges left.
+                    _vertices[vertex] = NO_EDGE;
+                }
                 return NO_EDGE;
             }
             _edges[edgePointer] = NO_EDGE;
             return edgePointer + 1;
+        }
+
+        /// <summary>
+        /// Marks the edge at the given location as the last edge.
+        /// </summary>
+        /// <returns>False if there is no data at the given location, true otherwise.</returns>
+        private bool MarkAsLast(uint edgePointer)
+        {
+            var data = _edges[edgePointer];
+            if (data == NO_EDGE)
+            {
+                return false;
+            }
+            while(!DirectedDynamicGraph.IsLastField(data))
+            {
+                edgePointer++;
+                data = _edges[edgePointer];
+            }
+            data = DirectedDynamicGraph.RemoveFlags(data);
+            _edges[edgePointer] = DirectedDynamicGraph.AddLastEdgeAndLastFieldFlag(
+                 data);
+            return true;
         }
 
         #endregion

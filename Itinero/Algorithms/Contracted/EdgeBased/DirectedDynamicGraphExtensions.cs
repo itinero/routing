@@ -228,6 +228,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Adds a contracted edge including sequences.
         /// </summary>
+        /// <param name="graph">The graph.</param>
+        /// <param name="vertex1">The start vertex.</param>
+        /// <param name="vertex2">The end vertex.</param>
+        /// <param name="contractedId">The vertex being shortcutted.</param>
+        /// <param name="direction">The direction.</param>
+        /// <param name="weight">The weight.</param>
+        /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
+        /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
         public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId, uint[] sequence1, uint[] sequence2)
         {
             var dataSize = 2;
@@ -330,6 +338,30 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
             }
             throw new ArgumentException("No original edge found.");
+        }
+
+        /// <summary>
+        /// Gets the weight.
+        /// </summary>
+        public static float Weight(this DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            float weight;
+            bool? direction;
+            ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
+                out weight, out direction);
+            return weight;
+        }
+
+        /// <summary>
+        /// Gets the direction.
+        /// </summary>
+        public static bool? Direction(this DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            float weight;
+            bool? direction;
+            ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
+                out weight, out direction);
+            return direction;
         }
     }
 }

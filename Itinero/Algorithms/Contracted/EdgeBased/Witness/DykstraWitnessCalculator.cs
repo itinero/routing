@@ -18,10 +18,12 @@
 
 using System;
 using System.Collections.Generic;
-using Itinero.Graphs.Directed;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Restrictions;
+using Itinero.Graphs;
+using Itinero.Algorithms.Default;
+using Itinero.Profiles;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 {
@@ -31,14 +33,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
     public class DykstraWitnessCalculator : IWitnessCalculator
     {
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private readonly Func<ushort, Factor> _getFactor;
         private readonly BinaryHeap<EdgePath> _heap;
+        private readonly Graph _graph;
 
         /// <summary>
         /// Creates a new witness calculator.
         /// </summary>
-        public DykstraWitnessCalculator(Func<uint, IEnumerable<uint[]>> getRestrictions)
+        public DykstraWitnessCalculator(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions)
         {
             _getRestrictions = getRestrictions;
+            _getFactor = getFactor;
+            _graph = graph;
 
             _heap = new BinaryHeap<EdgePath>();
         }
@@ -49,24 +55,24 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public bool Calculate(DirectedDynamicGraph graph, uint[] sourceVertices, uint[] targetVertices, uint vertexToSkip, float maxWeight)
+        public bool Calculate(uint[] sourceVertices, uint[] targetVertices, uint vertexToSkip, float maxWeight)
         {
             _edgeRestrictions = new Dictionary<EdgePath, LinkedRestriction>();
             _visits = new Dictionary<long, EdgePath>();
             _heap.Clear();
 
             // initialize.
-            this.QueueSource(graph, sourceVertices);
+            this.QueueSource(sourceVertices);
 
             // prepare target.
-            var targetWeight = graph.GetOriginalWeight(targetVertices);
+            var targetWeight = _graph.GetWeight(_getFactor, targetVertices);
             if (targetWeight > maxWeight)
             {
                 return false;
             }
 
             // step until no longer possible.
-            var enumerator = graph.GetEdgeEnumerator();
+            var enumerator = _graph.GetEdgeEnumerator();
             EdgePath current = null;
             while (true)
             {
@@ -82,18 +88,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 }
 
                 // move to the current edge and after to it's target.
-                if (!enumerator.MoveToEdge(current.Edge))
-                {
-                    continue;
-                }
-                var currentVertex = enumerator.Neighbour;
+                enumerator.MoveToTargetVertex(current.DirectedEdge);
+                var currentVertex = enumerator.From;
                 if (currentVertex == vertexToSkip)
-                {
-                    continue;
-                }
-                var contractedId = enumerator.GetContracted();
-
-                if (!enumerator.MoveTo(currentVertex))
                 {
                     continue;
                 }
@@ -138,26 +135,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
                     else
                     {
-                        var sequenceToTarget = this.GetPathAtTarget(graph, current, sourceVertices);
-                        if (sequenceToTarget == null ||
-                            sequenceToTarget.Count == 0)
-                        { // no sequence, no restriction possible.
-                            if (current.Weight < maxWeight - targetWeight)
-                            {
-                                return true;
-                            }
-                        }
-                        else
+                        if (!restrictions.Restricts(targetVertices))
                         {
-                            sequenceToTarget.RemoveAt(sequenceToTarget.Count - 1);
-                            sequenceToTarget.AddRange(targetVertices);
-
-                            if (!restrictions.Restricts(sequenceToTarget.ToArray()))
-                            {
-                                if (current.Weight < maxWeight - targetWeight)
-                                { // no sequence, no restriction possible.
-                                    return true;
-                                }
+                            if (current.Weight < maxWeight - targetWeight)
+                            { // no sequence, no restriction possible.
+                                return true;
                             }
                         }
                     }
@@ -177,37 +159,35 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
 
                     // get details about edge.
-                    float weight;
-                    bool? direction;
-                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0,
-                        out weight, out direction);
-                    if (direction != null && !direction.Value)
+                    float distance;
+                    ushort profileId;
+                    Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0,
+                        out distance, out profileId);
+                    var factor = _getFactor(profileId);
+                    if (factor.Direction == 2 || factor.Value == 0)
                     { // only backwards.
                         continue;
                     }
-                    uint[] sequence = null;
+                    var weight = factor.Value * distance;
                     if (restrictions != null)
                     { // there are restrictions registered at this edge, check the first sequence of this edge.
-                        sequence = edge.GetSequence1WithSource(currentVertex);
-                        if (restrictions.Restricts(sequence))
+                        if (restrictions.Restricts(currentVertex, enumerator.To))
                         { // this movement is restricted.
                             continue;
                         }
                     }
 
                     // check for u-turns.
-                    if (direction == null)
+                    if (factor.Direction == 0)
                     { // only u-turns on bidirectional edges.
-                        if (current.SourceVertex == edge.Neighbour &&
-                            contractedId == edge.GetContracted())
-                        { // same vertex again and shortcut for the same vertex of both original, this is a u-turn.
+                        if (current.DirectedEdge == -edge.IdDirected())
+                        { // this is a u-turn.
                             continue;
                         }
                     }
 
-
                     // queue path.
-                    var neighbourPath = new EdgePath(currentVertex, enumerator.Id, weight + current.Weight, current);
+                    var neighbourPath = new EdgePath(enumerator.IdDirected(), weight + current.Weight, current);
                     if (neighbourPath.Weight > maxWeight - targetWeight)
                     { // exceeded maximum weight, just don't queue and stop here.
                         continue;
@@ -215,10 +195,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     _heap.Push(neighbourPath, neighbourPath.Weight);
 
                     // get restrictions at neighbour.
-                    var neighbourRestrictions = _getRestrictions(edge.Neighbour);
+                    var neighbourRestrictions = _getRestrictions(edge.To);
                     if (neighbourRestrictions != null)
                     { // check this restriction against the reverse sequence to the neighbour.
-                        var sequenceToNeighbour = this.GetPathAtTarget(graph, neighbourPath, sourceVertices);
+                        var sequenceToNeighbour = new List<uint>();
+                        sequenceToNeighbour.Add(currentVertex);
+                        sequenceToNeighbour.Add(enumerator.To);
                         LinkedRestriction newRestrictions = null;
                         foreach (var neighbourRestriction in neighbourRestrictions)
                         {
@@ -243,11 +225,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// <summary>
         /// Queues all restrictions that start right after the source-path as if we got this path via routing.
         /// </summary>
-        private void QueueSource(DirectedDynamicGraph graph, uint[] sourceVertices)
+        private void QueueSource(uint[] sourceVertices)
         {
-            var enumerator = graph.GetEdgeEnumerator();
+            var enumerator = _graph.GetEdgeEnumerator();
             var source = sourceVertices[sourceVertices.Length - 1];
-            var sourceWeight = graph.GetOriginalWeight(sourceVertices);
+            var sourceWeight = enumerator.GetWeight(_getFactor, sourceVertices);
             if (!enumerator.MoveTo(source))
             {
                 return;
@@ -256,39 +238,44 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             while(enumerator.MoveNext())
             {
                 // get weight, check direction.
-                float weight;
-                bool? direction;
-                ContractedEdgeDataSerializer.Deserialize(enumerator.Data0,
-                    out weight, out direction);
-                if (direction != null && !direction.Value)
+                float distance;
+                ushort profileId;
+                Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0,
+                    out distance, out profileId);
+                var factor = _getFactor(profileId);
+                if (factor.Direction == 2 || factor.Value == 0)
                 { // only backwards.
                     continue;
                 }
+                var weight = factor.Value * distance;
 
-                var neighbourPath = new EdgePath(source, enumerator.Id, weight + sourceWeight, new EdgePath());
+                var neighbourPath = new EdgePath(enumerator.IdDirected(), sourceWeight + weight, new EdgePath(Constants.NO_EDGE));
 
                 // check if restricted.
                 LinkedRestriction newRestrictions = null;
                 if (neighbourRestrictions != null)
                 {
                     var sequenceToNeighbour = new List<uint>(sourceVertices);
-                    sequenceToNeighbour.Add(enumerator.Neighbour);
+                    sequenceToNeighbour.Add(enumerator.To);
                     var restricted = false;
                     foreach (var neighbourRestriction in neighbourRestrictions)
                     {
                         var shrunk = neighbourRestriction.ShrinkForPart(sequenceToNeighbour);
-                        if (shrunk.Length <= 1)
+                        if (shrunk.Length > 0)
                         {
-                            restricted = true;
-                            break;
-                        }
-                        else
-                        {
-                            newRestrictions = new LinkedRestriction()
+                            if (shrunk.Length == 1) // is restricted right here.
                             {
-                                Next = newRestrictions,
-                                Restriction = shrunk
-                            };
+                                restricted = true;
+                                break;
+                            }
+                            else
+                            {
+                                newRestrictions = new LinkedRestriction()
+                                {
+                                    Next = newRestrictions,
+                                    Restriction = shrunk
+                                };
+                            }
                         }
                     }
                     if (restricted)
@@ -301,110 +288,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
                 }
                 _heap.Push(neighbourPath, neighbourPath.Weight);
-            }
-        }
-
-        /// <summary>
-        /// Gets the last couple of relevant vertices for the given path.
-        /// </summary>
-        private List<uint> GetPathAtTarget(DirectedDynamicGraph graph, EdgePath path, uint[] sourceVertices)
-        {
-            var enumerator = graph.GetEdgeEnumerator();
-            if(!enumerator.MoveToEdge(path.Edge))
-            {
-                return null;
-            }
-            if (enumerator.IsOriginal())
-            {
-                if (path.From != null &&
-                    path.From.Edge != Constants.NO_EDGE)
-                {
-                    var neighbour = enumerator.Neighbour;
-                    var from = this.GetPathAtTarget(graph, path.From, sourceVertices);
-                    from.Add(enumerator.Neighbour);
-                    return from;
-                }
-                var sequence = new List<uint>(sourceVertices);
-                sequence.Add(enumerator.Neighbour);
-                return sequence;
-            }
-            else
-            {
-                var dynamicData = enumerator.DynamicData;
-                if (dynamicData == null || dynamicData.Length < 1)
-                {
-                    throw new ArgumentException("The given edge is not part of a contracted edge-based graph.");
-                }
-                if (dynamicData.Length < 2)
-                {
-                    return new List<uint>();
-                }
-                var size = dynamicData[2];
-                var sequence = new List<uint>();
-                for (var i = 0; i < dynamicData.Length - 2 - size; i++)
-                {
-                    sequence.Add(dynamicData[size + 2]);
-                }
-                sequence.Add(enumerator.Neighbour);
-                return sequence;
-            }
-        }
-        
-        private class EdgePath
-        {
-            private readonly uint _sourceVertex;
-            private readonly uint _edge;
-            private readonly float _weight;
-            private readonly EdgePath _from;
-            
-            public EdgePath()
-            {
-                _sourceVertex = Constants.NO_VERTEX;
-                _edge = Constants.NO_EDGE;
-                _weight = 0;
-
-                _from = null;
-            }
-
-            public EdgePath(uint sourceVertex, uint edge, float weight, EdgePath from)
-            {
-                _sourceVertex = sourceVertex;
-                _edge = edge;
-                _weight = weight;
-
-                _from = from;
-            }
-
-            public uint SourceVertex
-            {
-                get
-                {
-                    return _sourceVertex;
-                }
-            }
-
-            public uint Edge
-            {
-                get
-                {
-                    return _edge;
-                }
-            }
-
-            public float Weight
-            {
-                get
-                {
-                    return _weight;
-                }
-            }
-
-            public EdgePath From
-            {
-                get
-                {
-                    return _from;
-                }
             }
         }
 
@@ -446,12 +329,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             public bool Restricts(uint[] sequence)
             {
                 var restricts = false;
-                if (sequence.Length < this.Restriction.Length)
+                if (sequence.Length <= this.Restriction.Length)
                 {
                     restricts = true;
                     for (var i = 0; i < Restriction.Length; i++)
                     {
-                        if (Restriction[i] != sequence.Length)
+                        if (Restriction[i] != sequence[i])
                         {
                             restricts = false;
                         }
@@ -464,6 +347,35 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 if (this.Next != null)
                 {
                     return this.Next.Restricts(sequence);
+                }
+                return false;
+            }
+
+            /// <summary>
+            /// Returns true if this restriction or any restriction following this restrictions restricts the given sequence.
+            /// </summary>
+            public bool Restricts(uint vertex1, uint vertex2)
+            {
+                var restricts = false;
+                if (2 < this.Restriction.Length)
+                {
+                    if (this.Restriction.Length == 1)
+                    {
+                        restricts = this.Restriction[0] == vertex1;
+                    }
+                    else if (this.Restriction.Length == 2)
+                    {
+                        restricts = this.Restriction[0] == vertex1 &&
+                            this.Restriction[1] == vertex2;
+                    }
+                }
+                if (restricts)
+                {
+                    return true;
+                }
+                if (this.Next != null)
+                {
+                    return this.Next.Restricts(vertex1, vertex2);
                 }
                 return false;
             }

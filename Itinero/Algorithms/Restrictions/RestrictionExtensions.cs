@@ -333,7 +333,7 @@ namespace Itinero.Algorithms.Restrictions
                     return restriction.SubArray(m - 1, restriction.Length - m + 1);
                 }
             }
-            return null;
+            return new uint[0];
         }
     }
 }

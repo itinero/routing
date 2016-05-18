@@ -47,11 +47,13 @@
     <Compile Include="Algorithms\Contracted\Dykstra.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedDynamicGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedGraphBuilder.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\HierarchyBuilder.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\IPriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\IWitnessCalculator.cs" />
     <Compile Include="Algorithms\Default\Edge\OneToOneDykstraHelper.cs" />
+    <Compile Include="Algorithms\Default\GraphExtensions.cs" />
     <Compile Include="Algorithms\Extensions.cs" />
     <Compile Include="Algorithms\Restrictions\RestrictionExtensions.cs" />
     <Compile Include="Data\Contracted\ContractedDb.cs" />
