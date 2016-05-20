@@ -24,6 +24,7 @@ using Itinero.Data.Network.Restrictions;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Data.Contracted;
 using System.Collections.Generic;
+using System;
 
 namespace Itinero
 {
@@ -38,32 +39,59 @@ namespace Itinero
         public static void AddContracted(this RouterDb db, Profiles.Profile profile)
         {
             // create the raw directed graph.
-            DirectedMetaGraph contracted = null;
+            ContractedDb contractedDb = null;
+            Func<ushort, Profiles.Factor> getFactor = (p) =>
+            {
+                var tags = db.EdgeProfiles.Get(p);
+                return profile.Factor(tags);
+            };
             lock (db)
             {
-                contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, ContractedEdgeDataSerializer.MetaSize);
-                var directedGraphBuilder = new DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
-                {
-                    var tags = db.EdgeProfiles.Get(p);
-                    return profile.Factor(tags);
-                });
-                directedGraphBuilder.Run();
-            }
+                if (db.HasComplexRestrictions(profile))
+                { // edge-based is needed when complex restrictions found.
+                    var contracted = new DirectedDynamicGraph(1);
+                    var directedGraphBuilder = new Algorithms.Contracted.EdgeBased.DirectedGraphBuilder(db.Network.GeometricGraph.Graph,
+                        contracted, getFactor);
+                    directedGraphBuilder.Run();
 
-            // contract the graph.
-            var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
-                new DykstraWitnessCalculator(int.MaxValue));
-            priorityCalculator.DifferenceFactor = 5;
-            priorityCalculator.DepthFactor = 5;
-            priorityCalculator.ContractedFactor = 8;
-            var hierarchyBuilder = new HierarchyBuilder(contracted, priorityCalculator,
-                    new DykstraWitnessCalculator(int.MaxValue));
-            hierarchyBuilder.Run();
+                    // contract the graph.
+                    var getRestrictions = db.GetGetRestrictions(profile, true);
+                    var witnessCalculator = new Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(db.Network.GeometricGraph.Graph, 
+                        getFactor, getRestrictions);
+                    var hierarchyBuilder = new Algorithms.Contracted.EdgeBased.HierarchyBuilder(contracted, new Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator(contracted,
+                        witnessCalculator), witnessCalculator, getRestrictions);
+                    hierarchyBuilder.Run();
+
+                    contractedDb = new ContractedDb(contracted);
+                }
+                else
+                { // vertex-based is ok when no complex restrictions found.
+                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, ContractedEdgeDataSerializer.MetaSize);
+                    var directedGraphBuilder = new DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
+                    {
+                        var tags = db.EdgeProfiles.Get(p);
+                        return profile.Factor(tags);
+                    });
+                    directedGraphBuilder.Run();
+                    
+                    // contract the graph.
+                    var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
+                        new DykstraWitnessCalculator(int.MaxValue));
+                    priorityCalculator.DifferenceFactor = 5;
+                    priorityCalculator.DepthFactor = 5;
+                    priorityCalculator.ContractedFactor = 8;
+                    var hierarchyBuilder = new HierarchyBuilder(contracted, priorityCalculator,
+                            new DykstraWitnessCalculator(int.MaxValue));
+                    hierarchyBuilder.Run();
+
+                    contractedDb = new ContractedDb(contracted);
+                }
+            }
 
             // add the graph.
             lock(db)
             {
-                db.AddContracted(profile, new ContractedDb(contracted));
+                db.AddContracted(profile, contractedDb);
             }
         }
 
@@ -152,6 +180,35 @@ namespace Itinero
         public static bool HasComplexRestrictions(this RouterDb db, Profiles.Profile profile)
         {
             return db.HasComplexRestrictions(profile.VehicleType);
+        }
+
+        /// <summary>
+        /// Gets the get restriction function for the given profile.
+        /// </summary>
+        public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.Profile profile, bool first)
+        {
+            var vehicleTypes = new List<string>(profile.VehicleType);
+            vehicleTypes.Insert(0, string.Empty);
+            return (vertex) =>
+            {
+                var restrictionList = new List<uint[]>();
+                for (var i = 0; i < vehicleTypes.Count; i++)
+                {
+                    RestrictionsDb restrictionsDb;
+                    if (db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
+                    {
+                        var enumerator = restrictionsDb.GetEnumerator();
+                        if (enumerator.MoveTo(vertex, first))
+                        {
+                            while (enumerator.MoveNext())
+                            {
+                                restrictionList.Add(enumerator.ToArray(!first));
+                            }
+                        }
+                    }
+                }
+                return restrictionList;
+            };
         }
     }
 }

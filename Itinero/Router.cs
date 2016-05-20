@@ -215,7 +215,7 @@ namespace Itinero
                 if (_db.HasComplexRestrictions(profile))
                 {
                     var search = new Algorithms.Default.Edge.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 
-                        getFactor, this.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, profile, false),
+                        getFactor, _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, profile, false),
                             float.MaxValue, false);
                     search.Run();
                     if (!search.HasSucceeded)
@@ -479,35 +479,6 @@ namespace Itinero
                     return profile.Factor(Db.EdgeProfiles.Get(p));
                 };
             }
-        }
-        
-        /// <summary>
-        /// Gets the get restriction function for the given profile.
-        /// </summary>
-        private Func<uint, IEnumerable<uint[]>> GetGetRestrictions(Profile profile, bool first)
-        {
-            var vehicleTypes = new List<string>(profile.VehicleType);
-            vehicleTypes.Insert(0, string.Empty);
-            return (vertex) =>
-            {
-                var restrictionList = new List<uint[]>();
-                for (var i = 0; i < vehicleTypes.Count; i++)
-                {
-                    RestrictionsDb restrictionsDb;
-                    if (_db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
-                    {
-                        var enumerator = restrictionsDb.GetEnumerator();
-                        if (enumerator.MoveTo(vertex, first))
-                        {
-                            while (enumerator.MoveNext())
-                            {
-                                restrictionList.Add(enumerator.ToArray(!first));
-                            }
-                        }
-                    }
-                }
-                return restrictionList;
-            };
         }
 
         /// <summary>
