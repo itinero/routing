@@ -25,6 +25,7 @@ using Itinero.Data.Contracted.Edges;
 using Itinero.Data.Contracted;
 using System.Collections.Generic;
 using System;
+using Itinero.Profiles;
 
 namespace Itinero
 {
@@ -36,18 +37,18 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted(this RouterDb db, Profiles.Profile profile)
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
         {
             // create the raw directed graph.
             ContractedDb contractedDb = null;
-            Func<ushort, Profiles.Factor> getFactor = (p) =>
-            {
-                var tags = db.EdgeProfiles.Get(p);
-                return profile.Factor(tags);
-            };
+
+            // prebuild profile factor cache.
+            var profileCache = new ProfileFactorCache(db);
+            profileCache.CalculateFor(profile);
+            var getFactor = profileCache.GetGetFactor(profile);
             lock (db)
             {
-                if (db.HasComplexRestrictions(profile))
+                if (db.HasComplexRestrictions(profile) || forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.
                     var contracted = new DirectedDynamicGraph(1);
                     var directedGraphBuilder = new Algorithms.Contracted.EdgeBased.DirectedGraphBuilder(db.Network.GeometricGraph.Graph,

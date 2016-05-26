@@ -186,32 +186,55 @@ namespace Itinero
             List<uint> path;
             float pathWeight;
             ContractedDb contracted;
-            if(_db.TryGetContracted(profile, out contracted))
-            { // contracted calculation.
-                if (!contracted.HasNodeBasedGraph)
-                {
-                    throw new NotSupportedException("Edge-based routing not yet supported.");
-                }
-                if (_db.HasComplexRestrictions(profile))
-                {
-                    throw new NotSupportedException("Edge-based routing not yet supported.");
-                }
 
-                path = null;
-                var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
-                    source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
-                bidirectionalSearch.Run();
-                if (!bidirectionalSearch.HasSucceeded)
-                {
-                    return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
-                    {
-                        return new RouteNotFoundException(message);
-                    });
+            bool useContracted = false;
+
+            if (_db.TryGetContracted(profile, out contracted))
+            { // contracted calculation.
+                useContracted = true;
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
+                    Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                        "There is no edge-based graph for this profile but the db has complex restrictions, cannot used the contracted graph.");
+                    useContracted = false;
                 }
-                path = bidirectionalSearch.GetPath(out pathWeight);
+            }
+
+            if (useContracted)
+            {  // use the contracted graph.
+                path = null;
+
+                if (!contracted.HasEdgeBasedGraph)
+                { // use node-based routing.
+                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
+                        source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
+                    {
+                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = bidirectionalSearch.GetPath(out pathWeight);
+                }
+                else
+                { // use edge-based routing.
+                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
+                        source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
+                    {
+                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = bidirectionalSearch.GetPath(out pathWeight);
+                }
             }
             else
-            { // non-contracted calculation.
+            { // use the regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
                     var search = new Algorithms.Default.Edge.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 

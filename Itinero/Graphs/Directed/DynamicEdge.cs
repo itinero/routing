@@ -76,9 +76,9 @@ namespace Itinero.Graphs.Directed
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} - {1}",
-                this.Neighbour,
-                this.Data.ToInvariantString());
+            return string.Format("{0} -> {1}",
+                this.Data.ToInvariantString(),
+                this.Neighbour);
         }
     }
 }

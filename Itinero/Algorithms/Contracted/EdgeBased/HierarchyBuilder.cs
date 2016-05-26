@@ -59,6 +59,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         protected override void DoRun()
         {
+            _graph.Trim();
+
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);
             _missesQueue = new Queue<bool>();
@@ -289,9 +291,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (vertexRestrictions != null)
                     {
                         // get sequence at vertex and check restrictions.
-                        sequence.AddRange(edge1.GetSequence().Reverse());
+                        sequence.AddRange(edge1.GetSequence2().Reverse());
                         sequence.Add(vertex);
-                        sequence.AddRange(edge2.GetSequence());
+                        sequence.AddRange(edge2.GetSequence1());
 
                         if (!vertexRestrictions.IsSequenceAllowed(sequence))
                         { // there is restriction the prohibits this move.
@@ -314,7 +316,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var sequence2 = new uint[] { edge2.Neighbour };
                     if (restrictions2 != null)
                     {
-                        sequence = GetReverseSequence(edge1, vertex, edge2);
+                        sequence = GetSequence(edge2, vertex, edge1);
                         var m = sequence.MatchAnyReverse(restrictions1);
                         if (m > 1)
                         { // there is a match that is non-trivial, make sure to add this.
@@ -329,22 +331,34 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var maxWeight = edge1Weight + edge2Weight; // TODO: subtract weigths from source and target paths.
                     forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(sequence1, sequence2, vertex, maxWeight);
                     backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(sequence2, sequence1, vertex, maxWeight);
-                    bool? direction = null;
+                    bool? forwardDirection = null;
+                    bool? backwardDirection = null;
                     if (forwardWitnessed && backwardWitnessed)
                     { // witnessed paths are not shortest paths.
                         continue;
                     }
                     else if(backwardWitnessed)
                     { // only forward
-                        direction = true;
+                        forwardDirection = true;
+                        backwardDirection = false;
                     }
                     else if (forwardWitnessed)
                     { // only backward
-                        direction = false;
+                        forwardDirection = false;
+                        backwardDirection = true;
                     }
 
-                    // add edge.
-                    _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, edge1Weight + edge2Weight, direction, vertex, sequence1, sequence2);
+                    // add edges.
+                    if (sequence1 != null && sequence1.Length > 0)
+                    {
+                        sequence1 = sequence1.SubArray(1, sequence1.Length - 1);
+                    }
+                    if (sequence2 != null && sequence2.Length > 0)
+                    {
+                        sequence2 = sequence2.SubArray(1, sequence2.Length - 1);
+                    }
+                    _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, edge1Weight + edge2Weight, forwardDirection, vertex, sequence1, sequence2);
+                    _graph.AddEdge(edge2.Neighbour, edge1.Neighbour, edge1Weight + edge2Weight, backwardDirection, vertex, sequence2, sequence1);
                 }
             }
 
@@ -353,31 +367,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
-        /// Gets the longest possible sequence along the path formed by edge1 -> edge2.
+        /// Gets the longest possible known sequence along the path formed by (edge1.Neighbour) >--edge1--> (vertex) >--edge2--> (edge2.Neighbour) starting at edge1.Neighbour.
         /// </summary>
+        /// <param name="edge1">The first edge that represents en edge going from vertex to it's neighbour.</param>
+        /// <param name="edge2">The second edge that represents an edge going from vertex to it's neighbour.</param>
+        /// <param name="vertex">The vertex where the two edge meet.</param>
         private List<uint> GetSequence(DynamicEdge edge1, uint vertex, DynamicEdge edge2)
         {
             var sequence = new List<uint>();
-            sequence.AddRange(edge1.GetSequence2ReverseWithSource(vertex));
-            if (sequence.Count > 0 &&
-                sequence[sequence.Count - 1] == vertex)
-            {
-                sequence.AddRange(edge2.GetSequence());
+            sequence.Add(edge1.Neighbour);
+            if (edge1.IsOriginal())
+            { // is an original edge, add the neighbour vertex.
+                sequence.Add(vertex);
             }
-            return sequence;
-        }
-
-        /// <summary>
-        /// Gets the longest possible sequence along the path formed by edge2 -> edge1
-        /// </summary>
-        private List<uint> GetReverseSequence(DynamicEdge edge1, uint vertex, DynamicEdge edge2)
-        {
-            var sequence = new List<uint>();
-            sequence.AddRange(edge2.GetSequence2ReverseWithSource(vertex));
+            else
+            { // is not an original edge add the sequence at the neigbour in reverse.
+                sequence.AddRange(edge1.GetSequence2().Reverse());
+            }
             if (sequence.Count > 0 &&
                 sequence[sequence.Count - 1] == vertex)
-            {
-                sequence.AddRange(edge1.GetSequence());
+            { // sequence covers the entire edge, also add the start sequence of edge2.
+                sequence.AddRange(edge2.GetSequence1());
             }
             return sequence;
         }

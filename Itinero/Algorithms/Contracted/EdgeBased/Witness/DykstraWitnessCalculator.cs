@@ -35,6 +35,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         private readonly Func<ushort, Factor> _getFactor;
         private readonly BinaryHeap<DirectedEdgePath> _heap;
         private readonly Graph _graph;
+        private readonly int _maxVisits;
 
         /// <summary>
         /// Creates a new witness calculator.
@@ -44,6 +45,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             _getRestrictions = getRestrictions;
             _getFactor = getFactor;
             _graph = graph;
+
+            _maxVisits = 1024 * 16;
 
             _heap = new BinaryHeap<DirectedEdgePath>();
         }
@@ -86,6 +89,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     break;
                 }
 
+                if (_visits.ContainsKey(current.DirectedEdge))
+                {
+                    continue;
+                }
+                _visits.Add(current.DirectedEdge, current);
+                
                 // move to the current edge and after to it's target.
                 enumerator.MoveToTargetVertex(current.DirectedEdge);
                 var currentVertex = enumerator.From;
@@ -144,6 +153,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
                 }
 
+                if (_maxVisits < _visits.Count)
+                {
+                    return false;
+                }
+
                 while (enumerator.MoveNext())
                 {
                     var edge = enumerator;
@@ -163,9 +177,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0,
                         out distance, out profileId);
                     var factor = _getFactor(profileId);
-                    if (factor.Direction == 2 || factor.Value == 0)
-                    { // only backwards.
-                        continue;
+                    if ((edge.DataInverted && factor.Direction == 1) ||
+                        !edge.DataInverted && factor.Direction == 2)
+                    {   // edge is only backwards.
+                            continue;
                     }
                     var weight = factor.Value * distance;
                     if (restrictions != null)
@@ -328,7 +343,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             public bool Restricts(uint[] sequence)
             {
                 var restricts = false;
-                if (sequence.Length <= this.Restriction.Length)
+                if (sequence.Length >= this.Restriction.Length)
                 {
                     restricts = true;
                     for (var i = 0; i < Restriction.Length; i++)

@@ -44,7 +44,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _contractionCount = new Dictionary<uint, int>();
             _depth = new Dictionary<long, int>();
 
-            this.DifferenceFactor = 1;
+            this.DifferenceFactor = 2;
             this.DepthFactor = 2;
             this.ContractedFactor = 1;
         }

@@ -19,14 +19,65 @@
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
     /// <summary>
     /// Contains contraction related extension methods related to the directed dynamic graph.
     /// </summary>
+    /// <remarks>
+    /// Edge definition of an edge-based dynamic graph:
+    /// - Original edge     : [0] FIXED weight.
+    /// - Contracted edges   
+    ///     - no sequences  : [0] FIXED weight.
+    ///                       [0] DYN   contracted id.
+    ///     - sequences     : [0] FIXED weight.
+    ///                       [0] DYN   contracted id.
+    ///                       [1] DYN   size 
+    ///                       [2] DYN   seq1.0 (assuming size = 1)
+    ///                       [3] DYN   seq2.0 (starts at this location assuming size = 1)
+    ///                       
+    ///  Sequences are always added in the corresponding edge-direction:
+    ///     - source seq: {source} -> seq1.0 -> seq1.0 -> ...
+    ///     - target seq: ... -> seq2.0 -> seq2.1 -> {target}
+    /// </remarks>
     public static class DirectedDynamicGraphExtensions
     {
+        private static uint[] EMPTY = new uint[0];
+
+        /// <summary>
+        /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
+        /// </summary>
+        /// <remarks>
+        /// The relationship between a regular edge id and a directed edge id:
+        /// - 0 -> 1 forward, -1 backward.
+        /// - all other id's are offset by 1 and postive when forward, negative when backward.
+        /// </remarks>
+        public static long IdDirected(this DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            return (enumerator.Id + 1);
+        }
+
+        /// <summary>
+        /// Moves to the given directed edge-id.
+        /// </summary>
+        public static void MoveToEdge(this DirectedDynamicGraph.EdgeEnumerator enumerator, long directedEdgeId)
+        {
+            if (directedEdgeId == 0) { throw new ArgumentOutOfRangeException("directedEdgeId"); }
+
+            uint edgeId;
+            if (directedEdgeId > 0)
+            {
+                edgeId = (uint)directedEdgeId - 1;
+            }
+            else
+            {
+                edgeId = (uint)((-directedEdgeId) - 1);
+            }
+            enumerator.MoveToEdge(edgeId);
+        }
+
         /// <summary>
         /// Returns true if this edge is an original edge, not a shortcut.
         /// </summary>
@@ -64,32 +115,33 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             {
                 return null;
             }
-            return edge.DynamicData[1];
+            return edge.DynamicData[0];
         }
 
         /// <summary>
         /// Gets the sequence at the source.
         /// </summary>
-        public static uint[] GetSequence(this DynamicEdge edge)
+        public static uint[] GetSequence1(this DynamicEdge edge)
         {
             if (edge.IsOriginal())
             {
-                return new uint[] { edge.Neighbour };
+                return EMPTY;
             }
 
-            if (edge.DynamicData == null || edge.DynamicData.Length < 1)
-            {
-                throw new ArgumentException("The given edge is not part of a contracted edge-based graph.");
+            var dynamicData = edge.DynamicData;
+            if (dynamicData == null || dynamicData.Length < 1)
+            { // not even a contraced id but also not an original, something is wrong here!
+                throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
             }
-            if (edge.DynamicData.Length < 2)
-            {
-                return new uint[0];
+            if (dynamicData.Length < 2)
+            { // only a contracted id, no sequences.
+                return EMPTY;
             }
-            var size = edge.DynamicData[2];
+            var size = dynamicData[1];
             var sequence = new uint[size];
             for (var i = 0; i < size; i++)
             {
-                sequence[i] = edge.DynamicData[i + 2];
+                sequence[i] = dynamicData[i + 2];
             }
             return sequence;
         }
@@ -101,19 +153,19 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             if (edge.IsOriginal())
             {
-                return new uint[] { edge.Neighbour };
+                return EMPTY;
             }
 
             var dynamicData = edge.DynamicData;
             if (dynamicData == null || dynamicData.Length < 1)
-            {
-                throw new ArgumentException("The given edge is not part of a contracted edge-based graph.");
+            { // not even a contraced id but also not an original, something is wrong here!
+                throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
             }
             if (dynamicData.Length < 2)
-            {
-                return new uint[0];
+            { // only a contracted id, no sequences.
+                return EMPTY;
             }
-            var size = dynamicData[2];
+            var size = dynamicData[1];
             var sequence = new uint[size];
             for (var i = 0; i < size; i++)
             {
@@ -125,55 +177,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets the sequence at the target.
         /// </summary>
-        public static uint[] GetSequence2(this DirectedDynamicGraph.EdgeEnumerator edge)
+        public static uint[] GetSequence2(this DynamicEdge edge)
         {
             if (edge.IsOriginal())
             { // sequence is the source 
-                return null;
-            }
-
-            if (edge.DynamicData == null || edge.DynamicData.Length < 1)
-            {
-                throw new ArgumentException("The given edge is not part of a contracted edge-based graph.");
-            }
-            if (edge.DynamicData.Length < 2)
-            {
-                return new uint[0];
-            }
-            var size = edge.DynamicData[2];
-            var sequence = new uint[edge.DynamicData.Length - 2 - size];
-            for (var i = 0; i < sequence.Length; i++)
-            {
-                sequence[i] = edge.DynamicData[size + 2];
-            }
-            return sequence;
-        }
-
-        /// <summary>
-        /// Gets the sequence at the source including the source vertex.
-        /// </summary>
-        public static uint[] GetSequence1WithSource(this DirectedDynamicGraph.EdgeEnumerator edge, uint sourceVertex)
-        {
-            if (edge.IsOriginal())
-            {
-                return new uint[] { sourceVertex, edge.Neighbour };
+                return EMPTY;
             }
 
             var dynamicData = edge.DynamicData;
             if (dynamicData == null || dynamicData.Length < 1)
-            {
-                throw new ArgumentException("The given edge is not part of a contracted edge-based graph.");
+            { // not even a contraced id but also not an original, something is wrong here!
+                throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
             }
             if (dynamicData.Length < 2)
+            { // only a contracted id, no sequences.
+                return EMPTY;
+            }
+            var size = dynamicData[1];
+            var sequence = new uint[dynamicData.Length - 2 - size];
+            for (var i = 0; i < sequence.Length; i++)
             {
-                return new uint[] { sourceVertex };
-            } 
-            var size = dynamicData[2];
-            var sequence = new uint[size + 1];
-            sequence[0] = sourceVertex;
-            for (var i = 0; i < size; i++)
-            {
-                sequence[i + 1] = dynamicData[i + 2];
+                sequence[i] = dynamicData[size + 2];
             }
             return sequence;
         }
@@ -181,26 +205,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets the sequence at the target.
         /// </summary>
-        public static uint[] GetSequence2ReverseWithSource(this DynamicEdge edge, uint sourceVertex)
+        public static uint[] GetSequence2(this DirectedDynamicGraph.EdgeEnumerator edge)
         {
             if (edge.IsOriginal())
             { // sequence is the source 
-                return new uint[] { sourceVertex };
+                return EMPTY;
             }
 
-            if (edge.DynamicData == null || edge.DynamicData.Length < 1)
-            {
-                throw new ArgumentException("The given edge is not part of a contracted edge-based graph.");
+            var dynamicData = edge.DynamicData;
+            if (dynamicData == null || dynamicData.Length < 1)
+            { // not even a contraced id but also not an original, something is wrong here!
+                throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
             }
-            if (edge.DynamicData.Length < 2)
-            {
-                return new uint[0];
+            if (dynamicData.Length < 2)
+            { // only a contracted id, no sequences.
+                return EMPTY;
             }
-            var size = edge.DynamicData[2];
-            var sequence = new uint[edge.DynamicData.Length - 2 - size];
+            var size = dynamicData[1];
+            var sequence = new uint[dynamicData.Length - 2 - size];
             for (var i = 0; i < sequence.Length; i++)
             {
-                sequence[i] = edge.DynamicData[size + 2];
+                sequence[i] = dynamicData[size + 2];
             }
             return sequence;
         }
@@ -238,32 +263,32 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
         public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId, uint[] sequence1, uint[] sequence2)
         {
-            var dataSize = 2;
-            if (sequence1 != null)
+            var dataSize = 2; // Fixed weight + contracted id.
+            if (sequence1 != null && sequence1.Length != 0)
             {
-                dataSize += 1;
+                dataSize += 1; // size field.
                 dataSize += sequence1.Length;
             }
-            if (sequence2 != null)
+            if (sequence2 != null && sequence2.Length != 0)
             {
-                if (sequence1 == null)
+                if (sequence1 == null && sequence1.Length == 0)
                 {
-                    dataSize += 1;
+                    dataSize += 1; // size field if sequence 1 null.
                 }
                 dataSize += sequence2.Length;
             }
             var data = new uint[dataSize];
             data[0] = ContractedEdgeDataSerializer.Serialize(weight, direction);
             data[1] = contractedId;
-            if (sequence1 != null)
+            if (sequence1 != null && sequence1.Length != 0)
             {
                 data[2] = (uint)sequence1.Length;
                 sequence1.CopyTo(data, 3);
             }
-            if (sequence2 != null)
+            if (sequence2 != null && sequence2.Length != 0)
             {
                 var sequence2Start = 3;
-                if (sequence1 == null)
+                if (sequence1 == null && sequence1.Length != 0)
                 {
                     data[2] = 0;
                 }
@@ -362,6 +387,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                 out weight, out direction);
             return direction;
+        }
+
+        /// <summary>
+        /// Moves this enumerator to an edge (vertex1->vertex2) that has an end sequence that matches the given sequence.
+        /// </summary>
+        public static void MoveToEdge(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2)
+        {
+            enumerator.MoveTo(vertex1);
+            enumerator.MoveNextUntil(x => x.Neighbour == vertex2);
+        }
+
+        /// <summary>
+        /// Gets all edges starting at this edges.
+        /// </summary>
+        public static List<DynamicEdge> GetEdges(this DirectedDynamicGraph graph, uint vertex)
+        {
+            return new List<DynamicEdge>(graph.GetEdgeEnumerator(vertex));
         }
     }
 }

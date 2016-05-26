@@ -88,6 +88,7 @@
     <Compile Include="Algorithms\Contracted\DykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\DykstraWitnessCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\BidirectionalDykstraTests.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\DirectedDynamicGraphExtensionsTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\HierarchyBuilderTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\DykstraWitnessCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculatorTests.cs" />

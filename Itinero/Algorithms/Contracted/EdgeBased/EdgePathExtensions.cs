@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
-using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -27,66 +27,75 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     public static class EdgePathExtensions
     {
         /// <summary>
-        /// Returns the equivalent path.
+        /// Expands all edges in the given edge path.
         /// </summary>
-        public static Path ToPath(this EdgePath edgePath, DirectedDynamicGraph graph, Dictionary<EdgePath, Path> paths, bool reversed)
+        public static EdgePath Expand(this EdgePath edgePath, DirectedDynamicGraph graph)
         {
-            var enumerator = graph.GetEdgeEnumerator();
-            if (edgePath.Edge == Constants.NO_EDGE)
+            return edgePath.Expand(graph.GetEdgeEnumerator());
+        }
+
+        /// <summary>
+        /// Expands all edges in the given edge path.
+        /// </summary>
+        public static EdgePath Expand(this EdgePath edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            if (edgePath.From == null)
             {
-                Path vertexPath;
-                if (paths.TryGetValue(edgePath, out vertexPath))
-                {
-                    return vertexPath;
-                }
+                return edgePath;
             }
-            enumerator.MoveToEdge(edgePath.Edge);
-            var path = new Path(enumerator.Neighbour);
-            var original = path;
-            if (!reversed)
+
+            // expand everything before.
+            edgePath = new EdgePath(edgePath.Vertex, edgePath.Weight, edgePath.Edge, edgePath.From.Expand(enumerator));
+
+            // expand list.
+            return edgePath.ExpandLast(enumerator);
+        }
+
+        /// <summary>
+        /// Expands the last edge in the given edge path.
+        /// </summary>
+        private static EdgePath ExpandLast(this EdgePath edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            bool? direction;
+            if (edgePath.Edge != Constants.NO_EDGE &&
+                edgePath.From != null)
             {
-                var c = edgePath.From;
-                while (c != null)
-                {
-                    if (c.Edge == Constants.NO_EDGE)
+                enumerator.MoveToEdge(edgePath.Edge);
+                var contractedId = enumerator.GetContracted();
+                if (contractedId.HasValue)
+                { // there is a contracted vertex here!
+                    // get source/target sequences.
+                    var sequence1 = enumerator.GetSequence1();
+                    sequence1 = sequence1.Reverse();
+                    var sequence2 = enumerator.GetSequence2();
+
+                    // move to the first edge (contracted -> from vertex) and keep details.
+                    enumerator.MoveToEdge(contractedId.Value, edgePath.From.Vertex, sequence1);
+                    float weight1;
+                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0, out weight1, out direction);
+                    var edge1 = enumerator.IdDirected();
+
+                    // move to the second edge (contracted -> to vertex) and keep details.
+                    enumerator.MoveToEdge(contractedId.Value, edgePath.Vertex, sequence2);
+                    float weight2;
+                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0, out weight2, out direction);
+                    var edge2 = enumerator.IdDirected();
+
+                    if (edgePath.Edge > 0)
                     {
-                        Path vertexPath;
-                        if (paths.TryGetValue(c, out vertexPath))
-                        {
-                            path.From = vertexPath;
-                            path.Weight = c.Weight + path.Weight;
-                        }
-                        break;
+                        var contractedPath = new EdgePath(contractedId.Value, edgePath.From.Weight + weight1, -edge1, edgePath.From);
+                        contractedPath = contractedPath.ExpandLast(enumerator);
+                        return (new EdgePath(edgePath.Vertex, edgePath.Weight, edge2, contractedPath)).ExpandLast(enumerator);
                     }
                     else
                     {
-                        enumerator.MoveToEdge(c.Edge);
-                        path.From = new Path(enumerator.Neighbour);
-                        path.Weight = c.Weight;
-                        path = path.From;
+                        var contractedPath = new EdgePath(contractedId.Value, edgePath.From.Weight + weight1, edge1, edgePath.From);
+                        contractedPath = contractedPath.ExpandLast(enumerator);
+                        return (new EdgePath(edgePath.Vertex, edgePath.Weight, -edge2, contractedPath)).ExpandLast(enumerator);
                     }
-                    c = c.From;
-                }
-                return original;
-            }
-            else
-            {
-                var c = edgePath.From;
-                while (c != null)
-                {
-                    if (c.Edge == Constants.NO_EDGE)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        enumerator.MoveToEdge(c.Edge);
-                        path = new Path(enumerator.Neighbour, c.Weight, path);
-                    }
-                    c = c.From;
                 }
             }
-            return path;
+            return edgePath;
         }
     }
 }

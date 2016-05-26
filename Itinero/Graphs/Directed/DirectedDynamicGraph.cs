@@ -312,7 +312,7 @@ namespace Itinero.Graphs.Directed
 
                         // move existing data to the end and update pointer.
                         _vertices[vertexPointer] = _nextEdgePointer;
-                        for (uint i = startPointer; i < startPointer + size; i++)
+                        for (uint i = 0; i < size; i++)
                         {
                             _edges[_nextEdgePointer + i] = _edges[startPointer + i];
                         }
@@ -404,10 +404,20 @@ namespace Itinero.Graphs.Directed
                 {
                     if (_edges[currentPointer] == vertex2)
                     {
-                        RemoveEdge(vertex1, previousPointer, currentPointer, nextPointer);
+                        if(RemoveEdge(vertex1, previousPointer, currentPointer, nextPointer) == NO_EDGE)
+                        {
+                            removed++;
+                            return removed;
+                        }
                         success = true;
                         _edgeCount--;
                         removed++;
+                        
+                        edgePointer = firstPointer;
+
+                        previousPointer = NO_EDGE;
+                        currentPointer = edgePointer;
+                        continue;
                     }
                     previousPointer = currentPointer;
                     currentPointer = nextPointer;

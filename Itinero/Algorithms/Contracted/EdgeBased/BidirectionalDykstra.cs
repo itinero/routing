@@ -46,8 +46,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private Tuple<uint, float> _best;
         private Dictionary<uint, LinkedEdgePathList> _forwardVisits; // holds the edges used to reach vertices per vertex.
         private Dictionary<uint, LinkedEdgePathList> _backwardVisits; // holds the edges used to reach vertices per vertex.
-        private Dictionary<EdgePath, Path> _sourcePaths; // holds relations between source paths.
-        private Dictionary<EdgePath, Path> _targetPaths; // holds relations between target paths.
         
         /// <summary>
         /// Executes the actual run.
@@ -59,8 +57,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // keep settled vertices.
             _forwardVisits = new Dictionary<uint, LinkedEdgePathList>();
             _backwardVisits = new Dictionary<uint, LinkedEdgePathList>();
-            _sourcePaths = new Dictionary<EdgePath, Path>();
-            _targetPaths = new Dictionary<EdgePath, Path>();
 
             // initialize the queues.
             var forwardQueue = new BinaryHeap<EdgePath>();
@@ -69,65 +65,15 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // queue sources.
             foreach (var source in _sources)
             {
-                var sourcePath = new EdgePath(Constants.NO_EDGE, source.Weight);
-                _sourcePaths.Add(sourcePath, source);
-
-                edgeEnumerator.MoveTo(source.Vertex);
-                while (edgeEnumerator.MoveNext())
-                {
-                    float neighbourWeight;
-                    bool? neighbourDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
-                    if (neighbourDirection == null || neighbourDirection.Value)
-                    { // the edge is forward, and is to higher or was not contracted at all.
-                        var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        if (!_forwardVisits.ContainsKey(neighbourNeighbour))
-                        { // if not yet settled.
-                            var routeToNeighbour = new EdgePath(edgeEnumerator.Id, source.Weight + neighbourWeight, sourcePath);
-                            forwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
-                        }
-                    }
-                }
-
-                LinkedEdgePathList visit;
-                _forwardVisits.TryGetValue(source.Vertex, out visit);
-                _forwardVisits[source.Vertex] = new LinkedEdgePathList()
-                {
-                    Next = visit,
-                    Path = sourcePath
-                };
+                var sourceEdgePath = source.ToEdgePath();
+                forwardQueue.Push(sourceEdgePath, sourceEdgePath.Weight);
             }
 
             // queue targets.
             foreach (var target in _targets)
             {
-                var targetPath = new EdgePath(Constants.NO_EDGE, target.Weight);
-                _targetPaths.Add(targetPath, target);
-
-                edgeEnumerator.MoveTo(target.Vertex);
-                while (edgeEnumerator.MoveNext())
-                {
-                    float neighbourWeight;
-                    bool? neighbourDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
-                    if (neighbourDirection == null || !neighbourDirection.Value)
-                    { // the edge is forward, and is to higher or was not contracted at all.
-                        var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        if (!_forwardVisits.ContainsKey(neighbourNeighbour))
-                        { // if not yet settled.
-                            var routeToNeighbour = new EdgePath(edgeEnumerator.Id, target.Weight + neighbourWeight, targetPath);
-                            backwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
-                        }
-                    }
-                }
-
-                LinkedEdgePathList visit;
-                _backwardVisits.TryGetValue(target.Vertex, out visit);
-                _backwardVisits[target.Vertex] = new LinkedEdgePathList()
-                {
-                    Next = visit,
-                    Path = targetPath
-                };
+                var targetEdgePath = target.ToEdgePath();
+                backwardQueue.Push(targetEdgePath, targetEdgePath.Weight);
             }
 
             // update best with current visits.
@@ -153,24 +99,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 { // first check for better path.
                     // get the current queued with the smallest weight that hasn't been visited yet.
                     var current = forwardQueue.Pop();
-                    var currentVertex = Constants.NO_VERTEX;
 
                     if (current != null)
                     {
-                        edgeEnumerator.MoveToEdge(current.Edge);
-                        currentVertex = edgeEnumerator.Neighbour;
                         LinkedEdgePathList toBest;
-                        if (_backwardVisits.TryGetValue(currentVertex, out toBest))
+                        if (_backwardVisits.TryGetValue(current.Vertex, out toBest))
                         {
                             // check for a new best.
                             if (current.Weight + toBest.BestWeight() < _best.Item2)
                             { // a better path was found.
-                                _best = new Tuple<uint, float>(currentVertex, current.Weight + toBest.BestWeight());
+                                _best = new Tuple<uint, float>(current.Vertex, current.Weight + toBest.BestWeight());
                                 this.HasSucceeded = true;
                             }
                         }
 
-                        this.SearchForward(forwardQueue, current, currentVertex);
+                        this.SearchForward(forwardQueue, current);
                     }
                 }
 
@@ -179,23 +122,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {// first check for better path.
                     // get the current vertex with the smallest weight.
                     var current = backwardQueue.Pop();
-                    var currentVertex = Constants.NO_VERTEX;
 
                     if (current != null)
                     {
-                        edgeEnumerator.MoveToEdge(current.Edge);
-                        currentVertex = edgeEnumerator.Neighbour;
                         LinkedEdgePathList toBest;
-                        if (_forwardVisits.TryGetValue(currentVertex, out toBest))
+                        if (_forwardVisits.TryGetValue(current.Vertex, out toBest))
                         { // check for a new best.
                             if (current.Weight + toBest.BestWeight() < _best.Item2)
                             { // a better path was found.
-                                _best = new Tuple<uint, float>(currentVertex, current.Weight + toBest.BestWeight());
+                                _best = new Tuple<uint, float>(current.Vertex, current.Weight + toBest.BestWeight());
                                 this.HasSucceeded = true;
                             }
                         }
 
-                        this.SearchBackward(backwardQueue, current, currentVertex);
+                        this.SearchBackward(backwardQueue, current);
                     }
                 }
 
@@ -215,11 +155,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(BinaryHeap<EdgePath> queue, EdgePath current, uint currentVertex)
+        private void SearchForward(BinaryHeap<EdgePath> queue, EdgePath current)
         {
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
+                var currentVertex = current.Vertex;
                 var edgeEnumerator = _graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
@@ -245,8 +186,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
                         if (!_forwardVisits.ContainsKey(neighbourNeighbour))
                         { // if not yet settled.
-                            var routeToNeighbour = new EdgePath(
-                                edgeEnumerator.Id, current.Weight + neighbourWeight, current);
+                            var routeToNeighbour = new EdgePath(neighbourNeighbour, current.Weight + neighbourWeight,
+                                edgeEnumerator.IdDirected(), current);
                             queue.Push(routeToNeighbour, routeToNeighbour.Weight);
                         }
                     }
@@ -257,11 +198,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Search backward from one vertex.
         /// </summary>
-        private void SearchBackward(BinaryHeap<EdgePath> queue, EdgePath current, uint currentVertex)
+        private void SearchBackward(BinaryHeap<EdgePath> queue, EdgePath current)
         {
             if (current != null)
             {
                 // get the edge enumerator.
+                var currentVertex = current.Vertex;
                 var edgeEnumerator = _graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
@@ -288,8 +230,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
                         if (!_backwardVisits.ContainsKey(neighbourNeighbour))
                         { // if not yet settled.
-                            var routeToNeighbour = new EdgePath(
-                                edgeEnumerator.Id, current.Weight + neighbourWeight, current);
+                            var routeToNeighbour = new EdgePath(neighbourNeighbour, current.Weight + neighbourWeight,
+                                edgeEnumerator.IdDirected(), current);
                             queue.Push(routeToNeighbour, routeToNeighbour.Weight);
                         }
                     }
@@ -365,12 +307,15 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var vertices = new List<uint>();
                 weight = bestFromSource.Weight + bestToTarget.Weight;
 
-                var pathFromSource = bestFromSource.ToPath(_graph, _sourcePaths, false);
-                var pathToTarget = bestToTarget.ToPath(_graph, _targetPaths, true);
+                bestFromSource = bestFromSource.Expand(_graph);
+                bestToTarget = bestToTarget.Expand(_graph);
+
+                var pathFromSource = bestFromSource.ToPath();
+                var pathToTarget = bestToTarget.ToPath();
 
                 pathFromSource.AddToList(vertices);
                 vertices.RemoveAt(vertices.Count - 1);
-                pathToTarget.AddToList(vertices);
+                pathToTarget.AddToListReverse(vertices);
 
                 return vertices;
             }

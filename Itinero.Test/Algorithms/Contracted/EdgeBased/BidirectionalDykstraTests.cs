@@ -72,9 +72,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             var path = dykstra.GetPath();
             Assert.AreEqual(3, path.Count);
-            Assert.AreEqual(1, path[0]);
-            Assert.AreEqual(2, path[1]);
-            Assert.AreEqual(3, path[2]);
+            Assert.AreEqual(0, path[0]);
+            Assert.AreEqual(1, path[1]);
+            Assert.AreEqual(2, path[2]);
         }
 
         /// <summary>
