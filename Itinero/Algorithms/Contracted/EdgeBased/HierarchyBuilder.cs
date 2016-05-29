@@ -227,6 +227,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // get and keep edges.
             var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
 
+            //if (vertex == 26 || vertex == 59 || vertex == 38 || vertex == 45 || vertex == 57)
+            //{
+            //    throw new Exception();
+            //}
+
             // remove 'downward' edge to vertex.
             var i = 0;
             while (i < edges.Count)

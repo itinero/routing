@@ -53,7 +53,7 @@ namespace Itinero.Test.Functional
             Console.WriteLine("Tests building a router db...");
             var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm", 
                 Vehicle.Car, Vehicle.Bicycle);
-            routerDb.AddContracted(Vehicle.Car.Fastest());
+            routerDb.AddContracted(Vehicle.Car.Fastest(), true);
 
             //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
 

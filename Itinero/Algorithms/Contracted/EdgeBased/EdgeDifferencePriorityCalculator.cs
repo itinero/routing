@@ -44,7 +44,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _contractionCount = new Dictionary<uint, int>();
             _depth = new Dictionary<long, int>();
 
-            this.DifferenceFactor = 2;
+            this.DifferenceFactor = 3;
             this.DepthFactor = 2;
             this.ContractedFactor = 1;
         }
@@ -61,37 +61,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
 
             // remove 'downward' edge to vertex.
-            var i = 0;
-            while (i < edges.Count)
-            {
-                var edgeEnumerator = _graph.GetEdgeEnumerator(edges[i].Neighbour);
-                edgeEnumerator.Reset();
-                while (edgeEnumerator.MoveNext())
-                {
-                    if (edgeEnumerator.Neighbour == vertex)
-                    {
-                        removed++;
-                    }
-                }
-
-                if (contractedFlags[edges[i].Neighbour])
-                { // neighbour was already contracted, remove 'downward' edge and exclude it.
-                    edgeEnumerator.MoveTo(vertex);
-                    edgeEnumerator.Reset();
-                    while (edgeEnumerator.MoveNext())
-                    {
-                        if (edgeEnumerator.Neighbour == edges[i].Neighbour)
-                        {
-                            removed++;
-                        }
-                    }
-                    edges.RemoveAt(i);
-                }
-                else
-                { // move to next edge.
-                    i++;
-                }
-            }
+            removed = edges.Count;
+            //var i = 0;
+            //while (i < edges.Count)
+            //{
+            //    removed++;
+            //    i
+            //}
 
             // loop over all edge-pairs once.
             for (var j = 1; j < edges.Count; j++)
@@ -124,14 +100,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         vertex, edge1Weight + edge2Weight);
                     backwardWitnesses = backwardWitnesses || _witnessCalculator.Calculate(new uint[] { edge2.Neighbour }, new uint[] { edge1.Neighbour },
                         vertex, edge1Weight + edge2Weight);
-                    if (!forwardWitnesses)
-                    {
-                        added++;
+
+                    if (forwardWitnesses && forwardWitnesses)
+                    { // witnessed paths are not shortest paths.
+                        continue;
                     }
-                    if (!backwardWitnesses)
-                    {
-                        added++;
-                    }
+                    added++;
                 }
             }
 

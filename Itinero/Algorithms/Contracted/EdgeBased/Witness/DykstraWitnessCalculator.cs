@@ -33,7 +33,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
     {
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
         private readonly Func<ushort, Factor> _getFactor;
-        private readonly BinaryHeap<DirectedEdgePath> _heap;
         private readonly Graph _graph;
         private readonly int _maxVisits;
 
@@ -50,7 +49,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
             _heap = new BinaryHeap<DirectedEdgePath>();
         }
-        
+
+        private BinaryHeap<DirectedEdgePath> _heap;
         private Dictionary<DirectedEdgePath, LinkedRestriction> _edgeRestrictions;
         private Dictionary<long, DirectedEdgePath> _visits;
 
@@ -61,10 +61,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         {
             _edgeRestrictions = new Dictionary<DirectedEdgePath, LinkedRestriction>();
             _visits = new Dictionary<long, DirectedEdgePath>();
-            _heap.Clear();
+            _heap = new BinaryHeap<DirectedEdgePath>();
 
             // initialize.
-            this.QueueSource(sourceVertices);
+            this.QueueSource(sourceVertices, vertexToSkip, maxWeight);
 
             // prepare target.
             var targetWeight = _graph.GetWeight(_getFactor, targetVertices);
@@ -178,9 +178,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                         out distance, out profileId);
                     var factor = _getFactor(profileId);
                     if ((edge.DataInverted && factor.Direction == 1) ||
-                        !edge.DataInverted && factor.Direction == 2)
-                    {   // edge is only backwards.
-                            continue;
+                        (!edge.DataInverted && factor.Direction == 2) ||
+                        factor.Value == 0)
+                    { // edge is only backwards or factor is zero.
+                        continue;
                     }
                     var weight = factor.Value * distance;
                     if (restrictions != null)
@@ -239,7 +240,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// <summary>
         /// Queues all restrictions that start right after the source-path as if we got this path via routing.
         /// </summary>
-        private void QueueSource(uint[] sourceVertices)
+        private void QueueSource(uint[] sourceVertices, uint vertexToSkip, float maxWeight)
         {
             var enumerator = _graph.GetEdgeEnumerator();
             var source = sourceVertices[sourceVertices.Length - 1];
@@ -262,6 +263,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     continue;
                 }
                 var weight = factor.Value * distance;
+
+                if (sourceWeight + weight > maxWeight)
+                {
+                    continue;
+                }
+
+                if (enumerator.To == vertexToSkip)
+                {
+                    continue;
+                }
 
                 var neighbourPath = new DirectedEdgePath(enumerator.IdDirected(), sourceWeight + weight, new DirectedEdgePath(Constants.NO_EDGE));
 
