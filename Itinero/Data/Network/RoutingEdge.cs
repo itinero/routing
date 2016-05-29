@@ -86,5 +86,14 @@ namespace Itinero.Data.Network
             get;
             private set;
         }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[{0}]--{1}->[{2}]", this.From, this.Id, this.To);
+        }
     }
 }

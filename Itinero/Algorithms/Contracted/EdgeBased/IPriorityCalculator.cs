@@ -16,7 +16,23 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+using Itinero.Algorithms.Collections;
 
-[assembly: AssemblyVersion("0.9.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.9.0-rc1")]
+namespace Itinero.Algorithms.Contracted.EdgeBased
+{
+    /// <summary>
+    /// A vertex priority calculator.
+    /// </summary>
+    public interface IPriorityCalculator
+    {
+        /// <summary>
+        /// Calculate the priority for the given vertex.
+        /// </summary>
+        float Calculate(BitArray32 contractedFlags, uint vertex);
+
+        /// <summary>
+        /// Notifies this calculator that the given vertex was contracted.
+        /// </summary>
+        void NotifyContracted(uint vertex);
+    }
+}

@@ -15,7 +15,6 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-            <dependency id="protobuf-net" version="2.0.0.668" />
             <dependency id="Zlib.Portable" version="1.11.0" />
             <dependency id="Reminiscence" version="1.0.1" />
         </dependencies>

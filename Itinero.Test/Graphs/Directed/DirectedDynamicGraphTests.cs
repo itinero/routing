@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
 
@@ -374,6 +375,363 @@ namespace Itinero.Test.Graphs.Directed
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
                 Assert.AreEqual(8, deserializedGraph.EdgeCount);
             }
+        }
+
+        /// <summary>
+        /// Tests adding a simple network.
+        /// </summary>
+        [Test]
+        public void TestAddSmallNetwork1()
+        {
+            // build graph.
+            var graph = new DirectedDynamicGraph(5, 1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 101, null);
+            graph.AddEdge(1, 2, 102, null);
+            graph.AddEdge(2, 1, 103, null);
+            graph.AddEdge(1, 3, 104, null);
+            graph.AddEdge(3, 1, 105, null);
+            graph.AddEdge(1, 4, 106, null);
+            graph.AddEdge(4, 1, 107, null);
+            graph.AddEdge(2, 3, 108, null);
+            graph.AddEdge(3, 2, 109, null);
+
+            Assert.AreEqual(5, graph.VertexCount);
+            
+            // verify all edges for 0.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Neighbour);
+            Assert.AreEqual(null, edges.First().Direction());
+            Assert.AreEqual(100, edges.First().Weight());
+
+            // verify all edges for 1.
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(4, edges.Count());
+            var edge = edges.First(e => e.Neighbour == 0);
+            Assert.AreEqual(0, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(101, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 0);
+            Assert.AreEqual(0, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(101, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 2);
+            Assert.AreEqual(2, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(102, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(104, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 4);
+            Assert.AreEqual(4, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(106, edge.Weight());
+
+            // verify all edges for 2.
+            edges = graph.GetEdgeEnumerator(2);
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(103, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(108, edge.Weight());
+
+            // verify all edges for 3.
+            edges = graph.GetEdgeEnumerator(3);
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(105, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 2);
+            Assert.AreEqual(2, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(109, edge.Weight());
+
+            // verify all edges for 4.
+            edges = graph.GetEdgeEnumerator(4);
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(107, edge.Weight());
+        }
+
+        /// <summary>
+        /// Tests adding a simple network and simulates what happens during contraction.
+        /// </summary>
+        [Test]
+        public void TestAddSmallNetwork1AndContract()
+        {
+            // build graph.
+            var graph = new DirectedDynamicGraph(5, 1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 101, null);
+            graph.AddEdge(1, 2, 102, null);
+            graph.AddEdge(2, 1, 103, null);
+            graph.AddEdge(1, 3, 104, null);
+            graph.AddEdge(3, 1, 105, null);
+            graph.AddEdge(1, 4, 106, null);
+            graph.AddEdge(4, 1, 107, null);
+            graph.AddEdge(2, 3, 108, null);
+            graph.AddEdge(3, 2, 109, null);
+
+            Assert.AreEqual(5, graph.VertexCount);
+
+            // verify all edges for 0.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Neighbour);
+            Assert.AreEqual(null, edges.First().Direction());
+            Assert.AreEqual(100, edges.First().Weight());
+
+            // verify all edges for 1.
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(4, edges.Count());
+            var edge = edges.First(e => e.Neighbour == 0);
+            Assert.AreEqual(0, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(101, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 0);
+            Assert.AreEqual(0, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(101, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 2);
+            Assert.AreEqual(2, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(102, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(104, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 4);
+            Assert.AreEqual(4, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(106, edge.Weight());
+
+            // verify all edges for 2.
+            edges = graph.GetEdgeEnumerator(2);
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(103, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(108, edge.Weight());
+
+            // verify all edges for 3.
+            edges = graph.GetEdgeEnumerator(3);
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(105, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 2);
+            Assert.AreEqual(2, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(109, edge.Weight());
+
+            // verify all edges for 4.
+            edges = graph.GetEdgeEnumerator(4);
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(107, edge.Weight());
+
+            // remove 3->2 and 1->2.
+            graph.RemoveEdge(3, 2);
+            graph.RemoveEdge(1, 2);
+
+            // verify all edges for 0.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Neighbour);
+            Assert.AreEqual(null, edges.First().Direction());
+            Assert.AreEqual(100, edges.First().Weight());
+
+            // verify all edges for 1.
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(3, edges.Count());
+            edge = edges.First(e => e.Neighbour == 0);
+            Assert.AreEqual(0, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(101, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(104, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 4);
+            Assert.AreEqual(4, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(106, edge.Weight());
+
+            // verify all edges for 2.
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(103, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(108, edge.Weight());
+
+            // verify all edges for 3.
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(105, edge.Weight());
+
+            // verify all edges for 4.
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(107, edge.Weight());
+
+            // remove 1->0.
+            graph.RemoveEdge(1, 0);
+
+            // verify all edges for 0.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Neighbour);
+            Assert.AreEqual(null, edges.First().Direction());
+            Assert.AreEqual(100, edges.First().Weight());
+
+            // verify all edges for 1.
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(2, edges.Count());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(104, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 4);
+            Assert.AreEqual(4, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(106, edge.Weight());
+
+            // verify all edges for 2.
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(103, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(108, edge.Weight());
+
+            // verify all edges for 3.
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(105, edge.Weight());
+
+            // verify all edges for 4.
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(107, edge.Weight());
+
+            // remove 1->4.
+            graph.RemoveEdge(1, 4);
+
+            // verify all edges for 0.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Neighbour);
+            Assert.AreEqual(null, edges.First().Direction());
+            Assert.AreEqual(100, edges.First().Weight());
+
+            // verify all edges for 1.
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(104, edge.Weight());
+
+            // verify all edges for 2.
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(103, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(108, edge.Weight());
+
+            // verify all edges for 3.
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(105, edge.Weight());
+
+            // verify all edges for 4.
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(107, edge.Weight());
+
+            // remove 1->3.
+            graph.RemoveEdge(1, 3);
+
+            // verify all edges for 0.
+            edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Neighbour);
+            Assert.AreEqual(null, edges.First().Direction());
+            Assert.AreEqual(100, edges.First().Weight());
+
+            // verify all edges for 1.
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(0, edges.Count());
+
+            // verify all edges for 2.
+            edges = graph.GetEdgeEnumerator(2);
+            Assert.AreEqual(2, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(103, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 3);
+            Assert.AreEqual(3, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(108, edge.Weight());
+
+            // verify all edges for 3.
+            edges = graph.GetEdgeEnumerator(3);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(105, edge.Weight());
+
+            // verify all edges for 4.
+            edges = graph.GetEdgeEnumerator(4);
+            Assert.AreEqual(1, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(107, edge.Weight());
         }
     }
 }

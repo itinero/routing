@@ -16,7 +16,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+using Itinero.Graphs.Directed;
 
-[assembly: AssemblyVersion("0.9.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.9.0-rc1")]
+namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
+{
+    /// <summary>
+    /// Calculator to calculate witness paths.
+    /// </summary>
+    public interface IWitnessCalculator
+    {
+        /// <summary>
+        /// Calculates witness paths.
+        /// </summary>
+        bool Calculate(uint[] sourceVertices, uint[] targetVertices, uint vertexToSkip, float maxWeight);
+    }
+}

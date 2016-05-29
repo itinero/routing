@@ -190,5 +190,13 @@ namespace Itinero.Data.Network
                 }
             }
         }
+        
+        /// <summary>
+        /// Gets all edges starting at this edges.
+        /// </summary>
+        public static List<RoutingEdge> GetEdges(this RoutingNetwork network, uint vertex)
+        {
+            return new List<RoutingEdge>(network.GetEdgeEnumerator(vertex));
+        }
     }
 }

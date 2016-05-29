@@ -405,7 +405,7 @@ namespace Itinero.Graphs.Directed
             /// <returns></returns>
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
-                throw new NotImplementedException();
+                return this.GetEnumerator();
             }
 
             /// <summary>

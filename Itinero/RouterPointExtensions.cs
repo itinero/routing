@@ -157,7 +157,7 @@ namespace Itinero
         /// <summary>
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
-        public static EdgePath[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Func<ushort, Factor> getFactor, bool asSource)
+        public static DirectedEdgePath[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Func<ushort, Factor> getFactor, bool asSource)
         {
             var graph = routerDb.Network.GeometricGraph;
             var edge = graph.GetEdge(point.EdgeId);
@@ -171,33 +171,33 @@ namespace Itinero
             var offset = point.Offset / (float)ushort.MaxValue;
             if (factor.Direction == 0)
             { // bidirectional.
-                return new EdgePath[] {
-                    new EdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE)),
-                    new EdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                return new DirectedEdgePath[] {
+                    new DirectedEdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new DirectedEdgePath(Constants.NO_EDGE)),
+                    new DirectedEdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new DirectedEdgePath(Constants.NO_EDGE))
                 };
             }
             else if (factor.Direction == 1)
             { // edge is forward oneway.
                 if (asSource)
                 {
-                    return new EdgePath[] {
-                        new EdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                    return new DirectedEdgePath[] {
+                        new DirectedEdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new DirectedEdgePath(Constants.NO_EDGE))
                     };
                 }
-                return new EdgePath[] {
-                        new EdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                return new DirectedEdgePath[] {
+                        new DirectedEdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new DirectedEdgePath(Constants.NO_EDGE))
                     };
             }
             else
             { // edge is backward oneway.
                 if (!asSource)
                 {
-                    return new EdgePath[] {
-                        new EdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                    return new DirectedEdgePath[] {
+                        new DirectedEdgePath(edge.IdDirected(), (length * (1 - offset)) * factor.Value, new DirectedEdgePath(Constants.NO_EDGE))
                     };
                 }
-                return new EdgePath[] {
-                        new EdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new EdgePath(Constants.NO_EDGE))
+                return new DirectedEdgePath[] {
+                        new DirectedEdgePath(-edge.IdDirected(), (length * offset) * factor.Value, new DirectedEdgePath(Constants.NO_EDGE))
                     };
             }
         }
@@ -205,7 +205,7 @@ namespace Itinero
         /// <summary>
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
-        public static EdgePath[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
+        public static DirectedEdgePath[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
         {
             return point.ToEdgePaths(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), asSource);
         }

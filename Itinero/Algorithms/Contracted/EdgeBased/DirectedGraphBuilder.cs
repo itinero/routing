@@ -89,10 +89,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 direction = true;
                             }
                         }
-                        var data = ContractedEdgeDataSerializer.Serialize(
-                            distance * factor.Value, direction);
 
-                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data, Constants.NO_VERTEX);
+                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, distance * factor.Value, direction);
                     }
                 }
             }
