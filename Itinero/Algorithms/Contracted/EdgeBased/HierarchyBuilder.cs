@@ -227,11 +227,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // get and keep edges.
             var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
 
-            //if (vertex == 26 || vertex == 59 || vertex == 38 || vertex == 45 || vertex == 57)
-            //{
-            //    throw new Exception();
-            //}
-
             // remove 'downward' edge to vertex.
             var i = 0;
             while (i < edges.Count)
@@ -362,8 +357,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     {
                         sequence2 = sequence2.SubArray(1, sequence2.Length - 1);
                     }
-                    _graph.AddEdge(edge1.Neighbour, edge2.Neighbour, edge1Weight + edge2Weight, forwardDirection, vertex, sequence1, sequence2);
-                    _graph.AddEdge(edge2.Neighbour, edge1.Neighbour, edge1Weight + edge2Weight, backwardDirection, vertex, sequence2, sequence1);
+                    _graph.AddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, edge1Weight + edge2Weight, forwardDirection, vertex, sequence1, sequence2);
+                    _graph.AddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, edge1Weight + edge2Weight, backwardDirection, vertex, sequence2, sequence1);
                 }
             }
 

@@ -206,5 +206,23 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsNotNull(seq);
             Assert.AreEqual(new uint[] { 5 }, seq);
         }
+
+        /// <summary>
+        /// Tests adding or update edge.
+        /// </summary>
+        [Test]
+        public void AddOrUpdateEdge()
+        {
+            // build a graph with one of each possible edge-types.
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 2, 200, null, 1, null, null);
+            graph.AddEdge(2, 3, 300, false, 2, null, null);
+            graph.AddEdge(3, 4, 400, true, 3, null, null);
+
+            graph.AddEdgeOrUpdate(0, 1, 110, null, 10, null, null);
+            graph.AddEdgeOrUpdate(1, 2, 190, null, 11, null, null);
+            graph.AddEdgeOrUpdate(1, 2, 180, true, 12, null, null);
+        }
     }
 }

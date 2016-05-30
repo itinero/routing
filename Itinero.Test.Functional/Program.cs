@@ -51,7 +51,7 @@ namespace Itinero.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm", 
+            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\gent.osm.pbf", 
                 Vehicle.Car, Vehicle.Bicycle);
             routerDb.AddContracted(Vehicle.Car.Fastest(), true);
 
@@ -61,10 +61,32 @@ namespace Itinero.Test.Functional
             //var routerDb = RouterDb.Deserialize(
             //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
+            var random = new System.Random(116542346);
+
+            var i = 1000;
+            while(i > 0)
+            {
+                i--;
+
+                var v1 = (uint)random.Next((int)routerDb.Network.VertexCount);
+                var v2 = (uint)random.Next((int)routerDb.Network.VertexCount - 1);
+                if (v1 == v2)
+                {
+                    v2++;
+                }
+
+                var f1 = routerDb.Network.GetVertex(v1);
+                var f2 = routerDb.Network.GetVertex(v2);
+
+                var route = router.TryCalculate(Vehicle.Car.Fastest(), f1, f2);
+                if (!route.IsError)
+                {
+                    var json = route.Value.ToGeoJson();
+                }
+            }
             // loc=51.052011,3.729773&loc=51.053484,3.731339
-            var route = router.Calculate(Vehicle.Car.Fastest(), 51.052011f, 3.729773f,
-                51.053484f, 3.731339f);
-            route = router.Calculate(Vehicle.Car.Fastest(), 51.055989617210194f, 3.730695247650146f, 51.06425668508246f, 3.711082935333252f);
+            //var route = router.Calculate(Vehicle.Car.Fastest(), 51.052011f, 3.729773f, 51.053484f, 3.731339f);
+            //route = router.Calculate(Vehicle.Car.Fastest(), 51.055989617210194f, 3.730695247650146f, 51.06425668508246f, 3.711082935333252f);
             //var route1 = router.Calculate(Vehicle.Bicycle.Fastest(), 51.052011f, 3.729773f,
             //    51.053484f, 3.731339f);
             
