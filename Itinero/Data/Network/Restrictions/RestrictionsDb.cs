@@ -81,7 +81,7 @@ namespace Itinero.Data.Network.Restrictions
                 _hasComplexRestrictions = true;
             }
 
-            while (_nextPointer + (uint)restriction.Length + POS_NEXT_POINTER_FIRST >= _restrictions.Length)
+            while (_nextPointer + (uint)restriction.Length + POS_FIRST_VERTEX >= _restrictions.Length)
             {
                 _restrictions.Resize(_restrictions.Length + BLOCKSIZE);
             }

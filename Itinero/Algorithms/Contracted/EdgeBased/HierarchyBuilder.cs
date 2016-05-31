@@ -233,15 +233,15 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             {
                 _graph.RemoveEdge(edges[i].Neighbour, vertex);
 
-                if (_contractedFlags[edges[i].Neighbour])
-                { // neighbour was already contracted, remove 'downward' edge and exclude it.
-                    _graph.RemoveEdge(vertex, edges[i].Neighbour);
-                    edges.RemoveAt(i);
-                }
-                else
-                { // move to next edge.
+                //if (_contractedFlags[edges[i].Neighbour])
+                //{ // neighbour was already contracted, remove 'downward' edge and exclude it.
+                //    _graph.RemoveEdge(vertex, edges[i].Neighbour);
+                //    edges.RemoveAt(i);
+                //}
+                //else
+                //{ // move to next edge.
                     i++;
-                }
+                //}
             }
             
             // loop over all edge-pairs.
@@ -256,12 +256,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     out edge1Weight, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
-
-                if (!edge1CanMoveForward)
-                {
-                    continue;
-                }
-
+                
                 // add contracted edges if needed.
                 for (var t = 0; t < f; t++)
                 {
@@ -279,11 +274,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         out edge2Weight, out edge2Direction);
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
-
-                    if (!edge2CanMoveBackward)
-                    {
-                        continue;
-                    }
                     
                     // check if there are any restrictions restriction edge1->vertex->edge2
                     var vertexRestrictions = _getRestriction(vertex);
@@ -326,8 +316,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     }
 
                     // calculate witness paths here, we need the sequences that are fixed to calculate a witness path.
-                    var forwardWitnessed = !(edge1CanMoveForward && edge2CanMoveBackward);
-                    var backwardWitnessed = !(edge1CanMoveBackward && edge2CanMoveForward);
+                    var forwardWitnessed = !(edge1CanMoveBackward && edge2CanMoveForward); 
+                    var backwardWitnessed = !(edge1CanMoveForward && edge2CanMoveBackward);
                     var maxWeight = edge1Weight + edge2Weight; // TODO: subtract weigths from source and target paths.
                     forwardWitnessed = forwardWitnessed || _witnessCalculator.Calculate(sequence1, sequence2, vertex, maxWeight);
                     backwardWitnessed = backwardWitnessed || _witnessCalculator.Calculate(sequence2, sequence1, vertex, maxWeight);

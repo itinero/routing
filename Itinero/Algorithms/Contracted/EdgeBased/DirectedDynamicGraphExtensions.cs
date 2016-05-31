@@ -428,6 +428,108 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
+        /// Adds or updates a contracted edge including sequences.
+        /// </summary>
+        /// <param name="graph">The graph.</param>
+        /// <param name="vertex1">The start vertex.</param>
+        /// <param name="vertex2">The end vertex.</param>
+        /// <param name="contractedId">The vertex being shortcutted.</param>
+        /// <param name="direction">The direction.</param>
+        /// <param name="weight">The weight.</param>
+        public static int TryAddEdgeOrUpdate(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId)
+        {
+            var enumerator = graph.GetEdgeEnumerator();
+            enumerator.MoveTo(vertex1);
+            float forwardWeight = float.MaxValue;
+            float backwardWeight = float.MaxValue;
+            uint? forwardContractedId = null;
+            uint? backwardContractedId = null;
+            if (direction != null)
+            {
+                if (direction.Value)
+                {
+                    forwardWeight = weight;
+                    forwardContractedId = contractedId;
+                }
+                else
+                {
+                    backwardWeight = weight;
+                    backwardContractedId = contractedId;
+                }
+            }
+            else
+            {
+                forwardWeight = weight;
+                forwardContractedId = contractedId;
+                backwardWeight = weight;
+                backwardContractedId = contractedId;
+            }
+
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Neighbour != vertex2)
+                {
+                    continue;
+                }
+
+                var s1 = enumerator.GetSequence1();
+                var s2 = enumerator.GetSequence2();
+
+                float edgeWeight = float.MaxValue;
+                bool? edgeDirection = null;
+                var edgeContractedId = enumerator.GetContracted();
+                ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
+                    out edgeWeight, out edgeDirection);
+                if (edgeDirection == null || edgeDirection.Value)
+                {
+                    if (forwardWeight > edgeWeight)
+                    {
+                        forwardWeight = edgeWeight;
+                        forwardContractedId = edgeContractedId;
+                    }
+                }
+                if (edgeDirection == null || !edgeDirection.Value)
+                {
+                    if (backwardWeight > edgeWeight)
+                    {
+                        backwardWeight = edgeWeight;
+                        backwardContractedId = edgeContractedId;
+                    }
+                }
+            }
+
+            var diff = -graph.RemoveEdge(vertex1, vertex2);
+
+            if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue)
+            {
+                if (forwardContractedId == backwardContractedId)
+                {
+                    //graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, sequence1, sequence2);
+                    diff++;
+                }
+                else
+                {
+                    //graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, sequence1, sequence2);
+                    diff++;
+                    //graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, sequence1, sequence2);
+                    diff++;
+                }
+                return diff;
+            }
+            if (forwardWeight != float.MaxValue)
+            {
+                //graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, sequence1, sequence2);
+                diff++;
+            }
+            if (backwardWeight != float.MaxValue)
+            {
+                //graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, sequence1, sequence2);
+                diff++;
+            }
+            return diff;
+        }
+
+        /// <summary>
         /// Adds a contracted edge including sequences.
         /// </summary>
         /// <param name="graph">The graph.</param>

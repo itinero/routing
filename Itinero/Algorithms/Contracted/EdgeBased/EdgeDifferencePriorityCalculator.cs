@@ -44,9 +44,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _contractionCount = new Dictionary<uint, int>();
             _depth = new Dictionary<long, int>();
 
-            this.DifferenceFactor = 3;
+            this.DifferenceFactor = 2;
             this.DepthFactor = 1;
-            this.ContractedFactor = 2;
+            this.ContractedFactor = 1;
         }
 
         /// <summary>
@@ -101,11 +101,25 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     backwardWitnesses = backwardWitnesses || _witnessCalculator.Calculate(new uint[] { edge2.Neighbour }, new uint[] { edge1.Neighbour },
                         vertex, edge1Weight + edge2Weight);
 
-                    if (forwardWitnesses && forwardWitnesses)
+                    bool? forwardDirection = null;
+                    bool? backwardDirection = null;
+                    if (forwardWitnesses && backwardWitnesses)
                     { // witnessed paths are not shortest paths.
                         continue;
                     }
-                    added++;
+                    else if (backwardWitnesses)
+                    { // only forward
+                        forwardDirection = true;
+                        backwardDirection = false;
+                    }
+                    else if (forwardWitnesses)
+                    { // only backward
+                        forwardDirection = false;
+                        backwardDirection = true;
+                    }
+
+                    added += _graph.TryAddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, edge1Weight + edge2Weight, forwardDirection, vertex);
+                    added += _graph.TryAddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, edge1Weight + edge2Weight, backwardDirection, vertex);
                 }
             }
 

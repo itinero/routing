@@ -51,17 +51,19 @@ namespace Itinero.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\gent.osm.pbf", 
-                Vehicle.Car, Vehicle.Bicycle);
+            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm",
+                Vehicle.Car);
+            //var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\planet\europe\belgium-latest.osm.pbf", 
+            //    Vehicle.Car);
             routerDb.AddContracted(Vehicle.Car.Fastest(), true);
 
-            //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
+            routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
 
             //////routerDb.AddContracted(Vehicle.Car.Fastest());
             //var routerDb = RouterDb.Deserialize(
             //    File.OpenRead(@"D:\work\data\OSM\routing\planet\europe\belgium.c.cf.new.routing"));
             var router = new Router(routerDb);
-            var random = new System.Random(116542346);
+            var random = new System.Random();
 
             var i = 1000;
             while(i > 0)

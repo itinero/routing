@@ -161,7 +161,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 while (enumerator.MoveNext())
                 {
                     var edge = enumerator;
-                    var edgeId = enumerator.Id;
+                    var edgeId = enumerator.IdDirected();
 
                     // impossible to do a don't go back here.
 
