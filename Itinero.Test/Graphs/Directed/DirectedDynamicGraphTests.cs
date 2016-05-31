@@ -239,8 +239,8 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(10, edges.First().Data[0]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
-            edges = graph.GetEdgeEnumerator();
-            Assert.IsFalse(edges.MoveTo(1));
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.IsFalse(edges.MoveNext());
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(1, edges.Count());
@@ -261,8 +261,8 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(10, edges.First().Data[0]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
-            edges = graph.GetEdgeEnumerator();
-            Assert.IsFalse(edges.MoveTo(1));
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.IsFalse(edges.MoveNext());
 
             edges = graph.GetEdgeEnumerator(2);
             Assert.AreEqual(1, edges.Count());
@@ -311,7 +311,7 @@ namespace Itinero.Test.Graphs.Directed
             graph.RemoveEdge(1, 2);
             graph.Compress();
             expectedSize = 1 + 8 + 8 + 8 + 4 + // the header: version bytes, three longs representing vertex and edge count and the size of the edge array and one int for fixed edge size.
-                graph.VertexCount * 1 * 4 + // the bytes for the vertex-index: 2 uint's.
+                graph.VertexCount * 4 + // the bytes for the vertex-index: 2 uint's.
                 graph.EdgeCount * 2 * 4; // the bytes for the edges: one edge 1 uint.
             using (var stream = new System.IO.MemoryStream())
             {
@@ -348,8 +348,8 @@ namespace Itinero.Test.Graphs.Directed
                 Assert.AreEqual(1, edges.First().Data[0]);
                 Assert.AreEqual(1, edges.First().Neighbour);
 
-                edges = deserializedGraph.GetEdgeEnumerator();
-                Assert.IsFalse(edges.MoveTo(1));
+                edges = deserializedGraph.GetEdgeEnumerator(1);
+                Assert.IsFalse(edges.MoveNext());
             }
 
             graph = new DirectedDynamicGraph(10, 1);

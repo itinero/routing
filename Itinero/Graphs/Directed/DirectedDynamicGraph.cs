@@ -407,6 +407,7 @@ namespace Itinero.Graphs.Directed
                         if(RemoveEdge(vertex1, previousPointer, currentPointer, nextPointer) == NO_EDGE)
                         {
                             removed++;
+                            _edgeCount--;
                             return removed;
                         }
                         success = true;
