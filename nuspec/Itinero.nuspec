@@ -15,8 +15,7 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-            <dependency id="Zlib.Portable" version="1.11.0" />
-            <dependency id="Reminiscence" version="1.0.1" />
+            <dependency id="Reminiscence" version="1.0.2" />
         </dependencies>
     </metadata>
     <files>
