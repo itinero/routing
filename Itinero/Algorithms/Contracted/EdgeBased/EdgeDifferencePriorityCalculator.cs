@@ -45,7 +45,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _depth = new Dictionary<long, int>();
 
             this.DifferenceFactor = 2;
-            this.DepthFactor = 1;
+            this.DepthFactor = 2;
             this.ContractedFactor = 1;
         }
 

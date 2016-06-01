@@ -31,7 +31,7 @@ namespace Itinero.Test
     /// </summary>
     public static class TestNetworkBuilder
     {
-        private static float Tolerance = 10; // 10 meter.
+        private static float Tolerance = 20; // 10 meter.
 
         /// <summary>
         /// Loads a test network.

@@ -26,6 +26,7 @@ using Itinero.Osm.Vehicles;
 using System;
 using System.IO;
 using System.Reflection;
+using OsmSharp.Streams;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -78,10 +79,18 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static RouterDb TestBuildRouterDb(string file, params Vehicle[] vehicles)
         {
+            OsmStreamSource source;
             using (var stream = File.OpenRead(file))
             {
                 var routerdb = new RouterDb();
-                var source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
+                if (file.ToLowerInvariant().EndsWith("osm.pbf"))
+                {
+                    source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
+                }
+                else
+                {
+                    source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
+                }
                 var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
                 progress.RegisterSource(source);
                 var target = new Itinero.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles, 

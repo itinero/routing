@@ -103,54 +103,54 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     continue;
                 }
 
-                LinkedRestriction restrictions;
-                if (_edgeRestrictions.TryGetValue(current, out restrictions))
-                {
-                    _edgeRestrictions.Remove(current);
-                }
-                var targetVertexRestriction = _getRestrictions(currentVertex);
-                if (targetVertexRestriction != null)
-                {
-                    foreach (var restriction in targetVertexRestriction)
-                    {
-                        if (restriction != null &&
-                            restriction.Length > 0)
-                        {
-                            if (restriction.Length == 1)
-                            { // a simple restriction, restricted vertex, no need to check outgoing edges.
-                                return true;
-                            }
-                            else
-                            { // a complex restriction.
-                                restrictions = new LinkedRestriction()
-                                {
-                                    Restriction = restriction,
-                                    Next = restrictions
-                                };
-                            }
-                        }
-                    }
-                }
+                //LinkedRestriction restrictions;
+                //if (_edgeRestrictions.TryGetValue(current, out restrictions))
+                //{
+                //    _edgeRestrictions.Remove(current);
+                //}
+                //var targetVertexRestriction = _getRestrictions(currentVertex);
+                //if (targetVertexRestriction != null)
+                //{
+                //    foreach (var restriction in targetVertexRestriction)
+                //    {
+                //        if (restriction != null &&
+                //            restriction.Length > 0)
+                //        {
+                //            if (restriction.Length == 1)
+                //            { // a simple restriction, restricted vertex, no need to check outgoing edges.
+                //                return true;
+                //            }
+                //            else
+                //            { // a complex restriction.
+                //                restrictions = new LinkedRestriction()
+                //                {
+                //                    Restriction = restriction,
+                //                    Next = restrictions
+                //                };
+                //            }
+                //        }
+                //    }
+                //}
                 
                 if (currentVertex == targetVertices[targetVertices.Length - 1])
                 { // check if we arrived without restriction.
-                    if (restrictions == null)
-                    { // unrestricted path was found.
+                    //if (restrictions == null)
+                    //{ // unrestricted path was found.
                         if (current.Weight < maxWeight - targetWeight)
                         {
                             return true;
                         }
-                    }
-                    else
-                    {
-                        if (!restrictions.Restricts(targetVertices))
-                        {
-                            if (current.Weight < maxWeight - targetWeight)
-                            { // no sequence, no restriction possible.
-                                return true;
-                            }
-                        }
-                    }
+                    //}
+                    //else
+                    //{
+                    //    if (!restrictions.Restricts(targetVertices))
+                    //    {
+                    //        if (current.Weight < maxWeight - targetWeight)
+                    //        { // no sequence, no restriction possible.
+                    //            return true;
+                    //        }
+                    //    }
+                    //}
                 }
 
                 if (_maxVisits < _visits.Count)
@@ -184,13 +184,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                         continue;
                     }
                     var weight = factor.Value * distance;
-                    if (restrictions != null)
-                    { // there are restrictions registered at this edge, check the first sequence of this edge.
-                        if (restrictions.Restricts(currentVertex, enumerator.To))
-                        { // this movement is restricted.
-                            continue;
-                        }
-                    }
+                    //if (restrictions != null)
+                    //{ // there are restrictions registered at this edge, check the first sequence of this edge.
+                    //    if (restrictions.Restricts(currentVertex, enumerator.To))
+                    //    { // this movement is restricted.
+                    //        continue;
+                    //    }
+                    //}
 
                     // check for u-turns.
                     if (factor.Direction == 0)
@@ -209,28 +209,28 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
                     _heap.Push(neighbourPath, neighbourPath.Weight);
 
-                    // get restrictions at neighbour.
-                    var neighbourRestrictions = _getRestrictions(edge.To);
-                    if (neighbourRestrictions != null)
-                    { // check this restriction against the reverse sequence to the neighbour.
-                        var sequenceToNeighbour = new List<uint>();
-                        sequenceToNeighbour.Add(currentVertex);
-                        sequenceToNeighbour.Add(enumerator.To);
-                        LinkedRestriction newRestrictions = null;
-                        foreach (var neighbourRestriction in neighbourRestrictions)
-                        {
-                            var shrink = neighbourRestriction.ShrinkFor(sequenceToNeighbour);
-                            if (shrink.Length > 1)
-                            {
-                                newRestrictions = new LinkedRestriction()
-                                {
-                                    Next = newRestrictions,
-                                    Restriction = shrink
-                                };
-                            }
-                        }
-                        _edgeRestrictions[neighbourPath] = newRestrictions;
-                    }
+                    //// get restrictions at neighbour.
+                    //var neighbourRestrictions = _getRestrictions(edge.To);
+                    //if (neighbourRestrictions != null)
+                    //{ // check this restriction against the reverse sequence to the neighbour.
+                    //    var sequenceToNeighbour = new List<uint>();
+                    //    sequenceToNeighbour.Add(currentVertex);
+                    //    sequenceToNeighbour.Add(enumerator.To);
+                    //    LinkedRestriction newRestrictions = null;
+                    //    foreach (var neighbourRestriction in neighbourRestrictions)
+                    //    {
+                    //        var shrink = neighbourRestriction.ShrinkFor(sequenceToNeighbour);
+                    //        if (shrink.Length > 1)
+                    //        {
+                    //            newRestrictions = new LinkedRestriction()
+                    //            {
+                    //                Next = newRestrictions,
+                    //                Restriction = shrink
+                    //            };
+                    //        }
+                    //    }
+                    //    _edgeRestrictions[neighbourPath] = newRestrictions;
+                    //}
                 }
             }
 
@@ -258,10 +258,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0,
                     out distance, out profileId);
                 var factor = _getFactor(profileId);
-                if (factor.Direction == 2 || factor.Value == 0)
-                { // only backwards.
+                if ((enumerator.DataInverted && factor.Direction == 1) ||
+                    (!enumerator.DataInverted && factor.Direction == 2) ||
+                    factor.Value == 0)
+                { // edge is only backwards or factor is zero.
                     continue;
                 }
+
                 var weight = factor.Value * distance;
 
                 if (sourceWeight + weight > maxWeight)
@@ -276,42 +279,42 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
                 var neighbourPath = new DirectedEdgePath(enumerator.IdDirected(), sourceWeight + weight, new DirectedEdgePath(Constants.NO_EDGE));
 
-                // check if restricted.
-                LinkedRestriction newRestrictions = null;
-                if (neighbourRestrictions != null)
-                {
-                    var sequenceToNeighbour = new List<uint>(sourceVertices);
-                    sequenceToNeighbour.Add(enumerator.To);
-                    var restricted = false;
-                    foreach (var neighbourRestriction in neighbourRestrictions)
-                    {
-                        var shrunk = neighbourRestriction.ShrinkForPart(sequenceToNeighbour);
-                        if (shrunk.Length > 0)
-                        {
-                            if (shrunk.Length == 1) // is restricted right here.
-                            {
-                                restricted = true;
-                                break;
-                            }
-                            else
-                            {
-                                newRestrictions = new LinkedRestriction()
-                                {
-                                    Next = newRestrictions,
-                                    Restriction = shrunk
-                                };
-                            }
-                        }
-                    }
-                    if (restricted)
-                    { // this edge is impossible, is restricted, don't consider it.
-                        continue;
-                    }
-                    if (newRestrictions != null)
-                    {
-                        _edgeRestrictions[neighbourPath] = newRestrictions;
-                    }
-                }
+                //// check if restricted.
+                //LinkedRestriction newRestrictions = null;
+                //if (neighbourRestrictions != null)
+                //{
+                //    var sequenceToNeighbour = new List<uint>(sourceVertices);
+                //    sequenceToNeighbour.Add(enumerator.To);
+                //    var restricted = false;
+                //    foreach (var neighbourRestriction in neighbourRestrictions)
+                //    {
+                //        var shrunk = neighbourRestriction.ShrinkForPart(sequenceToNeighbour);
+                //        if (shrunk.Length > 0)
+                //        {
+                //            if (shrunk.Length == 1) // is restricted right here.
+                //            {
+                //                restricted = true;
+                //                break;
+                //            }
+                //            else
+                //            {
+                //                newRestrictions = new LinkedRestriction()
+                //                {
+                //                    Next = newRestrictions,
+                //                    Restriction = shrunk
+                //                };
+                //            }
+                //        }
+                //    }
+                //    if (restricted)
+                //    { // this edge is impossible, is restricted, don't consider it.
+                //        continue;
+                //    }
+                //    if (newRestrictions != null)
+                //    {
+                //        _edgeRestrictions[neighbourPath] = newRestrictions;
+                //    }
+                //}
                 _heap.Push(neighbourPath, neighbourPath.Weight);
             }
         }

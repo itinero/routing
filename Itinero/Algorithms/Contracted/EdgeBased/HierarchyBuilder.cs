@@ -61,7 +61,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             _graph.Trim();
 
-            _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
+            _queue = new BinaryHeap<uint>(_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);
             _missesQueue = new Queue<bool>();
 
@@ -248,7 +248,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             for (var f = 1; f < edges.Count; f++)
             {
                 var edge1 = edges[f];
-                var restrictions1 = _getRestriction(edge1.Neighbour);
+                var restrictions1 = (IEnumerable<uint[]>)null; // _getRestriction(edge1.Neighbour);
 
                 float edge1Weight;
                 bool? edge1Direction;
@@ -266,7 +266,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     { // do not try to add a shortcut between identical vertices.
                         continue;
                     }
-                    var restrictions2 = _getRestriction(edge2.Neighbour);
+                    var restrictions2 = (IEnumerable<uint[]>)null; // _getRestriction(edge2.Neighbour);
 
                     float edge2Weight;
                     bool? edge2Direction;
@@ -276,7 +276,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
                     
                     // check if there are any restrictions restriction edge1->vertex->edge2
-                    var vertexRestrictions = _getRestriction(vertex);
+                    var vertexRestrictions = (IEnumerable<uint[]>)null; // _getRestriction(vertex);
                     var sequence = new List<uint>();
                     if (vertexRestrictions != null)
                     {

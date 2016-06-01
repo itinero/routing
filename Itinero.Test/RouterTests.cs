@@ -152,7 +152,7 @@ namespace Itinero.Test
             routerDb.AddSupportedProfile(pedestrian);
             routerDb.AddContracted(pedestrian, true);
             var router = new Router(routerDb);
-            
+
             var location1 = new Coordinate(52.35286546406f, 6.66554092450f);
             var location2 = new Coordinate(52.35476168070f, 6.66636669078f);
             var location3 = new Coordinate(52.35502840541f, 6.66461193744f);
@@ -262,7 +262,7 @@ namespace Itinero.Test
             route = router.Calculate(pedestrian, vertex8, vertex6);
             route = router.Calculate(pedestrian, vertex8, vertex7);
             route = router.Calculate(pedestrian, vertex8, vertex8);
-            
+
             route = router.Calculate(pedestrian, vertex0, vertex8);
             route = router.Calculate(pedestrian, vertex3, vertex7);
             route = router.Calculate(pedestrian, resolved4, resolved2);
@@ -309,11 +309,51 @@ namespace Itinero.Test
             var vertices = new Coordinate[] { vertex0, vertex1, vertex2, vertex3, vertex4, vertex5, vertex6, vertex7, vertex8, vertex9,
                 vertex10, vertex11, vertex12, vertex13, vertex14, vertex15, vertex16, vertex17 };
 
-            for(int f = 0; f < vertices.Length; f++)
+            for (int f = 0; f < vertices.Length; f++)
             {
                 for (int t = 0; t < vertices.Length; t++)
                 {
                     var route = router.Calculate(pedestrian, vertices[f], vertices[t]);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Tests routing using and edge-based contracted network.
+        /// </summary>
+        [Test]
+        public void TestEdgeBasedContractedNetwork6()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network6.geojson"));
+
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedProfile(car);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            var vertex1 = routerDb.Network.GetVertex(1);
+            var vertex2 = routerDb.Network.GetVertex(2);
+            var vertex3 = routerDb.Network.GetVertex(3);
+            var vertex4 = routerDb.Network.GetVertex(4);
+            var vertex5 = routerDb.Network.GetVertex(5);
+            var vertex6 = routerDb.Network.GetVertex(6);
+            var vertex7 = routerDb.Network.GetVertex(7);
+            
+            routerDb.Network.Sort();
+            routerDb.AddContracted(car, true);
+
+            var router = new Router(routerDb);
+
+            var vertices = new Coordinate[] { vertex0, vertex1, vertex2, vertex3, vertex4, vertex5, vertex6, vertex7 };
+
+            for (int f = 0; f < vertices.Length; f++)
+            {
+                for (int t = 0; t < vertices.Length; t++)
+                {
+                    var route = router.TryCalculate(car, vertices[f], vertices[t]);
+                    Assert.IsFalse(route.IsError);
                 }
             }
         }

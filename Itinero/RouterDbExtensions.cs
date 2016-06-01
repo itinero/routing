@@ -48,7 +48,8 @@ namespace Itinero
             var getFactor = profileCache.GetGetFactor(profile);
             lock (db)
             {
-                if (db.HasComplexRestrictions(profile) || forceEdgeBased)
+                //if (db.HasComplexRestrictions(profile) || forceEdgeBased)
+                if (forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.
                     var contracted = new DirectedDynamicGraph(1);
                     var directedGraphBuilder = new Algorithms.Contracted.EdgeBased.DirectedGraphBuilder(db.Network.GeometricGraph.Graph,

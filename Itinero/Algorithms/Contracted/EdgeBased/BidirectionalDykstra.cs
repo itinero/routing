@@ -181,15 +181,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     float neighbourWeight;
                     bool? neighbourDirection;
                     ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
+
                     if (neighbourDirection == null || neighbourDirection.Value)
                     { // the edge is forward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        if (!_forwardVisits.ContainsKey(neighbourNeighbour))
-                        { // if not yet settled.
+                        //if (!_forwardVisits.ContainsKey(neighbourNeighbour))
+                        //{ // if not yet settled.
                             var routeToNeighbour = new EdgePath(neighbourNeighbour, current.Weight + neighbourWeight,
                                 edgeEnumerator.IdDirected(), current);
                             queue.Push(routeToNeighbour, routeToNeighbour.Weight);
-                        }
+                        //}
                     }
                 }
             }
@@ -228,12 +229,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (neighbourDirection == null || !neighbourDirection.Value)
                     { // the edge is backward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        if (!_backwardVisits.ContainsKey(neighbourNeighbour))
-                        { // if not yet settled.
+                        //if (!_backwardVisits.ContainsKey(neighbourNeighbour))
+                        //{ // if not yet settled.
                             var routeToNeighbour = new EdgePath(neighbourNeighbour, current.Weight + neighbourWeight,
                                 edgeEnumerator.IdDirected(), current);
                             queue.Push(routeToNeighbour, routeToNeighbour.Weight);
-                        }
+                        //}
                     }
                 }
             }
@@ -334,21 +335,36 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
         private class LinkedEdgePathList
         {
+            private LinkedEdgePathList _next;
+
             public EdgePath Path { get; set; }
-            public LinkedEdgePathList Next { get; set; }
+            public LinkedEdgePathList Next { get
+                {
+                    return _next;
+                }
+                set
+                {
+                    if (this.Equals(value))
+                    {
+                        throw new Exception("Next object is the same!");
+                    }
+                    _next = value;
+                }
+            }
 
             internal float BestWeight()
             {
-                if (this.Next == null)
+                var best = this;
+                var current = this.Next;
+                while (current != null)
                 {
-                    return this.Path.Weight;
+                    if (current.Path.Weight < best.Path.Weight)
+                    {
+                        best = current;
+                    }
+                    current = current.Next;
                 }
-                var nextBest = this.Next.BestWeight();
-                if (nextBest < this.Path.Weight)
-                {
-                    return nextBest;
-                }
-                return this.Path.Weight;
+                return best.Path.Weight;
             }
 
             internal EdgePath Best()

@@ -20,6 +20,7 @@ using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -498,7 +499,15 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
             }
 
-            var diff = -graph.RemoveEdge(vertex1, vertex2);
+            var diff = 0;
+            enumerator.MoveTo(vertex1);
+            while(enumerator.MoveNext())
+            {
+                if (enumerator.Neighbour == vertex2)
+                {
+                    diff--;
+                }
+            }
 
             if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue)
             {
