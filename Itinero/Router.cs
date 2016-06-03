@@ -195,8 +195,7 @@ namespace Itinero
                 if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
-                        "There is no edge-based graph for this profile but the db has complex restrictions, cannot used the contracted graph.");
-                    useContracted = false;
+                        "There is no edge-based graph for this profile but the db has complex restrictions, calculation may be incorrect when restricitons exist along the route.");
                 }
             }
 

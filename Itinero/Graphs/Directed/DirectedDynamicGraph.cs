@@ -172,6 +172,7 @@ namespace Itinero.Graphs.Directed
                     this.IncreaseEdgeSize();
                 }
 
+                edgeId = _nextEdgePointer;
                 _edges[_nextEdgePointer] = vertex2;
                 _edges[_nextEdgePointer + 1] = DirectedDynamicGraph.AddLastEdgeAndLastFieldFlag(data);
                 _nextEdgePointer += 2;
@@ -228,6 +229,7 @@ namespace Itinero.Graphs.Directed
                 _edges[edgePointer] = RemoveLastEdgeFlag(_edges[edgePointer]);
 
                 // add new data.
+                edgeId = edgePointer + 1;
                 _edges[edgePointer + 1] = vertex2;
                 _edges[edgePointer + 2] = DirectedDynamicGraph.AddLastEdgeAndLastFieldFlag(data);
             }
@@ -425,6 +427,58 @@ namespace Itinero.Graphs.Directed
                 }
             }
             return removed;
+        }
+
+        /// <summary>
+        /// Deletes the edge with the given id starting at the given vertex.
+        /// </summary>
+        public int RemoveEdgeById(uint vertex1, uint edgeId)
+        {
+            if (_readonly) { throw new Exception("Graph is readonly."); }
+            if (vertex1 >= _vertices.Length) { return 0; }
+            if (edgeId >= _edges.Length) { return 0; }
+
+            var removed = 0;
+            var vertexPointer = vertex1;
+            var firstPointer = _vertices[vertexPointer];
+            var edgePointer = firstPointer;
+
+            var previousPointer = NO_EDGE;
+            var currentPointer = edgePointer;
+            var success = true;
+            while (success)
+            {
+                success = false;
+
+                if (currentPointer == NO_EDGE)
+                {
+                    break;
+                }
+                var nextPointer = MoveNextEdge(currentPointer);
+                while (currentPointer != edgeId)
+                {
+                    previousPointer = currentPointer;
+                    currentPointer = nextPointer;
+                    if (currentPointer == NO_EDGE)
+                    {
+                        break;
+                    }
+                    nextPointer = MoveNextEdge(currentPointer);
+                }
+                if (currentPointer == edgeId)
+                {
+                    if (RemoveEdge(vertex1, previousPointer, currentPointer, nextPointer) == NO_EDGE)
+                    {
+                        removed++;
+                        _edgeCount--;
+                        return removed;
+                    }
+                    success = true;
+                    _edgeCount--;
+                    return 1;
+                }
+            }
+            return 0;
         }
 
         /// <summary>
@@ -1104,7 +1158,7 @@ namespace Itinero.Graphs.Directed
         /// 
         /// The given pointer is expected to be the first position of an edge starting a the given vertex. The previous edge pointer is NO_EDGE if there is not previous edge.
         /// </summary>
-        public uint RemoveEdge(uint vertex, uint previousEdgePointer, uint edgePointer, uint nextPointer)
+        private uint RemoveEdge(uint vertex, uint previousEdgePointer, uint edgePointer, uint nextPointer)
         {
             var originalEdgePointer = edgePointer;
             if (previousEdgePointer == NO_EDGE && nextPointer == NO_EDGE)

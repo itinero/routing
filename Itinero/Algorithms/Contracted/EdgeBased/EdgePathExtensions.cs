@@ -66,7 +66,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 { // there is a contracted vertex here!
                     // get source/target sequences.
                     var sequence1 = enumerator.GetSequence1();
-                    sequence1 = sequence1.Reverse();
+                    sequence1.Reverse();
                     var sequence2 = enumerator.GetSequence2();
 
                     // move to the first edge (contracted -> from vertex) and keep details.

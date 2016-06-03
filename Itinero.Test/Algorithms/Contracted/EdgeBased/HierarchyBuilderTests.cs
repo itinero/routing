@@ -53,7 +53,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // contract graph.
             Func<uint, IEnumerable<uint[]>> getRestrictions = (v) => Enumerable.Empty<uint[]>();
             Func<ushort, Factor> getFactor = (p) => new Factor() { Direction = 0, Value = 1 };
-            var witnessCalculator = new DykstraWitnessCalculator(graph, getFactor, getRestrictions);
+            var witnessCalculator = new DykstraWitnessCalculator(getRestrictions);
             var hierarchyBuilder = new HierarchyBuilder(directedGraph, new EdgeDifferencePriorityCalculator(directedGraph,
                 witnessCalculator), witnessCalculator, getRestrictions);
             hierarchyBuilder.Run();
@@ -87,20 +87,20 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // contract graph.
             Func<uint, IEnumerable<uint[]>> getRestrictions = (v) => Enumerable.Empty<uint[]>();
             Func<ushort, Factor> getFactor = (p) => new Factor() { Direction = 0, Value = 1 };
-            var witnessCalculator = new DykstraWitnessCalculator(graph, getFactor, getRestrictions);
+            var witnessCalculator = new DykstraWitnessCalculator(getRestrictions);
             var hierarchyBuilder = new HierarchyBuilder(directedGraph, new EdgeDifferencePriorityCalculator(directedGraph,
                 witnessCalculator), witnessCalculator, getRestrictions);
             hierarchyBuilder.Run();
 
-            //// check edges.
-            //var edges01 = directedGraph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
-            //Assert.IsNotNull(edges01);
-            //var edge10 = directedGraph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 0);
-            //Assert.IsNull(edge10);
-            //var edge12 = directedGraph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 2);
-            //Assert.IsNotNull(edge12);
-            //var edges21 = directedGraph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 1);
-            //Assert.IsNull(edges21);
+            // check edges.
+            var edges01 = directedGraph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
+            Assert.IsNotNull(edges01);
+            var edge10 = directedGraph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 0);
+            Assert.IsNull(edge10);
+            var edge12 = directedGraph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 2);
+            Assert.IsNull(edge12);
+            var edges21 = directedGraph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 1);
+            Assert.IsNotNull(edges21);
         }
 
         /// <summary>
@@ -110,17 +110,6 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test5VerticesWithRestriction()
         {
             // build graph.
-            var graph = new Graph(1);
-            graph.AddVertex(0);
-            graph.AddVertex(1);
-            graph.AddVertex(2);
-            graph.AddVertex(3);
-            graph.AddVertex(4);
-            var edge01 = graph.AddEdge(0, 1, 100f, 0);
-            var edge12 = graph.AddEdge(1, 2, 100f, 0);
-            var edge13 = graph.AddEdge(1, 3, 100f, 0);
-            var edge14 = graph.AddEdge(1, 4, 100f, 0);
-            var edge23 = graph.AddEdge(2, 3, 100f, 0);
             var directedGraph = new DirectedDynamicGraph(5, 1);
             directedGraph.AddEdge(0, 1, 100, null);
             directedGraph.AddEdge(1, 0, 100, null);
@@ -151,7 +140,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 return Enumerable.Empty<uint[]>();
             };
             Func<ushort, Factor> getFactor = (p) => new Factor() { Direction = 0, Value = 1 };
-            var witnessCalculator = new DykstraWitnessCalculator(graph, getFactor, getRestrictions);
+            var witnessCalculator = new DykstraWitnessCalculator(getRestrictions);
             var hierarchyBuilder = new HierarchyBuilder(directedGraph, new EdgeDifferencePriorityCalculator(directedGraph,
                 witnessCalculator), witnessCalculator, getRestrictions);
             hierarchyBuilder.Run();
@@ -183,11 +172,18 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // verify all edges for 3.
             edges = directedGraph.GetEdgeEnumerator(3);
-            Assert.AreEqual(1, edges.Count());
-            edge = edges.First(e => e.Neighbour == 1);
+            Assert.AreEqual(2, edges.Count());
+            edge = edges.First(e => e.Neighbour == 1 && e.GetContracted() == null); // 1->3 original edge.
             Assert.AreEqual(1, edge.Neighbour);
             Assert.AreEqual(null, edge.Direction());
             Assert.AreEqual(100, edge.Weight());
+            edge = edges.First(e => e.Neighbour == 1 && e.GetContracted() != null); // 1->3 contracted edge.
+            Assert.AreEqual(1, edge.Neighbour);
+            Assert.AreEqual(2, edge.GetContracted());
+            Assert.AreEqual(new uint[] { 2 }, edge.GetSequence1());
+            Assert.AreEqual(new uint[] { 2 }, edge.GetSequence2());
+            Assert.AreEqual(null, edge.Direction());
+            Assert.AreEqual(200, edge.Weight());
 
             // verify all edges for 4.
             edges = directedGraph.GetEdgeEnumerator(4);

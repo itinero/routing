@@ -262,12 +262,55 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Reverse the elements in the given array and returns the same array.
+        /// Creates a new array appending the given array.
         /// </summary>
-        public static T[] Reverse<T>(this T[] array)
+        public static T[] Append<T>(this T[] array, T[] other)
+        {
+            var result = new T[array.Length + other.Length];
+            for(var i = 0; i < array.Length; i++)
+            {
+                result[i] = array[i];
+            }
+            for (var i = 0; i < other.Length; i++)
+            {
+                result[array.Length + i] = other[i];
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a new array appending the given element.
+        /// </summary>
+        public static T[] Append<T>(this T[] array, T other)
+        {
+            var result = new T[array.Length + 1];
+            for (var i = 0; i < array.Length; i++)
+            {
+                result[i] = array[i];
+            }
+            result[array.Length] = other;
+            return result;
+        }
+
+        /// <summary>
+        /// Reverse the elements in the given array.
+        /// </summary>
+        public static void Reverse<T>(this T[] array)
         {
             System.Array.Reverse(array);
-            return array;
+        }
+        
+        /// <summary>
+        /// Returns a copy of the given array with the elements reversed.
+        /// </summary>
+        public static T[] ReverseAndCopy<T>(this T[] array)
+        {
+            var reversed = new T[array.Length];
+            for(var i = 0; i < array.Length; i++)
+            {
+                reversed[array.Length - 1 - i] = array[i];
+            }
+            return reversed;
         }
     }
 }

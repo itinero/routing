@@ -58,8 +58,7 @@ namespace Itinero
 
                     // contract the graph.
                     var getRestrictions = db.GetGetRestrictions(profile, true);
-                    var witnessCalculator = new Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(db.Network.GeometricGraph.Graph,
-                        getFactor, getRestrictions);
+                    var witnessCalculator = new Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(getRestrictions);
                     var hierarchyBuilder = new Algorithms.Contracted.EdgeBased.HierarchyBuilder(contracted, new Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator(contracted,
                         witnessCalculator), witnessCalculator, getRestrictions);
                     hierarchyBuilder.Run();

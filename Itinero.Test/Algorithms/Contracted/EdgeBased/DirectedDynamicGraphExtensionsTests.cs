@@ -37,7 +37,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // build a graph with one of each possible edge-types.
             var graph = new DirectedDynamicGraph(1);
             var edge1 = graph.AddEdge(0, 1, 10); // add weight/direction field only.
-            var edge2 = graph.AddEdge(1, 2, 10, 3); // add a weight/direction field and a contracted id, and edge with start- or endsequence.
+            var edge2 = graph.AddEdge(1, 2, 10, 3); // add a weight/direction field and a contracted id. In this case startsequence is { 3 } and endsequence is { 3 }.
             var edge3 = graph.AddEdge(2, 3, 10, 4, 1, 2); // add a weight/direction field, a contracted id and a startsequence { 2 }.
             var edge4 = graph.AddEdge(3, 4, 10, 5, 0, 2); // add a weight/direction field, a contracted id and an endsequence { 2 }.
             var edge5 = graph.AddEdge(4, 5, 10, 6, 1, 4, 5); // add a weight/direction field, a contracted id, a startsequence { 4 } and an endsequence { 5 }.
@@ -101,12 +101,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build a graph with one of each possible edge-types.
             var graph = new DirectedDynamicGraph(1);
-            var edge1 = graph.AddEdge(0, 1, 10); // add weight/direction field only.
-            var edge2 = graph.AddEdge(1, 2, 10, 3); // add a weight/direction field and a contracted id, and edge with start- or endsequence.
-            var edge3 = graph.AddEdge(2, 3, 10, 4, 1, 2); // add a weight/direction field, a contracted id and a startsequence { 2 }.
-            var edge4 = graph.AddEdge(3, 4, 10, 5, 0, 2); // add a weight/direction field, a contracted id and an endsequence { 2 }.
-            var edge5 = graph.AddEdge(4, 5, 10, 6, 1, 4, 5); // add a weight/direction field, a contracted id, a startsequence { 4 } and an endsequence { 5 }.
-            
+            var edge1 = graph.AddEdge(0, 1, 10f, null); // add weight/direction field only.
+            var edge2 = graph.AddEdge(1, 2, 20f, null, 3, null, null); // add a weight/direction field and a contracted id, and edge with start- or endsequence.
+            var edge3 = graph.AddEdge(2, 3, 30f, null, 4, new uint[] { 2 }, null); // add a weight/direction field, a contracted id and a startsequence { 2 }.
+            var edge4 = graph.AddEdge(3, 4, 40f, null, 5, null, new uint[] { 2 }); // add a weight/direction field, a contracted id and an endsequence { 2 }.
+            var edge5 = graph.AddEdge(4, 5, 50f, null, 6, new uint[] { 4 }, new uint[] { 5 }); // add a weight/direction field, a contracted id, a startsequence { 4 } and an endsequence { 5 }.
+
             var enumerator = graph.GetEdgeEnumerator();
 
             enumerator.MoveToEdge(edge1);
@@ -120,10 +120,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             enumerator.MoveToEdge(edge2);
             seq = enumerator.GetSequence1();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 3 }, seq);
             seq = enumerator.Current.GetSequence1();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 3 }, seq);
 
             enumerator.MoveToEdge(edge3);
             seq = enumerator.GetSequence1();
@@ -136,10 +136,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             enumerator.MoveToEdge(edge4);
             seq = enumerator.GetSequence1();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 5 }, seq);
             seq = enumerator.Current.GetSequence1();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 5 }, seq);
 
             enumerator.MoveToEdge(edge5);
             seq = enumerator.GetSequence1();
@@ -158,11 +158,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build a graph with one of each possible edge-types.
             var graph = new DirectedDynamicGraph(1);
-            var edge1 = graph.AddEdge(0, 1, 10); // add weight/direction field only.
-            var edge2 = graph.AddEdge(1, 2, 10, 3); // add a weight/direction field and a contracted id, and edge with start- or endsequence.
-            var edge3 = graph.AddEdge(2, 3, 10, 4, 1, 2); // add a weight/direction field, a contracted id and a startsequence { 2 }.
-            var edge4 = graph.AddEdge(3, 4, 10, 5, 0, 2); // add a weight/direction field, a contracted id and an endsequence { 2 }.
-            var edge5 = graph.AddEdge(4, 5, 10, 6, 1, 4, 5); // add a weight/direction field, a contracted id, a startsequence { 4 } and an endsequence { 5 }.
+            var edge1 = graph.AddEdge(0, 1, 10f, null); // add weight/direction field only.
+            var edge2 = graph.AddEdge(1, 2, 20f, null, 3, null, null); // add a weight/direction field and a contracted id, and edge with start- or endsequence.
+            var edge3 = graph.AddEdge(2, 3, 30f, null, 4, new uint[] { 2 }, null); // add a weight/direction field, a contracted id and a startsequence { 2 }.
+            var edge4 = graph.AddEdge(3, 4, 40f, null, 5, null, new uint[] { 2 }); // add a weight/direction field, a contracted id and an endsequence { 2 }.
+            var edge5 = graph.AddEdge(4, 5, 50f, null, 6, new uint[] { 4 }, new uint[] { 5 }); // add a weight/direction field, a contracted id, a startsequence { 4 } and an endsequence { 5 }.
 
             var enumerator = graph.GetEdgeEnumerator();
 
@@ -177,18 +177,18 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             enumerator.MoveToEdge(edge2);
             seq = enumerator.GetSequence2();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 3 }, seq);
             seq = enumerator.Current.GetSequence2();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 3 }, seq);
 
             enumerator.MoveToEdge(edge3);
             seq = enumerator.GetSequence2();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 4 }, seq);
             seq = enumerator.Current.GetSequence2();
             Assert.IsNotNull(seq);
-            Assert.AreEqual(new uint[0], seq);
+            Assert.AreEqual(new uint[] { 4 }, seq);
 
             enumerator.MoveToEdge(edge4);
             seq = enumerator.GetSequence2();
@@ -220,9 +220,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.AddEdge(2, 3, 300, false, 2, null, null);
             graph.AddEdge(3, 4, 400, true, 3, null, null);
 
-            graph.AddEdgeOrUpdate(0, 1, 110, null, 10, null, null);
-            graph.AddEdgeOrUpdate(1, 2, 190, null, 11, null, null);
-            graph.AddEdgeOrUpdate(1, 2, 180, true, 12, null, null);
+            graph.AddEdgeOrUpdate(0, 1, 110, null, 10, new uint[] { 10 }, new uint[] { 10 });
+            graph.AddEdgeOrUpdate(1, 2, 190, null, 11, new uint[] { 11 }, new uint[] { 11 });
+            graph.AddEdgeOrUpdate(1, 2, 180, true, 12, new uint[] { 12 }, new uint[] { 12 });
         }
     }
 }

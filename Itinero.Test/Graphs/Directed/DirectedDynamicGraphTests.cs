@@ -175,6 +175,46 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(010400, enumerator.DynamicData[0]);
             Assert.AreEqual(01040000, enumerator.DynamicData[1]);
         }
+        
+        /// <summary>
+        /// Tests removing an edge.
+        /// </summary>
+        [Test]
+        public void TestRemoveEdgeById()
+        {
+            var graph = new DirectedDynamicGraph();
+
+            var id = graph.AddEdge(1, 2, 0102, 010200);
+            graph.AddEdge(1, 3, 0103);
+
+            Assert.AreEqual(1, graph.RemoveEdgeById(1, id));
+
+            Assert.AreEqual(1, graph.EdgeCount);
+            var enumerator = graph.GetEdgeEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(1));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Neighbour);
+            Assert.AreEqual(0103, enumerator.Data0);
+
+            graph = new DirectedDynamicGraph();
+            graph.AddEdge(1, 2, 0102, 010200);
+            id = graph.AddEdge(1, 3, 0103);
+            graph.AddEdge(1, 4, 0104, 010400, 01040000);
+
+            Assert.AreEqual(1, graph.RemoveEdgeById(1, id));
+            enumerator = graph.GetEdgeEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(1));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(2, enumerator.Neighbour);
+            Assert.AreEqual(0102, enumerator.Data0);
+            Assert.AreEqual(010200, enumerator.DynamicData[0]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Neighbour);
+            Assert.AreEqual(0104, enumerator.Data0);
+            Assert.AreEqual(010400, enumerator.DynamicData[0]);
+            Assert.AreEqual(01040000, enumerator.DynamicData[1]);
+        }
+
         /// <summary>
         /// Tests the vertex count.
         /// </summary>
@@ -732,6 +772,92 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(1, edge.Neighbour);
             Assert.AreEqual(null, edge.Direction());
             Assert.AreEqual(107, edge.Weight());
+        }
+
+        /// <summary>
+        /// Tests building an original path.
+        /// </summary>
+        [Test]
+        public void TestBuildPath()
+        {
+            // build graph.
+            var graph = new DirectedDynamicGraph(5, 1);
+            var edge01 = graph.AddEdge(0, 1, 100, null);
+            //graph.AddEdge(1, 0, 101, null);
+            //graph.AddEdge(1, 2, 102, null);
+            var edge21 = graph.AddEdge(2, 1, 103, null);
+            //graph.AddEdge(1, 3, 104, null);
+            var edge31 = graph.AddEdge(3, 1, 105, null);
+            //graph.AddEdge(1, 4, 106, null);
+            var edge41 = graph.AddEdge(4, 1, 107, null);
+            var edge23 = graph.AddEdge(2, 3, 108, null);
+            //graph.AddEdge(3, 2, 109, null);
+
+            var path = graph.BuildPath(new uint[] { 1 });
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.IsNull(path.From);
+            Assert.AreEqual(0, path.Weight);
+
+            path = graph.BuildPath(new uint[] { 1, 2 });
+            Assert.IsNotNull(path);
+            Assert.AreEqual(2, path.Vertex);
+            Assert.IsNotNull(path.From);
+            Assert.AreEqual(103, path.Weight);
+            Assert.AreEqual(-graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.IsNull(path.From);
+            Assert.AreEqual(0, path.Weight);
+
+            path = graph.BuildPath(new uint[] { 2, 1 }, true);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(2, path.Vertex);
+            Assert.IsNotNull(path.From);
+            Assert.AreEqual(103, path.Weight);
+            Assert.AreEqual(-graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.IsNull(path.From);
+            Assert.AreEqual(0, path.Weight);
+
+            path = graph.BuildPath(new uint[] { 2, 1 });
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.IsNotNull(path.From);
+            Assert.AreEqual(103, path.Weight);
+            Assert.AreEqual(graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(2, path.Vertex);
+            Assert.IsNull(path.From);
+            Assert.AreEqual(0, path.Weight);
+
+            path = graph.BuildPath(new uint[] { 1, 2 }, true);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.IsNotNull(path.From);
+            Assert.AreEqual(103, path.Weight);
+            Assert.AreEqual(graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(2, path.Vertex);
+            Assert.IsNull(path.From);
+            Assert.AreEqual(0, path.Weight);
+            
+            path = graph.BuildPath(new uint[] { 1, 2 }, true, true);
+            Assert.IsNotNull(path);
+            Assert.AreEqual(1, path.Vertex);
+            Assert.IsNotNull(path.From);
+            Assert.AreEqual(103, path.Weight);
+            Assert.AreEqual(graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            path = path.From;
+            Assert.IsNotNull(path);
+            Assert.AreEqual(2, path.Vertex);
+            Assert.IsNull(path.From);
+            Assert.AreEqual(0, path.Weight);
         }
     }
 }

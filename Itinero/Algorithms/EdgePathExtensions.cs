@@ -47,5 +47,40 @@ namespace Itinero.Algorithms
             }
             return new EdgePath(path.Vertex, path.Weight, path.From.ToEdgePath());
         }
+
+        /// <summary>
+        /// Appends the given path in reverse to the edge path.
+        /// </summary>
+        public static EdgePath Append(this EdgePath path, EdgePath reversePath)
+        {
+            if (path.Vertex != reversePath.Vertex)
+            {
+                throw new System.Exception("Cannot append path that ends with a different vertex.");
+            }
+
+            while(reversePath.From != null)
+            {
+                var localWeight = reversePath.Weight - reversePath.From.Weight;
+                path = new EdgePath(reversePath.From.Vertex, path.Weight + localWeight, -reversePath.Edge, path);
+                reversePath = reversePath.From;
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// Returns true if this path contains the given vertex.
+        /// </summary>
+        public static bool HasVertex(this EdgePath path, uint vertex)
+        {
+            while(path != null)
+            {
+                if (path.Vertex == vertex)
+                {
+                    return true;
+                }
+                path = path.From;
+            }
+            return false;
+        }
     }
 }

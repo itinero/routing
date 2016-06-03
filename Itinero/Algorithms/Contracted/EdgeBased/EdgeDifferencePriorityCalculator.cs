@@ -33,6 +33,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
         private readonly IWitnessCalculator _witnessCalculator;
+        private const float E = 0.1f;
 
         /// <summary>
         /// Creates a new priority calculator.
@@ -45,7 +46,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _depth = new Dictionary<long, int>();
 
             this.DifferenceFactor = 2;
-            this.DepthFactor = 2;
+            this.DepthFactor = 1;
             this.ContractedFactor = 1;
         }
 
@@ -93,33 +94,117 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
-                    var forwardWitnesses = !(edge1CanMoveBackward && edge2CanMoveForward);
-                    var backwardWitnesses = !(edge1CanMoveForward && edge2CanMoveBackward);
+                    // check if there are any restrictions restriction edge1->vertex->edge2
+                    //var vertexRestrictions = (IEnumerable<uint[]>)null; // _getRestriction(vertex);
+                    var sequence = new List<uint>();
+                    //if (vertexRestrictions != null)
+                    //{
+                    //    // get sequence at vertex and check restrictions.
+                    //    sequence.AddRange(edge1.GetSequence2().Reverse());
+                    //    sequence.Add(vertex);
+                    //    sequence.AddRange(edge2.GetSequence1());
 
-                    forwardWitnesses = forwardWitnesses || _witnessCalculator.Calculate(new uint[] { edge1.Neighbour }, new uint [] { edge2.Neighbour }, 
-                        vertex, edge1Weight + edge2Weight);
-                    backwardWitnesses = backwardWitnesses || _witnessCalculator.Calculate(new uint[] { edge2.Neighbour }, new uint[] { edge1.Neighbour },
-                        vertex, edge1Weight + edge2Weight);
+                    //    if (!vertexRestrictions.IsSequenceAllowed(sequence))
+                    //    { // there is restriction the prohibits this move.
+                    //        continue;
+                    //    }
+                    //}
 
-                    bool? forwardDirection = null;
-                    bool? backwardDirection = null;
-                    if (forwardWitnesses && backwardWitnesses)
-                    { // witnessed paths are not shortest paths.
+                    // figure out how much of the path needs to be saved at the source vertex.
+                    uint[] sequence1 = null;
+                    if (edge1.IsOriginal())
+                    {
+                        sequence1 = new uint[] { vertex };
+                    }
+                    else
+                    {
+                        sequence1 = edge1.GetSequence2();
+                        sequence1.Reverse();
+                    }
+                    //if (restrictions1 != null)
+                    //{
+                    //    sequence = GetSequence(edge1, vertex, edge2);
+                    //    var m = sequence.MatchAny(restrictions1);
+                    //    if (m > 1)
+                    //    { // there is a match that is non-trivial, make sure to add this.
+                    //        sequence1 = new uint[m];
+                    //        sequence.CopyTo(0, sequence1, 0, m);
+                    //    }
+                    //}
+                    sequence1 = (new uint[] { edge1.Neighbour }).Append(sequence1);
+                    uint[] sequence2 = null;
+                    if (edge2.IsOriginal())
+                    {
+                        sequence2 = new uint[] { vertex };
+                    }
+                    else
+                    {
+                        sequence2 = edge2.GetSequence2();
+                    }
+                    sequence2 = sequence2.Append(edge2.Neighbour);
+                    //if (restrictions2 != null)
+                    //{
+                    //    sequence = GetSequence(edge2, vertex, edge1);
+                    //    var m = sequence.MatchAnyReverse(restrictions1);
+                    //    if (m > 1)
+                    //    { // there is a match that is non-trivial, make sure to add this.
+                    //        sequence2 = new uint[m];
+                    //        sequence.CopyTo(0, sequence2, 0, m);
+                    //    }
+                    //}
+
+                    var forwardWeight = float.MaxValue;
+                    if (edge1CanMoveBackward && edge2CanMoveForward)
+                    {
+                        var forwardPath = _witnessCalculator.Calculate(_graph, sequence1, sequence2);
+                        if (forwardPath.HasVertex(vertex))
+                        { // not a witness path.
+                            forwardWeight = forwardPath.Weight;
+                        }
+                    }
+
+                    var backwardWeight = float.MaxValue;
+                    if (edge1CanMoveForward && edge2CanMoveBackward)
+                    {
+                        var backwardPath = _witnessCalculator.Calculate(_graph, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
+                        if (backwardPath.HasVertex(vertex))
+                        { // not a witness path.
+                            backwardWeight = backwardPath.Weight;
+                        }
+                    }
+                    
+                    // build shortcut sequences.
+                    if (sequence1 != null && sequence1.Length > 0)
+                    {
+                        sequence1 = sequence1.SubArray(1, sequence1.Length - 1);
+                    }
+                    if (sequence2 != null && sequence2.Length > 0)
+                    {
+                        sequence2 = sequence2.SubArray(0, sequence2.Length - 1);
+                    }
+
+                    if (forwardWeight == float.MaxValue && backwardWeight == float.MaxValue)
+                    { // not shortcuts should be added.
                         continue;
                     }
-                    else if (backwardWitnesses)
-                    { // only forward
-                        forwardDirection = true;
-                        backwardDirection = false;
+                    if (System.Math.Abs(forwardWeight - backwardWeight) < E)
+                    { // both forward and backward path have the same weight, add the as the same edge.
+                        added += _graph.TryAddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, forwardWeight, null, vertex, sequence1, sequence2);
+                        added += _graph.TryAddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, forwardWeight, null, vertex, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
                     }
-                    else if (forwardWitnesses)
-                    { // only backward
-                        forwardDirection = false;
-                        backwardDirection = true;
+                    else
+                    {
+                        if (forwardWeight != float.MaxValue)
+                        { // there is a shortcut in forward direction.
+                            added += _graph.TryAddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, forwardWeight, true, vertex, sequence1, sequence2);
+                            added += _graph.TryAddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, forwardWeight, false, vertex, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
+                        }
+                        if (backwardWeight != float.MaxValue)
+                        { // there is a shortcut in backward direction.
+                            added += _graph.TryAddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, backwardWeight, false, vertex, sequence1, sequence2);
+                            added += _graph.TryAddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, backwardWeight, true, vertex, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
+                        }
                     }
-
-                    added += _graph.TryAddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, edge1Weight + edge2Weight, forwardDirection, vertex);
-                    added += _graph.TryAddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, edge1Weight + edge2Weight, backwardDirection, vertex);
                 }
             }
 

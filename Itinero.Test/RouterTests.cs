@@ -304,6 +304,25 @@ namespace Itinero.Test
             routerDb.Network.Sort();
             routerDb.AddContracted(pedestrian, true);
 
+            var vertex0sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex0.Latitude, vertex0.Longitude, 0.0001f, 0.0001f);
+            var vertex1sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex1.Latitude, vertex1.Longitude, 0.0001f, 0.0001f);
+            var vertex2sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex2.Latitude, vertex2.Longitude, 0.0001f, 0.0001f);
+            var vertex3sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex3.Latitude, vertex3.Longitude, 0.0001f, 0.0001f);
+            var vertex4sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex4.Latitude, vertex4.Longitude, 0.0001f, 0.0001f);
+            var vertex5sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex5.Latitude, vertex5.Longitude, 0.0001f, 0.0001f);
+            var vertex6sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex6.Latitude, vertex6.Longitude, 0.0001f, 0.0001f);
+            var vertex7sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex7.Latitude, vertex7.Longitude, 0.0001f, 0.0001f);
+            var vertex8sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex8.Latitude, vertex8.Longitude, 0.0001f, 0.0001f);
+            var vertex9sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex9.Latitude, vertex9.Longitude, 0.0001f, 0.0001f);
+            var vertex10sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex10.Latitude, vertex10.Longitude, 0.0001f, 0.0001f);
+            var vertex11sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex11.Latitude, vertex11.Longitude, 0.0001f, 0.0001f);
+            var vertex12sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex12.Latitude, vertex12.Longitude, 0.0001f, 0.0001f);
+            var vertex13sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex13.Latitude, vertex13.Longitude, 0.0001f, 0.0001f);
+            var vertex14sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex14.Latitude, vertex14.Longitude, 0.0001f, 0.0001f);
+            var vertex15sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex15.Latitude, vertex15.Longitude, 0.0001f, 0.0001f);
+            var vertex16sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex16.Latitude, vertex16.Longitude, 0.0001f, 0.0001f);
+            var vertex17sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex17.Latitude, vertex17.Longitude, 0.0001f, 0.0001f);
+
             var router = new Router(routerDb);
 
             var vertices = new Coordinate[] { vertex0, vertex1, vertex2, vertex3, vertex4, vertex5, vertex6, vertex7, vertex8, vertex9,
