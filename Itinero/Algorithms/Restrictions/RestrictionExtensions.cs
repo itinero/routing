@@ -28,6 +28,25 @@ namespace Itinero.Algorithms.Restrictions
         private static uint[] EMPTY = new uint[0];
 
         /// <summary>
+        /// Compares two non-null sequences and checks if they have identical elements.
+        /// </summary>
+        public static bool IsSequenceIdentical(this uint[] s1, uint[] s2)
+        {
+            if (s1.Length != s2.Length)
+            {
+                return false;
+            }
+            for(var i = 0; i < s1.Length; i++)
+            {
+                if (s1[i] != s2[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns true if the given seqence is allowed for the given restriction.
         /// </summary>
         public static bool IsSequenceAllowed(this uint[] restriction, uint[] sequence)

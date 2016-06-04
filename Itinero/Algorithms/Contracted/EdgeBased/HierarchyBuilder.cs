@@ -240,7 +240,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     out edge1Weight, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
-                
+
                 // add contracted edges if needed.
                 for (var t = 0; t < f; t++)
                 {
@@ -298,6 +298,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     //    }
                     //}
                     sequence1 = (new uint[] { edge1.Neighbour }).Append(sequence1);
+
                     uint[] sequence2 = null;
                     if (edge2.IsOriginal())
                     {
@@ -319,7 +320,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     //    }
                     //}
 
-                    // calculate witness paths here, we need the sequences that are fixed to calculate a witness path.                    
+                    // find the shortuts or witness paths here, we need the sequences that are fixed to calculate a witness path.                    
                     var forwardWeight = float.MaxValue;
                     EdgePath forwardPath = null;
                     if (edge1CanMoveBackward && edge2CanMoveForward)
@@ -342,6 +343,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         }
                     }
                     
+                    if (forwardWeight == float.MaxValue && backwardWeight == float.MaxValue)
+                    { // no shortcuts should be added.
+                        continue;
+                    }
+
                     // build shortcut sequences.
                     if (sequence1 != null && sequence1.Length > 0)
                     {
@@ -352,10 +358,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         sequence2 = sequence2.SubArray(0, sequence2.Length - 1);
                     }
 
-                    if (forwardWeight == float.MaxValue && backwardWeight == float.MaxValue)
-                    { // not shortcuts should be added.
-                        continue;
-                    }
                     if (System.Math.Abs(forwardWeight - backwardWeight) < E)
                     { // both forward and backward path have the same weight, add the as the same edge.
                         _graph.AddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, forwardWeight, null, vertex, sequence1, sequence2);

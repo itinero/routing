@@ -436,7 +436,6 @@ namespace Itinero.Graphs.Directed
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 >= _vertices.Length) { return 0; }
-            if (edgeId >= _edges.Length) { return 0; }
 
             var removed = 0;
             var vertexPointer = vertex1;
@@ -465,20 +464,31 @@ namespace Itinero.Graphs.Directed
                     }
                     nextPointer = MoveNextEdge(currentPointer);
                 }
-                if (currentPointer == edgeId)
+                if (currentPointer != NO_EDGE)
                 {
-                    if (RemoveEdge(vertex1, previousPointer, currentPointer, nextPointer) == NO_EDGE)
+                    if (currentPointer == edgeId)
                     {
-                        removed++;
+                        if (RemoveEdge(vertex1, previousPointer, currentPointer, nextPointer) == NO_EDGE)
+                        {
+                            removed++;
+                            _edgeCount--;
+                            return removed;
+                        }
+                        success = true;
                         _edgeCount--;
-                        return removed;
+                        removed++;
+
+                        edgePointer = firstPointer;
+
+                        previousPointer = NO_EDGE;
+                        currentPointer = edgePointer;
+                        continue;
                     }
-                    success = true;
-                    _edgeCount--;
-                    return 1;
+                    previousPointer = currentPointer;
+                    currentPointer = nextPointer;
                 }
             }
-            return 0;
+            return removed;
         }
 
         /// <summary>
@@ -706,6 +716,22 @@ namespace Itinero.Graphs.Directed
             public uint Neighbour
             {
                 get { return _graph._edges[_currentEdgePointer]; }
+            }
+
+            /// <summary>
+            /// Returns true if there is dynamic data.
+            /// </summary>
+            public bool HasDynamicData
+            {
+                get
+                {
+                    var p = _currentEdgePointer + _graph._fixedEdgeDataSize;
+                    if (DirectedDynamicGraph.IsLastField(_graph._edges[p]))
+                    { // no dynamic data!
+                        return false;
+                    }
+                    return true;
+                }
             }
 
             /// <summary>

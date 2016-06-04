@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Restrictions;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
@@ -109,11 +110,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         public static bool IsOriginal(this DirectedDynamicGraph.EdgeEnumerator edge)
         {
-            if (edge.DynamicData == null)
-            {
-                throw new ArgumentException("DynamicData array of an edge should not be null.");
-            }
-            return edge.DynamicData.Length == 0;
+            return !edge.HasDynamicData;
         }
 
         /// <summary>
@@ -342,7 +339,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             return graph.AddEdge(vertex1, vertex2, data);
         }
-        
+
         /// <summary>
         /// Adds or updates a contracted edge including sequences.
         /// </summary>
@@ -357,6 +354,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         public static void AddEdgeOrUpdate(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
             uint[] sequence1, uint[] sequence2)
         {
+            var ignoreSequences = true;
+
             if (sequence1 == null || sequence1.Length < 0)
             {
                 throw new ArgumentOutOfRangeException("sequence1");
@@ -378,7 +377,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
                 if (s1.Length == s2.Length)
                 {
-                    for(var i = 0; i < s1.Length; i++)
+                    for (var i = 0; i < s1.Length; i++)
                     {
                         if (s1[i] != s2[i])
                         {
@@ -390,12 +389,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return false;
             };
 
-            var enumerator = graph.GetEdgeEnumerator();
-            enumerator.MoveTo(vertex1);
             float forwardWeight = float.MaxValue;
             float backwardWeight = float.MaxValue;
             uint? forwardContractedId = null;
             uint? backwardContractedId = null;
+            var forwardSequence1 = sequence1;
+            var forwardSequence2 = sequence2;
+            var backwardSequence1 = sequence1;
+            var backwardSequence2 = sequence2;
             if (direction != null)
             {
                 if (direction.Value)
@@ -418,21 +419,29 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
 
             var success = true;
-            while(success)
+            var enumerator = graph.GetEdgeEnumerator();
+            while (success)
             {
                 success = false;
+                enumerator.MoveTo(vertex1);
                 while (enumerator.MoveNext())
                 {
                     if (enumerator.Neighbour != vertex2)
                     {
                         continue;
                     }
-                    
+
+                    if (enumerator.IsOriginal())
+                    {
+                        continue;
+                    }
+
                     var s1 = enumerator.GetSequence1();
                     var s2 = enumerator.GetSequence2();
 
-                    if (sequenceEquals(s1, sequence1) &&
-                        sequenceEquals(s2, sequence2))
+                    if (ignoreSequences ||
+                      (sequenceEquals(s1, sequence1) &&
+                       sequenceEquals(s2, sequence2)))
                     {
                         float edgeWeight = float.MaxValue;
                         bool? edgeDirection = null;
@@ -445,6 +454,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             {
                                 forwardWeight = edgeWeight;
                                 forwardContractedId = edgeContractedId;
+                                if (ignoreSequences)
+                                {
+                                    forwardSequence1 = s1;
+                                    forwardSequence2 = s2;
+                                }
                             }
                         }
                         if (edgeDirection == null || !edgeDirection.Value)
@@ -453,36 +467,36 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             {
                                 backwardWeight = edgeWeight;
                                 backwardContractedId = edgeContractedId;
+                                if (ignoreSequences)
+                                {
+                                    backwardSequence1 = s1;
+                                    backwardSequence2 = s2;
+                                }
                             }
                         }
 
-                        graph.RemoveEdge(vertex1, enumerator.Id);
+                        graph.RemoveEdgeById(vertex1, enumerator.Id);
                         success = true;
                         break;
                     }
                 }
             }
-                        
-            if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue)
-            { 
-                if (forwardContractedId == backwardContractedId)
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId.Value, sequence1, sequence2);
-                }
-                else
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId.Value, sequence1, sequence2);
-                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId.Value, sequence1, sequence2);
-                }
-                return;
+
+            if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue && forwardContractedId == backwardContractedId &&
+                forwardSequence1.IsSequenceIdentical(backwardSequence1) && forwardSequence2.IsSequenceIdentical(backwardSequence2))
+            { // forward and backward are identical, add one bidirectional edge.
+                graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId.Value, forwardSequence1, forwardSequence2);
             }
-            if (forwardWeight != float.MaxValue)
-            {
-                graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId.Value, sequence1, sequence2);
-            }
-            if (backwardWeight != float.MaxValue)
-            {
-                graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId.Value, sequence1, sequence2);
+            else
+            { // forward and backwards are different, add two edges if needed.
+                if (forwardWeight != float.MaxValue)
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId.Value, forwardSequence1, forwardSequence2);
+                }
+                if (backwardWeight != float.MaxValue)
+                {
+                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId.Value, backwardSequence1, backwardSequence2);
+                }
             }
         }
 
@@ -559,12 +573,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     continue;
                 }
 
+                if (enumerator.IsOriginal())
+                {
+                    continue;
+                }
+
                 var s1 = enumerator.GetSequence1();
                 var s2 = enumerator.GetSequence2();
 
-                if (sequenceEquals(s1, sequence1) &&
-                    sequenceEquals(s2, sequence2))
-                {
+                //if (sequenceEquals(s1, sequence1) &&
+                //    sequenceEquals(s2, sequence2))
+                //{
                     float edgeWeight = float.MaxValue;
                     bool? edgeDirection = null;
                     var edgeContractedId = enumerator.GetContracted();
@@ -589,7 +608,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                     // graph.RemoveEdge(vertex1, enumerator.Id);
                     removed++;
-                }
+                //}
             }
 
             int added = 0;

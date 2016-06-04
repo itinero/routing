@@ -51,10 +51,10 @@ namespace Itinero.Test.Functional
 
             // test building a router db.
             Console.WriteLine("Tests building a router db...");
-            //var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm",
-            //    Vehicle.Car);
-            var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\wechel.osm.pbf",
+            var routerDb = Runner.TestBuildRouterDb(@"C:\Users\xivk\Dropbox\SharpSoftware\Projects\Eurostation ReLive\Projects\Gent-Circulatieplan\circulatieplan\circulatieplan.after.osm",
                 Vehicle.Car);
+            //var routerDb = Runner.TestBuildRouterDb(@"D:\work\data\OSM\wechel.osm.pbf",
+            //    Vehicle.Car);
             routerDb.AddContracted(Vehicle.Car.Fastest(), true);
 
             //routerDb.Serialize(File.OpenWrite(@"D:\work\data\OSM\belgium.c.cf.routing"));
