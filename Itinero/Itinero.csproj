@@ -49,6 +49,7 @@
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedDynamicGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedGraphBuilder.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedMetaGraphExtensions.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\Dykstra.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\EdgePathExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\HierarchyBuilder.cs" />

@@ -30,7 +30,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     public class ManyToManyBidirectionalDykstra : AlgorithmBase
     {
         private readonly RouterDb _routerDb;
-        private readonly DirectedMetaGraph _graph;
+        private readonly DirectedDynamicGraph _graph;
         private readonly Func<ushort, Factor> _getFactor;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
@@ -63,12 +63,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 throw new NotSupportedException(
                     "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");
             }
-            if (!contractedDb.HasNodeBasedGraph)
+            if (!contractedDb.HasEdgeBasedGraph)
             {
                 throw new NotSupportedException(
-                    "Contraction-based node-based many-to-many calculates are not supported in the given router db for the given profile.");
+                    "Contraction-based edge-based many-to-many calculates are not supported in the given router db for the given profile.");
             }
-            _graph = contractedDb.NodeBasedGraph;
+            _graph = contractedDb.EdgeBasedGraph;
 
             _buckets = new Dictionary<uint, Dictionary<int, float>>();
         }

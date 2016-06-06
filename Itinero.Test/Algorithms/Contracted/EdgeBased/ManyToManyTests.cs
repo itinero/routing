@@ -54,7 +54,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(MockProfile.CarMock());
+            routerDb.AddContracted(MockProfile.CarMock(), true);
 
             // create algorithm and run.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(MockProfile.CarMock());
+            routerDb.AddContracted(MockProfile.CarMock(), true);
 
             // run algorithm.
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
@@ -158,7 +158,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(MockProfile.CarMock());
+            routerDb.AddContracted(MockProfile.CarMock(), true);
 
             // run algorithm (0, 1, 2)->(0, 1, 2).
             var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
@@ -218,10 +218,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph();
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
@@ -285,10 +284,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, null);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
@@ -352,10 +350,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
@@ -425,10 +422,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(2, 1, 100, false);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
@@ -497,10 +493,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, true, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, true);
+            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, true);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
@@ -569,10 +564,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, false);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, false);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
@@ -655,15 +649,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 4, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 3, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 2);
-            graph.AddEdge(4, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 0);
-            graph.AddEdge(4, 3, 100 * MockProfile.CarMock().Factor(null).Value, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(0, 4, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(2, 3, 100 * MockProfile.CarMock().Factor(null).Value, null);
+            graph.AddEdge(3, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 2, null, null);
+            graph.AddEdge(4, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 0, null, null);
+            graph.AddEdge(4, 3, 100 * MockProfile.CarMock().Factor(null).Value, null);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
