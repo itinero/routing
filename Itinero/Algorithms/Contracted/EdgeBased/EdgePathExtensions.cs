@@ -18,6 +18,7 @@
 
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -96,6 +97,47 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
             }
             return edgePath;
+        }
+
+        /// <summary>
+        /// Builds the original sequence leading up to the given edge path.
+        /// </summary>
+        public static uint[] GetSequence(this EdgePath edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            var sequence = new List<uint>();
+            while (edgePath != null)
+            {
+                if (edgePath.Edge == Constants.NO_EDGE)
+                {
+                    sequence.Add(edgePath.Vertex);
+                    edgePath = edgePath.From;
+                }
+                else
+                {
+                    enumerator.MoveToEdge(edgePath.Edge);
+                    if (enumerator.IsOriginal())
+                    {
+                        sequence.Add(edgePath.Vertex);
+                        edgePath = edgePath.From;
+                    }
+                    else
+                    {
+                        var s2 = enumerator.GetSequence2();
+                        sequence.Add(edgePath.Vertex);
+                        if (s2 != null)
+                        {
+                            for (var i = s2.Length - 1; i >= 0; i--)
+                            {
+                                sequence.Add(s2[i]);
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            var result = sequence.ToArray();
+            result.Reverse();
+            return result;
         }
     }
 }

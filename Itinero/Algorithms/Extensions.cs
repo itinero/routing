@@ -40,10 +40,20 @@ namespace Itinero.Algorithms
                 }
                 if (sequence[s] == array[i])
                 {
+                    var t = i + 1;
                     s++;
+                    while (s != sequence.Length)
+                    {
+                        if (sequence[s] != array[t])
+                        {
+                            break;
+                        }
+                        s++;
+                        t++;
+                    }
                     if (s == sequence.Length)
                     {
-                        start = i - s - 1;
+                        start = t - sequence.Length;
                         return true;
                     }
                 }
@@ -68,10 +78,20 @@ namespace Itinero.Algorithms
                 }
                 if (sequence[s] == array[i])
                 {
+                    var t = i + 1;
                     s++;
+                    while (s != sequence.Count)
+                    {
+                        if (sequence[s] != array[t])
+                        {
+                            break;
+                        }
+                        s++;
+                        t++;
+                    }
                     if (s == sequence.Count)
                     {
-                        start = i - s - 1;
+                        start = t - sequence.Count;
                         return true;
                     }
                 }

@@ -17,6 +17,8 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Collections;
+using System;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -28,7 +30,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Calculate the priority for the given vertex.
         /// </summary>
-        float Calculate(BitArray32 contractedFlags, uint vertex);
+        float Calculate(BitArray32 contractedFlags, Func<uint, IEnumerable<uint[]>> getRestrictions, uint vertex);
 
         /// <summary>
         /// Notifies this calculator that the given vertex was contracted.

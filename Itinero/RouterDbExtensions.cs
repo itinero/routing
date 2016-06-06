@@ -66,7 +66,7 @@ namespace Itinero
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue));
+                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue), db.GetGetRestrictions(profile, true));
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted);

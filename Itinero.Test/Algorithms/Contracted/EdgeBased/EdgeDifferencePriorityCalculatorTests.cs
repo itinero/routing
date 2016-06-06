@@ -44,7 +44,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, 
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -63,7 +63,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(-1, priority);
         }
@@ -84,7 +84,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -107,7 +107,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(3, priority);
         }
@@ -128,7 +128,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
 
@@ -142,7 +142,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -163,7 +163,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), 0);
+            var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(-2, priority);
         }
@@ -184,7 +184,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             contractedFlags[1] = true;
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(contractedFlags, 0);
+            var priority = priorityCalculator.Calculate(contractedFlags, (i) => null, 0);
 
             Assert.AreEqual(-2, priority);
         }
@@ -207,7 +207,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             contractedFlags[1] = true;
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
-            var priority = priorityCalculator.Calculate(contractedFlags, 0);
+            var priority = priorityCalculator.Calculate(contractedFlags, (i) => null, 0);
 
             Assert.AreEqual(-3, priority);
         }
@@ -229,7 +229,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
             priorityCalculator.NotifyContracted(1);
-            var priority = priorityCalculator.Calculate(contractedFlags, 0);
+            var priority = priorityCalculator.Calculate(contractedFlags, (i) => null, 0);
 
             Assert.AreEqual(1, priority);
         }
@@ -253,7 +253,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock());
             priorityCalculator.NotifyContracted(1);
-            var priority = priorityCalculator.Calculate(contractedFlags, 0);
+            var priority = priorityCalculator.Calculate(contractedFlags, (i) => null, 0);
 
             Assert.AreEqual(0, priority);
         }
@@ -285,10 +285,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                         new uint[] { 3, 0, 1, 1 }
                     }));
 
-            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 0));
-            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 1));
-            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 2));
-            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, 3));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, (i) => null, 0));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, (i) => null, 1));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, (i) => null, 2));
+            Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, (i) => null, 3));
         }
     }
 }

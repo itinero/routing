@@ -25,8 +25,6 @@ namespace Itinero.Algorithms.Restrictions
     /// </summary>
     public static class RestrictionExtensions
     {
-        private static uint[] EMPTY = new uint[0];
-
         /// <summary>
         /// Compares two non-null sequences and checks if they have identical elements.
         /// </summary>
@@ -53,7 +51,7 @@ namespace Itinero.Algorithms.Restrictions
         {
             int start;
             // restriction restricts the sequence only if the entire restriction is part of the sequance.
-            return !restriction.Contains(sequence, out start); 
+            return !sequence.Contains(restriction, out start); 
         }
 
         /// <summary>
@@ -274,13 +272,13 @@ namespace Itinero.Algorithms.Restrictions
             }
             if (restriction.Length <= sequence.Length)
             {
-                return EMPTY;
+                return Constants.EMPTY;
             }
             for(var i = 0; i < sequence.Length; i++)
             {
                 if (sequence[i] != restriction[i])
                 {
-                    return EMPTY;
+                    return Constants.EMPTY;
                 }
             }
             return restriction.SubArray(sequence.Length - 1, restriction.Length - sequence.Length + 1);
@@ -301,13 +299,13 @@ namespace Itinero.Algorithms.Restrictions
             }
             if (restriction.Length <= sequence.Count)
             {
-                return EMPTY;
+                return Constants.EMPTY;
             }
             for (var i = 0; i < sequence.Count; i++)
             {
                 if (sequence[i] != restriction[i])
                 {
-                    return EMPTY;
+                    return Constants.EMPTY;
                 }
             }
             return restriction.SubArray(sequence.Count - 1, restriction.Length - sequence.Count + 1);

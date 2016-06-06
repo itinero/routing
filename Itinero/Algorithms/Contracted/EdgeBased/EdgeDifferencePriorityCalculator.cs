@@ -20,6 +20,7 @@
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.EdgeBased.Witness;
 using Itinero.Graphs.Directed;
+using System;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
@@ -52,7 +53,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Calculates the priority of the given vertex.
         /// </summary>
-        public float Calculate(BitArray32 contractedFlags, uint vertex)
+        public float Calculate(BitArray32 contractedFlags, Func<uint, IEnumerable<uint[]>> getRestrictions, uint vertex)
         {
             var removed = 0;
             var added = 0;
@@ -128,7 +129,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights,
+                _witnessCalculator.Calculate(_graph, getRestrictions, edge1.Neighbour, targets, targetWeights,
                     ref forwardWitnesses, ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.

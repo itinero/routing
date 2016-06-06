@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.EdgeBased;
+using System;
 using System.Collections.Generic;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
@@ -31,7 +32,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             _priorities = priorities;
         }
 
-        public float Calculate(BitArray32 contractedFlags, uint vertex)
+        public float Calculate(BitArray32 contractedFlags, Func<uint, IEnumerable<uint[]>> getRestrictions, uint vertex)
         {
             return _priorities[vertex];
         }

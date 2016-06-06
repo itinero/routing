@@ -67,7 +67,7 @@ namespace Itinero.Algorithms
         /// Gets the vertex.
         /// </summary>
         public uint Vertex { get; private set; }
-
+        
         /// <summary>
         /// Gets the weight at the vertex.
         /// </summary>

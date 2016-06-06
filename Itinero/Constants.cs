@@ -42,5 +42,10 @@ namespace Itinero
         /// A default maximum edge distance.
         /// </summary>
         public const float DefaultMaxEdgeDistance = 5000f;
+        
+        /// <summary>
+        /// An empty sequence/restriction.
+        /// </summary>
+        public static uint[] EMPTY = new uint[0];
     }
 }

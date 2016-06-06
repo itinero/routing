@@ -93,6 +93,7 @@
     <Compile Include="Algorithms\Contracted\EdgeBased\DykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DykstraWitnessCalculatorTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\EdgeDifferencePriorityCalculatorTests.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\EdgePathExtensionsTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\HierarchyBuilderTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\MockPriorityCalculator.cs" />

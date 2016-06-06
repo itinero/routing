@@ -25,6 +25,7 @@ using Itinero.Logging;
 using System.Collections.Generic;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Restrictions;
+using System.Linq;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -37,19 +38,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly IPriorityCalculator _priorityCalculator;
         private readonly IWitnessCalculator _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
+        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
 
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedDynamicGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
+        public HierarchyBuilder(DirectedDynamicGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
+            Func<uint, IEnumerable<uint[]>> getRestrictions)
         {
             _graph = graph;
             _priorityCalculator = priorityCalculator;
             _witnessCalculator = witnessCalculator;
+            _getRestrictions = getRestrictions;
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
         private BitArray32 _contractedFlags; // contains flags for contracted vertices.
+        private BitArray32 _restrictionFlags; // contains flags for restricted vertices.
 
         /// <summary>
         /// Excutes the actual run.
@@ -58,7 +63,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);
+            _restrictionFlags = new BitArray32(_graph.VertexCount);
             _missesQueue = new Queue<bool>();
+
+            // build restrictions flags.
+            for(uint i= 0; i < _graph.VertexCount; i++)
+            {
+                var restrictions = _getRestrictions(i);
+                if (restrictions != null && restrictions.Any())
+                {
+                    _restrictionFlags[i] = true;
+                }
+            }
 
             // remove all edges that have witness paths, meaning longer than the shortest path
             // between the two ending vertices.
@@ -133,7 +149,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 if (!_contractedFlags[v])
                 {
                     _queue.Push(v, _priorityCalculator.Calculate(
-                        _contractedFlags, v));
+                        _contractedFlags, _getRestrictions, v));
                 }
             }
         }
@@ -150,6 +166,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var targets = new List<uint>();
             for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
             {
+                if (_restrictionFlags[vertex])
+                { // don't remove witnessed edges when there is a potential restriction.
+                    continue;
+                }
+
                 edges.Clear();
                 weights.Clear();
                 targets.Clear();
@@ -161,6 +182,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 for (var i = 0; i < edges.Count; i++)
                 {
                     var edge = edges[i];
+
+                    if (_restrictionFlags[edge.Neighbour])
+                    { // don't remove shortcuts when there is a potential restriction.
+                        continue;
+                    }
 
                     float edgeWeight;
                     bool? edgeDirection;
@@ -176,7 +202,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, vertex, targets, weights,
+                _witnessCalculator.Calculate(_graph, _getRestrictions, vertex, targets, weights,
                     ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
 
                 // check witness paths.
@@ -223,7 +249,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                 // the lazy updating part!
                 // calculate priority
-                var priority = _priorityCalculator.Calculate(_contractedFlags, first);
+                var priority = _priorityCalculator.Calculate(_contractedFlags, _getRestrictions, first);
                 if (priority != queuedPriority)
                 { // a succesfull update.
                     _missesQueue.Enqueue(true);
@@ -273,6 +299,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             // get and keep edges.
             var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
+
+            // check if this vertex has a potential restrictions.
+            var hasRestrictions = _restrictionFlags[vertex];
 
             // remove 'downward' edge to vertex.
             var i = 0;
@@ -328,7 +357,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses,
+                _witnessCalculator.Calculate(_graph, _getRestrictions, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses,
                     ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.

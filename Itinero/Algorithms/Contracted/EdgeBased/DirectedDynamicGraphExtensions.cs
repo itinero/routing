@@ -268,7 +268,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var sequence = new uint[dynamicData.Length - 2 - size];
             for (var i = 0; i < sequence.Length; i++)
             {
-                sequence[i] = dynamicData[size + 2];
+                sequence[i] = dynamicData[size + 2 + i];
             }
             return sequence;
         }
