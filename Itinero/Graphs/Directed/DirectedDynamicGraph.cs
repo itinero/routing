@@ -477,12 +477,7 @@ namespace Itinero.Graphs.Directed
                         success = true;
                         _edgeCount--;
                         removed++;
-
-                        edgePointer = firstPointer;
-
-                        previousPointer = NO_EDGE;
-                        currentPointer = edgePointer;
-                        continue;
+                        return removed;
                     }
                     previousPointer = currentPointer;
                     currentPointer = nextPointer;
