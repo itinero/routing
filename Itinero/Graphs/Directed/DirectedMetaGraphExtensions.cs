@@ -25,28 +25,6 @@ namespace Itinero.Graphs.Directed
     /// </summary>
     public static class DirectedMetaGraphExtensions
     {
-        /// <summary>
-        /// Gets the shortest edge between two vertices.
-        /// </summary>
-        /// <returns></returns>
-        public static MetaEdge GetShortestEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, Func<uint[], float?> getWeight)
-        {
-            var minWeight = float.MaxValue;
-            var edges = graph.GetEdgeEnumerator(vertex1);
-            MetaEdge edge = null;
-            while(edges.MoveNext())
-            {
-                if(edges.Neighbour == vertex2)
-                { // the correct neighbour, get the weight.
-                    var weight = getWeight(edges.Data);
-                    if(weight.HasValue && 
-                        weight.Value < minWeight)
-                    { // weight is better.
-                        edge = edges.Current;
-                    }
-                }
-            }
-            return edge;
-        }
+
     }
 }

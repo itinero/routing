@@ -39,12 +39,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneEdge()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
                 new Path[] { new Path(0) }, new Path[] { new Path(1) });
             algorithm.Run();
 
@@ -70,12 +69,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(new List<uint>(new uint[] { 0, 1 }), algorithm.GetPath());
 
             // build graph.
-            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(1, 0, 100, null);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
                 new Path[] { new Path(0) }, new Path[] { new Path(1) });
             algorithm.Run();
 
@@ -106,13 +104,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(2, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
                 new Path[] { new Path(0) }, new Path[] { new Path(2) });
             algorithm.Run();
 
@@ -151,13 +148,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesRightHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 2, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
                 new Path[] { new Path(0) }, new Path[] { new Path(2) });
             algorithm.Run();
 
@@ -196,13 +192,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesLeftHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(2, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
                 new Path[] { new Path(0) }, new Path[] { new Path(2) });
             algorithm.Run();
 
@@ -241,13 +236,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesDirectedMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(2, 1, 100, false);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
                 new Path[] { new Path(0) }, new Path[] { new Path(2) });
             algorithm.Run();
 

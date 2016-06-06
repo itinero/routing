@@ -286,6 +286,70 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
+        /// Gets the shortest edge between two vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static DynamicEdge GetShortestEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, Func<uint[], float?> getWeight)
+        {
+            var minWeight = float.MaxValue;
+            var edges = graph.GetEdgeEnumerator(vertex1);
+            DynamicEdge edge = null;
+            while (edges.MoveNext())
+            {
+                if (edges.Neighbour == vertex2)
+                { // the correct neighbour, get the weight.
+                    var weight = getWeight(edges.Data);
+                    if (weight.HasValue &&
+                        weight.Value < minWeight)
+                    { // weight is better.
+                        edge = edges.Current;
+                    }
+                }
+            }
+            return edge;
+        }
+
+        /// <summary>
+        /// Expands a the shortest edge between the two given vertices.
+        /// </summary>
+        public static void ExpandEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
+            bool forward)
+        {
+            // check if expansion is needed.
+            var edge = graph.GetShortestEdge(vertex1, vertex2, data =>
+            {
+                float weight;
+                bool? direction;
+                ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
+                if (direction == null || direction.Value == forward)
+                {
+                    return weight;
+                }
+                return null;
+            });
+            if (edge == null)
+            { // no edge found!
+                throw new Exception(string.Format("No edge found from {0} to {1}.", vertex1, vertex2));
+            }
+            var edgeContractedId = edge.GetContracted();
+            if (edgeContractedId.HasValue)
+            { // further expansion needed.
+                if (inverted)
+                {
+                    graph.ExpandEdge(edgeContractedId.Value, vertex1, vertices, false, !forward);
+                    vertices.Add(edgeContractedId.Value);
+                    graph.ExpandEdge(edgeContractedId.Value, vertex2, vertices, true, forward);
+                }
+                else
+                {
+                    graph.ExpandEdge(edgeContractedId.Value, vertex2, vertices, false, forward);
+                    vertices.Add(edgeContractedId.Value);
+                    graph.ExpandEdge(edgeContractedId.Value, vertex1, vertices, true, !forward);
+                }
+            }
+        }
+
+        /// <summary>
         /// Adds an edge.
         /// </summary>
         public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction)

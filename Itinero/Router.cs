@@ -219,18 +219,17 @@ namespace Itinero
                 }
                 else
                 { // use edge-based routing.
-                    throw new NotSupportedException();
-                    //var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.NodeBasedGraph,
-                    //    source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
-                    //bidirectionalSearch.Run();
-                    //if (!bidirectionalSearch.HasSucceeded)
-                    //{
-                    //    return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
-                    //    {
-                    //        return new RouteNotFoundException(message);
-                    //    });
-                    //}
-                    //path = bidirectionalSearch.GetPath(out pathWeight);
+                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
+                        source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
+                    {
+                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    path = bidirectionalSearch.GetPath(out pathWeight);
                 }
             }
             else
