@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.Collections.Generic;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Graphs.Directed;
@@ -25,406 +24,350 @@ using Itinero.Data.Contracted.Edges;
 namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 {
     /// <summary>
-    /// A dykstra-based witness calculator.
+    /// A witness calculator based on dykstra's algorithm.
     /// </summary>
     public class DykstraWitnessCalculator : IWitnessCalculator
     {
-        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private readonly BinaryHeap<SettledVertex> _heap;
 
         /// <summary>
         /// Creates a new witness calculator.
         /// </summary>
-        public DykstraWitnessCalculator(Func<uint, IEnumerable<uint[]>> getRestrictions)
+        public DykstraWitnessCalculator(int hopLimit)
+            : this(hopLimit, int.MaxValue)
         {
-            _getRestrictions = getRestrictions;
-            _heap = new BinaryHeap<EdgePath>();
+
         }
 
-        private BinaryHeap<EdgePath> _heap;
-        private Dictionary<EdgePath, LinkedRestriction> _edgeRestrictions;
-        private Dictionary<long, EdgePath> _visits;
+        /// <summary>
+        /// Creates a new witness calculator.
+        /// </summary>
+        public DykstraWitnessCalculator(int hopLimit, int maxSettles)
+        {
+            _hopLimit = hopLimit;
+
+            _heap = new BinaryHeap<SettledVertex>();
+            _maxSettles = maxSettles;
+        }
+
+        private int _hopLimit;
+        private int _maxSettles;
 
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public EdgePath Calculate(DirectedDynamicGraph graph, uint[] sourceVertices, uint[] targetVertices)
+        public void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+            ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip)
         {
-            var enumerator = graph.GetEdgeEnumerator();
-            EdgePath best = null;
-
-            _edgeRestrictions = new Dictionary<EdgePath, LinkedRestriction>();
-            _visits = new Dictionary<long, EdgePath>();
-            _heap.Clear();
-
-            // initialize.
-            var current = enumerator.BuildPath(sourceVertices);
-            _heap.Push(current, current.Weight);
-
-            // prepare target.
-            var targetPath = enumerator.BuildPath(targetVertices, true, true);
-
-            // step until no longer possible.
-            while (true)
+            if (_hopLimit == 1)
             {
-                // pop next edge.
-                current = null;
-                if (_heap.Count > 0)
-                {
-                    current = _heap.Pop();
-                }
+                this.ExistsOneHop(graph, source, targets, weights, ref forwardWitness, ref backwardWitness);
+                return;
+            }
 
-                if (current == null)
+            // creates the settled list.
+            var backwardSettled = new HashSet<uint>();
+            var forwardSettled = new HashSet<uint>();
+            var backwardTargets = new HashSet<uint>();
+            var forwardTargets = new HashSet<uint>();
+            float forwardMaxWeight = 0, backwardMaxWeight = 0;
+            for (int idx = 0; idx < weights.Count; idx++)
+            {
+                if (!forwardWitness[idx])
                 {
-                    break;
-                }
-
-                // check if already visited.
-                if (current.Edge != Constants.NO_EDGE)
-                {
-                    if (_visits.ContainsKey(current.Edge))
+                    forwardTargets.Add(targets[idx]);
+                    if (forwardMaxWeight < weights[idx])
                     {
+                        forwardMaxWeight = weights[idx];
+                    }
+                }
+                if (!backwardWitness[idx])
+                {
+                    backwardTargets.Add(targets[idx]);
+                    if (backwardMaxWeight < weights[idx])
+                    {
+                        backwardMaxWeight = weights[idx];
+                    }
+                }
+            }
+            if (forwardMaxWeight == 0 && backwardMaxWeight == 0)
+            { // no need to search!
+                return;
+            }
+
+            // creates the priorty queue.
+            var forwardMinWeight = new Dictionary<uint, float>();
+            var backwardMinWeight = new Dictionary<uint, float>();
+            _heap.Clear();
+            _heap.Push(new SettledVertex(source, 0, 0, forwardMaxWeight > 0, backwardMaxWeight > 0), 0);
+
+            // keep looping until the queue is empty or the target is found!
+            var edgeEnumerator = graph.GetEdgeEnumerator();
+            while (_heap.Count > 0)
+            { // pop the first customer.
+                var current = _heap.Pop();
+                if (current.Hops + 1 < _hopLimit)
+                {
+                    if (current.VertexId == vertexToSkip)
+                    { // this is the vertex being contracted.
                         continue;
                     }
-                    _visits.Add(current.Edge, current);
-                }
-
-                // check for the vertex to skip.
-                var fromVertex = Constants.NO_VERTEX;
-                var fromEdge = (long)Constants.NO_EDGE;
-                if (current.From != null)
-                {
-                    fromVertex = current.From.Vertex;
-                    fromEdge = current.From.Edge;
-                }
-
-                // move to edge and get end sequence.
-                var sequence2 = new uint[] { fromVertex };
-                var currentOriginal = true;
-                if (current.Edge != Constants.NO_EDGE)
-                {
-                    enumerator.MoveToEdge(current.Edge);
-                    if (!enumerator.IsOriginal())
-                    {
-                        currentOriginal = false;
-                        sequence2 = enumerator.GetSequence2();
+                    var forwardWasSettled = forwardSettled.Contains(current.VertexId);
+                    var backwardWasSettled = backwardSettled.Contains(current.VertexId);
+                    if (forwardWasSettled && backwardWasSettled)
+                    { // both are already settled.
+                        continue;
                     }
-                }
 
-                //    //LinkedRestriction restrictions;
-                //    //if (_edgeRestrictions.TryGetValue(current, out restrictions))
-                //    //{
-                //    //    _edgeRestrictions.Remove(current);
-                //    //}
-                //    //var targetVertexRestriction = _getRestrictions(currentVertex);
-                //    //if (targetVertexRestriction != null)
-                //    //{
-                //    //    foreach (var restriction in targetVertexRestriction)
-                //    //    {
-                //    //        if (restriction != null &&
-                //    //            restriction.Length > 0)
-                //    //        {
-                //    //            if (restriction.Length == 1)
-                //    //            { // a simple restriction, restricted vertex, no need to check outgoing edges.
-                //    //                return true;
-                //    //            }
-                //    //            else
-                //    //            { // a complex restriction.
-                //    //                restrictions = new LinkedRestriction()
-                //    //                {
-                //    //                    Restriction = restriction,
-                //    //                    Next = restrictions
-                //    //                };
-                //    //            }
-                //    //        }
-                //    //    }
-                //    //}
+                    if (current.Forward)
+                    { // this is a forward settle.
+                        forwardSettled.Add(current.VertexId);
+                        forwardMinWeight.Remove(current.VertexId);
+                        if (forwardTargets.Contains(current.VertexId))
+                        {
+                            for (var i = 0; i < targets.Count; i++)
+                            {
+                                if (targets[i] == current.VertexId)
+                                {
+                                    forwardWitness[i] = current.Weight < weights[i];
+                                    forwardTargets.Remove(current.VertexId);
+                                }
+                            }
+                        }
+                    }
+                    if (current.Backward)
+                    { // this is a backward settle.
+                        backwardSettled.Add(current.VertexId);
+                        backwardMinWeight.Remove(current.VertexId);
+                        if (backwardTargets.Contains(current.VertexId))
+                        {
+                            for (var i = 0; i < targets.Count; i++)
+                            {
+                                if (targets[i] == current.VertexId)
+                                {
+                                    backwardWitness[i] = current.Weight < weights[i];
+                                    backwardTargets.Remove(current.VertexId);
+                                }
+                            }
+                        }
+                    }
 
-                var target = -1;
-                for (var i = 0; i < targetVertices.Length; i++)
-                {
-                    if (targetVertices[i] == current.Vertex)
-                    {
-                        target = i;
+                    if (forwardTargets.Count == 0 &&
+                        backwardTargets.Count == 0)
+                    { // there is nothing left to check.
                         break;
                     }
+
+                    if (forwardSettled.Count >= _maxSettles &&
+                        backwardSettled.Count >= _maxSettles)
+                    { // do not continue searching.
+                        break;
+                    }
+
+                    var doForward = current.Forward && forwardTargets.Count > 0 && !forwardWasSettled;
+                    var doBackward = current.Backward && backwardTargets.Count > 0 && !backwardWasSettled;
+                    if (doForward || doBackward)
+                    { // get the neighbours.
+                        edgeEnumerator.MoveTo(current.VertexId);
+                        while (edgeEnumerator.MoveNext())
+                        { // move next.
+                            var neighbour = edgeEnumerator.Neighbour;
+
+                            float neighbourWeight;
+                            bool? neighbourDirection;
+                            ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
+                                out neighbourWeight, out neighbourDirection);
+                            var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
+                            var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
+
+                            var totalNeighbourWeight = current.Weight + neighbourWeight;
+                            var doNeighbourForward = doForward && neighbourCanMoveForward && totalNeighbourWeight < forwardMaxWeight &&
+                                !forwardSettled.Contains(neighbour);
+                            var doNeighbourBackward = doBackward && neighbourCanMoveBackward && totalNeighbourWeight < backwardMaxWeight &&
+                                !backwardSettled.Contains(neighbour);
+                            if (doNeighbourBackward || doNeighbourForward)
+                            {
+                                float existingWeight;
+                                if (doNeighbourForward)
+                                {
+                                    if (forwardMinWeight.TryGetValue(neighbour, out existingWeight))
+                                    {
+                                        if (existingWeight <= totalNeighbourWeight)
+                                        {
+                                            doNeighbourForward = false;
+                                        }
+                                        else
+                                        {
+                                            forwardMinWeight[neighbour] = totalNeighbourWeight;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        forwardMinWeight[neighbour] = totalNeighbourWeight;
+                                    }
+                                }
+                                if (doNeighbourBackward)
+                                {
+                                    if (backwardMinWeight.TryGetValue(neighbour, out existingWeight))
+                                    {
+                                        if (existingWeight <= totalNeighbourWeight)
+                                        {
+                                            doNeighbourBackward = false;
+                                        }
+                                        else
+                                        {
+                                            backwardMinWeight[neighbour] = totalNeighbourWeight;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        backwardMinWeight[neighbour] = totalNeighbourWeight;
+                                    }
+                                }
+
+                                if (doNeighbourBackward || doNeighbourForward)
+                                { // add to heap.
+                                    var newSettle = new SettledVertex(neighbour,
+                                        totalNeighbourWeight, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
+                                    _heap.Push(newSettle, newSettle.Weight);
+                                }
+                            }
+                        }
+                    }
                 }
-                if (target != -1)
+            }
+        }
+
+        /// <summary>
+        /// Calculates witness paths with just one hop.
+        /// </summary>
+        public void ExistsOneHop(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+            ref bool[] forwardExists, ref bool[] backwardExists)
+        {
+            var targetsToCalculate = new HashSet<uint>();
+            var maxWeight = 0.0f;
+            for (int idx = 0; idx < weights.Count; idx++)
+            {
+                if (!forwardExists[idx] || !backwardExists[idx])
                 {
-                    var ok = true;
-                    for (var j = 0; j < sequence2.Length; j++)
+                    targetsToCalculate.Add(targets[idx]);
+                    if (maxWeight < weights[idx])
                     {
-                        if (sequence2[j] != targetVertices[j])
+                        maxWeight = weights[idx];
+                    }
+                }
+            }
+
+            if (targetsToCalculate.Count > 0)
+            {
+                var edgeEnumerator = graph.GetEdgeEnumerator(source);
+                while (edgeEnumerator.MoveNext())
+                {
+                    var neighbour = edgeEnumerator.Neighbour;
+                    if (targetsToCalculate.Contains(neighbour))
+                    { // ok, this is a to-edge.
+                        var index = targets.IndexOf(neighbour);
+                        targetsToCalculate.Remove(neighbour);
+
+                        float neighbourWeight;
+                        bool? neighbourDirection;
+                        uint neighbourContractedId;
+                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.Data1,
+                            out neighbourWeight, out neighbourDirection, out neighbourContractedId);
+                        var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
+                        var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
+
+                        if (neighbourCanMoveForward &&
+                            neighbourWeight < weights[index])
                         {
-                            ok = false;
+                            forwardExists[index] = true;
+                        }
+                        if (neighbourCanMoveBackward &&
+                            neighbourWeight < weights[index])
+                        {
+                            backwardExists[index] = true;
+                        }
+
+                        if (targetsToCalculate.Count == 0)
+                        {
                             break;
                         }
                     }
-                    if (ok)
-                    {
-                        var shortendedTargetPath = targetPath;
-                        if (target != 0)
-                        {
-                            shortendedTargetPath = enumerator.BuildPath(targetVertices.SubArray(target, targetVertices.Length - target),
-                                true, true);
-                        }
-
-                        if (best == null || current.Weight + shortendedTargetPath.Weight < best.Weight)
-                        { // TODO: check restrictions!
-                            best = current.Append(shortendedTargetPath);
-                        }
-                    }
-                }
-
-                // move to the current edge's target.
-                enumerator.MoveTo(current.Vertex);
-                while (enumerator.MoveNext())
-                {
-                    var edge = enumerator;
-                    var edgeId = enumerator.IdDirected();
-
-                    if (_visits.ContainsKey(edgeId))
-                    { // this edge was already visited.
-                        continue;
-                    }
-
-                    // don't double-visit.
-                    if (_visits.ContainsKey(edgeId))
-                    {
-                        continue;
-                    }
-
-                    // get edge-details.
-                    float weight;
-                    bool? direction;
-                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0, out weight, out direction);
-
-                    // check for u-turns.
-                    if (direction == null && current.Edge != Constants.NO_EDGE)
-                    { // u-turns only possible when direction is bidirectional.
-                        if (enumerator.IsOriginal())
-                        {
-                            if (sequence2[sequence2.Length - 1] == enumerator.Neighbour)
-                            { // this is a u-turn.
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            var sequence1 = enumerator.GetSequence1();
-                            if (sequence2[sequence2.Length - 1] == sequence1[0])
-                            { // this is a u-turn.
-                                continue;
-                            }
-                        }
-                    }
-
-                    // queue path.
-                    var neighbourPath = new EdgePath(enumerator.Neighbour, weight + current.Weight, enumerator.IdDirected(), current);
-                    if (best != null && neighbourPath.Weight > best.Weight)
-                    { // exceeded maximum weight, just don't queue and stop here.
-                        continue;
-                    }
-                    _heap.Push(neighbourPath, neighbourPath.Weight);
-
-                    //        //// get restrictions at neighbour.
-                    //        //var neighbourRestrictions = _getRestrictions(edge.To);
-                    //        //if (neighbourRestrictions != null)
-                    //        //{ // check this restriction against the reverse sequence to the neighbour.
-                    //        //    var sequenceToNeighbour = new List<uint>();
-                    //        //    sequenceToNeighbour.Add(currentVertex);
-                    //        //    sequenceToNeighbour.Add(enumerator.To);
-                    //        //    LinkedRestriction newRestrictions = null;
-                    //        //    foreach (var neighbourRestriction in neighbourRestrictions)
-                    //        //    {
-                    //        //        var shrink = neighbourRestriction.ShrinkFor(sequenceToNeighbour);
-                    //        //        if (shrink.Length > 1)
-                    //        //        {
-                    //        //            newRestrictions = new LinkedRestriction()
-                    //        //            {
-                    //        //                Next = newRestrictions,
-                    //        //                Restriction = shrink
-                    //        //            };
-                    //        //        }
-                    //        //    }
-                    //        //    _edgeRestrictions[neighbourPath] = newRestrictions;
-                    //        //}
-                    //    }
                 }
             }
-
-            return best;
         }
 
         /// <summary>
-        /// Queues all restrictions that start right after the source-path as if we got this path via routing.
+        /// Gets or sets the hop limit.
         /// </summary>
-        private void QueueSource(DirectedDynamicGraph graph, uint[] sourceVertices, uint vertexToSkip, float maxWeight)
+        public int HopLimit
         {
-            //var enumerator = graph.GetEdgeEnumerator();
-            //var source = sourceVertices[sourceVertices.Length - 1];
-            //var sourceWeight = enumerator.GetWeight(sourceVertices);
-            //if (!enumerator.MoveTo(source))
-            //{
-            //    return;
-            //}
-            //var neighbourRestrictions = _getRestrictions(source);
-            //while(enumerator.MoveNext())
-            //{
-            //    // get weight, check direction.
-            //    float distance;
-            //    ushort profileId;
-            //    Data.Edges.EdgeDataSerializer.Deserialize(enumerator.Data0,
-            //        out distance, out profileId);
-            //    var factor = _getFactor(profileId);
-            //    if ((enumerator.DataInverted && factor.Direction == 1) ||
-            //        (!enumerator.DataInverted && factor.Direction == 2) ||
-            //        factor.Value == 0)
-            //    { // edge is only backwards or factor is zero.
-            //        continue;
-            //    }
-
-            //    var weight = factor.Value * distance;
-
-            //    if (sourceWeight + weight > maxWeight)
-            //    {
-            //        continue;
-            //    }
-
-            //    if (enumerator.To == vertexToSkip)
-            //    {
-            //        continue;
-            //    }
-
-            //    var neighbourPath = new DirectedEdgePath(enumerator.IdDirected(), sourceWeight + weight, new DirectedEdgePath(Constants.NO_EDGE));
-
-            //    //// check if restricted.
-            //    //LinkedRestriction newRestrictions = null;
-            //    //if (neighbourRestrictions != null)
-            //    //{
-            //    //    var sequenceToNeighbour = new List<uint>(sourceVertices);
-            //    //    sequenceToNeighbour.Add(enumerator.To);
-            //    //    var restricted = false;
-            //    //    foreach (var neighbourRestriction in neighbourRestrictions)
-            //    //    {
-            //    //        var shrunk = neighbourRestriction.ShrinkForPart(sequenceToNeighbour);
-            //    //        if (shrunk.Length > 0)
-            //    //        {
-            //    //            if (shrunk.Length == 1) // is restricted right here.
-            //    //            {
-            //    //                restricted = true;
-            //    //                break;
-            //    //            }
-            //    //            else
-            //    //            {
-            //    //                newRestrictions = new LinkedRestriction()
-            //    //                {
-            //    //                    Next = newRestrictions,
-            //    //                    Restriction = shrunk
-            //    //                };
-            //    //            }
-            //    //        }
-            //    //    }
-            //    //    if (restricted)
-            //    //    { // this edge is impossible, is restricted, don't consider it.
-            //    //        continue;
-            //    //    }
-            //    //    if (newRestrictions != null)
-            //    //    {
-            //    //        _edgeRestrictions[neighbourPath] = newRestrictions;
-            //    //    }
-            //    //}
-            //    _heap.Push(neighbourPath, neighbourPath.Weight);
-            //}
+            get
+            {
+                return _hopLimit;
+            }
+            set
+            {
+                _hopLimit = value;
+            }
         }
 
         /// <summary>
-        /// A linked restriction.
+        /// Gets or sets the max settles.
         /// </summary>
-        private class LinkedRestriction
+        public int MaxSettles
+        {
+            get
+            {
+                return _maxSettles;
+            }
+            set
+            {
+                _maxSettles = value;
+            }
+        }
+
+        /// <summary>
+        /// Represents a settled vertex.
+        /// </summary>
+        private class SettledVertex
         {
             /// <summary>
-            /// Gets the restriction.
+            /// Creates a new settled vertex.
             /// </summary>
-            public uint[] Restriction { get; set; }
-
-            /// <summary>
-            /// Gets the next linked restriction.
-            /// </summary>
-            public LinkedRestriction Next { get; set; }
-
-            /// <summary>
-            /// Returns true if any restriction exists with a given length.
-            /// </summary>
-            public bool ContainsAnyLength(int length)
+            public SettledVertex(uint vertex, float weight, uint hops, bool forward, bool backward)
             {
-                var cur = this;
-                while (cur != null)
-                {
-                    if (cur.Restriction != null &&
-                        cur.Restriction.Length == length)
-                    {
-                        return true;
-                    }
-                }
-                return false;
+                this.VertexId = vertex;
+                this.Weight = weight;
+                this.Hops = hops;
+                this.Forward = forward;
+                this.Backward = backward;
             }
 
             /// <summary>
-            /// Returns true if this restriction or any restriction following this restrictions restricts the given sequence.
+            /// The vertex that was settled.
             /// </summary>
-            public bool Restricts(uint[] sequence)
-            {
-                var restricts = false;
-                if (sequence.Length >= this.Restriction.Length)
-                {
-                    restricts = true;
-                    for (var i = 0; i < Restriction.Length; i++)
-                    {
-                        if (Restriction[i] != sequence[i])
-                        {
-                            restricts = false;
-                        }
-                    }
-                }
-                if (restricts)
-                {
-                    return true;
-                }
-                if (this.Next != null)
-                {
-                    return this.Next.Restricts(sequence);
-                }
-                return false;
-            }
+            public uint VertexId { get; set; }
 
             /// <summary>
-            /// Returns true if this restriction or any restriction following this restrictions restricts the given sequence.
+            /// The weight this vertex was settled at.
             /// </summary>
-            public bool Restricts(uint vertex1, uint vertex2)
-            {
-                var restricts = false;
-                if (2 < this.Restriction.Length)
-                {
-                    if (this.Restriction.Length == 1)
-                    {
-                        restricts = this.Restriction[0] == vertex1;
-                    }
-                    else if (this.Restriction.Length == 2)
-                    {
-                        restricts = this.Restriction[0] == vertex1 &&
-                            this.Restriction[1] == vertex2;
-                    }
-                }
-                if (restricts)
-                {
-                    return true;
-                }
-                if (this.Next != null)
-                {
-                    return this.Next.Restricts(vertex1, vertex2);
-                }
-                return false;
-            }
+            public float Weight { get; set; }
+
+            /// <summary>
+            /// The hop-count of this vertex.
+            /// </summary>
+            public uint Hops { get; set; }
+
+            /// <summary>
+            /// Holds the forward flag.
+            /// </summary>
+            public bool Forward { get; set; }
+
+            /// <summary>
+            /// Holds the backward flag.
+            /// </summary>
+            public bool Backward { get; set; }
         }
     }
 }

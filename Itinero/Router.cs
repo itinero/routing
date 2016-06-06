@@ -219,7 +219,7 @@ namespace Itinero
                 }
                 else
                 { // use edge-based routing.
-                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
+                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.NodeBasedGraph,
                         source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)

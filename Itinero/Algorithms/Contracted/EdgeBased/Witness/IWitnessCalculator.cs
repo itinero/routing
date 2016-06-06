@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Graphs.Directed;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 {
@@ -26,8 +27,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
     public interface IWitnessCalculator
     {
         /// <summary>
-        /// Calculates witness paths.
+        /// Calculates witnesses.
         /// </summary>
-        EdgePath Calculate(DirectedDynamicGraph graph, uint[] sourceVertices, uint[] targetVertices);
+        void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+            ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip);
     }
 }

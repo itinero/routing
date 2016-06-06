@@ -48,10 +48,12 @@
     <Compile Include="Algorithms\Contracted\EdgeBased\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedDynamicGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\DirectedGraphBuilder.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\DirectedMetaGraphExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\EdgeDifferencePriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\EdgePathExtensions.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\HierarchyBuilder.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\IPriorityCalculator.cs" />
+    <Compile Include="Algorithms\Contracted\EdgeBased\ManyToManyBidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\IWitnessCalculator.cs" />
     <Compile Include="Algorithms\Default\Edge\OneToOneDykstraHelper.cs" />

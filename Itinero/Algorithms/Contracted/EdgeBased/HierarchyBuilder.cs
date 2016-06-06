@@ -33,25 +33,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// </summary>
     public class HierarchyBuilder : AlgorithmBase
     {
-        private readonly DirectedDynamicGraph _graph;
+        private readonly DirectedMetaGraph _graph;
         private readonly IPriorityCalculator _priorityCalculator;
         private readonly IWitnessCalculator _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
-        private readonly Func<uint, IEnumerable<uint[]>> _getRestriction;
-        private const float E = 0.1f;
 
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedDynamicGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
-            Func<uint, IEnumerable<uint[]>> getRestriction)
+        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
         {
             _graph = graph;
             _priorityCalculator = priorityCalculator;
             _witnessCalculator = witnessCalculator;
-            _getRestriction = getRestriction;
         }
-        
+
         private BinaryHeap<uint> _queue; // the vertex-queue.
         private BitArray32 _contractedFlags; // contains flags for contracted vertices.
 
@@ -60,9 +56,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         protected override void DoRun()
         {
-            _graph.Trim();
-
-            _queue = new BinaryHeap<uint>(_graph.VertexCount);
+            _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);
             _missesQueue = new Queue<bool>();
 
@@ -107,7 +101,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             var edges = _graph.GetEdgeEnumerator(v);
                             if (edges != null)
                             {
-                                var edgesCount = edges.Count();
+                                var edgesCount = edges.Count;
                                 totaEdges = edgesCount + totaEdges;
                                 if (maxCardinality < edgesCount)
                                 {
@@ -150,8 +144,60 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private void RemoveWitnessedEdges()
         {
             _logger.Log(TraceEventType.Information, "Removing witnessed edges...");
-            
 
+            var edges = new List<MetaEdge>();
+            var weights = new List<float>();
+            var targets = new List<uint>();
+            for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
+            {
+                edges.Clear();
+                weights.Clear();
+                targets.Clear();
+
+                edges.AddRange(_graph.GetEdgeEnumerator(vertex));
+
+                var forwardWitnesses = new bool[edges.Count];
+                var backwardWitnesses = new bool[edges.Count];
+                for (var i = 0; i < edges.Count; i++)
+                {
+                    var edge = edges[i];
+
+                    float edgeWeight;
+                    bool? edgeDirection;
+                    Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                        out edgeWeight, out edgeDirection);
+                    var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
+                    var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
+
+                    forwardWitnesses[i] = !edgeCanMoveForward;
+                    backwardWitnesses[i] = !edgeCanMoveBackward;
+                    weights.Add(edgeWeight);
+                    targets.Add(edge.Neighbour);
+                }
+
+                // calculate all witness paths.
+                _witnessCalculator.Calculate(_graph.Graph, vertex, targets, weights,
+                    ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
+
+                // check witness paths.
+                for (var i = 0; i < edges.Count; i++)
+                {
+                    if (forwardWitnesses[i] && backwardWitnesses[i])
+                    { // in both directions the edge does not represent the shortest path.
+                        _graph.RemoveEdge(vertex, targets[i]);
+                    }
+                    else if (forwardWitnesses[i])
+                    { // only in forward direction is this edge useless.
+                        _graph.RemoveEdge(vertex, targets[i]);
+                        _graph.AddEdge(vertex, targets[i], weights[i], false, Constants.NO_VERTEX);
+                    }
+                    else if (backwardWitnesses[i])
+                    { // only in backward direction is this edge useless.
+                        _graph.RemoveEdge(vertex, targets[i]);
+                        _graph.AddEdge(vertex, targets[i], weights[i], true, Constants.NO_VERTEX);
+                    }
+                }
+            }
         }
 
         private int _k = 20; // The amount of queue 'misses' to recalculated.
@@ -226,32 +272,45 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private void Contract(uint vertex)
         {
             // get and keep edges.
-            var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
-            
-            // loop over all edge-pairs.
-            for (var f = 1; f < edges.Count; f++)
+            var edges = new List<MetaEdge>(_graph.GetEdgeEnumerator(vertex));
+
+            // remove 'downward' edge to vertex.
+            var i = 0;
+            while (i < edges.Count)
             {
-                var edge1 = edges[f];
-                //var restrictions1 = (IEnumerable<uint[]>)null; // _getRestriction(edge1.Neighbour);
+                _graph.RemoveEdge(edges[i].Neighbour, vertex);
+
+                if (_contractedFlags[edges[i].Neighbour])
+                { // neighbour was already contracted, remove 'downward' edge and exclude it.
+                    _graph.RemoveEdge(vertex, edges[i].Neighbour);
+                    edges.RemoveAt(i);
+                }
+                else
+                { // move to next edge.
+                    i++;
+                }
+            }
+
+            // loop over all edge-pairs once.
+            for (var j = 1; j < edges.Count; j++)
+            {
+                var edge1 = edges[j];
 
                 float edge1Weight;
                 bool? edge1Direction;
-                ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
+                Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
                     out edge1Weight, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
-                // add contracted edges if needed.
-                for (var t = 0; t < f; t++)
+                // figure out what witness paths to calculate.
+                var forwardWitnesses = new bool[j];
+                var backwardWitnesses = new bool[j];
+                var targets = new List<uint>(j);
+                var targetWeights = new List<float>(j);
+                for (var k = 0; k < j; k++)
                 {
-                    var edge2 = edges[t];
-
-                    if (edge1.Neighbour == edge2.Neighbour)
-                    { // do not try to add a shortcut between identical vertices.
-                        // TODO: handle the circular paths.
-                        continue;
-                    }
-                    //var restrictions2 = (IEnumerable<uint[]>)null; // _getRestriction(edge2.Neighbour);
+                    var edge2 = edges[k];
 
                     float edge2Weight;
                     bool? edge2Direction;
@@ -259,171 +318,55 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         out edge2Weight, out edge2Direction);
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
-                    
-                    // check if there are any restrictions restriction edge1->vertex->edge2
-                    //var vertexRestrictions = (IEnumerable<uint[]>)null; // _getRestriction(vertex);
-                    var sequence = new List<uint>();
-                    //if (vertexRestrictions != null)
-                    //{
-                    //    // get sequence at vertex and check restrictions.
-                    //    sequence.AddRange(edge1.GetSequence2().Reverse());
-                    //    sequence.Add(vertex);
-                    //    sequence.AddRange(edge2.GetSequence1());
 
-                    //    if (!vertexRestrictions.IsSequenceAllowed(sequence))
-                    //    { // there is restriction the prohibits this move.
-                    //        continue;
-                    //    }
-                    //}
+                    // use witness flags to represent impossible routes.
+                    forwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward);
+                    backwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
 
-                    // figure out how much of the path needs to be saved at the source vertex.
-                    uint[] sequence1 = null;
-                    if (edge1.IsOriginal())
-                    {
-                        sequence1 = new uint[] { vertex };
-                    }
-                    else
-                    {
-                        sequence1 = edge1.GetSequence2();
-                        sequence1.Reverse();
-                    }
-                    //if (restrictions1 != null)
-                    //{
-                    //    sequence = GetSequence(edge1, vertex, edge2);
-                    //    var m = sequence.MatchAny(restrictions1);
-                    //    if (m > 1)
-                    //    { // there is a match that is non-trivial, make sure to add this.
-                    //        sequence1 = new uint[m];
-                    //        sequence.CopyTo(0, sequence1, 0, m);
-                    //    }
-                    //}
-                    sequence1 = (new uint[] { edge1.Neighbour }).Append(sequence1);
+                    targets.Add(edge2.Neighbour);
+                    targetWeights.Add(edge1Weight + edge2Weight);
+                }
 
-                    uint[] sequence2 = null;
-                    if (edge2.IsOriginal())
-                    {
-                        sequence2 = new uint[] { vertex };
-                    }
-                    else
-                    {
-                        sequence2 = edge2.GetSequence2();
-                    }
-                    sequence2 = sequence2.Append(edge2.Neighbour);
-                    //if (restrictions2 != null)
-                    //{
-                    //    sequence = GetSequence(edge2, vertex, edge1);
-                    //    var m = sequence.MatchAnyReverse(restrictions1);
-                    //    if (m > 1)
-                    //    { // there is a match that is non-trivial, make sure to add this.
-                    //        sequence2 = new uint[m];
-                    //        sequence.CopyTo(0, sequence2, 0, m);
-                    //    }
-                    //}
+                // calculate all witness paths.
+                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses,
+                    ref backwardWitnesses, vertex);
 
-                    // find the shortuts or witness paths here, we need the sequences that are fixed to calculate a witness path.                    
-                    var forwardWeight = float.MaxValue;
-                    EdgePath forwardPath = null;
-                    if (edge1CanMoveBackward && edge2CanMoveForward)
-                    {
-                        forwardPath = _witnessCalculator.Calculate(_graph, sequence1, sequence2);
-                        if (forwardPath.HasVertex(vertex))
-                        { // not a witness path.
-                            forwardWeight = forwardPath.Weight;
-                        }
-                    }
+                // add contracted edges if needed.
+                for (var k = 0; k < j; k++)
+                {
+                    var edge2 = edges[k];
 
-                    var backwardWeight = float.MaxValue;
-                    EdgePath backwardPath = null;
-                    if (edge1CanMoveForward && edge2CanMoveBackward)
-                    {
-                        backwardPath = _witnessCalculator.Calculate(_graph, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
-                        if (backwardPath.HasVertex(vertex))
-                        { // not a witness path.
-                            backwardWeight = backwardPath.Weight;
-                        }
-                    }
-                    
-                    if (forwardWeight == float.MaxValue && backwardWeight == float.MaxValue)
-                    { // no shortcuts should be added.
+                    if (edge1.Neighbour == edge2.Neighbour)
+                    { // do not try to add a shortcut between identical vertices.
                         continue;
                     }
 
-                    // build shortcut sequences.
-                    if (sequence1 != null && sequence1.Length > 0)
-                    {
-                        sequence1 = sequence1.SubArray(1, sequence1.Length - 1);
+                    if (!forwardWitnesses[k] && !backwardWitnesses[k])
+                    { // add bidirectional edge.
+                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], null, vertex);
+                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], null, vertex);
                     }
-                    if (sequence2 != null && sequence2.Length > 0)
-                    {
-                        sequence2 = sequence2.SubArray(0, sequence2.Length - 1);
+                    else if (!forwardWitnesses[k])
+                    { // add forward edge.
+                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], true, vertex);
+                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], false, vertex);
                     }
-
-                    if (System.Math.Abs(forwardWeight - backwardWeight) < E)
-                    { // both forward and backward path have the same weight, add the as the same edge.
-                        _graph.AddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, forwardWeight, null, vertex, sequence1, sequence2);
-                        _graph.AddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, forwardWeight, null, vertex, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
-                    }
-                    else
-                    {
-                        if (forwardWeight != float.MaxValue)
-                        { // there is a shortcut in forward direction.
-                            _graph.AddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, forwardWeight, true, vertex, sequence1, sequence2);
-                            _graph.AddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, forwardWeight, false, vertex, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
-                        }
-                        if (backwardWeight != float.MaxValue)
-                        { // there is a shortcut in backward direction.
-                            _graph.AddEdgeOrUpdate(edge1.Neighbour, edge2.Neighbour, backwardWeight, false, vertex, sequence1, sequence2);
-                            _graph.AddEdgeOrUpdate(edge2.Neighbour, edge1.Neighbour, backwardWeight, true, vertex, sequence2.ReverseAndCopy(), sequence1.ReverseAndCopy());
-                        }
+                    else if (!backwardWitnesses[k])
+                    { // add forward edge.
+                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                            targetWeights[k], false, vertex);
+                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                            targetWeights[k], true, vertex);
                     }
                 }
-            }
-            
-            // remove 'downward' edge to vertex.
-            var i = 0;
-            while (i < edges.Count)
-            {
-                _graph.RemoveEdge(edges[i].Neighbour, vertex);
-
-                //if (_contractedFlags[edges[i].Neighbour])
-                //{ // neighbour was already contracted, remove 'downward' edge and exclude it.
-                //    _graph.RemoveEdge(vertex, edges[i].Neighbour);
-                //    edges.RemoveAt(i);
-                //}
-                //else
-                //{ // move to next edge.
-                i++;
-                //}
             }
 
             _contractedFlags[vertex] = true;
             _priorityCalculator.NotifyContracted(vertex);
-        }
-
-        /// <summary>
-        /// Gets the longest possible known sequence along the path formed by (edge1.Neighbour) >--edge1--> (vertex) >--edge2--> (edge2.Neighbour) starting at edge1.Neighbour.
-        /// </summary>
-        /// <param name="edge1">The first edge that represents en edge going from vertex to it's neighbour.</param>
-        /// <param name="edge2">The second edge that represents an edge going from vertex to it's neighbour.</param>
-        /// <param name="vertex">The vertex where the two edge meet.</param>
-        private List<uint> GetSequence(DynamicEdge edge1, uint vertex, DynamicEdge edge2)
-        {
-            var sequence = new List<uint>();
-            sequence.Add(edge1.Neighbour);
-            if (edge1.IsOriginal())
-            { // is an original edge, add the neighbour vertex.
-                sequence.Add(vertex);
-            }
-            else
-            { // is not an original edge add the sequence at the neigbour in reverse.
-                sequence.AddRange(edge1.GetSequence2().ReverseAndCopy());
-            }
-            if (sequence.Count > 0 &&
-                sequence[sequence.Count - 1] == vertex)
-            { // sequence covers the entire edge, also add the start sequence of edge2.
-                sequence.AddRange(edge2.GetSequence1());
-            }
-            return sequence;
         }
     }
 }
