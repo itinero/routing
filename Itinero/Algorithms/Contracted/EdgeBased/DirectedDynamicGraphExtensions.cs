@@ -130,6 +130,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
+        /// Gets the contracted id, returns null if this edge is not a shortcut.
+        /// </summary>
+        public static uint? GetContracted(this DynamicEdge edge)
+        {
+            if (edge.DynamicData == null)
+            {
+                throw new ArgumentException("DynamicData array of an edge should not be null.");
+            }
+            if (edge.DynamicData.Length == 0)
+            {
+                return null;
+            }
+            return edge.DynamicData[0];
+        }
+
+        /// <summary>
         /// Gets the sequence at the source.
         /// </summary>
         public static uint[] GetSequence1(this DynamicEdge edge)
@@ -341,305 +357,495 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
-        /// Adds or updates a contracted edge including sequences.
+        /// Add or update edge.
         /// </summary>
-        /// <param name="graph">The graph.</param>
-        /// <param name="vertex1">The start vertex.</param>
-        /// <param name="vertex2">The end vertex.</param>
-        /// <param name="contractedId">The vertex being shortcutted.</param>
-        /// <param name="direction">The direction.</param>
-        /// <param name="weight">The weight.</param>
-        /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
-        /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
-        public static void AddEdgeOrUpdate(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
-            uint[] sequence1, uint[] sequence2)
+        /// <returns></returns>
+        public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
+            bool? direction, uint contractedId)
         {
-            var ignoreSequences = true;
+            var forward = false;
+            var forwardWeight = float.MaxValue;
+            var forwardContractedId = uint.MaxValue;
+            var backward = false;
+            var backwardWeight = float.MaxValue;
+            var backwardContractedId = uint.MaxValue;
 
-            if (sequence1 == null || sequence1.Length < 0)
+            if (direction == null || direction.Value)
             {
-                throw new ArgumentOutOfRangeException("sequence1");
-            }
-            if (sequence2 == null || sequence2.Length < 0)
-            {
-                throw new ArgumentOutOfRangeException("sequence2");
-            }
-
-            Func<uint[], uint[], bool> sequenceEquals = (s1, s2) =>
-            {
-                if (s1 == null || s1.Length == 0)
-                {
-                    return s2 == null || s2.Length == 0;
-                }
-                if (s2 == null)
-                {
-                    return false;
-                }
-                if (s1.Length == s2.Length)
-                {
-                    for (var i = 0; i < s1.Length; i++)
-                    {
-                        if (s1[i] != s2[i])
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                return false;
-            };
-
-            float forwardWeight = float.MaxValue;
-            float backwardWeight = float.MaxValue;
-            uint? forwardContractedId = null;
-            uint? backwardContractedId = null;
-            var forwardSequence1 = sequence1;
-            var forwardSequence2 = sequence2;
-            var backwardSequence1 = sequence1;
-            var backwardSequence2 = sequence2;
-            if (direction != null)
-            {
-                if (direction.Value)
-                {
-                    forwardWeight = weight;
-                    forwardContractedId = contractedId;
-                }
-                else
-                {
-                    backwardWeight = weight;
-                    backwardContractedId = contractedId;
-                }
-            }
-            else
-            {
+                forward = true;
                 forwardWeight = weight;
                 forwardContractedId = contractedId;
+            }
+            if (direction == null || !direction.Value)
+            {
+                backward = true;
                 backwardWeight = weight;
                 backwardContractedId = contractedId;
             }
 
-            var success = true;
-            var enumerator = graph.GetEdgeEnumerator();
-            while (success)
+            var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+            while (edgeEnumerator.MoveNext())
             {
-                success = false;
-                enumerator.MoveTo(vertex1);
-                while (enumerator.MoveNext())
+                if (edgeEnumerator.Neighbour == vertex2)
                 {
-                    if (enumerator.Neighbour != vertex2)
+                    float localWeight;
+                    bool? localDirection;
+                    uint localContractedId = Constants.NO_VERTEX;
+                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
+                        out localWeight, out localDirection);
+                    if (!edgeEnumerator.IsOriginal())
                     {
-                        continue;
+                        localContractedId = edgeEnumerator.GetContracted().Value;
                     }
-
-                    if (enumerator.IsOriginal())
+                    if (localDirection == null || localDirection.Value)
                     {
-                        continue;
+                        if (localWeight < forwardWeight)
+                        {
+                            forwardWeight = localWeight;
+                            forward = true;
+                            forwardContractedId = localContractedId;
+                        }
                     }
-
-                    var s1 = enumerator.GetSequence1();
-                    var s2 = enumerator.GetSequence2();
-
-                    if (ignoreSequences ||
-                      (sequenceEquals(s1, sequence1) &&
-                       sequenceEquals(s2, sequence2)))
+                    if (localDirection == null || !localDirection.Value)
                     {
-                        float edgeWeight = float.MaxValue;
-                        bool? edgeDirection = null;
-                        var edgeContractedId = enumerator.GetContracted();
-                        ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
-                            out edgeWeight, out edgeDirection);
-                        if (edgeDirection == null || edgeDirection.Value)
+                        if (localWeight < backwardWeight)
                         {
-                            if (forwardWeight > edgeWeight)
-                            {
-                                forwardWeight = edgeWeight;
-                                forwardContractedId = edgeContractedId;
-                                if (ignoreSequences)
-                                {
-                                    forwardSequence1 = s1;
-                                    forwardSequence2 = s2;
-                                }
-                            }
+                            backwardWeight = localWeight;
+                            backward = true;
+                            backwardContractedId = localContractedId;
                         }
-                        if (edgeDirection == null || !edgeDirection.Value)
-                        {
-                            if (backwardWeight > edgeWeight)
-                            {
-                                backwardWeight = edgeWeight;
-                                backwardContractedId = edgeContractedId;
-                                if (ignoreSequences)
-                                {
-                                    backwardSequence1 = s1;
-                                    backwardSequence2 = s2;
-                                }
-                            }
-                        }
-
-                        graph.RemoveEdgeById(vertex1, enumerator.Id);
-                        success = true;
-                        break;
                     }
                 }
             }
 
-            if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue && forwardContractedId == backwardContractedId &&
-                forwardSequence1.IsSequenceIdentical(backwardSequence1) && forwardSequence2.IsSequenceIdentical(backwardSequence2))
-            { // forward and backward are identical, add one bidirectional edge.
-                graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId.Value, forwardSequence1, forwardSequence2);
+            graph.RemoveEdge(vertex1, vertex2);
+
+            if (forward && backward &&
+                forwardWeight == backwardWeight &&
+                forwardContractedId == backwardContractedId)
+            { // add one bidirectional edge.
+                if (forwardContractedId == Constants.NO_VERTEX)
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null);
+                }
+                else
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, null, null);
+                }
             }
             else
-            { // forward and backwards are different, add two edges if needed.
-                if (forwardWeight != float.MaxValue)
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId.Value, forwardSequence1, forwardSequence2);
+            { // add two unidirectional edges if needed.
+                if (forward)
+                { // there is a forward edge.
+                    if (forwardContractedId == Constants.NO_VERTEX)
+                    {
+                        graph.AddEdge(vertex1, vertex2, forwardWeight, true);
+                    }
+                    else
+                    {
+                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, null, null);
+                    }
                 }
-                if (backwardWeight != float.MaxValue)
-                {
-                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId.Value, backwardSequence1, backwardSequence2);
+                if (backward)
+                { // there is a backward edge.
+                    if (backwardContractedId == Constants.NO_VERTEX)
+                    {
+                        graph.AddEdge(vertex1, vertex2, backwardWeight, false);
+                    }
+                    else
+                    {
+                        graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, null, null);
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// Adds or updates a contracted edge including sequences.
+        /// Tries adding or updating an edge and returns #added and #removed edges.
         /// </summary>
-        /// <param name="graph">The graph.</param>
-        /// <param name="vertex1">The start vertex.</param>
-        /// <param name="vertex2">The end vertex.</param>
-        /// <param name="contractedId">The vertex being shortcutted.</param>
-        /// <param name="direction">The direction.</param>
-        /// <param name="weight">The weight.</param>
-        /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
-        /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
-        public static int TryAddEdgeOrUpdate(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
-            uint[] sequence1, uint[] sequence2)
+        /// <returns></returns>
+        public static void TryAddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+            out int added, out int removed)
         {
-            Func<uint[], uint[], bool> sequenceEquals = (s1, s2) =>
-            {
-                if (s1 == null || s1.Length == 0)
-                {
-                    return s2 == null || s2.Length == 0;
-                }
-                if (s2 == null)
-                {
-                    return false;
-                }
-                if (s1.Length == s2.Length)
-                {
-                    for (var i = 0; i < s1.Length; i++)
-                    {
-                        if (s1[i] != s2[i])
-                        {
-                            return false;
-                        }
-                    }
-                    return true;
-                }
-                return false;
-            };
+            var forward = false;
+            var forwardWeight = float.MaxValue;
+            var forwardContractedId = uint.MaxValue;
+            var backward = false;
+            var backwardWeight = float.MaxValue;
+            var backwardContractedId = uint.MaxValue;
 
-            var removed = 0;
-            var enumerator = graph.GetEdgeEnumerator();
-            enumerator.MoveTo(vertex1);
-            float forwardWeight = float.MaxValue;
-            float backwardWeight = float.MaxValue;
-            uint? forwardContractedId = null;
-            uint? backwardContractedId = null;
-            if (direction != null)
+            if (direction == null || direction.Value)
             {
-                if (direction.Value)
-                {
-                    forwardWeight = weight;
-                    forwardContractedId = contractedId;
-                }
-                else
-                {
-                    backwardWeight = weight;
-                    backwardContractedId = contractedId;
-                }
-            }
-            else
-            {
+                forward = true;
                 forwardWeight = weight;
                 forwardContractedId = contractedId;
+            }
+            if (direction == null || !direction.Value)
+            {
+                backward = true;
                 backwardWeight = weight;
                 backwardContractedId = contractedId;
             }
 
-            while (enumerator.MoveNext())
+            var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+            var edgeCount = 0;
+            while (edgeEnumerator.MoveNext())
             {
-                if (enumerator.Neighbour != vertex2)
+                if (edgeEnumerator.Neighbour == vertex2)
                 {
-                    continue;
-                }
-
-                if (enumerator.IsOriginal())
-                {
-                    continue;
-                }
-
-                var s1 = enumerator.GetSequence1();
-                var s2 = enumerator.GetSequence2();
-
-                //if (sequenceEquals(s1, sequence1) &&
-                //    sequenceEquals(s2, sequence2))
-                //{
-                    float edgeWeight = float.MaxValue;
-                    bool? edgeDirection = null;
-                    var edgeContractedId = enumerator.GetContracted();
-                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
-                        out edgeWeight, out edgeDirection);
-                    if (edgeDirection == null || edgeDirection.Value)
+                    edgeCount++;
+                    float localWeight;
+                    bool? localDirection;
+                    uint localContractedId = Constants.NO_VERTEX;
+                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
+                        out localWeight, out localDirection);
+                    if (!edgeEnumerator.IsOriginal())
                     {
-                        if (forwardWeight > edgeWeight)
+                        localContractedId = edgeEnumerator.GetContracted().Value;
+                    }
+                    if (localDirection == null || localDirection.Value)
+                    {
+                        if (localWeight < forwardWeight)
                         {
-                            forwardWeight = edgeWeight;
-                            forwardContractedId = edgeContractedId;
+                            forwardWeight = localWeight;
+                            forward = true;
+                            forwardContractedId = localContractedId;
                         }
                     }
-                    if (edgeDirection == null || !edgeDirection.Value)
+                    if (localDirection == null || !localDirection.Value)
                     {
-                        if (backwardWeight > edgeWeight)
+                        if (localWeight < backwardWeight)
                         {
-                            backwardWeight = edgeWeight;
-                            backwardContractedId = edgeContractedId;
+                            backwardWeight = localWeight;
+                            backward = true;
+                            backwardContractedId = localContractedId;
                         }
                     }
-
-                    // graph.RemoveEdge(vertex1, enumerator.Id);
-                    removed++;
-                //}
+                }
             }
 
-            int added = 0;
-            if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue)
-            {
-                if (forwardContractedId == backwardContractedId)
-                {
-                    //graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, sequence1, sequence2);
-                    added++;
-                }
-                else
-                {
-                    //graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, sequence1, sequence2);
-                    added++;
-                    //graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, sequence1, sequence2);
-                    added++;
-                }
-                return added - removed;
-            }
-            if (forwardWeight != float.MaxValue)
-            {
-                //graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, sequence1, sequence2);
+            removed = edgeCount;
+            added = 0;
+
+            if (forward && backward &&
+                forwardWeight == backwardWeight &&
+                forwardContractedId == backwardContractedId)
+            { // add one bidirectional edge.
                 added++;
             }
-            if (backwardWeight != float.MaxValue)
-            {
-                //graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, sequence1, sequence2);
-                added++;
+            else
+            { // add two unidirectional edges if needed.
+                if (forward)
+                { // there is a forward edge.
+                    added++;
+                }
+                if (backward)
+                { // there is a backward edge.
+                    added++;
+                }
             }
-            return added - removed;
         }
+
+        ///// <summary>
+        ///// Adds or updates a contracted edge including sequences.
+        ///// </summary>
+        ///// <param name="graph">The graph.</param>
+        ///// <param name="vertex1">The start vertex.</param>
+        ///// <param name="vertex2">The end vertex.</param>
+        ///// <param name="contractedId">The vertex being shortcutted.</param>
+        ///// <param name="direction">The direction.</param>
+        ///// <param name="weight">The weight.</param>
+        ///// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
+        ///// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
+        //public static void AddEdgeOrUpdate(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+        //    uint[] sequence1, uint[] sequence2)
+        //{
+        //    var ignoreSequences = true;
+
+        //    if (sequence1 == null || sequence1.Length < 0)
+        //    {
+        //        throw new ArgumentOutOfRangeException("sequence1");
+        //    }
+        //    if (sequence2 == null || sequence2.Length < 0)
+        //    {
+        //        throw new ArgumentOutOfRangeException("sequence2");
+        //    }
+
+        //    Func<uint[], uint[], bool> sequenceEquals = (s1, s2) =>
+        //    {
+        //        if (s1 == null || s1.Length == 0)
+        //        {
+        //            return s2 == null || s2.Length == 0;
+        //        }
+        //        if (s2 == null)
+        //        {
+        //            return false;
+        //        }
+        //        if (s1.Length == s2.Length)
+        //        {
+        //            for (var i = 0; i < s1.Length; i++)
+        //            {
+        //                if (s1[i] != s2[i])
+        //                {
+        //                    return false;
+        //                }
+        //            }
+        //            return true;
+        //        }
+        //        return false;
+        //    };
+
+        //    float forwardWeight = float.MaxValue;
+        //    float backwardWeight = float.MaxValue;
+        //    uint? forwardContractedId = null;
+        //    uint? backwardContractedId = null;
+        //    var forwardSequence1 = sequence1;
+        //    var forwardSequence2 = sequence2;
+        //    var backwardSequence1 = sequence1;
+        //    var backwardSequence2 = sequence2;
+        //    if (direction != null)
+        //    {
+        //        if (direction.Value)
+        //        {
+        //            forwardWeight = weight;
+        //            forwardContractedId = contractedId;
+        //        }
+        //        else
+        //        {
+        //            backwardWeight = weight;
+        //            backwardContractedId = contractedId;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        forwardWeight = weight;
+        //        forwardContractedId = contractedId;
+        //        backwardWeight = weight;
+        //        backwardContractedId = contractedId;
+        //    }
+
+        //    var success = true;
+        //    var enumerator = graph.GetEdgeEnumerator();
+        //    while (success)
+        //    {
+        //        success = false;
+        //        enumerator.MoveTo(vertex1);
+        //        while (enumerator.MoveNext())
+        //        {
+        //            if (enumerator.Neighbour != vertex2)
+        //            {
+        //                continue;
+        //            }
+
+        //            if (enumerator.IsOriginal())
+        //            {
+        //                continue;
+        //            }
+
+        //            var s1 = enumerator.GetSequence1();
+        //            var s2 = enumerator.GetSequence2();
+
+        //            if (ignoreSequences ||
+        //              (sequenceEquals(s1, sequence1) &&
+        //               sequenceEquals(s2, sequence2)))
+        //            {
+        //                float edgeWeight = float.MaxValue;
+        //                bool? edgeDirection = null;
+        //                var edgeContractedId = enumerator.GetContracted();
+        //                ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
+        //                    out edgeWeight, out edgeDirection);
+        //                if (edgeDirection == null || edgeDirection.Value)
+        //                {
+        //                    if (forwardWeight > edgeWeight)
+        //                    {
+        //                        forwardWeight = edgeWeight;
+        //                        forwardContractedId = edgeContractedId;
+        //                        if (ignoreSequences)
+        //                        {
+        //                            forwardSequence1 = s1;
+        //                            forwardSequence2 = s2;
+        //                        }
+        //                    }
+        //                }
+        //                if (edgeDirection == null || !edgeDirection.Value)
+        //                {
+        //                    if (backwardWeight > edgeWeight)
+        //                    {
+        //                        backwardWeight = edgeWeight;
+        //                        backwardContractedId = edgeContractedId;
+        //                        if (ignoreSequences)
+        //                        {
+        //                            backwardSequence1 = s1;
+        //                            backwardSequence2 = s2;
+        //                        }
+        //                    }
+        //                }
+
+        //                graph.RemoveEdgeById(vertex1, enumerator.Id);
+        //                success = true;
+        //                break;
+        //            }
+        //        }
+        //    }
+
+        //    if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue && forwardContractedId == backwardContractedId &&
+        //        forwardSequence1.IsSequenceIdentical(backwardSequence1) && forwardSequence2.IsSequenceIdentical(backwardSequence2))
+        //    { // forward and backward are identical, add one bidirectional edge.
+        //        graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId.Value, forwardSequence1, forwardSequence2);
+        //    }
+        //    else
+        //    { // forward and backwards are different, add two edges if needed.
+        //        if (forwardWeight != float.MaxValue)
+        //        {
+        //            graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId.Value, forwardSequence1, forwardSequence2);
+        //        }
+        //        if (backwardWeight != float.MaxValue)
+        //        {
+        //            graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId.Value, backwardSequence1, backwardSequence2);
+        //        }
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Adds or updates a contracted edge including sequences.
+        ///// </summary>
+        ///// <param name="graph">The graph.</param>
+        ///// <param name="vertex1">The start vertex.</param>
+        ///// <param name="vertex2">The end vertex.</param>
+        ///// <param name="contractedId">The vertex being shortcutted.</param>
+        ///// <param name="direction">The direction.</param>
+        ///// <param name="weight">The weight.</param>
+        ///// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
+        ///// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
+        //public static int TryAddEdgeOrUpdate(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+        //    uint[] sequence1, uint[] sequence2)
+        //{
+        //    Func<uint[], uint[], bool> sequenceEquals = (s1, s2) =>
+        //    {
+        //        if (s1 == null || s1.Length == 0)
+        //        {
+        //            return s2 == null || s2.Length == 0;
+        //        }
+        //        if (s2 == null)
+        //        {
+        //            return false;
+        //        }
+        //        if (s1.Length == s2.Length)
+        //        {
+        //            for (var i = 0; i < s1.Length; i++)
+        //            {
+        //                if (s1[i] != s2[i])
+        //                {
+        //                    return false;
+        //                }
+        //            }
+        //            return true;
+        //        }
+        //        return false;
+        //    };
+
+        //    var removed = 0;
+        //    var enumerator = graph.GetEdgeEnumerator();
+        //    enumerator.MoveTo(vertex1);
+        //    float forwardWeight = float.MaxValue;
+        //    float backwardWeight = float.MaxValue;
+        //    uint? forwardContractedId = null;
+        //    uint? backwardContractedId = null;
+        //    if (direction != null)
+        //    {
+        //        if (direction.Value)
+        //        {
+        //            forwardWeight = weight;
+        //            forwardContractedId = contractedId;
+        //        }
+        //        else
+        //        {
+        //            backwardWeight = weight;
+        //            backwardContractedId = contractedId;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        forwardWeight = weight;
+        //        forwardContractedId = contractedId;
+        //        backwardWeight = weight;
+        //        backwardContractedId = contractedId;
+        //    }
+
+        //    while (enumerator.MoveNext())
+        //    {
+        //        if (enumerator.Neighbour != vertex2)
+        //        {
+        //            continue;
+        //        }
+
+        //        if (enumerator.IsOriginal())
+        //        {
+        //            continue;
+        //        }
+
+        //        var s1 = enumerator.GetSequence1();
+        //        var s2 = enumerator.GetSequence2();
+
+        //        //if (sequenceEquals(s1, sequence1) &&
+        //        //    sequenceEquals(s2, sequence2))
+        //        //{
+        //            float edgeWeight = float.MaxValue;
+        //            bool? edgeDirection = null;
+        //            var edgeContractedId = enumerator.GetContracted();
+        //            ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
+        //                out edgeWeight, out edgeDirection);
+        //            if (edgeDirection == null || edgeDirection.Value)
+        //            {
+        //                if (forwardWeight > edgeWeight)
+        //                {
+        //                    forwardWeight = edgeWeight;
+        //                    forwardContractedId = edgeContractedId;
+        //                }
+        //            }
+        //            if (edgeDirection == null || !edgeDirection.Value)
+        //            {
+        //                if (backwardWeight > edgeWeight)
+        //                {
+        //                    backwardWeight = edgeWeight;
+        //                    backwardContractedId = edgeContractedId;
+        //                }
+        //            }
+
+        //            // graph.RemoveEdge(vertex1, enumerator.Id);
+        //            removed++;
+        //        //}
+        //    }
+
+        //    int added = 0;
+        //    if (forwardWeight == backwardWeight && forwardWeight != float.MaxValue)
+        //    {
+        //        if (forwardContractedId == backwardContractedId)
+        //        {
+        //            //graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, sequence1, sequence2);
+        //            added++;
+        //        }
+        //        else
+        //        {
+        //            //graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, sequence1, sequence2);
+        //            added++;
+        //            //graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, sequence1, sequence2);
+        //            added++;
+        //        }
+        //        return added - removed;
+        //    }
+        //    if (forwardWeight != float.MaxValue)
+        //    {
+        //        //graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, sequence1, sequence2);
+        //        added++;
+        //    }
+        //    if (backwardWeight != float.MaxValue)
+        //    {
+        //        //graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, sequence1, sequence2);
+        //        added++;
+        //    }
+        //    return added - removed;
+        //}
 
         /// <summary>
         /// Adds a contracted edge including sequences.

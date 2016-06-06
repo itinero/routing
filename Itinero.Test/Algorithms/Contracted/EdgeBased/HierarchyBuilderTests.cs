@@ -39,10 +39,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test2Vertices()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
             graph.Compress();
 
             // contract graph.
@@ -64,12 +63,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test3Vertices()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
             graph.Compress();
 
             // contract graph.
@@ -95,14 +93,13 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test3VerticesComplete()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
+            graph.AddEdge(0, 2, 100, null);
+            graph.AddEdge(2, 0, 100, null);
             graph.Compress();
 
             // contract graph.
@@ -132,18 +129,17 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestPentagon()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 3, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 4, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(4, 3, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(4, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 4, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
+            graph.AddEdge(2, 3, 100, null);
+            graph.AddEdge(3, 2, 100, null);
+            graph.AddEdge(3, 4, 100, null);
+            graph.AddEdge(4, 3, 100, null);
+            graph.AddEdge(4, 0, 100, null);
+            graph.AddEdge(0, 4, 100, null);
             graph.Compress();
 
             // contract graph.
@@ -198,18 +194,17 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestPentagonDirected()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 3, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(3, 2, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(3, 4, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(4, 3, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(4, 0, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(0, 4, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 0, 100, false);
+            graph.AddEdge(1, 2, 100, true);
+            graph.AddEdge(2, 1, 100, false);
+            graph.AddEdge(2, 3, 100, true);
+            graph.AddEdge(3, 2, 100, false);
+            graph.AddEdge(3, 4, 100, true);
+            graph.AddEdge(4, 3, 100, false);
+            graph.AddEdge(4, 0, 100, true);
+            graph.AddEdge(0, 4, 100, false);
             graph.Compress();
 
             // contract graph.
@@ -264,16 +259,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestDoubleContraction()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 3, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 200, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 200, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 3, 200, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 1, 200, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 2, 100, null);
+            graph.AddEdge(2, 0, 100, null);
+            graph.AddEdge(0, 3, 100, null);
+            graph.AddEdge(3, 0, 100, null);
+            graph.AddEdge(1, 2, 200, null);
+            graph.AddEdge(2, 1, 200, null);
+            graph.AddEdge(1, 3, 200, null);
+            graph.AddEdge(3, 1, 200, null);
             graph.Compress();
 
             // contract graph.
@@ -313,16 +307,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestDoubleContractionOneway()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(0, 3, 10, false, Constants.NO_VERTEX);
-            graph.AddEdge(3, 0, 10, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 1000, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 1000, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 3, 10000, true, Constants.NO_VERTEX);
-            graph.AddEdge(3, 1, 10000, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 2, 100, true);
+            graph.AddEdge(2, 0, 100, false);
+            graph.AddEdge(0, 3, 10, false);
+            graph.AddEdge(3, 0, 10, true);
+            graph.AddEdge(1, 2, 1000, false);
+            graph.AddEdge(2, 1, 1000, true);
+            graph.AddEdge(1, 3, 10000, true);
+            graph.AddEdge(3, 1, 10000, false);
             graph.Compress();
 
             // contract graph.
@@ -336,7 +329,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // check edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 2);
             Assert.IsNotNull(edge);
-            var edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            var edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(100, edgeData.Weight);
             Assert.AreEqual(true, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
@@ -345,7 +338,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(10, edgeData.Weight);
             Assert.AreEqual(false, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
@@ -354,16 +347,16 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(110, edgeData.Weight);
             Assert.AreEqual(false, edgeData.Direction);
-            Assert.AreEqual(0, edgeData.ContractedId);
+            Assert.AreEqual(0, edge.GetContracted());
             edge = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 2);
             Assert.IsNull(edge);
 
             edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 1);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(1000, edgeData.Weight);
             Assert.AreEqual(true, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
@@ -371,15 +364,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsNull(edge);
 
             edge = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 1 &&
-                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == true);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], Constants.NO_VERTEX).Direction == true);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(1110, edgeData.Weight);
-            Assert.AreEqual(2, edgeData.ContractedId);
+            Assert.AreEqual(2, edge.GetContracted());
             edge = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 1 &&
-                ContractedEdgeDataSerializer.Deserialize(x.Data[0], x.MetaData[0]).Direction == false);
+                ContractedEdgeDataSerializer.Deserialize(x.Data[0], Constants.NO_VERTEX).Direction == false);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(10000, edgeData.Weight);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
             edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
@@ -393,16 +386,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestUncontractedWitnessed()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 3, 10, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 1, 10, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 2, 10, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 3, 10, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
+            graph.AddEdge(1, 3, 10, null);
+            graph.AddEdge(3, 1, 10, null);
+            graph.AddEdge(3, 2, 10, null);
+            graph.AddEdge(2, 3, 10, null);
             graph.Compress();
 
             // contract graph.
@@ -419,28 +411,28 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // edges 1->2 and 2->1 should have been removed.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNotNull(edge);
-            var edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            var edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(110, edgeData.Weight);
             Assert.AreEqual(null, edgeData.Direction);
-            Assert.AreEqual(1, edgeData.ContractedId);
+            Assert.AreEqual(1, edge.GetContracted());
 
             edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 0);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(100, edgeData.Weight);
             Assert.AreEqual(null, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
 
             edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(10, edgeData.Weight);
             Assert.AreEqual(null, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);
 
             edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNotNull(edge);
-            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], edge.MetaData[0]);
+            edgeData = ContractedEdgeDataSerializer.Deserialize(edge.Data[0], Constants.NO_VERTEX);
             Assert.AreEqual(10, edgeData.Weight);
             Assert.AreEqual(null, edgeData.Direction);
             Assert.AreEqual(Constants.NO_VERTEX, edgeData.ContractedId);

@@ -38,9 +38,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestNoNeighbours()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(1, 0, 100, null);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, 
@@ -57,10 +56,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneNeighbour()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -77,12 +75,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoNeighbours()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(0, 2, 100, null);
+            graph.AddEdge(2, 0, 100, null);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -99,14 +96,13 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestThreeNeighbours()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 3, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(3, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(0, 2, 100, null);
+            graph.AddEdge(2, 0, 100, null);
+            graph.AddEdge(0, 3, 100, null);
+            graph.AddEdge(3, 0, 100, null);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -123,12 +119,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoNeighboursOneWay()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, true, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 0, 100, false);
+            graph.AddEdge(0, 2, 100, false);
+            graph.AddEdge(2, 0, 100, true);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -138,12 +133,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(0, priority);
 
             // build another graph.
-            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
+            graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, false);
+            graph.AddEdge(1, 0, 100, true);
+            graph.AddEdge(0, 2, 100, true);
+            graph.AddEdge(2, 0, 100, false);
 
             // create a witness calculator and the priority calculator.
             priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -160,12 +154,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoNeighboursOneWayOpposite()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 0, 100, false);
+            graph.AddEdge(0, 2, 100, true);
+            graph.AddEdge(2, 0, 100, false);
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
@@ -182,10 +175,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneNeighboursContracted()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 0, 100, false);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new BitArray32(graph.VertexCount);
@@ -204,12 +196,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoNeighboursContracted()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(0, 2, 100, null);
+            graph.AddEdge(2, 0, 100, null);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new BitArray32(graph.VertexCount);
@@ -228,10 +219,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneNeighboursNotifyContracted()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 0, 100, false);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new BitArray32(graph.VertexCount);
@@ -251,12 +241,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoNeighboursNotifyContracted()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(0, 2, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(0, 2, 100, null);
+            graph.AddEdge(2, 0, 100, null);
 
             // create a witness calculator and the priority calculator.
             var contractedFlags = new BitArray32(graph.VertexCount);
@@ -276,16 +265,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestQuadrilateralOneWay()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 2, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(0, 3, 10, false, Constants.NO_VERTEX);
-            graph.AddEdge(3, 0, 10, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 1000, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 1000, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 3, 10000, true, Constants.NO_VERTEX);
-            graph.AddEdge(3, 1, 10000, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 2, 100, true);
+            graph.AddEdge(2, 0, 100, false);
+            graph.AddEdge(0, 3, 10, false);
+            graph.AddEdge(3, 0, 10, true);
+            graph.AddEdge(1, 2, 1000, false);
+            graph.AddEdge(2, 1, 1000, true);
+            graph.AddEdge(1, 3, 10000, true);
+            graph.AddEdge(3, 1, 10000, false);
             graph.Compress();
 
             // create a witness calculator and the priority calculator.

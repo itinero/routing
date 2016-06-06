@@ -42,7 +42,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             _witnesses = witnesses;
         }
 
-        public void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights, 
+        public void Calculate(DirectedDynamicGraph graph, uint source, List<uint> targets, List<float> weights, 
             ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip)
         {
             if (_witnesses != null)

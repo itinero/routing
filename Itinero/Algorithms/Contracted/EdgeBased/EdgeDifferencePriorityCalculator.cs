@@ -29,7 +29,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// </summary>
     public class EdgeDifferencePriorityCalculator : IPriorityCalculator
     {
-        private readonly DirectedMetaGraph _graph;
+        private readonly DirectedDynamicGraph _graph;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
         private readonly IWitnessCalculator _witnessCalculator;
@@ -37,7 +37,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new priority calculator.
         /// </summary>
-        public EdgeDifferencePriorityCalculator(DirectedMetaGraph graph, IWitnessCalculator witnessCalculator)
+        public EdgeDifferencePriorityCalculator(DirectedDynamicGraph graph, IWitnessCalculator witnessCalculator)
         {
             _graph = graph;
             _witnessCalculator = witnessCalculator;
@@ -58,7 +58,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var added = 0;
 
             // get and keep edges.
-            var edges = new List<Edge>(_graph.Graph.GetEdgeEnumerator(vertex));
+            var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
 
             // remove 'downward' edge to vertex.
             var i = 0;
@@ -128,7 +128,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights,
+                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights,
                     ref forwardWitnesses, ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.

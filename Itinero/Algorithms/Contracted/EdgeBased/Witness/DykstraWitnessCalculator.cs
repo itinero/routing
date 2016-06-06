@@ -56,7 +56,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+        public void Calculate(DirectedDynamicGraph graph, uint source, List<uint> targets, List<float> weights,
             ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip)
         {
             if (_hopLimit == 1)
@@ -241,7 +241,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// <summary>
         /// Calculates witness paths with just one hop.
         /// </summary>
-        public void ExistsOneHop(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+        public void ExistsOneHop(DirectedDynamicGraph graph, uint source, List<uint> targets, List<float> weights,
             ref bool[] forwardExists, ref bool[] backwardExists)
         {
             var targetsToCalculate = new HashSet<uint>();
@@ -271,9 +271,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
                         float neighbourWeight;
                         bool? neighbourDirection;
-                        uint neighbourContractedId;
-                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, edgeEnumerator.Data1,
-                            out neighbourWeight, out neighbourDirection, out neighbourContractedId);
+                        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
+                            out neighbourWeight, out neighbourDirection);
                         var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
                         var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
 

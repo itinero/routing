@@ -811,7 +811,7 @@ namespace Itinero.Graphs.Directed
                 {
                     if (_graph._fixedEdgeDataSize <= 1)
                     {
-                        throw new InvalidOperationException("There is not fixed data at position 1.");
+                        throw new InvalidOperationException("There is no fixed data at position 1.");
                     }
                     return DirectedDynamicGraph.RemoveFlags(_graph._edges[_currentEdgePointer + 1 + 1]);
                 }

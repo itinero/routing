@@ -33,7 +33,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// </summary>
     public class HierarchyBuilder : AlgorithmBase
     {
-        private readonly DirectedMetaGraph _graph;
+        private readonly DirectedDynamicGraph _graph;
         private readonly IPriorityCalculator _priorityCalculator;
         private readonly IWitnessCalculator _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
+        public HierarchyBuilder(DirectedDynamicGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
         {
             _graph = graph;
             _priorityCalculator = priorityCalculator;
@@ -101,7 +101,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             var edges = _graph.GetEdgeEnumerator(v);
                             if (edges != null)
                             {
-                                var edgesCount = edges.Count;
+                                var edgesCount = edges.Count();
                                 totaEdges = edgesCount + totaEdges;
                                 if (maxCardinality < edgesCount)
                                 {
@@ -145,7 +145,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             _logger.Log(TraceEventType.Information, "Removing witnessed edges...");
 
-            var edges = new List<MetaEdge>();
+            var edges = new List<DynamicEdge>();
             var weights = new List<float>();
             var targets = new List<uint>();
             for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
@@ -176,7 +176,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph.Graph, vertex, targets, weights,
+                _witnessCalculator.Calculate(_graph, vertex, targets, weights,
                     ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
 
                 // check witness paths.
@@ -189,12 +189,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     else if (forwardWitnesses[i])
                     { // only in forward direction is this edge useless.
                         _graph.RemoveEdge(vertex, targets[i]);
-                        _graph.AddEdge(vertex, targets[i], weights[i], false, Constants.NO_VERTEX);
+                        _graph.AddEdge(vertex, targets[i], weights[i], false);
                     }
                     else if (backwardWitnesses[i])
                     { // only in backward direction is this edge useless.
                         _graph.RemoveEdge(vertex, targets[i]);
-                        _graph.AddEdge(vertex, targets[i], weights[i], true, Constants.NO_VERTEX);
+                        _graph.AddEdge(vertex, targets[i], weights[i], true);
                     }
                 }
             }
@@ -272,7 +272,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private void Contract(uint vertex)
         {
             // get and keep edges.
-            var edges = new List<MetaEdge>(_graph.GetEdgeEnumerator(vertex));
+            var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
 
             // remove 'downward' edge to vertex.
             var i = 0;
@@ -328,7 +328,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses,
+                _witnessCalculator.Calculate(_graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses,
                     ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.

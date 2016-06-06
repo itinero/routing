@@ -39,13 +39,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneEdgeOneHop()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
 
             var witnessCalculator = new DykstraWitnessCalculator(1);
 
@@ -74,19 +69,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgeInfiniteHops()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = null,
-                Weight = 100
-            }));
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 2, 100, null);
 
             var witnessCalculator = new DykstraWitnessCalculator(int.MaxValue);
 
@@ -115,25 +100,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoOnewayEdgeInfiniteHops()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 300
-            }));
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 2, 100, true);
+            graph.AddEdge(0, 2, 300, true);
 
             var witnessCalculator = new DykstraWitnessCalculator(int.MaxValue);
 
@@ -155,26 +125,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(false, backwardWitnesses[0]);
 
             // build graph.
-            graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 300
-            }));
-
+            graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(1, 0, 100, true);
+            graph.AddEdge(2, 1, 100, true);
+            graph.AddEdge(2, 0, 100, true);
 
             // calculate witness for weight of 200.
             forwardWitnesses = new bool[1];
@@ -201,55 +155,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestQuadrilateralOneWay()
         {
             // build graph.
-            var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 100
-            }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 100
-            }));
-            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 10
-            }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 10
-            }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 1000
-            }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 1000
-            }));
-            graph.AddEdge(1, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = true,
-                Weight = 10000
-            }));
-            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
-            {
-                ContractedId = Constants.NO_VERTEX,
-                Direction = false,
-                Weight = 10000
-            }));
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 2, 100, true);
+            graph.AddEdge(2, 0, 100, false);
+            graph.AddEdge(0, 3, 10, false);
+            graph.AddEdge(3, 0, 10, true);
+            graph.AddEdge(1, 2, 1000, false);
+            graph.AddEdge(2, 1, 1000, true);
+            graph.AddEdge(1, 3, 10000, true);
+            graph.AddEdge(3, 1, 10000, false);
             graph.Compress(false);
 
             var witnessCalculator = new DykstraWitnessCalculator(int.MaxValue);
