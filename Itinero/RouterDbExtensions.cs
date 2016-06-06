@@ -51,25 +51,25 @@ namespace Itinero
                 //if (db.HasComplexRestrictions(profile) || forceEdgeBased)
                 if (forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.
-                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, ContractedEdgeDataSerializer.MetaSize);
-                    var directedGraphBuilder = new Itinero.Algorithms.Contracted.EdgeBased.DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
-                    {
-                        var tags = db.EdgeProfiles.Get(p);
-                        return profile.Factor(tags);
-                    });
-                    directedGraphBuilder.Run();
+                    //var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, ContractedEdgeDataSerializer.MetaSize);
+                    //var directedGraphBuilder = new Itinero.Algorithms.Contracted.EdgeBased.DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, (p) =>
+                    //{
+                    //    var tags = db.EdgeProfiles.Get(p);
+                    //    return profile.Factor(tags);
+                    //});
+                    //directedGraphBuilder.Run();
 
-                    // contract the graph.
-                    var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator(contracted,
-                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue));
-                    priorityCalculator.DifferenceFactor = 5;
-                    priorityCalculator.DepthFactor = 5;
-                    priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue));
-                    hierarchyBuilder.Run();
+                    //// contract the graph.
+                    //var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator(contracted,
+                    //    new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue));
+                    //priorityCalculator.DifferenceFactor = 5;
+                    //priorityCalculator.DepthFactor = 5;
+                    //priorityCalculator.ContractedFactor = 8;
+                    //var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder(contracted, priorityCalculator,
+                    //        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue));
+                    //hierarchyBuilder.Run();
 
-                    contractedDb = new ContractedDb(contracted);
+                    //contractedDb = new ContractedDb(contracted);
                 }
                 else
                 { // vertex-based is ok when no complex restrictions found.

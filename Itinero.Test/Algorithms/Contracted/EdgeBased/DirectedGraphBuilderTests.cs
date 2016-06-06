@@ -61,8 +61,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             };
 
             // convert graph.
-            var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
+            var directedGraph = new DirectedDynamicGraph(1);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
             algorithm.Run();
 
@@ -76,17 +75,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // verify all edges.
             var edges = directedGraph.GetEdgeEnumerator(0);
-            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(1, edges.Count());
             var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null);
             Assert.AreEqual(data, edges.First().Data[0]);
-            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(1, edges.First().Neighbour);
             
             edges = directedGraph.GetEdgeEnumerator(1);
-            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(1, edges.Count());
             data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null);
             Assert.AreEqual(data, edges.First().Data[0]);
-            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(0, edges.First().Neighbour);
         }
 
@@ -118,8 +115,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             };
 
             // convert graph.
-            var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
+            var directedGraph = new DirectedDynamicGraph(1);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
             algorithm.Run();
 
@@ -133,17 +129,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // verify all edges.
             var edges = directedGraph.GetEdgeEnumerator(0);
-            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(1, edges.Count());
             var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, true);
             Assert.AreEqual(data, edges.First().Data[0]);
-            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(1, edges.First().Neighbour);
 
             edges = directedGraph.GetEdgeEnumerator(1);
-            Assert.AreEqual(1, edges.Count);
+            Assert.AreEqual(1, edges.Count());
             data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, false);
             Assert.AreEqual(data, edges.First().Data[0]);
-            Assert.AreEqual(Constants.NO_VERTEX, edges.First().MetaData[0]);
             Assert.AreEqual(0, edges.First().Neighbour);
         }
     }

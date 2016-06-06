@@ -31,13 +31,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     public class DirectedGraphBuilder : AlgorithmBase
     {
         private readonly Itinero.Graphs.Graph _source;
-        private readonly DirectedMetaGraph _target;
+        private readonly DirectedDynamicGraph _target;
         private readonly Func<ushort, Factor> _getFactor;
 
         /// <summary>
         /// Creates a new graph builder.
         /// </summary>
-        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedMetaGraph target, Func<ushort, Factor> getFactor)
+        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, Func<ushort, Factor> getFactor)
         {
             _source = source;
             _target = target;
@@ -92,7 +92,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         var data = ContractedEdgeDataSerializer.Serialize(
                             distance * factor.Value, direction);
 
-                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data, Constants.NO_VERTEX);
+                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data);
                     }
                 }
             }
