@@ -328,6 +328,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return null;
             });
             if (edge == null)
+            {
+                edge = graph.GetShortestEdge(vertex2, vertex1, data =>
+                {
+                    float weight;
+                    bool? direction;
+                    ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
+                    if (direction == null || direction.Value == !forward)
+                    {
+                        return weight;
+                    }
+                    return null;
+                });
+            }
+            if (edge == null)
             { // no edge found!
                 throw new Exception(string.Format("No edge found from {0} to {1}.", vertex1, vertex2));
             }

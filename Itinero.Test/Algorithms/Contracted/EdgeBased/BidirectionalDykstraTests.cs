@@ -51,7 +51,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
             Assert.AreEqual(1, algorithm.Best);
-            Path visit;
+            EdgePath visit;
             Assert.IsTrue(algorithm.TryGetForwardVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -117,7 +117,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
             Assert.AreEqual(1, algorithm.Best);
-            Path visit;
+            EdgePath visit;
             Assert.IsTrue(algorithm.TryGetForwardVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -161,7 +161,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
             Assert.AreEqual(2, algorithm.Best);
-            Path visit;
+            EdgePath visit;
             Assert.IsTrue(algorithm.TryGetForwardVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -205,7 +205,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
             Assert.AreEqual(0, algorithm.Best);
-            Path visit;
+            EdgePath visit;
             Assert.IsTrue(algorithm.TryGetForwardVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -249,7 +249,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
             Assert.AreEqual(1, algorithm.Best);
-            Path visit;
+            EdgePath visit;
             Assert.IsTrue(algorithm.TryGetForwardVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);

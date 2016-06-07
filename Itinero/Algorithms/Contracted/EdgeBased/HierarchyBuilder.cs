@@ -160,83 +160,83 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         private void RemoveWitnessedEdges()
         {
-            _logger.Log(TraceEventType.Information, "Removing witnessed edges...");
+            //_logger.Log(TraceEventType.Information, "Removing witnessed edges...");
 
-            var edges = new List<DynamicEdge>();
-            var weights = new List<float>();
-            var targets = new List<uint>();
-            for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
-            {
-                if (_restrictionFlags[vertex])
-                { // don't remove witnessed edges when there is a potential restriction.
-                    continue;
-                }
+            //var edges = new List<DynamicEdge>();
+            //var weights = new List<float>();
+            //var targets = new List<uint>();
+            //for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
+            //{
+            //    if (_restrictionFlags[vertex])
+            //    { // don't remove witnessed edges when there is a potential restriction.
+            //        continue;
+            //    }
 
-                edges.Clear();
-                weights.Clear();
-                targets.Clear();
+            //    edges.Clear();
+            //    weights.Clear();
+            //    targets.Clear();
 
-                edges.AddRange(_graph.GetEdgeEnumerator(vertex));
+            //    edges.AddRange(_graph.GetEdgeEnumerator(vertex));
 
-                var forwardWitnesses = new EdgePath[edges.Count];
-                var backwardWitnesses = new EdgePath[edges.Count];
-                for (var i = 0; i < edges.Count; i++)
-                {
-                    var edge = edges[i];
+            //    var forwardWitnesses = new EdgePath[edges.Count];
+            //    var backwardWitnesses = new EdgePath[edges.Count];
+            //    for (var i = 0; i < edges.Count; i++)
+            //    {
+            //        var edge = edges[i];
 
-                    float edgeWeight;
-                    bool? edgeDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
-                        out edgeWeight, out edgeDirection);
-                    var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
-                    var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
+            //        float edgeWeight;
+            //        bool? edgeDirection;
+            //        ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+            //            out edgeWeight, out edgeDirection);
+            //        var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
+            //        var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
 
-                    if (_restrictionFlags[edge.Neighbour])
-                    { // don't remove shortcuts when there is a potential restriction.
-                        forwardWitnesses[i] = new EdgePath();
-                        backwardWitnesses[i] = new EdgePath();
-                        weights.Add(0);
-                        targets.Add(edge.Neighbour);
-                    }
-                    else
-                    {
-                        if (!edgeCanMoveForward)
-                        {
-                            forwardWitnesses[i] = new EdgePath();
-                        }
-                        if (!edgeCanMoveBackward)
-                        {
-                            backwardWitnesses[i] = new EdgePath();
-                        }
-                        weights.Add(edgeWeight);
-                        targets.Add(edge.Neighbour);
-                    }
-                }
+            //        if (_restrictionFlags[edge.Neighbour])
+            //        { // don't remove shortcuts when there is a potential restriction.
+            //            forwardWitnesses[i] = new EdgePath();
+            //            backwardWitnesses[i] = new EdgePath();
+            //            weights.Add(0);
+            //            targets.Add(edge.Neighbour);
+            //        }
+            //        else
+            //        {
+            //            if (!edgeCanMoveForward)
+            //            {
+            //                forwardWitnesses[i] = new EdgePath();
+            //            }
+            //            if (!edgeCanMoveBackward)
+            //            {
+            //                backwardWitnesses[i] = new EdgePath();
+            //            }
+            //            weights.Add(edgeWeight);
+            //            targets.Add(edge.Neighbour);
+            //        }
+            //    }
 
-                // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, _getRestrictions, vertex, targets, weights,
-                    ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
+            //    // calculate all witness paths.
+            //    _witnessCalculator.Calculate(_graph, _getRestrictions, vertex, targets, weights,
+            //        ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
 
-                // check witness paths.
-                for (var i = 0; i < edges.Count; i++)
-                {
-                    if (forwardWitnesses[i].Vertex != Constants.NO_VERTEX && forwardWitnesses[i].Weight < weights[i] && 
-                        backwardWitnesses[i].Vertex != Constants.NO_VERTEX && backwardWitnesses[i].Weight < weights[i])
-                    { // in both directions the edge does not represent the shortest path.
-                        _graph.RemoveEdge(vertex, targets[i]);
-                    }
-                    else if (forwardWitnesses[i].Vertex != Constants.NO_VERTEX && forwardWitnesses[i].Weight < weights[i])
-                    { // only in forward direction is this edge useless.
-                        _graph.RemoveEdge(vertex, targets[i]);
-                        _graph.AddEdge(vertex, targets[i], weights[i], false);
-                    }
-                    else if (backwardWitnesses[i].Vertex != Constants.NO_VERTEX && backwardWitnesses[i].Weight < weights[i])
-                    { // only in backward direction is this edge useless.
-                        _graph.RemoveEdge(vertex, targets[i]);
-                        _graph.AddEdge(vertex, targets[i], weights[i], true);
-                    }
-                }
-            }
+            //    // check witness paths.
+            //    for (var i = 0; i < edges.Count; i++)
+            //    {
+            //        if (forwardWitnesses[i].Vertex != Constants.NO_VERTEX && forwardWitnesses[i].Weight < weights[i] && 
+            //            backwardWitnesses[i].Vertex != Constants.NO_VERTEX && backwardWitnesses[i].Weight < weights[i])
+            //        { // in both directions the edge does not represent the shortest path.
+            //            _graph.RemoveEdge(vertex, targets[i]);
+            //        }
+            //        else if (forwardWitnesses[i].Vertex != Constants.NO_VERTEX && forwardWitnesses[i].Weight < weights[i])
+            //        { // only in forward direction is this edge useless.
+            //            _graph.RemoveEdge(vertex, targets[i]);
+            //            _graph.AddEdge(vertex, targets[i], weights[i], false);
+            //        }
+            //        else if (backwardWitnesses[i].Vertex != Constants.NO_VERTEX && backwardWitnesses[i].Weight < weights[i])
+            //        { // only in backward direction is this edge useless.
+            //            _graph.RemoveEdge(vertex, targets[i]);
+            //            _graph.AddEdge(vertex, targets[i], weights[i], true);
+            //        }
+            //    }
+            //}
         }
 
         private int _k = 20; // The amount of queue 'misses' to recalculated.
