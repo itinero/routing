@@ -343,7 +343,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             if (edge == null)
             { // no edge found!
-                throw new Exception(string.Format("No edge found from {0} to {1}.", vertex1, vertex2));
+                return;
+                //throw new Exception(string.Format("No edge found from {0} to {1}.", vertex1, vertex2));
             }
             var edgeContractedId = edge.GetContracted();
             if (edgeContractedId.HasValue)
