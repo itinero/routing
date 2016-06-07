@@ -186,11 +186,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
                         // check for a restriction and if need build the original sequence.
                         var restrictions = getRestrictions(current.Path.Vertex);
-                        var sequence = Constants.EMPTY_SEQUENCE; 
-                        if (restrictions != null && restrictions.Any())
-                        {
-                            sequence = current.Path.GetSequence(edgeEnumerator);
-                        }
+                        var sequence = current.Path.GetSequence(edgeEnumerator);
                         
                         // move to the current vertex.
                         edgeEnumerator.MoveTo(current.Path.Vertex);
@@ -221,11 +217,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                                 {
                                     if (edgeEnumerator.IsOriginal())
                                     {
+                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbour)
+                                        { // a t-turn!
+                                            continue;
+                                        }
                                         sequenceAlongNeighbour = sequence.Append(neighbour);
                                     }
                                     else
                                     {
-                                        sequenceAlongNeighbour = sequence.Append(edgeEnumerator.GetSequence1());
+                                        var neighbourSequence = edgeEnumerator.GetSequence1();
+                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbourSequence[0])
+                                        { // a t-turn!
+                                            continue;
+                                        }
+                                        sequenceAlongNeighbour = sequence.Append(neighbourSequence);
                                     }
                                 }
 

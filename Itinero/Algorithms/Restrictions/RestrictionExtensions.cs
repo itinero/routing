@@ -59,6 +59,11 @@ namespace Itinero.Algorithms.Restrictions
         /// </summary>
         public static bool IsSequenceAllowed(this IEnumerable<uint[]> restrictions, uint[] sequence)
         {
+            if (restrictions == null)
+            {
+                return true;
+            }
+
             foreach (var restriction in restrictions)
             {
                 if (!restriction.IsSequenceAllowed(sequence))

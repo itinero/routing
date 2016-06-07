@@ -249,5 +249,50 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(Constants.NO_VERTEX, forwardWitnesses[0].Vertex);
             Assert.AreEqual(2, backwardWitnesses[0].Vertex);
         }
+
+        /// <summary>
+        /// Test handling u-turns.
+        /// </summary>
+        [Test]
+        public void TestUTurnHandling()
+        {
+            // build graph.
+            var graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 3, 100, null, 1, null, null);
+            graph.AddEdge(3, 0, 100, null, 1, null, null);
+            graph.AddEdge(2, 3, 100, null, 1, null, null);
+            graph.AddEdge(3, 2, 100, null, 1, null, null);
+
+            // a path from 0->2 is impossible because it would involve a u-turn at vertex 3 resulting in an original path 0->1->3->1->2.
+            // same for 2->0
+
+            var witnessCalculator = new DykstraWitnessCalculator(int.MaxValue);
+
+            // calculate witness for weight of 200.
+            var forwardWitnesses = new EdgePath[1];
+            var backwardWitnesses = new EdgePath[1];
+            witnessCalculator.Calculate(graph, (i) => null, 0, new List<uint>(new uint[] { 2 }), new List<float>(new float[] { float.MaxValue }),
+                ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
+            Assert.AreEqual(Constants.NO_VERTEX, forwardWitnesses[0].Vertex);
+            Assert.AreEqual(Constants.NO_VERTEX, backwardWitnesses[0].Vertex);
+
+            // build graph.
+            graph = new DirectedDynamicGraph(1);
+            graph.AddEdge(0, 3, 100, null, 1, null, new uint[] { 100 });
+            graph.AddEdge(3, 0, 100, null, 1, new uint[] { 100 }, null);
+            graph.AddEdge(2, 3, 100, null, 1, null, new uint[] { 100 });
+            graph.AddEdge(3, 2, 100, null, 1, new uint[] { 100 }, null);
+
+            // a path from 0->2 is impossible because it would involve a u-turn at vertex 3 resulting in an original path 0->...->100->3->100->...->2.
+            // same for 2->0
+
+            // calculate witness for weight of 200.
+            forwardWitnesses = new EdgePath[1];
+            backwardWitnesses = new EdgePath[1];
+            witnessCalculator.Calculate(graph, (i) => null, 0, new List<uint>(new uint[] { 2 }), new List<float>(new float[] { float.MaxValue }),
+                ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
+            Assert.AreEqual(Constants.NO_VERTEX, forwardWitnesses[0].Vertex);
+            Assert.AreEqual(Constants.NO_VERTEX, backwardWitnesses[0].Vertex);
+        }
     }
 }
