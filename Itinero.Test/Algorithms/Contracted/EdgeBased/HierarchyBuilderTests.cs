@@ -243,11 +243,23 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             var edges41 = graph.GetEdgeEnumerator(4).FirstOrDefault(x => x.Neighbour == 1);
             Assert.IsNotNull(edges41);
+            var s1 = edges41.GetSequence1();
+            var s2 = edges41.GetSequence2();
+            Assert.AreEqual(1, s1.Length);
+            Assert.AreEqual(0, s1[0]);
+            Assert.AreEqual(1, s2.Length);
+            Assert.AreEqual(0, s2[0]);
             var edges14 = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 4);
             Assert.IsNull(edges14);
 
             var edges31 = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 1);
             Assert.IsNotNull(edges31);
+            s1 = edges31.GetSequence1();
+            s2 = edges31.GetSequence2();
+            Assert.AreEqual(1, s1.Length);
+            Assert.AreEqual(4, s1[0]);
+            Assert.AreEqual(1, s2.Length);
+            Assert.AreEqual(4, s2[0]);
             var edges13 = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNull(edges13);
         }

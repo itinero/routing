@@ -186,7 +186,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
                         // check for a restriction and if need build the original sequence.
                         var restrictions = getRestrictions(current.Path.Vertex);
-                        var sequence = Constants.EMPTY; 
+                        var sequence = Constants.EMPTY_SEQUENCE; 
                         if (restrictions != null && restrictions.Any())
                         {
                             sequence = current.Path.GetSequence(edgeEnumerator);

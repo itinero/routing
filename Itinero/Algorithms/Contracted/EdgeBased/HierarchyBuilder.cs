@@ -39,6 +39,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly IWitnessCalculator _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private const float E = 0.1f;
 
         /// <summary>
         /// Creates a new hierarchy builder.
@@ -375,26 +376,44 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         continue;
                     }
 
-                    if (forwardWitnesses[k].HasVertex(vertex) && backwardWitnesses[k].HasVertex(vertex))
-                    { // add bidirectional edge.
+                    if (forwardWitnesses[k].HasVertex(vertex) && backwardWitnesses[k].HasVertex(vertex) &&
+                        System.Math.Abs(forwardWitnesses[k].Weight - backwardWitnesses[k].Weight) < E)
+                    { // paths in both direction are possible and with the same weight, add just one edge in each direction.
+                        var s1 = this.GetSequence1(forwardWitnesses[k], 1);
+                        var s2 = this.GetSequence2(forwardWitnesses[k], 1);
                         _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            targetWeights[k], null, vertex);
+                            forwardWitnesses[k].Weight, null, vertex, s1, s2);
+                        s1 = this.GetSequence1(backwardWitnesses[k], 1);
+                        s2 = this.GetSequence2(backwardWitnesses[k], 1);
+                        s1.Reverse();
+                        s2.Reverse();
                         _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            targetWeights[k], null, vertex);
+                            backwardWitnesses[k].Weight, null, vertex, s2, s1);
                     }
-                    else if (forwardWitnesses[k].HasVertex(vertex))
-                    { // add forward edge.
-                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            targetWeights[k], true, vertex);
-                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            targetWeights[k], false, vertex);
-                    }
-                    else if (backwardWitnesses[k].HasVertex(vertex))
-                    { // add forward edge.
-                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            targetWeights[k], false, vertex);
-                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            targetWeights[k], true, vertex);
+                    else
+                    { // add two edge per direction.
+                        if (forwardWitnesses[k].HasVertex(vertex))
+                        { // add forward edge.
+                            var s1 = this.GetSequence1(forwardWitnesses[k], 1);
+                            var s2 = this.GetSequence2(forwardWitnesses[k], 1);
+                            _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                                targetWeights[k], true, vertex, s1, s2);
+                            s1.Reverse();
+                            s2.Reverse();
+                            _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                                targetWeights[k], false, vertex, s2, s1);
+                        }
+                        if (backwardWitnesses[k].HasVertex(vertex))
+                        { // add forward edge.
+                            var s1 = this.GetSequence1(backwardWitnesses[k], 1);
+                            var s2 = this.GetSequence2(backwardWitnesses[k], 1);
+                            _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                                targetWeights[k], false, vertex, s2, s1);
+                            s1.Reverse();
+                            s2.Reverse();
+                            _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                                targetWeights[k], true, vertex, s1, s2);
+                        }
                     }
                 }
             }
@@ -418,6 +437,57 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             _contractedFlags[vertex] = true;
             _priorityCalculator.NotifyContracted(vertex);
+        }
+
+        /// <summary>
+        /// Gets sequence 1.
+        /// </summary>
+        private uint[] GetSequence1(EdgePath path, int count)
+        {
+            var s1 = new uint[count];
+            path = path.From;
+            var i = 0;
+            while(path != null)
+            {
+                s1[0] = path.Vertex;
+                i++;
+                path = path.From;
+                if (i == count)
+                {
+                    return s1;
+                }
+            }
+            throw new Exception("Path was too short to generate sequence.");
+        }
+
+        /// <summary>
+        /// Gets sequence 2.
+        /// </summary>
+        private uint[] GetSequence2(EdgePath path, int count)
+        {
+            var s1 = new uint[count];
+            path = path.From;
+            var i = 0;
+            while (path != null)
+            {
+                s1[0] = path.Vertex;
+                i++;
+                path = path.From;
+                if (i == count)
+                {
+                    while(path.From != null)
+                    {
+                        for(var j = 0; j < s1.Length - 1; j++)
+                        {
+                            s1[j] = s1[j + 1];
+                        }
+                        s1[s1.Length - 1] = path.From.Vertex;
+                        path = path.From;
+                    }
+                    return s1;
+                }
+            }
+            throw new Exception("Path was too short to generate sequence.");
         }
     }
 }

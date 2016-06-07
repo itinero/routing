@@ -46,6 +46,6 @@ namespace Itinero
         /// <summary>
         /// An empty sequence/restriction.
         /// </summary>
-        public static uint[] EMPTY = new uint[0];
+        public static uint[] EMPTY_SEQUENCE = new uint[0];
     }
 }

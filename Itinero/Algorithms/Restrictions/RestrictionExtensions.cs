@@ -272,13 +272,13 @@ namespace Itinero.Algorithms.Restrictions
             }
             if (restriction.Length <= sequence.Length)
             {
-                return Constants.EMPTY;
+                return Constants.EMPTY_SEQUENCE;
             }
             for(var i = 0; i < sequence.Length; i++)
             {
                 if (sequence[i] != restriction[i])
                 {
-                    return Constants.EMPTY;
+                    return Constants.EMPTY_SEQUENCE;
                 }
             }
             return restriction.SubArray(sequence.Length - 1, restriction.Length - sequence.Length + 1);
@@ -299,13 +299,13 @@ namespace Itinero.Algorithms.Restrictions
             }
             if (restriction.Length <= sequence.Count)
             {
-                return Constants.EMPTY;
+                return Constants.EMPTY_SEQUENCE;
             }
             for (var i = 0; i < sequence.Count; i++)
             {
                 if (sequence[i] != restriction[i])
                 {
-                    return Constants.EMPTY;
+                    return Constants.EMPTY_SEQUENCE;
                 }
             }
             return restriction.SubArray(sequence.Count - 1, restriction.Length - sequence.Count + 1);
