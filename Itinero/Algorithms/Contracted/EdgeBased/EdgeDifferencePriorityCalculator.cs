@@ -22,6 +22,7 @@ using Itinero.Algorithms.Contracted.EdgeBased.Witness;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -60,6 +61,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             // get and keep edges.
             var edges = new List<DynamicEdge>(_graph.GetEdgeEnumerator(vertex));
+
+            // check if this vertex has a potential restrictions.
+            var restrictions = getRestrictions(vertex);
+            var hasRestrictions = restrictions != null && restrictions.Any();
 
             // remove 'downward' edge to vertex.
             var i = 0;
@@ -107,8 +112,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
                 // figure out what witness paths to calculate.
-                var forwardWitnesses = new bool[j];
-                var backwardWitnesses = new bool[j];
+                var forwardWitnesses = new EdgePath[j];
+                var backwardWitnesses = new EdgePath[j];
                 var targets = new List<uint>(j);
                 var targetWeights = new List<float>(j);
                 for (var k = 0; k < j; k++)
@@ -122,15 +127,28 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
-                    forwardWitnesses[k] = !(edge1CanMoveBackward && edge2CanMoveForward);
-                    backwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
+                    if (!(edge1CanMoveBackward && edge2CanMoveForward))
+                    {
+                        forwardWitnesses[k] = new EdgePath();
+                    }
+                    if (!(edge1CanMoveForward && edge2CanMoveBackward))
+                    {
+                        backwardWitnesses[k] = new EdgePath();
+                    }
                     targets.Add(edge2.Neighbour);
-                    targetWeights.Add(edge1Weight + edge2Weight);
+                    if (hasRestrictions)
+                    { // weight can potentially be bigger.                        
+                        targetWeights.Add(float.MaxValue);
+                    }
+                    else
+                    { // weight can max be the sum of the two edges.
+                        targetWeights.Add(edge1Weight + edge2Weight);
+                    }
                 }
 
                 // calculate all witness paths.
                 _witnessCalculator.Calculate(_graph, getRestrictions, edge1.Neighbour, targets, targetWeights,
-                    ref forwardWitnesses, ref backwardWitnesses, vertex);
+                    ref forwardWitnesses, ref backwardWitnesses, Constants.NO_VERTEX);
 
                 // add contracted edges if needed.
                 for (var k = 0; k < j; k++)
@@ -139,7 +157,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                     var removedLocal = 0;
                     var addedLocal = 0;
-                    if (!forwardWitnesses[k] && !backwardWitnesses[k])
+                    if (forwardWitnesses[k].HasVertex(vertex) && backwardWitnesses[k].HasVertex(vertex))
                     { // add bidirectional edge.
                         _graph.TryAddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
                             targetWeights[k], null, vertex, out addedLocal, out removedLocal);
@@ -150,7 +168,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         added += addedLocal;
                         removed += removedLocal;
                     }
-                    else if (!forwardWitnesses[k])
+                    else if (forwardWitnesses[k].HasVertex(vertex))
                     { // add forward edge.
                         _graph.TryAddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
                             targetWeights[k], true, vertex, out addedLocal, out removedLocal);
@@ -161,7 +179,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         added += addedLocal;
                         removed += removedLocal;
                     }
-                    else if (!backwardWitnesses[k])
+                    else if (backwardWitnesses[k].HasVertex(vertex))
                     { // add forward edge.
                         _graph.TryAddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
                             targetWeights[k], false, vertex, out addedLocal, out removedLocal);

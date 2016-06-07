@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,12 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Graphs.Directed;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using Itinero.Algorithms.Contracted.EdgeBased.Witness;
+using Itinero.Algorithms;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -30,35 +29,42 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
     /// </summary>
     class WitnessCalculatorMock : IWitnessCalculator
     {
-        private readonly uint[][] _witnesses;
+        private readonly Func<uint, uint, Tuple<EdgePath, EdgePath>> _witnesses; // source, target, forward, result.
 
         public WitnessCalculatorMock()
         {
 
         }
 
-        public WitnessCalculatorMock(uint[][] witnesses)
+        public WitnessCalculatorMock(Func<uint, uint, Tuple<EdgePath, EdgePath>> witnesses)
         {
             _witnesses = witnesses;
         }
 
         public void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, uint source, List<uint> targets, List<float> weights, 
-            ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip)
+            ref EdgePath[] forwardWitness, ref EdgePath[] backwardWitness, uint vertexToSkip)
         {
+            for(var i = 0; i < forwardWitness.Length; i++)
+            {
+                if (forwardWitness[i] == null)
+                {
+                    forwardWitness[i] = new EdgePath();
+                }
+                if (backwardWitness[i] == null)
+                {
+                    backwardWitness[i] = new EdgePath();
+                }
+            }
             if (_witnesses != null)
             {
                 for (var i = 0; i < targets.Count; i++)
                 {
                     var target = targets[i];
-                    if(_witnesses.Any((x) => x[0] == vertexToSkip &&
-                        x[1] == source && x[2] == target && (x[3] == 1 || x[3] == 0)))
+                    var witnesses = _witnesses(source, target);
+                    if (witnesses != null)
                     {
-                        forwardWitness[i] = true;
-                    }
-                    else if (_witnesses.Any((x) => x[0] == vertexToSkip &&
-                        x[1] == source && x[2] == target && (x[3] == 2 || x[3] == 0)))
-                    {
-                        backwardWitness[i] = true;
+                        forwardWitness[i] = witnesses.Item1;
+                        backwardWitness[i] = witnesses.Item2;
                     }
                 }
             }

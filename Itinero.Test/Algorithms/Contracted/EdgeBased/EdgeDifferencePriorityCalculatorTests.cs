@@ -22,6 +22,8 @@ using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using Itinero.Data.Contracted.Edges;
+using System;
+using Itinero.Algorithms;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -83,7 +85,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
-                new WitnessCalculatorMock());
+                new WitnessCalculatorMock((source, target) =>
+                {
+                    return new Tuple<EdgePath, EdgePath>(
+                        new EdgePath(0),
+                        new EdgePath(0));
+                }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
@@ -106,7 +113,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
-                new WitnessCalculatorMock());
+                new WitnessCalculatorMock((source, target) =>
+                {
+                    return new Tuple<EdgePath, EdgePath>(
+                        new EdgePath(0),
+                        new EdgePath(0));
+                }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(3, priority);
@@ -127,7 +139,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
-                new WitnessCalculatorMock());
+                new WitnessCalculatorMock((source, target) =>
+                {
+                    return new Tuple<EdgePath, EdgePath>(
+                        new EdgePath(0),
+                        new EdgePath(0));
+                }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
@@ -141,7 +158,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create a witness calculator and the priority calculator.
             priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
-                new WitnessCalculatorMock());
+                new WitnessCalculatorMock((source, target) =>
+                {
+                    return new Tuple<EdgePath, EdgePath>(
+                        new EdgePath(0),
+                        new EdgePath(0));
+                }));
             priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(0, priority);
@@ -162,7 +184,46 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create a witness calculator and the priority calculator.
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
-                new WitnessCalculatorMock());
+                new WitnessCalculatorMock((source, target) =>
+                {
+                    if (source == 0 && target == 1)
+                    {
+                        return new Tuple<EdgePath, EdgePath>(
+                            new EdgePath(0, 100, new EdgePath(1)),
+                            new EdgePath());
+                    }
+                    if (source == 0 && target == 2)
+                    {
+                        return new Tuple<EdgePath, EdgePath>(
+                            new EdgePath(0, 100, new EdgePath(2)),
+                            new EdgePath());
+                    }
+                    if (source == 1 && target == 0)
+                    {
+                        return new Tuple<EdgePath, EdgePath>(
+                            new EdgePath(),
+                            new EdgePath(0, 100, new EdgePath(1)));
+                    }
+                    if (source == 2 && target == 0)
+                    {
+                        return new Tuple<EdgePath, EdgePath>(
+                            new EdgePath(),
+                            new EdgePath(0, 100, new EdgePath(2)));
+                    }
+                    if (source == 1 && target == 2)
+                    {
+                        return new Tuple<EdgePath, EdgePath>(
+                            new EdgePath(),
+                            new EdgePath());
+                    }
+                    if (source == 2 && target == 1)
+                    {
+                        return new Tuple<EdgePath, EdgePath>(
+                            new EdgePath(),
+                            new EdgePath());
+                    }
+                    return null;
+                }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
             Assert.AreEqual(-2, priority);
@@ -279,11 +340,13 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // create a witness calculator and the priority calculator.
             var contractedFlags = new BitArray32(graph.VertexCount);
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
-                new WitnessCalculatorMock(new uint[][]
-                    {
-                        new uint[] { 1, 3, 2, 1 },
-                        new uint[] { 3, 0, 1, 1 }
-                    }));
+                new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(10));
+            //var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
+            //    new WitnessCalculatorMock(new uint[][]
+            //        {
+            //            new uint[] { 1, 3, 2, 1 },
+            //            new uint[] { 3, 0, 1, 1 }
+            //        }));
 
             Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, (i) => null, 0));
             Assert.AreEqual(0, priorityCalculator.Calculate(contractedFlags, (i) => null, 1));
