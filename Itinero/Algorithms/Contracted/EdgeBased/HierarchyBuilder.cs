@@ -185,6 +185,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                     if (_restrictionFlags[edge.Neighbour])
                     { // don't remove shortcuts when there is a potential restriction.
+                        forwardWitnesses[i] = new EdgePath();
+                        backwardWitnesses[i] = new EdgePath();
                         continue;
                     }
 
