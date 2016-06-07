@@ -99,5 +99,28 @@ namespace Itinero.Algorithms
             }
             return builder.ToString();
         }
+
+        /// <summary>
+        /// Returns true if the given object represents the same edge/vertex.
+        /// </summary>
+        public override bool Equals(object obj)
+        {
+            var other = obj as EdgePath;
+            if (other == null)
+            {
+                return false;
+            }
+            return other.Edge == this.Edge &&
+                other.Vertex == this.Vertex;
+        }
+
+        /// <summary>
+        /// Serves as a hashfunction for this type.
+        /// </summary>
+        public override int GetHashCode()
+        {
+            return this.Edge.GetHashCode() ^
+                this.Vertex.GetHashCode();
+        }
     }
 }

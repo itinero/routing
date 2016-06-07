@@ -184,13 +184,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {
                     var edge = edges[i];
 
-                    if (_restrictionFlags[edge.Neighbour])
-                    { // don't remove shortcuts when there is a potential restriction.
-                        forwardWitnesses[i] = new EdgePath();
-                        backwardWitnesses[i] = new EdgePath();
-                        continue;
-                    }
-
                     float edgeWeight;
                     bool? edgeDirection;
                     ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
@@ -198,16 +191,26 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
                     var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
 
-                    if (!edgeCanMoveForward)
-                    {
+                    if (_restrictionFlags[edge.Neighbour])
+                    { // don't remove shortcuts when there is a potential restriction.
                         forwardWitnesses[i] = new EdgePath();
-                    }
-                    if (!edgeCanMoveBackward)
-                    {
                         backwardWitnesses[i] = new EdgePath();
+                        weights.Add(0);
+                        targets.Add(edge.Neighbour);
                     }
-                    weights.Add(edgeWeight);
-                    targets.Add(edge.Neighbour);
+                    else
+                    {
+                        if (!edgeCanMoveForward)
+                        {
+                            forwardWitnesses[i] = new EdgePath();
+                        }
+                        if (!edgeCanMoveBackward)
+                        {
+                            backwardWitnesses[i] = new EdgePath();
+                        }
+                        weights.Add(edgeWeight);
+                        targets.Add(edge.Neighbour);
+                    }
                 }
 
                 // calculate all witness paths.
@@ -397,22 +400,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             var s1 = this.GetSequence1(forwardWitnesses[k], 1);
                             var s2 = this.GetSequence2(forwardWitnesses[k], 1);
                             _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                                targetWeights[k], true, vertex, s1, s2);
+                                forwardWitnesses[k].Weight, true, vertex, s1, s2);
                             s1.Reverse();
                             s2.Reverse();
                             _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                                targetWeights[k], false, vertex, s2, s1);
+                                forwardWitnesses[k].Weight, false, vertex, s2, s1);
                         }
                         if (backwardWitnesses[k].HasVertex(vertex))
                         { // add forward edge.
                             var s1 = this.GetSequence1(backwardWitnesses[k], 1);
                             var s2 = this.GetSequence2(backwardWitnesses[k], 1);
                             _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                                targetWeights[k], false, vertex, s2, s1);
+                                backwardWitnesses[k].Weight, false, vertex, s2, s1);
                             s1.Reverse();
                             s2.Reverse();
                             _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                                targetWeights[k], true, vertex, s1, s2);
+                                backwardWitnesses[k].Weight, true, vertex, s1, s2);
                         }
                     }
                 }
