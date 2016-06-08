@@ -257,7 +257,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             s1 = edges31.GetSequence1();
             s2 = edges31.GetSequence2();
             Assert.AreEqual(1, s1.Length);
-            Assert.AreEqual(4, s1[0]);
+            Assert.AreEqual(0, s1[0]);
             Assert.AreEqual(1, s2.Length);
             Assert.AreEqual(4, s2[0]);
             var edges13 = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
