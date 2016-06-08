@@ -252,7 +252,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             { // there is a next vertex found.
                 // get the edge enumerator.
                 var edgeEnumerator = _graph.GetEdgeEnumerator();
-                var currentSequence = current.GetSequence(edgeEnumerator);
+                var currentSequence = current.GetSequence2(edgeEnumerator);
+                currentSequence = currentSequence.Append(current.Vertex);
 
                 // get neighbours.
                 edgeEnumerator.MoveTo(current.Vertex);
@@ -323,7 +324,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             { // there is a next vertex found.
                 // get the edge enumerator.
                 var edgeEnumerator = _graph.GetEdgeEnumerator();
-                var currentSequence = current.GetSequence(edgeEnumerator);
+                var currentSequence = current.GetSequence2(edgeEnumerator);
+                currentSequence = currentSequence.Append(current.Vertex);
 
                 // get neighbours.
                 edgeEnumerator.MoveTo(current.Vertex);

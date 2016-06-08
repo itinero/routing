@@ -18,6 +18,7 @@
 
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
+using System;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
@@ -100,44 +101,134 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
-        /// Builds the original sequence leading up to the given edge path.
+        /// Gets sequence 1, the first vertices right after the start vertex.
         /// </summary>
-        public static uint[] GetSequence(this EdgePath edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        public static uint[] GetSequence1(this EdgePath path, DirectedDynamicGraph.EdgeEnumerator enumerator)
         {
-            var sequence = new List<uint>();
-            while (edgePath != null)
+            return path.GetSequence1(enumerator, int.MaxValue);
+        }
+
+        /// <summary>
+        /// Gets sequence 1, the first vertices right after the start vertex with a maximum of n.
+        /// </summary>
+        public static uint[] GetSequence1(this EdgePath path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n)
+        {
+            if (path.From == null)
             {
-                if (edgePath.Edge == Constants.NO_EDGE)
-                {
-                    sequence.Add(edgePath.Vertex);
-                    edgePath = edgePath.From;
-                }
-                else
-                {
-                    enumerator.MoveToEdge(edgePath.Edge);
-                    if (enumerator.IsOriginal())
+                return Constants.EMPTY_SEQUENCE;
+            }
+
+            var s = new List<uint>();
+            s.Add(path.Vertex);
+            while (true)
+            {
+                if (path.IsOriginal(enumerator))
+                { // current segment is original.
+                    if (s == null)
                     {
-                        sequence.Add(edgePath.Vertex);
-                        edgePath = edgePath.From;
+                        s = new List<uint>();
+                    }
+                    if (path.From.From != null)
+                    { // we need more vertices and there are some more available.
+                        s.Add(path.From.Vertex);
+                        path = path.From;
                     }
                     else
-                    {
-                        var s2 = enumerator.GetSequence2();
-                        sequence.Add(edgePath.Vertex);
-                        if (s2 != null)
-                        {
-                            for (var i = s2.Length - 1; i >= 0; i--)
-                            {
-                                sequence.Add(s2[i]);
-                            }
+                    { // we have enough.
+                        var result = s.ToArray();
+                        if (n < result.Length)
+                        { // TODO: this can be way more efficient by creating only one array.
+                            result = result.SubArray(result.Length - n, n);
                         }
-                        break;
+                        result.Reverse();
+                        return result;
                     }
                 }
+                else
+                { // not an original edge, just return the start sequence.
+                    var sequence = enumerator.GetSequence1();
+                    if (path.From.From == null)
+                    {
+                        if (sequence.Length > n)
+                        {
+                            sequence = sequence.SubArray(sequence.Length - n, n);
+                        }
+                        return sequence;
+                    }
+                    s.Clear();
+                    sequence.Reverse();
+                    s.AddRange(sequence);
+                    s.Add(path.From.Vertex);
+                    path = path.From;
+                }
             }
-            var result = sequence.ToArray();
-            result.Reverse();
-            return result;
+        }
+
+        /// <summary>
+        /// Gets sequence 2, the last vertices right before the end vertex.
+        /// </summary>
+        public static uint[] GetSequence2(this EdgePath path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            return path.GetSequence2(enumerator, int.MaxValue);
+        }
+
+        /// <summary>
+        /// Gets sequence 2, the last vertices right before the end vertex with a maximum of n.
+        /// </summary>
+        public static uint[] GetSequence2(this EdgePath path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n)
+        {
+            if (path.From == null)
+            {
+                return Constants.EMPTY_SEQUENCE;
+            }
+
+            List<uint> s = null;
+            while (true)
+            {
+                if (path.IsOriginal(enumerator))
+                { // current segment is original.
+                    if (s == null)
+                    {
+                        s = new List<uint>();
+                    }
+                    s.Add(path.From.Vertex);
+                    if (s.Count < n && path.From.From != null)
+                    { // we need more vertices and there are some more available.
+                        path = path.From;
+                    }
+                    else
+                    { // we have enough.
+                        var result = s.ToArray();
+                        result.Reverse();
+                        return result;
+                    }
+                }
+                else
+                { // not an original edge, just return the start sequence.
+                    return enumerator.GetSequence2();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the last edge in this path is an original edge.
+        /// </summary>
+        public static bool IsOriginal(this EdgePath path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        {
+            if (path.From == null)
+            { // when there is no previous vertex this is not an edge.
+                throw new ArgumentException("The path is not an edge, cannot decide about originality.");
+            }
+            if (path.Edge == Constants.NO_EDGE)
+            { // when there is no edge info, edge has to be original otherwise the info can never be recovered.
+                return true;
+            }
+            enumerator.MoveToEdge(path.Edge);
+            if (enumerator.IsOriginal())
+            { // ok, edge is original.
+                return true;
+            }
+            return false;
         }
     }
 }
