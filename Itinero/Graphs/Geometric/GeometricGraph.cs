@@ -505,6 +505,15 @@ namespace Itinero.Graphs.Geometric
             {
                 return _enumerator.MoveTo(vertex);
             }
+            
+            /// <summary>
+            /// Moves to the given edge.
+            /// </summary>
+            /// <returns></returns>
+            public void MoveToEdge(uint edge)
+            {
+                _enumerator.MoveToEdge(edge);
+            }
 
             /// <summary>
             /// Returns the current edge.
