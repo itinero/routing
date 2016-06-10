@@ -33,6 +33,14 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
+        public static void LoadOsmData(this RouterDb db, Stream data, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(data, false, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
         public static void LoadOsmData(this RouterDb db, Stream data, bool allCore = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
