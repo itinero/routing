@@ -422,7 +422,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            return this.Serialize(stream, false);
+            return this.Serialize(stream, true);
         }
 
         /// <summary>

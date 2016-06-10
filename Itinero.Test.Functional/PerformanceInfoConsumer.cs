@@ -1,6 +1,6 @@
 ﻿// The MIT License (MIT)
 
-// Copyright (c) 2015 Ben Abelshausen
+// Copyright (c) 2016 Ben Abelshausen
 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -99,8 +99,7 @@ namespace Itinero.Test.Functional
             Process p = Process.GetCurrentProcess();
             _memory = p.PrivateMemorySize64;
             _ticks = DateTime.Now.Ticks;
-            Console.WriteLine(string.Format("Started {0}.",
-                    _name));
+            Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, "Started!");
         }
 
         /// <summary>
@@ -108,7 +107,7 @@ namespace Itinero.Test.Functional
         /// </summary>
         public void Report(string message)
         {
-            Console.WriteLine(message);
+            Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, message);
         }
 
         /// <summary>
@@ -116,7 +115,7 @@ namespace Itinero.Test.Functional
         /// </summary>
         public void Report(string message, params object[] args)
         {
-            Console.WriteLine(message, args);
+            Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, message, args);
         }
 
         private int previousPercentage = 0;
@@ -129,7 +128,7 @@ namespace Itinero.Test.Functional
             var currentPercentage = (int)System.Math.Round((i / (double)max) * 10, 0);
             if (previousPercentage != currentPercentage)
             {
-                Console.WriteLine(message, currentPercentage * 10);
+                Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, message, currentPercentage * 10);
                 previousPercentage = currentPercentage;
             }
         }
@@ -157,15 +156,15 @@ namespace Itinero.Test.Functional
                     if (_memoryUsageLog.Count > 0)
                     { // there was memory usage logging.
                         double max = _memoryUsageLog.Max();
-                        Console.WriteLine(string.Format("Ended at at {0}, spent {1}s and {2}MB of memory diff with {3}MB max used.",
+                        Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, "Ended at at {0}, spent {1}s and {2}MB of memory diff with {3}MB max used.",
                                 new DateTime(_ticks.Value).ToShortTimeString(),
-                                seconds, memoryDiff, max));
+                                seconds, memoryDiff, max);
                     }
                     else
                     { // no memory usage logged.
-                        Console.WriteLine(string.Format("Ended at at {0}, spent {1}s and {2}MB of memory diff.",
+                        Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, "Ended at at {0}, spent {1}s and {2}MB of memory diff.",
                                 new DateTime(_ticks.Value).ToShortTimeString(),
-                                seconds, memoryDiff));
+                                seconds, memoryDiff);
                     }
                 }
             }

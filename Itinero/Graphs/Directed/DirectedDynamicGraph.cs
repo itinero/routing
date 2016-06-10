@@ -967,7 +967,7 @@ namespace Itinero.Graphs.Directed
         {
             if (compress)
             {
-                this.Compress();
+                this.Compress(compress);
             }
 
             long vertexCount = this.VertexCount;

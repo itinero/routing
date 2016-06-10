@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Reflection;
 using OsmSharp.Streams;
+using Itinero.IO.Osm;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -73,35 +74,89 @@ namespace Itinero.Test.Functional.Tests
             }
             TestResolve(router, featureCollection, resolve);
         }
-        
+
         /// <summary>
         /// Tests building a router db.
         /// </summary>
-        public static RouterDb TestBuildRouterDb(string file, params Vehicle[] vehicles)
+        public static Func<RouterDb> GetTestBuildRouterDb(string file, bool allcore, bool processRestrictions, params Vehicle[] vehicles)
         {
-            OsmStreamSource source;
+            return () =>
+              {
+                  OsmStreamSource source;
+                  using (var stream = File.OpenRead(file))
+                  {
+                      var routerdb = new RouterDb();
+                      if (file.ToLowerInvariant().EndsWith("osm.pbf"))
+                      {
+                          source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
+                      }
+                      else
+                      {
+                          source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
+                      }
+                      var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
+                      progress.RegisterSource(source);
+
+                      routerdb.LoadOsmData(progress, allcore, processRestrictions, vehicles);
+
+                      return routerdb;
+                  }
+              };
+        }
+
+        /// <summary>
+        /// Tests adding a contracted graph.
+        /// </summary>
+        public static Action GetTestAddContracted(RouterDb routerDb, Profiles.Profile profile, bool forceEdgeBased)
+        {
+            return () =>
+            {
+                routerDb.AddContracted(profile, forceEdgeBased);
+            };
+        }
+
+        /// <summary>
+        /// Tests reading/writing router db.
+        /// </summary>
+        public static RouterDb TestReadAndWriterRouterDb(RouterDb routerDb, string file)
+        {
+            using (var stream = File.OpenWrite(file))
+            {
+                routerDb.Serialize(stream);
+            }
+
             using (var stream = File.OpenRead(file))
             {
-                var routerdb = new RouterDb();
-                if (file.ToLowerInvariant().EndsWith("osm.pbf"))
-                {
-                    source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
-                }
-                else
-                {
-                    source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
-                }
-                var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
-                progress.RegisterSource(source);
-                var target = new Itinero.IO.Osm.Streams.RouterDbStreamTarget(routerdb, vehicles, 
-                    processRestrictions: true);
-                target.RegisterSource(progress);
-                target.Pull();
-                
-                routerdb.Sort();
-
-                return routerdb;
+                return RouterDb.Deserialize(stream);
             }
+        }
+
+        /// <summary>
+        /// Tests calculating a number of routes.
+        /// </summary>
+        public static Action GetTestRandomRoutes(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random();
+            return () =>
+            {
+                var i = count;
+                while (i > 0)
+                {
+                    i--;
+
+                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
+                    if (v1 == v2)
+                    {
+                        v2++;
+                    }
+
+                    var f1 = router.Db.Network.GetVertex(v1);
+                    var f2 = router.Db.Network.GetVertex(v2);
+
+                    var route = router.TryCalculate(Vehicle.Car.Fastest(), f1, f2);
+                }
+            };
         }
     }
 }

@@ -115,12 +115,12 @@ namespace Itinero.Data.Contracted
             if (_nodeBasedGraph != null)
             {
                 stream.WriteByte(1);
-                return _nodeBasedGraph.Serialize(stream) + 1;
+                return _nodeBasedGraph.Serialize(stream, toReadonly) + 1;
             }
             else
             {
                 stream.WriteByte(2);
-                return _edgeBasedGraph.Serialize(stream) + 1;
+                return _edgeBasedGraph.Serialize(stream, toReadonly) + 1;
             }
         }
 

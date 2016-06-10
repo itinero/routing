@@ -7,8 +7,8 @@
     <ProjectGuid>{C901CE41-31E1-4CD8-BF81-D3B59443620D}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>OsmSharp.Routing.Test.Functional</RootNamespace>
-    <AssemblyName>OsmSharp.Routing.Test.Functional</AssemblyName>
+    <RootNamespace>Itinero.Test.Functional</RootNamespace>
+    <AssemblyName>Itinero.Test.Functional</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -53,8 +53,8 @@
       <HintPath>..\packages\NUnit.3.0.1\lib\net45\nunit.framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="OsmSharp, Version=2.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\OsmSharp.Core.2.0.6-alpha\lib\net45\OsmSharp.dll</HintPath>
+    <Reference Include="OsmSharp, Version=2.0.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OsmSharp.Core.2.0.8-alpha\lib\net45\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PowerCollections, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2573bf8a1bdddcd5, processorArchitecture=MSIL">
@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PerformanceInfoConsumer.cs" />
+    <Compile Include="PerformanceInfoConsumerExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Staging\Download.cs" />

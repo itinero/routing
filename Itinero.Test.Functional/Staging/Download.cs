@@ -29,9 +29,12 @@ namespace Itinero.Test.Functional.Staging
     {
         public static string BelgiumAllSource = "ftp://build.osmsharp.com/data/OSM/routing/planet/europe/belgium.a.routing.zip";
         public static string BelgiumPBF = "ftp://build.osmsharp.com/data/OSM/planet/europe/belgium-latest.osm.pbf";
+        public static string BelgiumLocal = "belgium-latest.osm.pbf";
+        public static string LuxembourgPBF = "ftp://build.osmsharp.com/data/OSM/planet/europe/luxembourg-latest.osm.pbf";
+        public static string LuxembourgLocal = "luxembourg-latest.osm.pbf";
 
         /// <summary>
-        /// Downloads the belgium routing file.
+        /// Downloads the belgium data.
         /// </summary>
         public static void DownloadBelgiumAll()
         {
@@ -43,11 +46,24 @@ namespace Itinero.Test.Functional.Staging
                 ZipFile.ExtractToDirectory("belgium.a.routing.zip", ".");
                 File.Delete("belgium.a.routing.zip");
             }
-            if(!File.Exists("belgium-latest.osm.pbf"))
+            if(!File.Exists(Download.BelgiumLocal))
             {
                 var client = new WebClient();
-                client.DownloadFile(Download.BelgiumAllSource,
-                    "belgium-latest.osm.pbf");
+                client.DownloadFile(Download.BelgiumPBF,
+                    Download.BelgiumLocal);
+            }
+        }
+
+        /// <summary>
+        /// Downloads the luxembourg data.
+        /// </summary>
+        public static void DownloadLuxembourgAll()
+        {
+            if (!File.Exists(Download.LuxembourgLocal))
+            {
+                var client = new WebClient();
+                client.DownloadFile(Download.LuxembourgPBF,
+                    Download.LuxembourgLocal);
             }
         }
     }
