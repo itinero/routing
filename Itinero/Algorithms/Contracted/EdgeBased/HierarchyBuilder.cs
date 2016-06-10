@@ -370,6 +370,25 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 _witnessCalculator.Calculate(_graph, _getRestrictions, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses,
                     ref backwardWitnesses, Constants.NO_VERTEX);
 
+                // get all sequences where needed.
+                var s1forward = new uint[forwardWitnesses.Length][];
+                var s2forward = new uint[forwardWitnesses.Length][];
+                var s1backward = new uint[backwardWitnesses.Length][];
+                var s2backward = new uint[backwardWitnesses.Length][];
+                for (var k = 0; k < j; k++)
+                {
+                    if (forwardWitnesses[k].HasVertex(vertex))
+                    { // get forward sequences.
+                        s1forward[k] = forwardWitnesses[k].GetSequence1(enumerator, 1);
+                        s2forward[k] = forwardWitnesses[k].GetSequence2(enumerator, 1);
+                    }
+                    if (backwardWitnesses[k].HasVertex(vertex))
+                    { // get backward sequences.
+                        s1backward[k] = backwardWitnesses[k].GetSequence1(enumerator, 1);
+                        s2backward[k] = backwardWitnesses[k].GetSequence2(enumerator, 1);
+                    }
+                }
+
                 // add contracted edges if needed.
                 for (var k = 0; k < j; k++)
                 {
@@ -379,44 +398,35 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     { // do not try to add a shortcut between identical vertices.
                         continue;
                     }
-
-                    if (forwardWitnesses[k].HasVertex(vertex) && backwardWitnesses[k].HasVertex(vertex) &&
+                    if (s1forward[k] != null && s1backward[k] != null &&
                         System.Math.Abs(forwardWitnesses[k].Weight - backwardWitnesses[k].Weight) < E)
                     { // paths in both direction are possible and with the same weight, add just one edge in each direction.
-                        var s1 = forwardWitnesses[k].GetSequence1(enumerator, 1);
-                        var s2 = forwardWitnesses[k].GetSequence2(enumerator, 1);
+                        s1backward[k].Reverse();
+                        s2backward[k].Reverse();
                         _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            forwardWitnesses[k].Weight, null, vertex, s1, s2);
-                        s1 = backwardWitnesses[k].GetSequence1(enumerator, 1);
-                        s2 = backwardWitnesses[k].GetSequence2(enumerator, 1);
-                        s1.Reverse();
-                        s2.Reverse();
+                            forwardWitnesses[k].Weight, null, vertex, s1forward[k], s2forward[k]);
                         _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            backwardWitnesses[k].Weight, null, vertex, s2, s1);
+                            backwardWitnesses[k].Weight, null, vertex, s2backward[k], s1backward[k]);
                     }
                     else
                     { // add two edge per direction.
-                        if (forwardWitnesses[k].HasVertex(vertex))
+                        if (s1forward[k] != null)
                         { // add forward edge.
-                            var s1 = forwardWitnesses[k].GetSequence1(enumerator, 1);
-                            var s2 = forwardWitnesses[k].GetSequence2(enumerator, 1);
                             _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                                forwardWitnesses[k].Weight, true, vertex, s1, s2);
-                            s1.Reverse();
-                            s2.Reverse();
+                                forwardWitnesses[k].Weight, true, vertex, s1forward[k], s2forward[k]);
+                            s1forward[k].Reverse();
+                            s2forward[k].Reverse();
                             _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                                forwardWitnesses[k].Weight, false, vertex, s2, s1);
+                                forwardWitnesses[k].Weight, false, vertex, s2forward[k], s1forward[k]);
                         }
-                        if (backwardWitnesses[k].HasVertex(vertex))
+                        if (s1backward[k] != null)
                         { // add forward edge.
-                            var s1 = backwardWitnesses[k].GetSequence1(enumerator, 1);
-                            var s2 = backwardWitnesses[k].GetSequence2(enumerator, 1);
                             _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                                backwardWitnesses[k].Weight, false, vertex, s2, s1);
-                            s1.Reverse();
-                            s2.Reverse();
+                                backwardWitnesses[k].Weight, false, vertex, s2backward[k], s1backward[k]);
+                            s1backward[k].Reverse();
+                            s2backward[k].Reverse();
                             _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                                backwardWitnesses[k].Weight, true, vertex, s1, s2);
+                                backwardWitnesses[k].Weight, true, vertex, s1backward[k], s2backward[k]);
                         }
                     }
                 }

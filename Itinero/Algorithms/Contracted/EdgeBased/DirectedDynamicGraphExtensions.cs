@@ -442,6 +442,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
             bool? direction, uint contractedId, uint[] s1, uint[] s2)
         {
+            if ((vertex1 == 2692 && vertex2 == 2730)  ||
+                (vertex1 == 2730 && vertex2 == 2692))
+            {
+                Itinero.Logging.Logger.Log("", Logging.TraceEventType.Information, "");
+            }
+
             var forward = false;
             var forwardWeight = float.MaxValue;
             var forwardContractedId = uint.MaxValue;
