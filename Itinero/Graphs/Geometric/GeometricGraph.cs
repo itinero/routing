@@ -407,6 +407,14 @@ namespace Itinero.Graphs.Geometric
         }
 
         /// <summary>
+        /// Gets the shape for the given edge.
+        /// </summary>
+        public ShapeBase GetShape(uint edge)
+        {
+            return _shapes[edge];
+        }
+
+        /// <summary>
         /// An edge enumerator.
         /// </summary>
         public class EdgeEnumerator : IEnumerable<GeometricEdge>, IEnumerator<GeometricEdge>

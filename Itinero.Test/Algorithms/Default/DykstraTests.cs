@@ -24,6 +24,7 @@ using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
 using Itinero.Data.Edges;
+using System.Collections.Generic;
 
 namespace Itinero.Test.Algorithms
 {
@@ -288,6 +289,123 @@ namespace Itinero.Test.Algorithms
             Assert.AreEqual(0, visit.From.Vertex);
             Assert.AreEqual(2, visit.Vertex);
             Assert.AreEqual(110 / speed, visit.Weight);
+        }
+
+        /// <summary>
+        /// Tests edge visit reporting.
+        /// </summary>
+        /// <remarks>
+        /// Situation:
+        ///  (0)----100m----(1)
+        ///   \             /
+        ///    \           /           
+        ///     \         /
+        ///     100m    100m
+        ///       \     /
+        ///        \   /
+        ///         (2)
+        /// </remarks>
+        [Test]
+        public void TestEdgeVisits()
+        {
+            // build graph.
+            var graph = new Graph(EdgeDataSerializer.Size);
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddVertex(2);
+            var e01 = graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            })) + 1;
+            var e12 = graph.AddEdge(1, 2, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            })) + 1;
+            var e02 = graph.AddEdge(0, 2, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            })) + 1;
+
+            // build speed profile function.
+            var speed = 100f / 3.6f;
+            Func<ushort, Factor> getFactor = (x) =>
+            {
+                return new Factor()
+                {
+                    Direction = 0,
+                    Value = 1.0f / speed
+                };
+            };
+
+            // run algorithm.
+            var reportedEdges = new HashSet<long>();
+            var algorithm = new Dykstra(graph, getFactor, null, new Path[] { new Path(0) }, float.MaxValue, false);
+            algorithm.WasEdgeFound += (v1, v2, w1, w2, e, l) =>
+            {
+                if (v1 == 0 && v2 == 1)
+                {
+                    Assert.AreEqual(100, l);
+                    Assert.AreEqual(e01, e);
+                    Assert.AreEqual(0, w1);
+                    Assert.AreEqual(100 / speed, w2);
+                    reportedEdges.Add(e01);
+                }
+                else if (v1 == 1 && v2 == 0)
+                {
+                    Assert.AreEqual(100, l);
+                    Assert.AreEqual(-e01, e);
+                    Assert.AreEqual(100 / speed, w1);
+                    Assert.AreEqual(200 / speed, w2);
+                    reportedEdges.Add(-e01);
+                }
+                else if (v1 == 0 && v2 == 2)
+                {
+                    Assert.AreEqual(100, l);
+                    Assert.AreEqual(e02, e);
+                    Assert.AreEqual(0, w1);
+                    Assert.AreEqual(100 / speed, w2);
+                    reportedEdges.Add(e02);
+                }
+                else if (v1 == 2 && v2 == 0)
+                {
+                    Assert.AreEqual(100, l);
+                    Assert.AreEqual(-e02, e);
+                    Assert.AreEqual(100 / speed, w1);
+                    Assert.AreEqual(200 / speed, w2);
+                    reportedEdges.Add(-e02);
+                }
+                else if (v1 == 1 && v2 == 2)
+                {
+                    Assert.AreEqual(100, l);
+                    Assert.AreEqual(e12, e);
+                    Assert.AreEqual(100 / speed, w1);
+                    Assert.AreEqual(200 / speed, w2);
+                    reportedEdges.Add(e12);
+                }
+                else if (v1 == 2 && v2 == 1)
+                {
+                    Assert.AreEqual(100, l);
+                    Assert.AreEqual(-e12, e);
+                    Assert.AreEqual(100 / speed, w1);
+                    Assert.AreEqual(200 / speed, w2);
+                    reportedEdges.Add(-e12);
+                }
+                return false;
+            };
+            algorithm.Run();
+
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+
+            Assert.IsTrue(reportedEdges.Contains(e01));
+            Assert.IsTrue(reportedEdges.Contains(-e01));
+            Assert.IsTrue(reportedEdges.Contains(e02));
+            Assert.IsTrue(reportedEdges.Contains(-e02));
+            Assert.IsTrue(reportedEdges.Contains(e12));
+            Assert.IsTrue(reportedEdges.Contains(-e12));
         }
     }
 }

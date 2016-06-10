@@ -151,25 +151,18 @@ namespace Itinero.Algorithms.Default
                 var edge = _edgeEnumerator;
                 var neighbour = edge.To;
 
-                if (_current.From != null && 
-                    _current.From.Vertex == neighbour)
-                { // don't go back, but report on the visit if needed.
-                    if(this.WasEdgeFound != null &&
-                       this.WasEdgeFound(_current.Vertex, edge.IdDirected(), _current.Weight))
-                    { // edge was found and true was returned, this search should stop.
-                        return false;
+                if (this.WasEdgeFound == null)
+                {
+                    if (_current.From != null &&
+                        _current.From.Vertex == neighbour)
+                    { // don't go back
+                        continue;
                     }
-                    continue;
-                }
 
-                if (_visits.ContainsKey(neighbour))
-                { // has already been choosen.
-                    if (this.WasEdgeFound != null &&
-                        this.WasEdgeFound(_current.Vertex, edge.IdDirected(), _current.Weight))
-                    { // some edges are never in any shortest path between some two vertices.
-                        return false;
+                    if (_visits.ContainsKey(neighbour))
+                    { // has already been choosen
+                        continue;
                     }
-                    continue;
                 }
 
                 // get the speed from cache or calculate.
@@ -189,7 +182,28 @@ namespace Itinero.Algorithms.Default
                     (_backward && (factor.Direction == 1) == edge.DataInverted)))
                 { // it's ok; the edge can be traversed by the given vehicle.
                     // calculate neighbors weight.
-                    var totalWeight = _current.Weight + (distance * factor.Value);
+                    var edgeWeight = (distance * factor.Value);
+                    var totalWeight = _current.Weight + edgeWeight;
+
+                    if (this.WasEdgeFound != null)
+                    {
+                        if (this.WasEdgeFound(_current.Vertex, edge.To, _current.Weight, totalWeight, edge.IdDirected(), distance))
+                        { // edge was found and true was returned, this search should stop.
+                            return false;
+                        }
+
+                        if (_current.From != null &&
+                            _current.From.Vertex == neighbour)
+                        { // don't go back
+                            continue;
+                        }
+
+                        if (_visits.ContainsKey(neighbour))
+                        { // has already been choosen
+                            continue;
+                        }
+                    }
+
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
                         _heap.Push(new Path(neighbour, totalWeight, _current),
@@ -247,7 +261,14 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// The was edge found delegate.
         /// </summary>
-        public delegate bool WasEdgeFoundDelegate(uint vertex, long directedEdgeId, float weight);
+        /// <param name="vertex1">The vertex where the search is coming from.</param>
+        /// <param name="vertex2">The vertex where the search is going to.</param>
+        /// <param name="weight1">The weight at vertex1.</param>
+        /// <param name="weight2">The weight at vertex2.</param>
+        /// <param name="edge">The id of the current edge.</param>
+        /// <param name="length">The length of the current edge.</param>
+        /// <returns></returns>
+        public delegate bool WasEdgeFoundDelegate(uint vertex1, uint vertex2, float weight1, float weight2, long edge, float length);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.

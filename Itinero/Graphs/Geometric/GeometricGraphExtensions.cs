@@ -331,5 +331,24 @@ namespace Itinero.Graphs.Geometric
             }
             enumerator.MoveToEdge(edgeId);
         }
+
+        /// <summary>
+        /// Gets the shape of the given edge.
+        /// </summary>
+        public static ShapeBase GetShape(this GeometricGraph graph, long directedEdgeId)
+        {
+            if (directedEdgeId == 0) { throw new ArgumentOutOfRangeException("directedEdgeId"); }
+
+            uint edgeId;
+            if (directedEdgeId > 0)
+            {
+                edgeId = (uint)directedEdgeId - 1;
+            }
+            else
+            {
+                edgeId = (uint)((-directedEdgeId) - 1);
+            }
+            return graph.GetShape(edgeId);
+        }
     }
 }
