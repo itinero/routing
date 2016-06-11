@@ -54,19 +54,21 @@ namespace Itinero.Data.Network.Restrictions
             return restriction;
         }
 
-        /// <summary>
-        /// Moves to the restrictions for the given vertex.
-        /// </summary>
-        public static bool MoveTo(this RestrictionsDb.RestrictionEnumerator enumerator, uint vertex, bool first)
-        {
-            if (first)
-            {
-                return enumerator.MoveToFirst(vertex);
-            }
-            else
-            {
-                return enumerator.MoveToLast(vertex);
-            }
-        }
+        ///// <summary>
+        ///// Moves to the restrictions for the given vertex.
+        ///// </summary>
+        //public static bool MoveTo(this RestrictionsDb.RestrictionEnumerator enumerator, uint vertex, bool first)
+        //{
+        //    if (first)
+        //    {
+        //        return enumerator.MoveToFirst(vertex);
+        //    }
+        //    else
+        //    {
+        //        return enumerator.MoveToLast(vertex);
+        //    }
+        //}
+
+        //public static bool MoveToFirst(this Rest)
     }
 }

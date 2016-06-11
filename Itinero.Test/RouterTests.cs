@@ -336,7 +336,7 @@ namespace Itinero.Test
                 }
             }
         }
-        
+
         /// <summary>
         /// Tests routing using and edge-based contracted network.
         /// </summary>
@@ -359,7 +359,7 @@ namespace Itinero.Test
             var vertex5 = routerDb.Network.GetVertex(5);
             var vertex6 = routerDb.Network.GetVertex(6);
             var vertex7 = routerDb.Network.GetVertex(7);
-            
+
             routerDb.Network.Sort();
             routerDb.AddContracted(car, true);
 
@@ -375,6 +375,18 @@ namespace Itinero.Test
                     Assert.IsFalse(route.IsError);
                 }
             }
+        }
+
+        /// <summary>
+        /// Tests routing on a network with a restriction.
+        /// </summary>
+        [Test]
+        public void TestNetwork7()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network7.geojson"));
         }
     }
 }

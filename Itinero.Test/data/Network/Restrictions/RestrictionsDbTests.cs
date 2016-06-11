@@ -37,7 +37,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(1, 2, 3);
 
             var enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveTo(1));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -46,7 +46,16 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.IsFalse(enumerator.MoveNext());
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveTo(2));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(3));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -66,7 +75,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(1, 2, 3);
 
             var enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveTo(1));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -74,7 +83,15 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(3, enumerator[2]);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveTo(2));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(3));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -84,7 +101,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(10, 11, 12);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(10));
+            Assert.IsTrue(enumerator.MoveTo(10));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
@@ -92,7 +109,15 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(12, enumerator[2]);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(12));
+            Assert.IsTrue(enumerator.MoveTo(11));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(11, enumerator[1]);
+            Assert.AreEqual(12, enumerator[2]);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(12));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
@@ -102,7 +127,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(10, 111, 222);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(10));
+            Assert.IsTrue(enumerator.MoveTo(10));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
@@ -115,7 +140,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(222, enumerator[2]);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(222));
+            Assert.IsTrue(enumerator.MoveTo(222));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
@@ -125,7 +150,12 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(12, 2, 3);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(12));
+            Assert.IsTrue(enumerator.MoveTo(12));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(11, enumerator[1]);
+            Assert.AreEqual(12, enumerator[2]);
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(12, enumerator[0]);
@@ -133,7 +163,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(3, enumerator[2]);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveTo(3));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -150,7 +180,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(1, 2, 3, 4);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveTo(1));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -176,7 +206,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Switch(2, 1);
             
             var enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveTo(1));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -185,7 +215,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.IsFalse(enumerator.MoveNext());
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveTo(3));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -197,12 +227,57 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(1, 2, 3);
             db.Add(1, 2, 3, 4);
             db.Switch(1, 10);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(10));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
+
             db.Switch(2, 20);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(10));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
+
             db.Switch(3, 30);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(10));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
+
             db.Switch(4, 40);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(10));
+            Assert.IsTrue(enumerator.MoveTo(10));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
@@ -227,22 +302,12 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Switch(4, 40);
             
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(10));
+            Assert.IsTrue(enumerator.MoveTo(10));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
             Assert.AreEqual(20, enumerator[1]);
             Assert.AreEqual(30, enumerator[2]);
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(4, enumerator.Count);
-            Assert.AreEqual(10, enumerator[0]);
-            Assert.AreEqual(20, enumerator[1]);
-            Assert.AreEqual(30, enumerator[2]);
-            Assert.AreEqual(40, enumerator[3]);
-            Assert.IsFalse(enumerator.MoveNext());
-
-            enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(30));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(30, enumerator[0]);
@@ -254,39 +319,37 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(20, enumerator[1]);
             Assert.AreEqual(10, enumerator[2]);
             Assert.AreEqual(40, enumerator[3]);
-            Assert.IsFalse(enumerator.MoveNext());
-
-            enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(30));
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(3, enumerator.Count);
-            Assert.AreEqual(10, enumerator[0]);
-            Assert.AreEqual(20, enumerator[1]);
-            Assert.AreEqual(30, enumerator[2]);
-            Assert.IsFalse(enumerator.MoveNext());
-
-            enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(10));
-            Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(3, enumerator.Count);
-            Assert.AreEqual(30, enumerator[0]);
-            Assert.AreEqual(20, enumerator[1]);
-            Assert.AreEqual(10, enumerator[2]);
-            Assert.IsFalse(enumerator.MoveNext());
-            
-            enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(40));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(4, enumerator.Count);
             Assert.AreEqual(10, enumerator[0]);
             Assert.AreEqual(20, enumerator[1]);
             Assert.AreEqual(30, enumerator[2]);
             Assert.AreEqual(40, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(30));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(30, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(10, enumerator[2]);
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(4, enumerator.Count);
             Assert.AreEqual(30, enumerator[0]);
             Assert.AreEqual(20, enumerator[1]);
             Assert.AreEqual(10, enumerator[2]);
+            Assert.AreEqual(40, enumerator[3]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(20, enumerator[1]);
+            Assert.AreEqual(30, enumerator[2]);
             Assert.AreEqual(40, enumerator[3]);
             Assert.IsFalse(enumerator.MoveNext());
 
@@ -296,7 +359,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Switch(4, 8);
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(2));
+            Assert.IsTrue(enumerator.MoveTo(2));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(2, enumerator[0]);
@@ -305,7 +368,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.IsFalse(enumerator.MoveNext());
 
             enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToLast(3));
+            Assert.IsTrue(enumerator.MoveTo(3));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(2, enumerator[0]);
@@ -326,7 +389,7 @@ namespace Itinero.Test.Data.Network.Restrictions
             db.Add(1, 2, 3, 4, 5);
 
             var enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(1));
+            Assert.IsTrue(enumerator.MoveTo(1));
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(1, enumerator[0]);
@@ -349,15 +412,12 @@ namespace Itinero.Test.Data.Network.Restrictions
 
             db.Switch(6, 1);
 
-            enumerator = db.GetEnumerator();
-            Assert.IsTrue(enumerator.MoveToFirst(6));
+            Assert.IsTrue(enumerator.MoveTo(6));
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(5, enumerator.Count);
+            Assert.AreEqual(3, enumerator.Count);
             Assert.AreEqual(6, enumerator[0]);
             Assert.AreEqual(2, enumerator[1]);
             Assert.AreEqual(3, enumerator[2]);
-            Assert.AreEqual(4, enumerator[3]);
-            Assert.AreEqual(5, enumerator[4]);
             Assert.IsTrue(enumerator.MoveNext());
             Assert.AreEqual(4, enumerator.Count);
             Assert.AreEqual(6, enumerator[0]);
@@ -365,10 +425,12 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(3, enumerator[2]);
             Assert.AreEqual(4, enumerator[3]);
             Assert.IsTrue(enumerator.MoveNext());
-            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(5, enumerator.Count);
             Assert.AreEqual(6, enumerator[0]);
             Assert.AreEqual(2, enumerator[1]);
             Assert.AreEqual(3, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
+            Assert.AreEqual(5, enumerator[4]);
             Assert.IsFalse(enumerator.MoveNext());
         }
     }

@@ -40,6 +40,7 @@
     <Compile Include="IRouterExtensions.cs" />
     <Compile Include="Navigation\InstructionExtensions.cs" />
     <Compile Include="Network\RoutingNetworkExtensions.cs" />
+    <Compile Include="NTSExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RouteExtensions.cs" />
     <Compile Include="RouterDbExtensions.cs" />

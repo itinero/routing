@@ -23,6 +23,7 @@ using Itinero.LocalGeo;
 using System.Collections.Generic;
 using System.IO;
 using Itinero.Geo;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero.Test
 {
@@ -51,7 +52,7 @@ namespace Itinero.Test
         {
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);
-            
+
             foreach (var feature in features.Features)
             {
                 if (feature.Geometry is Point)
@@ -72,6 +73,11 @@ namespace Itinero.Test
             {
                 if (feature.Geometry is LineString)
                 {
+                    if (feature.Attributes.Contains("restriction", "yes"))
+                    {
+                        continue;
+                    }
+
                     var line = feature.Geometry as LineString;
                     var profile = new Itinero.Attributes.AttributeCollection();
                     var names = feature.Attributes.GetNames();
@@ -124,6 +130,39 @@ namespace Itinero.Test
                         vertex1 = vertex2;
                         distance = 0;
                     }
+                }
+            }
+            
+            foreach (var feature in features.Features)
+            {
+                if (feature.Geometry is LineString &&
+                    feature.Attributes.Contains("restriction", "yes"))
+                {
+                    var line = feature.Geometry as LineString;
+                    var sequence = new List<uint>();
+                    sequence.Add(db.SearchVertexFor(
+                        (float)line.Coordinates[0].Y,
+                        (float)line.Coordinates[0].X));
+                    for (var i = 1; i < line.Coordinates.Length; i++)
+                    {
+                        sequence.Add(db.SearchVertexFor(
+                            (float)line.Coordinates[i].Y,
+                            (float)line.Coordinates[i].X));
+                    }
+
+                    var vehicleType = string.Empty;
+                    if (!feature.Attributes.TryGetValueAsString("vehicle_type", out vehicleType))
+                    {
+                        vehicleType = string.Empty;
+                    }
+                    RestrictionsDb restrictions;
+                    if (!db.TryGetRestrictions(vehicleType, out restrictions))
+                    {
+                        restrictions = new RestrictionsDb();
+                        db.AddRestrictions(vehicleType, restrictions);
+                    }
+
+                    restrictions.Add(sequence.ToArray());
                 }
             }
         }

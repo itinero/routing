@@ -23,6 +23,7 @@ using Itinero.Graphs.Geometric;
 using Itinero.Data.Network;
 using System.Linq;
 using System.Reflection;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero.Test
 {
@@ -196,6 +197,89 @@ namespace Itinero.Test
             profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
             Assert.AreEqual(1, profile.Count);
             Assert.IsTrue(profile.Contains("highway", "residential"));
+        }
+
+        /// <summary>
+        /// Tests building network 7.
+        /// </summary>
+        [Test]
+        public void TestNetwork7()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network7.geojson"));
+
+            Assert.AreEqual(8, routerDb.Network.VertexCount);
+            Assert.AreEqual(8, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            var vertex1 = routerDb.Network.GetVertex(1);
+            var vertex2 = routerDb.Network.GetVertex(2);
+            var vertex3 = routerDb.Network.GetVertex(3);
+            var vertex4 = routerDb.Network.GetVertex(4);
+            var vertex5 = routerDb.Network.GetVertex(5);
+            var vertex6 = routerDb.Network.GetVertex(6);
+            var vertex7 = routerDb.Network.GetVertex(7);
+            var vertex8 = routerDb.Network.GetVertex(8);
+            var vertex9 = routerDb.Network.GetVertex(9);
+
+            var edge = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge.Data.Distance, 5);
+            var profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 4);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex4), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(2).First(x => x.To == 3);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex2, vertex3), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(2).First(x => x.To == 5);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex2, vertex5), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(4).First(x => x.To == 5);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex4, vertex5), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(4).First(x => x.To == 6);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex4, vertex6), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            edge = routerDb.Network.GetEdgeEnumerator(5).First(x => x.To == 7);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex5, vertex7), edge.Data.Distance, 5);
+            profile = routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            Assert.AreEqual(1, profile.Count);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+
+            RestrictionsDb restrictions = null;
+            Assert.IsTrue(routerDb.TryGetRestrictions(string.Empty, out restrictions));
+            var enumerator = restrictions.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(0));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(2, enumerator[0]);
+            Assert.AreEqual(1, enumerator[1]);
+            Assert.AreEqual(0, enumerator[2]);
         }
     }
 }

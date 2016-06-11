@@ -205,7 +205,7 @@ namespace Itinero
                     if (db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
                     {
                         var enumerator = restrictionsDb.GetEnumerator();
-                        if (enumerator.MoveTo(vertex, first))
+                        if (enumerator.MoveTo(vertex))
                         {
                             while (enumerator.MoveNext())
                             {
