@@ -56,7 +56,7 @@ namespace Itinero.Test.Functional
             // TEST1: Tests build a router db for cars, contracting it and calculating routes.
             // test building a router db.
             var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
-            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest()");
+            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
             Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 1000).TestPerf("Testing route calculation speed.");
 
             _logger.Log(TraceEventType.Information, "Testing finished.");

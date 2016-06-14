@@ -44,7 +44,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
-                new Path[] { new Path(0) }, new Path[] { new Path(1) });
+                new Path[] { new Path(0) }, new Path[] { new Path(1) }, x => null);
             algorithm.Run();
 
             // check results.
@@ -74,7 +74,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
-                new Path[] { new Path(0) }, new Path[] { new Path(1) });
+                new Path[] { new Path(0) }, new Path[] { new Path(1) }, x => null);
             algorithm.Run();
 
             // check results.
@@ -110,7 +110,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
-                new Path[] { new Path(0) }, new Path[] { new Path(2) });
+                new Path[] { new Path(0) }, new Path[] { new Path(2) }, x => null);
             algorithm.Run();
 
             // check results.
@@ -154,7 +154,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
-                new Path[] { new Path(0) }, new Path[] { new Path(2) });
+                new Path[] { new Path(0) }, new Path[] { new Path(2) }, x => null);
             algorithm.Run();
 
             // check results.
@@ -198,7 +198,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
-                new Path[] { new Path(0) }, new Path[] { new Path(2) });
+                new Path[] { new Path(0) }, new Path[] { new Path(2) }, x => null);
             algorithm.Run();
 
             // check results.
@@ -242,7 +242,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(graph,
-                new Path[] { new Path(0) }, new Path[] { new Path(2) });
+                new Path[] { new Path(0) }, new Path[] { new Path(2) }, x => null);
             algorithm.Run();
 
             // check results.

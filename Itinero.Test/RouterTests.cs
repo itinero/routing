@@ -387,6 +387,57 @@ namespace Itinero.Test
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network7.geojson"));
+
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedProfile(car);
+
+            var vertices = new Coordinate[]
+                {
+                    routerDb.Network.GetVertex(0),
+                    routerDb.Network.GetVertex(1),
+                    routerDb.Network.GetVertex(2),
+                    routerDb.Network.GetVertex(3),
+                    routerDb.Network.GetVertex(4),
+                    routerDb.Network.GetVertex(5),
+                    routerDb.Network.GetVertex(6),
+                    routerDb.Network.GetVertex(7)
+                };
+
+            routerDb.Sort();
+            //routerDb.AddContracted(car, true);
+
+            var ids = new uint[vertices.Length];
+            for(uint v = 0; v < ids.Length; v++)
+            {
+                ids[v] = routerDb.SearchVertexFor(vertices[v].Latitude, vertices[v].Longitude);
+            }
+            
+            var router = new Router(routerDb);
+
+            var route = router.Calculate(car, vertices[0], vertices[2]);
+            Assert.IsNotNull(route);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(3, route.Shape.Length);
+            Assert.AreEqual(vertices[0].Latitude, route.Shape[0].Latitude);
+            Assert.AreEqual(vertices[0].Longitude, route.Shape[0].Longitude);
+            Assert.AreEqual(vertices[1].Latitude, route.Shape[1].Latitude);
+            Assert.AreEqual(vertices[1].Longitude, route.Shape[1].Longitude);
+            Assert.AreEqual(vertices[2].Latitude, route.Shape[2].Latitude);
+            Assert.AreEqual(vertices[2].Longitude, route.Shape[2].Longitude);
+            route = router.Calculate(car, vertices[2], vertices[0]);
+            Assert.IsNotNull(route);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(5, route.Shape.Length);
+            Assert.AreEqual(vertices[2].Latitude, route.Shape[0].Latitude);
+            Assert.AreEqual(vertices[2].Longitude, route.Shape[0].Longitude);
+            Assert.AreEqual(vertices[5].Latitude, route.Shape[1].Latitude);
+            Assert.AreEqual(vertices[5].Longitude, route.Shape[1].Longitude);
+            Assert.AreEqual(vertices[4].Latitude, route.Shape[2].Latitude);
+            Assert.AreEqual(vertices[4].Longitude, route.Shape[2].Longitude);
+            Assert.AreEqual(vertices[1].Latitude, route.Shape[3].Latitude);
+            Assert.AreEqual(vertices[1].Longitude, route.Shape[3].Longitude);
+            Assert.AreEqual(vertices[0].Latitude, route.Shape[4].Latitude);
+            Assert.AreEqual(vertices[0].Longitude, route.Shape[4].Longitude);
         }
     }
 }

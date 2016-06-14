@@ -66,7 +66,7 @@ namespace Itinero
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue), db.GetGetRestrictions(profile, true));
+                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator(int.MaxValue), db.GetGetRestrictions(profile, null));
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted);
@@ -192,7 +192,10 @@ namespace Itinero
         /// <summary>
         /// Gets the get restriction function for the given profile.
         /// </summary>
-        public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.Profile profile, bool first)
+        /// <param name="db">The router db.</param>
+        /// <param name="profile">The vehicle profile.</param>
+        /// <param name="first">When true, only restrictions starting with given vertex, when false only restrictions ending with given vertex, when null all restrictions are returned.</param>
+        public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.Profile profile, bool? first)
         {
             var vehicleTypes = new List<string>(profile.VehicleType);
             vehicleTypes.Insert(0, string.Empty);
@@ -209,7 +212,24 @@ namespace Itinero
                         {
                             while (enumerator.MoveNext())
                             {
-                                restrictionList.Add(enumerator.ToArray(!first));
+                                if (first.HasValue && first.Value)
+                                {
+                                    if (enumerator[0] == vertex)
+                                    {
+                                        restrictionList.Add(enumerator.ToArray());
+                                    }
+                                }
+                                else if (first.HasValue && !first.Value)
+                                {
+                                    if (enumerator[(int)enumerator.Count - 1] == vertex)
+                                    {
+                                        restrictionList.Add(enumerator.ToArray());
+                                    }
+                                }
+                                else
+                                {
+                                    restrictionList.Add(enumerator.ToArray());
+                                }
                             }
                         }
                     }

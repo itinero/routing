@@ -35,17 +35,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly IEnumerable<EdgePath> _sources;
         private readonly IEnumerable<EdgePath> _targets;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
-        /// <summary>
-        /// Creates a new contracted bidirectional router.
-        /// </summary>
-        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<Path> sources, IEnumerable<Path> targets)
-        {
-            _graph = graph;
-            _sources = sources.Select(x => x.ToEdgePath());
-            _targets = targets.Select(x => x.ToEdgePath());
-            _getRestrictions = (x) => null;
-        }
-
+ 
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
@@ -69,6 +59,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         protected override void DoRun()
         {
+            var edgeEnumerator = _graph.GetEdgeEnumerator();
+
             // keep settled vertices.
             _forwardVisits = new Dictionary<uint, LinkedEdgePath>();
             _backwardVisits = new Dictionary<uint, LinkedEdgePath>();
@@ -147,23 +139,37 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         LinkedEdgePath backwardPath = null;
                         if (_backwardVisits.TryGetValue(current.Vertex, out backwardPath))
                         { // check for a new best.
-                            if (restrictions != null)
+                            while (backwardPath != null)
                             {
-                                throw new NotSupportedException();
-                            }
-                            else
-                            { // no restrictions just choose the best vertex.
-                                var best = backwardPath.Best();
-                                if (current.Weight + best.Weight < _best.Item3)
-                                { // a better path was found.
-                                    _best = new Tuple<EdgePath, EdgePath, float>(current, best, current.Weight + best.Weight);
-                                    this.HasSucceeded = true;
+                                if (current.Weight + backwardPath.Path.Weight < _best.Item3)
+                                { // potentially a weight improvement.
+                                    var allowed = true;
+                                    if (restrictions != null)
+                                    {
+                                        allowed = false;
+                                        var sequence = new List<uint>(
+                                            current.GetSequence2(edgeEnumerator));
+                                        sequence.Reverse();
+                                        sequence.Add(current.Vertex);
+                                        var s1 = backwardPath.Path.GetSequence2(edgeEnumerator);
+                                        sequence.AddRange(s1);
+
+                                        allowed = restrictions.IsSequenceAllowed(sequence);
+                                    }
+
+                                    if (allowed)
+                                    {
+                                        _best = new Tuple<EdgePath, EdgePath, float>(current, backwardPath.Path, current.Weight +
+                                            backwardPath.Path.Weight);
+                                        this.HasSucceeded = true;
+                                    }
                                 }
+                                backwardPath = backwardPath.Next;
                             }
                         }
 
                         // continue the search.
-                        this.SearchForward(current, restrictions);
+                        this.SearchForward(edgeEnumerator, current, restrictions);
                     }
                 }
 
@@ -207,23 +213,37 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         LinkedEdgePath forwardPath = null;
                         if (_forwardVisits.TryGetValue(current.Vertex, out forwardPath))
                         { // check for a new best.
-                            if (restrictions != null)
+                            while (forwardPath != null)
                             {
-                                throw new NotSupportedException();
-                            }
-                            else
-                            { // no restrictions just choose the best vertex.
-                                var best = forwardPath.Best();
-                                if (current.Weight + best.Weight < _best.Item3)
-                                { // a better path was found.
-                                    _best = new Tuple<EdgePath, EdgePath, float>(best, current, current.Weight + best.Weight);
-                                    this.HasSucceeded = true;
+                                if (current.Weight + forwardPath.Path.Weight < _best.Item3)
+                                { // potentially a weight improvement.
+                                    var allowed = true;
+                                    if (restrictions != null)
+                                    {
+                                        allowed = false;
+                                        var sequence = new List<uint>(
+                                            forwardPath.Path.GetSequence2(edgeEnumerator));
+                                        sequence.Add(current.Vertex);
+                                        var s1 = current.GetSequence2(edgeEnumerator);
+                                        s1.Reverse();
+                                        sequence.AddRange(s1);
+
+                                        allowed = restrictions.IsSequenceAllowed(sequence);
+                                    }
+
+                                    if (allowed)
+                                    {
+                                        _best = new Tuple<EdgePath, EdgePath, float>(forwardPath.Path, current, current.Weight + 
+                                            forwardPath.Path.Weight);
+                                        this.HasSucceeded = true;
+                                    }
                                 }
+                                forwardPath = forwardPath.Next;
                             }
                         }
 
                         // continue the search.
-                        this.SearchBackward(current, restrictions);
+                        this.SearchBackward(edgeEnumerator, current, restrictions);
                     }
                 }
 
@@ -246,12 +266,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(EdgePath current, IEnumerable<uint[]> restrictions)
+        private void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath current, IEnumerable<uint[]> restrictions)
         {
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
-                var edgeEnumerator = _graph.GetEdgeEnumerator();
                 var currentSequence = current.GetSequence2(edgeEnumerator);
                 currentSequence = currentSequence.Append(current.Vertex);
 
@@ -318,12 +337,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search backward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchBackward(EdgePath current, IEnumerable<uint[]> restrictions)
+        private void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath current, IEnumerable<uint[]> restrictions)
         {
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
-                var edgeEnumerator = _graph.GetEdgeEnumerator();
                 var currentSequence = current.GetSequence2(edgeEnumerator);
                 currentSequence = currentSequence.Append(current.Vertex);
 

@@ -285,10 +285,10 @@ namespace Itinero.Algorithms.Routes
             { // replace next with the vertex.
                 next = _target.VertexId(_routerDb);
 
-                if (to == next)
-                { // nothing to be done.
-                    return;
-                }
+                //if (to == next)
+                //{ // nothing to be done.
+                //    return;
+                //}
             }
             
             // get shapepoints and edge.

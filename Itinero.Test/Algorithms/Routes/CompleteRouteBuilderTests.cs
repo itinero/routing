@@ -1214,5 +1214,94 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
         }
+
+        /// <summary>
+        /// Tests a route where the end is equal to resolved vertex.
+        /// </summary>
+        [Test]
+        public void TestEndEqual()
+        {
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.EdgeMeta.Add(new AttributeCollection());
+            routerDb.EdgeProfiles.Add(new AttributeCollection());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 0, 1);
+            routerDb.Network.AddVertex(3, 0, 2);
+            routerDb.Network.AddEdge(0, 1, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            });
+            routerDb.Network.AddEdge(1, 2, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            });
+            routerDb.Network.AddEdge(2, 3, new EdgeData()
+            {
+                Distance = 1000,
+                MetaId = routerDb.EdgeMeta.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            });
+
+            // build route.
+            var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 1, 2, 0, new Attribute("type", "target"));
+            var profile = MockProfile.CarMock();
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+                source, target, new List<uint>(new uint[] { 1, 2, Constants.NO_VERTEX }));
+            routeBuilder.Run();
+
+            Assert.IsTrue(routeBuilder.HasSucceeded);
+
+            // check result.
+            var route = routeBuilder.Route;
+            Assert.IsNotNull(route);
+
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(2, route.Shape.Length);
+            Assert.AreEqual(1, route.Shape[0].Latitude);
+            Assert.AreEqual(1, route.Shape[0].Longitude);
+            Assert.AreEqual(0, route.Shape[1].Latitude);
+            Assert.AreEqual(1, route.Shape[1].Longitude);
+
+            Assert.IsNotNull(route.ShapeMeta);
+            Assert.AreEqual(2, route.ShapeMeta.Length);
+            var meta = route.ShapeMeta[0];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(1, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            meta = route.ShapeMeta[1];
+            Assert.IsNotNull(meta.Attributes);
+            Assert.AreEqual(5, meta.Attributes.Count);
+            Assert.IsTrue(meta.Attributes.Contains("highway", "residential"));
+            Assert.IsTrue(meta.Attributes.Contains("name", "Abelshausen Blvd."));
+            Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
+            Assert.AreEqual(1000, meta.Distance, 0.1);
+
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(2, route.Stops.Length);
+            var stop = route.Stops[0];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "source"));
+            stop = route.Stops[1];
+            Assert.IsNotNull(stop.Attributes);
+            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.IsTrue(stop.Attributes.Contains("type", "target"));
+
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
+            Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
+        }
     }
 }
