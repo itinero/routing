@@ -198,6 +198,10 @@ namespace Itinero.Data.Network.Restrictions
             if (hashPointer == NO_DATA)
             { // add at the end.
                 _hashes[hash] = _nextIndexPointer;
+                while(_index.Length <= _nextIndexPointer + 1)
+                {
+                    _index.Resize(_index.Length + BLOCKSIZE);
+                }
                 _index[_nextIndexPointer] = 1;
                 _index[_nextIndexPointer + 1] = pointer;
                 _nextIndexPointer += 2;
@@ -219,6 +223,10 @@ namespace Itinero.Data.Network.Restrictions
                 if ((size & (size - 1)) == 0)
                 { // a power of two, copy to the end.
                     var newSpace = size * 2;
+                    while (_index.Length <= _nextIndexPointer + newSpace + 1)
+                    {
+                        _index.Resize(_index.Length + BLOCKSIZE);
+                    }
                     _index[_nextIndexPointer] = size;
                     for(var i = 0; i < size; i++)
                     {
@@ -262,7 +270,10 @@ namespace Itinero.Data.Network.Restrictions
                     }
                     for (; j < pSize; j++)
                     {
-                        _index[hashPointer + j + 1] = _index[hashPointer + j + 2];
+                        if (hashPointer + j + 2 < _index.Length)
+                        {
+                            _index[hashPointer + j + 1] = _index[hashPointer + j + 2];
+                        }
                     }
                     _index[hashPointer] = pSize - 1;
                     if (pSize == 1)
