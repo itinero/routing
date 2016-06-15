@@ -60,7 +60,7 @@ namespace Itinero.Test
         /// Tests creating paths out of a router point.
         /// </summary>
         [Test]
-        public void TestToPaths()
+        public void TestToEdgePaths()
         {
             var distance = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
                 new Coordinate(0.1f, 0.1f));
@@ -84,7 +84,7 @@ namespace Itinero.Test
             var profile = MockProfile.CarMock();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
-            var paths = point.ToPaths(routerDb, profile, false);
+            var paths = point.ToEdgePaths(routerDb, profile, false);
 
             var factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
@@ -106,7 +106,7 @@ namespace Itinero.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
             Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.01);
@@ -118,7 +118,7 @@ namespace Itinero.Test
             Assert.AreEqual(0, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(.1f, .1f, 0, ushort.MaxValue);
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
             Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
@@ -134,7 +134,7 @@ namespace Itinero.Test
         /// Tests creating paths out of a router point.
         /// </summary>
         [Test]
-        public void TestToPathsOneway()
+        public void TestToEdgePathsOneway()
         {
             var distance = (float)Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
                 new Coordinate(0.1f, 0.1f));
@@ -166,7 +166,7 @@ namespace Itinero.Test
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
-            var paths = point.ToPaths(routerDb, profile, true);
+            var paths = point.ToEdgePaths(routerDb, profile, true);
             var factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
@@ -181,7 +181,7 @@ namespace Itinero.Test
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
-            paths = point.ToPaths(routerDb, profile, false);
+            paths = point.ToEdgePaths(routerDb, profile, false);
             factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             Assert.IsNotNull(paths);
@@ -193,7 +193,7 @@ namespace Itinero.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -207,7 +207,7 @@ namespace Itinero.Test
             Assert.AreEqual(0, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToPaths(routerDb, profile, false);
+            paths = point.ToEdgePaths(routerDb, profile, false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -216,7 +216,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -225,7 +225,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 1).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToPaths(routerDb, profile, false);
+            paths = point.ToEdgePaths(routerDb, profile, false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -243,7 +243,7 @@ namespace Itinero.Test
         /// Tests creating paths out of a router point.
         /// </summary>
         [Test]
-        public void TestToPathsOnewayReverse()
+        public void TestToEdgePathsOnewayReverse()
         {
             var distance = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
                 new Coordinate(0.1f, 0.1f));
@@ -275,7 +275,7 @@ namespace Itinero.Test
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
-            var paths = point.ToPaths(routerDb, profile, false);
+            var paths = point.ToEdgePaths(routerDb, profile, false);
             var factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
@@ -290,7 +290,7 @@ namespace Itinero.Test
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
             factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             Assert.IsNotNull(paths);
@@ -302,7 +302,7 @@ namespace Itinero.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToPaths(routerDb, profile, false);
+            paths = point.ToEdgePaths(routerDb, profile, false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -316,7 +316,7 @@ namespace Itinero.Test
             Assert.AreEqual(0, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -325,7 +325,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToPaths(routerDb, profile, false);
+            paths = point.ToEdgePaths(routerDb, profile, false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -334,7 +334,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 1).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToPaths(routerDb, profile, true);
+            paths = point.ToEdgePaths(routerDb, profile, true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -446,7 +446,7 @@ namespace Itinero.Test
         /// Tests calculating path between two router points.
         /// </summary>
         [Test]
-        public void TestPathTo()
+        public void TestEdgePathTo()
         {
             // build router db.
             var routerDb = new RouterDb();
@@ -471,21 +471,21 @@ namespace Itinero.Test
             var point2 = new RouterPoint(0.09f, 0.09f, 0,
                 (ushort)(0.9 * ushort.MaxValue));
 
-            var path = point1.PathTo(routerDb, profile, point2);
+            var path = point1.EdgePathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point2.PathTo(routerDb, profile, point1);
+            path = point2.EdgePathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point1.PathTo(routerDb, profile, point1);
+            path = point1.EdgePathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
-            path = point2.PathTo(routerDb, profile, point2);
+            path = point2.EdgePathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
@@ -496,19 +496,19 @@ namespace Itinero.Test
                 Direction = 1
             });
 
-            path = point1.PathTo(routerDb, profile, point2);
+            path = point1.EdgePathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point2.PathTo(routerDb, profile, point1);
+            path = point2.EdgePathTo(routerDb, profile, point1);
             Assert.IsNull(path);
 
-            path = point1.PathTo(routerDb, profile, point1);
+            path = point1.EdgePathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
-            path = point2.PathTo(routerDb, profile, point2);
+            path = point2.EdgePathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
@@ -519,19 +519,19 @@ namespace Itinero.Test
                 Direction = 2
             });
 
-            path = point1.PathTo(routerDb, profile, point2);
+            path = point1.EdgePathTo(routerDb, profile, point2);
             Assert.IsNull(path);
 
-            path = point2.PathTo(routerDb, profile, point1);
+            path = point2.EdgePathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point1.PathTo(routerDb, profile, point1);
+            path = point1.EdgePathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
-            path = point2.PathTo(routerDb, profile, point2);
+            path = point2.EdgePathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
@@ -540,7 +540,7 @@ namespace Itinero.Test
             point1 = new RouterPoint(0f, 0f, 0, 0);
             point2 = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
 
-            path = point1.PathTo(routerDb, profile, point2);
+            path = point1.EdgePathTo(routerDb, profile, point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(1000 * profile.Factor(null).Value, path.Weight, 0.001f);
             Assert.AreEqual(1, path.Vertex);
@@ -551,7 +551,7 @@ namespace Itinero.Test
             path = path.From;
             Assert.IsNull(path);
 
-            path = point2.PathTo(routerDb, profile, point1);
+            path = point2.EdgePathTo(routerDb, profile, point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(1000 * profile.Factor(null).Value, path.Weight, 0.001f);
             Assert.AreEqual(0, path.Vertex);

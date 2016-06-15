@@ -35,128 +35,6 @@ namespace Itinero
         /// <summary>
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
-        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Func<ushort, Factor> getFactor, bool asSource)
-        {
-            var graph = routerDb.Network.GeometricGraph;
-            var edge = graph.GetEdge(point.EdgeId);
-
-            float distance;
-            ushort profileId;
-            EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
-            var factor = getFactor(profileId);
-            var length = distance;
-
-            var offset = point.Offset / (float)ushort.MaxValue;
-            if(factor.Direction == 0)
-            { // bidirectional.
-                if(offset == 0)
-                { // the first part is just the first vertex.
-                    return new Path[] {
-                        new Path(edge.From),
-                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(edge.From))
-                    };
-                }
-                else if(offset == 1)
-                { // the second path it just the second vertex.
-                    return new Path[] {
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(edge.To)),
-                        new Path(edge.To)
-                    };
-                }
-                return new Path[] {
-                    new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX)),
-                    new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
-                };
-            }
-            else if(factor.Direction == 1)
-            { // edge is forward oneway.
-                if (asSource)
-                {
-                    if(offset == 1)
-                    { // just return the to-vertex.
-                        return new Path[] {
-                            new Path(edge.To)
-                        };
-                    }
-                    if (offset == 0)
-                    { // return both, we are at the from-vertex.
-                        return new Path[] {
-                            new Path(edge.From),
-                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(edge.From))
-                        };
-                    }
-                    return new Path[] {
-                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
-                    };
-                }
-                if(offset == 0)
-                { // just return the from vertex.
-                    return new Path[] {
-                        new Path(edge.From)
-                    };
-                }
-                if(offset == 1)
-                { // return both, we are at the to-vertex.
-                    return new Path[] {
-                        new Path(edge.To),
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(edge.To))
-                    };
-                }
-                return new Path[] {
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
-                    };
-            }
-            else
-            { // edge is backward oneway.
-                if (!asSource)
-                {
-                    if(offset == 1)
-                    { // just return the to-vertex.
-                        return new Path[] {
-                            new Path(edge.To)
-                        };
-                    }
-                    if(offset == 0)
-                    { // return both, we are at the from-vertex.
-                        return new Path[] {
-                            new Path(edge.From),
-                            new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(edge.From))
-                        };
-                    }
-                    return new Path[] {
-                        new Path(edge.To, (length * (1 - offset)) * factor.Value, new Path(Constants.NO_VERTEX))
-                    };
-                }
-                if(offset == 0)
-                { // just return the from-vertex.
-                    return new Path[] {
-                        new Path(edge.From)
-                    };
-                }
-                if(offset == 1)
-                { // return both, we are at the to-vertex.
-                    return new Path[] {
-                        new Path(edge.To),
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(edge.To))
-                    };
-                }
-                return new Path[] {
-                        new Path(edge.From, (length * offset) * factor.Value, new Path(Constants.NO_VERTEX))
-                    };
-            }
-        }
-        
-        /// <summary>
-        /// Converts the router point to paths leading to the closest 2 vertices.
-        /// </summary>
-        public static Path[] ToPaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
-        {
-            return point.ToPaths(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), asSource);
-        }
-
-        /// <summary>
-        /// Converts the router point to paths leading to the closest 2 vertices.
-        /// </summary>
         public static EdgePath[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Func<ushort, Factor> getFactor, bool asSource)
         {
             var graph = routerDb.Network.GeometricGraph;
@@ -171,6 +49,20 @@ namespace Itinero
             var offset = point.Offset / (float)ushort.MaxValue;
             if (factor.Direction == 0)
             { // bidirectional.
+                if (offset == 0)
+                { // the first part is just the first vertex.
+                    return new EdgePath[] {
+                        new EdgePath(edge.From),
+                        new EdgePath(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath(edge.From))
+                    };
+                }
+                else if (offset == 1)
+                { // the second path it just the second vertex.
+                    return new EdgePath[] {
+                        new EdgePath(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath(edge.To)),
+                        new EdgePath(edge.To)
+                    };
+                }
                 return new EdgePath[] {
                     new EdgePath(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath()),
                     new EdgePath(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath())
@@ -180,8 +72,34 @@ namespace Itinero
             { // edge is forward oneway.
                 if (asSource)
                 {
+                    if (offset == 1)
+                    { // just return the to-vertex.
+                        return new EdgePath[] {
+                            new EdgePath(edge.To)
+                        };
+                    }
+                    if (offset == 0)
+                    { // return both, we are at the from-vertex.
+                        return new EdgePath[] {
+                            new EdgePath(edge.From),
+                            new EdgePath(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath(edge.From))
+                        };
+                    }
                     return new EdgePath[] {
                         new EdgePath(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath())
+                    };
+                }
+                if (offset == 0)
+                { // just return the from vertex.
+                    return new EdgePath[] {
+                        new EdgePath(edge.From)
+                    };
+                }
+                if (offset == 1)
+                { // return both, we are at the to-vertex.
+                    return new EdgePath[] {
+                        new EdgePath(edge.To),
+                        new EdgePath(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath(edge.To))
                     };
                 }
                 return new EdgePath[] {
@@ -192,12 +110,38 @@ namespace Itinero
             { // edge is backward oneway.
                 if (!asSource)
                 {
+                    if (offset == 1)
+                    { // just return the to-vertex.
+                        return new EdgePath[] {
+                            new EdgePath(edge.To)
+                        };
+                    }
+                    if (offset == 0)
+                    { // return both, we are at the from-vertex.
+                        return new EdgePath[] {
+                            new EdgePath(edge.From),
+                            new EdgePath(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath(edge.From))
+                        };
+                    }
                     return new EdgePath[] {
-                        new EdgePath(edge.From, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath())
+                        new EdgePath(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath())
+                    };
+                }
+                if (offset == 0)
+                { // just return the from-vertex.
+                    return new EdgePath[] {
+                        new EdgePath(edge.From)
+                    };
+                }
+                if (offset == 1)
+                { // return both, we are at the to-vertex.
+                    return new EdgePath[] {
+                        new EdgePath(edge.To),
+                        new EdgePath(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath(edge.To))
                     };
                 }
                 return new EdgePath[] {
-                        new EdgePath(edge.To, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath())
+                        new EdgePath(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath())
                     };
             }
         }
@@ -441,28 +385,28 @@ namespace Itinero
         /// <summary>
         /// Calculates the path between this router point and the given router point.
         /// </summary>
-        public static Path PathTo(this RouterPoint point, RouterDb db, Profile profile, RouterPoint target)
+        public static EdgePath EdgePathTo(this RouterPoint point, RouterDb db, Profile profile, RouterPoint target)
         {
-            return point.PathTo(db, (p) => profile.Factor(db.EdgeProfiles.Get(p)), target);
+            return point.EdgePathTo(db, (p) => profile.Factor(db.EdgeProfiles.Get(p)), target);
         }
 
         /// <summary>
-        /// Calculates the path between this router point and the given router point.
+        /// Calculates the edge path between this router point and the given router point.
         /// </summary>
-        public static Path PathTo(this RouterPoint point, RouterDb db, Func<ushort, Factor> getFactor, RouterPoint target)
+        public static EdgePath EdgePathTo(this RouterPoint point, RouterDb db, Func<ushort, Factor> getFactor, RouterPoint target)
         {
-            if(point.EdgeId != target.EdgeId)
+            if (point.EdgeId != target.EdgeId)
             {
                 throw new ArgumentException("Target point must be part of the same edge.");
             }
-            if(point.Offset == target.Offset)
+            if (point.Offset == target.Offset)
             { // path is possible but it has a weight of 0.
-                return new Path(point.VertexId(db));
+                return new EdgePath(point.VertexId(db));
             }
             var forward = point.Offset < target.Offset;
             var edge = db.Network.GetEdge(point.EdgeId);
             var factor = getFactor(edge.Data.Profile);
-            if(factor.Value <= 0)
+            if (factor.Value <= 0)
             { // not possible to travel here.
                 return null;
             }
@@ -473,7 +417,11 @@ namespace Itinero
                 var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) *
                     edge.Data.Distance;
                 var weight = distance * factor.Value;
-                return new Path(target.VertexId(db), weight, new Path(point.VertexId(db)));
+                if (forward)
+                {
+                    return new EdgePath(target.VertexId(db), weight, point.EdgeId, new EdgePath(point.VertexId(db)));
+                }
+                return new EdgePath(target.VertexId(db), weight, -point.EdgeId, new EdgePath(point.VertexId(db)));
             }
             return null;
         }

@@ -61,7 +61,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the edge right before the vertex.
         /// </summary>
-        public long Edge { get; private set; }
+        public long Edge { get; set; }
 
         /// <summary>
         /// Gets the vertex.

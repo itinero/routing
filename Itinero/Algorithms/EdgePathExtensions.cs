@@ -24,32 +24,7 @@ namespace Itinero.Algorithms
     /// Contains extension methods from the edge path.
     /// </summary>
     public static class EdgePathExtensions
-    {
-
-        /// <summary>
-        /// Returns the equivalent path.
-        /// </summary>
-        public static Path ToPath(this EdgePath edgePath)
-        { // TODO: improved this to a non-recursive version.
-            if (edgePath.From == null)
-            {
-                return new Path(edgePath.Vertex);
-            }
-            return new Path(edgePath.Vertex, edgePath.Weight, edgePath.From.ToPath());
-        }
-
-        /// <summary>
-        /// Returns the equivalent edge-path for the path.
-        /// </summary>
-        public static EdgePath ToEdgePath(this Path path)
-        { // TODO: improved this to a non-recursive version.
-            if (path.From == null)
-            {
-                return new EdgePath(path.Vertex);
-            }
-            return new EdgePath(path.Vertex, path.Weight, path.From.ToEdgePath());
-        }
-
+    {        
         /// <summary>
         /// Appends the given path in reverse to the edge path.
         /// </summary>
@@ -108,6 +83,21 @@ namespace Itinero.Algorithms
             for (var i = reversed.Count - 1; i >= 0; i--)
             {
                 vertices.Add(reversed[i]);
+            }
+        }
+
+        /// <summary>
+        /// Strips all edge-id's.
+        /// </summary>
+        public static void StripEdges(this EdgePath path)
+        {
+            while(path != null)
+            {
+                if (path.Edge != Constants.NO_EDGE)
+                {
+                    path.Edge = Constants.NO_EDGE;
+                }
+                path = path.From;
             }
         }
     }

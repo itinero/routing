@@ -81,7 +81,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\BidirectionalDykstraTests.cs" />
+    <Compile Include="Algorithms\Default\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilderTests.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphExtensionsTests.cs" />
@@ -103,12 +103,14 @@
     <Compile Include="Algorithms\Contracted\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Contracted\MockPriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\WitnessCalculatorMock.cs" />
+    <Compile Include="Algorithms\Default\EdgeBased\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\DykstraTests.cs" />
+    <Compile Include="Algorithms\Default\EdgeBased\OneToManyTests.cs" />
     <Compile Include="Algorithms\EdgePathTests.cs" />
-    <Compile Include="Algorithms\ManyToManyTests.cs" />
+    <Compile Include="Algorithms\Default\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />
     <Compile Include="Algorithms\Default\DykstraTests.cs" />
-    <Compile Include="Algorithms\OneToManyTests.cs" />
+    <Compile Include="Algorithms\Default\OneToManyTests.cs" />
     <Compile Include="Algorithms\Restrictions\RestrictionExtensionTests.cs" />
     <Compile Include="Algorithms\Routes\CompleteRouteBuilderTests.cs" />
     <Compile Include="Algorithms\Routes\RouteSegmentAggregatorTests.cs" />

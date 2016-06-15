@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -18,14 +18,13 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms;
-using Itinero.Algorithms.Default;
+using Itinero.Algorithms.Default.EdgeBased;
 using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
-using System.Collections.Generic;
 using Itinero.Data.Edges;
 
-namespace Itinero.Test.Algorithms
+namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// Executes tests
@@ -71,17 +70,17 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var sourceSearch = new Dykstra(graph, getFactor, null, new Path[] { new Path(0) },
-                150 * 1 / speed, false);
-            var targetSearch = new Dykstra(graph, getFactor, null, new Path[] { new Path(2) },
-                150 * 1 / speed, true);
+            var sourceSearch = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) },
+                float.MaxValue, false);
+            var targetSearch = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(2) },
+                float.MaxValue, true);
             var algorithm = new BidirectionalDykstra(sourceSearch, targetSearch);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            Assert.AreEqual(1, algorithm.BestVertex);
+            //Assert.AreEqual(1, algorithm.BestVertex);
             Assert.AreEqual(new uint[] { 0, 1, 2 }, algorithm.GetPath().ToArray());
         }
     }

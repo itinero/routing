@@ -404,7 +404,7 @@ namespace Itinero.Test
                 };
 
             routerDb.Sort();
-            //routerDb.AddContracted(car, true);
+            routerDb.AddContracted(car, true);
 
             var ids = new uint[vertices.Length];
             for(uint v = 0; v < ids.Length; v++)

@@ -39,12 +39,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<Path> sources, IEnumerable<Path> targets,
+        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath> sources, IEnumerable<EdgePath> targets,
             Func<uint, IEnumerable<uint[]>> getRestrictions)
         {
             _graph = graph;
-            _sources = sources.Select(x => x.ToEdgePath());
-            _targets = targets.Select(x => x.ToEdgePath());
+            _sources = sources.Select(x => {
+                x.StripEdges();
+                return x;
+            });
+            _targets = targets.Select(x => {
+                x.StripEdges();
+                return x;
+            });
             _getRestrictions = getRestrictions;
         }
 
@@ -462,8 +468,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             this.CheckHasRunAndHasSucceeded();
 
             var vertices = new List<uint>();
-            var fromSource = _best.Item1.Expand(_graph).ToPath();
-            var toTarget = _best.Item2.Expand(_graph).ToPath();
+            var fromSource = _best.Item1.Expand(_graph);
+            var toTarget = _best.Item2.Expand(_graph);
             weight = fromSource.Weight + toTarget.Weight;
 
             // add vertices from source.

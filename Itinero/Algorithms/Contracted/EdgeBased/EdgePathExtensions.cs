@@ -60,7 +60,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             bool? direction;
             if (edgePath.Edge != Constants.NO_EDGE &&
-                edgePath.From != null)
+                edgePath.From != null &&
+                edgePath.From.Vertex != Constants.NO_VERTEX)
             {
                 enumerator.MoveToEdge(edgePath.Edge);
                 var contractedId = enumerator.GetContracted();

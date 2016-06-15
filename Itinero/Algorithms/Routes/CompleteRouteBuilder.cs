@@ -382,7 +382,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath path)
         {
             return CompleteRouteBuilder.TryBuild(db, profile, source, target, path).Value;
         }
@@ -390,7 +390,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, Path path)
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath path)
         {
             var pathList = new List<uint>();
             path.AddToList(pathList);

@@ -93,7 +93,7 @@ namespace Itinero.Algorithms.Contracted
 
                     if(target.EdgeId == source.EdgeId)
                     {
-                        var path = source.PathTo(_routerDb, _getFactor, target);
+                        var path = source.EdgePathTo(_routerDb, _getFactor, target);
                         if (path != null)
                         {
                             _weights[i][j] = path.Weight;
@@ -105,7 +105,7 @@ namespace Itinero.Algorithms.Contracted
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra(_graph, _sources[i].ToPaths(_routerDb, _getFactor, true), false);
+                var forward = new Dykstra(_graph, _sources[i].ToEdgePaths(_routerDb, _getFactor, true), false);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -116,7 +116,7 @@ namespace Itinero.Algorithms.Contracted
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra(_graph, _targets[i].ToPaths(_routerDb, _getFactor, false), true);
+                var backward = new Dykstra(_graph, _targets[i].ToEdgePaths(_routerDb, _getFactor, false), true);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);

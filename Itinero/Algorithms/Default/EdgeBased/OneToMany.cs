@@ -20,7 +20,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Default
+namespace Itinero.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// An algorithm to calculate one-to-many weights/paths.
@@ -67,7 +67,7 @@ namespace Itinero.Algorithms.Default
 
             // register the targets and determine one-edge-paths.
             var sourcePaths = _source.ToEdgePaths(_routerDb, _getFactor, true);
-            var targetIndexesPerVertex = new Dictionary<uint, LinkedTarget>();
+            var targetIndexesPerEdge = new Dictionary<uint, LinkedTarget>();
             var targetPaths = new IEnumerable<EdgePath>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
@@ -83,8 +83,8 @@ namespace Itinero.Algorithms.Default
                 // register targets.
                 for (var t = 0; t < targets.Length; t++)
                 {
-                    var target = targetIndexesPerVertex.TryGetValueOrDefault(targets[t].Vertex);
-                    targetIndexesPerVertex[targets[t].Vertex] = new LinkedTarget()
+                    var target = targetIndexesPerEdge.TryGetValueOrDefault(targets[t].Vertex);
+                    targetIndexesPerEdge[targets[t].Vertex] = new LinkedTarget()
                     {
                         Target = i,
                         Next = target
@@ -94,9 +94,9 @@ namespace Itinero.Algorithms.Default
 
             // determine the best max search radius.
             var max = 0f;
-            for(var s = 0; s < _best.Length; s++)
+            for (var s = 0; s < _best.Length; s++)
             {
-                if(_best[s] == null)
+                if (_best[s] == null)
                 {
                     max = _maxSearch;
                 }
@@ -112,33 +112,23 @@ namespace Itinero.Algorithms.Default
             // run the search.
             var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, null,
                 sourcePaths, max, false);
-            dykstra.WasFound += (vertex, weight) =>
+            dykstra.WasEdgeFound += (v1, w1, distance, path) =>
             {
                 LinkedTarget target;
-                if(targetIndexesPerVertex.TryGetValue(vertex, out target))
+                if (targetIndexesPerEdge.TryGetValue(path.Vertex, out target))
                 { // there is a target for this vertex.
-                    while(target != null)
+                    while (target != null)
                     {
                         var best = _best[target.Target];
-                        foreach(var targetPath in targetPaths[target.Target])
+                        foreach (var targetPath in targetPaths[target.Target])
                         {
-                            EdgePath path;
-                            dykstra.TryGetVisit(vertex, out path);
-                            if(targetPath.Vertex == vertex)
+                            if (targetPath.Vertex == path.Vertex)
                             { // there is a path here.
-                                if(best == null ||
-                                   targetPath.Weight + weight < best.Weight)
+                                path = path.Append(targetPath);
+                                if (best == null ||
+                                   path.Weight < best.Weight)
                                 { // not a best path yet, just add this one.
-                                    if (_targets[target.Target].IsVertex(_routerDb, path.Vertex))
-                                    { // target is the exact vertex.
-                                        best = path;
-                                    }
-                                    else
-                                    { // target is not the exact vertex.
-                                        best = new EdgePath(_targets[target.Target].VertexId(_routerDb), 
-                                            targetPath.Weight + weight,
-                                            path);
-                                    }
+                                    best = path;
                                 }
                                 break;
                             }

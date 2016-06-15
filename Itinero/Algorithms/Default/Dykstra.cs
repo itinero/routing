@@ -32,7 +32,7 @@ namespace Itinero.Algorithms.Default
     public class Dykstra : AlgorithmBase
     {
         private readonly Graph _graph;
-        private readonly IEnumerable<Path> _sources;
+        private readonly IEnumerable<EdgePath> _sources;
         private readonly Func<ushort, Factor> _getFactor;
         private readonly Func<uint, uint> _getRestriction;
         private readonly float _sourceMax;
@@ -42,7 +42,7 @@ namespace Itinero.Algorithms.Default
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint> getRestriction,
-            IEnumerable<Path> sources, float sourceMax, bool backward)
+            IEnumerable<EdgePath> sources, float sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
@@ -53,9 +53,9 @@ namespace Itinero.Algorithms.Default
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<uint, Path> _visits;
-        private Path _current;
-        private BinaryHeap<Path> _heap;
+        private Dictionary<uint, EdgePath> _visits;
+        private EdgePath _current;
+        private BinaryHeap<EdgePath> _heap;
         private Dictionary<uint, Factor> _factors;
 
         /// <summary>
@@ -82,8 +82,8 @@ namespace Itinero.Algorithms.Default
             _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<uint, Path>();
-            _heap = new BinaryHeap<Path>(1000);
+            _visits = new Dictionary<uint, EdgePath>();
+            _heap = new BinaryHeap<EdgePath>(1000);
 
             // queue all sources.
             foreach (var source in _sources)
@@ -206,7 +206,7 @@ namespace Itinero.Algorithms.Default
 
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
-                        _heap.Push(new Path(neighbour, totalWeight, _current),
+                        _heap.Push(new EdgePath(neighbour, totalWeight, _current),
                             totalWeight);
                     }
                 }
@@ -219,7 +219,7 @@ namespace Itinero.Algorithms.Default
         /// </summary>
         /// <remarks>The algorithm will pick up these visits as if it was one it's own.</remarks>
         /// <returns>True if the visit was set successfully.</returns>
-        public bool SetVisit(Path visit)
+        public bool SetVisit(EdgePath visit)
         {
             if (!_visits.ContainsKey(visit.Vertex))
             {
@@ -233,7 +233,7 @@ namespace Itinero.Algorithms.Default
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetVisit(uint vertex, out Path visit)
+        public bool TryGetVisit(uint vertex, out EdgePath visit)
         {
             return _visits.TryGetValue(vertex, out visit);
         }
@@ -304,7 +304,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public Path Current
+        public EdgePath Current
         {
             get
             {

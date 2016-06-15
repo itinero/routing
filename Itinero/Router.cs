@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using Itinero.Data.Contracted;
 using Itinero.Data.Edges;
 using Itinero.Data.Network.Restrictions;
+using Itinero.Algorithms;
 
 namespace Itinero
 {
@@ -157,7 +158,7 @@ namespace Itinero
      
             // build and run dykstra search.
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                point.ToPaths(_db, getFactor, true), radiusInMeters, false);
+                point.ToEdgePaths(_db, getFactor, true), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
             { // something went wrong.
@@ -188,14 +189,14 @@ namespace Itinero
             ContractedDb contracted;
 
             bool useContracted = false;
-
             if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
                 if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
-                        "There is no edge-based graph for this profile but the db has complex restrictions, calculation may be incorrect when restricitons exist along the route.");
+                        "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
+                    useContracted = false;
                 }
             }
 
@@ -206,7 +207,7 @@ namespace Itinero
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
                     var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
-                        source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false));
+                        source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, getFactor, false));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -220,7 +221,7 @@ namespace Itinero
                 else
                 { // use edge-based routing.
                     var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
-                        source.ToPaths(_db, getFactor, true), target.ToPaths(_db, getFactor, false), _db.GetGetRestrictions(profile, null));
+                        source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, getFactor, false), _db.GetGetRestrictions(profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -236,25 +237,28 @@ namespace Itinero
             { // use the regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var search = new Algorithms.Default.EdgeBased.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 
-                        getFactor, _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, profile, false),
-                            float.MaxValue, false);
-                    search.Run();
-                    if (!search.HasSucceeded)
+                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), float.MaxValue, false);
+                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
+                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, profile, false), float.MaxValue, true);
+
+                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra(sourceSearch, targetSearch);
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<Route>(search.ErrorMessage, (message) =>
+                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
                     }
-                    path = search.GetPath(out pathWeight);
+                    path = bidirectionalSearch.GetPath(out pathWeight);
                 }
                 else
                 {
                     var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                        source.ToPaths(_db, getFactor, true), float.MaxValue, false);
+                        source.ToEdgePaths(_db, getFactor, true), float.MaxValue, false);
                     var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                        target.ToPaths(_db, profile, false), float.MaxValue, true);
+                        target.ToEdgePaths(_db, profile, false), float.MaxValue, true);
 
                     var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
                     bidirectionalSearch.Run();
@@ -271,7 +275,7 @@ namespace Itinero
 
             if(source.EdgeId == target.EdgeId)
             { // check for a shorter path on the same edge.
-                var edgePath = source.PathTo(_db, profile, target);
+                var edgePath = source.EdgePathTo(_db, profile, target);
                 if(edgePath != null &&
                    edgePath.Weight < pathWeight)
                 {
@@ -384,34 +388,71 @@ namespace Itinero
             // get the get factor function.
             var getFactor = this.GetGetFactor(profile);
 
-            float[][] weights = null;
             ContractedDb contracted;
+            float[][] weights = null;
+
+            bool useContracted = false;
             if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
-                var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra(_db, profile,
-                    sources, targets);
-                algorithm.Run();
-                if (!algorithm.HasSucceeded)
-                {
-                    return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
-                    {
-                        return new RouteNotFoundException(message);
-                    });
+                useContracted = true;
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
+                    Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                        "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
+                    useContracted = false;
                 }
-                weights = algorithm.Weights;
+            }
+
+            if (useContracted)
+            {
+                if (!contracted.HasEdgeBasedGraph)
+                { // use node-based routing.
+                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra(_db, profile,
+                        sources, targets);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    weights = algorithm.Weights;
+                }
+                else
+                { // use edge-based routing.
+                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra(_db, profile,
+                        sources, targets);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    weights = algorithm.Weights;
+                }
             }
             else
-            { // non-contracted calculation.
-                var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, getFactor, sources, targets, float.MaxValue);
-                algorithm.Run();
-                if (!algorithm.HasSucceeded)
+            { // use regular graph.
+                if (_db.HasComplexRestrictions(profile))
                 {
-                    return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
-                    {
-                        return new RouteNotFoundException(message);
-                    });
+                    throw new NotSupportedException("Many-to-many calculations without a contracted graph are not supported.");
                 }
-                weights = algorithm.Weights;
+                else
+                {
+                    var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, getFactor, sources, targets, float.MaxValue);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    weights = algorithm.Weights;
+                }
             }
 
             // check for invalids.

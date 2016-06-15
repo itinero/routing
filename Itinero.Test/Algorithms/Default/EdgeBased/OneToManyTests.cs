@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -17,17 +17,11 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using NUnit.Framework;
-using Itinero.Algorithms;
-using Itinero.Algorithms.Default;
-using Itinero.Data;
-using Itinero.Graphs;
-using Itinero.Profiles;
 using Itinero.Test.Profiles;
 using Itinero.Data.Network;
-using System;
-using System.Collections.Generic;
+using Itinero.Algorithms.Default.EdgeBased;
 
-namespace Itinero.Test.Algorithms
+namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// Executes tests
@@ -170,7 +164,8 @@ namespace Itinero.Test.Algorithms
             });
 
             // run algorithm 0->(1, 2).
-            var algorithm = new OneToMany(routerDb, MockProfile.CarMock(), routerDb.Network.CreateRouterPointForVertex(0), 
+            var algorithm = new OneToMany(routerDb, MockProfile.CarMock(), 
+                routerDb.Network.CreateRouterPointForVertex(0), 
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)

@@ -93,7 +93,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             foreach (var source in _sources)
             {
                 var queue = true;
-                if (_getRestriction != null)
+                if (_getRestriction != null && source.Edge != Constants.NO_EDGE)
                 {
                     var sourceVertex = _edgeEnumerator.GetSourceVertex(source.Edge);
                     var sourceVertexRestrictions = _getRestriction(sourceVertex);
@@ -160,18 +160,35 @@ namespace Itinero.Algorithms.Default.EdgeBased
             if (_current != null &&
                 !_visits.ContainsKey(_current.Edge))
             { // we visit this one, set visit.
-                _visits[_current.Edge] = _current;
+                if (_current.Edge != Constants.NO_EDGE)
+                {
+                    _visits[_current.Edge] = _current;
+
+                    // report on visit.
+                    if (this.WasEdgeFound != null)
+                    {
+                        // get edge details and report them.
+                        _edgeEnumerator.MoveToEdge(_current.Edge);
+                        float distance;
+                        ushort edgeProfile;
+                        EdgeDataSerializer.Deserialize(_edgeEnumerator.Data0, out distance, out edgeProfile);
+                        var factor = Factor.NoFactor;
+                        if (!_factors.TryGetValue(edgeProfile, out factor))
+                        { // speed not there, calculate speed.
+                            factor = _getFactor(edgeProfile);
+                            _factors.Add(edgeProfile, factor);
+                        }
+
+                        if (this.WasEdgeFound(_edgeEnumerator.From, _current.Weight - (distance * factor.Value), distance, _current))
+                        {
+                            return true;
+                        }
+                    }
+                }
             }
             else
             { // route is not found, there are no vertices left
                 // or the search went outside of the max bounds.
-                return false;
-            }
-
-            // report on visit.
-            if (this.WasEdgeFound != null &&
-                this.WasEdgeFound(_current.Edge, _current.Weight))
-            {
                 return false;
             }
 
@@ -277,6 +294,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     var totalWeight = _current.Weight + (distance * factor.Value);
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
+                        
                         var path = new EdgePath(neighbour, totalWeight, directedEdgeId, _current);
                         if (newRestrictions != null)
                         {
@@ -321,7 +339,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// The was edge found delegate.
         /// </summary>
-        public delegate bool WasEdgeFoundDelegate(long directedEdgeId, float weight);
+        /// <param name="vertex1">The vertex where the search is coming from.</param>
+        /// <param name="weight1">The weight at vertex1.</param>
+        /// <param name="length">The length of the current edge.</param>
+        /// <param name="path">The path that leads to this edge.</param>
+        /// <returns></returns>
+        public delegate bool WasEdgeFoundDelegate(uint vertex1, float weight1, float length, EdgePath path);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.

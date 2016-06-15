@@ -30,13 +30,13 @@ namespace Itinero.Algorithms.Contracted
     public class BidirectionalDykstra : AlgorithmBase
     {
         private readonly DirectedMetaGraph _graph;
-        private readonly IEnumerable<Path> _sources;
-        private readonly IEnumerable<Path> _targets;
+        private readonly IEnumerable<EdgePath> _sources;
+        private readonly IEnumerable<EdgePath> _targets;
 
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedMetaGraph graph, IEnumerable<Path> sources, IEnumerable<Path> targets)
+        public BidirectionalDykstra(DirectedMetaGraph graph, IEnumerable<EdgePath> sources, IEnumerable<EdgePath> targets)
         {
             _graph = graph;
             _sources = sources;
@@ -44,8 +44,8 @@ namespace Itinero.Algorithms.Contracted
         }
 
         private Tuple<uint, float> _best;
-        private Dictionary<uint, Path> _forwardVisits;
-        private Dictionary<uint, Path> _backwardVisits;
+        private Dictionary<uint, EdgePath> _forwardVisits;
+        private Dictionary<uint, EdgePath> _backwardVisits;
 
         /// <summary>
         /// Executes the actual run.
@@ -53,12 +53,12 @@ namespace Itinero.Algorithms.Contracted
         protected override void DoRun()
         {
             // keep settled vertices.
-            _forwardVisits = new Dictionary<uint, Path>();
-            _backwardVisits = new Dictionary<uint, Path>();
+            _forwardVisits = new Dictionary<uint, EdgePath>();
+            _backwardVisits = new Dictionary<uint, EdgePath>();
 
             // initialize the queues.
-            var forwardQueue = new BinaryHeap<Path>();
-            var backwardQueue = new BinaryHeap<Path>();
+            var forwardQueue = new BinaryHeap<EdgePath>();
+            var backwardQueue = new BinaryHeap<EdgePath>();
 
             // queue sources.
             foreach (var source in _sources)
@@ -102,7 +102,7 @@ namespace Itinero.Algorithms.Contracted
 
                     if (current != null)
                     {
-                        Path toBest;
+                        EdgePath toBest;
                         if (_backwardVisits.TryGetValue(current.Vertex, out toBest))
                         { // check for a new best.
                             if (current.Weight + toBest.Weight < _best.Item2)
@@ -128,7 +128,7 @@ namespace Itinero.Algorithms.Contracted
 
                     if (current != null)
                     {
-                        Path toBest;
+                        EdgePath toBest;
                         if (_forwardVisits.TryGetValue(current.Vertex, out toBest))
                         { // check for a new best.
                             if (current.Weight + toBest.Weight < _best.Item2)
@@ -158,7 +158,7 @@ namespace Itinero.Algorithms.Contracted
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(BinaryHeap<Path> queue, Path current)
+        private void SearchForward(BinaryHeap<EdgePath> queue, EdgePath current)
         {
             if (current != null)
             { // there is a next vertex found.
@@ -166,7 +166,7 @@ namespace Itinero.Algorithms.Contracted
                 var edgeEnumerator = _graph.Graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
-                Path previousLinkedRoute;
+                EdgePath previousLinkedRoute;
                 if (_forwardVisits.TryGetValue(current.Vertex, out previousLinkedRoute))
                 {
                     if (previousLinkedRoute.Weight > current.Weight)
@@ -193,7 +193,7 @@ namespace Itinero.Algorithms.Contracted
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
                         if (!_forwardVisits.ContainsKey(neighbourNeighbour))
                         { // if not yet settled.
-                            var routeToNeighbour = new Path(
+                            var routeToNeighbour = new EdgePath(
                                 neighbourNeighbour, current.Weight + neighbourWeight, current);
                             queue.Push(routeToNeighbour, routeToNeighbour.Weight);
                         }
@@ -205,7 +205,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Search backward from one vertex.
         /// </summary>
-        private void SearchBackward(BinaryHeap<Path> queue, Path current)
+        private void SearchBackward(BinaryHeap<EdgePath> queue, EdgePath current)
         {
             if (current != null)
             {
@@ -213,7 +213,7 @@ namespace Itinero.Algorithms.Contracted
                 var edgeEnumerator = _graph.Graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
-                Path previousLinkedRoute;
+                EdgePath previousLinkedRoute;
                 if (_backwardVisits.TryGetValue(current.Vertex, out previousLinkedRoute))
                 {
                     if (previousLinkedRoute.Weight > current.Weight)
@@ -241,7 +241,7 @@ namespace Itinero.Algorithms.Contracted
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
                         if (!_backwardVisits.ContainsKey(neighbourNeighbour))
                         { // if not yet settled.
-                            var routeToNeighbour = new Path(
+                            var routeToNeighbour = new EdgePath(
                                 neighbourNeighbour, current.Weight + neighbourWeight, current);
                             queue.Push(routeToNeighbour, routeToNeighbour.Weight);
                         }
@@ -267,7 +267,7 @@ namespace Itinero.Algorithms.Contracted
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetForwardVisit(uint vertex, out Path visit)
+        public bool TryGetForwardVisit(uint vertex, out EdgePath visit)
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -278,7 +278,7 @@ namespace Itinero.Algorithms.Contracted
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetBackwardVisit(uint vertex, out Path visit)
+        public bool TryGetBackwardVisit(uint vertex, out EdgePath visit)
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -293,8 +293,8 @@ namespace Itinero.Algorithms.Contracted
         {
             this.CheckHasRunAndHasSucceeded();
 
-            Path fromSource;
-            Path toTarget;
+            EdgePath fromSource;
+            EdgePath toTarget;
             if (_forwardVisits.TryGetValue(_best.Item1, out fromSource) &&
                 _backwardVisits.TryGetValue(_best.Item1, out toTarget))
             {

@@ -194,7 +194,7 @@ namespace Itinero
         /// </summary>
         /// <param name="db">The router db.</param>
         /// <param name="profile">The vehicle profile.</param>
-        /// <param name="first">When true, only restrictions starting with given vertex, when false only restrictions ending with given vertex, when null all restrictions are returned.</param>
+        /// <param name="first">When true, only restrictions starting with given vertex, when false only restrictions ending with given vertex already reversed, when null all restrictions are returned.</param>
         public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.Profile profile, bool? first)
         {
             var vehicleTypes = new List<string>(profile.VehicleType);
@@ -223,7 +223,9 @@ namespace Itinero
                                 {
                                     if (enumerator[(int)enumerator.Count - 1] == vertex)
                                     {
-                                        restrictionList.Add(enumerator.ToArray());
+                                        var array = enumerator.ToArray();
+                                        array.Reverse();
+                                        restrictionList.Add(array);
                                     }
                                 }
                                 else
