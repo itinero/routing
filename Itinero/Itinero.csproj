@@ -58,6 +58,7 @@
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\IWitnessCalculator.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\BidirectionalDykstra.cs" />
+    <Compile Include="Algorithms\Default\EdgeBased\ManyToMany.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\OneToMany.cs" />
     <Compile Include="Algorithms\Default\GraphExtensions.cs" />
     <Compile Include="Algorithms\EdgePath.cs" />

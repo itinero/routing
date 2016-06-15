@@ -124,11 +124,11 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         {
                             if (targetPath.Vertex == path.Vertex)
                             { // there is a path here.
-                                path = path.Append(targetPath);
+                                var fullPath = path.Append(targetPath);
                                 if (best == null ||
-                                   path.Weight < best.Weight)
+                                   fullPath.Weight < best.Weight)
                                 { // not a best path yet, just add this one.
-                                    best = path;
+                                    best = fullPath;
                                 }
                                 break;
                             }

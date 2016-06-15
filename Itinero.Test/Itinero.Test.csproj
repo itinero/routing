@@ -105,6 +105,7 @@
     <Compile Include="Algorithms\Contracted\WitnessCalculatorMock.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\DykstraTests.cs" />
+    <Compile Include="Algorithms\Default\EdgeBased\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\OneToManyTests.cs" />
     <Compile Include="Algorithms\EdgePathTests.cs" />
     <Compile Include="Algorithms\Default\ManyToManyTests.cs" />
