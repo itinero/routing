@@ -60,7 +60,6 @@
     <Compile Include="Algorithms\Default\EdgeBased\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\ManyToMany.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\OneToMany.cs" />
-    <Compile Include="Algorithms\Default\GraphExtensions.cs" />
     <Compile Include="Algorithms\EdgePath.cs" />
     <Compile Include="Algorithms\EdgePathExtensions.cs" />
     <Compile Include="Algorithms\Extensions.cs" />
