@@ -31,7 +31,7 @@ namespace Itinero.Algorithms.Default.Edge
     public class Dykstra : AlgorithmBase
     {
         private readonly Graph _graph;
-        private readonly IEnumerable<DirectedEdgePath> _sources;
+        private readonly IEnumerable<EdgePath> _sources;
         private readonly Func<ushort, Factor> _getFactor;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestriction;
         private readonly float _sourceMax;
@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
-            IEnumerable<DirectedEdgePath> sources, float sourceMax, bool backward)
+            IEnumerable<EdgePath> sources, float sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
@@ -52,11 +52,11 @@ namespace Itinero.Algorithms.Default.Edge
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<long, DirectedEdgePath> _visits;
-        private DirectedEdgePath _current;
-        private BinaryHeap<DirectedEdgePath> _heap;
+        private Dictionary<long, EdgePath> _visits;
+        private EdgePath _current;
+        private BinaryHeap<EdgePath> _heap;
         private Dictionary<uint, Factor> _factors;
-        private Dictionary<DirectedEdgePath, LinkedRestriction> _edgeRestrictions;
+        private Dictionary<EdgePath, LinkedRestriction> _edgeRestrictions;
 
         /// <summary>
         /// Executes the algorithm.
@@ -82,11 +82,11 @@ namespace Itinero.Algorithms.Default.Edge
             _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<long, DirectedEdgePath>();
-            _heap = new BinaryHeap<DirectedEdgePath>(1000);
-            _edgeRestrictions = new Dictionary<DirectedEdgePath, LinkedRestriction>();
-            
-            // gets the edge enumerator.
+            _visits = new Dictionary<long, EdgePath>();
+            _heap = new BinaryHeap<EdgePath>(1000);
+            _edgeRestrictions = new Dictionary<EdgePath, LinkedRestriction>();
+
+            // initialize the edge enumerator.
             _edgeEnumerator = _graph.GetEdgeEnumerator();
 
             // queue all sources.
@@ -95,7 +95,7 @@ namespace Itinero.Algorithms.Default.Edge
                 var queue = true;
                 if (_getRestriction != null)
                 {
-                    var sourceVertex = _edgeEnumerator.GetSourceVertex(source.DirectedEdge);
+                    var sourceVertex = _edgeEnumerator.GetSourceVertex(source.Edge);
                     var sourceVertexRestrictions = _getRestriction(sourceVertex);
                     LinkedRestriction linkedRestriction = null;
                     if (sourceVertexRestrictions != null)
@@ -105,7 +105,7 @@ namespace Itinero.Algorithms.Default.Edge
                             if (restriction != null &&
                                 restriction.Length > 1)
                             {
-                                var targetVertex = _edgeEnumerator.GetTargetVertex(source.DirectedEdge);
+                                var targetVertex = _edgeEnumerator.GetTargetVertex(source.Edge);
                                 if (restriction.Length == 2)
                                 { // a restriction of two, an edge is forbidden.
                                     if (restriction[1] == targetVertex)
@@ -147,7 +147,7 @@ namespace Itinero.Algorithms.Default.Edge
             if (_heap.Count > 0)
             { // choose the next vertex.
                 _current = _heap.Pop();
-                while (_current != null && _visits.ContainsKey(_current.DirectedEdge))
+                while (_current != null && _visits.ContainsKey(_current.Edge))
                 { // keep dequeuing.
                     if (_heap.Count == 0)
                     { // nothing more to pop.
@@ -158,9 +158,9 @@ namespace Itinero.Algorithms.Default.Edge
             }
 
             if (_current != null &&
-                !_visits.ContainsKey(_current.DirectedEdge))
+                !_visits.ContainsKey(_current.Edge))
             { // we visit this one, set visit.
-                _visits[_current.DirectedEdge] = _current;
+                _visits[_current.Edge] = _current;
             }
             else
             { // route is not found, there are no vertices left
@@ -170,17 +170,15 @@ namespace Itinero.Algorithms.Default.Edge
 
             // report on visit.
             if (this.WasEdgeFound != null &&
-                this.WasEdgeFound(_current.DirectedEdge, _current.Weight))
+                this.WasEdgeFound(_current.Edge, _current.Weight))
             {
                 return false;
             }
 
             // move to the current edge's target vertex.
-            _edgeEnumerator.MoveToTargetVertex(_current.DirectedEdge);
+            _edgeEnumerator.MoveTo(_current.Vertex);
 
-            // get new restrictions at the 'to' vertex of current and merge with existing restrictions at current.
-            var toVertex = _edgeEnumerator.To;
-            var targetVertex = _edgeEnumerator.From;
+            // get new restrictions at the current vertex.
             LinkedRestriction restrictions = null;
             if (_edgeRestrictions.TryGetValue(_current, out restrictions))
             {
@@ -188,7 +186,7 @@ namespace Itinero.Algorithms.Default.Edge
             }
             if (_getRestriction != null)
             {
-                var targetVertexRestriction = _getRestriction(toVertex);
+                var targetVertexRestriction = _getRestriction(_current.Vertex);
                 if (targetVertexRestriction != null)
                 {
                     foreach (var restriction in targetVertexRestriction)
@@ -216,8 +214,9 @@ namespace Itinero.Algorithms.Default.Edge
             {
                 var edge = _edgeEnumerator;
                 var directedEdgeId = _edgeEnumerator.IdDirected();
+                var neighbour = edge.To;
 
-                if (directedEdgeId == -_current.DirectedEdge)
+                if (directedEdgeId == -_current.Edge)
                 { // don't go back.
                     continue;
                 }
@@ -278,7 +277,7 @@ namespace Itinero.Algorithms.Default.Edge
                     var totalWeight = _current.Weight + (distance * factor.Value);
                     if (totalWeight < _sourceMax)
                     { // update the visit list.
-                        var path = new DirectedEdgePath(directedEdgeId, totalWeight, _current);
+                        var path = new EdgePath(neighbour, totalWeight, directedEdgeId, _current);
                         if (newRestrictions != null)
                         {
                             _edgeRestrictions[path] = newRestrictions;
@@ -295,9 +294,9 @@ namespace Itinero.Algorithms.Default.Edge
         /// </summary>
         /// <remarks>The algorithm will pick up these visits as if it was one it's own.</remarks>
         /// <returns>True if the visit was set successfully.</returns>
-        public bool SetVisit(DirectedEdgePath visit)
+        public bool SetVisit(EdgePath visit)
         {
-            if (!_visits.ContainsKey(visit.DirectedEdge))
+            if (!_visits.ContainsKey(visit.Edge))
             {
                 _heap.Push(visit, visit.Weight);
                 return true;
@@ -308,7 +307,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Returns true if the given edge was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
-        public bool TryGetVisit(long edge, out DirectedEdgePath visit)
+        public bool TryGetVisit(long edge, out EdgePath visit)
         {
             return _visits.TryGetValue(edge, out visit);
         }
@@ -358,7 +357,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public DirectedEdgePath Current
+        public EdgePath Current
         {
             get
             {

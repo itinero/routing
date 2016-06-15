@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System.Collections.Generic;
+
 namespace Itinero.Algorithms
 {
     /// <summary>
@@ -81,6 +83,32 @@ namespace Itinero.Algorithms
                 path = path.From;
             }
             return false;
+        }
+
+
+        /// <summary>
+        /// Adds the vertices in this path to the given list.
+        /// </summary>
+        public static void AddToListReverse(this EdgePath path, List<uint> vertices)
+        {
+            while (path != null)
+            {
+                vertices.Add(path.Vertex);
+                path = path.From;
+            }
+        }
+
+        /// <summary>
+        /// Adds the vertices in this path to the given list.
+        /// </summary>
+        public static void AddToList(this EdgePath path, List<uint> vertices)
+        {
+            var reversed = new List<uint>();
+            path.AddToListReverse(reversed);
+            for (var i = reversed.Count - 1; i >= 0; i--)
+            {
+                vertices.Add(reversed[i]);
+            }
         }
     }
 }

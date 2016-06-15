@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms;
 using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
@@ -28,14 +29,14 @@ namespace Itinero.Algorithms.Default.Edge
     /// </summary>
     public class OneToOneDykstraHelper : AlgorithmBase
     {
-        private readonly Dictionary<long, List<DirectedEdgePath>> _targets;
+        private readonly Dictionary<long, List<EdgePath>> _targets;
         private readonly Dykstra _dykstra;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public OneToOneDykstraHelper(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
-            IEnumerable<DirectedEdgePath> sources, IEnumerable<DirectedEdgePath> targets, float sourceMax, bool backward)
+            IEnumerable<EdgePath> sources, IEnumerable<EdgePath> targets, float sourceMax, bool backward)
         {
             _dykstra = new Dykstra(graph, getFactor, getRestriction, sources, sourceMax, backward);
             _dykstra.WasEdgeFound = (directedEdgeId, weight) =>
@@ -43,28 +44,28 @@ namespace Itinero.Algorithms.Default.Edge
                 return this.WasEdgeFound(directedEdgeId, weight);
             };
 
-            _targets = new Dictionary<long, List<DirectedEdgePath>>();
+            _targets = new Dictionary<long, List<EdgePath>>();
             foreach(var target in targets)
             {
-                List<DirectedEdgePath> paths;
-                if (!_targets.TryGetValue(-target.DirectedEdge, out paths))
+                List<EdgePath> paths;
+                if (!_targets.TryGetValue(-target.Edge, out paths))
                 {
-                    paths = new List<DirectedEdgePath>();
-                    _targets.Add(-target.DirectedEdge, paths);
+                    paths = new List<EdgePath>();
+                    _targets.Add(-target.Edge, paths);
                 }
                 paths.Add(target);
             }
         }
 
-        private DirectedEdgePath _best = null;
+        private EdgePath _best = null;
 
         /// <summary>
         /// Called when an edge was found.
         /// </summary>
         private bool WasEdgeFound(long directedEdgeId, float weight)
         {
-            DirectedEdgePath visit;
-            List<DirectedEdgePath> paths;
+            EdgePath visit;
+            List<EdgePath> paths;
             if (_targets.TryGetValue(directedEdgeId, out paths) &&
                 _dykstra.TryGetVisit(directedEdgeId, out visit))
             {
@@ -74,7 +75,7 @@ namespace Itinero.Algorithms.Default.Edge
                 }
                 foreach (var target in paths)
                 {
-                    var pathToTarget = new DirectedEdgePath(Constants.NO_EDGE, target.Weight + visit.From.Weight,
+                    var pathToTarget = new EdgePath(Constants.NO_VERTEX, target.Weight + visit.From.Weight, Constants.NO_EDGE,
                         visit.From);
                     if (_best == null || pathToTarget.Weight < _best.Weight)
                     {
@@ -99,7 +100,7 @@ namespace Itinero.Algorithms.Default.Edge
         /// <summary>
         /// Gets the best path.
         /// </summary>
-        public DirectedEdgePath BestPath
+        public EdgePath BestPath
         {
             get
             {
@@ -119,7 +120,7 @@ namespace Itinero.Algorithms.Default.Edge
             
             var path = new List<uint>();
             weight = _best.Weight;
-            _best.ToPath(_dykstra.Graph).AddToList(path);
+            _best.AddToList(path);
             return path;
         }
     }
