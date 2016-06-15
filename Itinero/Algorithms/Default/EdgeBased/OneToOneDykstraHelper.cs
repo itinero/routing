@@ -22,7 +22,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Default.Edge
+namespace Itinero.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// A helper class that contains functionality to use the dykstra algorithm as a one-to-one router.

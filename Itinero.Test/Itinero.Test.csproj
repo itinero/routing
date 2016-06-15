@@ -103,7 +103,7 @@
     <Compile Include="Algorithms\Contracted\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Contracted\MockPriorityCalculator.cs" />
     <Compile Include="Algorithms\Contracted\WitnessCalculatorMock.cs" />
-    <Compile Include="Algorithms\Default\Edge\DykstraTests.cs" />
+    <Compile Include="Algorithms\Default\EdgeBased\DykstraTests.cs" />
     <Compile Include="Algorithms\EdgePathTests.cs" />
     <Compile Include="Algorithms\ManyToManyTests.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />

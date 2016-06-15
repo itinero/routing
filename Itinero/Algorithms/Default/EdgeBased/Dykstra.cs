@@ -23,7 +23,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Default.Edge
+namespace Itinero.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// An implementation of the dykstra routing algorithm.

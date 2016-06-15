@@ -236,7 +236,7 @@ namespace Itinero
             { // use the regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var search = new Algorithms.Default.Edge.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 
+                    var search = new Algorithms.Default.EdgeBased.OneToOneDykstraHelper(_db.Network.GeometricGraph.Graph, 
                         getFactor, _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, profile, false),
                             float.MaxValue, false);
                     search.Run();

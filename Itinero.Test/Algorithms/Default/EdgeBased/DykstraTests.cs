@@ -17,13 +17,13 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms;
-using Itinero.Algorithms.Default.Edge;
+using Itinero.Algorithms.Default.EdgeBased;
 using Itinero.Data;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
 
-namespace Itinero.Test.Algorithms.Default.Edge
+namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// Contains tests for the edge-based dykstra algorithm.
