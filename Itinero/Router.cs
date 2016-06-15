@@ -438,7 +438,16 @@ namespace Itinero
             { // use regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    throw new NotSupportedException("Many-to-many calculations without a contracted graph are not supported.");
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany(_db, getFactor, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+                    weights = algorithm.Weights;
                 }
                 else
                 {

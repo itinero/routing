@@ -32,13 +32,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly IList<RouterPoint> _targets;
         private readonly Func<ushort, Factor> _getFactor;
         private readonly float _maxSearch;
+        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public OneToMany(RouterDb routerDb, Profile profile,
+        public OneToMany(RouterDb routerDb, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint source, IList<RouterPoint> targets, float maxSearch)
-            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), source, targets, maxSearch)
+            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), getRestrictions, source, targets, maxSearch)
         {
 
         }
@@ -46,7 +47,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public OneToMany(RouterDb routerDb, Func<ushort, Factor> getFactor,
+        public OneToMany(RouterDb routerDb, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint source, IList<RouterPoint> targets, float maxSearch)
         {
             _routerDb = routerDb;
@@ -54,6 +55,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _source = source;
             _targets = targets;
             _maxSearch = float.MaxValue;
+            _getRestrictions = getRestrictions;
         }
 
         private EdgePath[] _best;
@@ -110,7 +112,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             }
 
             // run the search.
-            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, null,
+            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, _getRestrictions,
                 sourcePaths, max, false);
             dykstra.WasEdgeFound += (v1, w1, distance, path) =>
             {

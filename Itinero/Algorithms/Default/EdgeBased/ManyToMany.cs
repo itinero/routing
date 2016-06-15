@@ -18,6 +18,7 @@
 
 using Itinero.Profiles;
 using System;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Default.EdgeBased
 {
@@ -31,14 +32,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
         private readonly float _maxSearch;
+        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, Profile profile,
+        public ManyToMany(RouterDb routerDb, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
-            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), sources, targets, maxSearch)
+            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), getRestrictions, sources, targets, maxSearch)
         {
 
         }
@@ -46,7 +48,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, Func<ushort, Factor> getFactor,
+        public ManyToMany(RouterDb routerDb, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
         {
@@ -55,6 +57,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _sources = sources;
             _targets = targets;
             _maxSearch = maxSearch;
+            _getRestrictions = getRestrictions;
         }
 
         private OneToMany[] _sourceSearches;
@@ -68,7 +71,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _sourceSearches = new OneToMany[_sources.Length];
             for (var i = 0; i < _sources.Length; i++)
             {
-                _sourceSearches[i] = new OneToMany(_routerDb, _getFactor, _sources[i], _targets, _maxSearch);
+                _sourceSearches[i] = new OneToMany(_routerDb, _getFactor, _getRestrictions, _sources[i], _targets, _maxSearch);
                 _sourceSearches[i].Run();
             }
 

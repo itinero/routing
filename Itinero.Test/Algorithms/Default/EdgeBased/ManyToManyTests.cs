@@ -52,7 +52,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             });
 
             // run algorithm.
-            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(), (x) => new uint[0][],
                 new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) }, float.MaxValue);
             algorithm.Run();
@@ -95,7 +95,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             });
 
             // run algorithm.
-            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(), (x) => new uint[0][],
                 new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) }, float.MaxValue);
             algorithm.Run();
@@ -165,7 +165,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             });
 
             // run algorithm (0, 1, 2)->(0, 1, 2).
-            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToMany(routerDb, MockProfile.CarMock(), (x) => new uint[0][],
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
