@@ -18,6 +18,7 @@
 
 using Itinero.Profiles;
 using System;
+using Itinero.Graphs.Directed;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -100,6 +101,16 @@ namespace Itinero.Algorithms.Weights
         public sealed override float GetMetric(float weight)
         {
             return weight;
+        }
+
+        /// <summary>
+        /// Adds a new edge with the given weight.
+        /// </summary>
+        public override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
+        {
+            var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
+                weight, direction);
+            graph.AddEdge(vertex1, vertex2, data, contractedId);
         }
     }
 }

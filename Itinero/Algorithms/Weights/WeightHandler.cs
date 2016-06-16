@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 
 namespace Itinero.Algorithms.Weights
@@ -51,6 +52,12 @@ namespace Itinero.Algorithms.Weights
         /// Gets the actual metric the algorithm should be using to determine shortest paths.
         /// </summary>
         public abstract float GetMetric(T weight);
+
+        /// <summary>
+        /// Adds a new edge to a graph with the given weight.
+        /// </summary>
+        public abstract void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, 
+            bool? direction, T weight);
 
         /// <summary>
         /// Returns the weight that represents 'zero'.
