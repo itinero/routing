@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
@@ -25,61 +26,52 @@ namespace Itinero.Algorithms.Default.EdgeBased
     /// <summary>
     /// An algorithm to calculate one-to-many weights/paths.
     /// </summary>
-    public class OneToMany : AlgorithmBase
+    public class OneToMany<T> : AlgorithmBase
+        where T : struct
     {
         private readonly RouterDb _routerDb;
         private readonly RouterPoint _source;
         private readonly IList<RouterPoint> _targets;
-        private readonly Func<ushort, Factor> _getFactor;
+        private readonly WeightHandler<T> _weightHandler;
         private readonly float _maxSearch;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public OneToMany(RouterDb routerDb, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
-            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
-            : this(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), getRestrictions, source, targets, maxSearch)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new algorithm.
-        /// </summary>
-        public OneToMany(RouterDb routerDb, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions,
+        public OneToMany(RouterDb routerDb, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint source, IList<RouterPoint> targets, float maxSearch)
         {
             _routerDb = routerDb;
-            _getFactor = getFactor;
+            _weightHandler = weightHandler;
             _source = source;
             _targets = targets;
             _maxSearch = float.MaxValue;
             _getRestrictions = getRestrictions;
         }
 
-        private EdgePath<float>[] _best;
+        private EdgePath<T>[] _best;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            _best = new EdgePath<float>[_targets.Count];
+            _best = new EdgePath<T>[_targets.Count];
 
             // register the targets and determine one-edge-paths.
-            var sourcePaths = _source.ToEdgePaths(_routerDb, _getFactor, true);
+            var sourcePaths = _source.ToEdgePaths(_routerDb, _weightHandler, true);
             var targetIndexesPerEdge = new Dictionary<uint, LinkedTarget>();
-            var targetPaths = new IEnumerable<EdgePath<float>>[_targets.Count];
+            var targetPaths = new IEnumerable<EdgePath<T>>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
-                var targets = _targets[i].ToEdgePaths(_routerDb, _getFactor, false);
+                var targets = _targets[i].ToEdgePaths(_routerDb, _weightHandler, false);
                 targetPaths[i] = targets;
 
                 // determine one-edge-paths.
                 if (_source.EdgeId == _targets[i].EdgeId)
                 { // on same edge.
-                    _best[i] = _source.EdgePathTo(_routerDb, _getFactor, _targets[i]);
+                    _best[i] = _source.EdgePathTo(_routerDb, _weightHandler, _targets[i]);
                 }
 
                 // register targets.
@@ -104,15 +96,16 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 else
                 {
-                    if (_best[s].Weight > max)
+                    var metric = _weightHandler.GetMetric(_best[s].Weight);
+                    if (metric > max)
                     {
-                        max = _best[s].Weight;
+                        max = metric;
                     }
                 }
             }
 
             // run the search.
-            var dykstra = new Dykstra(_routerDb.Network.GeometricGraph.Graph, _getFactor, _getRestrictions,
+            var dykstra = new Dykstra<T>(_routerDb.Network.GeometricGraph.Graph, _weightHandler, _getRestrictions,
                 sourcePaths, max, false);
             dykstra.WasEdgeFound += (v1, w1, distance, path) =>
             {
@@ -126,9 +119,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         {
                             if (targetPath.Vertex == path.Vertex)
                             { // there is a path here.
-                                var fullPath = path.Append(targetPath);
+                                var fullPath = path.Append(targetPath, _weightHandler);
                                 if (best == null ||
-                                   fullPath.Weight < best.Weight)
+                                   _weightHandler.IsSmallerThan(fullPath.Weight, best.Weight))
                                 { // not a best path yet, just add this one.
                                     best = fullPath;
                                 }
@@ -154,7 +147,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Gets the path to the given target.
         /// </summary>
         /// <returns></returns>
-        public EdgePath<float> GetPath(int target)
+        public EdgePath<T> GetPath(int target)
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -169,14 +162,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Gets the weights.
         /// </summary>
-        public float[] Weights
+        public T[] Weights
         {
             get
             {
-                var weights = new float[_best.Length];
+                var weights = new T[_best.Length];
                 for (var i = 0; i < _best.Length; i++)
                 {
-                    weights[i] = float.MaxValue;
+                    weights[i] = _weightHandler.Infinite;
                     if (_best[i] != null)
                     {
                         weights[i] = _best[i].Weight;
@@ -191,6 +184,42 @@ namespace Itinero.Algorithms.Default.EdgeBased
             public int Target { get; set; }
 
             public LinkedTarget Next { get; set; }
+        }
+    }
+
+    /// <summary>
+    /// An algorithm to calculate one-to-many weights/paths.
+    /// </summary>
+    public sealed class OneToMany : OneToMany<float>
+    {
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public OneToMany(RouterDb routerDb, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
+            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
+            : base(routerDb, profile.DefaultWeightHandler(routerDb), getRestrictions, source, targets, maxSearch)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public OneToMany(RouterDb routerDb, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions,
+            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
+            : base(routerDb, new DefaultWeightHandler(getFactor), getRestrictions, source, targets, maxSearch)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public OneToMany(RouterDb routerDb, DefaultWeightHandler weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
+            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
+            : base(routerDb, weightHandler, getRestrictions, source, targets, maxSearch)
+        {
+
         }
     }
 }

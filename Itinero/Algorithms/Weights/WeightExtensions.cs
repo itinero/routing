@@ -16,26 +16,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Algorithms
+namespace Itinero.Algorithms.Weights
 {
     /// <summary>
-    /// A structure that represents a weight augmented with time and distance.
+    /// Contains extensions methods related to weight calculations.
     /// </summary>
-    public struct Weight
+    public static class WeightExtensions
     {
-        /// <summary>
-        /// Gets or sets the weight.
-        /// </summary>
-        public float Value { get; set; }
 
-        /// <summary>
-        /// Gets or sets the time in seconds.
-        /// </summary>
-        public float Time { get; set; }
-
-        /// <summary>
-        /// Get or sets the distance in meters.
-        /// </summary>
-        public float Distance { get; set; }
     }
 }

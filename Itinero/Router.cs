@@ -27,8 +27,8 @@ using System;
 using System.Collections.Generic;
 using Itinero.Data.Contracted;
 using Itinero.Data.Edges;
-using Itinero.Data.Network.Restrictions;
 using Itinero.Algorithms;
+using Itinero.Algorithms.Weights;
 
 namespace Itinero
 {
@@ -153,12 +153,12 @@ namespace Itinero
                 });
             }
 
-            // get the get factor function.
-            var getFactor = this.GetGetFactor(profile);
+            // get the weight handler.
+            var weightHandler = this.GetWeightHandler(profile);
      
             // build and run dykstra search.
-            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                point.ToEdgePaths(_db, getFactor, true), radiusInMeters, false);
+            var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                point.ToEdgePaths(_db, weightHandler, true), radiusInMeters, false);
             dykstra.Run();
             if (!dykstra.HasSucceeded)
             { // something went wrong.
@@ -180,9 +180,9 @@ namespace Itinero
                     return new Exception(message);
                 });
             }
-
-            // get the get factor function.
-            var getFactor = this.GetGetFactor(profile);
+            
+            // get the weight handler.
+            var weightHandler = this.GetWeightHandler(profile);
 
             List<uint> path;
             float pathWeight;
@@ -207,7 +207,7 @@ namespace Itinero
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
                     var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
-                        source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, getFactor, false));
+                        source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -221,7 +221,7 @@ namespace Itinero
                 else
                 { // use edge-based routing.
                     var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
-                        source.ToEdgePaths(_db, getFactor, true), target.ToEdgePaths(_db, getFactor, false), _db.GetGetRestrictions(profile, null));
+                        source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -237,12 +237,12 @@ namespace Itinero
             { // use the regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
-                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, getFactor, true), float.MaxValue, false);
-                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, getFactor, 
-                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, profile, false), float.MaxValue, true);
+                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, weightHandler, true), float.MaxValue, false);
+                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, weightHandler, false), float.MaxValue, true);
 
-                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra(sourceSearch, targetSearch);
+                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -255,12 +255,12 @@ namespace Itinero
                 }
                 else
                 {
-                    var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                        source.ToEdgePaths(_db, getFactor, true), float.MaxValue, false);
-                    var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, getFactor, null,
-                        target.ToEdgePaths(_db, profile, false), float.MaxValue, true);
+                    var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                        source.ToEdgePaths(_db, weightHandler, true), float.MaxValue, false);
+                    var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                        target.ToEdgePaths(_db, weightHandler, false), float.MaxValue, true);
 
-                    var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch);
+                    var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -275,7 +275,7 @@ namespace Itinero
 
             if(source.EdgeId == target.EdgeId)
             { // check for a shorter path on the same edge.
-                var edgePath = source.EdgePathTo(_db, profile, target);
+                var edgePath = source.EdgePathTo(_db, weightHandler, target);
                 if(edgePath != null &&
                    edgePath.Weight < pathWeight)
                 {
@@ -323,9 +323,9 @@ namespace Itinero
                 });
             }
 
-            // get the get factor function.
-            var getFactor = this.GetGetFactor(profile);
-            
+            // get the weight handler.
+            var weightHandler = this.GetWeightHandler(profile);
+
             ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
             {
@@ -334,7 +334,7 @@ namespace Itinero
             }
 
             // use non-contracted calculation.
-            var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, getFactor, sources, targets, float.MaxValue);
+            var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, weightHandler, sources, targets, float.MaxValue);
             algorithm.Run();
             if (!algorithm.HasSucceeded)
             {
@@ -385,8 +385,8 @@ namespace Itinero
                 });
             }
 
-            // get the get factor function.
-            var getFactor = this.GetGetFactor(profile);
+            // get the weight handler.
+            var weightHandler = this.GetWeightHandler(profile);
 
             ContractedDb contracted;
             float[][] weights = null;
@@ -438,7 +438,7 @@ namespace Itinero
             { // use regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany(_db, getFactor, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany(_db, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
@@ -451,7 +451,7 @@ namespace Itinero
                 }
                 else
                 {
-                    var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, getFactor, sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, weightHandler, sources, targets, float.MaxValue);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
@@ -536,20 +536,20 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets the get factor function for the given profile.
+        /// Gets the default weight handler for the given profile.
         /// </summary>
-        protected Func<ushort, Factor> GetGetFactor(Profile profile)
+        protected DefaultWeightHandler GetWeightHandler(Profile profile)
         {
             if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profile))
             { // use cached version and don't consult profiles anymore.
-                return this.ProfileFactorCache.GetGetFactor(profile);
+                return new DefaultWeightHandler(this.ProfileFactorCache.GetGetFactor(profile));
             }
             else
             { // use the regular function, and consult profiles continuously.
-                return (p) =>
+                return new DefaultWeightHandler((p) =>
                 {
                     return profile.Factor(Db.EdgeProfiles.Get(p));
-                };
+                });
             }
         }
 
@@ -560,8 +560,7 @@ namespace Itinero
         {
             if(this.CustomRouteBuilder != null)
             { // there is a custom route builder.
-                return this.CustomRouteBuilder(_db, profile, this.GetGetFactor(profile), 
-                    source, target, path);
+                return this.CustomRouteBuilder(_db, profile, source, target, path);
             }
 
             // use the default.

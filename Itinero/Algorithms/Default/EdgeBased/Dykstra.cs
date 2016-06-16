@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.PriorityQueues;
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using Itinero.Profiles;
@@ -28,11 +29,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
     /// <summary>
     /// An implementation of the dykstra routing algorithm.
     /// </summary>
-    public class Dykstra : AlgorithmBase
+    public class Dykstra<T> : AlgorithmBase
+        where T : struct
     {
         private readonly Graph _graph;
-        private readonly IEnumerable<EdgePath<float>> _sources;
-        private readonly Func<ushort, Factor> _getFactor;
+        private readonly IEnumerable<EdgePath<T>> _sources;
+        private readonly WeightHandler<T> _weightHandler;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
@@ -40,23 +42,23 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
-            IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
+        public Dykstra(Graph graph, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestriction,
+            IEnumerable<EdgePath<T>> sources, float sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
-            _getFactor = getFactor;
+            _weightHandler = weightHandler;
             _sourceMax = sourceMax;
             _backward = backward;
             _getRestriction = getRestriction;
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<long, EdgePath<float>> _visits;
-        private EdgePath<float> _current;
-        private BinaryHeap<EdgePath<float>> _heap;
+        private Dictionary<long, EdgePath<T>> _visits;
+        private EdgePath<T> _current;
+        private BinaryHeap<EdgePath<T>> _heap;
         private Dictionary<uint, Factor> _factors;
-        private Dictionary<EdgePath<float>, LinkedRestriction> _edgeRestrictions;
+        private Dictionary<EdgePath<T>, LinkedRestriction> _edgeRestrictions;
 
         /// <summary>
         /// Executes the algorithm.
@@ -82,9 +84,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<long, EdgePath<float>>();
-            _heap = new BinaryHeap<EdgePath<float>>(1000);
-            _edgeRestrictions = new Dictionary<EdgePath<float>, LinkedRestriction>();
+            _visits = new Dictionary<long, EdgePath<T>>();
+            _heap = new BinaryHeap<EdgePath<T>>(1000);
+            _edgeRestrictions = new Dictionary<EdgePath<T>, LinkedRestriction>();
 
             // initialize the edge enumerator.
             _edgeEnumerator = _graph.GetEdgeEnumerator();
@@ -132,7 +134,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 if (queue)
                 {
-                    _heap.Push(source, source.Weight);
+                    _heap.Push(source, _weightHandler.GetMetric(source.Weight));
                 }
             }
         }
@@ -173,13 +175,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         ushort edgeProfile;
                         EdgeDataSerializer.Deserialize(_edgeEnumerator.Data0, out distance, out edgeProfile);
                         var factor = Factor.NoFactor;
-                        if (!_factors.TryGetValue(edgeProfile, out factor))
-                        { // speed not there, calculate speed.
-                            factor = _getFactor(edgeProfile);
-                            _factors.Add(edgeProfile, factor);
-                        }
+                        var edgeWeight = _weightHandler.Calculate(edgeProfile, distance, out factor);
 
-                        if (this.WasEdgeFound(_edgeEnumerator.From, _current.Weight - (distance * factor.Value), distance, _current))
+                        if (this.WasEdgeFound(_edgeEnumerator.From, _weightHandler.Subtract(_current.Weight, edgeWeight), distance, _current))
                         {
                             return true;
                         }
@@ -248,11 +246,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 ushort edgeProfile;
                 EdgeDataSerializer.Deserialize(edge.Data0, out distance, out edgeProfile);
                 var factor = Factor.NoFactor;
-                if (!_factors.TryGetValue(edgeProfile, out factor))
-                { // speed not there, calculate speed.
-                    factor = _getFactor(edgeProfile);
-                    _factors.Add(edgeProfile, factor);
-                }
+                var edgeWeight = _weightHandler.Calculate(edgeProfile, distance, out factor);
 
                 // check the tags against the interpreter.
                 if (factor.Value > 0 && (factor.Direction == 0 ||
@@ -291,16 +285,16 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     }
 
                     // calculate neighbors weight.
-                    var totalWeight = _current.Weight + (distance * factor.Value);
-                    if (totalWeight < _sourceMax)
+                    var totalWeight = _weightHandler.Add(_current.Weight, edgeWeight);
+                    if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
                         
-                        var path = new EdgePath<float>(neighbour, totalWeight, directedEdgeId, _current);
+                        var path = new EdgePath<T>(neighbour, totalWeight, directedEdgeId, _current);
                         if (newRestrictions != null)
                         {
                             _edgeRestrictions[path] = newRestrictions;
                         }
-                        _heap.Push(path, totalWeight);
+                        _heap.Push(path, _weightHandler.GetMetric(totalWeight));
                     }
                 }
             }
@@ -312,11 +306,11 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// </summary>
         /// <remarks>The algorithm will pick up these visits as if it was one it's own.</remarks>
         /// <returns>True if the visit was set successfully.</returns>
-        public bool SetVisit(EdgePath<float> visit)
+        public bool SetVisit(EdgePath<T> visit)
         {
             if (!_visits.ContainsKey(visit.Edge))
             {
-                _heap.Push(visit, visit.Weight);
+                _heap.Push(visit, _weightHandler.GetMetric(visit.Weight));
                 return true;
             }
             return false;
@@ -325,7 +319,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Returns true if the given edge was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
-        public bool TryGetVisit(long edge, out EdgePath<float> visit)
+        public bool TryGetVisit(long edge, out EdgePath<T> visit)
         {
             return _visits.TryGetValue(edge, out visit);
         }
@@ -344,7 +338,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <param name="length">The length of the current edge.</param>
         /// <param name="path">The path that leads to this edge.</param>
         /// <returns></returns>
-        public delegate bool WasEdgeFoundDelegate(uint vertex1, float weight1, float length, EdgePath<float> path);
+        public delegate bool WasEdgeFoundDelegate(uint vertex1, T weight1, float length, EdgePath<T> path);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
@@ -380,7 +374,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public EdgePath<float> Current
+        public EdgePath<T> Current
         {
             get
             {
@@ -419,6 +413,32 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 return false;
             }
+        }
+    }
+
+    /// <summary>
+    /// An implementation of the dykstra routing algorithm.
+    /// </summary>
+    public sealed class Dykstra : Dykstra<float>
+    {
+        /// <summary>
+        /// Creates a new one-to-all dykstra algorithm instance.
+        /// </summary>
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestriction,
+            IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
+            : base(graph, new DefaultWeightHandler(getFactor), getRestriction, sources, sourceMax, backward)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new one-to-all dykstra algorithm instance.
+        /// </summary>
+        public Dykstra(Graph graph, DefaultWeightHandler weightHandler, Func<uint, IEnumerable<uint[]>> getRestriction,
+            IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
+            : base(graph, weightHandler, getRestriction, sources, sourceMax, backward)
+        {
+
         }
     }
 }

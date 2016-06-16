@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.PriorityQueues;
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using Itinero.Profiles;
@@ -26,20 +27,22 @@ using System.Collections.Generic;
 namespace Itinero.Algorithms.Default
 {
     /// <summary>
-    /// An abstract implementation of the dykstra routing algorithm.
+    /// An implementation of the dykstra routing algorithm.
     /// </summary>
-    public abstract class Dykstra<T> : AlgorithmBase
+    public class Dykstra<T> : AlgorithmBase
+        where T : struct
     {
         private readonly Graph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly Func<uint, uint> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<uint, uint> getRestriction,
+        public Dykstra(Graph graph, Func<uint, uint> getRestriction, WeightHandler<T> weightHandler,
             IEnumerable<EdgePath<T>> sources, float sourceMax, bool backward)
         {
             _graph = graph;
@@ -47,6 +50,7 @@ namespace Itinero.Algorithms.Default
             _sourceMax = sourceMax;
             _backward = backward;
             _getRestriction = getRestriction;
+            _weightHandler = weightHandler;
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
@@ -81,7 +85,7 @@ namespace Itinero.Algorithms.Default
             // queue all sources.
             foreach (var source in _sources)
             {
-                _heap.Push(source, this.GetWeight(source.Weight));
+                _heap.Push(source, _weightHandler.GetMetric(source.Weight));
             }
 
             // gets the edge enumerator.
@@ -163,7 +167,7 @@ namespace Itinero.Algorithms.Default
                 ushort edgeProfile;
                 EdgeDataSerializer.Deserialize(edge.Data0, out distance, out edgeProfile);
                 var factor = Factor.NoFactor;
-                var totalWeight = this.AddWeight(_current.Weight, edgeProfile, distance, out factor);
+                var totalWeight = _weightHandler.Add(_current.Weight, edgeProfile, distance, out factor);
 
                 // check the tags against the interpreter.
                 if (factor.Value > 0 && (factor.Direction == 0 ||
@@ -192,25 +196,15 @@ namespace Itinero.Algorithms.Default
                         }
                     }
 
-                    if (this.GetWeight(totalWeight) < _sourceMax)
+                    if (_weightHandler.GetMetric(totalWeight) < _sourceMax)
                     { // update the visit list.
                         _heap.Push(new EdgePath<T>(neighbour, totalWeight, _current),
-                            this.GetWeight(totalWeight));
+                            _weightHandler.GetMetric(totalWeight));
                     }
                 }
             }
             return true;
         }
-
-        /// <summary>
-        /// Adds weight to the given weight using the edge profile and the distance.
-        /// </summary>
-        protected abstract T AddWeight(T weight, ushort edgeProfile, float distance, out Factor factor);
-
-        /// <summary>
-        /// Gets the weight value from the weight.
-        /// </summary>
-        protected abstract float GetWeight(T weight);
 
         /// <summary>
         /// Sets a visit on a vertex from an external source (like a transit-algorithm).
@@ -221,7 +215,7 @@ namespace Itinero.Algorithms.Default
         {
             if (!_visits.ContainsKey(visit.Vertex))
             {
-                _heap.Push(visit, this.GetWeight(visit.Weight));
+                _heap.Push(visit, _weightHandler.GetMetric(visit.Weight));
                 return true;
             }
             return false;
@@ -312,101 +306,28 @@ namespace Itinero.Algorithms.Default
     }
 
     /// <summary>
-    /// An implementation of the dykstra algorithm.
+    /// A default implementation of the generic dykstra algorithm.
     /// </summary>
     public sealed class Dykstra : Dykstra<float>
     {
-        private readonly Func<ushort, Factor> _getFactor;
-
         /// <summary>
-        /// Creates a new instance of the dykstra algorithm.
+        /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint> getRestriction,
             IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
-            : base(graph, getRestriction, sources, sourceMax, backward)
+            : base(graph, getRestriction, new DefaultWeightHandler(getFactor), sources, sourceMax, backward)
         {
-            _getFactor = getFactor;
 
-            _factors = new Dictionary<uint, Factor>();
-        }
-
-        private Dictionary<uint, Factor> _factors;
-        
-        /// <summary>
-        /// Adds weight to the given weight using the edge profile and the distance.
-        /// </summary>
-        protected sealed override float AddWeight(float weight, ushort edgeProfile, float distance, out Factor factor)
-        {
-            if (!_factors.TryGetValue(edgeProfile, out factor))
-            { // speed not there, calculate speed.
-                factor = _getFactor(edgeProfile);
-                _factors.Add(edgeProfile, factor);
-            }
-
-            return weight + distance * factor.Value;
         }
 
         /// <summary>
-        /// Gets weight value from the weight.
+        /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        protected sealed override float GetWeight(float weight)
+        public Dykstra(Graph graph, DefaultWeightHandler weightHandler, Func<uint, uint> getRestriction,
+            IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
+            : base(graph, getRestriction, weightHandler, sources, sourceMax, backward)
         {
-            return weight;
-        }
-    }
 
-    /// <summary>
-    /// An implementation of the dykstra algorithm with augmented weight.
-    /// </summary>
-    public sealed class DykstraAugmented : Dykstra<Weight>
-    {
-        private readonly Func<ushort, FactorAndSpeed> _getFactorAndSpeed;
-
-        /// <summary>
-        /// Creates a new instance of the dykstra algorithm.
-        /// </summary>
-        public DykstraAugmented(Graph graph, Func<ushort, FactorAndSpeed> getFactorAndSpeed, Func<uint, uint> getRestriction,
-            IEnumerable<EdgePath<Weight>> sources, float sourceMax, bool backward)
-            : base(graph, getRestriction, sources, sourceMax, backward)
-        {
-            _getFactorAndSpeed = getFactorAndSpeed;
-
-            _factorsAndSpeed = new Dictionary<uint, FactorAndSpeed>();
-        }
-
-        private Dictionary<uint, FactorAndSpeed> _factorsAndSpeed;
-
-        /// <summary>
-        /// Adds weight to the given weight using the edge profile and the distance.
-        /// </summary>
-        protected sealed override Weight AddWeight(Weight weight, ushort edgeProfile, float distance, out Factor factor)
-        {
-            FactorAndSpeed factorAndSpeed;
-            if (!_factorsAndSpeed.TryGetValue(edgeProfile, out factorAndSpeed))
-            { // speed not there, calculate speed.
-                factorAndSpeed = _getFactorAndSpeed(edgeProfile);
-                _factorsAndSpeed.Add(edgeProfile, factorAndSpeed);
-            }
-
-            factor = new Factor()
-            {
-                Direction = factorAndSpeed.Direction,
-                Value = factorAndSpeed.Value
-            };
-            return new Weight()
-            {
-                Distance = weight.Distance + distance,
-                Time = weight.Time + (distance * factorAndSpeed.Speed),
-                Value = weight.Value + (distance * factorAndSpeed.Value)
-            };
-        }
-
-        /// <summary>
-        /// Gets weight value from the weight.
-        /// </summary>
-        protected sealed override float GetWeight(Weight weight)
-        {
-            return weight.Value;
         }
     }
 }

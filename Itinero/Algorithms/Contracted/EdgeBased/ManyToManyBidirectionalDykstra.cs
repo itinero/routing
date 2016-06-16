@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
@@ -31,7 +32,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     {
         private readonly RouterDb _routerDb;
         private readonly DirectedDynamicGraph _graph;
-        private readonly Func<ushort, Factor> _getFactor;
+        private readonly DefaultWeightHandler _weightHandler;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
         private readonly Dictionary<uint, Dictionary<int, float>> _buckets;
@@ -53,7 +54,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             RouterPoint[] targets)
         {
             _routerDb = routerDb;
-            _getFactor = getFactor;
+            _weightHandler = new DefaultWeightHandler(getFactor);
             _sources = sources;
             _targets = targets;
 
@@ -93,7 +94,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                     if(target.EdgeId == source.EdgeId)
                     {
-                        var path = source.EdgePathTo(_routerDb, _getFactor, target);
+                        var path = source.EdgePathTo(_routerDb, _weightHandler, target);
                         if (path != null)
                         {
                             _weights[i][j] = path.Weight;
@@ -105,7 +106,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra(_graph, _sources[i].ToEdgePaths(_routerDb, _getFactor, true), false);
+                var forward = new Dykstra(_graph, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), false);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -116,7 +117,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra(_graph, _targets[i].ToEdgePaths(_routerDb, _getFactor, false), true);
+                var backward = new Dykstra(_graph, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), true);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);

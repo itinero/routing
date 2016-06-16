@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
+using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
@@ -24,32 +26,35 @@ namespace Itinero.Algorithms.Default.EdgeBased
     /// <summary>
     /// An implementation of the bi-directional dykstra algorithm.
     /// </summary>
-    public class BidirectionalDykstra : AlgorithmBase
+    public class BidirectionalDykstra<T> : AlgorithmBase
+        where T : struct
     {
-        private readonly Dykstra _sourceSearch;
-        private readonly Dykstra _targetSearch;
+        private readonly Dykstra<T> _sourceSearch;
+        private readonly Dykstra<T> _targetSearch;
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new instance of search algorithm.
         /// </summary>
-        public BidirectionalDykstra(Dykstra sourceSearch, Dykstra targetSearch)
+        public BidirectionalDykstra(Dykstra<T> sourceSearch, Dykstra<T> targetSearch, WeightHandler<T> weightHandler)
         {
             _sourceSearch = sourceSearch;
             _targetSearch = targetSearch;
+            _weightHandler = weightHandler;
         }
 
-        private Tuple<EdgePath<float>, EdgePath<float>, float> _best = null;
-        private float _maxForward = float.MaxValue;
-        private float _maxBackward = float.MaxValue;
+        private Tuple<EdgePath<T>, EdgePath<T>, T> _best = null;
+        private T _maxForward;
+        private T _maxBackward;
 
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(null, null, float.MaxValue);
-            _maxForward = float.MinValue;
-            _maxBackward = float.MinValue;
+            _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(null, null, _weightHandler.Infinite);
+            _maxForward = _weightHandler.Zero;
+            _maxBackward = _weightHandler.Zero;
             _sourceSearch.WasEdgeFound = (v1, w1, length, edge) =>
             {
                 _maxForward = edge.Weight;
@@ -68,12 +73,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
             while (source || target)
             {
                 source = false;
-                if (_maxForward < _best.Item3)
+                if (_weightHandler.IsSmallerThan(_maxForward, _best.Item3))
                 { // still a need to search, not best found or max < best.
                     source = _sourceSearch.Step();
                 }
                 target = false;
-                if (_maxBackward < _best.Item3)
+                if (_weightHandler.IsSmallerThan(_maxBackward, _best.Item3))
                 { // still a need to search, not best found or max < best.
                     target = _targetSearch.Step();
                 }
@@ -89,17 +94,17 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Called when a vertex was reached during a backward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedBackward(uint vertex1, float weight1, float length, EdgePath<float> edge)
+        private bool ReachedBackward(uint vertex1, T weight1, float length, EdgePath<T> edge)
         {
             // check forward search for the same vertex.
-            EdgePath<float> forwardVisit;
+            EdgePath<T> forwardVisit;
             if (_sourceSearch.TryGetVisit(-edge.Edge, out forwardVisit))
             { // there is a status for this vertex in the source search.
-                var localWeight = edge.Weight - weight1;
-                var totalWeight = edge.Weight + forwardVisit.Weight - localWeight;
-                if (totalWeight < _best.Item3)
+                var localWeight = _weightHandler.Subtract(edge.Weight, weight1);
+                var totalWeight = _weightHandler.Subtract(_weightHandler.Add(edge.Weight, forwardVisit.Weight), localWeight);
+                if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this vertex is a better match.
-                    _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(forwardVisit, edge, totalWeight);
+                    _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, edge, totalWeight);
                     this.HasSucceeded = true;
                 }
             }
@@ -109,7 +114,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Returns the source-search algorithm.
         /// </summary>
-        public Dykstra SourceSearch
+        public Dykstra<T> SourceSearch
         {
             get
             {
@@ -120,7 +125,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Returns the target-search algorithm.
         /// </summary>
-        public Dykstra TargetSearch
+        public Dykstra<T> TargetSearch
         {
             get
             {
@@ -145,16 +150,16 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Gets the path from source->target.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath(out float weight)
+        public List<uint> GetPath(out T weight)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            weight = 0;
+            weight = _weightHandler.Zero;
             var fromSource = _best.Item1;
             var toTarget = _best.Item2;
 
             var path = new List<uint>();
-            weight = fromSource.Weight + toTarget.Weight;
+            weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
             fromSource.AddToList(path);
             path.RemoveAt(path.Count - 1);
             if (toTarget.From != null)
@@ -170,8 +175,32 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <returns></returns>
         public List<uint> GetPath()
         {
-            float weight;
+            T weight;
             return this.GetPath(out weight);
+        }
+    }
+
+    /// <summary>
+    /// An implementation of the bi-directional dykstra algorithm.
+    /// </summary>
+    public sealed class BidirectionalDykstra : BidirectionalDykstra<float>
+    {
+        /// <summary>
+        /// Creates a new instance of the search algorithm.
+        /// </summary>
+        public BidirectionalDykstra(Dykstra sourceSearch, Dykstra targetSearch, Func<ushort, Factor> getFactor)
+            : base(sourceSearch, targetSearch, new DefaultWeightHandler(getFactor))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new instance of the search algorithm.
+        /// </summary>
+        public BidirectionalDykstra(Dykstra sourceSearch, Dykstra targetSearch, DefaultWeightHandler weightHandler)
+            : base(sourceSearch, targetSearch, weightHandler)
+        {
+
         }
     }
 }

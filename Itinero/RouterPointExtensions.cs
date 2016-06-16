@@ -24,6 +24,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using Itinero.Data.Edges;
+using Itinero.Algorithms.Weights;
 
 namespace Itinero
 {
@@ -35,7 +36,8 @@ namespace Itinero
         /// <summary>
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
-        public static EdgePath<float>[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Func<ushort, Factor> getFactor, bool asSource)
+        public static EdgePath<T>[] ToEdgePaths<T>(this RouterPoint point, RouterDb routerDb, WeightHandler<T> weightHandler, bool asSource)
+            where T : struct
         {
             var graph = routerDb.Network.GeometricGraph;
             var edge = graph.GetEdge(point.EdgeId);
@@ -43,29 +45,29 @@ namespace Itinero
             float distance;
             ushort profileId;
             EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
-            var factor = getFactor(profileId);
-            var length = distance;
+            Factor factor;
+            var edgeWeight = weightHandler.Calculate(profileId, distance, out factor);
 
             var offset = point.Offset / (float)ushort.MaxValue;
             if (factor.Direction == 0)
             { // bidirectional.
                 if (offset == 0)
                 { // the first part is just the first vertex.
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.From),
-                        new EdgePath<float>(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath<float>(edge.From))
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.From),
+                        new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>(edge.From))
                     };
                 }
                 else if (offset == 1)
                 { // the second path it just the second vertex.
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath<float>(edge.To)),
-                        new EdgePath<float>(edge.To)
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To)),
+                        new EdgePath<T>(edge.To)
                     };
                 }
-                return new EdgePath<float>[] {
-                    new EdgePath<float>(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath<float>()),
-                    new EdgePath<float>(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath<float>())
+                return new EdgePath<T>[] {
+                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>()),
+                    new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
                 };
             }
             else if (factor.Direction == 1)
@@ -74,36 +76,36 @@ namespace Itinero
                 {
                     if (offset == 1)
                     { // just return the to-vertex.
-                        return new EdgePath<float>[] {
-                            new EdgePath<float>(edge.To)
+                        return new EdgePath<T>[] {
+                            new EdgePath<T>(edge.To)
                         };
                     }
                     if (offset == 0)
                     { // return both, we are at the from-vertex.
-                        return new EdgePath<float>[] {
-                            new EdgePath<float>(edge.From),
-                            new EdgePath<float>(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath<float>(edge.From))
+                        return new EdgePath<T>[] {
+                            new EdgePath<T>(edge.From),
+                            new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>(edge.From))
                         };
                     }
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath<float>())
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
                     };
                 }
                 if (offset == 0)
                 { // just return the from vertex.
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.From)
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.From)
                     };
                 }
                 if (offset == 1)
                 { // return both, we are at the to-vertex.
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.To),
-                        new EdgePath<float>(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath<float>(edge.To))
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.To),
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
                     };
                 }
-                return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath<float>())
+                return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
                     };
             }
             else
@@ -112,48 +114,40 @@ namespace Itinero
                 {
                     if (offset == 1)
                     { // just return the to-vertex.
-                        return new EdgePath<float>[] {
-                            new EdgePath<float>(edge.To)
+                        return new EdgePath<T>[] {
+                            new EdgePath<T>(edge.To)
                         };
                     }
                     if (offset == 0)
                     { // return both, we are at the from-vertex.
-                        return new EdgePath<float>[] {
-                            new EdgePath<float>(edge.From),
-                            new EdgePath<float>(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath<float>(edge.From))
+                        return new EdgePath<T>[] {
+                            new EdgePath<T>(edge.From),
+                            new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>(edge.From))
                         };
                     }
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.To, (length * (1 - offset)) * factor.Value, edge.IdDirected(), new EdgePath<float>())
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
                     };
                 }
                 if (offset == 0)
                 { // just return the from-vertex.
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.From)
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.From)
                     };
                 }
                 if (offset == 1)
                 { // return both, we are at the to-vertex.
-                    return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.To),
-                        new EdgePath<float>(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath<float>(edge.To))
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.To),
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
                     };
                 }
-                return new EdgePath<float>[] {
-                        new EdgePath<float>(edge.From, (length * offset) * factor.Value, -edge.IdDirected(), new EdgePath<float>())
+                return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
                     };
             }
         }
-
-        /// <summary>
-        /// Converts the router point to paths leading to the closest 2 vertices.
-        /// </summary>
-        public static EdgePath<float>[] ToEdgePaths(this RouterPoint point, RouterDb routerDb, Profile profile, bool asSource)
-        {
-            return point.ToEdgePaths(routerDb, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), asSource);
-        }
-
+        
         /// <summary>
         /// Calculates the distance to one of the vertices on the edge this router point is on.
         /// </summary>
@@ -383,17 +377,10 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Calculates the path between this router point and the given router point.
-        /// </summary>
-        public static EdgePath<float> EdgePathTo(this RouterPoint point, RouterDb db, Profile profile, RouterPoint target)
-        {
-            return point.EdgePathTo(db, (p) => profile.Factor(db.EdgeProfiles.Get(p)), target);
-        }
-
-        /// <summary>
         /// Calculates the edge path between this router point and the given router point.
         /// </summary>
-        public static EdgePath<float> EdgePathTo(this RouterPoint point, RouterDb db, Func<ushort, Factor> getFactor, RouterPoint target)
+        public static EdgePath<T> EdgePathTo<T>(this RouterPoint point, RouterDb db, WeightHandler<T> weightHandler, RouterPoint target)
+            where T : struct
         {
             if (point.EdgeId != target.EdgeId)
             {
@@ -401,11 +388,14 @@ namespace Itinero
             }
             if (point.Offset == target.Offset)
             { // path is possible but it has a weight of 0.
-                return new EdgePath<float>(point.VertexId(db));
+                return new EdgePath<T>(point.VertexId(db));
             }
             var forward = point.Offset < target.Offset;
             var edge = db.Network.GetEdge(point.EdgeId);
-            var factor = getFactor(edge.Data.Profile);
+            var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) *
+                edge.Data.Distance;
+            Factor factor;
+            var weight = weightHandler.Calculate(edge.Data.Profile, distance, out factor);
             if (factor.Value <= 0)
             { // not possible to travel here.
                 return null;
@@ -414,14 +404,11 @@ namespace Itinero
                (forward && factor.Direction == 1) ||
                (!forward && factor.Direction == 2))
             { // ok, directions match.
-                var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) *
-                    edge.Data.Distance;
-                var weight = distance * factor.Value;
                 if (forward)
                 {
-                    return new EdgePath<float>(target.VertexId(db), weight, point.EdgeId, new EdgePath<float>(point.VertexId(db)));
+                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId, new EdgePath<T>(point.VertexId(db)));
                 }
-                return new EdgePath<float>(target.VertexId(db), weight, -point.EdgeId, new EdgePath<float>(point.VertexId(db)));
+                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId, new EdgePath<T>(point.VertexId(db)));
             }
             return null;
         }

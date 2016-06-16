@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
+using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
@@ -24,24 +26,27 @@ namespace Itinero.Algorithms.Default
     /// <summary>
     /// An implementation of the bi-directional dykstra algorithm.
     /// </summary>
-    public class BidirectionalDykstra : AlgorithmBase
+    public class BidirectionalDykstra<T> : AlgorithmBase
+        where T : struct
     {
-        private readonly Dykstra _sourceSearch;
-        private readonly Dykstra _targetSearch;
+        private readonly Dykstra<T> _sourceSearch;
+        private readonly Dykstra<T> _targetSearch;
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new instance of search algorithm.
         /// </summary>
-        public BidirectionalDykstra(Dykstra sourceSearch, Dykstra targetSearch)
+        public BidirectionalDykstra(Dykstra<T> sourceSearch, Dykstra<T> targetSearch, WeightHandler<T> weightHandler)
         {
             _sourceSearch = sourceSearch;
             _targetSearch = targetSearch;
+            _weightHandler = weightHandler;
         }
 
         private uint _bestVertex = uint.MaxValue;
-        private float _bestWeight = float.MaxValue;
-        private float _maxForward = float.MaxValue;
-        private float _maxBackward = float.MaxValue;
+        private T _bestWeight;
+        private T _maxForward;
+        private T _maxBackward;
 
         /// <summary>
         /// Executes the algorithm.
@@ -49,9 +54,9 @@ namespace Itinero.Algorithms.Default
         protected override void DoRun()
         {
             _bestVertex = uint.MaxValue;
-            _bestWeight = float.MaxValue;
-            _maxForward = float.MinValue;
-            _maxBackward = float.MinValue;
+            _bestWeight = _weightHandler.Infinite;
+            _maxForward = _weightHandler.Zero;
+            _maxBackward = _weightHandler.Zero;
             _sourceSearch.WasFound = (vertex, weight) =>
             {
                 _maxForward = weight;
@@ -70,12 +75,12 @@ namespace Itinero.Algorithms.Default
             while (source || target)
             {
                 source = false;
-                if (_maxForward < _bestWeight)
+                if (_weightHandler.IsSmallerThan(_maxForward, _bestWeight))
                 { // still a need to search, not best found or max < best.
                     source = _sourceSearch.Step();
                 }
                 target = false;
-                if (_maxBackward < _bestWeight)
+                if (_weightHandler.IsSmallerThan(_maxBackward, _bestWeight))
                 { // still a need to search, not best found or max < best.
                     target = _targetSearch.Step();
                 }
@@ -91,14 +96,14 @@ namespace Itinero.Algorithms.Default
         /// Called when a vertex was reached during a backward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedVertexBackward(uint vertex, float weight)
+        private bool ReachedVertexBackward(uint vertex, T weight)
         {
             // check forward search for the same vertex.
-            EdgePath<float> forwardVisit;
+            EdgePath<T> forwardVisit;
             if (_sourceSearch.TryGetVisit(vertex, out forwardVisit))
             { // there is a status for this vertex in the source search.
-                weight = weight + forwardVisit.Weight;
-                if (weight < _bestWeight)
+                weight = _weightHandler.Add(weight, forwardVisit.Weight);
+                if (_weightHandler.IsSmallerThan(weight, _bestWeight))
                 { // this vertex is a better match.
                     _bestWeight = weight;
                     _bestVertex = vertex;
@@ -111,7 +116,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Returns the source-search algorithm.
         /// </summary>
-        public Dykstra SourceSearch
+        public Dykstra<T> SourceSearch
         {
             get
             {
@@ -122,7 +127,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Returns the target-search algorithm.
         /// </summary>
-        public Dykstra TargetSearch
+        public Dykstra<T> TargetSearch
         {
             get
             {
@@ -147,18 +152,18 @@ namespace Itinero.Algorithms.Default
         /// Gets the path from source->target.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath(out float weight)
+        public List<uint> GetPath(out T weight)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            weight = 0;
-            EdgePath<float> fromSource;
-            EdgePath<float> toTarget;
+            weight = _weightHandler.Zero;
+            EdgePath<T> fromSource;
+            EdgePath<T> toTarget;
             if(_sourceSearch.TryGetVisit(_bestVertex, out fromSource) &&
                _targetSearch.TryGetVisit(_bestVertex, out toTarget))
             {
                 var path = new List<uint>();
-                weight = fromSource.Weight + toTarget.Weight;
+                weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
                 fromSource.AddToList(path);
                 if (toTarget.From != null)
                 {
@@ -175,8 +180,32 @@ namespace Itinero.Algorithms.Default
         /// <returns></returns>
         public List<uint> GetPath()
         {
-            float weight;
+            T weight;
             return this.GetPath(out weight);
+        }
+    }
+
+    /// <summary>
+    /// An implementation of the bi-directional dykstra algorithm.
+    /// </summary>
+    public sealed class BidirectionalDykstra : BidirectionalDykstra<float>
+    {
+        /// <summary>
+        /// Creates a new instance of search algorithm.
+        /// </summary>
+        public BidirectionalDykstra(Dykstra sourceSearch, Dykstra targetSearch, Func<ushort, Factor> getFactor)
+            : base(sourceSearch, targetSearch, new DefaultWeightHandler(getFactor))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new instance of search algorithm.
+        /// </summary>
+        public BidirectionalDykstra(Dykstra sourceSearch, Dykstra targetSearch, DefaultWeightHandler weightHandler)
+            : base(sourceSearch, targetSearch, weightHandler)
+        {
+
         }
     }
 }
