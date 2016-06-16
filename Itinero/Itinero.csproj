@@ -64,6 +64,7 @@
     <Compile Include="Algorithms\EdgePathExtensions.cs" />
     <Compile Include="Algorithms\Extensions.cs" />
     <Compile Include="Algorithms\Restrictions\RestrictionExtensions.cs" />
+    <Compile Include="Algorithms\Weight.cs" />
     <Compile Include="Data\Contracted\ContractedDb.cs" />
     <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />
@@ -187,6 +188,7 @@
     <Compile Include="Osm\Vehicles\VehicleExtensions.cs" />
     <Compile Include="Osm\Vehicles\VehicleType.cs" />
     <Compile Include="Profiles\Factor.cs" />
+    <Compile Include="Profiles\FactorAndSpeed.cs" />
     <Compile Include="Profiles\Profile.cs" />
     <Compile Include="Profiles\ProfileFactorCache.cs" />
     <Compile Include="Profiles\ProfileMetric.cs" />

@@ -17,7 +17,6 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.PriorityQueues;
-using Itinero.Data;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using Itinero.Profiles;
@@ -27,13 +26,12 @@ using System.Collections.Generic;
 namespace Itinero.Algorithms.Default
 {
     /// <summary>
-    /// An implementation of the dykstra routing algorithm.
+    /// An abstract implementation of the dykstra routing algorithm.
     /// </summary>
-    public class Dykstra : AlgorithmBase
+    public abstract class Dykstra<T> : AlgorithmBase
     {
         private readonly Graph _graph;
-        private readonly IEnumerable<EdgePath<float>> _sources;
-        private readonly Func<ushort, Factor> _getFactor;
+        private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly Func<uint, uint> _getRestriction;
         private readonly float _sourceMax;
         private readonly bool _backward;
@@ -41,22 +39,20 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
-        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint> getRestriction,
-            IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
+        public Dykstra(Graph graph, Func<uint, uint> getRestriction,
+            IEnumerable<EdgePath<T>> sources, float sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
-            _getFactor = getFactor;
             _sourceMax = sourceMax;
             _backward = backward;
             _getRestriction = getRestriction;
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<uint, EdgePath<float>> _visits;
-        private EdgePath<float> _current;
-        private BinaryHeap<EdgePath<float>> _heap;
-        private Dictionary<uint, Factor> _factors;
+        private Dictionary<uint, EdgePath<T>> _visits;
+        private EdgePath<T> _current;
+        private BinaryHeap<EdgePath<T>> _heap;
 
         /// <summary>
         /// Executes the algorithm.
@@ -78,17 +74,14 @@ namespace Itinero.Algorithms.Default
             // algorithm always succeeds, it may be dealing with an empty network and there are no targets.
             this.HasSucceeded = true;
 
-            // initialize a dictionary of speeds per edge profile.
-            _factors = new Dictionary<uint, Factor>();
-
             // intialize dykstra data structures.
-            _visits = new Dictionary<uint, EdgePath<float>>();
-            _heap = new BinaryHeap<EdgePath<float>>(1000);
+            _visits = new Dictionary<uint, EdgePath<T>>();
+            _heap = new BinaryHeap<EdgePath<T>>(1000);
 
             // queue all sources.
             foreach (var source in _sources)
             {
-                _heap.Push(source, source.Weight);
+                _heap.Push(source, this.GetWeight(source.Weight));
             }
 
             // gets the edge enumerator.
@@ -170,11 +163,7 @@ namespace Itinero.Algorithms.Default
                 ushort edgeProfile;
                 EdgeDataSerializer.Deserialize(edge.Data0, out distance, out edgeProfile);
                 var factor = Factor.NoFactor;
-                if (!_factors.TryGetValue(edgeProfile, out factor))
-                { // speed not there, calculate speed.
-                    factor = _getFactor(edgeProfile);
-                    _factors.Add(edgeProfile, factor);
-                }
+                var totalWeight = this.AddWeight(_current.Weight, edgeProfile, distance, out factor);
 
                 // check the tags against the interpreter.
                 if (factor.Value > 0 && (factor.Direction == 0 ||
@@ -183,7 +172,6 @@ namespace Itinero.Algorithms.Default
                 { // it's ok; the edge can be traversed by the given vehicle.
                     // calculate neighbors weight.
                     var edgeWeight = (distance * factor.Value);
-                    var totalWeight = _current.Weight + edgeWeight;
 
                     if (this.WasEdgeFound != null)
                     {
@@ -204,10 +192,10 @@ namespace Itinero.Algorithms.Default
                         }
                     }
 
-                    if (totalWeight < _sourceMax)
+                    if (this.GetWeight(totalWeight) < _sourceMax)
                     { // update the visit list.
-                        _heap.Push(new EdgePath<float>(neighbour, totalWeight, _current),
-                            totalWeight);
+                        _heap.Push(new EdgePath<T>(neighbour, totalWeight, _current),
+                            this.GetWeight(totalWeight));
                     }
                 }
             }
@@ -215,15 +203,25 @@ namespace Itinero.Algorithms.Default
         }
 
         /// <summary>
+        /// Adds weight to the given weight using the edge profile and the distance.
+        /// </summary>
+        protected abstract T AddWeight(T weight, ushort edgeProfile, float distance, out Factor factor);
+
+        /// <summary>
+        /// Gets the weight value from the weight.
+        /// </summary>
+        protected abstract float GetWeight(T weight);
+
+        /// <summary>
         /// Sets a visit on a vertex from an external source (like a transit-algorithm).
         /// </summary>
         /// <remarks>The algorithm will pick up these visits as if it was one it's own.</remarks>
         /// <returns>True if the visit was set successfully.</returns>
-        public bool SetVisit(EdgePath<float> visit)
+        public bool SetVisit(EdgePath<T> visit)
         {
             if (!_visits.ContainsKey(visit.Vertex))
             {
-                _heap.Push(visit, visit.Weight);
+                _heap.Push(visit, this.GetWeight(visit.Weight));
                 return true;
             }
             return false;
@@ -233,7 +231,7 @@ namespace Itinero.Algorithms.Default
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetVisit(uint vertex, out EdgePath<float> visit)
+        public bool TryGetVisit(uint vertex, out EdgePath<T> visit)
         {
             return _visits.TryGetValue(vertex, out visit);
         }
@@ -247,7 +245,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// The was found delegate.
         /// </summary>
-        public delegate bool WasFoundDelegate(uint vertex, float weight);
+        public delegate bool WasFoundDelegate(uint vertex, T weight);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
@@ -268,7 +266,7 @@ namespace Itinero.Algorithms.Default
         /// <param name="edge">The id of the current edge.</param>
         /// <param name="length">The length of the current edge.</param>
         /// <returns></returns>
-        public delegate bool WasEdgeFoundDelegate(uint vertex1, uint vertex2, float weight1, float weight2, long edge, float length);
+        public delegate bool WasEdgeFoundDelegate(uint vertex1, uint vertex2, T weight1, T weight2, long edge, float length);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
@@ -304,12 +302,111 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public EdgePath<float> Current
+        public EdgePath<T> Current
         {
             get
             {
                 return _current;
             }
+        }
+    }
+
+    /// <summary>
+    /// An implementation of the dykstra algorithm.
+    /// </summary>
+    public sealed class Dykstra : Dykstra<float>
+    {
+        private readonly Func<ushort, Factor> _getFactor;
+
+        /// <summary>
+        /// Creates a new instance of the dykstra algorithm.
+        /// </summary>
+        public Dykstra(Graph graph, Func<ushort, Factor> getFactor, Func<uint, uint> getRestriction,
+            IEnumerable<EdgePath<float>> sources, float sourceMax, bool backward)
+            : base(graph, getRestriction, sources, sourceMax, backward)
+        {
+            _getFactor = getFactor;
+
+            _factors = new Dictionary<uint, Factor>();
+        }
+
+        private Dictionary<uint, Factor> _factors;
+        
+        /// <summary>
+        /// Adds weight to the given weight using the edge profile and the distance.
+        /// </summary>
+        protected sealed override float AddWeight(float weight, ushort edgeProfile, float distance, out Factor factor)
+        {
+            if (!_factors.TryGetValue(edgeProfile, out factor))
+            { // speed not there, calculate speed.
+                factor = _getFactor(edgeProfile);
+                _factors.Add(edgeProfile, factor);
+            }
+
+            return weight + distance * factor.Value;
+        }
+
+        /// <summary>
+        /// Gets weight value from the weight.
+        /// </summary>
+        protected sealed override float GetWeight(float weight)
+        {
+            return weight;
+        }
+    }
+
+    /// <summary>
+    /// An implementation of the dykstra algorithm with augmented weight.
+    /// </summary>
+    public sealed class DykstraAugmented : Dykstra<Weight>
+    {
+        private readonly Func<ushort, FactorAndSpeed> _getFactorAndSpeed;
+
+        /// <summary>
+        /// Creates a new instance of the dykstra algorithm.
+        /// </summary>
+        public DykstraAugmented(Graph graph, Func<ushort, FactorAndSpeed> getFactorAndSpeed, Func<uint, uint> getRestriction,
+            IEnumerable<EdgePath<Weight>> sources, float sourceMax, bool backward)
+            : base(graph, getRestriction, sources, sourceMax, backward)
+        {
+            _getFactorAndSpeed = getFactorAndSpeed;
+
+            _factorsAndSpeed = new Dictionary<uint, FactorAndSpeed>();
+        }
+
+        private Dictionary<uint, FactorAndSpeed> _factorsAndSpeed;
+
+        /// <summary>
+        /// Adds weight to the given weight using the edge profile and the distance.
+        /// </summary>
+        protected sealed override Weight AddWeight(Weight weight, ushort edgeProfile, float distance, out Factor factor)
+        {
+            FactorAndSpeed factorAndSpeed;
+            if (!_factorsAndSpeed.TryGetValue(edgeProfile, out factorAndSpeed))
+            { // speed not there, calculate speed.
+                factorAndSpeed = _getFactorAndSpeed(edgeProfile);
+                _factorsAndSpeed.Add(edgeProfile, factorAndSpeed);
+            }
+
+            factor = new Factor()
+            {
+                Direction = factorAndSpeed.Direction,
+                Value = factorAndSpeed.Value
+            };
+            return new Weight()
+            {
+                Distance = weight.Distance + distance,
+                Time = weight.Time + (distance * factorAndSpeed.Speed),
+                Value = weight.Value + (distance * factorAndSpeed.Value)
+            };
+        }
+
+        /// <summary>
+        /// Gets weight value from the weight.
+        /// </summary>
+        protected sealed override float GetWeight(Weight weight)
+        {
+            return weight.Value;
         }
     }
 }
