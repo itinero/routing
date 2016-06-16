@@ -19,6 +19,7 @@
 using System;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
+using Itinero.Algorithms.Contracted;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -61,9 +62,19 @@ namespace Itinero.Algorithms.Weights
             bool? direction, T weight);
 
         /// <summary>
+        /// Adds or updates an edge.
+        /// </summary>
+        public abstract void AddOrUpdateEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, T weight);
+
+        /// <summary>
         /// Adds a new edge to a graph with the given direction and weight.
         /// </summary>
         public abstract void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, T weight);
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public abstract T GetEdgeWeight(MetaEdge edge, out bool? direction);
 
         /// <summary>
         /// Returns the weight that represents 'zero'.
@@ -223,6 +234,14 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Adds or updates and edge.
+        /// </summary>
+        public override void AddOrUpdateEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, Weight weight)
+        {
+            graph.AddOrUpdateEdge(vertex1, vertex2, weight.Value, direction, contractedId, weight.Distance, weight.Time);
+        }
+
+        /// <summary>
         /// Adds a new edge to a graph with the given direction and weight.
         /// </summary>
         public sealed override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, Weight weight)
@@ -233,6 +252,27 @@ namespace Itinero.Algorithms.Weights
             }
             graph.AddEdge(vertex1, vertex2, new uint[] { Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(weight.Value, direction) },
                 Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(contractedId, weight.Distance, weight.Time));
+        }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
+        public sealed override Weight GetEdgeWeight(MetaEdge edge, out bool? direction)
+        {
+            float weight;
+            float time;
+            float distance;
+            uint contractedId;
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                out weight, out direction);
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeAgumented(edge.MetaData,
+                out contractedId, out distance, out time);
+            return new Weight()
+            {
+                Distance = distance,
+                Time = time,
+                Value = weight
+            };
         }
     }
 }

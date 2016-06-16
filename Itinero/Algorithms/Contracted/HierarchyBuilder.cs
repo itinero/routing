@@ -19,9 +19,12 @@
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Algorithms.PriorityQueues;
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
+using Itinero.Profiles;
+using System;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted
@@ -29,21 +32,25 @@ namespace Itinero.Algorithms.Contracted
     /// <summary>
     /// Builds a contraction hierarchy.
     /// </summary>
-    public class HierarchyBuilder : AlgorithmBase
+    public class HierarchyBuilder<T> : AlgorithmBase
+        where T : struct
     {
         private readonly DirectedMetaGraph _graph;
         private readonly IPriorityCalculator _priorityCalculator;
         private readonly IWitnessCalculator _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
+        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
+            WeightHandler<T> weightHandler)
         {
             _graph = graph;
             _priorityCalculator = priorityCalculator;
             _witnessCalculator = witnessCalculator;
+            _weightHandler = weightHandler;
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
@@ -144,12 +151,14 @@ namespace Itinero.Algorithms.Contracted
             _logger.Log(TraceEventType.Information, "Removing witnessed edges...");
 
             var edges = new List<MetaEdge>();
-            var weights = new List<float>();
+            var weights = new List<T>();
+            var metrics = new List<float>();
             var targets = new List<uint>();
             for (uint vertex = 0; vertex < _graph.VertexCount; vertex++)
             {
                 edges.Clear();
                 weights.Clear();
+                metrics.Clear();
                 targets.Clear();
 
                 edges.AddRange(_graph.GetEdgeEnumerator(vertex));
@@ -160,21 +169,21 @@ namespace Itinero.Algorithms.Contracted
                 {
                     var edge = edges[i];
 
-                    float edgeWeight;
                     bool? edgeDirection;
-                    Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
-                        out edgeWeight, out edgeDirection);
+                    var edgeWeight = _weightHandler.GetEdgeWeight(edge, out edgeDirection);
+                    
                     var edgeCanMoveForward = edgeDirection == null || edgeDirection.Value;
                     var edgeCanMoveBackward = edgeDirection == null || !edgeDirection.Value;
 
                     forwardWitnesses[i] = !edgeCanMoveForward;
                     backwardWitnesses[i] = !edgeCanMoveBackward;
                     weights.Add(edgeWeight);
+                    metrics.Add(_weightHandler.GetMetric(edgeWeight));
                     targets.Add(edge.Neighbour);
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph.Graph, vertex, targets, weights, 
+                _witnessCalculator.Calculate(_graph.Graph, vertex, targets, metrics, 
                     ref forwardWitnesses, ref backwardWitnesses, uint.MaxValue);
 
                 // check witness paths.
@@ -187,12 +196,13 @@ namespace Itinero.Algorithms.Contracted
                     else if(forwardWitnesses[i])
                     { // only in forward direction is this edge useless.
                         _graph.RemoveEdge(vertex, targets[i]);
-                        _graph.AddEdge(vertex, targets[i], weights[i], false, Constants.NO_VERTEX);
+                        _weightHandler.AddEdge(_graph, vertex, targets[i], Constants.NO_VERTEX, false, weights[i]);
+                        //_graph.AddEdge(vertex, targets[i], weights[i], false, Constants.NO_VERTEX);
                     }
                     else if (backwardWitnesses[i])
                     { // only in backward direction is this edge useless.
                         _graph.RemoveEdge(vertex, targets[i]);
-                        _graph.AddEdge(vertex, targets[i], weights[i], true, Constants.NO_VERTEX);
+                        _weightHandler.AddEdge(_graph, vertex, targets[i], Constants.NO_VERTEX, true, weights[i]);
                     }
                 }
             }
@@ -294,10 +304,8 @@ namespace Itinero.Algorithms.Contracted
             {
                 var edge1 = edges[j];
 
-                float edge1Weight;
                 bool? edge1Direction;
-                Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge1.Data[0],
-                    out edge1Weight, out edge1Direction);
+                var edge1Weight = _weightHandler.GetEdgeWeight(edge1, out edge1Direction);
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
@@ -305,15 +313,14 @@ namespace Itinero.Algorithms.Contracted
                 var forwardWitnesses = new bool[j];
                 var backwardWitnesses = new bool[j];
                 var targets = new List<uint>(j);
-                var targetWeights = new List<float>(j);
-                for(var k = 0; k < j; k++)
+                var targetWeights = new List<T>(j);
+                var targetMetrics = new List<float>(j);
+                for (var k = 0; k < j; k++)
                 {
                     var edge2 = edges[k];
-
-                    float edge2Weight;
+                    
                     bool? edge2Direction;
-                    ContractedEdgeDataSerializer.Deserialize(edge2.Data[0],
-                        out edge2Weight, out edge2Direction);
+                    var edge2Weight = _weightHandler.GetEdgeWeight(edge2, out edge2Direction);
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
                     var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
 
@@ -322,11 +329,13 @@ namespace Itinero.Algorithms.Contracted
                     backwardWitnesses[k] = !(edge1CanMoveForward && edge2CanMoveBackward);
 
                     targets.Add(edge2.Neighbour);
-                    targetWeights.Add(edge1Weight + edge2Weight);
+                    var totalWeight = _weightHandler.Add(edge1Weight, edge2Weight);
+                    targetWeights.Add(totalWeight);
+                    targetMetrics.Add(_weightHandler.GetMetric(totalWeight));
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetWeights, ref forwardWitnesses, 
+                _witnessCalculator.Calculate(_graph.Graph, edge1.Neighbour, targets, targetMetrics, ref forwardWitnesses, 
                     ref backwardWitnesses, vertex);
 
                 // add contracted edges if needed.
@@ -341,30 +350,57 @@ namespace Itinero.Algorithms.Contracted
 
                     if(!forwardWitnesses[k] && !backwardWitnesses[k])
                     { // add bidirectional edge.
-                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            targetWeights[k], null, vertex);
-                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            targetWeights[k], null, vertex);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, 
+                            vertex, null, targetWeights[k]);
+                        //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                        //    targetWeights[k], null, vertex);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour,
+                            vertex, null, targetWeights[k]);
+                        //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                        //    targetWeights[k], null, vertex);
                     }
                     else if(!forwardWitnesses[k])
                     { // add forward edge.
-                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            targetWeights[k], true, vertex);
-                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            targetWeights[k], false, vertex);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour,
+                            vertex, true, targetWeights[k]);
+                        //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                        //    targetWeights[k], true, vertex);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour,
+                            vertex, false, targetWeights[k]);
+                        //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                        //    targetWeights[k], false, vertex);
                     }
                     else if (!backwardWitnesses[k])
                     { // add forward edge.
-                        _graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            targetWeights[k], false, vertex);
-                        _graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour, 
-                            targetWeights[k], true, vertex);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour,
+                            vertex, false, targetWeights[k]);
+                        //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                        //    targetWeights[k], false, vertex);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour,
+                            vertex, true, targetWeights[k]);
+                        //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour, 
+                        //    targetWeights[k], true, vertex);
                     }
                 }
             }
 
             _contractedFlags[vertex] = true;
             _priorityCalculator.NotifyContracted(vertex);
+        }
+    }
+
+    /// <summary>
+    /// Builds a contraction hierarchy.
+    /// </summary>
+    public sealed class HierarchyBuilder : HierarchyBuilder<float>
+    {
+        /// <summary>
+        /// Creates a new hierarchy builder.
+        /// </summary>
+        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
+            : base(graph, priorityCalculator, witnessCalculator, new DefaultWeightHandler(null)) // the get factor function is never called.
+        {
+
         }
     }
 }

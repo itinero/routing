@@ -19,6 +19,7 @@
 using Itinero.Profiles;
 using System;
 using Itinero.Graphs.Directed;
+using Itinero.Algorithms.Contracted;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -106,7 +107,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Adds a new edge with the given direction and weight.
         /// </summary>
-        public override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
+        public sealed override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
         {
             var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
                 weight, direction);
@@ -114,13 +115,32 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Adds or updates an edge.
+        /// </summary>
+        public sealed override void AddOrUpdateEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
+        {
+            graph.AddOrUpdateEdge(vertex1, vertex2, weight, direction, contractedId);
+        }
+
+        /// <summary>
         /// Adds a new edge with the given direction and weight.
         /// </summary>
-        public override void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, float weight)
+        public sealed override void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, float weight)
         {
             var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
                 weight, direction);
             graph.AddEdge(vertex1, vertex2, data);
+        }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
+        public sealed override float GetEdgeWeight(MetaEdge edge, out bool? direction)
+        {
+            float weight;
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                out weight, out direction);
+            return weight;
         }
     }
 }

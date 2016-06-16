@@ -97,6 +97,16 @@ namespace Itinero.Data.Contracted.Edges
         }
 
         /// <summary>
+        /// Deserializes the agugmented data.
+        /// </summary>
+        public static void DeserializeAgumented(uint[] data, out uint contractedId, out float distance, out float time)
+        {
+            contractedId = data[0];
+            distance = data[1] / 10.0f;
+            time = data[2];
+        }
+
+        /// <summary>
         /// Parses the edge data.
         /// </summary>
         /// <returns></returns>
