@@ -112,7 +112,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Gets the path from source to target.
         /// </summary>
-        public EdgePath GetPath(int source, int target)
+        public EdgePath<float> GetPath(int source, int target)
         {
             this.CheckHasRunAndHasSucceeded();
 

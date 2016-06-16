@@ -38,7 +38,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _targetSearch = targetSearch;
         }
 
-        private Tuple<EdgePath, EdgePath, float> _best = null;
+        private Tuple<EdgePath<float>, EdgePath<float>, float> _best = null;
         private float _maxForward = float.MaxValue;
         private float _maxBackward = float.MaxValue;
 
@@ -47,7 +47,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// </summary>
         protected override void DoRun()
         {
-            _best = new Tuple<EdgePath, EdgePath, float>(null, null, float.MaxValue);
+            _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(null, null, float.MaxValue);
             _maxForward = float.MinValue;
             _maxBackward = float.MinValue;
             _sourceSearch.WasEdgeFound = (v1, w1, length, edge) =>
@@ -89,17 +89,17 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Called when a vertex was reached during a backward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedBackward(uint vertex1, float weight1, float length, EdgePath edge)
+        private bool ReachedBackward(uint vertex1, float weight1, float length, EdgePath<float> edge)
         {
             // check forward search for the same vertex.
-            EdgePath forwardVisit;
+            EdgePath<float> forwardVisit;
             if (_sourceSearch.TryGetVisit(-edge.Edge, out forwardVisit))
             { // there is a status for this vertex in the source search.
                 var localWeight = edge.Weight - weight1;
                 var totalWeight = edge.Weight + forwardVisit.Weight - localWeight;
                 if (totalWeight < _best.Item3)
                 { // this vertex is a better match.
-                    _best = new Tuple<EdgePath, EdgePath, float>(forwardVisit, edge, totalWeight);
+                    _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(forwardVisit, edge, totalWeight);
                     this.HasSucceeded = true;
                 }
             }

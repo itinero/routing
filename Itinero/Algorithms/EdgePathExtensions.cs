@@ -28,7 +28,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Appends the given path in reverse to the edge path.
         /// </summary>
-        public static EdgePath Append(this EdgePath path, EdgePath reversePath)
+        public static EdgePath<float> Append(this EdgePath<float> path, EdgePath<float> reversePath)
         {
             if (path.Vertex != reversePath.Vertex)
             {
@@ -38,7 +38,7 @@ namespace Itinero.Algorithms
             while(reversePath.From != null)
             {
                 var localWeight = reversePath.Weight - reversePath.From.Weight;
-                path = new EdgePath(reversePath.From.Vertex, path.Weight + localWeight, -reversePath.Edge, path);
+                path = new EdgePath<float>(reversePath.From.Vertex, path.Weight + localWeight, -reversePath.Edge, path);
                 reversePath = reversePath.From;
             }
             return path;
@@ -47,7 +47,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Returns true if this path contains the given vertex.
         /// </summary>
-        public static bool HasVertex(this EdgePath path, uint vertex)
+        public static bool HasVertex<T>(this EdgePath<T> path, uint vertex)
         {
             while(path != null)
             {
@@ -64,7 +64,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Adds the vertices in this path to the given list.
         /// </summary>
-        public static void AddToListReverse(this EdgePath path, List<uint> vertices)
+        public static void AddToListReverse<T>(this EdgePath<T> path, List<uint> vertices)
         {
             while (path != null)
             {
@@ -76,7 +76,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Adds the vertices in this path to the given list.
         /// </summary>
-        public static void AddToList(this EdgePath path, List<uint> vertices)
+        public static void AddToList<T>(this EdgePath<T> path, List<uint> vertices)
         {
             var reversed = new List<uint>();
             path.AddToListReverse(reversed);
@@ -89,7 +89,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Strips all edge-id's.
         /// </summary>
-        public static void StripEdges(this EdgePath path)
+        public static void StripEdges<T>(this EdgePath<T> path)
         {
             while(path != null)
             {

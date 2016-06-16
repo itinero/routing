@@ -66,14 +66,14 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) }, 
+            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) }, 
                 float.MaxValue, false);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(null, visit.From);
             Assert.AreEqual(0, visit.Vertex);
@@ -118,14 +118,14 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) },
+            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 (100 / speed) / 2, false);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(null, visit.From);
             Assert.AreEqual(0, visit.Vertex);
@@ -168,14 +168,14 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) },
+            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(null, visit.From);
             Assert.AreEqual(0, visit.Vertex);
@@ -196,7 +196,7 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            algorithm = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) },
+            algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 float.MaxValue, false);
             algorithm.Run();
 
@@ -264,16 +264,16 @@ namespace Itinero.Test.Algorithms
             };
 
             // run algorithm.
-            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath[] { 
-                new EdgePath(0, 10 / speed, new EdgePath(uint.MaxValue)),
-                new EdgePath(1, 90 / speed, new EdgePath(uint.MaxValue))},
+            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { 
+                new EdgePath<float>(0, 10 / speed, new EdgePath<float>(uint.MaxValue)),
+                new EdgePath<float>(1, 90 / speed, new EdgePath<float>(uint.MaxValue))},
                 float.MaxValue, false);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.IsNotNull(visit.From);
             Assert.AreEqual(uint.MaxValue, visit.From.Vertex);
@@ -342,7 +342,7 @@ namespace Itinero.Test.Algorithms
 
             // run algorithm.
             var reportedEdges = new HashSet<long>();
-            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) }, float.MaxValue, false);
+            var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) }, float.MaxValue, false);
             algorithm.WasEdgeFound += (v1, v2, w1, w2, e, l) =>
             {
                 if (v1 == 0 && v2 == 1)

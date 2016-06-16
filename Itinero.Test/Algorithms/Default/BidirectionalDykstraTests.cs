@@ -70,9 +70,9 @@ namespace Itinero.Test.Algorithms.Default
             };
 
             // run algorithm.
-            var sourceSearch = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(0) },
+            var sourceSearch = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 150 * 1 / speed, false);
-            var targetSearch = new Dykstra(graph, getFactor, null, new EdgePath[] { new EdgePath(2) },
+            var targetSearch = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(2) },
                 150 * 1 / speed, true);
             var algorithm = new BidirectionalDykstra(sourceSearch, targetSearch);
             algorithm.Run();

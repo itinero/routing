@@ -56,19 +56,19 @@ namespace Itinero.Algorithms.Default
             _maxSearch = float.MaxValue;
         }
 
-        private EdgePath[] _best;
+        private EdgePath<float>[] _best;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            _best = new EdgePath[_targets.Count];
+            _best = new EdgePath<float>[_targets.Count];
 
             // register the targets and determine one-edge-paths.
             var sourcePaths = _source.ToEdgePaths(_routerDb, _getFactor, true);
             var targetIndexesPerVertex = new Dictionary<uint, LinkedTarget>();
-            var targetPaths = new IEnumerable<EdgePath>[_targets.Count];
+            var targetPaths = new IEnumerable<EdgePath<float>>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
                 var targets = _targets[i].ToEdgePaths(_routerDb, _getFactor, false);
@@ -122,7 +122,7 @@ namespace Itinero.Algorithms.Default
                         var best = _best[target.Target];
                         foreach(var targetPath in targetPaths[target.Target])
                         {
-                            EdgePath path;
+                            EdgePath<float> path;
                             dykstra.TryGetVisit(vertex, out path);
                             if(targetPath.Vertex == vertex)
                             { // there is a path here.
@@ -135,7 +135,7 @@ namespace Itinero.Algorithms.Default
                                     }
                                     else
                                     { // target is not the exact vertex.
-                                        best = new EdgePath(_targets[target.Target].VertexId(_routerDb), 
+                                        best = new EdgePath<float>(_targets[target.Target].VertexId(_routerDb), 
                                             targetPath.Weight + weight,
                                             path);
                                     }
@@ -162,7 +162,7 @@ namespace Itinero.Algorithms.Default
         /// Gets the path to the given target.
         /// </summary>
         /// <returns></returns>
-        public EdgePath GetPath(int target)
+        public EdgePath<float> GetPath(int target)
         {
             this.CheckHasRunAndHasSucceeded();
 

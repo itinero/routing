@@ -30,13 +30,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     public class Dykstra : AlgorithmBase
     {
         private readonly DirectedDynamicGraph _graph;
-        private readonly IEnumerable<EdgePath> _sources;
+        private readonly IEnumerable<EdgePath<float>> _sources;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath> sources, bool backward)
+        public Dykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, bool backward)
         {
             _graph = graph;
             _sources = sources;
@@ -44,9 +44,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         private DirectedDynamicGraph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<uint, EdgePath> _visits;
-        private EdgePath _current;
-        private BinaryHeap<EdgePath> _heap;
+        private Dictionary<uint, EdgePath<float>> _visits;
+        private EdgePath<float> _current;
+        private BinaryHeap<EdgePath<float>> _heap;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
@@ -69,8 +69,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             this.HasSucceeded = true;
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<uint, EdgePath>();
-            _heap = new BinaryHeap<EdgePath>();
+            _visits = new Dictionary<uint, EdgePath<float>>();
+            _heap = new BinaryHeap<EdgePath<float>>();
 
             // queue all sources.
             foreach (var source in _sources)
@@ -125,7 +125,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var neighbourNeighbour = _edgeEnumerator.Neighbour;
                     if (!_visits.ContainsKey(neighbourNeighbour))
                     { // if not yet settled.
-                        var routeToNeighbour = new EdgePath(
+                        var routeToNeighbour = new EdgePath<float>(
                             neighbourNeighbour, _current.Weight + neighbourWeight, _current);
                         _heap.Push(routeToNeighbour, routeToNeighbour.Weight);
                     }
@@ -138,7 +138,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetVisit(uint vertex, out EdgePath visit)
+        public bool TryGetVisit(uint vertex, out EdgePath<float> visit)
         {
             return _visits.TryGetValue(vertex, out visit);
         }
@@ -177,7 +177,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets the current.
         /// </summary>
-        public EdgePath Current
+        public EdgePath<float> Current
         {
             get
             {

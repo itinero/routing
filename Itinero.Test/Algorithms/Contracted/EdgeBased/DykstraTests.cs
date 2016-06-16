@@ -44,14 +44,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph, new EdgePath[] { new EdgePath(0) }, false);
+            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -68,7 +68,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph, new EdgePath[] { new EdgePath(1) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(1) }, false);
             algorithm.Run();
 
             // check results.
@@ -99,14 +99,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -120,7 +120,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
@@ -153,14 +153,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -178,7 +178,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
@@ -215,14 +215,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -232,7 +232,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
@@ -261,14 +261,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -281,7 +281,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(2) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(2) }, true);
             algorithm.Run();
 
             // check results.
@@ -313,14 +313,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -351,14 +351,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
             algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            EdgePath visit;
+            EdgePath<float> visit;
             Assert.IsTrue(algorithm.TryGetVisit(0, out visit));
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(0, visit.Vertex);
@@ -368,7 +368,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(1) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(1) }, false);
             algorithm.Run();
 
             // check results.
@@ -384,7 +384,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(2) }, false);
+                new EdgePath<float>[] { new EdgePath<float>(2) }, false);
             algorithm.Run();
 
             // check results.
@@ -400,7 +400,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(0) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
             algorithm.Run();
 
             // check results.
@@ -416,7 +416,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(1) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(1) }, true);
             algorithm.Run();
 
             // check results.
@@ -435,7 +435,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath[] { new EdgePath(2) }, true);
+                new EdgePath<float>[] { new EdgePath<float>(2) }, true);
             algorithm.Run();
 
             // check results.

@@ -31,6 +31,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// Calculates witnesses.
         /// </summary>
         void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, uint source, List<uint> targets, List<float> weights,
-            ref EdgePath[] forwardWitness, ref EdgePath[] backwardWitness, uint vertexToSkip);
+            ref EdgePath<float>[] forwardWitness, ref EdgePath<float>[] backwardWitness, uint vertexToSkip);
     }
 }

@@ -34,8 +34,8 @@ namespace Itinero.Test.Algorithms
         [Test]
         public void TestAppend()
         {
-            var forwardPath = new EdgePath(2, 10, 20, new EdgePath(1, 5, 10, new EdgePath(0)));
-            var backwardPath = new EdgePath(2, 10, -30, new EdgePath(3, 5, -40, new EdgePath(4)));
+            var forwardPath = new EdgePath<float>(2, 10, 20, new EdgePath<float>(1, 5, 10, new EdgePath<float>(0)));
+            var backwardPath = new EdgePath<float>(2, 10, -30, new EdgePath<float>(3, 5, -40, new EdgePath<float>(4)));
 
             var path = forwardPath.Append(backwardPath);
             Assert.IsNotNull(path);
@@ -71,7 +71,7 @@ namespace Itinero.Test.Algorithms
         [Test]
         public void TestHasVertex()
         {
-            var path = new EdgePath(2, 10, 20, new EdgePath(1, 5, 10, new EdgePath(0)));
+            var path = new EdgePath<float>(2, 10, 20, new EdgePath<float>(1, 5, 10, new EdgePath<float>(0)));
 
             Assert.IsTrue(path.HasVertex(2));
             Assert.IsTrue(path.HasVertex(1));

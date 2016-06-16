@@ -87,9 +87,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock((source, target) =>
                 {
-                    return new Tuple<EdgePath, EdgePath>(
-                        new EdgePath(0),
-                        new EdgePath(0));
+                    return new Tuple<EdgePath<float>, EdgePath<float>>(
+                        new EdgePath<float>(0),
+                        new EdgePath<float>(0));
                 }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
@@ -115,9 +115,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock((source, target) =>
                 {
-                    return new Tuple<EdgePath, EdgePath>(
-                        new EdgePath(0),
-                        new EdgePath(0));
+                    return new Tuple<EdgePath<float>, EdgePath<float>>(
+                        new EdgePath<float>(0),
+                        new EdgePath<float>(0));
                 }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
@@ -141,9 +141,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock((source, target) =>
                 {
-                    return new Tuple<EdgePath, EdgePath>(
-                        new EdgePath(0),
-                        new EdgePath(0));
+                    return new Tuple<EdgePath<float>, EdgePath<float>>(
+                        new EdgePath<float>(0),
+                        new EdgePath<float>(0));
                 }));
             var priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
@@ -160,9 +160,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             priorityCalculator = new EdgeDifferencePriorityCalculator(graph,
                 new WitnessCalculatorMock((source, target) =>
                 {
-                    return new Tuple<EdgePath, EdgePath>(
-                        new EdgePath(0),
-                        new EdgePath(0));
+                    return new Tuple<EdgePath<float>, EdgePath<float>>(
+                        new EdgePath<float>(0),
+                        new EdgePath<float>(0));
                 }));
             priority = priorityCalculator.Calculate(new BitArray32(graph.VertexCount), (i) => null, 0);
 
@@ -188,39 +188,39 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 {
                     if (source == 0 && target == 1)
                     {
-                        return new Tuple<EdgePath, EdgePath>(
-                            new EdgePath(0, 100, new EdgePath(1)),
-                            new EdgePath());
+                        return new Tuple<EdgePath<float>, EdgePath<float>>(
+                            new EdgePath<float>(0, 100, new EdgePath<float>(1)),
+                            new EdgePath<float>());
                     }
                     if (source == 0 && target == 2)
                     {
-                        return new Tuple<EdgePath, EdgePath>(
-                            new EdgePath(0, 100, new EdgePath(2)),
-                            new EdgePath());
+                        return new Tuple<EdgePath<float>, EdgePath<float>>(
+                            new EdgePath<float>(0, 100, new EdgePath<float>(2)),
+                            new EdgePath<float>());
                     }
                     if (source == 1 && target == 0)
                     {
-                        return new Tuple<EdgePath, EdgePath>(
-                            new EdgePath(),
-                            new EdgePath(0, 100, new EdgePath(1)));
+                        return new Tuple<EdgePath<float>, EdgePath<float>>(
+                            new EdgePath<float>(),
+                            new EdgePath<float>(0, 100, new EdgePath<float>(1)));
                     }
                     if (source == 2 && target == 0)
                     {
-                        return new Tuple<EdgePath, EdgePath>(
-                            new EdgePath(),
-                            new EdgePath(0, 100, new EdgePath(2)));
+                        return new Tuple<EdgePath<float>, EdgePath<float>>(
+                            new EdgePath<float>(),
+                            new EdgePath<float>(0, 100, new EdgePath<float>(2)));
                     }
                     if (source == 1 && target == 2)
                     {
-                        return new Tuple<EdgePath, EdgePath>(
-                            new EdgePath(),
-                            new EdgePath());
+                        return new Tuple<EdgePath<float>, EdgePath<float>>(
+                            new EdgePath<float>(),
+                            new EdgePath<float>());
                     }
                     if (source == 2 && target == 1)
                     {
-                        return new Tuple<EdgePath, EdgePath>(
-                            new EdgePath(),
-                            new EdgePath());
+                        return new Tuple<EdgePath<float>, EdgePath<float>>(
+                            new EdgePath<float>(),
+                            new EdgePath<float>());
                     }
                     return null;
                 }));

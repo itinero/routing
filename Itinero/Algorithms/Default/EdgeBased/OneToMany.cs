@@ -58,19 +58,19 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _getRestrictions = getRestrictions;
         }
 
-        private EdgePath[] _best;
+        private EdgePath<float>[] _best;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            _best = new EdgePath[_targets.Count];
+            _best = new EdgePath<float>[_targets.Count];
 
             // register the targets and determine one-edge-paths.
             var sourcePaths = _source.ToEdgePaths(_routerDb, _getFactor, true);
             var targetIndexesPerEdge = new Dictionary<uint, LinkedTarget>();
-            var targetPaths = new IEnumerable<EdgePath>[_targets.Count];
+            var targetPaths = new IEnumerable<EdgePath<float>>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
                 var targets = _targets[i].ToEdgePaths(_routerDb, _getFactor, false);
@@ -154,7 +154,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Gets the path to the given target.
         /// </summary>
         /// <returns></returns>
-        public EdgePath GetPath(int target)
+        public EdgePath<float> GetPath(int target)
         {
             this.CheckHasRunAndHasSucceeded();
 

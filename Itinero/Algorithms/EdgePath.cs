@@ -23,7 +23,7 @@ namespace Itinero.Algorithms
     /// <summary>
     /// Represents a path along a set of edges/vertices.
     /// </summary>
-    public class EdgePath
+    public class EdgePath<T>
     {
         /// <summary>
         /// Creates a path source.
@@ -32,14 +32,14 @@ namespace Itinero.Algorithms
         {
             this.Vertex = vertex;
             this.Edge = Constants.NO_EDGE;
-            this.Weight = 0;
+            this.Weight = default(T);
             this.From = null;
         }
 
         /// <summary>
         /// Creates a path to the given vertex with the given weight.
         /// </summary>
-        public EdgePath(uint vertex, float weight, EdgePath from)
+        public EdgePath(uint vertex, T weight, EdgePath<T> from)
         {
             this.Vertex = vertex;
             this.Edge = Constants.NO_EDGE;
@@ -50,7 +50,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Creates a path to the given vertex with the given weight along the given edge.
         /// </summary>
-        public EdgePath(uint vertex, float weight, long edge, EdgePath from)
+        public EdgePath(uint vertex, T weight, long edge, EdgePath<T> from)
         {
             this.Vertex = vertex;
             this.Edge = edge;
@@ -71,12 +71,12 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the weight at the vertex.
         /// </summary>
-        public float Weight { get; private set; }
+        public T Weight { get; private set; }
 
         /// <summary>
         /// Gets previous path.
         /// </summary>
-        public EdgePath From { get; private set; }
+        public EdgePath<T> From { get; private set; }
 
         /// <summary>
         /// Returns a description of this path.
@@ -105,7 +105,7 @@ namespace Itinero.Algorithms
         /// </summary>
         public override bool Equals(object obj)
         {
-            var other = obj as EdgePath;
+            var other = obj as EdgePath<T>;
             if (other == null)
             {
                 return false;

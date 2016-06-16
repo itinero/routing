@@ -60,7 +60,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// Calculates witness paths.
         /// </summary>
         public void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, uint source, List<uint> targets, List<float> weights,
-            ref EdgePath[] forwardWitness, ref EdgePath[] backwardWitness, uint vertexToSkip)
+            ref EdgePath<float>[] forwardWitness, ref EdgePath<float>[] backwardWitness, uint vertexToSkip)
         {
             if (_hopLimit == 1)
             {
@@ -69,8 +69,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             }
 
             // creates the settled list.
-            var backwardSettled = new HashSet<EdgePath>();
-            var forwardSettled = new HashSet<EdgePath>();
+            var backwardSettled = new HashSet<EdgePath<float>>();
+            var forwardSettled = new HashSet<EdgePath<float>>();
             var backwardTargets = new HashSet<uint>();
             var forwardTargets = new HashSet<uint>();
             float forwardMaxWeight = 0, backwardMaxWeight = 0;
@@ -78,7 +78,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             {
                 if (forwardWitness[idx] == null)
                 {
-                    forwardWitness[idx] = new EdgePath();
+                    forwardWitness[idx] = new EdgePath<float>();
                     forwardTargets.Add(targets[idx]);
                     if (forwardMaxWeight < weights[idx])
                     {
@@ -87,7 +87,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 }
                 if (backwardWitness[idx] == null)
                 {
-                    backwardWitness[idx] = new EdgePath();
+                    backwardWitness[idx] = new EdgePath<float>();
                     backwardTargets.Add(targets[idx]);
                     if (backwardMaxWeight < weights[idx])
                     {
@@ -101,10 +101,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             }
 
             // creates the priorty queue.
-            var forwardMinWeight = new Dictionary<EdgePath, float>();
-            var backwardMinWeight = new Dictionary<EdgePath, float>();
+            var forwardMinWeight = new Dictionary<EdgePath<float>, float>();
+            var backwardMinWeight = new Dictionary<EdgePath<float>, float>();
             _heap.Clear();
-            _heap.Push(new SettledEdge(new EdgePath(source), 0, forwardMaxWeight > 0, backwardMaxWeight > 0), 0);
+            _heap.Push(new SettledEdge(new EdgePath<float>(source), 0, forwardMaxWeight > 0, backwardMaxWeight > 0), 0);
 
             // keep looping until the queue is empty or the target is found!
             var edgeEnumerator = graph.GetEdgeEnumerator();
@@ -202,7 +202,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                             var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
                             var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
 
-                            var neighbourPath = new EdgePath(neighbour, current.Path.Weight + neighbourWeight, edgeEnumerator.IdDirected(), current.Path);
+                            var neighbourPath = new EdgePath<float>(neighbour, current.Path.Weight + neighbourWeight, edgeEnumerator.IdDirected(), current.Path);
                             
                             var totalNeighbourWeight = current.Path.Weight + neighbourWeight;
                             var doNeighbourForward = doForward && neighbourCanMoveForward && totalNeighbourWeight <= forwardMaxWeight &&
@@ -306,7 +306,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
         /// Calculates witness paths with just one hop.
         /// </summary>
         public void ExistsOneHop(DirectedDynamicGraph graph, uint source, List<uint> targets, List<float> weights,
-            ref EdgePath[] forwardExists, ref EdgePath[] backwardExists)
+            ref EdgePath<float>[] forwardExists, ref EdgePath<float>[] backwardExists)
         {
             var targetsToCalculate = new HashSet<uint>();
             var maxWeight = 0.0f;
@@ -322,11 +322,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                 }
                 if (forwardExists[idx] == null)
                 {
-                    forwardExists[idx] = new EdgePath();
+                    forwardExists[idx] = new EdgePath<float>();
                 }
                 if (backwardExists[idx] == null)
                 {
-                    backwardExists[idx] = new EdgePath();
+                    backwardExists[idx] = new EdgePath<float>();
                 }
             }
 
@@ -351,12 +351,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                         if (neighbourCanMoveForward &&
                             neighbourWeight < weights[index])
                         {
-                            forwardExists[index] = new EdgePath(neighbour, neighbourWeight, edgeEnumerator.IdDirected(), new EdgePath(source));
+                            forwardExists[index] = new EdgePath<float>(neighbour, neighbourWeight, edgeEnumerator.IdDirected(), new EdgePath<float>(source));
                         }
                         if (neighbourCanMoveBackward &&
                             neighbourWeight < weights[index])
                         {
-                            backwardExists[index] = new EdgePath(neighbour, neighbourWeight, edgeEnumerator.IdDirected(), new EdgePath(source)); ;
+                            backwardExists[index] = new EdgePath<float>(neighbour, neighbourWeight, edgeEnumerator.IdDirected(), new EdgePath<float>(source)); ;
                         }
 
                         if (targetsToCalculate.Count == 0)
@@ -406,7 +406,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             /// <summary>
             /// Creates a new settled edge.
             /// </summary>
-            public SettledEdge(EdgePath edge, uint hops, bool forward, bool backward)
+            public SettledEdge(EdgePath<float> edge, uint hops, bool forward, bool backward)
             {
                 this.Path = edge;
                 this.Hops = hops;
@@ -417,7 +417,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             /// <summary>
             /// The edge that was settled.
             /// </summary>
-            public EdgePath Path { get; set; }
+            public EdgePath<float> Path { get; set; }
 
             /// <summary>
             /// The hop-count of this vertex.

@@ -94,7 +94,7 @@ namespace Itinero.Algorithms.Default
         private bool ReachedVertexBackward(uint vertex, float weight)
         {
             // check forward search for the same vertex.
-            EdgePath forwardVisit;
+            EdgePath<float> forwardVisit;
             if (_sourceSearch.TryGetVisit(vertex, out forwardVisit))
             { // there is a status for this vertex in the source search.
                 weight = weight + forwardVisit.Weight;
@@ -152,8 +152,8 @@ namespace Itinero.Algorithms.Default
             this.CheckHasRunAndHasSucceeded();
 
             weight = 0;
-            EdgePath fromSource;
-            EdgePath toTarget;
+            EdgePath<float> fromSource;
+            EdgePath<float> toTarget;
             if(_sourceSearch.TryGetVisit(_bestVertex, out fromSource) &&
                _targetSearch.TryGetVisit(_bestVertex, out toTarget))
             {

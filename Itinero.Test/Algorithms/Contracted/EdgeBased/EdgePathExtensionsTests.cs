@@ -44,44 +44,44 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var enumerator = graph.GetEdgeEnumerator();
 
             // build and test getting sequences from paths.
-            var path = new EdgePath(0);
+            var path = new EdgePath<float>(0);
             var s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(0, s.Length);
 
-            path = new EdgePath(1, 100, new EdgePath(0));
+            path = new EdgePath<float>(1, 100, new EdgePath<float>(0));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(1, s.Length);
             Assert.AreEqual(1, s[0]);
 
-            path = new EdgePath(2, 200, e2 + 1, new EdgePath(1, 100, new EdgePath(0)));
+            path = new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(2, s.Length);
             Assert.AreEqual(1, s[0]);
             Assert.AreEqual(2, s[1]);
 
-            path = new EdgePath(2, 200, e2 + 1, new EdgePath(1, 100, new EdgePath(0)));
+            path = new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)));
             s = path.GetSequence1(enumerator, 1);
             Assert.IsNotNull(s);
             Assert.AreEqual(1, s.Length);
             Assert.AreEqual(1, s[0]);
 
-            path = new EdgePath(6, 300, e3 + 1, new EdgePath(2));
+            path = new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(1, s.Length);
             Assert.AreEqual(3, s[0]);
 
-            path = new EdgePath(6, 200, e3 + 1, new EdgePath(2, 100, e2 + 1, new EdgePath(1)));
+            path = new EdgePath<float>(6, 200, e3 + 1, new EdgePath<float>(2, 100, e2 + 1, new EdgePath<float>(1)));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(2, s.Length);
             Assert.AreEqual(2, s[0]);
             Assert.AreEqual(3, s[1]);
 
-            path = new EdgePath(6, 200, e3 + 1, new EdgePath(2, 100, e2 + 1, new EdgePath(1, 100, new EdgePath(0))));
+            path = new EdgePath<float>(6, 200, e3 + 1, new EdgePath<float>(2, 100, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0))));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(3, s.Length);
@@ -98,7 +98,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(1, s[0]);
             Assert.AreEqual(2, s[1]);
             
-            path = new EdgePath(16, 400, e4 + 1, new EdgePath(6));
+            path = new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(4, s.Length);
@@ -124,7 +124,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             e3 = graph.AddEdge(2, 10, 100, null, 6, new uint[] { 3, 4, 5 }, new uint[] { 7, 8, 9 });
             enumerator = graph.GetEdgeEnumerator();
 
-            path = new EdgePath(10, 300, e3 + 1, new EdgePath(2, 200, e2 + 1, new EdgePath(1, 200, e1 + 1, new EdgePath(0))));
+            path = new EdgePath<float>(10, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 200, e1 + 1, new EdgePath<float>(0))));
             s = path.GetSequence1(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(5, s.Length);
@@ -134,7 +134,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(4, s[3]);
             Assert.AreEqual(5, s[4]);
 
-            path = new EdgePath(10, 300, e3 + 1, new EdgePath(2, 200, e2 + 1, new EdgePath(1, 200, e1 + 1, new EdgePath(0))));
+            path = new EdgePath<float>(10, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 200, e1 + 1, new EdgePath<float>(0))));
             s = path.GetSequence1(enumerator, 3);
             Assert.IsNotNull(s);
             Assert.AreEqual(3, s.Length);
@@ -158,31 +158,31 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var enumerator = graph.GetEdgeEnumerator();
 
             // build and test getting sequences from paths.
-            var path = new EdgePath(0);
+            var path = new EdgePath<float>(0);
             var s = path.GetSequence2(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(0, s.Length);
 
-            path = new EdgePath(1, 100, new EdgePath(0));
+            path = new EdgePath<float>(1, 100, new EdgePath<float>(0));
             s = path.GetSequence2(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(1, s.Length);
             Assert.AreEqual(0, s[0]);
 
-            path = new EdgePath(2, 200, e2 + 1, new EdgePath(1, 100, new EdgePath(0)));
+            path = new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)));
             s = path.GetSequence2(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(2, s.Length);
             Assert.AreEqual(0, s[0]);
             Assert.AreEqual(1, s[1]);
 
-            path = new EdgePath(6, 300, e3 + 1, new EdgePath(2, 200, e2 + 1, new EdgePath(1, 100, new EdgePath(0))));
+            path = new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0))));
             s = path.GetSequence2(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(1, s.Length);
             Assert.AreEqual(5, s[0]);
 
-            path = new EdgePath(16, 400, e4 + 1, new EdgePath(6, 300, e3 + 1, new EdgePath(2, 200, e2 + 1, new EdgePath(1, 100, new EdgePath(0)))));
+            path = new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)))));
             s = path.GetSequence2(enumerator);
             Assert.IsNotNull(s);
             Assert.AreEqual(4, s.Length);

@@ -1177,13 +1177,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <param name="originalPath">The sequence."</param>
         /// <param name="reverse">The sequence has to be used in reverse, for performance reasons to avoid creating another array.</param>
         /// <param name="pathIsBackwards">When the resulting path is a backwards path agains the direction of the direction flags.</param>
-        public static EdgePath BuildPath(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint[] originalPath, bool reverse = false, bool pathIsBackwards = false)
+        public static EdgePath<float> BuildPath(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint[] originalPath, bool reverse = false, bool pathIsBackwards = false)
         {
             if (!pathIsBackwards)
             {
                 if (!reverse)
                 {
-                    var path = new EdgePath(originalPath[0]);
+                    var path = new EdgePath<float>(originalPath[0]);
                     for (var i = 1; i < originalPath.Length; i++)
                     {
                         if (enumerator.MoveToOriginal(originalPath[i - 1], originalPath[i]))
@@ -1192,7 +1192,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             bool? direction;
                             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                 out weight, out direction);
-                            path = new EdgePath(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
+                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
                         }
                         else
                         {
@@ -1200,14 +1200,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             bool? direction;
                             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                 out weight, out direction);
-                            path = new EdgePath(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
                         }
                     }
                     return path;
                 }
                 else
                 {
-                    var path = new EdgePath(originalPath[originalPath.Length - 1]);
+                    var path = new EdgePath<float>(originalPath[originalPath.Length - 1]);
                     if (originalPath.Length > 1)
                     {
                         for (var i = originalPath.Length - 2; i >= 0; i--)
@@ -1218,7 +1218,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 bool? direction;
                                 ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                     out weight, out direction);
-                                path = new EdgePath(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
+                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
                             }
                             else
                             {
@@ -1226,7 +1226,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 bool? direction;
                                 ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                     out weight, out direction);
-                                path = new EdgePath(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
                             }
                         }
                     }
@@ -1237,7 +1237,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             {
                 if (!reverse)
                 {
-                    var path = new EdgePath(originalPath[0]);
+                    var path = new EdgePath<float>(originalPath[0]);
                     for (var i = 1; i < originalPath.Length; i++)
                     {
                         if (enumerator.MoveToOriginal(originalPath[i], originalPath[i - 1]))
@@ -1246,7 +1246,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             bool? direction;
                             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                 out weight, out direction);
-                            path = new EdgePath(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
+                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
                         }
                         else
                         {
@@ -1254,14 +1254,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             bool? direction;
                             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                 out weight, out direction);
-                            path = new EdgePath(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
                         }
                     }
                     return path;
                 }
                 else
                 {
-                    var path = new EdgePath(originalPath[originalPath.Length - 1]);
+                    var path = new EdgePath<float>(originalPath[originalPath.Length - 1]);
                     if (originalPath.Length > 1)
                     {
                         for (var i = originalPath.Length - 2; i >= 0; i--)
@@ -1272,7 +1272,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 bool? direction;
                                 ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                     out weight, out direction);
-                                path = new EdgePath(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
+                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected(), path);
                             }
                             else
                             {
@@ -1280,7 +1280,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 bool? direction;
                                 ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                     out weight, out direction);
-                                path = new EdgePath(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
                             }
                         }
                     }
@@ -1296,7 +1296,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <param name="originalPath">The sequence."</param>
         /// <param name="reverse">The sequence has to be used in reverse, for performance reasons to avoid creating another array.</param>
         /// <param name="pathIsBackwards">When the resulting path is a backwards path agains the direction of the direction flags.</param>
-        public static EdgePath BuildPath(this DirectedDynamicGraph graph, uint[] originalPath, bool reverse = false, bool pathIsBackwards = false)
+        public static EdgePath<float> BuildPath(this DirectedDynamicGraph graph, uint[] originalPath, bool reverse = false, bool pathIsBackwards = false)
         {
             return graph.GetEdgeEnumerator().BuildPath(originalPath, reverse);
         }

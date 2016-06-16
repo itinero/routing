@@ -29,30 +29,30 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
     /// </summary>
     class WitnessCalculatorMock : IWitnessCalculator
     {
-        private readonly Func<uint, uint, Tuple<EdgePath, EdgePath>> _witnesses; // source, target, forward, result.
+        private readonly Func<uint, uint, Tuple<EdgePath<float>, EdgePath<float>>> _witnesses; // source, target, forward, result.
 
         public WitnessCalculatorMock()
         {
 
         }
 
-        public WitnessCalculatorMock(Func<uint, uint, Tuple<EdgePath, EdgePath>> witnesses)
+        public WitnessCalculatorMock(Func<uint, uint, Tuple<EdgePath<float>, EdgePath<float>>> witnesses)
         {
             _witnesses = witnesses;
         }
 
         public void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, uint source, List<uint> targets, List<float> weights, 
-            ref EdgePath[] forwardWitness, ref EdgePath[] backwardWitness, uint vertexToSkip)
+            ref EdgePath<float>[] forwardWitness, ref EdgePath<float>[] backwardWitness, uint vertexToSkip)
         {
             for(var i = 0; i < forwardWitness.Length; i++)
             {
                 if (forwardWitness[i] == null)
                 {
-                    forwardWitness[i] = new EdgePath();
+                    forwardWitness[i] = new EdgePath<float>();
                 }
                 if (backwardWitness[i] == null)
                 {
-                    backwardWitness[i] = new EdgePath();
+                    backwardWitness[i] = new EdgePath<float>();
                 }
             }
             if (_witnesses != null)

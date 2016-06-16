@@ -178,8 +178,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             //    edges.AddRange(_graph.GetEdgeEnumerator(vertex));
 
-            //    var forwardWitnesses = new EdgePath[edges.Count];
-            //    var backwardWitnesses = new EdgePath[edges.Count];
+            //    var forwardWitnesses = new EdgePath<float>[edges.Count];
+            //    var backwardWitnesses = new EdgePath<float>[edges.Count];
             //    for (var i = 0; i < edges.Count; i++)
             //    {
             //        var edge = edges[i];
@@ -193,8 +193,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             //        if (_restrictionFlags[edge.Neighbour])
             //        { // don't remove shortcuts when there is a potential restriction.
-            //            forwardWitnesses[i] = new EdgePath();
-            //            backwardWitnesses[i] = new EdgePath();
+            //            forwardWitnesses[i] = new EdgePath<float>();
+            //            backwardWitnesses[i] = new EdgePath<float>();
             //            weights.Add(0);
             //            targets.Add(edge.Neighbour);
             //        }
@@ -202,11 +202,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             //        {
             //            if (!edgeCanMoveForward)
             //            {
-            //                forwardWitnesses[i] = new EdgePath();
+            //                forwardWitnesses[i] = new EdgePath<float>();
             //            }
             //            if (!edgeCanMoveBackward)
             //            {
-            //                backwardWitnesses[i] = new EdgePath();
+            //                backwardWitnesses[i] = new EdgePath<float>();
             //            }
             //            weights.Add(edgeWeight);
             //            targets.Add(edge.Neighbour);
@@ -330,8 +330,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
                 // figure out what witness paths to calculate.
-                var forwardWitnesses = new EdgePath[j];
-                var backwardWitnesses = new EdgePath[j];
+                var forwardWitnesses = new EdgePath<float>[j];
+                var backwardWitnesses = new EdgePath<float>[j];
                 var targets = new List<uint>(j);
                 var targetWeights = new List<float>(j);
                 for (var k = 0; k < j; k++)
@@ -348,11 +348,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     // use witness flags to represent impossible routes.
                     if (!(edge1CanMoveBackward && edge2CanMoveForward))
                     {
-                        forwardWitnesses[k] = new EdgePath();
+                        forwardWitnesses[k] = new EdgePath<float>();
                     }
                     if (!(edge1CanMoveForward && edge2CanMoveBackward))
                     {
-                        backwardWitnesses[k] = new EdgePath();
+                        backwardWitnesses[k] = new EdgePath<float>();
                     }
 
                     targets.Add(edge2.Neighbour);
