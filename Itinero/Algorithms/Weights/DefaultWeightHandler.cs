@@ -104,13 +104,23 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
-        /// Adds a new edge with the given weight.
+        /// Adds a new edge with the given direction and weight.
         /// </summary>
         public override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
         {
             var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
                 weight, direction);
             graph.AddEdge(vertex1, vertex2, data, contractedId);
+        }
+
+        /// <summary>
+        /// Adds a new edge with the given direction and weight.
+        /// </summary>
+        public override void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, float weight)
+        {
+            var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
+                weight, direction);
+            graph.AddEdge(vertex1, vertex2, data);
         }
     }
 }

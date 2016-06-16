@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Data.Edges;
 using Itinero.Graphs.Directed;
@@ -28,20 +29,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// Builds a directed graph from a regular graph.
     /// </summary>
-    public class DirectedGraphBuilder : AlgorithmBase
+    public class DirectedGraphBuilder<T> : AlgorithmBase
+        where T : struct
     {
         private readonly Itinero.Graphs.Graph _source;
         private readonly DirectedDynamicGraph _target;
-        private readonly Func<ushort, Factor> _getFactor;
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new graph builder.
         /// </summary>
-        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, Func<ushort, Factor> getFactor)
+        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, WeightHandler<T> weightHandler)
         {
             _source = source;
             _target = target;
-            _getFactor = getFactor;
+            _weightHandler = weightHandler;
         }
 
         /// <summary>
@@ -63,12 +65,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {
                     EdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
                         out distance, out edgeProfile);
-                    var factor = Factor.NoFactor;
-                    if (!factors.TryGetValue(edgeProfile, out factor))
-                    { // get from vehicle profile.
-                        factor = _getFactor(edgeProfile);
-                        factors[edgeProfile] = factor;
-                    }
+                    Factor factor;
+                    var weight = _weightHandler.Calculate(edgeProfile, distance, out factor);
 
                     if (factor.Value != 0)
                     {
@@ -89,15 +87,37 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 direction = true;
                             }
                         }
-                        var data = ContractedEdgeDataSerializer.Serialize(
-                            distance * factor.Value, direction);
 
-                        _target.AddEdge(edgeEnumerator.From, edgeEnumerator.To, data);
+                        _weightHandler.AddEdge(_target, edgeEnumerator.From, edgeEnumerator.To, direction, weight);
                     }
                 }
             }
 
             this.HasSucceeded = true;
+        }
+    }
+
+    /// <summary>
+    /// Builds a directed graph from a regular graph.
+    /// </summary>
+    public sealed class DirectedGraphBuilder : DirectedGraphBuilder<float>
+    {
+        /// <summary>
+        /// Creates a new graph builder.
+        /// </summary>
+        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, Func<ushort, Factor> getFactor)
+            : base(source, target, new DefaultWeightHandler(getFactor))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new graph builder.
+        /// </summary>
+        public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, DefaultWeightHandler weightHandler)
+            : base(source, target, weightHandler)
+        {
+
         }
     }
 }

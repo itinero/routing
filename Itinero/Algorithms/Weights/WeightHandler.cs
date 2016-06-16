@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 
@@ -54,10 +55,15 @@ namespace Itinero.Algorithms.Weights
         public abstract float GetMetric(T weight);
 
         /// <summary>
-        /// Adds a new edge to a graph with the given weight.
+        /// Adds a new edge to a graph with the given direction and weight.
         /// </summary>
         public abstract void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, 
             bool? direction, T weight);
+
+        /// <summary>
+        /// Adds a new edge to a graph with the given direction and weight.
+        /// </summary>
+        public abstract void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, T weight);
 
         /// <summary>
         /// Returns the weight that represents 'zero'.
