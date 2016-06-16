@@ -22,6 +22,7 @@ using Itinero.Algorithms.Contracted.EdgeBased.Witness;
 using Itinero.Graphs.Directed;
 using System.Collections.Generic;
 using Itinero.Algorithms;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -38,7 +39,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneEdgeOneHop()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
 
             var witnessCalculator = new DykstraWitnessCalculator(1);
@@ -67,7 +68,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgeInfiniteHops()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 2, 100, null);
 
@@ -97,7 +98,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoOnewayEdgeInfiniteHops()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, true);
             graph.AddEdge(1, 2, 100, true);
             graph.AddEdge(0, 2, 300, true);
@@ -121,7 +122,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(Constants.NO_VERTEX, backwardWitnesses[0].Vertex);
 
             // build graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(1, 0, 100, true);
             graph.AddEdge(2, 1, 100, true);
             graph.AddEdge(2, 0, 100, true);
@@ -150,7 +151,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestQuadrilateralOneWay()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 2, 100, true);
             graph.AddEdge(2, 0, 100, false);
             graph.AddEdge(0, 3, 10, false);
@@ -235,7 +236,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestWithSimpleRestriction()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 2, 100, null);
 
@@ -257,7 +258,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestUTurnHandling()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 3, 100, null, 1, null, null);
             graph.AddEdge(3, 0, 100, null, 1, null, null);
             graph.AddEdge(2, 3, 100, null, 1, null, null);
@@ -277,7 +278,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(Constants.NO_VERTEX, backwardWitnesses[0].Vertex);
 
             // build graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 3, 100, null, 1, null, new uint[] { 100 });
             graph.AddEdge(3, 0, 100, null, 1, new uint[] { 100 }, null);
             graph.AddEdge(2, 3, 100, null, 1, null, new uint[] { 100 });

@@ -106,6 +106,17 @@ namespace Itinero.Graphs.Directed
         }
 
         /// <summary>
+        /// Gets the part of the data that is fixed, meaning a minimum of payload for each edge.
+        /// </summary>
+        public int FixedEdgeDataSize
+        {
+            get
+            {
+                return _fixedEdgeDataSize;
+            }
+        }
+
+        /// <summary>
         /// Increases the size of the vector-array.
         /// </summary>
         private void IncreaseVertexSize()

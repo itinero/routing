@@ -24,6 +24,7 @@ using System;
 using System.Linq;
 using Itinero.Data.Edges;
 using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Weights;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -61,7 +62,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             };
 
             // convert graph.
-            var directedGraph = new DirectedDynamicGraph(1);
+            var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
             algorithm.Run();
 
@@ -115,7 +116,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             };
 
             // convert graph.
-            var directedGraph = new DirectedDynamicGraph(1);
+            var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
             algorithm.Run();
 
@@ -138,6 +139,65 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(1, edges.Count());
             data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, false);
             Assert.AreEqual(data, edges.First().Data[0]);
+            Assert.AreEqual(0, edges.First().Neighbour);
+        }
+
+        /// <summary>
+        /// Tests converting a graph with one edge.
+        /// </summary>
+        [Test]
+        public void TestOneEdgeAugmented()
+        {
+            // build graph.
+            var graph = new Itinero.Graphs.Graph(EdgeDataSerializer.Size);
+            graph.AddVertex(0);
+            graph.AddVertex(1);
+            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            }));
+
+            // build speed profile function.
+            var speed = 100f / 3.6f;
+            Func<ushort, FactorAndSpeed> getFactor = (x) =>
+            {
+                return new FactorAndSpeed()
+                {
+                    Direction = 0,
+                    Speed = 1.0f / speed,
+                    Value = 1.0f / speed
+                };
+            };
+
+            // convert graph.
+            var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.AugmentedDynamicFixedSize);
+            var algorithm = new DirectedGraphBuilder<Weight>(graph, directedGraph, new WeightHandler(getFactor));
+            algorithm.Run();
+
+            // check result.
+            Assert.IsTrue(algorithm.HasRun);
+            Assert.IsTrue(algorithm.HasSucceeded);
+
+            directedGraph.Compress();
+            Assert.AreEqual(2, directedGraph.VertexCount);
+            Assert.AreEqual(2, directedGraph.EdgeCount);
+
+            // verify all edges.
+            var edges = directedGraph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null, 100, 100 * getFactor(1).Value);
+            Assert.AreEqual(data[0], edges.First().Data[0]);
+            Assert.AreEqual(data[1], edges.First().Data[1]);
+            Assert.AreEqual(data[2], edges.First().Data[2]);
+            Assert.AreEqual(1, edges.First().Neighbour);
+
+            edges = directedGraph.GetEdgeEnumerator(1);
+            Assert.AreEqual(1, edges.Count());
+            data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null, 100, 100 * getFactor(1).Value);
+            Assert.AreEqual(data[0], edges.First().Data[0]);
+            Assert.AreEqual(data[1], edges.First().Data[1]);
+            Assert.AreEqual(data[2], edges.First().Data[2]);
             Assert.AreEqual(0, edges.First().Neighbour);
         }
     }

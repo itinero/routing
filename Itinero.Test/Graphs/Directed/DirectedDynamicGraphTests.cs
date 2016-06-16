@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Contracted.EdgeBased;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
 
@@ -61,7 +62,7 @@ namespace Itinero.Test.Graphs.Directed
         public void TestAddMultipleEdges()
         {
             // a new graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 10, 100);
             graph.AddEdge(1, 0, 10, 100);
             graph.AddEdge(0, 2, 20, 200);
@@ -82,7 +83,7 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(200, edges.First(x => x.Neighbour == 0).DynamicData[0]);
 
             // a new graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 10, 100);
             graph.AddEdge(0, 2, 20, 200);
             graph.AddEdge(1, 0, 10, 100);
@@ -103,7 +104,7 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(200, edges.First(x => x.Neighbour == 0).DynamicData[0]);
             
             // a new graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 10);
             graph.AddEdge(1, 0, 10);
             graph.AddEdge(0, 2, 20);
@@ -120,7 +121,7 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(20, edges.First(x => x.Neighbour == 0).Data[0]);
 
             // a new graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 10);
             graph.AddEdge(0, 2, 20);
             graph.AddEdge(1, 0, 10);

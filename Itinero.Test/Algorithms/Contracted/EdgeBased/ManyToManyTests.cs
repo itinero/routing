@@ -284,7 +284,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
             graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, null);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
@@ -350,7 +350,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, null);
             graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
@@ -422,7 +422,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
 
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, true);
             graph.AddEdge(2, 1, 100, false);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
@@ -493,7 +493,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, true);
             graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, true);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
@@ -564,7 +564,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, false);
             graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, false);
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
@@ -649,7 +649,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             });
 
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
             graph.AddEdge(0, 4, 100 * MockProfile.CarMock().Factor(null).Value, null);
             graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);

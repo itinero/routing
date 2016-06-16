@@ -83,4 +83,156 @@ namespace Itinero.Algorithms.Weights
             get;
         }
     }
+
+    /// <summary>
+    /// A weight handler.
+    /// </summary>
+    public sealed class WeightHandler : WeightHandler<Weight>
+    {
+        private readonly Weight _infinite = new Weight()
+        {
+            Distance = float.MaxValue,
+            Time = float.MaxValue,
+            Value = float.MaxValue
+        };
+        private readonly Weight _zero = new Weight()
+        {
+            Distance = 0,
+            Time = 0,
+            Value = 0
+        };
+        private readonly Func<ushort, FactorAndSpeed> _getFactorAndSpeed;
+
+        /// <summary>
+        /// Creates a new weight handler.
+        /// </summary>
+        public WeightHandler(Func<ushort, FactorAndSpeed> getFactorAndSpeed)
+        {
+            _getFactorAndSpeed = getFactorAndSpeed;
+        }
+
+        /// <summary>
+        /// Returns the weight that represents 'infinite'.
+        /// </summary>
+        /// <returns></returns>
+        public sealed override Weight Infinite
+        {
+            get
+            {
+                return _infinite;
+            }
+        }
+
+        /// <summary>
+        /// Returns the weight that represents 'zero'.
+        /// </summary>
+        /// <returns></returns>
+        public sealed override Weight Zero
+        {
+            get
+            {
+                return _zero;
+            }
+        }
+
+        /// <summary>
+        /// Adds the two weights.
+        /// </summary>
+        public sealed override Weight Add(Weight weight1, Weight weight2)
+        {
+            return new Weight()
+            {
+                Distance = weight1.Distance + weight2.Distance,
+                Time = weight1.Time + weight2.Time,
+                Value = weight1.Value + weight2.Value,
+            };
+        }
+
+        /// <summary>
+        /// Adds to the given weight based on the given edge profile and distance.
+        /// </summary>
+        public sealed override Weight Add(Weight weight, ushort edgeProfile, float distance, out Factor factor)
+        {
+            var factorAndSpeed = _getFactorAndSpeed(edgeProfile);
+            factor = new Factor()
+            {
+                Direction = factorAndSpeed.Direction,
+                Value = factorAndSpeed.Value
+            };
+            return new Weight()
+            {
+                Distance = weight.Distance + distance,
+                Time = weight.Time + (distance * factorAndSpeed.Speed),
+                Value = weight.Value + (distance * factorAndSpeed.Value)
+            };
+        }
+
+        /// <summary>
+        /// Calculates the weight for the given edge.
+        /// </summary>
+        public sealed override Weight Calculate(ushort edgeProfile, float distance, out Factor factor)
+        {
+            var factorAndSpeed = _getFactorAndSpeed(edgeProfile);
+            factor = new Factor()
+            {
+                Direction = factorAndSpeed.Direction,
+                Value = factorAndSpeed.Value
+            };
+            return new Weight()
+            {
+                Distance = distance,
+                Time = (distance * factorAndSpeed.Speed),
+                Value = (distance * factorAndSpeed.Value)
+            };
+        }
+
+        /// <summary>
+        /// Gets the metric for the given weight.
+        /// </summary>
+        public sealed override float GetMetric(Weight weight)
+        {
+            return weight.Value;
+        }
+
+        /// <summary>
+        /// Subtracts the given weights.
+        /// </summary>
+        public sealed override Weight Subtract(Weight weight1, Weight weight2)
+        {
+            return new Weight()
+            {
+                Distance = weight1.Distance - weight2.Distance,
+                Time = weight1.Time - weight2.Time,
+                Value = weight1.Value - weight2.Value,
+            };
+        }
+
+        /// <summary>
+        /// Adds a new edge to a graph with the given direction and weight.
+        /// </summary>
+        public sealed override void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, Weight weight)
+        {
+            if (graph.FixedEdgeDataSize != 3)
+            {
+                throw new InvalidOperationException("The given dynamic graph cannot handle augmented weights. Initialize the graph with a fixed edge data size of 3.");
+            }
+
+            var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
+                weight.Value, direction, weight.Distance, weight.Time);
+            graph.AddEdge(vertex1, vertex2, data);
+        }
+
+        /// <summary>
+        /// Adds a new edge to a graph with the given direction and weight.
+        /// </summary>
+        public sealed override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, Weight weight)
+        {
+            if (graph.EdgeDataSize != 3)
+            {
+                throw new InvalidOperationException("The given graph cannot handle augmented weights. Initialize the graph with a edge meta data size of 3.");
+            }
+            graph.AddEdge(vertex1, vertex2, new uint[] { Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(weight.Value, direction) },
+                Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(contractedId, weight.Distance, weight.Time));
+        }
+    }
 }

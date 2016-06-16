@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms;
 using Itinero.Algorithms.Contracted.EdgeBased;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
 
@@ -36,7 +37,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestGetSequence1()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             var e1 = graph.AddEdge(0, 1, 100, null);
             var e2 = graph.AddEdge(1, 2, 100, null);
             var e3 = graph.AddEdge(2, 6, 100, null, 4, new uint[] { 3 }, new uint[] { 5 });
@@ -118,7 +119,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(10, s[2]);
 
             // build graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             e1 = graph.AddEdge(0, 1, 100, null);
             e2 = graph.AddEdge(1, 2, 100, null);
             e3 = graph.AddEdge(2, 10, 100, null, 6, new uint[] { 3, 4, 5 }, new uint[] { 7, 8, 9 });
@@ -150,7 +151,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestGetSequence2()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             var e1 = graph.AddEdge(0, 1, 100, null);
             var e2 = graph.AddEdge(1, 2, 100, null);
             var e3 = graph.AddEdge(2, 6, 100, null, 4, new uint[] { 3 }, new uint[] { 5 });

@@ -78,6 +78,17 @@ namespace Itinero.Graphs.Directed
         }
 
         /// <summary>
+        /// Gets the edge data size.
+        /// </summary>
+        public int EdgeDataSize
+        {
+            get
+            {
+                return _edgeDataSize;
+            }
+        }
+
+        /// <summary>
         /// Switched two edges.
         /// </summary>
         private void SwitchEdge(uint oldId, uint newId)
@@ -213,7 +224,7 @@ namespace Itinero.Graphs.Directed
         {
             long maxEdgeId;
             _graph.Compress(toReadonly, out maxEdgeId);
-            _edgeData.Resize(maxEdgeId);
+            _edgeData.Resize(maxEdgeId * _edgeDataSize);
         }
 
         /// <summary>
@@ -223,7 +234,7 @@ namespace Itinero.Graphs.Directed
         {
             long maxEdgeId;
             _graph.Trim(out maxEdgeId);
-            _edgeData.Resize(maxEdgeId);
+            _edgeData.Resize(maxEdgeId * _edgeDataSize);
         }
 
         /// <summary>

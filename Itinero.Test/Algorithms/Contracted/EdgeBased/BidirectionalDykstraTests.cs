@@ -39,7 +39,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneEdge()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
 
             // create algorithm and run.
@@ -69,7 +69,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(new List<uint>(new uint[] { 0, 1 }), algorithm.GetPath());
 
             // build graph.
-            graph = new DirectedDynamicGraph(1);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(1, 0, 100, null);
 
             // create algorithm and run.
@@ -104,7 +104,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(2, 1, 100, null);
 
@@ -148,7 +148,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesRightHighest()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 2, 100, null);
 
@@ -192,7 +192,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesLeftHighest()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(2, 1, 100, null);
 
@@ -236,7 +236,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesDirectedMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, true);
             graph.AddEdge(2, 1, 100, false);
 

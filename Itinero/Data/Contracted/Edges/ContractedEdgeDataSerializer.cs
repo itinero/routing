@@ -138,6 +138,30 @@ namespace Itinero.Data.Contracted.Edges
         }
 
         /// <summary>
+        /// Returns the size of a the meta data in uint's when serialized and including augmented weights.
+        /// </summary>
+        public static int AugmentedMetaSize
+        {
+            get { return 3; }
+        }
+
+        /// <summary>
+        /// Returns the size of the fixed component of the data in the dynamic graph.
+        /// </summary>
+        public static int DynamicFixedSize
+        {
+            get { return 1; }
+        }
+
+        /// <summary>
+        /// Returns the size of the fixed component of the data in the dynamic graph including augmented weights.
+        /// </summary>
+        public static int AugmentedDynamicFixedSize
+        {
+            get { return 3; }
+        }
+
+        /// <summary>
         /// Returns the size of a the data in uint's when serialized.
         /// </summary>
         public static int Size
@@ -173,6 +197,32 @@ namespace Itinero.Data.Contracted.Edges
             var data0 = (uint)dirFlags;
             data0 = data0 + ((uint)(weight * PRECISION_FACTOR) * 4);
             return data0;
+        }
+
+        /// <summary>
+        /// Serializes augmented edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static uint[] Serialize(float weight, bool? direction, float distance, float time)
+        { // precision of 0.1m and 1 second.
+            return new uint[] {
+                Serialize(weight, direction),
+                (uint)distance * 10,
+                (uint)time
+            };
+        }
+
+        /// <summary>
+        /// Serializes augmented edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static uint[] Serialize(uint contractedId, float distance, float time)
+        { // precision of 0.1m and 1 second.
+            return new uint[] {
+                contractedId,
+                (uint)distance * 10,
+                (uint)time
+            };
         }
 
         /// <summary>

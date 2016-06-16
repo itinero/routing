@@ -39,7 +39,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test2Vertices()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.Compress();
@@ -63,7 +63,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test3Vertices()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void Test3VerticesComplete()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
@@ -129,7 +129,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestPentagon()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
@@ -194,7 +194,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestPentagonDirected()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, true);
             graph.AddEdge(1, 0, 100, false);
             graph.AddEdge(1, 2, 100, true);
@@ -271,7 +271,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestDoubleContraction()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 2, 100, null);
             graph.AddEdge(2, 0, 100, null);
             graph.AddEdge(0, 3, 100, null);
@@ -319,7 +319,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestDoubleContractionOneway()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
@@ -378,7 +378,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestUncontractedWitnessed()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
@@ -456,7 +456,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestRestrictedNetwork1()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
@@ -534,7 +534,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestRestrictedNetwork2()
         {
             // build graph.
-            var graph = new DirectedDynamicGraph(1);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
