@@ -35,7 +35,7 @@ namespace Itinero
     /// <summary>
     /// A router implementation encapsulating basic routing functionalities.
     /// </summary>
-    public class Router : IRouter
+    public sealed class Router : RouterBase
     {
         private readonly RouterDb _db;
 
@@ -72,7 +72,7 @@ namespace Itinero
         /// <summary>
         /// Gets the db.
         /// </summary>
-        public RouterDb Db
+        public override sealed RouterDb Db
         {
             get
             {
@@ -84,7 +84,7 @@ namespace Itinero
         /// Returns true if all profiles are supported.
         /// </summary>
         /// <returns></returns>
-        public bool SupportsAll(params Profile[] profiles)
+        public sealed override bool SupportsAll(params Profile[] profiles)
         {
             return _db.SupportsAll(profiles);
         }
@@ -93,7 +93,7 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, 
+        public sealed override Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, 
             Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter)
         {
             if(!_db.SupportsAll(profiles))
@@ -143,7 +143,7 @@ namespace Itinero
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        public Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)
+        public sealed override Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)
         {
             if (!_db.Supports(profile))
             {
@@ -171,7 +171,7 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target)
+        public sealed override Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target)
         {
             if (!_db.Supports(profile))
             {
@@ -295,11 +295,11 @@ namespace Itinero
         /// Calculates the weight of the route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public Result<float> TryCalculateWeight(Profile profile, RouterPoint source, RouterPoint target)
+        public sealed override Result<T> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
         {
             if (!_db.Supports(profile))
             {
-                return new Result<float>("Routing profile is not supported.", (message) =>
+                return new Result<T>("Routing profile is not supported.", (message) =>
                 {
                     return new Exception(message);
                 });
@@ -312,7 +312,7 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+        public sealed override Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             if (!_db.Supports(profile))
@@ -374,22 +374,19 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public Result<float[][]> TryCalculateWeight(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+        public sealed override Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             if (!_db.Supports(profile))
             {
-                return new Result<float[][]>("Routing profile is not supported.", (message) =>
+                return new Result<T[][]>("Routing profile is not supported.", (message) =>
                 {
                     return new Exception(message);
                 });
             }
 
-            // get the weight handler.
-            var weightHandler = this.GetWeightHandler(profile);
-
             ContractedDb contracted;
-            float[][] weights = null;
+            T[][] weights = null;
 
             bool useContracted = false;
             if (_db.TryGetContracted(profile, out contracted))
@@ -407,12 +404,12 @@ namespace Itinero
             {
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra(_db, profile,
+                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
                         sources, targets);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
-                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -421,12 +418,12 @@ namespace Itinero
                 }
                 else
                 { // use edge-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra(_db, profile,
+                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
                         sources, targets);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
-                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -438,11 +435,11 @@ namespace Itinero
             { // use regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany(_db, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(_db, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
-                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -451,11 +448,11 @@ namespace Itinero
                 }
                 else
                 {
-                    var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, weightHandler, sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, float.MaxValue);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
-                        return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                        return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -473,7 +470,7 @@ namespace Itinero
                 {
                     if (t != s)
                     {
-                        if (weights[s][t] == float.MaxValue)
+                        if (weightHandler.GetMetric(weights[s][t]) == float.MaxValue)
                         {
                             invalids++;
                             invalidTargetCounts[t]++;
@@ -490,7 +487,7 @@ namespace Itinero
                     invalidSources.Add(s);
                 }
             }
-            return new Result<float[][]>(weights);
+            return new Result<T[][]>(weights);
         }
 
         /// <summary>
@@ -498,7 +495,7 @@ namespace Itinero
         /// </summary>
         /// <param name="profiles"></param>
         /// <returns></returns>
-        protected Func<GeometricEdge, bool> GetIsAcceptable(Profile[] profiles)
+        private Func<GeometricEdge, bool> GetIsAcceptable(Profile[] profiles)
         {
             if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profiles))
             { // use cached version and don't consult profiles anymore.
@@ -538,7 +535,7 @@ namespace Itinero
         /// <summary>
         /// Gets the default weight handler for the given profile.
         /// </summary>
-        protected DefaultWeightHandler GetWeightHandler(Profile profile)
+        private DefaultWeightHandler GetWeightHandler(Profile profile)
         {
             if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profile))
             { // use cached version and don't consult profiles anymore.
@@ -556,7 +553,7 @@ namespace Itinero
         /// <summary>
         /// Builds a route.
         /// </summary>
-        protected Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        private Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
         {
             if(this.CustomRouteBuilder != null)
             { // there is a custom route builder.

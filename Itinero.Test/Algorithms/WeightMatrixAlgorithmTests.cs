@@ -42,7 +42,7 @@ namespace Itinero.Test.Algorithms
             var locations = new Coordinate[] { 
                     new Coordinate(0, 0),
                     new Coordinate(1, 1)};
-            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
+            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), new DefaultWeightHandlerMock(), locations, null);
 
             // run.
             matrixAlgorithm.Run();
@@ -73,7 +73,7 @@ namespace Itinero.Test.Algorithms
             var locations = new Coordinate[] { 
                     new Coordinate(0, 0),
                     new Coordinate(180, 1) };
-            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
+            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), new DefaultWeightHandlerMock(), locations, null);
 
             // run.
             matrixAlgorithm.Run();
@@ -94,7 +94,7 @@ namespace Itinero.Test.Algorithms
             locations = new Coordinate[] { 
                     new Coordinate(180, 0),
                     new Coordinate(1, 1) };
-            matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
+            matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), new DefaultWeightHandlerMock(), locations, null);
 
             // run.
             matrixAlgorithm.Run();
@@ -125,7 +125,7 @@ namespace Itinero.Test.Algorithms
             var locations = new Coordinate[] { 
                     new Coordinate(0, 0),
                     new Coordinate(1, 1) };
-            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
+            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), new DefaultWeightHandlerMock(), locations, null);
 
             // run.
             matrixAlgorithm.Run();
@@ -149,7 +149,7 @@ namespace Itinero.Test.Algorithms
             locations = new Coordinate[] { 
                     new Coordinate(0, 0),
                     new Coordinate(1, 1) };
-            matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations);
+            matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), new DefaultWeightHandlerMock(), locations, null);
 
             // run.
             matrixAlgorithm.Run();
@@ -178,7 +178,7 @@ namespace Itinero.Test.Algorithms
             var locations = new Coordinate[] { 
                     new Coordinate(0, 0),
                     new Coordinate(1, 1) };
-            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations,
+            var matrixAlgorithm = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), new DefaultWeightHandlerMock(), locations,
                 (edge, i) =>
                 {
                     return true;

@@ -21,24 +21,27 @@ using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using Itinero.Algorithms.Weights;
 
 namespace Itinero.Algorithms
 {
     /// <summary>
     /// An algorithm to calculate a weight-matrix for a set of locations.
     /// </summary>
-    public class WeightMatrixAlgorithm : AlgorithmBase, IWeightMatrixAlgorithm
+    public class WeightMatrixAlgorithm<T> : AlgorithmBase, IWeightMatrixAlgorithm<T>
+        where T : struct
     {
-        private readonly IRouter _router;
+        private readonly RouterBase _router;
         private readonly Profile _profile;
         private readonly Coordinate[] _locations;
         private readonly Func<RoutingEdge, int, bool> _matchEdge;
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(IRouter router, Profile profile, Coordinate[] locations)
-            : this(router, profile, locations, null)
+        public WeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations)
+            : this(router, profile, weightHandler, locations, null)
         {
 
         }
@@ -46,13 +49,14 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(IRouter router, Profile profile, Coordinate[] locations,
+        public WeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations,
             Func<RoutingEdge, int, bool> matchEdge)
         {
             _router = router;
             _profile = profile;
             _locations = locations;
             _matchEdge = matchEdge;
+            _weightHandler = weightHandler;
 
             this.SearchDistanceInMeter = Constants.SearchDistanceInMeter;
         }
@@ -60,15 +64,14 @@ namespace Itinero.Algorithms
         private Dictionary<int, LocationError> _errors; // all errors per original location idx.
         private List<int> _resolvedPointsIndices; // the original location per resolved point index.
         private List<RouterPoint> _resolvedPoints; // only the valid resolved points.
-        private float[][] _weights; // the weights between all valid resolved points.
+        private T[][] _weights; // the weights between all valid resolved points.
 
 
         /// <summary>
         /// Gets or sets the value for the search distance in meter to use in the resolve methods.
         /// </summary>
         public float SearchDistanceInMeter { get; set; }
-
-
+        
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
@@ -125,7 +128,7 @@ namespace Itinero.Algorithms
             // calculate matrix.
             var nonNullResolvedArray = _resolvedPoints.ToArray();
             var nonNullInvalids = new HashSet<int>();
-            _weights = _router.CalculateWeight(_profile, nonNullResolvedArray, nonNullInvalids);
+            _weights = _router.CalculateWeight(_profile, _weightHandler, nonNullResolvedArray, nonNullInvalids);
 
             // take into account the non-null invalids now.
             if (nonNullInvalids.Count > 0)
@@ -162,7 +165,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the weights between all valid router points.
         /// </summary>
-        public float[][] Weights
+        public T[][] Weights
         {
             get
             {
@@ -205,6 +208,41 @@ namespace Itinero.Algorithms
 
                 return _errors;
             }
+        }
+    }
+
+    /// <summary>
+    /// An algorithm to calculate a weight-matrix for a set of locations.
+    /// </summary>
+    public sealed class WeightMatrixAlgorithm : WeightMatrixAlgorithm<float>
+    {
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations)
+            : this(router, profile, locations, null)
+        {
+
+        }
+        
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations,
+            Func<RoutingEdge, int, bool> matchEdge)
+            : base(router, profile, profile.DefaultWeightHandler(router.Db), locations, matchEdge)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<float> weightHandler, Coordinate[] locations,
+            Func<RoutingEdge, int, bool> matchEdge)
+            : base(router, profile, weightHandler, locations, matchEdge)
+        {
+
         }
     }
 

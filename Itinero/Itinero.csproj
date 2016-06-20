@@ -158,8 +158,8 @@
     <Compile Include="IO\Json\JsonWriter.cs" />
     <Compile Include="IO\Xml\Route.Xml.cs" />
     <Compile Include="IO\Xml\XmlExtensions.cs" />
-    <Compile Include="IRouter.cs" />
-    <Compile Include="IRouterExtensions.cs" />
+    <Compile Include="RouterBase.cs" />
+    <Compile Include="RouterExtensions.cs" />
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Logging\TraceEventType.cs" />
     <Compile Include="Navigation\Directions\DirectionEnum.cs" />

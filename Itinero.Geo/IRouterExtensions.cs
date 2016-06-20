@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
@@ -31,7 +32,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
-        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate[] coordinates,
+        public static Result<RouterPoint>[] TryResolve(this Router router, Profile profile, GeoAPI.Geometries.Coordinate[] coordinates,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -47,7 +48,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate coordinate,
+        public static Result<RouterPoint> TryResolve(this Router router, Profile profile, GeoAPI.Geometries.Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(new Profile[] { profile }, coordinate, searchDistanceInMeter);
@@ -56,7 +57,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
-        public static Result<RouterPoint>[] TryResolve(this IRouter router, Profile[] profiles, GeoAPI.Geometries.Coordinate[] coordinates,
+        public static Result<RouterPoint>[] TryResolve(this Router router, Profile[] profiles, GeoAPI.Geometries.Coordinate[] coordinates,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -72,7 +73,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
+        public static Result<RouterPoint> TryResolve(this Router router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, (float)coordinate.Y, (float)coordinate.X,
@@ -82,7 +83,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this IRouter router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
+        public static Result<RouterPoint> TryResolve(this Router router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, (float)coordinate.Y, (float)coordinate.X, isBetter,
@@ -92,7 +93,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate coordinate,
+        public static RouterPoint Resolve(this Router router, Profile profile, GeoAPI.Geometries.Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profile, coordinate, searchDistanceInMeter).Value;
@@ -101,7 +102,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
+        public static RouterPoint Resolve(this Router router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, coordinate, searchDistanceInMeter).Value;
@@ -110,7 +111,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint[] Resolve(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate[] coordinates,
+        public static RouterPoint[] Resolve(this Router router, Profile profile, GeoAPI.Geometries.Coordinate[] coordinates,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             var results = router.TryResolve(profile, coordinates, searchDistanceInMeter);
@@ -125,7 +126,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this IRouter router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
+        public static RouterPoint Resolve(this Router router, Profile[] profiles, GeoAPI.Geometries.Coordinate coordinate,
             Func<RoutingEdge, bool> isBetter,
                 float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
@@ -135,7 +136,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Route Calculate(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate source, GeoAPI.Geometries.Coordinate target)
+        public static Route Calculate(this Router router, Profile profile, GeoAPI.Geometries.Coordinate source, GeoAPI.Geometries.Coordinate target)
         {
             return router.TryCalculate(profile, source, target).Value;
         }
@@ -143,7 +144,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Route Calculate(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate[] locations)
+        public static Route Calculate(this Router router, Profile profile, GeoAPI.Geometries.Coordinate[] locations)
         {
             return router.TryCalculate(profile, locations).Value;
         }
@@ -151,7 +152,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate source,
+        public static Result<Route> TryCalculate(this Router router, Profile profile, GeoAPI.Geometries.Coordinate source,
             GeoAPI.Geometries.Coordinate target)
         {
             return router.TryCalculate(profile, (float)source.Y, (float)source.X, (float)target.Y, (float)target.X);
@@ -160,7 +161,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate[] locations)
+        public static Result<Route> TryCalculate(this Router router, Profile profile, GeoAPI.Geometries.Coordinate[] locations)
         {
             if (locations.Length < 2)
             {
@@ -187,23 +188,26 @@ namespace Itinero.Geo
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<float> TryCalculateWeight(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate source, GeoAPI.Geometries.Coordinate target)
+        public static Result<T> TryCalculateWeight<T>(this Router router, Profile profile, WeightHandler<T> weightHandler, GeoAPI.Geometries.Coordinate source, GeoAPI.Geometries.Coordinate target)
+            where T : struct
         {
-            return router.TryCalculateWeight(profile, (float)source.Y, (float)source.X, (float)target.Y, (float)target.X);
+            return router.TryCalculateWeight(profile, weightHandler, (float)source.Y, (float)source.X, (float)target.Y, (float)target.X);
         }
 
         /// <summary>
         /// Calculates all weights between all given locations.
         /// </summary>
-        public static Result<float[][]> TryCalculateWeight(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate[] locations)
+        public static Result<T[][]> TryCalculateWeight<T>(this Router router, Profile profile, WeightHandler<T> weightHandler, GeoAPI.Geometries.Coordinate[] locations)
+            where T : struct
         {
-            return router.TryCalculateWeight(profile, locations, locations);
+            return router.TryCalculateWeight(profile, weightHandler, locations, locations);
         }
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
-        public static Result<float[][]> TryCalculateWeight(this IRouter router, Profile profile, GeoAPI.Geometries.Coordinate[] sources, GeoAPI.Geometries.Coordinate[] targets)
+        public static Result<T[][]> TryCalculateWeight<T>(this Router router, Profile profile, WeightHandler<T> weightHandler, GeoAPI.Geometries.Coordinate[] sources, GeoAPI.Geometries.Coordinate[] targets)
+            where T : struct
         {
             var resolvedSources = new RouterPoint[sources.Length];
             for (var i = 0; i < sources.Length; i++)
@@ -211,7 +215,7 @@ namespace Itinero.Geo
                 var result = router.TryResolve(profile, sources[i]);
                 if (result.IsError)
                 {
-                    return new Result<float[][]>(string.Format("Source at index {0} could not be resolved: {1}",
+                    return new Result<T[][]>(string.Format("Source at index {0} could not be resolved: {1}",
                         i, result.ErrorMessage), (s) =>
                         {
                             throw new Exceptions.ResolveFailedException(s);
@@ -225,7 +229,7 @@ namespace Itinero.Geo
                 var result = router.TryResolve(profile, targets[i]);
                 if (result.IsError)
                 {
-                    return new Result<float[][]>(string.Format("Target at index {0} could not be resolved: {1}",
+                    return new Result<T[][]>(string.Format("Target at index {0} could not be resolved: {1}",
                         i, result.ErrorMessage), (s) =>
                         {
                             throw new Exceptions.ResolveFailedException(s);
@@ -236,17 +240,17 @@ namespace Itinero.Geo
 
             var invalidSources = new HashSet<int>();
             var invalidTargets = new HashSet<int>();
-            var weights = router.TryCalculateWeight(profile, resolvedSources, resolvedTargets, invalidSources, invalidTargets);
+            var weights = router.TryCalculateWeight(profile, weightHandler, resolvedSources, resolvedTargets, invalidSources, invalidTargets);
             if (invalidSources.Count > 0)
             {
-                return new Result<float[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
+                return new Result<T[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
                 {
                     throw new Exceptions.RouteNotFoundException(s);
                 });
             }
             if (invalidTargets.Count > 0)
             {
-                return new Result<float[][]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
+                return new Result<T[][]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
                 {
                     throw new Exceptions.RouteNotFoundException(s);
                 });

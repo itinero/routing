@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
@@ -24,53 +25,61 @@ using System.Collections.Generic;
 namespace Itinero
 {
     /// <summary>
-    /// Abstract representation of a router.
+    /// The base-class for generic routing functionality.
     /// </summary>
-    public interface IRouter
+    public abstract class RouterBase
     {
+        /// <summary>
+        /// Gets the db.
+        /// </summary>
+        public abstract RouterDb Db
+        {
+            get;
+        }
+
         /// <summary>
         /// Returns true if all given profiles are supported.
         /// </summary>
-        bool SupportsAll(params Profile[] profiles);
+        public abstract bool SupportsAll(params Profile[] profiles);
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude,
+        public abstract Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters);
+        public abstract Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters);
 
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target);
+        public abstract Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target);
 
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
         /// <returns></returns>
         /// <remarks>The weight is the distance * factor from the given profile.</remarks>
-        Result<float> TryCalculateWeight(Profile profile, RouterPoint source, RouterPoint target);
+        public abstract Result<T> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target) where T : struct;
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+        public abstract Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets);
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        Result<float[][]> TryCalculateWeight(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets);
+        public abstract Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets) where T : struct;
     }
 }

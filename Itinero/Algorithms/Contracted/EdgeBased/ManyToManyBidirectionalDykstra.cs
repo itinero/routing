@@ -28,33 +28,24 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy.
     /// </summary>
-    public class ManyToManyBidirectionalDykstra : AlgorithmBase
+    public class ManyToManyBidirectionalDykstra<T> : AlgorithmBase
+        where T : struct
     {
         private readonly RouterDb _routerDb;
         private readonly DirectedDynamicGraph _graph;
-        private readonly DefaultWeightHandler _weightHandler;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
-        private readonly Dictionary<uint, Dictionary<int, float>> _buckets;
-
+        private readonly Dictionary<uint, Dictionary<int, T>> _buckets;
+        private readonly WeightHandler<T> _weightHandler;
+        
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, RouterPoint[] sources,
-            RouterPoint[] targets)
-            : this(routerDb, profile, (p) => profile.Factor(routerDb.EdgeProfiles.Get(p)), sources, targets)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new algorithm.
-        /// </summary>
-        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, Func<ushort, Factor> getFactor, RouterPoint[] sources,
+        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources,
             RouterPoint[] targets)
         {
             _routerDb = routerDb;
-            _weightHandler = new DefaultWeightHandler(getFactor);
+            _weightHandler = weightHandler;
             _sources = sources;
             _targets = targets;
 
@@ -71,10 +62,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             _graph = contractedDb.EdgeBasedGraph;
 
-            _buckets = new Dictionary<uint, Dictionary<int, float>>();
+            _buckets = new Dictionary<uint, Dictionary<int, T>>();
         }
 
-        private float[][] _weights;
+        private T[][] _weights;
 
         /// <summary>
         /// Executes the actual run.
@@ -82,15 +73,15 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         protected override void DoRun()
         {
             // put in default weights and weights for one-edge-paths.
-            _weights = new float[_sources.Length][];
+            _weights = new T[_sources.Length][];
             for (var i = 0; i < _sources.Length; i++)
             {
                 var source = _sources[i];
-                _weights[i] = new float[_targets.Length];
+                _weights[i] = new T[_targets.Length];
                 for (var j = 0; j < _targets.Length; j++)
                 {
                     var target = _targets[j];
-                    _weights[i][j] = float.MaxValue;
+                    _weights[i][j] = _weightHandler.Infinite;
 
                     if(target.EdgeId == source.EdgeId)
                     {
@@ -106,7 +97,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra(_graph, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), false);
+                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), false);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -117,7 +108,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra(_graph, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), true);
+                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), true);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);
@@ -130,7 +121,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets the weights.
         /// </summary>
-        public float[][] Weights
+        public T[][] Weights
         {
             get
             {
@@ -142,21 +133,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Called when a forward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool ForwardVertexFound(int i, uint vertex, float weight)
+        private bool ForwardVertexFound(int i, uint vertex, T weight)
         {
-            Dictionary<int, float> bucket;
+            Dictionary<int, T> bucket;
             if(!_buckets.TryGetValue(vertex, out bucket))
             {
-                bucket = new Dictionary<int, float>();
+                bucket = new Dictionary<int, T>();
                 _buckets.Add(vertex, bucket);
                 bucket[i] = weight;
             }
             else
             {
-                float existing;
+                T existing;
                 if (bucket.TryGetValue(i, out existing))
                 {
-                    if(weight < existing)
+                    if(_weightHandler.IsSmallerThan(weight, existing))
                     {
                         bucket[i] = weight;
                     }
@@ -173,21 +164,48 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Called when a backward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool BackwardVertexFound(int i, uint vertex, float weight)
+        private bool BackwardVertexFound(int i, uint vertex, T weight)
         {
-            Dictionary<int, float> bucket;
+            Dictionary<int, T> bucket;
             if(_buckets.TryGetValue(vertex, out bucket))
             {
                 foreach(var pair in bucket)
                 {
                     var existing = _weights[pair.Key][i];
-                    if (weight + pair.Value < existing)
+                    var totalWeight = _weightHandler.Add(weight, pair.Value);
+                    if (_weightHandler.IsSmallerThan(totalWeight, existing))
                     {
-                        _weights[pair.Key][i] = weight + pair.Value;
+                        _weights[pair.Key][i] = totalWeight;
                     }
                 }
             }
             return false;
+        }
+    }
+
+    /// <summary>
+    /// An algorithm to calculate many-to-many weights based on a contraction hierarchy.
+    /// </summary>
+    public sealed class ManyToManyBidirectionalDykstra : ManyToManyBidirectionalDykstra<float>
+    {
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, RouterPoint[] sources,
+            RouterPoint[] targets)
+            : base(routerDb, profile, profile.DefaultWeightHandler(routerDb), sources, targets)
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
+            RouterPoint[] targets)
+            : base(routerDb, profile, weightHandler, sources, targets)
+        {
+
         }
     }
 }

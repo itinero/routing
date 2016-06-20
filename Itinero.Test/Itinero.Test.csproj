@@ -165,6 +165,7 @@
     <Compile Include="Mocks\StreamMock.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="TestRouteBuilder.cs" />
+    <Compile Include="WeightHandlerMock.cs" />
     <EmbeddedResource Include="test-data\routes\route1.xml" />
     <Compile Include="TestNetworkBuilder.cs" />
     <Compile Include="TestNetworkBuilderTests.cs" />

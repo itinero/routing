@@ -23,7 +23,8 @@ namespace Itinero.Algorithms
     /// <summary>
     /// Abstract representation of an algorithm to calculate a weight-matrix for a set of locations.
     /// </summary>
-    public interface IWeightMatrixAlgorithm : IAlgorithm
+    public interface IWeightMatrixAlgorithm<T> : IAlgorithm
+        where T : struct
     {
         /// <summary>
         /// Returns the errors indexed per location idx.
@@ -50,6 +51,6 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the weights between all valid router points.
         /// </summary>
-        float[][] Weights { get; }
+        T[][] Weights { get; }
     }
 }
