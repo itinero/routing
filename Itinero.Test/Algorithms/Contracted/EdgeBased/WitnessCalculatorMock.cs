@@ -27,7 +27,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// A mock of a witness calculator.
     /// </summary>
-    class WitnessCalculatorMock : IWitnessCalculator
+    class WitnessCalculatorMock : IWitnessCalculator<float>
     {
         private readonly Func<uint, uint, Tuple<EdgePath<float>, EdgePath<float>>> _witnesses; // source, target, forward, result.
 

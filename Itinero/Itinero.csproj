@@ -68,7 +68,6 @@
     <Compile Include="Algorithms\Weights\Extensions.cs" />
     <Compile Include="Algorithms\Weights\WeightHandler.cs" />
     <Compile Include="Algorithms\Weights\Weight.cs" />
-    <Compile Include="Algorithms\Weights\WeightExtensions.cs" />
     <Compile Include="Data\Contracted\ContractedDb.cs" />
     <Compile Include="Algorithms\Contracted\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeDifferencePriorityCalculator.cs" />

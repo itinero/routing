@@ -220,6 +220,22 @@ namespace Itinero.Data.Contracted.Edges
         }
 
         /// <summary>
+        /// Serializes time.
+        /// </summary>
+        public static uint SerializeTime(float time)
+        {
+            return (uint)time;
+        }
+
+        /// <summary>
+        /// Serializes distance.
+        /// </summary>
+        public static uint SerializeDistance(float distance)
+        {
+            return (uint)distance * 10;
+        }
+
+        /// <summary>
         /// Serializes augmented edge data.
         /// </summary>
         /// <returns></returns>
@@ -227,8 +243,8 @@ namespace Itinero.Data.Contracted.Edges
         { // precision of 0.1m and 1 second.
             return new uint[] {
                 Serialize(weight, direction),
-                (uint)distance * 10,
-                (uint)time
+                SerializeDistance(distance * 10),
+                SerializeTime(time)
             };
         }
 

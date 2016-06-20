@@ -102,7 +102,7 @@ namespace Itinero.Algorithms.Contracted
             graph.AddEdge(vertex1, vertex2, ContractedEdgeDataSerializer.Serialize(
                 weight, direction), contractedId);
         }
-
+        
         /// <summary>
         /// Add edge.
         /// </summary>

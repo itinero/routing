@@ -20,11 +20,8 @@ using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
-using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
-using Itinero.Profiles;
-using System;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Contracted

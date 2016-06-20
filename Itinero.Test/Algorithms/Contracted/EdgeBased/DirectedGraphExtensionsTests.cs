@@ -22,6 +22,7 @@ using Itinero.Graphs.Directed;
 using System.Linq;
 using System.Collections.Generic;
 using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Contracted;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {

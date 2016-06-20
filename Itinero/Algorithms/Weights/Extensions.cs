@@ -45,12 +45,30 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Returns true if weigh1 > weight2 according to the weight handler.
+        /// </summary>
+        public static bool IsLargerThanOrEqual<T>(this WeightHandler<T> handler, T weight1, T weight2)
+            where T : struct
+        {
+            return handler.GetMetric(weight1) >= handler.GetMetric(weight2);
+        }
+
+        /// <summary>
         /// Returns true if weigh1 smaller than weight2 according to the weight handler.
         /// </summary>
         public static bool IsSmallerThan<T>(this WeightHandler<T> handler, T weight1, T weight2)
             where T : struct
         {
             return handler.GetMetric(weight1) < handler.GetMetric(weight2);
+        }
+
+        /// <summary>
+        /// Returns true if weigh1 smaller than weight2 according to the weight handler.
+        /// </summary>
+        public static bool IsSmallerThanOrEqual<T>(this WeightHandler<T> handler, T weight1, T weight2)
+            where T : struct
+        {
+            return handler.GetMetric(weight1) <= handler.GetMetric(weight2);
         }
 
         /// <summary>

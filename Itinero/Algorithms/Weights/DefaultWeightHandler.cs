@@ -20,6 +20,7 @@ using Itinero.Profiles;
 using System;
 using Itinero.Graphs.Directed;
 using Itinero.Algorithms.Contracted;
+using Itinero.Algorithms.Contracted.EdgeBased;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -120,6 +121,14 @@ namespace Itinero.Algorithms.Weights
         public sealed override void AddOrUpdateEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
         {
             graph.AddOrUpdateEdge(vertex1, vertex2, weight, direction, contractedId);
+        }
+
+        /// <summary>
+        /// Adds or updates an edge.
+        /// </summary>
+        public sealed override void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight, uint[] s1, uint[] s2)
+        {
+            graph.AddOrUpdateEdge(vertex1, vertex2, weight, direction, contractedId, s1, s2);
         }
 
         /// <summary>

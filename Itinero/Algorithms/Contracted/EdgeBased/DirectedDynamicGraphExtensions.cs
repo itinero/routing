@@ -373,6 +373,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
+        /// Adds an edge.
+        /// </summary>
+        public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, float distance, float time)
+        {
+            return graph.AddEdge(vertex1, vertex2, ContractedEdgeDataSerializer.SerializeDynamicAugmented(weight, direction, distance, time));
+        }
+
+        /// <summary>
         /// Adds a contracted edge including sequences.
         /// </summary>
         /// <param name="graph">The graph.</param>
@@ -425,6 +433,73 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 if (sequence1 == null || sequence1.Length == 0)
                 {
                     data[2] = 0;
+                }
+                else
+                {
+                    sequence2Start += sequence1.Length;
+                }
+                sequence2.CopyTo(data, sequence2Start);
+            }
+            return graph.AddEdge(vertex1, vertex2, data);
+        }
+
+        /// <summary>
+        /// Adds a contracted edge including sequences.
+        /// </summary>
+        /// <param name="graph">The graph.</param>
+        /// <param name="vertex1">The start vertex.</param>
+        /// <param name="vertex2">The end vertex.</param>
+        /// <param name="distance">The distance.</param>
+        /// <param name="time">The time.</param>
+        /// <param name="contractedId">The vertex being shortcutted.</param>
+        /// <param name="direction">The direction.</param>
+        /// <param name="weight">The weight.</param>
+        /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
+        /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
+        public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+            float distance, float time, uint[] sequence1, uint[] sequence2)
+        {
+            if (sequence1 != null && sequence1.Length == 1 &&
+                sequence1[0] == contractedId)
+            {
+                sequence1 = null;
+            }
+            if (sequence2 != null && sequence2.Length == 1 &&
+                sequence2[0] == contractedId)
+            {
+                sequence2 = null;
+            }
+
+            var dataSize = 4; // fixed weight + contracted id + distance/time.
+            if (sequence1 != null && sequence1.Length != 0)
+            {
+                dataSize += 1; // size field.
+                dataSize += sequence1.Length;
+            }
+            if (sequence2 != null && sequence2.Length != 0)
+            {
+                if (sequence1 == null || sequence1.Length == 0)
+                {
+                    dataSize += 1; // size field if sequence 1 null.
+                }
+                dataSize += sequence2.Length;
+            }
+            var data = new uint[dataSize];
+            data[0] = ContractedEdgeDataSerializer.Serialize(weight, direction);
+            data[1] = ContractedEdgeDataSerializer.SerializeDistance(distance);
+            data[2] = ContractedEdgeDataSerializer.SerializeTime(time);
+            data[3] = contractedId;
+            if (sequence1 != null && sequence1.Length != 0)
+            {
+                data[4] = (uint)sequence1.Length;
+                sequence1.CopyTo(data, 5);
+            }
+            if (sequence2 != null && sequence2.Length != 0)
+            {
+                var sequence2Start = 5;
+                if (sequence1 == null || sequence1.Length == 0)
+                {
+                    data[4] = 0;
                 }
                 else
                 {
@@ -558,6 +633,148 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     else
                     {
                         graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardS1, backwardS2);
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Add or update edge.
+        /// </summary>
+        /// <returns></returns>
+        public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
+            bool? direction, uint contractedId, float distance, float time, uint[] s1, uint[] s2)
+        {
+            if ((vertex1 == 2692 && vertex2 == 2730) ||
+                (vertex1 == 2730 && vertex2 == 2692))
+            {
+                Itinero.Logging.Logger.Log("", Logging.TraceEventType.Information, "");
+            }
+
+            var forward = false;
+            var forwardWeight = float.MaxValue;
+            var forwardContractedId = uint.MaxValue;
+            var forwardDistance = float.MaxValue;
+            var forwardTime = float.MaxValue;
+            var forwardS1 = Constants.EMPTY_SEQUENCE;
+            var forwardS2 = Constants.EMPTY_SEQUENCE;
+            var backward = false;
+            var backwardWeight = float.MaxValue;
+            var backwardContractedId = uint.MaxValue;
+            var backwardDistance = float.MaxValue;
+            var backwardTime = float.MaxValue;
+            var backwardS1 = Constants.EMPTY_SEQUENCE;
+            var backwardS2 = Constants.EMPTY_SEQUENCE;
+
+            if (direction == null || direction.Value)
+            {
+                forward = true;
+                forwardWeight = weight;
+                forwardContractedId = contractedId;
+                forwardDistance = distance;
+                forwardTime = time;
+                forwardS1 = s1;
+                forwardS2 = s2;
+            }
+            if (direction == null || !direction.Value)
+            {
+                backward = true;
+                backwardWeight = weight;
+                backwardContractedId = contractedId;
+                backwardDistance = distance;
+                backwardTime = time;
+                backwardS1 = s1;
+                backwardS2 = s2;
+            }
+
+            var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+            while (edgeEnumerator.MoveNext())
+            {
+                if (edgeEnumerator.Neighbour == vertex2)
+                {
+                    float localWeight;
+                    bool? localDirection;
+                    uint localContractedId = Constants.NO_VERTEX;
+                    float localDistance;
+                    float localTime;
+                    var localS1 = Constants.EMPTY_SEQUENCE;
+                    var localS2 = Constants.EMPTY_SEQUENCE;
+                    ContractedEdgeDataSerializer.DeserializeDynamic(edgeEnumerator.Data,
+                        out localWeight, out localDirection, out localDistance, out localTime);
+                    if (!edgeEnumerator.IsOriginal())
+                    {
+                        localContractedId = edgeEnumerator.GetContracted().Value;
+                        localS1 = edgeEnumerator.GetSequence1();
+                        localS2 = edgeEnumerator.GetSequence2();
+                    }
+                    if (localDirection == null || localDirection.Value)
+                    {
+                        if (localWeight < forwardWeight)
+                        {
+                            forwardWeight = localWeight;
+                            forward = true;
+                            forwardContractedId = localContractedId;
+                            forwardDistance = localDistance;
+                            forwardTime = localTime;
+                            forwardS1 = localS1;
+                            forwardS2 = localS2;
+                        }
+                    }
+                    if (localDirection == null || !localDirection.Value)
+                    {
+                        if (localWeight < backwardWeight)
+                        {
+                            backwardWeight = localWeight;
+                            backward = true;
+                            backwardContractedId = localContractedId;
+                            backwardDistance = localDistance;
+                            backwardTime = localTime;
+                            backwardS1 = localS1;
+                            backwardS2 = localS2;
+                        }
+                    }
+                }
+            }
+
+            graph.RemoveEdge(vertex1, vertex2);
+
+            if (forward && backward &&
+                forwardWeight == backwardWeight &&
+                forwardContractedId == backwardContractedId &&
+                forwardS1.IsSequenceIdentical(backwardS1) &&
+                forwardS2.IsSequenceIdentical(backwardS2))
+            { // add one bidirectional edge.
+                if (forwardContractedId == Constants.NO_VERTEX)
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardDistance, forwardTime);
+                }
+                else
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardDistance, forwardTime, forwardS1, forwardS2);
+                }
+            }
+            else
+            { // add two unidirectional edges if needed.
+                if (forward)
+                { // there is a forward edge.
+                    if (forwardContractedId == Constants.NO_VERTEX)
+                    {
+                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardDistance, forwardTime);
+                    }
+                    else
+                    {
+                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, forwardDistance, forwardTime, forwardS1, forwardS2);
+                    }
+                }
+                if (backward)
+                { // there is a backward edge.
+                    if (backwardContractedId == Constants.NO_VERTEX)
+                    {
+                        graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardDistance, backwardTime);
+                    }
+                    else
+                    {
+                        graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardDistance, backwardTime, backwardS1, backwardS2);
                     }
                 }
             }
