@@ -40,7 +40,7 @@ namespace Itinero.Test.Algorithms.Contracted
         {
             // build graph.
             var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = null,
@@ -75,13 +75,13 @@ namespace Itinero.Test.Algorithms.Contracted
         {
             // build graph.
             var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = null,
                 Weight = 100
             }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = null,
@@ -116,19 +116,19 @@ namespace Itinero.Test.Algorithms.Contracted
         {
             // build graph.
             var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(0, 1, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 100
             }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 100
             }));
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
@@ -156,19 +156,19 @@ namespace Itinero.Test.Algorithms.Contracted
 
             // build graph.
             graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(1, 0, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 100
             }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 100
             }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
@@ -202,49 +202,49 @@ namespace Itinero.Test.Algorithms.Contracted
         {
             // build graph.
             var graph = new DirectedGraph(ContractedEdgeDataSerializer.Size);
-            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(0, 2, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 100
             }));
-            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(2, 0, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = false,
                 Weight = 100
             }));
-            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(0, 3, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = false,
                 Weight = 10
             }));
-            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(3, 0, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 10
             }));
-            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(1, 2, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = false,
                 Weight = 1000
             }));
-            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(2, 1, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 1000
             }));
-            graph.AddEdge(1, 3, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(1, 3, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = true,
                 Weight = 10000
             }));
-            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.Serialize(new ContractedEdgeData()
+            graph.AddEdge(3, 1, ContractedEdgeDataSerializer.SerializeMeta(new ContractedEdgeData()
             {
                 ContractedId = Constants.NO_VERTEX,
                 Direction = false,

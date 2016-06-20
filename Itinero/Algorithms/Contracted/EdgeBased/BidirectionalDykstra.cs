@@ -18,7 +18,7 @@
 
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Restrictions;
-using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
@@ -29,20 +29,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
     /// </summary>
-    public class BidirectionalDykstra : AlgorithmBase
+    public class BidirectionalDykstra<T> : AlgorithmBase
+        where T : struct
     {
         private readonly DirectedDynamicGraph _graph;
-        private readonly IEnumerable<EdgePath<float>> _sources;
-        private readonly IEnumerable<EdgePath<float>> _targets;
+        private readonly IEnumerable<EdgePath<T>> _sources;
+        private readonly IEnumerable<EdgePath<T>> _targets;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private readonly WeightHandler<T> _weightHandler;
  
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets,
+        public BidirectionalDykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets,
             Func<uint, IEnumerable<uint[]>> getRestrictions)
         {
             _graph = graph;
+            _weightHandler = weightHandler;
             _sources = sources.Select(x => {
                 x.StripEdges();
                 return x;
@@ -54,11 +57,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _getRestrictions = getRestrictions;
         }
 
-        private Tuple<EdgePath<float>, EdgePath<float>, float> _best;
+        private Tuple<EdgePath<T>, EdgePath<T>, T> _best;
         private Dictionary<uint, LinkedEdgePath> _forwardVisits;
         private Dictionary<uint, LinkedEdgePath> _backwardVisits;
-        private BinaryHeap<EdgePath<float>> _forwardQueue;
-        private BinaryHeap<EdgePath<float>> _backwardQueue;
+        private BinaryHeap<EdgePath<T>> _forwardQueue;
+        private BinaryHeap<EdgePath<T>> _backwardQueue;
 
         /// <summary>
         /// Executes the actual run.
@@ -72,23 +75,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _backwardVisits = new Dictionary<uint, LinkedEdgePath>();
 
             // initialize the queues.
-            _forwardQueue = new BinaryHeap<EdgePath<float>>();
-            _backwardQueue = new BinaryHeap<EdgePath<float>>();
+            _forwardQueue = new BinaryHeap<EdgePath<T>>();
+            _backwardQueue = new BinaryHeap<EdgePath<T>>();
 
             // queue sources.
             foreach (var source in _sources)
             {
-                _forwardQueue.Push(source, source.Weight);
+                _forwardQueue.Push(source, _weightHandler.GetMetric(source.Weight));
             }
 
             // queue targets.
             foreach (var target in _targets)
             {
-                _backwardQueue.Push(target, target.Weight);
+                _backwardQueue.Push(target, _weightHandler.GetMetric(target.Weight));
             }
 
             // update best with current visits.
-            _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(new EdgePath<float>(), new EdgePath<float>(), float.MaxValue);
+            _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(new EdgePath<T>(), new EdgePath<T>(), _weightHandler.Infinite);
 
             // calculate stopping conditions.
             var queueBackwardWeight = _backwardQueue.PeekWeight();
@@ -99,8 +102,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 { // stop the search; both queues are empty.
                     break;
                 }
-                if (_best.Item3 < queueForwardWeight &&
-                    _best.Item3 < queueBackwardWeight)
+                if (_weightHandler.GetMetric(_best.Item3) < queueForwardWeight &&
+                    _weightHandler.GetMetric(_best.Item3) < queueBackwardWeight)
                 { // stop the search: it now became impossible to find a better route by further searching.
                     break;
                 }
@@ -147,7 +150,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         { // check for a new best.
                             while (backwardPath != null)
                             {
-                                if (current.Weight + backwardPath.Path.Weight < _best.Item3)
+                                var totalCurrentWeight = _weightHandler.Add(current.Weight, backwardPath.Path.Weight);
+                                if (_weightHandler.IsSmallerThan(totalCurrentWeight, _best.Item3))
                                 { // potentially a weight improvement.
                                     var allowed = true;
                                     if (restrictions != null)
@@ -165,8 +169,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                                     if (allowed)
                                     {
-                                        _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(current, backwardPath.Path, current.Weight +
-                                            backwardPath.Path.Weight);
+                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(current, backwardPath.Path, 
+                                            _weightHandler.Add(current.Weight, backwardPath.Path.Weight));
                                         this.HasSucceeded = true;
                                     }
                                 }
@@ -221,7 +225,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         { // check for a new best.
                             while (forwardPath != null)
                             {
-                                if (current.Weight + forwardPath.Path.Weight < _best.Item3)
+                                var total = _weightHandler.Add(current.Weight, forwardPath.Path.Weight);
+                                if (_weightHandler.IsSmallerThan(total, _best.Item3))
                                 { // potentially a weight improvement.
                                     var allowed = true;
                                     if (restrictions != null)
@@ -239,8 +244,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                                     if (allowed)
                                     {
-                                        _best = new Tuple<EdgePath<float>, EdgePath<float>, float>(forwardPath.Path, current, current.Weight + 
-                                            forwardPath.Path.Weight);
+                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardPath.Path, current, 
+                                            _weightHandler.Add(current.Weight, forwardPath.Path.Weight));
                                         this.HasSucceeded = true;
                                     }
                                 }
@@ -272,7 +277,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<float> current, IEnumerable<uint[]> restrictions)
+        private void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current, IEnumerable<uint[]> restrictions)
         {
             if (current != null)
             { // there is a next vertex found.
@@ -286,9 +291,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 // add the neighbours to the queue.
                 while (edgeEnumerator.MoveNext())
                 {
-                    float neighbourWeight;
                     bool? neighbourDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
+
                     if (neighbourDirection == null || neighbourDirection.Value)
                     { // the edge is forward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
@@ -326,13 +331,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         }
 
                         // build route to neighbour and check if it has been visited already.
-                        var routeToNeighbour = new EdgePath<float>(
-                            neighbourNeighbour, current.Weight + neighbourWeight, edgeEnumerator.IdDirected(), current);
+                        var routeToNeighbour = new EdgePath<T>(
+                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight), edgeEnumerator.IdDirected(), current);
                         LinkedEdgePath edgePath = null;
                         if (!_forwardVisits.TryGetValue(current.Vertex, out edgePath) ||
                             !edgePath.HasPath(routeToNeighbour))
                         { // this vertex has not been visited in this way before.
-                            _forwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
+                            _forwardQueue.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                         }
                     }
                 }
@@ -343,7 +348,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search backward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<float> current, IEnumerable<uint[]> restrictions)
+        private void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current, IEnumerable<uint[]> restrictions)
         {
             if (current != null)
             { // there is a next vertex found.
@@ -357,9 +362,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 // add the neighbours to the queue.
                 while (edgeEnumerator.MoveNext())
                 {
-                    float neighbourWeight;
                     bool? neighbourDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
+
                     if (neighbourDirection == null || !neighbourDirection.Value)
                     { // the edge is forward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
@@ -398,13 +403,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         }
                         
                         // build route to neighbour and check if it has been visited already.
-                        var routeToNeighbour = new EdgePath<float>(
-                            neighbourNeighbour, current.Weight + neighbourWeight, edgeEnumerator.IdDirected(), current);
+                        var routeToNeighbour = new EdgePath<T>(
+                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight), edgeEnumerator.IdDirected(), current);
                         LinkedEdgePath edgePath = null;
                         if (!_backwardVisits.TryGetValue(current.Vertex, out edgePath) ||
                             !edgePath.HasPath(routeToNeighbour))
                         { // this vertex has not been visited in this way before.
-                            _backwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
+                            _backwardQueue.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                         }
                     }
                 }
@@ -428,14 +433,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetForwardVisit(uint vertex, out EdgePath<float> visit)
+        public bool TryGetForwardVisit(uint vertex, out EdgePath<T> visit)
         {
             this.CheckHasRunAndHasSucceeded();
 
             LinkedEdgePath path;
             if (_forwardVisits.TryGetValue(vertex, out path))
             {
-                visit = path.Best();
+                visit = path.Best(_weightHandler);
                 return true;
             }
             visit = null;
@@ -446,14 +451,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetBackwardVisit(uint vertex, out EdgePath<float> visit)
+        public bool TryGetBackwardVisit(uint vertex, out EdgePath<T> visit)
         {
             this.CheckHasRunAndHasSucceeded();
 
             LinkedEdgePath path;
             if (_backwardVisits.TryGetValue(vertex, out path))
             {
-                visit = path.Best();
+                visit = path.Best(_weightHandler);
                 return true;
             }
             visit = null;
@@ -463,14 +468,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Returns the path.
         /// </summary>
-        public List<uint> GetPath(out float weight)
+        public List<uint> GetPath(out T weight)
         {
             this.CheckHasRunAndHasSucceeded();
 
             var vertices = new List<uint>();
-            var fromSource = _best.Item1.Expand(_graph);
-            var toTarget = _best.Item2.Expand(_graph);
-            weight = fromSource.Weight + toTarget.Weight;
+            var fromSource = _best.Item1.Expand(_graph, _weightHandler);
+            var toTarget = _best.Item2.Expand(_graph, _weightHandler);
+            weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
 
             // add vertices from source.
             vertices.Add(fromSource.Vertex);
@@ -504,22 +509,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <returns></returns>
         public List<uint> GetPath()
         {
-            float weight;
+            T weight;
             return this.GetPath(out weight);
         }
         
         private class LinkedEdgePath
         {
-            public EdgePath<float> Path { get; set; }
+            public EdgePath<T> Path { get; set; }
             public LinkedEdgePath Next { get; set; }
 
-            public EdgePath<float> Best()
+            public EdgePath<T> Best(WeightHandler<T> weightHandler)
             {
                 var best = this.Path;
                 var current = this.Next;
                 while (current != null)
                 {
-                    if (current.Path.Weight < best.Weight)
+                    if (weightHandler.IsSmallerThan(current.Path.Weight, best.Weight))
                     {
                         best = current.Path;
                     }
@@ -528,7 +533,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return best;
             }
 
-            public bool HasPath(EdgePath<float> path)
+            public bool HasPath(EdgePath<T> path)
             {
                 var current = this;
                 while (current != null)
@@ -541,6 +546,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
                 return false;
             }
+        }
+    }
+
+    /// <summary>
+    /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
+    /// </summary>
+    public class BidirectionalDykstra : BidirectionalDykstra<float>
+    {
+        /// <summary>
+        /// Creates a new contracted bidirectional router.
+        /// </summary>
+        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets,
+            Func<uint, IEnumerable<uint[]>> getRestrictions)
+            : base(graph, new DefaultWeightHandler(null), sources, targets, getRestrictions)
+        {
+
         }
     }
 }

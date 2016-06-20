@@ -456,7 +456,7 @@ namespace Itinero.Test.Algorithms.Contracted
         {
             // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.AugmentedMetaSize);
+                ContractedEdgeDataSerializer.MetaAugmentedSize);
             graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX, 50, 1000);
             graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX, 50, 1000);
             graph.Compress();
@@ -482,7 +482,7 @@ namespace Itinero.Test.Algorithms.Contracted
         {
             // build graph.
             var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.AugmentedDynamicFixedSize);
+                ContractedEdgeDataSerializer.DynamicAugmentedFixedSize);
             graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX, 50, 1000);
             graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX, 50, 1000);
             graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX, 50, 1000);

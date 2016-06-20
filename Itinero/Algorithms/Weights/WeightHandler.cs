@@ -77,6 +77,11 @@ namespace Itinero.Algorithms.Weights
         public abstract T GetEdgeWeight(MetaEdge edge, out bool? direction);
 
         /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public abstract T GetEdgeWeight(DynamicEdge edge, out bool? direction);
+
+        /// <summary>
         /// Returns the weight that represents 'zero'.
         /// </summary>
         /// <returns></returns>
@@ -228,7 +233,7 @@ namespace Itinero.Algorithms.Weights
                 throw new InvalidOperationException("The given dynamic graph cannot handle augmented weights. Initialize the graph with a fixed edge data size of 3.");
             }
 
-            var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(
+            var data = Data.Contracted.Edges.ContractedEdgeDataSerializer.SerializeDynamicAugmented(
                 weight.Value, direction, weight.Distance, weight.Time);
             graph.AddEdge(vertex1, vertex2, data);
         }
@@ -251,7 +256,7 @@ namespace Itinero.Algorithms.Weights
                 throw new InvalidOperationException("The given graph cannot handle augmented weights. Initialize the graph with a edge meta data size of 3.");
             }
             graph.AddEdge(vertex1, vertex2, new uint[] { Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(weight.Value, direction) },
-                Data.Contracted.Edges.ContractedEdgeDataSerializer.Serialize(contractedId, weight.Distance, weight.Time));
+                Data.Contracted.Edges.ContractedEdgeDataSerializer.SerializeMetaAugmented(contractedId, weight.Distance, weight.Time));
         }
 
         /// <summary>
@@ -265,8 +270,26 @@ namespace Itinero.Algorithms.Weights
             uint contractedId;
             Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
                 out weight, out direction);
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeAgumented(edge.MetaData,
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeMetaAgumented(edge.MetaData,
                 out contractedId, out distance, out time);
+            return new Weight()
+            {
+                Distance = distance,
+                Time = time,
+                Value = weight
+            };
+        }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
+        public sealed override Weight GetEdgeWeight(DynamicEdge edge, out bool? direction)
+        {
+            float weight;
+            float time;
+            float distance;
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeDynamic(edge.Data,
+                out weight, out direction, out distance, out time);
             return new Weight()
             {
                 Distance = distance,

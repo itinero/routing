@@ -80,6 +80,16 @@ namespace Itinero.Data.Contracted.Edges
         /// <summary>
         /// Parses the edge data.
         /// </summary>
+        public static void DeserializeDynamic(uint[] data, out float weight, out bool? direction, out float distance, out float time)
+        {
+            ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
+            distance = data[1] / 10.0f;
+            time = data[2];
+        }
+
+        /// <summary>
+        /// Parses the edge data.
+        /// </summary>
         /// <returns></returns>
         public static void Deserialize(uint data0, out float weight, out bool? direction)
         {
@@ -99,7 +109,7 @@ namespace Itinero.Data.Contracted.Edges
         /// <summary>
         /// Deserializes the agugmented data.
         /// </summary>
-        public static void DeserializeAgumented(uint[] data, out uint contractedId, out float distance, out float time)
+        public static void DeserializeMetaAgumented(uint[] data, out uint contractedId, out float distance, out float time)
         {
             contractedId = data[0];
             distance = data[1] / 10.0f;
@@ -150,7 +160,7 @@ namespace Itinero.Data.Contracted.Edges
         /// <summary>
         /// Returns the size of a the meta data in uint's when serialized and including augmented weights.
         /// </summary>
-        public static int AugmentedMetaSize
+        public static int MetaAugmentedSize
         {
             get { return 3; }
         }
@@ -166,7 +176,7 @@ namespace Itinero.Data.Contracted.Edges
         /// <summary>
         /// Returns the size of the fixed component of the data in the dynamic graph including augmented weights.
         /// </summary>
-        public static int AugmentedDynamicFixedSize
+        public static int DynamicAugmentedFixedSize
         {
             get { return 3; }
         }
@@ -213,7 +223,7 @@ namespace Itinero.Data.Contracted.Edges
         /// Serializes augmented edge data.
         /// </summary>
         /// <returns></returns>
-        public static uint[] Serialize(float weight, bool? direction, float distance, float time)
+        public static uint[] SerializeDynamicAugmented(float weight, bool? direction, float distance, float time)
         { // precision of 0.1m and 1 second.
             return new uint[] {
                 Serialize(weight, direction),
@@ -226,7 +236,7 @@ namespace Itinero.Data.Contracted.Edges
         /// Serializes augmented edge data.
         /// </summary>
         /// <returns></returns>
-        public static uint[] Serialize(uint contractedId, float distance, float time)
+        public static uint[] SerializeMetaAugmented(uint contractedId, float distance, float time)
         { // precision of 0.1m and 1 second.
             return new uint[] {
                 contractedId,
@@ -239,7 +249,7 @@ namespace Itinero.Data.Contracted.Edges
         /// Serializes edge data.
         /// </summary>
         /// <returns></returns>
-        public static uint[] Serialize(ContractedEdgeData data)
+        public static uint[] SerializeMeta(ContractedEdgeData data)
         {
             return new uint[]
             {

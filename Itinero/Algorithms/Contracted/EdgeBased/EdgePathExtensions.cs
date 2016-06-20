@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
@@ -31,15 +32,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Expands all edges in the given edge path.
         /// </summary>
-        public static EdgePath<float> Expand(this EdgePath<float> edgePath, DirectedDynamicGraph graph)
+        public static EdgePath<T> Expand<T>(this EdgePath<T> edgePath, DirectedDynamicGraph graph, WeightHandler<T> weightHandler)
+            where T : struct
         {
-            return edgePath.Expand(graph.GetEdgeEnumerator());
+            return edgePath.Expand(graph.GetEdgeEnumerator(), weightHandler);
         }
 
         /// <summary>
         /// Expands all edges in the given edge path.
         /// </summary>
-        public static EdgePath<float> Expand(this EdgePath<float> edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        public static EdgePath<T> Expand<T>(this EdgePath<T> edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator, WeightHandler<T> weightHandler)
+            where T : struct
         {
             if (edgePath.From == null)
             {
@@ -47,16 +50,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
 
             // expand everything before.
-            edgePath = new EdgePath<float>(edgePath.Vertex, edgePath.Weight, edgePath.Edge, edgePath.From.Expand(enumerator));
+            edgePath = new EdgePath<T>(edgePath.Vertex, edgePath.Weight, edgePath.Edge, edgePath.From.Expand(enumerator, weightHandler));
 
             // expand list.
-            return edgePath.ExpandLast(enumerator);
+            return edgePath.ExpandLast(enumerator, weightHandler);
         }
 
         /// <summary>
         /// Expands the last edge in the given edge path.
         /// </summary>
-        private static EdgePath<float> ExpandLast(this EdgePath<float> edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        private static EdgePath<T> ExpandLast<T>(this EdgePath<T> edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator, WeightHandler<T> weightHandler)
+            where T : struct
         {
             bool? direction;
             if (edgePath.Edge != Constants.NO_EDGE &&
@@ -74,27 +78,25 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                     // move to the first edge (contracted -> from vertex) and keep details.
                     enumerator.MoveToEdge(contractedId.Value, edgePath.From.Vertex, sequence1);
-                    float weight1;
-                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0, out weight1, out direction);
                     var edge1 = enumerator.IdDirected();
+                    var weight1 = weightHandler.GetEdgeWeight(enumerator.Current, out direction);
 
                     // move to the second edge (contracted -> to vertex) and keep details.
                     enumerator.MoveToEdge(contractedId.Value, edgePath.Vertex, sequence2);
-                    float weight2;
-                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0, out weight2, out direction);
+                    var weight2 = weightHandler.GetEdgeWeight(enumerator.Current, out direction);
                     var edge2 = enumerator.IdDirected();
 
                     if (edgePath.Edge > 0)
                     {
-                        var contractedPath = new EdgePath<float>(contractedId.Value, edgePath.From.Weight + weight1, -edge1, edgePath.From);
-                        contractedPath = contractedPath.ExpandLast(enumerator);
-                        return (new EdgePath<float>(edgePath.Vertex, edgePath.Weight, edge2, contractedPath)).ExpandLast(enumerator);
+                        var contractedPath = new EdgePath<T>(contractedId.Value, weightHandler.Add(edgePath.From.Weight, weight1), -edge1, edgePath.From);
+                        contractedPath = contractedPath.ExpandLast(enumerator, weightHandler);
+                        return (new EdgePath<T>(edgePath.Vertex, edgePath.Weight, edge2, contractedPath)).ExpandLast(enumerator, weightHandler);
                     }
                     else
                     {
-                        var contractedPath = new EdgePath<float>(contractedId.Value, edgePath.From.Weight + weight1, edge1, edgePath.From);
-                        contractedPath = contractedPath.ExpandLast(enumerator);
-                        return (new EdgePath<float>(edgePath.Vertex, edgePath.Weight, -edge2, contractedPath)).ExpandLast(enumerator);
+                        var contractedPath = new EdgePath<T>(contractedId.Value, weightHandler.Add(edgePath.From.Weight, weight1), edge1, edgePath.From);
+                        contractedPath = contractedPath.ExpandLast(enumerator, weightHandler);
+                        return (new EdgePath<T>(edgePath.Vertex, edgePath.Weight, -edge2, contractedPath)).ExpandLast(enumerator, weightHandler);
                     }
                 }
             }
@@ -104,7 +106,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets sequence 1, the first vertices right after the start vertex.
         /// </summary>
-        public static uint[] GetSequence1(this EdgePath<float> path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        public static uint[] GetSequence1<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+            where T : struct
         {
             return path.GetSequence1(enumerator, int.MaxValue);
         }
@@ -112,7 +115,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets sequence 1, the first vertices right after the start vertex with a maximum of n.
         /// </summary>
-        public static uint[] GetSequence1(this EdgePath<float> path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n)
+        public static uint[] GetSequence1<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n)
+            where T : struct
         {
             if (path.From == null)
             {
@@ -168,7 +172,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets sequence 2, the last vertices right before the end vertex.
         /// </summary>
-        public static uint[] GetSequence2(this EdgePath<float> path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        public static uint[] GetSequence2<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+            where T : struct
         {
             return path.GetSequence2(enumerator, int.MaxValue);
         }
@@ -176,7 +181,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets sequence 2, the last vertices right before the end vertex with a maximum of n.
         /// </summary>
-        public static uint[] GetSequence2(this EdgePath<float> path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n)
+        public static uint[] GetSequence2<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n)
+            where T : struct
         {
             if (path.From == null)
             {
@@ -214,7 +220,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Returns true if the last edge in this path is an original edge.
         /// </summary>
-        public static bool IsOriginal(this EdgePath<float> path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+        public static bool IsOriginal<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator)
+            where T : struct
         {
             if (path.From == null)
             { // when there is no previous vertex this is not an edge.

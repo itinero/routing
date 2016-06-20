@@ -178,7 +178,7 @@ namespace Itinero.Test.Algorithms.Contracted
 
             // convert graph.
             var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.AugmentedMetaSize);
+                ContractedEdgeDataSerializer.MetaAugmentedSize);
             var algorithm = new DirectedGraphBuilder<Weight>(graph, directedGraph, new WeightHandler(getFactor));
             algorithm.Run();
 
@@ -194,7 +194,7 @@ namespace Itinero.Test.Algorithms.Contracted
             var edges = directedGraph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count);
             var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null);
-            var metaData = ContractedEdgeDataSerializer.Serialize(Constants.NO_VERTEX, 100, 100 * getFactor(1).Value);
+            var metaData = ContractedEdgeDataSerializer.SerializeMetaAugmented(Constants.NO_VERTEX, 100, 100 * getFactor(1).Value);
             Assert.AreEqual(data, edges.First().Data[0]);
             Assert.AreEqual(metaData[0], edges.First().MetaData[0]);
             Assert.AreEqual(metaData[1], edges.First().MetaData[1]);
@@ -204,7 +204,7 @@ namespace Itinero.Test.Algorithms.Contracted
             edges = directedGraph.GetEdgeEnumerator(1);
             Assert.AreEqual(1, edges.Count);
             data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null);
-            metaData = ContractedEdgeDataSerializer.Serialize(Constants.NO_VERTEX, 100, 100 * getFactor(1).Value);
+            metaData = ContractedEdgeDataSerializer.SerializeMetaAugmented(Constants.NO_VERTEX, 100, 100 * getFactor(1).Value);
             Assert.AreEqual(data, edges.First().Data[0]);
             Assert.AreEqual(metaData[0], edges.First().MetaData[0]);
             Assert.AreEqual(metaData[1], edges.First().MetaData[1]);

@@ -111,7 +111,7 @@ namespace Itinero.Algorithms.Contracted
             bool? direction, uint contractedId, float distance, float time)
         {
             graph.AddEdge(vertex1, vertex2, new uint[] { ContractedEdgeDataSerializer.Serialize(
-                weight, direction) }, ContractedEdgeDataSerializer.Serialize(contractedId, distance, time));
+                weight, direction) }, ContractedEdgeDataSerializer.SerializeMetaAugmented(contractedId, distance, time));
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace Itinero.Algorithms.Contracted
             }
             if (!hasExistingEdge)
             { // no edge exists yet.
-                graph.AddEdge(vertex1, vertex2, new uint[] { current }, ContractedEdgeDataSerializer.Serialize(
+                graph.AddEdge(vertex1, vertex2, new uint[] { current }, ContractedEdgeDataSerializer.SerializeMetaAugmented(
                     contractedId, distance, time));
                 return;
             }
@@ -307,7 +307,7 @@ namespace Itinero.Algorithms.Contracted
                         uint localContractedId;
                         float localTime;
                         float localDistance;
-                        ContractedEdgeDataSerializer.DeserializeAgumented(edgeEnumerator.MetaData, out localContractedId, out localDistance, out localTime);
+                        ContractedEdgeDataSerializer.DeserializeMetaAgumented(edgeEnumerator.MetaData, out localContractedId, out localDistance, out localTime);
                         if (localDirection == null || localDirection.Value)
                         {
                             if (localWeight < forwardWeight)

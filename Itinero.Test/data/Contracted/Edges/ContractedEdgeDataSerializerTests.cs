@@ -41,7 +41,7 @@ namespace Itinero.Test.Data.Contracted.Edges
                 ContractedId = Constants.NO_VERTEX
             };
 
-            var data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            var data = ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
             Assert.AreEqual(((uint)(100.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR)), data[0]);
@@ -54,7 +54,7 @@ namespace Itinero.Test.Data.Contracted.Edges
                 ContractedId = Constants.NO_VERTEX
             };
 
-            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            data = ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
             Assert.AreEqual(((uint)1) + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR))), data[0]);
@@ -67,7 +67,7 @@ namespace Itinero.Test.Data.Contracted.Edges
                 ContractedId = Constants.NO_VERTEX
             };
 
-            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            data = ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
             Assert.AreEqual(((uint)(100.25f * ContractedEdgeDataSerializer.PRECISION_FACTOR) * 4), data[0]);
@@ -80,7 +80,7 @@ namespace Itinero.Test.Data.Contracted.Edges
                 ContractedId = Constants.NO_VERTEX
             };
 
-            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            data = ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
             Assert.AreEqual(((uint)2) + (((uint)(100.0f * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR))), data[0]);
@@ -93,7 +93,7 @@ namespace Itinero.Test.Data.Contracted.Edges
                 ContractedId = Constants.NO_VERTEX
             };
 
-            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            data = ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
             Assert.AreEqual(((uint)1) + (((uint)(100.0f * ContractedEdgeDataSerializer.PRECISION_FACTOR) * 4)), data[0]);
@@ -106,7 +106,7 @@ namespace Itinero.Test.Data.Contracted.Edges
                 ContractedId = Constants.NO_VERTEX
             };
 
-            data = ContractedEdgeDataSerializer.Serialize(edgeData);
+            data = ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             Assert.IsNotNull(data);
             Assert.AreEqual(2, data.Length);
             Assert.AreEqual(((uint)2) + (((uint)(ContractedEdgeDataSerializer.MAX_DISTANCE * 4 * ContractedEdgeDataSerializer.PRECISION_FACTOR))), data[0]);
@@ -120,7 +120,7 @@ namespace Itinero.Test.Data.Contracted.Edges
             };
             Assert.Catch<ArgumentOutOfRangeException>(() =>
             {
-                ContractedEdgeDataSerializer.Serialize(edgeData);
+                ContractedEdgeDataSerializer.SerializeMeta(edgeData);
             });
         }
 

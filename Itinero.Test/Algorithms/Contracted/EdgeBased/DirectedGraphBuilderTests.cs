@@ -171,7 +171,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             };
 
             // convert graph.
-            var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.AugmentedDynamicFixedSize);
+            var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicAugmentedFixedSize);
             var algorithm = new DirectedGraphBuilder<Weight>(graph, directedGraph, new WeightHandler(getFactor));
             algorithm.Run();
 
@@ -186,7 +186,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // verify all edges.
             var edges = directedGraph.GetEdgeEnumerator(0);
             Assert.AreEqual(1, edges.Count());
-            var data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null, 100, 100 * getFactor(1).Value);
+            var data = ContractedEdgeDataSerializer.SerializeDynamicAugmented(100 * getFactor(1).Value, null, 100, 100 * getFactor(1).Value);
             Assert.AreEqual(data[0], edges.First().Data[0]);
             Assert.AreEqual(data[1], edges.First().Data[1]);
             Assert.AreEqual(data[2], edges.First().Data[2]);
@@ -194,7 +194,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             edges = directedGraph.GetEdgeEnumerator(1);
             Assert.AreEqual(1, edges.Count());
-            data = ContractedEdgeDataSerializer.Serialize(100 * getFactor(1).Value, null, 100, 100 * getFactor(1).Value);
+            data = ContractedEdgeDataSerializer.SerializeDynamicAugmented(100 * getFactor(1).Value, null, 100, 100 * getFactor(1).Value);
             Assert.AreEqual(data[0], edges.First().Data[0]);
             Assert.AreEqual(data[1], edges.First().Data[1]);
             Assert.AreEqual(data[2], edges.First().Data[2]);

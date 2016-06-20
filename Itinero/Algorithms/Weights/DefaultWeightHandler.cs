@@ -142,5 +142,16 @@ namespace Itinero.Algorithms.Weights
                 out weight, out direction);
             return weight;
         }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
+        public sealed override float GetEdgeWeight(DynamicEdge edge, out bool? direction)
+        {
+            float weight;
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                out weight, out direction);
+            return weight;
+        }
     }
 }
