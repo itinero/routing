@@ -22,7 +22,8 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
-using Itinero;
+using Itinero.Graphs.Geometric;
+using Itinero.Data.Edges;
 
 namespace Itinero
 {
@@ -35,6 +36,79 @@ namespace Itinero
         /// The default connectivity radius.
         /// </summary>
         public const float DefaultConnectivityRadius = 250;
+
+        /// <summary>
+        /// Returns true if all given profiles are supported.
+        /// </summary>
+        public static bool SupportsAll(this RouterBase router, params Profile[] profiles)
+        {
+            for (var i = 0; i < profiles.Length; i++)
+            {
+                if (!router.Db.Supports(profiles[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        /// <summary>
+        /// Gets the default weight handler for the given profile.
+        /// </summary>
+        public static DefaultWeightHandler GetWeightHandler(this Router router, Profile profile)
+        {
+            if (router.ProfileFactorCache != null && router.ProfileFactorCache.ContainsAll(profile))
+            { // use cached version and don't consult profiles anymore.
+                return new DefaultWeightHandler(router.ProfileFactorCache.GetGetFactor(profile));
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return new DefaultWeightHandler((p) =>
+                {
+                    return profile.Factor(router.Db.EdgeProfiles.Get(p));
+                });
+            }
+        }
+
+        /// <summary>
+        /// Returns the IsAcceptable function to use in the default resolver algorithm.
+        /// </summary>
+        public static Func<GeometricEdge, bool> GetIsAcceptable(this Router router, Profile[] profiles)
+        {
+            if (router.ProfileFactorCache != null && router.ProfileFactorCache.ContainsAll(profiles))
+            { // use cached version and don't consult profiles anymore.
+                return router.ProfileFactorCache.GetIsAcceptable(router.VerifyAllStoppable,
+                    profiles);
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return (edge) =>
+                { // check all profiles, they all need to be traversible.
+                  // get profile.
+                    float distance;
+                    ushort edgeProfileId;
+                    EdgeDataSerializer.Deserialize(edge.Data[0],
+                        out distance, out edgeProfileId);
+                    var edgeProfile = router.Db.EdgeProfiles.Get(edgeProfileId);
+                    for (var i = 0; i < profiles.Length; i++)
+                    {
+                        // get factor from profile.
+                        if (profiles[i].Factor(edgeProfile).Value <= 0)
+                        { // cannot be traversed by this profile.
+                            return false;
+                        }
+                        if (router.VerifyAllStoppable)
+                        { // verify stoppable.
+                            if (!profiles[i].CanStopOn(edgeProfile))
+                            { // this profile cannot stop on this edge.
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                };
+            }
+        }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
@@ -320,7 +394,15 @@ namespace Itinero
         {
             return router.TryCalculateWeight(profile, weightHandler, locations, invalids).Value;
         }
-
+        
+        /// <summary>
+        /// Calculates all weights between all locations.
+        /// </summary>
+        public static float[][] CalculateWeight(this RouterBase router, Profile profile, RouterPoint[] locations,
+            ISet<int> invalids)
+        {
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router.Db), locations, invalids).Value;
+        }
 
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).

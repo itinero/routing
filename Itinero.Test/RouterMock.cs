@@ -123,10 +123,5 @@ namespace Itinero.Test
             _resolvedId++;
             return new Result<RouterPoint>(new RouterPoint(latitude, longitude, 0, 0));
         }
-
-        public override bool SupportsAll(params Profile[] profiles)
-        {
-            return true;
-        }
     }
 }

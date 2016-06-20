@@ -79,16 +79,7 @@ namespace Itinero
                 return _db;
             }
         }
-
-        /// <summary>
-        /// Returns true if all profiles are supported.
-        /// </summary>
-        /// <returns></returns>
-        public sealed override bool SupportsAll(params Profile[] profiles)
-        {
-            return _db.SupportsAll(profiles);
-        }
-
+        
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
@@ -488,66 +479,6 @@ namespace Itinero
                 }
             }
             return new Result<T[][]>(weights);
-        }
-
-        /// <summary>
-        /// Returns the IsAcceptable function to use in the default resolver algorithm.
-        /// </summary>
-        /// <param name="profiles"></param>
-        /// <returns></returns>
-        private Func<GeometricEdge, bool> GetIsAcceptable(Profile[] profiles)
-        {
-            if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profiles))
-            { // use cached version and don't consult profiles anymore.
-                return this.ProfileFactorCache.GetIsAcceptable(this.VerifyAllStoppable,
-                    profiles);
-            }
-            else
-            { // use the regular function, and consult profiles continuously.
-                return (edge) =>
-                { // check all profiles, they all need to be traversible.
-                  // get profile.
-                    float distance;
-                    ushort edgeProfileId;
-                    EdgeDataSerializer.Deserialize(edge.Data[0],
-                        out distance, out edgeProfileId);
-                    var edgeProfile = _db.EdgeProfiles.Get(edgeProfileId);
-                    for (var i = 0; i < profiles.Length; i++)
-                    {
-                        // get factor from profile.
-                        if (profiles[i].Factor(edgeProfile).Value <= 0)
-                        { // cannot be traversed by this profile.
-                            return false;
-                        }
-                        if (this.VerifyAllStoppable)
-                        { // verify stoppable.
-                            if (!profiles[i].CanStopOn(edgeProfile))
-                            { // this profile cannot stop on this edge.
-                                return false;
-                            }
-                        }
-                    }
-                    return true;
-                };
-            }
-        }
-
-        /// <summary>
-        /// Gets the default weight handler for the given profile.
-        /// </summary>
-        private DefaultWeightHandler GetWeightHandler(Profile profile)
-        {
-            if (this.ProfileFactorCache != null && this.ProfileFactorCache.ContainsAll(profile))
-            { // use cached version and don't consult profiles anymore.
-                return new DefaultWeightHandler(this.ProfileFactorCache.GetGetFactor(profile));
-            }
-            else
-            { // use the regular function, and consult profiles continuously.
-                return new DefaultWeightHandler((p) =>
-                {
-                    return profile.Factor(Db.EdgeProfiles.Get(p));
-                });
-            }
         }
 
         /// <summary>
