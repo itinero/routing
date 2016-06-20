@@ -38,6 +38,16 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets or sets the profile factor and speed cache.
+        /// </summary>
+        public ProfileFactorAndSpeedCache ProfileFactorAndSpeedCache { get; set; }
+
+        /// <summary>
+        /// Flag to check all resolved points if stopping at the resolved location is possible.
+        /// </summary>
+        public bool VerifyAllStoppable { get; set; }
+
+        /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>

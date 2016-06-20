@@ -251,7 +251,7 @@ namespace Itinero.Algorithms.Contracted
                 }
                 hasExistingEdgeOnlySameDirection = false;
                 return false;
-            }, new uint[] { current }, contractedId) != Constants.NO_EDGE)
+            }, new uint[] { current }, ContractedEdgeDataSerializer.SerializeMetaAugmented(contractedId, distance, time)) != Constants.NO_EDGE)
             { // updating the edge succeeded.
                 return;
             }
@@ -339,7 +339,7 @@ namespace Itinero.Algorithms.Contracted
                     forwardWeight == backwardWeight &&
                     forwardContractedId == backwardContractedId)
                 { // add one bidirectional edge.
-                    graph.AddEdge(vertex1, vertex1, forwardWeight, null, forwardContractedId, forwardDistance, forwardTime);
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardDistance, forwardTime);
                     //graph.AddEdge(vertex1, vertex2,
                     //    ContractedEdgeDataSerializer.Serialize(forwardWeight, null), forwardContractedId);
                 }
@@ -347,7 +347,7 @@ namespace Itinero.Algorithms.Contracted
                 { // add two unidirectional edges if needed.
                     if (forward)
                     { // there is a forward edge.
-                        graph.AddEdge(vertex1, vertex1, forwardWeight, true, forwardContractedId, forwardDistance, forwardTime);
+                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, forwardDistance, forwardTime);
                         //graph.AddEdge(vertex1, vertex2,
                         //    ContractedEdgeDataSerializer.Serialize(forwardWeight, true), forwardContractedId);
                     }

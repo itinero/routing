@@ -31,7 +31,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets or sets the speed (1/m/s).
         /// </summary>
-        public float Speed { get; set; }
+        public float SpeedFactor { get; set; }
 
         /// <summary>
         /// Gets or sets the direction.

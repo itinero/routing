@@ -2,6 +2,7 @@
 using System;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
+using Itinero.Data.Contracted;
 
 namespace Itinero.Test
 {
@@ -86,6 +87,27 @@ namespace Itinero.Test
         public override float Subtract(float weight1, float weight2)
         {
             return weight1 - weight2;
+        }
+
+        public override bool CanUse(ContractedDb db)
+        {
+            return true;
+        }
+
+        public override int DynamicSize
+        {
+            get
+            {
+                return 1;
+            }
+        }
+
+        public override int MetaSize
+        {
+            get
+            {
+                return 1;
+            }
         }
     }
 }

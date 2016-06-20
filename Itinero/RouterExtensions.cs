@@ -55,11 +55,11 @@ namespace Itinero
         /// <summary>
         /// Gets the default weight handler for the given profile.
         /// </summary>
-        public static DefaultWeightHandler GetWeightHandler(this Router router, Profile profile)
+        public static DefaultWeightHandler GetDefaultWeightHandler(this RouterBase router, Profile profile)
         {
-            if (router.ProfileFactorCache != null && router.ProfileFactorCache.ContainsAll(profile))
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
             { // use cached version and don't consult profiles anymore.
-                return new DefaultWeightHandler(router.ProfileFactorCache.GetGetFactor(profile));
+                return new DefaultWeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactor(profile));
             }
             else
             { // use the regular function, and consult profiles continuously.
@@ -71,13 +71,28 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets the default weight handler for the given profile.
+        /// </summary>
+        public static WeightHandler GetAugmentedWeightHandler(this RouterBase router, Profile profile)
+        {
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            { // use cached version and don't consult profiles anymore.
+                return new WeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profile));
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return new WeightHandler(profile.GetGetFactorAndSpeed(router.Db));
+            }
+        }
+
+        /// <summary>
         /// Returns the IsAcceptable function to use in the default resolver algorithm.
         /// </summary>
-        public static Func<GeometricEdge, bool> GetIsAcceptable(this Router router, Profile[] profiles)
+        public static Func<GeometricEdge, bool> GetIsAcceptable(this RouterBase router, Profile[] profiles)
         {
-            if (router.ProfileFactorCache != null && router.ProfileFactorCache.ContainsAll(profiles))
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profiles))
             { // use cached version and don't consult profiles anymore.
-                return router.ProfileFactorCache.GetIsAcceptable(router.VerifyAllStoppable,
+                return router.ProfileFactorAndSpeedCache.GetIsAcceptable(router.VerifyAllStoppable,
                     profiles);
             }
             else
@@ -401,7 +416,7 @@ namespace Itinero
         public static float[][] CalculateWeight(this RouterBase router, Profile profile, RouterPoint[] locations,
             ISet<int> invalids)
         {
-            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router.Db), locations, invalids).Value;
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, invalids).Value;
         }
 
         /// <summary>
@@ -565,7 +580,7 @@ namespace Itinero
         /// </summary>
         public static Result<float> TryCalculateWeight(this Router router, Profile profile, Coordinate source, Coordinate target)
         {
-            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router.Db), source, target);
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), source, target);
         }
 
         /// <summary>

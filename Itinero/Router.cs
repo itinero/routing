@@ -50,11 +50,6 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets or sets the profile factor cache.
-        /// </summary>
-        public ProfileFactorCache ProfileFactorCache { get; set; }
-
-        /// <summary>
         /// Gets or sets the delegate to create a custom resolver.
         /// </summary>
         public IResolveExtensions.CreateResolver CreateCustomResolver { get; set; }
@@ -63,11 +58,6 @@ namespace Itinero
         /// Gets or sets the delegate to use a custom route builder.
         /// </summary>
         public RouteBuilderExtensions.BuildRoute CustomRouteBuilder { get; set; }
-
-        /// <summary>
-        /// Flag to check all resolved points if stopping at the resolved location is possible.
-        /// </summary>
-        public bool VerifyAllStoppable { get; set; }
 
         /// <summary>
         /// Gets the db.
@@ -145,7 +135,7 @@ namespace Itinero
             }
 
             // get the weight handler.
-            var weightHandler = this.GetWeightHandler(profile);
+            var weightHandler = this.GetDefaultWeightHandler(profile);
      
             // build and run dykstra search.
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
@@ -173,7 +163,7 @@ namespace Itinero
             }
             
             // get the weight handler.
-            var weightHandler = this.GetWeightHandler(profile);
+            var weightHandler = this.GetDefaultWeightHandler(profile);
 
             List<uint> path;
             float pathWeight;
@@ -315,7 +305,7 @@ namespace Itinero
             }
 
             // get the weight handler.
-            var weightHandler = this.GetWeightHandler(profile);
+            var weightHandler = this.GetDefaultWeightHandler(profile);
 
             ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
@@ -389,6 +379,13 @@ namespace Itinero
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
                     useContracted = false;
                 }
+
+                if (!weightHandler.CanUse(contracted))
+                { // there is a contracted graph but it is not equipped to handle this weight-type.
+                    Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                        "There is a contracted graph but it's not built for the given weight calculations, using the default but slow implementation.");
+                    useContracted = false;
+                }
             }
 
             if (useContracted)
@@ -426,7 +423,7 @@ namespace Itinero
             { // use regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(_db, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {

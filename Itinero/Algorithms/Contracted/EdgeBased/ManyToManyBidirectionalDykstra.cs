@@ -61,7 +61,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     "Contraction-based edge-based many-to-many calculates are not supported in the given router db for the given profile.");
             }
             _graph = contractedDb.EdgeBasedGraph;
-
+            weightHandler.CheckCanUse(contractedDb);
+            
             _buckets = new Dictionary<uint, Dictionary<int, T>>();
         }
 
@@ -191,9 +192,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, RouterPoint[] sources,
+        public ManyToManyBidirectionalDykstra(Router router, Profile profile, RouterPoint[] sources,
             RouterPoint[] targets)
-            : base(routerDb, profile, profile.DefaultWeightHandler(routerDb), sources, targets)
+            : base(router.Db, profile, profile.DefaultWeightHandler(router), sources, targets)
         {
 
         }
@@ -201,9 +202,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
+        public ManyToManyBidirectionalDykstra(RouterDb router, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
             RouterPoint[] targets)
-            : base(routerDb, profile, weightHandler, sources, targets)
+            : base(router, profile, weightHandler, sources, targets)
         {
 
         }

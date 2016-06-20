@@ -21,6 +21,8 @@ using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Contracted.EdgeBased;
+using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -104,6 +106,27 @@ namespace Itinero.Algorithms.Weights
         {
             get;
         }
+
+        /// <summary>
+        /// Returns true if the given contracted db can be used.
+        /// </summary>
+        public abstract bool CanUse(ContractedDb db);
+
+        /// <summary>
+        /// Gets the size of the meta-data in a directed meta graph when using this weight.
+        /// </summary>
+        public abstract int MetaSize
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Gets the size of the fixed parth in a dynamic directed graph when using this weight.
+        /// </summary>
+        public abstract int DynamicSize
+        {
+            get;
+        }
     }
 
     /// <summary>
@@ -184,7 +207,7 @@ namespace Itinero.Algorithms.Weights
             return new Weight()
             {
                 Distance = weight.Distance + distance,
-                Time = weight.Time + (distance * factorAndSpeed.Speed),
+                Time = weight.Time + (distance * factorAndSpeed.SpeedFactor),
                 Value = weight.Value + (distance * factorAndSpeed.Value)
             };
         }
@@ -203,7 +226,7 @@ namespace Itinero.Algorithms.Weights
             return new Weight()
             {
                 Distance = distance,
-                Time = (distance * factorAndSpeed.Speed),
+                Time = (distance * factorAndSpeed.SpeedFactor),
                 Value = (distance * factorAndSpeed.Value)
             };
         }
@@ -310,6 +333,40 @@ namespace Itinero.Algorithms.Weights
                 Time = time,
                 Value = weight
             };
+        }
+
+        /// <summary>
+        /// Returns true if the given contracted db can be used.
+        /// </summary>
+        public sealed override bool CanUse(ContractedDb db)
+        {
+            if (db.HasEdgeBasedGraph)
+            {
+                return db.EdgeBasedGraph.FixedEdgeDataSize == ContractedEdgeDataSerializer.DynamicAugmentedFixedSize;
+            }
+            return db.NodeBasedGraph.EdgeDataSize == ContractedEdgeDataSerializer.MetaAugmentedSize;
+        }
+
+        /// <summary>
+        /// Gets the size of the fixed parth in a dynamic directed graph when using this weight.
+        /// </summary>
+        public sealed override int DynamicSize
+        {
+            get
+            {
+                return ContractedEdgeDataSerializer.DynamicAugmentedFixedSize;
+            }
+        }
+
+        /// <summary>
+        /// Gets the size of the meta-data in a directed meta graph when using this weight.
+        /// </summary>
+        public sealed override int MetaSize
+        {
+            get
+            {
+                return ContractedEdgeDataSerializer.MetaAugmentedSize;
+            }
         }
     }
 }

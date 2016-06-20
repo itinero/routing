@@ -52,7 +52,7 @@ namespace Itinero.Test.Algorithms.Default
             });
 
             // run algorithm.
-            var algorithm = new OneToMany(routerDb, MockProfile.CarMock(), 
+            var algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), 
                 new RouterPoint(0, 0, 0, 0), new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) }, float.MaxValue);
             algorithm.Run();
 
@@ -94,7 +94,7 @@ namespace Itinero.Test.Algorithms.Default
             });
 
             // run algorithm.
-            var algorithm = new OneToMany(routerDb, MockProfile.CarMock(),
+            var algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint(0, 0, 0, ushort.MaxValue / 10), 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) }, float.MaxValue);
             algorithm.Run();
@@ -164,7 +164,7 @@ namespace Itinero.Test.Algorithms.Default
             });
 
             // run algorithm 0->(1, 2).
-            var algorithm = new OneToMany(routerDb, MockProfile.CarMock(), routerDb.Network.CreateRouterPointForVertex(0), 
+            var algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), routerDb.Network.CreateRouterPointForVertex(0), 
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
@@ -203,7 +203,7 @@ namespace Itinero.Test.Algorithms.Default
             Assert.IsNull(path);
 
             // run algorithm 1->(0, 2).
-            algorithm = new OneToMany(routerDb, MockProfile.CarMock(), routerDb.Network.CreateRouterPointForVertex(1),
+            algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), routerDb.Network.CreateRouterPointForVertex(1),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(2)

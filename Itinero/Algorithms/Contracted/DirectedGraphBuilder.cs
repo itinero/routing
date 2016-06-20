@@ -40,6 +40,8 @@ namespace Itinero.Algorithms.Contracted
         /// </summary>
         public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedMetaGraph target, WeightHandler<T> weightHandler)
         {
+            weightHandler.CheckCanUse(target);
+
             _source = source;
             _target = target;
             _weightHandler = weightHandler;

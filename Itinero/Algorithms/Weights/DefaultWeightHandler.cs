@@ -21,6 +21,8 @@ using System;
 using Itinero.Graphs.Directed;
 using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Contracted.EdgeBased;
+using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -161,6 +163,40 @@ namespace Itinero.Algorithms.Weights
             Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
                 out weight, out direction);
             return weight;
+        }
+
+        /// <summary>
+        /// Returns true if the given contracted db can be used.
+        /// </summary>
+        public sealed override bool CanUse(ContractedDb db)
+        {
+            if (db.HasEdgeBasedGraph)
+            {
+                return db.EdgeBasedGraph.FixedEdgeDataSize == ContractedEdgeDataSerializer.DynamicFixedSize;
+            }
+            return db.NodeBasedGraph.EdgeDataSize == ContractedEdgeDataSerializer.MetaSize;
+        }
+
+        /// <summary>
+        /// Gets the size of the fixed parth in a dynamic directed graph when using this weight.
+        /// </summary>
+        public sealed override int DynamicSize
+        {
+            get
+            {
+                return ContractedEdgeDataSerializer.DynamicFixedSize;
+            }
+        }
+
+        /// <summary>
+        /// Gets the size of the meta-data in a directed meta graph when using this weight.
+        /// </summary>
+        public sealed override int MetaSize
+        {
+            get
+            {
+                return ContractedEdgeDataSerializer.MetaSize;
+            }
         }
     }
 }

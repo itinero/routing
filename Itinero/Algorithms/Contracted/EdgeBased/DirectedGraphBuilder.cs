@@ -41,6 +41,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         public DirectedGraphBuilder(Itinero.Graphs.Graph source, DirectedDynamicGraph target, WeightHandler<T> weightHandler)
         {
+            weightHandler.CheckCanUse(target);
+
             _source = source;
             _target = target;
             _weightHandler = weightHandler;

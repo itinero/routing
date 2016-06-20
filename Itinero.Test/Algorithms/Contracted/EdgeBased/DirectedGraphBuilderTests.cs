@@ -165,7 +165,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 return new FactorAndSpeed()
                 {
                     Direction = 0,
-                    Speed = 1.0f / speed,
+                    SpeedFactor = 1.0f / speed,
                     Value = 1.0f / speed
                 };
             };

@@ -44,6 +44,8 @@ namespace Itinero.Algorithms.Contracted
         public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
             WeightHandler<T> weightHandler)
         {
+            weightHandler.CheckCanUse(graph);
+
             _graph = graph;
             _priorityCalculator = priorityCalculator;
             _witnessCalculator = witnessCalculator;

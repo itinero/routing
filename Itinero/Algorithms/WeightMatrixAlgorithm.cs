@@ -230,7 +230,7 @@ namespace Itinero.Algorithms
         /// </summary>
         public WeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations,
             Func<RoutingEdge, int, bool> matchEdge)
-            : base(router, profile, profile.DefaultWeightHandler(router.Db), locations, matchEdge)
+            : base(router, profile, profile.DefaultWeightHandler(router), locations, matchEdge)
         {
 
         }

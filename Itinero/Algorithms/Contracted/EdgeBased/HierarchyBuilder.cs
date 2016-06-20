@@ -50,6 +50,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         public HierarchyBuilder(DirectedDynamicGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator<T> witnessCalculator,
             WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions)
         {
+            weightHandler.CheckCanUse(graph);
+
             _graph = graph;
             _priorityCalculator = priorityCalculator;
             _witnessCalculator = witnessCalculator;

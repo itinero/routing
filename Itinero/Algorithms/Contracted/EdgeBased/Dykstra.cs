@@ -40,6 +40,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         public Dykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, bool backward)
         {
+            weightHandler.CheckCanUse(graph);
+
             _graph = graph;
             _sources = sources;
             _backward = backward;

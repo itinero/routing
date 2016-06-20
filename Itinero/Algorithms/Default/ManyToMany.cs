@@ -122,10 +122,10 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, Profile profile,
+        public ManyToMany(Router router, Profile profile,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
-            : base(routerDb, profile.DefaultWeightHandler(routerDb), sources, targets, maxSearch)
+            : base(router.Db, profile.DefaultWeightHandler(router), sources, targets, maxSearch)
         {
 
         }

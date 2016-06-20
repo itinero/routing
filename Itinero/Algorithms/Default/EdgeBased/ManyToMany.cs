@@ -39,11 +39,11 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
+        public ManyToMany(Router router, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
         {
-            _routerDb = routerDb;
+            _routerDb = router.Db;
             _weightHandler = weightHandler;
             _sources = sources;
             _targets = targets;
@@ -125,10 +125,10 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
+        public ManyToMany(Router router, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
-            : base(routerDb, profile.DefaultWeightHandler(routerDb), getRestrictions, sources, targets, maxSearch)
+            : base(router, profile.DefaultWeightHandler(router), getRestrictions, sources, targets, maxSearch)
         {
 
         }
@@ -136,10 +136,10 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions,
+        public ManyToMany(Router router, Func<ushort, Factor> getFactor, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
-            : base(routerDb, new DefaultWeightHandler(getFactor), getRestrictions, sources, targets, maxSearch)
+            : base(router, new DefaultWeightHandler(getFactor), getRestrictions, sources, targets, maxSearch)
         {
 
         }
@@ -147,10 +147,10 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToMany(RouterDb routerDb, DefaultWeightHandler weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
+        public ManyToMany(Router router, DefaultWeightHandler weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint[] sources, RouterPoint[] targets,
             float maxSearch)
-            : base(routerDb, weightHandler, getRestrictions, sources, targets, maxSearch)
+            : base(router, weightHandler, getRestrictions, sources, targets, maxSearch)
         {
 
         }

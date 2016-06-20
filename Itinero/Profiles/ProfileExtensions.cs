@@ -45,7 +45,7 @@ namespace Itinero.Profiles
                 var s = profile.Speed(att);
                 return new FactorAndSpeed()
                 {
-                    Speed = 1 / s.Value,
+                    SpeedFactor = 1 / s.Value,
                     Value = f.Value,
                     Direction = f.Direction
                 };

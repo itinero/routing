@@ -52,10 +52,19 @@ namespace Itinero.Algorithms.Weights
                 return new Weight()
                 {
                     Distance = d,
-                    Time = d * f.Speed,
+                    Time = d * f.SpeedFactor,
                     Value = d * f.Value
                 };
             };
+        }
+
+        /// <summary>
+        /// Returns a string describing this object.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0} - {1}m {2}s", this.Value, this.Distance, this.Time);
         }
     }
 }

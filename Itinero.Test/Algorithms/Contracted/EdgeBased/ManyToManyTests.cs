@@ -57,7 +57,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), true);
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) });
             algorithm.Run();
@@ -96,7 +96,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), true);
 
             // run algorithm.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) });
             algorithm.Run();
@@ -161,7 +161,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), true);
 
             // run algorithm (0, 1, 2)->(0, 1, 2).
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -224,7 +224,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -290,7 +290,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -356,7 +356,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -428,7 +428,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), oneway,
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -499,7 +499,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), oneway,
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -570,7 +570,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, oneway,
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), oneway,
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -660,7 +660,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyBidirectionalDykstra(routerDb, MockProfile.CarMock(),
+            var algorithm = new ManyToManyBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),

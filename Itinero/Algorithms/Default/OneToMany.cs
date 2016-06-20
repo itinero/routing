@@ -203,9 +203,9 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public OneToMany(RouterDb routerDb, Profile profile,
+        public OneToMany(Router router, Profile profile,
             RouterPoint source, IList<RouterPoint> targets, float maxSearch)
-            : base(routerDb, profile.DefaultWeightHandler(routerDb), source, targets, maxSearch)
+            : base(router.Db, profile.DefaultWeightHandler(router), source, targets, maxSearch)
         {
 
         }

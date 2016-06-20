@@ -143,9 +143,9 @@ namespace Itinero.Graphs.Directed
         public uint AddEdge(uint vertex1, uint vertex2, uint[] data, params uint[] metaData)
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
-            if (edgeId >= _edgeData.Length)
+            while ((edgeId + 1) * _edgeDataSize >= _edgeData.Length)
             {
-                this.IncreaseSizeEdgeData(edgeId);
+                this.IncreaseSizeEdgeData((uint)((edgeId + 1) * _edgeDataSize));
             }
             var edgePointer = edgeId * _edgeDataSize;
             for (var i = 0; i < _edgeDataSize; i++)

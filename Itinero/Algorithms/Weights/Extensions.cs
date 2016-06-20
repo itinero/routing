@@ -16,7 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Data.Contracted;
+using Itinero.Graphs.Directed;
 using Itinero.Profiles;
+using System;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -83,9 +86,71 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Returns the default weight handler.
         /// </summary>
-        public static DefaultWeightHandler DefaultWeightHandler(this Profile profile, RouterDb db)
+        public static DefaultWeightHandler DefaultWeightHandler(this Profile profile, RouterBase router)
         {
-            return new Weights.DefaultWeightHandler((e) => profile.Factor(db.EdgeProfiles.Get(e)));
+            return router.GetDefaultWeightHandler(profile);
+        }
+
+        /// <summary>
+        /// Returns the default weight handler but calculates a profile cache first.
+        /// </summary>
+        public static DefaultWeightHandler DefaultWeightHandlerCached(this Profile profile, RouterDb routerDb)
+        {            
+            // prebuild profile factor cache.
+            var profileCache = new ProfileFactorAndSpeedCache(routerDb);
+            profileCache.CalculateFor(profile);
+
+            return new Weights.DefaultWeightHandler(profileCache.GetGetFactor(profile));
+        }
+
+        /// <summary>
+        /// Returns the augmented weight handler.
+        /// </summary>
+        public static WeightHandler AugmentedWeightHandler(this Profile profile, RouterBase router)
+        {
+            return router.GetAugmentedWeightHandler(profile);
+        }
+
+        /// <summary>
+        /// Returns the augmented weight handler.
+        /// </summary>
+        public static WeightHandler AugmentedWeightHandlerCached(this Profile profile, RouterDb routerDb)
+        {
+            // prebuild profile factor cache.
+            var profileCache = new ProfileFactorAndSpeedCache(routerDb);
+            profileCache.CalculateFor(profile);
+
+            return new Weights.WeightHandler(profileCache.GetGetFactorAndSpeed(profile));
+        }
+
+        /// <summary>
+        /// Checks if the given graph can be used with the weight handler.
+        /// </summary>
+        public static void CheckCanUse<T>(this WeightHandler<T> weightHandler, ContractedDb contractedDb)
+            where T : struct
+        {
+            if (!weightHandler.CanUse(contractedDb))
+            {
+                throw new ArgumentException("Cannot used the given graph and the weight handler together. The data layouts don't match.");
+            }
+        }
+        
+        /// <summary>
+        /// Checks if the given graph can be used with the weight handler.
+        /// </summary>
+        public static void CheckCanUse<T>(this WeightHandler<T> weightHandler, DirectedMetaGraph graph)
+            where T : struct
+        {
+            weightHandler.CheckCanUse(new ContractedDb(graph));
+        }
+
+        /// <summary>
+        /// Checks if the given graph can be used with the weight handler.
+        /// </summary>
+        public static void CheckCanUse<T>(this WeightHandler<T> weightHandler, DirectedDynamicGraph graph)
+            where T : struct
+        {
+            weightHandler.CheckCanUse(new ContractedDb(graph));
         }
     }
 }

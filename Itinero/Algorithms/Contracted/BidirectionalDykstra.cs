@@ -40,6 +40,8 @@ namespace Itinero.Algorithms.Contracted
         /// </summary>
         public BidirectionalDykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets)
         {
+            weightHandler.CheckCanUse(graph);
+
             _graph = graph;
             _sources = sources;
             _targets = targets;

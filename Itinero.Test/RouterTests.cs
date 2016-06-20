@@ -105,8 +105,8 @@ namespace Itinero.Test
             Assert.IsFalse(point.IsError);
             Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved4, point.Value.Location()) < 10);
 
-            router.ProfileFactorCache = new Itinero.Profiles.ProfileFactorCache(router.Db);
-            router.ProfileFactorCache.CalculateFor(car);
+            router.ProfileFactorAndSpeedCache = new Itinero.Profiles.ProfileFactorAndSpeedCache(router.Db);
+            router.ProfileFactorAndSpeedCache.CalculateFor(car);
 
             point = router.TryResolve(car, location1);
             Assert.IsFalse(point.IsError);

@@ -44,6 +44,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         public BidirectionalDykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets,
             Func<uint, IEnumerable<uint[]>> getRestrictions)
         {
+            weightHandler.CheckCanUse(graph);
+
             _graph = graph;
             _weightHandler = weightHandler;
             _sources = sources.Select(x => {

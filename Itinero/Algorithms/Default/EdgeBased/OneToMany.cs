@@ -195,9 +195,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public OneToMany(RouterDb routerDb, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
+        public OneToMany(Router router, Profile profile, Func<uint, IEnumerable<uint[]>> getRestrictions,
             RouterPoint source, IList<RouterPoint> targets, float maxSearch)
-            : base(routerDb, profile.DefaultWeightHandler(routerDb), getRestrictions, source, targets, maxSearch)
+            : base(router.Db, profile.DefaultWeightHandler(router), getRestrictions, source, targets, maxSearch)
         {
 
         }
