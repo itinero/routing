@@ -31,7 +31,7 @@ namespace Itinero.Algorithms.Contracted
     public class DirectedGraphBuilder<T> : AlgorithmBase
         where T : struct
     {
-        private readonly Itinero.Graphs.Graph _source;
+        private readonly Graphs.Graph _source;
         private readonly DirectedMetaGraph _target;
         private readonly WeightHandler<T> _weightHandler;
 

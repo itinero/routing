@@ -1,5 +1,5 @@
 ﻿// Itinero - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.PriorityQueues;
-using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
@@ -27,25 +27,28 @@ namespace Itinero.Algorithms.Contracted
     /// <summary>
     /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
     /// </summary>
-    public class BidirectionalDykstra : AlgorithmBase
+    public class BidirectionalDykstra<T> : AlgorithmBase
+        where T : struct
     {
         private readonly DirectedMetaGraph _graph;
-        private readonly IEnumerable<EdgePath<float>> _sources;
-        private readonly IEnumerable<EdgePath<float>> _targets;
+        private readonly IEnumerable<EdgePath<T>> _sources;
+        private readonly IEnumerable<EdgePath<T>> _targets;
+        private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedMetaGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets)
+        public BidirectionalDykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets)
         {
             _graph = graph;
             _sources = sources;
             _targets = targets;
+            _weightHandler = weightHandler;
         }
 
-        private Tuple<uint, float> _best;
-        private Dictionary<uint, EdgePath<float>> _forwardVisits;
-        private Dictionary<uint, EdgePath<float>> _backwardVisits;
+        private Tuple<uint, T> _best;
+        private Dictionary<uint, EdgePath<T>> _forwardVisits;
+        private Dictionary<uint, EdgePath<T>> _backwardVisits;
 
         /// <summary>
         /// Executes the actual run.
@@ -53,27 +56,27 @@ namespace Itinero.Algorithms.Contracted
         protected override void DoRun()
         {
             // keep settled vertices.
-            _forwardVisits = new Dictionary<uint, EdgePath<float>>();
-            _backwardVisits = new Dictionary<uint, EdgePath<float>>();
+            _forwardVisits = new Dictionary<uint, EdgePath<T>>();
+            _backwardVisits = new Dictionary<uint, EdgePath<T>>();
 
             // initialize the queues.
-            var forwardQueue = new BinaryHeap<EdgePath<float>>();
-            var backwardQueue = new BinaryHeap<EdgePath<float>>();
+            var forwardQueue = new BinaryHeap<EdgePath<T>>();
+            var backwardQueue = new BinaryHeap<EdgePath<T>>();
 
             // queue sources.
             foreach (var source in _sources)
             {
-                forwardQueue.Push(source, source.Weight);
+                forwardQueue.Push(source, _weightHandler.GetMetric(source.Weight));
             }
 
             // queue targets.
             foreach (var target in _targets)
             {
-                backwardQueue.Push(target, target.Weight);
+                backwardQueue.Push(target, _weightHandler.GetMetric(target.Weight));
             }
 
             // update best with current visits.
-            _best = new Tuple<uint, float>(Constants.NO_VERTEX, float.MaxValue);
+            _best = new Tuple<uint, T>(Constants.NO_VERTEX, _weightHandler.Infinite);
 
             // calculate stopping conditions.
             var queueBackwardWeight = backwardQueue.PeekWeight();
@@ -84,8 +87,8 @@ namespace Itinero.Algorithms.Contracted
                 { // stop the search; both queues are empty.
                     break;
                 }
-                if (_best.Item2 < queueForwardWeight &&
-                    _best.Item2 < queueBackwardWeight)
+                if (_weightHandler.GetMetric(_best.Item2) < queueForwardWeight &&
+                    _weightHandler.GetMetric(_best.Item2) < queueBackwardWeight)
                 { // stop the search: it now became impossible to find a shorter route by further searching.
                     break;
                 }
@@ -102,12 +105,13 @@ namespace Itinero.Algorithms.Contracted
 
                     if (current != null)
                     {
-                        EdgePath<float> toBest;
+                        EdgePath<T> toBest;
                         if (_backwardVisits.TryGetValue(current.Vertex, out toBest))
                         { // check for a new best.
-                            if (current.Weight + toBest.Weight < _best.Item2)
+                            var total = _weightHandler.Add(current.Weight, toBest.Weight);
+                            if (_weightHandler.IsSmallerThan(total, _best.Item2))
                             { // a better path was found.
-                                _best = new Tuple<uint, float>(current.Vertex, current.Weight + toBest.Weight);
+                                _best = new Tuple<uint, T>(current.Vertex, total);
                                 this.HasSucceeded = true;
                             }
                         }
@@ -128,12 +132,13 @@ namespace Itinero.Algorithms.Contracted
 
                     if (current != null)
                     {
-                        EdgePath<float> toBest;
+                        EdgePath<T> toBest;
                         if (_forwardVisits.TryGetValue(current.Vertex, out toBest))
                         { // check for a new best.
-                            if (current.Weight + toBest.Weight < _best.Item2)
+                            var total = _weightHandler.Add(current.Weight, toBest.Weight);
+                            if (_weightHandler.IsSmallerThan(total, _best.Item2))
                             { // a better path was found.
-                                _best = new Tuple<uint, float>(current.Vertex, current.Weight + toBest.Weight);
+                                _best = new Tuple<uint, T>(current.Vertex, total);
                                 this.HasSucceeded = true;
                             }
                         }
@@ -158,18 +163,18 @@ namespace Itinero.Algorithms.Contracted
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(BinaryHeap<EdgePath<float>> queue, EdgePath<float> current)
+        private void SearchForward(BinaryHeap<EdgePath<T>> queue, EdgePath<T> current)
         {
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
-                var edgeEnumerator = _graph.Graph.GetEdgeEnumerator();
+                var edgeEnumerator = _graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
-                EdgePath<float> previousLinkedRoute;
+                EdgePath<T> previousLinkedRoute;
                 if (_forwardVisits.TryGetValue(current.Vertex, out previousLinkedRoute))
                 {
-                    if (previousLinkedRoute.Weight > current.Weight)
+                    if (_weightHandler.IsLargerThan(previousLinkedRoute.Weight, current.Weight))
                     { // settle the vertex again if it has a better weight.
                         _forwardVisits[current.Vertex] = current;
                     }
@@ -185,17 +190,17 @@ namespace Itinero.Algorithms.Contracted
                 // add the neighbours to the queue.
                 while (edgeEnumerator.MoveNext())
                 {
-                    float neighbourWeight;
                     bool? neighbourDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
+
                     if (neighbourDirection == null || neighbourDirection.Value)
                     { // the edge is forward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
                         if (!_forwardVisits.ContainsKey(neighbourNeighbour))
                         { // if not yet settled.
-                            var routeToNeighbour = new EdgePath<float>(
-                                neighbourNeighbour, current.Weight + neighbourWeight, current);
-                            queue.Push(routeToNeighbour, routeToNeighbour.Weight);
+                            var routeToNeighbour = new EdgePath<T>(
+                                neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight), current);
+                            queue.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                         }
                     }
                 }
@@ -205,18 +210,18 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Search backward from one vertex.
         /// </summary>
-        private void SearchBackward(BinaryHeap<EdgePath<float>> queue, EdgePath<float> current)
+        private void SearchBackward(BinaryHeap<EdgePath<T>> queue, EdgePath<T> current)
         {
             if (current != null)
             {
                 // get the edge enumerator.
-                var edgeEnumerator = _graph.Graph.GetEdgeEnumerator();
+                var edgeEnumerator = _graph.GetEdgeEnumerator();
 
                 // add to the settled vertices.
-                EdgePath<float> previousLinkedRoute;
+                EdgePath<T> previousLinkedRoute;
                 if (_backwardVisits.TryGetValue(current.Vertex, out previousLinkedRoute))
                 {
-                    if (previousLinkedRoute.Weight > current.Weight)
+                    if (_weightHandler.IsLargerThan(previousLinkedRoute.Weight, current.Weight))
                     { // settle the vertex again if it has a better weight.
                         _backwardVisits[current.Vertex] = current;
                     }
@@ -232,18 +237,17 @@ namespace Itinero.Algorithms.Contracted
                 // add the neighbours to the queue.
                 while (edgeEnumerator.MoveNext())
                 {
-                    float neighbourWeight;
                     bool? neighbourDirection;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out neighbourWeight, out neighbourDirection);
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
 
                     if (neighbourDirection == null || !neighbourDirection.Value)
                     { // the edge is backward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
                         if (!_backwardVisits.ContainsKey(neighbourNeighbour))
                         { // if not yet settled.
-                            var routeToNeighbour = new EdgePath<float>(
-                                neighbourNeighbour, current.Weight + neighbourWeight, current);
-                            queue.Push(routeToNeighbour, routeToNeighbour.Weight);
+                            var routeToNeighbour = new EdgePath<T>(
+                                neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight), current);
+                            queue.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                         }
                     }
                 }
@@ -267,7 +271,7 @@ namespace Itinero.Algorithms.Contracted
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetForwardVisit(uint vertex, out EdgePath<float> visit)
+        public bool TryGetForwardVisit(uint vertex, out EdgePath<T> visit)
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -278,7 +282,7 @@ namespace Itinero.Algorithms.Contracted
         /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetBackwardVisit(uint vertex, out EdgePath<float> visit)
+        public bool TryGetBackwardVisit(uint vertex, out EdgePath<T> visit)
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -289,17 +293,17 @@ namespace Itinero.Algorithms.Contracted
         /// Returns the path.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath(out float weight)
+        public List<uint> GetPath(out T weight)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            EdgePath<float> fromSource;
-            EdgePath<float> toTarget;
+            EdgePath<T> fromSource;
+            EdgePath<T> toTarget;
             if (_forwardVisits.TryGetValue(_best.Item1, out fromSource) &&
                 _backwardVisits.TryGetValue(_best.Item1, out toTarget))
             {
                 var vertices = new List<uint>();
-                weight = fromSource.Weight + toTarget.Weight;
+                weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
 
                 // add vertices from source.
                 vertices.Add(fromSource.Vertex);
@@ -335,8 +339,23 @@ namespace Itinero.Algorithms.Contracted
         /// <returns></returns>
         public List<uint> GetPath()
         {
-            float weight;
+            T weight;
             return this.GetPath(out weight);
         }
     }
+
+    /// <summary>
+    /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
+    /// </summary>
+    public sealed class BidirectionalDykstra : BidirectionalDykstra<float>
+    {
+        /// <summary>
+        /// Creates a new contracted bidirectional router.
+        /// </summary>
+        public BidirectionalDykstra(DirectedMetaGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets)
+            : base(graph, new DefaultWeightHandler(null), sources, targets)
+        {
+
+        }
+    }        
 }
