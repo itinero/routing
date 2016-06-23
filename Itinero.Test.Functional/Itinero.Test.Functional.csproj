@@ -54,7 +54,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="OsmSharp, Version=2.0.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\routing-experiment\packages\OsmSharp.Core.2.0.9-alpha\lib\net45\OsmSharp.dll</HintPath>
+      <HintPath>..\packages\OsmSharp.Core.2.0.9-alpha\lib\net45\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PowerCollections, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2573bf8a1bdddcd5, processorArchitecture=MSIL">

@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="OsmSharp, Version=2.0.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\routing-experiment\packages\OsmSharp.Core.2.0.9-alpha\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\OsmSharp.dll</HintPath>
+      <HintPath>..\packages\OsmSharp.Core.2.0.9-alpha\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\OsmSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
