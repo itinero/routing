@@ -169,12 +169,8 @@ namespace Itinero.Algorithms.Weights
         /// Returns true if the given contracted db can be used.
         /// </summary>
         public sealed override bool CanUse(ContractedDb db)
-        {
-            if (db.HasEdgeBasedGraph)
-            {
-                return db.EdgeBasedGraph.FixedEdgeDataSize == ContractedEdgeDataSerializer.DynamicFixedSize;
-            }
-            return db.NodeBasedGraph.EdgeDataSize == ContractedEdgeDataSerializer.MetaSize;
+        { // any current layout can be used with default weights.
+            return true;
         }
 
         /// <summary>
