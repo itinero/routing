@@ -158,6 +158,7 @@
     <Compile Include="IO\Json\JsonWriter.cs" />
     <Compile Include="IO\Xml\Route.Xml.cs" />
     <Compile Include="IO\Xml\XmlExtensions.cs" />
+    <Compile Include="Osm\Vehicles\Profiles\BicycleNetworks.cs" />
     <Compile Include="Profiles\ProfileFactorAndSpeedCache.cs" />
     <Compile Include="RouterBase.cs" />
     <Compile Include="RouterExtensions.cs" />

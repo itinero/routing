@@ -130,6 +130,23 @@ namespace Itinero.Osm.Vehicles
         private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "bicycle", "cycleway", "ramp" };
 
         /// <summary>
+        /// Returns true if the given key is relevant.
+        /// </summary>
+        public override bool IsRelevant(string key)
+        {
+            if (base.IsRelevant(key))
+            {
+                return true;
+            }
+
+            if (key.StartsWith("cn_"))
+            { // include all cycle network tags.
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Returns true if the given key is relevant for the given profile.
         /// </summary>
         public override bool IsRelevantForProfile(string key)
@@ -138,6 +155,12 @@ namespace Itinero.Osm.Vehicles
             {
                 return true;
             }
+
+            if (key.StartsWith("cn_"))
+            { // include all cycle network tags.
+                return true;
+            }
+
             return _relevantProfileKeys.Contains(key);
         }
 
@@ -220,7 +243,8 @@ namespace Itinero.Osm.Vehicles
             {
                 this.Fastest(),
                 this.Shortest(),
-                this.Balanced()
+                this.Balanced(),
+                this.Networks()
             };
         }
 
@@ -231,6 +255,15 @@ namespace Itinero.Osm.Vehicles
         public Profile Balanced()
         {
             return new Profiles.BicycleBalanced(this);
+        }
+
+        /// <summary>
+        /// Returns a profile specifically for bicycles that uses cycling networks as much as possible. Behaves as balanced in the absences of cycling network data.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Networks()
+        {
+            return new Profiles.BicycleNetworks(this);
         }
     }
 }

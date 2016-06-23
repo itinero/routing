@@ -47,6 +47,17 @@ namespace Itinero.IO.Osm.Relations
         }
 
         /// <summary>
+        /// Gets or sets the action executed after normalization on the normalized collection and the original collection.
+        /// </summary>
+        public virtual Action<TagsCollectionBase, TagsCollectionBase> OnAfterWayTagsNormalize
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Executes the first pass for relations.
         /// </summary>
         public void FirstPass(Relation relation)
