@@ -30,42 +30,42 @@ namespace Itinero.Osm.Vehicles
         /// <summary>
         /// Default Car
         /// </summary>
-        public static readonly Vehicle Car = new Car();
+        public static readonly Car Car = new Car();
 
         /// <summary>
         /// Default Pedestrian
         /// </summary>
-        public static readonly Vehicle Pedestrian = new Pedestrian();
+        public static readonly Pedestrian Pedestrian = new Pedestrian();
 
         /// <summary>
         /// Default Bicycle
         /// </summary>
-        public static readonly Vehicle Bicycle = new Bicycle();
+        public static readonly Bicycle Bicycle = new Bicycle();
 
         /// <summary>
         /// Default Moped
         /// </summary>
-        public static readonly Vehicle Moped = new Moped();
+        public static readonly Moped Moped = new Moped();
 
         /// <summary>
         /// Default MotorCycle
         /// </summary>
-        public static readonly Vehicle MotorCycle = new MotorCycle();
+        public static readonly MotorCycle MotorCycle = new MotorCycle();
 
         /// <summary>
         /// Default SmallTruck
         /// </summary>
-        public static readonly Vehicle SmallTruck = new SmallTruck();
+        public static readonly SmallTruck SmallTruck = new SmallTruck();
 
         /// <summary>
         /// Default BigTruck
         /// </summary>
-        public static readonly Vehicle BigTruck = new BigTruck();
+        public static readonly BigTruck BigTruck = new BigTruck();
 
         /// <summary>
         /// Default BigTruck
         /// </summary>
-        public static readonly Vehicle Bus = new Bus();
+        public static readonly Bus Bus = new Bus();
 
         /// <summary>
         /// Registers all default vehicles.
