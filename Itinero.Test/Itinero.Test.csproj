@@ -65,7 +65,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Reminiscence, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\routing-experiment\packages\Reminiscence.1.0.2\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Reminiscence.dll</HintPath>
+      <HintPath>..\packages\Reminiscence.1.0.2\lib\portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10\Reminiscence.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
