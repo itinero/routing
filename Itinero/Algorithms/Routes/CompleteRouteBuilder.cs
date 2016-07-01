@@ -132,6 +132,7 @@ namespace Itinero.Algorithms.Routes
                 Shape = _shape.ToArray(),
                 ShapeMeta = _shapeMeta.ToArray(),
                 Stops = stops,
+				Branches = _branches.ToArray(),
                 TotalDistance = _shapeMeta.Last().Distance,
                 TotalTime = _shapeMeta.Last().Time
             };
