@@ -219,6 +219,9 @@
     <Compile Include="Result.cs" />
     <Compile Include="Route.cs" />
     <Compile Include="RouterPointExtensions.cs" />
+    <Compile Include="Algorithms\Networks\Islands\IslandDetector.cs" />
+    <Compile Include="Algorithms\Networks\Islands\Islands.cs" />
+    <Compile Include="Algorithms\Collections\VertexIndex.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Reminiscence, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
@@ -233,6 +236,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Algorithms\Networks\Islands\" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

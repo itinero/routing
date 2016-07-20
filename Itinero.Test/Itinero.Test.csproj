@@ -169,6 +169,7 @@
     <EmbeddedResource Include="test-data\routes\route1.xml" />
     <Compile Include="TestNetworkBuilder.cs" />
     <Compile Include="TestNetworkBuilderTests.cs" />
+    <Compile Include="Algorithms\Networks\Islands\IslandsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -199,6 +200,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Algorithms\Networks\Islands\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

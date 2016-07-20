@@ -98,17 +98,17 @@
     <EmbeddedResource Include="Tests\Belgium\resolve1.geojson" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Itinero\Itinero.csproj">
+      <Project>{2F4D2B40-D557-4640-96E1-693D598012A6}</Project>
+      <Name>Itinero</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj">
-      <Project>{ce277e7d-a9e3-4c76-a4dc-1760bc33977d}</Project>
-      <Name>OsmSharp.Routing.Geo</Name>
+      <Project>{CE277E7D-A9E3-4C76-A4DC-1760BC33977D}</Project>
+      <Name>Itinero.Geo</Name>
     </ProjectReference>
     <ProjectReference Include="..\Itinero.IO.Osm\Itinero.IO.Osm.csproj">
-      <Project>{0e89a73f-ff3d-418f-8ed6-5025db2cde8e}</Project>
-      <Name>OsmSharp.Routing.IO.Osm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Itinero\Itinero.csproj">
-      <Project>{2f4d2b40-d557-4640-96e1-693d598012a6}</Project>
-      <Name>OsmSharp.Routing</Name>
+      <Project>{0E89A73F-FF3D-418F-8ED6-5025DB2CDE8E}</Project>
+      <Name>Itinero.IO.Osm</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
