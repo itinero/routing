@@ -17,13 +17,15 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Collections
 {
     /// <summary>
     /// Represents a sparse bitarray.
     /// </summary>
-    public class SparseBitArray32
+    public class SparseBitArray32 : IEnumerable<long>
     {
         private readonly int _blockSize; // Holds the blocksize, or the size of the 'sub arrays'.
         private readonly long _length; // Holds the length of this array.
@@ -88,6 +90,89 @@ namespace Itinero.Algorithms.Collections
             get
             {
                 return _length;
+            }
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<long> GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        private struct Enumerator : IEnumerator<long>
+        {
+            private readonly SparseBitArray32 _array;
+            
+            public Enumerator(SparseBitArray32 array)
+            {
+                _array = array;
+                _current = -1;
+            }
+
+            private long _current;
+
+            public long Current
+            {
+                get
+                {
+                    return _current;
+                }
+            }
+
+            object IEnumerator.Current
+            {
+                get
+                {
+                    if (_current < 0)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    if (_current >= _array.Length)
+                    {
+                        throw new InvalidOperationException();
+                    }
+                    return _current;
+                }
+            }
+
+            public bool MoveNext()
+            {
+                if (_current >= _array.Length)
+                {
+                    return false;
+                }
+
+                while (true)
+                {
+                    _current++;
+                    if (_current >= _array.Length)
+                    {
+                        return false;
+                    }
+                    if (_array[_current])
+                    {
+                        break;
+                    }
+                }
+                return true;
+            }
+
+            public void Reset()
+            {
+                _current = -1;
+            }
+
+            public void Dispose()
+            {
+
             }
         }
     }

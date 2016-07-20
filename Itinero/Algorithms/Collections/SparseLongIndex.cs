@@ -16,13 +16,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+
 namespace Itinero.Algorithms.Collections
 {
 
     /// <summary>
     /// An efficient index for a large number of bitflags that can handle both negative and positive ids.
     /// </summary>
-    public class SparseLongIndex
+    public class SparseLongIndex : IEnumerable<long>
     {
         private readonly long _size = (long)(1024 * 1024) * (long)(1024 * 32); // Holds the total size.
         private readonly int _blockSize = 1024 * 1024; // Holds the block size.
@@ -205,6 +209,28 @@ namespace Itinero.Algorithms.Collections
         {
             _negativeFlags = null;
             _positiveFlags = null;
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<long> GetEnumerator()
+        {
+            if (_positiveFlags != null && _negativeFlags == null)
+            {
+                return _positiveFlags.GetEnumerator();
+            }
+            if (_positiveFlags == null && _negativeFlags != null)
+            {
+                return _negativeFlags.GetEnumerator();
+            }
+            return System.Linq.Enumerable.Concat<long>(_negativeFlags, _positiveFlags).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
         }
     }
 }

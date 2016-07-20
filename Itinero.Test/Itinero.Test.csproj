@@ -81,6 +81,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithms\Collections\SparseBitArray32Tests.cs" />
     <Compile Include="Algorithms\Default\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\BidirectionalDykstraTests.cs" />
     <Compile Include="Algorithms\Contracted\DirectedGraphBuilderTests.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Algorithms\Default\EdgeBased\OneToManyTests.cs" />
     <Compile Include="Algorithms\EdgePathTests.cs" />
     <Compile Include="Algorithms\Default\ManyToManyTests.cs" />
+    <Compile Include="Algorithms\Networks\Islands\IslandDetectorTests.cs" />
     <Compile Include="Algorithms\Networks\NetworkOptimizerTests.cs" />
     <Compile Include="Algorithms\Default\DykstraTests.cs" />
     <Compile Include="Algorithms\Default\OneToManyTests.cs" />
@@ -169,7 +171,6 @@
     <EmbeddedResource Include="test-data\routes\route1.xml" />
     <Compile Include="TestNetworkBuilder.cs" />
     <Compile Include="TestNetworkBuilderTests.cs" />
-    <Compile Include="Algorithms\Networks\Islands\IslandsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -200,9 +201,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
-  <ItemGroup>
-    <Folder Include="Algorithms\Networks\Islands\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
