@@ -21,6 +21,7 @@ using Itinero.Profiles;
 using Itinero.Graphs;
 using Itinero.Algorithms.Collections;
 using Itinero.Data.Edges;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -31,39 +32,58 @@ namespace Itinero.Algorithms.Networks
 	{
 		private readonly Func<ushort, Factor>[] _profiles;
         private readonly ushort[] _islands; // holds the island # per vertex.
-        private readonly Graph _graph;
+        private readonly RouterDb _routerDb;
+
+        /// <summary>
+        /// A value representing a singleton island.
+        /// </summary>
+        public const ushort SINGLETON_ISLAND = ushort.MaxValue;
 
         /// <summary>
         /// Creates a new island detector.
         /// </summary>
-		public IslandDetector(Graph graph, Func<ushort, Factor>[] profiles)
+		public IslandDetector(RouterDb routerDb, Func<ushort, Factor>[] profiles)
 		{
             _profiles = profiles;
-            _graph = graph;
+            _routerDb = routerDb;
 
-            _islands = new ushort[_graph.VertexCount];
+            _islands = new ushort[_routerDb.Network.VertexCount];
 		}
 
         private Graph.EdgeEnumerator _enumerator;
         private SparseLongIndex _vertexFlags;
+        private HashSet<ushort> _canTraverse;
 
         /// <summary>
         /// Runs the island detection.
         /// </summary>
 		protected override void DoRun()
 		{
-            _enumerator = _graph.GetEdgeEnumerator();
+            _enumerator = _routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
             _vertexFlags = new SparseLongIndex();
+            var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;
+
+            // precalculate all edge types for the given profiles.
+            _canTraverse = new HashSet<ushort>();
+            for (ushort p = 0; p < _routerDb.EdgeProfiles.Count; p++)
+            {
+                if (this.CanTraverse(p))
+                {
+                    _canTraverse.Add(p);
+                }
+            }
 
             var island = (ushort)1;
+            uint lower = 0;
             while (true)
             {
-                // find a vertex without an island assignment.
+                // find the first vertex without an island assignment.
                 var vertex = uint.MaxValue;
-                for(uint v = 0; v < _graph.VertexCount; v++)
+                for(uint v = lower; v < vertexCount; v++)
                 {
                     if (_islands[v] == 0)
                     {
+                        lower = v;
                         vertex = v;
                         break;
                     }
@@ -73,8 +93,9 @@ namespace Itinero.Algorithms.Networks
                 { // no more islands left.
                     break;
                 }
-                
-                // expand island until no longer possible.                
+
+                // expand island until no longer possible.
+                var sourceVertex = vertex;
                 while(vertex != uint.MaxValue)
                 {
                     _islands[vertex] = island;
@@ -82,10 +103,17 @@ namespace Itinero.Algorithms.Networks
 
                     var previous = vertex;
                     vertex = this.Expand(vertex, island);
-
+                    
                     if (vertex == uint.MaxValue)
                     {
-                        while(previous < _graph.VertexCount)
+                        if (previous == sourceVertex)
+                        { // still the source vertex, this is an island of one.
+                            vertex = sourceVertex;
+                            _islands[vertex] = SINGLETON_ISLAND;
+                            break;
+                        }
+
+                        while(previous < vertexCount)
                         {
                             if (_islands[previous] == island &&
                                 !_vertexFlags.Contains(previous))
@@ -99,7 +127,10 @@ namespace Itinero.Algorithms.Networks
                 }
 
                 // move to the next island.
-                island++;
+                if (vertex != sourceVertex)
+                { // island was no singleton, move to next island.
+                    island++;
+                }
             }
         }
 
@@ -134,7 +165,7 @@ namespace Itinero.Algorithms.Networks
                 ushort edgeProfile;
                 EdgeDataSerializer.Deserialize(_enumerator.Data0, out distance, out edgeProfile);
 
-                if (!CanTraverse(edgeProfile))
+                if (!_canTraverse.Contains(edgeProfile))
                 {
                     continue;
                 }

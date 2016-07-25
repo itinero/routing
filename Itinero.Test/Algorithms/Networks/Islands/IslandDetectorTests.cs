@@ -17,7 +17,6 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Networks;
-using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
 using System;
@@ -36,15 +35,15 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         [Test]
         public void TestOneEdge()
         {
-            // build graph.
-            var graph = new Graph(EdgeDataSerializer.Size);
-            graph.AddVertex(0);
-            graph.AddVertex(1);
-            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            // build routerdb.
+            var routerDb = new RouterDb();
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 1
-            }));
+            }, null);
 
             // build speed profile function.
             var speed = 100f / 3.6f;
@@ -58,7 +57,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             };
 
             // start island detector.
-            var islandDetector = new IslandDetector(graph, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
+            var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
             islandDetector.Run();
 
             // verify the islands.
@@ -68,29 +67,29 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             Assert.AreEqual(1, islands[0]);
             Assert.AreEqual(1, islands[1]);
         }
-        
+
         /// <summary>
         /// Tests island detection on two distinct edges.
         /// </summary>
         [Test]
         public void TestTwoDistinctEdges()
         {
-            // build graph.
-            var graph = new Graph(EdgeDataSerializer.Size);
-            graph.AddVertex(0);
-            graph.AddVertex(1);
-            graph.AddEdge(0, 1, EdgeDataSerializer.Serialize(new EdgeData()
+            // build routerdb.
+            var routerDb = new RouterDb();
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 1
-            }));
-            graph.AddVertex(2);
-            graph.AddVertex(3);
-            graph.AddEdge(2, 3, EdgeDataSerializer.Serialize(new EdgeData()
+            }, null);
+            routerDb.Network.AddVertex(2, 0, 0);
+            routerDb.Network.AddVertex(3, 1, 1);
+            routerDb.Network.AddEdge(2, 3, new Itinero.Data.Network.Edges.EdgeData()
             {
                 Distance = 100,
                 Profile = 1
-            }));
+            }, null);
 
             // build speed profile function.
             var speed = 100f / 3.6f;
@@ -104,7 +103,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             };
 
             // start island detector.
-            var islandDetector = new IslandDetector(graph, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
+            var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
             islandDetector.Run();
 
             // verify the islands.

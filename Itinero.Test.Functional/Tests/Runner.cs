@@ -28,6 +28,7 @@ using System.IO;
 using System.Reflection;
 using OsmSharp.Streams;
 using Itinero.IO.Osm;
+using Itinero.Profiles;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -156,6 +157,21 @@ namespace Itinero.Test.Functional.Tests
 
                     var route = router.TryCalculate(Vehicle.Car.Fastest(), f1, f2);
                 }
+            };
+        }
+
+        /// <summary>
+        /// Tests detecting islands.
+        /// </summary>
+        public static Action GetTestIslandDetection(RouterDb routerDb, Func<ushort, Factor> profile)
+        {
+            return () =>
+            {
+                var islandDetector = new Itinero.Algorithms.Networks.IslandDetector(routerDb, new Func<ushort, Profiles.Factor>[]
+                {
+                    profile
+                });
+                islandDetector.Run();
             };
         }
     }

@@ -27,6 +27,9 @@ using System;
 using System.IO;
 using System.Reflection;
 using Itinero.Logging;
+using System.Collections.Generic;
+using Itinero.Profiles;
+using Itinero.Algorithms.Networks;
 
 namespace Itinero.Test.Functional
 {
@@ -52,15 +55,52 @@ namespace Itinero.Test.Functional
             // download and extract test-data if not already there.
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();
-        
-            // TEST1: Tests build a router db for cars, contracting it and calculating routes.
+
+            // TEST1: Tests building a router db for cars, contracting it and calculating routes.
             // test building a router db.
             var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
             Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 1000).TestPerf("Testing route calculation speed.");
 
+            // TEST2: Tests find islands.
+            Func<ushort, Factor> profile = (p) =>
+            {
+                var prof = routerDb.EdgeProfiles.Get(p);
+                if (prof != null)
+                {
+                    var highway = string.Empty;
+                    if (prof.TryGetValue("highway", out highway))
+                    {
+                        if (highway == "motorway" ||
+                            highway == "motorway_link")
+                        {
+                            return new Profiles.Factor()
+                            {
+                                Direction = 0,
+                                Value = 10
+                            };
+                        }
+                    }
+                }
+                return new Profiles.Factor()
+                {
+                    Direction = 0,
+                    Value = 0
+                };
+            };
+            Runner.GetTestIslandDetection(routerDb, profile).TestPerf("Testing island detection.", 10);
+
             _logger.Log(TraceEventType.Information, "Testing finished.");
             Console.ReadLine();
+        }
+
+        private static string ToJson(FeatureCollection featureCollection)
+        {
+            var jsonSerializer = new NetTopologySuite.IO.GeoJsonSerializer();
+            var jsonStream = new StringWriter();
+            jsonSerializer.Serialize(jsonStream, featureCollection);
+            var json = jsonStream.ToInvariantString();
+            return json;
         }
     }
 }
