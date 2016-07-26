@@ -20,6 +20,7 @@ using Itinero.Attributes;
 using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 
@@ -91,36 +92,42 @@ namespace Itinero
             }
 
             // merge stops.
-            var stops1 = route1.Stops != null ? route1.Stops.Length : 0;
-            var stops2 = route2.Stops != null ? route2.Stops.Length : 0;
-            var stops = new Route.Stop[stops1 + stops2];
-            if (stops1 + stops2 > 0)
+            var stops = new List<Route.Stop>();
+            if (route1.Stops != null)
             {
-                if (route1.Stops != null)
+                for (var i = 0; i < route1.Stops.Length; i++)
                 {
-                    for (var i = 0; i < route1.Stops.Length; i++)
+                    var stop = route1.Stops[i];
+                    stops.Add(new Route.Stop()
                     {
-                        var stop = route1.Stops[i];
-                        stops[i] = new Route.Stop()
-                        {
-                            Attributes = new AttributeCollection(stop.Attributes),
-                            Coordinate = stop.Coordinate,
-                            Shape = stop.Shape
-                        };
-                    }
+                        Attributes = new AttributeCollection(stop.Attributes),
+                        Coordinate = stop.Coordinate,
+                        Shape = stop.Shape
+                    });
                 }
-                if (route2.Stops != null)
+            }
+            if (route2.Stops != null)
+            {
+                for (var i = 0; i < route2.Stops.Length; i++)
                 {
-                    for (var i = 0; i < route2.Stops.Length; i++)
-                    {
-                        var stop = route2.Stops[i];
-                        stops[stops1 + i] = new Route.Stop()
-                        {
-                            Attributes = new AttributeCollection(stop.Attributes),
-                            Coordinate = stop.Coordinate,
-                            Shape = stop.Shape + shapeoffset
-                        };
+                    var stop = route2.Stops[i];
+                    if (i == 0 && stops.Count > 0)
+                    { // compare with last stop to remove duplicates.
+                        var existing = stops[stops.Count - 1];
+                        if (existing.Shape == route1.Shape.Length - 1 &&
+                            existing.Coordinate.Latitude == stop.Coordinate.Latitude &&
+                            existing.Coordinate.Longitude == stop.Coordinate.Longitude &&
+                            existing.Attributes.ContainsSame(stop.Attributes))
+                        { // stop are identical, stop this one.
+                            continue;
+                        }
                     }
+                    stops.Add(new Route.Stop()
+                    {
+                        Attributes = new AttributeCollection(stop.Attributes),
+                        Coordinate = stop.Coordinate,
+                        Shape = stop.Shape + shapeoffset
+                    });
                 }
             }
 
@@ -166,15 +173,15 @@ namespace Itinero
             {
                 attributes.RemoveKey("profile");
             }
-            
+
             // update route.
-            var route =  new Route()
+            var route = new Route()
             {
                 Attributes = attributes,
                 Branches = branches,
                 Shape = shape,
                 ShapeMeta = metas,
-                Stops = stops
+                Stops = stops.ToArray()
             };
             route.TotalDistance = route1.TotalDistance + route2.TotalDistance;
             route.TotalTime = route1.TotalTime + route1.TotalTime;

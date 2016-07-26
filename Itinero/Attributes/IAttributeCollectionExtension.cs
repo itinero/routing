@@ -480,5 +480,46 @@ namespace Itinero.Attributes
             }
             return value == foundValue;
         }
+
+        /// <summary>
+        /// Returns true if the given attribute collection contains the same attributes than the given collection.
+        /// </summary>
+        public static bool ContainsSame(this IAttributeCollection attributes, IAttributeCollection other)
+        {
+            if (attributes == null && other == null)
+            {
+                return true;
+            }
+            else if(attributes == null)
+            {
+                return other.Count == 0;
+            }
+            else if (other == null)
+            {
+                return attributes.Count == 0;
+            }
+
+            if (attributes.Count != other.Count)
+            {
+                return false;
+            }
+
+            foreach(var a in attributes)
+            {
+                if (!other.Contains(a.Key, a.Value))
+                {
+                    return false;
+                }
+            }
+
+            foreach (var a in other)
+            {
+                if (!attributes.Contains(a.Key, a.Value))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

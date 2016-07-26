@@ -528,5 +528,112 @@ namespace Itinero.Test
 
             var geojson = route.ToGeoJson();
         }
+
+        /// <summary>
+        /// Tests route concatenation with identical stops.
+        /// </summary>
+        [Test]
+        public void TestConcatenateWithIdenticalStops()
+        {
+            var route1 = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60
+                    }
+                },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Attributes = null,
+                        Coordinate = new Coordinate(0, 0),
+                        Shape = 1
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+            var route2 = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60
+                    }
+                },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Attributes = null,
+                        Coordinate = new Coordinate(0, 0),
+                        Shape = 0
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            var route = route1.Concatenate(route2);
+
+            Assert.IsNotNull(route);
+            Assert.IsNotNull(route.Shape);
+            Assert.AreEqual(3, route.Shape.Length);
+            Assert.AreEqual(3, route.ShapeMeta.Length);
+            Assert.AreEqual(0, route.ShapeMeta[0].Distance);
+            Assert.AreEqual(0, route.ShapeMeta[0].Time);
+            Assert.AreEqual(100, route.ShapeMeta[1].Distance);
+            Assert.AreEqual(60, route.ShapeMeta[1].Time);
+            Assert.AreEqual(200, route.ShapeMeta[2].Distance);
+            Assert.AreEqual(120, route.ShapeMeta[2].Time);
+            Assert.IsNotNull(route.Stops);
+            Assert.AreEqual(1, route.Stops.Length);
+            Assert.AreEqual(200, route.TotalDistance);
+            Assert.AreEqual(120, route.TotalTime);
+        }
     }
 }
