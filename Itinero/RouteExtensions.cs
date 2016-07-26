@@ -517,25 +517,25 @@ namespace Itinero
         /// <summary>
         /// Returns this route as geojson.
         /// </summary>
-        public static string ToGeoJson(this Route route)
+        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true)
         {
             var stringWriter = new StringWriter();
-            route.WriteGeoJson(stringWriter);
+            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops);
             return stringWriter.ToInvariantString();
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, Stream stream)
+        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true)
         {
-            route.WriteGeoJson(new StreamWriter(stream));
+            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops);
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, TextWriter writer)
+        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
@@ -574,7 +574,8 @@ namespace Itinero
                 jsonWriter.WriteClose();
             }
 
-            if (route.ShapeMeta != null)
+            if (route.ShapeMeta != null &&
+                includeShapeMeta)
             {
                 for (var i = 0; i < route.ShapeMeta.Length; i++)
                 {
@@ -612,7 +613,8 @@ namespace Itinero
                 }
             }
 
-            if (route.Stops != null)
+            if (route.Stops != null &&
+                includeStops)
             {
                 for (var i = 0; i < route.Stops.Length; i++)
                 {
