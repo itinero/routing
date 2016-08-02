@@ -57,6 +57,15 @@
     <Compile Include="Algorithms\Contracted\EdgeBased\ManyToManyBidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\DykstraWitnessCalculator.cs" />
     <Compile Include="Algorithms\Contracted\EdgeBased\Witness\IWitnessCalculator.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\DykstraEdgeVisitor.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\IEdgeVisitor.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\RouterExtensions.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\RoutingTile.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\TileBasedIsochroneBuilder.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\TileHelper.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\TileIndex.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\TileRange.cs" />
+    <Compile Include="Algorithms\Networks\Analytics\Isochrones\TilesToPolygon.cs" />
     <Compile Include="Algorithms\Weights\DefaultWeightHandler.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\BidirectionalDykstra.cs" />
     <Compile Include="Algorithms\Default\EdgeBased\ManyToMany.cs" />
@@ -123,6 +132,7 @@
     <Compile Include="LocalGeo\Box.cs" />
     <Compile Include="LocalGeo\Coordinate.cs" />
     <Compile Include="LocalGeo\Line.cs" />
+    <Compile Include="LocalGeo\Polygon.cs" />
     <Compile Include="LocalGeo\Tools.cs" />
     <Compile Include="Graphs\Directed\DirectedGraph.cs">
       <SubType>Code</SubType>

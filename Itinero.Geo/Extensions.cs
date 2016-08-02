@@ -112,5 +112,49 @@ namespace Itinero.Geo
             }
             return geoApiCoordinates;
         }
+
+        /// <summary>
+        /// Converts the given coordinates list to the a linear ring.
+        /// </summary>
+        public static NetTopologySuite.Geometries.LinearRing ToLinearRing(this List<LocalGeo.Coordinate> coordinates)
+        {
+            return new NetTopologySuite.Geometries.LinearRing(coordinates.ToCoordinatesArray());
+        }
+
+        /// <summary>
+        /// Converts the given coordinates list list to the an array of linear rings.
+        /// </summary>
+        public static NetTopologySuite.Geometries.LinearRing[] ToLinearRings(this List<List<LocalGeo.Coordinate>> coordinates)
+        {
+            var rings = new NetTopologySuite.Geometries.LinearRing[coordinates.Count];
+            for(var i = 0; i < rings.Length; i++)
+            {
+                rings[i] = coordinates[i].ToLinearRing();
+            }
+            return rings;
+        }
+
+        /// <summary>
+        /// Converts the given polygon to and NTS polygon.
+        /// </summary>
+        public static NetTopologySuite.Geometries.Polygon ToPolygon(this LocalGeo.Polygon polygon)
+        {
+            return new NetTopologySuite.Geometries.Polygon(polygon.ExteriorRing.ToLinearRing(),
+                polygon.InteriorRings.ToLinearRings());
+        }
+
+        /// <summary>
+        /// Converts the given polygon enumerable to a feature collection.
+        /// </summary>
+        public static NetTopologySuite.Features.FeatureCollection ToFeatureCollection(this IEnumerable<LocalGeo.Polygon> polygons)
+        {
+            var featureCollection = new NetTopologySuite.Features.FeatureCollection();
+            foreach(var polygon in polygons)
+            {
+                featureCollection.Add(new NetTopologySuite.Features.Feature(
+                    polygon.ToPolygon(), new NetTopologySuite.Features.AttributesTable()));
+            }
+            return featureCollection;
+        }
     }
 }

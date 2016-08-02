@@ -51,6 +51,21 @@ namespace Itinero
             }
             return true;
         }
+
+        /// <summary>
+        /// Gets the default get factor for the given profile but used the cached version whenever available.
+        /// </summary>
+        public static Func<ushort, Factor> GetDefaultGetFactor(this RouterBase router, Profile profile)
+        {
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            { // use cached version and don't consult profiles anymore.
+                return router.ProfileFactorAndSpeedCache.GetGetFactor(profile);
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return profile.GetGetFactor(router.Db);
+            }
+        }
         
         /// <summary>
         /// Gets the default weight handler for the given profile.
@@ -82,6 +97,21 @@ namespace Itinero
             else
             { // use the regular function, and consult profiles continuously.
                 return new WeightHandler(profile.GetGetFactorAndSpeed(router.Db));
+            }
+        }
+
+        /// <summary>
+        /// Gets the augmented get factor for the given profile but used the cached version whenever available.
+        /// </summary>
+        public static Func<ushort, FactorAndSpeed> GetAugmentedGetFactor(this RouterBase router, Profile profile)
+        {
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            { // use cached version and don't consult profiles anymore.
+                return router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profile);
+            }
+            else
+            { // use the regular function, and consult profiles continuously.
+                return profile.GetGetFactorAndSpeed(router.Db);
             }
         }
 

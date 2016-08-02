@@ -29,6 +29,9 @@ using System.Reflection;
 using OsmSharp.Streams;
 using Itinero.IO.Osm;
 using Itinero.Profiles;
+using Itinero.LocalGeo;
+using System.Collections.Generic;
+using Itinero.Algorithms.Networks.Analytics.Isochrones;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -172,6 +175,18 @@ namespace Itinero.Test.Functional.Tests
                     profile
                 });
                 islandDetector.Run();
+            };
+        }
+
+        /// <summary>
+        /// Gets a test function to calculate isochrones.
+        /// </summary>
+        public static Func<List<LocalGeo.Polygon>> GetTestIsochroneCalculation(Router router)
+        {
+            return () =>
+            {
+                return router.CalculateIsochrones(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
+                    new List<float>() { 900, 1800, 2700 }, 18);
             };
         }
     }

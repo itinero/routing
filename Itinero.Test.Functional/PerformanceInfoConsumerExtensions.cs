@@ -70,6 +70,23 @@ namespace Itinero.Test.Functional
         /// <summary>
         /// Tests performance for the given function.
         /// </summary>
+        public static T TestPerf<T>(this Func<T> func, string name, int count)
+        {
+            var res = default(T);
+            var info = new PerformanceInfoConsumer(name + " x " + count.ToInvariantString(), 10000);
+            info.Start();
+            while (count > 0)
+            {
+                res = func();
+                count--;
+            }
+            info.Stop();
+            return res;
+        }
+
+        /// <summary>
+        /// Tests performance for the given function.
+        /// </summary>
         public static TResult TestPerf<T, TResult>(this Func<T, TResult> func, string name, T a)
         {
             var info = new PerformanceInfoConsumer(name);

@@ -30,6 +30,9 @@ using Itinero.Logging;
 using System.Collections.Generic;
 using Itinero.Profiles;
 using Itinero.Algorithms.Networks;
+using Itinero.LocalGeo;
+using Itinero;
+using Itinero.Algorithms.Networks.Analytics.Isochrones;
 
 namespace Itinero.Test.Functional
 {
@@ -40,13 +43,13 @@ namespace Itinero.Test.Functional
         static void Main(string[] args)
         {
             // enable logging.
-            OsmSharp.Logging.Logger.LogAction = (origin, level, message, parameters) =>
+            OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
-                Console.WriteLine(string.Format("[{0}] {1} - {2}", origin, level, message));
+                Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
-            Itinero.Logging.Logger.LogAction = (origin, level, message, parameters) =>
+            Itinero.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
-                Console.WriteLine(string.Format("[{0}] {1} - {2}", origin, level, message));
+                Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
             _logger = new Logger("Default");
 
@@ -59,6 +62,15 @@ namespace Itinero.Test.Functional
             // TEST1: Tests building a router db for cars, contracting it and calculating routes.
             // test building a router db.
             var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
+            var router = new Router(routerDb);
+
+            // build profile cache.
+            var profileCache = new Profiles.ProfileFactorAndSpeedCache(routerDb);
+            profileCache.CalculateFor(Vehicle.Car.Fastest());
+            profileCache.CalculateFor(Vehicle.Bicycle.Fastest());
+            profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
+            router.ProfileFactorAndSpeedCache = profileCache;
+
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
             Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 1000).TestPerf("Testing route calculation speed.");
 
@@ -89,6 +101,9 @@ namespace Itinero.Test.Functional
                 };
             };
             Runner.GetTestIslandDetection(routerDb, profile).TestPerf("Testing island detection.", 10);
+
+            // TEST3: calulate isochrones.
+            var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 10);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
             Console.ReadLine();
