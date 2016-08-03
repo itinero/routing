@@ -203,6 +203,20 @@ namespace Itinero.Data.Network
         }
 
         /// <summary>
+        /// Updates the data associated with the given edge.
+        /// </summary>
+        public void UpdateEdgeData(uint edgeId, EdgeData data)
+        {
+            if (edgeId >= _edgeData.Length)
+            {
+                throw new ArgumentException("Edge is not part of this network.");
+            }
+            _graph.UpdateEdgeData(edgeId, Data.Edges.EdgeDataSerializer.Serialize(
+                    data.Distance, data.Profile));
+            _edgeData[edgeId] = data.MetaId;
+        }
+
+        /// <summary>
         /// Gets the edge with the given id.
         /// </summary>
         /// <returns></returns>

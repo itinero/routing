@@ -239,6 +239,14 @@ namespace Itinero.Graphs.Geometric
         }
 
         /// <summary>
+        /// Updates the data associated with this edge.
+        /// </summary>
+        public void UpdateEdgeData(uint edgeId, uint[] data)
+        {
+            _graph.UpdateEdgeData(edgeId, data);
+        }
+
+        /// <summary>
         /// Gets the edge with the given id.
         /// </summary>
         /// <returns></returns>

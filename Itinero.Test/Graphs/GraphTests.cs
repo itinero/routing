@@ -394,6 +394,82 @@ namespace Itinero.Test.Graphs
         }
 
         /// <summary>
+        /// Tests updated edge data.
+        /// </summary>
+        [Test]
+        public void TestUpdateEdgeData()
+        {
+            var graph = new Graph(1, 2);
+            uint vertex0 = 0;
+            uint vertex1 = 1;
+            uint vertex2 = 2;
+            uint vertex3 = 3;
+            uint vertex4 = 4;
+            uint vertex5 = 5;
+
+            // add edge.
+            graph.AddVertex(vertex0);
+            graph.AddVertex(vertex1);
+            graph.AddVertex(vertex2);
+            graph.AddVertex(vertex3);
+            graph.AddVertex(vertex4);
+            graph.AddVertex(vertex5);
+            graph.AddEdge(vertex0, vertex1, 1);
+            graph.AddEdge(vertex1, vertex2, 2);
+            graph.AddEdge(vertex1, vertex3, 3);
+            graph.AddEdge(vertex3, vertex4, 4);
+            graph.AddEdge(vertex4, vertex5, 5);
+
+            // update edges.
+            var enumerator = graph.GetEdgeEnumerator();
+            enumerator.MoveTo(vertex0);
+            enumerator.MoveNextUntil(e => e.To == vertex1);
+            graph.UpdateEdgeData(enumerator.Id, 1);
+            enumerator.MoveTo(vertex1);
+            enumerator.MoveNextUntil(e => e.To == vertex2);
+            graph.UpdateEdgeData(enumerator.Id, 12);
+            enumerator.MoveTo(vertex1);
+            enumerator.MoveNextUntil(e => e.To == vertex3);
+            graph.UpdateEdgeData(enumerator.Id, 13);
+            enumerator.MoveTo(vertex3);
+            enumerator.MoveNextUntil(e => e.To == vertex4);
+            graph.UpdateEdgeData(enumerator.Id, 34);
+            enumerator.MoveTo(vertex4);
+            enumerator.MoveNextUntil(e => e.To == vertex5);
+            graph.UpdateEdgeData(enumerator.Id, 45);
+
+            // verify all edges.
+            var edges = graph.GetEdgeEnumerator(vertex0);
+            Assert.AreEqual(1, edges.First().Data[0]);
+
+            edges = graph.GetEdgeEnumerator(vertex1);
+            Assert.IsTrue(edges.Any(x => x.To == vertex0));
+            Assert.AreEqual(1, edges.First(x => x.To == vertex0).Data[0]);
+            Assert.IsTrue(edges.Any(x => x.To == vertex2));
+            Assert.AreEqual(12, edges.First(x => x.To == vertex2).Data[0]);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3));
+            Assert.AreEqual(13, edges.First(x => x.To == vertex3).Data[0]);
+
+            edges = graph.GetEdgeEnumerator(vertex2);
+            Assert.AreEqual(12, edges.First().Data[0]);
+
+            edges = graph.GetEdgeEnumerator(vertex3);
+            Assert.IsTrue(edges.Any(x => x.To == vertex1));
+            Assert.AreEqual(13, edges.First(x => x.To == vertex1).Data[0]);
+            Assert.IsTrue(edges.Any(x => x.To == vertex4));
+            Assert.AreEqual(34, edges.First(x => x.To == vertex4).Data[0]);
+
+            edges = graph.GetEdgeEnumerator(vertex4);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3));
+            Assert.AreEqual(34, edges.First(x => x.To == vertex3).Data[0]);
+            Assert.IsTrue(edges.Any(x => x.To == vertex5));
+            Assert.AreEqual(45, edges.First(x => x.To == vertex5).Data[0]);
+
+            edges = graph.GetEdgeEnumerator(vertex5);
+            Assert.AreEqual(45, edges.First().Data[0]);
+        }
+
+        /// <summary>
         /// Tests get edge enumerator.
         /// </summary>
         [Test]
