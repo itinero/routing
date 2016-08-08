@@ -407,6 +407,19 @@ namespace Itinero.Graphs
 
             return (uint)(edgeId / _edgeSize);
         }
+        
+        /// <summary>
+        /// Updates the data associated with this edge.
+        /// </summary>
+        public void UpdateEdgeData(uint edgeId, params uint[] data)
+        {
+            var internalEdgeId = edgeId * _edgeSize;
+            for (var i = 0; i < _edgeDataSize; i++)
+            {
+                _edges[internalEdgeId + MINIMUM_EDGE_SIZE + i] =
+                    data[i];
+            }
+        }
 
         /// <summary>
         /// Returns the edge with the given id.

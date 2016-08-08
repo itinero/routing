@@ -329,6 +329,41 @@ namespace Itinero.Test.Data.Network
             Assert.AreEqual(edgeId5, edges.First(x => x.To == 3).Id);
             Assert.AreEqual(vertex5, edges.First(x => x.To == 3).From);
         }
+        
+        /// <summary>
+        /// Tests updating edge data.
+        /// </summary>
+        [Test]
+        public void TestUpdateEdgeData()
+        {
+            var graph = new RoutingNetwork(new Itinero.Graphs.Geometric.GeometricGraph(1, 100));
+
+            // add edge.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            var edgeId1 = graph.AddEdge(0, 1, new EdgeData() { Profile = 10 }, null);
+            graph.UpdateEdgeData(edgeId1, new EdgeData() { Profile = 100, Distance = 1000, MetaId = 101 });
+
+            // verify all edges.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(100, edges.First().Data.Profile);
+            Assert.AreEqual(1000, edges.First().Data.Distance);
+            Assert.AreEqual(101, edges.First().Data.MetaId);
+            Assert.AreEqual(edgeId1, edges.First().Id);
+            Assert.AreEqual(0, edges.First().From);
+            Assert.AreEqual(1, edges.First().To);
+
+            edges = graph.GetEdgeEnumerator(1);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(true, edges.First().DataInverted);
+            Assert.AreEqual(100, edges.First().Data.Profile);
+            Assert.AreEqual(1000, edges.First().Data.Distance);
+            Assert.AreEqual(101, edges.First().Data.MetaId);
+            Assert.AreEqual(edgeId1, edges.First().Id);
+            Assert.AreEqual(1, edges.First().From);
+            Assert.AreEqual(0, edges.First().To);
+        }
 
         /// <summary>
         /// Tests setting a vertex.

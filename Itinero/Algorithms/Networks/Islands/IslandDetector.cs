@@ -22,6 +22,7 @@ using Itinero.Graphs;
 using Itinero.Algorithms.Collections;
 using Itinero.Data.Edges;
 using System.Collections.Generic;
+using Itinero.Algorithms.PriorityQueues;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -95,40 +96,45 @@ namespace Itinero.Algorithms.Networks
                 }
 
                 // expand island until no longer possible.
-                var sourceVertex = vertex;
-                while(vertex != uint.MaxValue)
-                {
-                    _islands[vertex] = island;
-                    _vertexFlags.Add(vertex);
+                var current = vertex;
+                _islands[vertex] = island;
+                _vertexFlags.Add(vertex);
+                vertex = this.Expand(vertex, island);
 
-                    var previous = vertex;
-                    vertex = this.Expand(vertex, island);
-                    
-                    if (vertex == uint.MaxValue)
+                if (vertex == uint.MaxValue)
+                { // expanding failed, still just the source vertex, this is an island of one.
+                    _islands[current] = SINGLETON_ISLAND;
+                }
+                else
+                {
+                    while (vertex != uint.MaxValue)
                     {
-                        if (previous == sourceVertex)
-                        { // still the source vertex, this is an island of one.
-                            vertex = sourceVertex;
-                            _islands[vertex] = SINGLETON_ISLAND;
-                            break;
+                        _islands[vertex] = island;
+                        _vertexFlags.Add(vertex);
+
+                        vertex = this.Expand(vertex, island);
+
+                        if (vertex < current)
+                        {
+                            current = vertex;
                         }
 
-                        while(previous < vertexCount)
+                        if (vertex == uint.MaxValue)
                         {
-                            if (_islands[previous] == island &&
-                                !_vertexFlags.Contains(previous))
-                            { // part of island but has not been used to expand yet.
-                                vertex = previous;
-                                break;
+                            while (current < vertexCount)
+                            {
+                                if (_islands[current] == island &&
+                                   !_vertexFlags.Contains(current))
+                                { // part of island but has not been used to expand yet.
+                                    vertex = current;
+                                    break;
+                                }
+                                current++;
                             }
-                            previous++;
                         }
                     }
-                }
 
-                // move to the next island.
-                if (vertex != sourceVertex)
-                { // island was no singleton, move to next island.
+                    // island was no singleton, move to next island.
                     island++;
                 }
             }
