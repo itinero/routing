@@ -7,3 +7,7 @@
 - Processing OSM-data into a routable network.
 - Generating turn-by-turn instructions.
 - Routing on mobile devices and lower-resource environments.
+
+### Documentation & Samples
+
+Check the [wiki](https://github.com/itinero/routing/wiki) for documentation and sample code. Don't hesitate to ask questions using an [issue](https://github.com/itinero/routing/issues) or request more documentation on any topic you need.
