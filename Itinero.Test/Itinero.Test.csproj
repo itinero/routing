@@ -137,6 +137,7 @@
     <Compile Include="IO\Osm\Relations\RelationTagsProcessorTests.cs" />
     <Compile Include="IO\Osm\Restrictions\RestrictionProcessorTests.cs" />
     <Compile Include="IO\Osm\Streams\CoreNodeIdMapTests.cs" />
+    <Compile Include="LocalGeo\IO\GeoJsonExtensionTests.cs" />
     <Compile Include="Navigation\Directions\DirectionCalculatorTests.cs" />
     <Compile Include="Navigation\InstructionGeneratorTests.cs" />
     <Compile Include="Navigation\Language\MockLanguageReference.cs" />

@@ -131,6 +131,7 @@
     <Compile Include="Data\Network\Restrictions\RestrictionsDb.cs" />
     <Compile Include="LocalGeo\Box.cs" />
     <Compile Include="LocalGeo\Coordinate.cs" />
+    <Compile Include="LocalGeo\IO\GeoJsonExtension.cs" />
     <Compile Include="LocalGeo\Line.cs" />
     <Compile Include="LocalGeo\Polygon.cs" />
     <Compile Include="LocalGeo\Tools.cs" />
