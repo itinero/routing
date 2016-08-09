@@ -15,15 +15,14 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-            <dependency id="OsmSharp.Core" version="[2,3)" />
-            <dependency id="Itinero" version="0.9.2-rc1" />
+          <dependency id="OsmSharp.Core" version="[2,3)" />
+          <dependency id="Itinero" version="0.13.1-rc1" />
         </dependencies>
     </metadata>
     <files>
-        <file src="Output\Itinero.IO.Osm.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.IO.Osm.dll" />
-        <file src="Output\Itinero.IO.Osm.dll" target="lib\net40\Itinero.IO.Osm.dll" />
-        <file src="Output\Itinero.IO.Osm.dll" target="lib\net45\Itinero.IO.Osm.dll" />
-	    <file src="Output\Itinero.IO.Osm.dll" target="lib\MonoAndroid\Itinero.IO.Osm.dll" />
-	    <file src="Output\Itinero.IO.Osm.dll" target="lib\Xamarin.iOS10\Itinero.IO.Osm.dll" />
+      <file src="src\Itinero.IO.Osm\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.IO.Osm.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.IO.Osm.dll" />
+      <file src="src\Itinero.IO.Osm\bin\Release\net40\Itinero.IO.Osm.dll" target="lib\net40\Itinero.IO.Osm.dll" />
+      <file src="src\Itinero.IO.Osm\bin\Release\net45\Itinero.IO.Osm.dll" target="lib\net45\Itinero.IO.Osm.dll" />
+      <file src="src\Itinero.IO.Osm\bin\Release\netstandard1.3\Itinero.IO.Osm.dll" target="lib\netstandard1.3\Itinero.IO.Osm.dll" />
     </files>
 </package>

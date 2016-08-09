@@ -15,14 +15,13 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-            <dependency id="Reminiscence" version="1.0.2" />
+          <dependency id="Reminiscence" version="1.0.2" />
         </dependencies>
     </metadata>
     <files>
-        <file src="Output\Itinero.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.dll" />
-        <file src="Output\Itinero.dll" target="lib\net40\Itinero.dll" />
-        <file src="Output\Itinero.dll" target="lib\net45\Itinero.dll" />
-	    <file src="Output\Itinero.dll" target="lib\MonoAndroid\Itinero.dll" />
-	    <file src="Output\Itinero.dll" target="lib\Xamarin.iOS10\Itinero.dll" />
+      <file src="src\Itinero\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.dll" />
+      <file src="src\Itinero\bin\Release\net40\Itinero.dll" target="lib\net40\Itinero.dll" />
+      <file src="src\Itinero\bin\Release\net45\Itinero.dll" target="lib\net45\Itinero.dll" />
+      <file src="src\Itinero\bin\Release\netstandard1.3\Itinero.dll" target="lib\netstandard1.3\Itinero.dll" />
     </files>
 </package>

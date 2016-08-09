@@ -15,16 +15,14 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-            <dependency id="GeoAPI" version="[1.7.4,2)" />
-            <dependency id="NetTopologySuite" version="[1.14,2)" />
-            <dependency id="Itinero" version="0.9.2-rc1" />
+          <dependency id="GeoAPI" version="[1.7.4,2)" />
+          <dependency id="NetTopologySuite" version="[1.14,2)" />
+          <dependency id="Itinero" version="0.13.1-rc1" />
         </dependencies>
     </metadata>
     <files>
-        <file src="Output\Itinero.Geo.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.Geo.dll" />
-        <file src="Output\Itinero.Geo.dll" target="lib\net40\Itinero.Geo.dll" />
-        <file src="Output\Itinero.Geo.dll" target="lib\net45\Itinero.Geo.dll" />
-	    <file src="Output\Itinero.Geo.dll" target="lib\MonoAndroid\Itinero.Geo.dll" />
-	    <file src="Output\Itinero.Geo.dll" target="lib\Xamarin.iOS10\Itinero.Geo.dll" />
+      <file src="src\Itinero.Geo\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.Geo.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.Geo.dll" />
+      <file src="src\Itinero.Geo\bin\Release\net40\Itinero.Geo.dll" target="lib\net40\Itinero.Geo.dll" />
+      <file src="src\Itinero.Geo\bin\Release\net45\Itinero.Geo.dll" target="lib\net45\Itinero.Geo.dll" />
     </files>
 </package>
