@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+// Itinero - OpenStreetMap (OSM) SDK
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -15,8 +15,3 @@
 // 
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
-
-using System.Reflection;
-
-[assembly: AssemblyVersion("0.13.3")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.13.3-rc1")]
