@@ -179,7 +179,7 @@ namespace Itinero.Algorithms.Routes
                 to = _target.VertexId(_routerDb);
             }
 
-            if (to == from)
+            if (to == from && to != Constants.NO_VERTEX)
             { // nothing to be done.
                 return;
             }

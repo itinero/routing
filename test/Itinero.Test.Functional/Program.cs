@@ -33,6 +33,7 @@ using Itinero.Algorithms.Networks;
 using Itinero.LocalGeo;
 using Itinero;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
+using Itinero.IO.Osm;
 
 namespace Itinero.Test.Functional
 {
