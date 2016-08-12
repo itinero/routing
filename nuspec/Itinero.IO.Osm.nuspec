@@ -15,8 +15,8 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-          <dependency id="OsmSharp.Core" version="[2,3)" />
-          <dependency id="Itinero" version="0.13.1-rc1" />
+          <dependency id="OsmSharp.Core" version="[2.2.8-beta,3)" />
+          <dependency id="Itinero" version="$version$" />
         </dependencies>
     </metadata>
     <files>
