@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -28,9 +28,9 @@ using Itinero.Data.Edges;
 namespace Itinero
 {
     /// <summary>
-    /// Contains extension methods on top of the basic IRouter interface.
+    /// Contains extension methods on top of the RouterBase abstract class.
     /// </summary>
-    public static class RouterExtensions
+    public static class RouterBaseExtensions
     {
         /// <summary>
         /// The default connectivity radius.
@@ -342,6 +342,41 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
+        /// <returns></returns>
+        public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets)
+        {
+            var paths = router.TryCalculateRaw(profile, sources, targets, invalidSources, invalidTargets);
+            if (paths.IsError)
+            {
+                return paths.ConvertError<Route[][]>();
+            }
+
+            var routes = new Route[paths.Value.Length][];
+            for (var s = 0; s < paths.Value.Length; s++)
+            {
+                routes[s] = new Route[paths.Value[s].Length];
+                for (var t = 0; t < paths.Value[s].Length; t++)
+                {
+                    var localPath = paths.Value[s][t];
+                    if (localPath != null)
+                    {
+                        var route = router.BuildRoute(profile, sources[s],
+                            targets[t], localPath);
+                        if (route.IsError)
+                        {
+                            return route.ConvertError<Route[][]>();
+                        }
+                        routes[s][t] = route.Value;
+                    }
+                }
+            }
+            return new Result<Route[][]>(routes);
+        }
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
         public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
         {
             var invalidSources = new HashSet<int>();
@@ -570,6 +605,19 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Calculates a route the given locations;
+        /// </summary>
+        public static Result<Route> TryCalculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint target)
+        {
+            var path = router.TryCalculateRaw(profile, source, target);
+            if (path.IsError)
+            {
+                return path.ConvertError<Route>();
+            }
+            return router.BuildRoute(profile, source, target, path.Value);
+        }
+
+        /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, Profile profile, Coordinate source,
@@ -608,7 +656,7 @@ namespace Itinero
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<float> TryCalculateWeight(this Router router, Profile profile, Coordinate source, Coordinate target)
+        public static Result<float> TryCalculateWeight(this RouterBase router, Profile profile, Coordinate source, Coordinate target)
         {
             return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), source, target);
         }

@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -311,7 +311,7 @@ namespace Itinero.Graphs
                     }
                     if (otherVertexId == vertex2)
                     { // this is the edge we need.
-                        if(!forward)
+                        if (!forward)
                         { // switch things around.
                             var temp = _edges[previousEdgeId + NODEA];
                             _edges[previousEdgeId + NODEA] = _edges[previousEdgeId + NODEB];

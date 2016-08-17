@@ -55,13 +55,18 @@ namespace Itinero.Test
             }
         }
 
-        public override Result<Route[][]> TryCalculate(Itinero.Profiles.Profile profile, RouterPoint[] sources, RouterPoint[] targets, 
+        public override Result<List<uint>[][]> TryCalculateRaw(Itinero.Profiles.Profile profile, RouterPoint[] sources, RouterPoint[] targets, 
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             throw new System.NotImplementedException();
         }
 
-        public override Result<Route> TryCalculate(Itinero.Profiles.Profile profile, RouterPoint source, RouterPoint target)
+        public override Result<List<uint>> TryCalculateRaw(Itinero.Profiles.Profile profile, RouterPoint source, RouterPoint target)
+        {
+            return new Result<List<uint>>(new List<uint>());
+        }
+
+        public override Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
         {
             var route = new Route();
             route.Shape = new Coordinate[]

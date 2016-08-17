@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2015 Abelshausen Ben
 // 
 // This file is part of Itinero.

@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -152,11 +152,11 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target)
+        public sealed override Result<List<uint>> TryCalculateRaw(Profile profile, RouterPoint source, RouterPoint target)
         {
             if (!_db.Supports(profile))
             {
-                return new Result<Route>("Routing profile is not supported.", (message) =>
+                return new Result<List<uint>>("Routing profile is not supported.", (message) =>
                 {
                     return new Exception(message);
                 });
@@ -192,7 +192,7 @@ namespace Itinero
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -206,7 +206,7 @@ namespace Itinero
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -227,7 +227,7 @@ namespace Itinero
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -245,7 +245,7 @@ namespace Itinero
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<Route>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
@@ -269,7 +269,7 @@ namespace Itinero
                 }
             }
 
-            return this.BuildRoute(profile, source, target, path);
+            return new Result<List<uint>>(path);
         }
 
         /// <summary>
@@ -293,12 +293,12 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+        public sealed override Result<List<uint>[][]> TryCalculateRaw(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             if (!_db.Supports(profile))
             {
-                return new Result<Route[][]>("Routing profile is not supported.", (message) =>
+                return new Result<List<uint>[][]>("Routing profile is not supported.", (message) =>
                 {
                     return new Exception(message);
                 });
@@ -319,36 +319,29 @@ namespace Itinero
             algorithm.Run();
             if (!algorithm.HasSucceeded)
             {
-                return new Result<Route[][]>(algorithm.ErrorMessage, (message) =>
+                return new Result<List<uint>[][]>(algorithm.ErrorMessage, (message) =>
                 {
                     return new RouteNotFoundException(message);
                 });
             }
 
             // build all routes.
-            var routes = new Route[sources.Length][];
-            var path = new List<uint>();
+            var paths = new List<uint>[sources.Length][];
             for(var s = 0; s < sources.Length; s++)
             {
-                routes[s] = new Route[targets.Length];
+                paths[s] = new List<uint>[targets.Length];
                 for (var t = 0; t < targets.Length; t++)
                 {
                     var localPath = algorithm.GetPath(s, t);
                     if(localPath != null)
                     {
-                        path.Clear();
+                        var path = new List<uint>();
                         localPath.AddToList(path);
-                        var route = this.BuildRoute(profile, sources[s],
-                            targets[t], path);
-                        if(route.IsError)
-                        {
-                            return route.ConvertError<Route[][]>();
-                        }
-                        routes[s][t] = route.Value;
+                        paths[s][t] = path;
                     }
                 }
             }
-            return new Result<Route[][]>(routes);
+            return new Result<List<uint>[][]>(paths);
         }
 
         /// <summary>
@@ -481,7 +474,7 @@ namespace Itinero
         /// <summary>
         /// Builds a route.
         /// </summary>
-        private Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        public override sealed Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
         {
             if(this.CustomRouteBuilder != null)
             { // there is a custom route builder.

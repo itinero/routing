@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -64,7 +64,7 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<Route> TryCalculate(Profile profile, RouterPoint source, RouterPoint target);
+        public abstract Result<List<uint>> TryCalculateRaw(Profile profile, RouterPoint source, RouterPoint target);
 
         /// <summary>
         /// Calculates the weight between the two locations.
@@ -77,7 +77,7 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<Route[][]> TryCalculate(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+        public abstract Result<List<uint>[][]> TryCalculateRaw(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets);
 
         /// <summary>
@@ -86,5 +86,10 @@ namespace Itinero
         /// <returns></returns>
         public abstract Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets) where T : struct;
+        
+        /// <summary>
+        /// Builds a route based on a raw path.
+        /// </summary>
+        public abstract Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path);
     }
 }
