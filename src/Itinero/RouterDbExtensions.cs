@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System;
 using Itinero.Profiles;
 using Itinero.Algorithms.Weights;
+using Itinero.Algorithms;
+using Itinero.Graphs;
 
 namespace Itinero
 {
@@ -236,6 +238,51 @@ namespace Itinero
                 }
                 return restrictionList;
             };
+        }
+        
+        /// <summary>
+        /// Builds an edge path from a path consisiting of only vertices.
+        /// </summary>
+        public static EdgePath<T> BuildEdgePath<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, List<uint> vertexPath)
+            where T : struct
+        {
+            if (vertexPath == null || vertexPath.Count == 0)
+            {
+                return null;
+            }
+
+            var path = new EdgePath<T>(vertexPath[0]);
+            var i = 1;
+            if (path.Vertex == Constants.NO_VERTEX)
+            { // add first router point segment from source.
+                path = source.EdgePathTo(routerDb, weightHandler, vertexPath[1]);
+                i = 2;
+            }
+
+            var edgeEnumerator = routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+            for (; i < vertexPath.Count; i++)
+            {
+                var vertex = vertexPath[i];
+                if (vertex == Constants.NO_VERTEX)
+                {
+                    if (i != vertexPath.Count - 1)
+                    {
+                        throw new Exception("Invalid data found in vertex path: a non-vertex id was found at an invalid location.");
+                    }
+                    var toTarget = target.EdgePathTo(routerDb, weightHandler, path.Vertex, true);
+                    path = new EdgePath<T>(toTarget.Vertex, weightHandler.Add(toTarget.Weight, path.Weight), toTarget.Edge, path);
+                    break;
+                }
+                T weight;
+                var best = edgeEnumerator.FindBestEdge(weightHandler, path.Vertex, vertexPath[i], out weight);
+                if (best == Constants.NO_EDGE)
+                {
+                    throw new Exception(string.Format("Cannot build vertex path, edge {0} -> {1} not found.", path.Vertex, vertexPath[i]));
+                }
+
+                path = new EdgePath<T>(vertexPath[i], weightHandler.Add(weight, path.Weight), best, path);
+            }
+            return path;
         }
     }
 }

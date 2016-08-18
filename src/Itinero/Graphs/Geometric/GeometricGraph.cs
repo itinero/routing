@@ -23,6 +23,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using Itinero.Algorithms;
 
 namespace Itinero.Graphs.Geometric
 {

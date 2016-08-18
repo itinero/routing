@@ -80,12 +80,23 @@ namespace Itinero.Algorithms
             }
             return false;
         }
-
+        
+        /// <summary>
+        /// Adds the vertices in this path to the given list.
+        /// </summary>
+        public static void AddToListReverse<T>(this EdgePath<T> path, List<EdgePath<T>> pathsList)
+        {
+            while (path != null)
+            {
+                pathsList.Add(path);
+                path = path.From;
+            }
+        }
 
         /// <summary>
         /// Adds the vertices in this path to the given list.
         /// </summary>
-        public static void AddToListReverse<T>(this EdgePath<T> path, List<uint> vertices)
+        public static void AddToListReverseAsVertices<T>(this EdgePath<T> path, List<uint> vertices)
         {
             while (path != null)
             {
@@ -97,10 +108,23 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Adds the vertices in this path to the given list.
         /// </summary>
-        public static void AddToList<T>(this EdgePath<T> path, List<uint> vertices)
+        public static void AddToList<T>(this EdgePath<T> path, List<EdgePath<T>> pathList)
+        {
+            var reversed = new List<EdgePath<T>>();
+            path.AddToListReverse(reversed);
+            for (var i = reversed.Count - 1; i >= 0; i--)
+            {
+                pathList.Add(reversed[i]);
+            }
+        }
+
+        /// <summary>
+        /// Adds the vertices in this path to the given list.
+        /// </summary>
+        public static void AddToListAsVertices<T>(this EdgePath<T> path, List<uint> vertices)
         {
             var reversed = new List<uint>();
-            path.AddToListReverse(reversed);
+            path.AddToListReverseAsVertices(reversed);
             for (var i = reversed.Count - 1; i >= 0; i--)
             {
                 vertices.Add(reversed[i]);
@@ -120,6 +144,26 @@ namespace Itinero.Algorithms
                 }
                 path = path.From;
             }
+        }
+
+        /// <summary>
+        /// Converts the path to a list.
+        /// </summary>
+        public static List<EdgePath<T>> ToList<T>(this EdgePath<T> path)
+        {
+            var pathAsList = new List<EdgePath<T>>();
+            path.AddToList(pathAsList);
+            return pathAsList;
+        }
+
+        /// <summary>
+        /// Converts the path to a list of vertices.
+        /// </summary>
+        public static List<uint> ToListAsVertices<T>(this EdgePath<T> path)
+        {
+            var pathAsList = new List<uint> ();
+            path.AddToListAsVertices(pathAsList);
+            return pathAsList;
         }
     }
 }

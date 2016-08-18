@@ -16,7 +16,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms;
+using Itinero.Algorithms.Weights;
+using Itinero.Data.Edges;
+using Itinero.Profiles;
 using System;
+using System.Collections.Generic;
 
 namespace Itinero.Graphs
 {
@@ -41,6 +46,46 @@ namespace Itinero.Graphs
             }
             throw new ArgumentOutOfRangeException(string.Format("Vertex {0} is not part of edge {1}.",
                 vertex, edge.Id));
+        }
+
+        /// <summary>
+        /// Finds the best edge between the two given vertices.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="graph"></param>
+        /// <param name="weightHandler"></param>
+        /// <param name="vertex1"></param>
+        /// <param name="vertex2"></param>
+        /// <returns></returns>
+        public static long FindBestEdge<T>(this Graph.EdgeEnumerator edgeEnumerator, WeightHandler<T> weightHandler, uint vertex1, uint vertex2, out T bestWeight)
+            where T : struct
+        {
+            edgeEnumerator.MoveTo(vertex1);
+            bestWeight = weightHandler.Infinite;
+            long bestEdge = Constants.NO_EDGE;
+            Factor factor;
+            while (edgeEnumerator.MoveNext())
+            {
+                if (edgeEnumerator.To == vertex2)
+                {
+                    float distance;
+                    ushort edgeProfile;
+                    EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out distance, out edgeProfile);
+                    var weight = weightHandler.Calculate(edgeProfile, distance, out factor);
+
+                    if (factor.Value > 0 && (factor.Direction == 0 ||
+                        ((factor.Direction == 1) && !edgeEnumerator.DataInverted) ||
+                        ((factor.Direction == 2) && edgeEnumerator.DataInverted)))
+                    { // it's ok; the edge can be traversed by the given vehicle.
+                        if (weightHandler.IsSmallerThan(weight, bestWeight))
+                        {
+                            bestWeight = weight;
+                            bestEdge = edgeEnumerator.IdDirected();
+                        }
+                    }
+                }
+            }
+            return bestEdge;
         }
     }
 }

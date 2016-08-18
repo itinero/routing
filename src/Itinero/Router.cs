@@ -29,6 +29,7 @@ using Itinero.Data.Contracted;
 using Itinero.Data.Edges;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Weights;
+using Itinero.Graphs;
 
 namespace Itinero
 {
@@ -55,9 +56,9 @@ namespace Itinero
         public IResolveExtensions.CreateResolver CreateCustomResolver { get; set; }
 
         /// <summary>
-        /// Gets or sets the delegate to use a custom route builder.
+        /// Gets or sets the custom route builder.
         /// </summary>
-        public RouteBuilderExtensions.BuildRoute CustomRouteBuilder { get; set; }
+        public IRouteBuilder CustomRouteBuilder { get; set; }
 
         /// <summary>
         /// Gets the db.
@@ -152,21 +153,17 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<List<uint>> TryCalculateRaw(Profile profile, RouterPoint source, RouterPoint target)
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
         {
             if (!_db.Supports(profile))
             {
-                return new Result<List<uint>>("Routing profile is not supported.", (message) =>
+                return new Result<EdgePath<T>>("Routing profile is not supported.", (message) =>
                 {
                     return new Exception(message);
                 });
             }
-            
-            // get the weight handler.
-            var weightHandler = this.GetDefaultWeightHandler(profile);
 
-            List<uint> path;
-            float pathWeight;
+            EdgePath<T> path;
             ContractedDb contracted;
 
             bool useContracted = false;
@@ -185,72 +182,77 @@ namespace Itinero
             {  // use the contracted graph.
                 path = null;
 
+                List<uint> vertexPath = null;
+
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
-                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra(contracted.NodeBasedGraph,
+                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
                         source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
                     }
-                    path = bidirectionalSearch.GetPath(out pathWeight);
+                    vertexPath = bidirectionalSearch.GetPath();
                 }
                 else
                 { // use edge-based routing.
-                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
+                    var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
                         source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
                     }
-                    path = bidirectionalSearch.GetPath(out pathWeight);
+                    vertexPath = bidirectionalSearch.GetPath();
                 }
+
+                // expand vertex path using the regular graph.
+                path = _db.BuildEdgePath(weightHandler, source, target, vertexPath);
             }
             else
             { // use the regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
                         _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, weightHandler, true), float.MaxValue, false);
-                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
                         _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, weightHandler, false), float.MaxValue, true);
 
-                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra(sourceSearch, targetSearch, weightHandler);
+                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
                     }
-                    path = bidirectionalSearch.GetPath(out pathWeight);
+                    path = bidirectionalSearch.GetPath();
                 }
                 else
                 {
-                    var sourceSearch = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                    var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
                         source.ToEdgePaths(_db, weightHandler, true), float.MaxValue, false);
-                    var targetSearch = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                    var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
                         target.ToEdgePaths(_db, weightHandler, false), float.MaxValue, true);
 
-                    var bidirectionalSearch = new BidirectionalDykstra(sourceSearch, targetSearch, weightHandler);
+                    var bidirectionalSearch = new BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
-                        return new Result<List<uint>>(bidirectionalSearch.ErrorMessage, (message) =>
+                        return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
                             return new RouteNotFoundException(message);
                         });
                     }
-                    path = bidirectionalSearch.GetPath(out pathWeight);
+                    path = bidirectionalSearch.GetPath();
                 }
             }
 
@@ -258,18 +260,13 @@ namespace Itinero
             { // check for a shorter path on the same edge.
                 var edgePath = source.EdgePathTo(_db, weightHandler, target);
                 if(edgePath != null &&
-                   edgePath.Weight < pathWeight)
+                   weightHandler.IsSmallerThan(edgePath.Weight, path.Weight))
                 {
-                    path = new List<uint>(2);
-                    while(edgePath != null)
-                    {
-                        path.Insert(0, edgePath.Vertex);
-                        edgePath = edgePath.From;
-                    }
+                    path = edgePath;
                 }
             }
 
-            return new Result<List<uint>>(path);
+            return new Result<EdgePath<T>>(path);
         }
 
         /// <summary>
@@ -293,19 +290,16 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<List<uint>[][]> TryCalculateRaw(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
+        public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             if (!_db.Supports(profile))
             {
-                return new Result<List<uint>[][]>("Routing profile is not supported.", (message) =>
+                return new Result<EdgePath<T>[][]>("Routing profile is not supported.", (message) =>
                 {
                     return new Exception(message);
                 });
             }
-
-            // get the weight handler.
-            var weightHandler = this.GetDefaultWeightHandler(profile);
 
             ContractedDb contracted;
             if (_db.TryGetContracted(profile, out contracted))
@@ -315,33 +309,27 @@ namespace Itinero
             }
 
             // use non-contracted calculation.
-            var algorithm = new Itinero.Algorithms.Default.ManyToMany(_db, weightHandler, sources, targets, float.MaxValue);
+            var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, float.MaxValue);
             algorithm.Run();
             if (!algorithm.HasSucceeded)
             {
-                return new Result<List<uint>[][]>(algorithm.ErrorMessage, (message) =>
+                return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
                 {
                     return new RouteNotFoundException(message);
                 });
             }
 
             // build all routes.
-            var paths = new List<uint>[sources.Length][];
+            var paths = new EdgePath<T>[sources.Length][];
             for(var s = 0; s < sources.Length; s++)
             {
-                paths[s] = new List<uint>[targets.Length];
+                paths[s] = new EdgePath<T>[targets.Length];
                 for (var t = 0; t < targets.Length; t++)
                 {
-                    var localPath = algorithm.GetPath(s, t);
-                    if(localPath != null)
-                    {
-                        var path = new List<uint>();
-                        localPath.AddToList(path);
-                        paths[s][t] = path;
-                    }
+                    paths[s][t] = algorithm.GetPath(s, t);
                 }
             }
-            return new Result<List<uint>[][]>(paths);
+            return new Result<EdgePath<T>[][]>(paths);
         }
 
         /// <summary>
@@ -474,11 +462,11 @@ namespace Itinero
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public override sealed Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        public override sealed Result<Route> BuildRoute<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
         {
             if(this.CustomRouteBuilder != null)
             { // there is a custom route builder.
-                return this.CustomRouteBuilder(_db, profile, source, target, path);
+                return this.CustomRouteBuilder.TryBuild(_db, profile, source, target, path);
             }
 
             // use the default.

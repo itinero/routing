@@ -295,7 +295,7 @@ namespace Itinero.Algorithms.Contracted
         /// Returns the path.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath(out T weight)
+        public List<uint> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
 
@@ -305,7 +305,6 @@ namespace Itinero.Algorithms.Contracted
                 _backwardVisits.TryGetValue(_best.Item1, out toTarget))
             {
                 var vertices = new List<uint>();
-                weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
 
                 // add vertices from source.
                 vertices.Add(fromSource.Vertex);
@@ -330,19 +329,10 @@ namespace Itinero.Algorithms.Contracted
                     vertices.Add(toTarget.From.Vertex);
                     toTarget = toTarget.From;
                 }
+
                 return vertices;
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
-        }
-
-        /// <summary>
-        /// Returns the path.
-        /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath()
-        {
-            T weight;
-            return this.GetPath(out weight);
         }
     }
 

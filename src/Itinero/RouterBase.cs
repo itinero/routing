@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Network;
 using Itinero.Profiles;
@@ -64,7 +65,7 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<List<uint>> TryCalculateRaw(Profile profile, RouterPoint source, RouterPoint target);
+        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target) where T : struct;
 
         /// <summary>
         /// Calculates the weight between the two locations.
@@ -77,8 +78,8 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<List<uint>[][]> TryCalculateRaw(Profile profile, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets);
+        public abstract Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets) where T : struct;
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
@@ -90,6 +91,6 @@ namespace Itinero
         /// <summary>
         /// Builds a route based on a raw path.
         /// </summary>
-        public abstract Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path);
+        public abstract Result<Route> BuildRoute<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path) where T : struct;
     }
 }

@@ -81,7 +81,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             Assert.IsTrue(algorithm.HasSucceeded);
 
             //Assert.AreEqual(1, algorithm.BestVertex);
-            Assert.AreEqual(new uint[] { 0, 1, 2 }, algorithm.GetPath().ToArray());
+            Assert.AreEqual(new uint[] { 0, 1, 2 }, algorithm.GetPath().ToListAsVertices().ToArray());
         }
     }
 }

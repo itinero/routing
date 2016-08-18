@@ -33,7 +33,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Delegate to create a resolver.
         /// </summary>
-        public delegate Result<Route> BuildRoute(RouterDb routerDb, Profile vehicleProfile, RouterPoint source, RouterPoint target, List<uint> path);
+        public delegate Result<Route> BuildRoute<T>(RouterDb routerDb, Profile vehicleProfile, RouterPoint source, RouterPoint target, EdgePath<T> path);
         
         /// <summary>
         /// Adds branches for the given vertex.

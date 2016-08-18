@@ -402,7 +402,7 @@ namespace Itinero.Algorithms.Routes
         public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path)
         {
             var pathList = new List<uint>();
-            path.AddToList(pathList);
+            path.AddToListAsVertices(pathList);
             return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, pathList);
         }
 

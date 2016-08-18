@@ -20,6 +20,8 @@ using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
+using Itinero.Algorithms.Weights;
+using Itinero.Algorithms;
 
 namespace Itinero.Graphs.Geometric
 {

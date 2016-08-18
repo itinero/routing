@@ -150,33 +150,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Gets the path from source->target.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath(out T weight)
+        public EdgePath<T> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
-
-            weight = _weightHandler.Zero;
+            
             var fromSource = _best.Item1;
             var toTarget = _best.Item2;
 
-            var path = new List<uint>();
-            weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
-            fromSource.AddToList(path);
-            path.RemoveAt(path.Count - 1);
-            if (toTarget.From != null)
-            {
-                toTarget.From.AddToListReverse(path);
-            }
-            return path;
-        }
-
-        /// <summary>
-        /// Returns the path.
-        /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath()
-        {
-            T weight;
-            return this.GetPath(out weight);
+            return fromSource.Append(toTarget.From, _weightHandler);
         }
     }
 

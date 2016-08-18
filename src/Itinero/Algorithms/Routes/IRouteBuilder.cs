@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -16,7 +16,18 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+using Itinero.Profiles;
 
-[assembly: AssemblyVersion("0.15.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.15.0-rc1")]
+namespace Itinero.Algorithms.Routes
+{
+    /// <summary>
+    /// Abstract representation of a route builder.
+    /// </summary>
+    public interface IRouteBuilder
+    {
+        /// <summary>
+        /// Tries to build a route for the given profile/source/target and path.
+        /// </summary>
+        Result<Route> TryBuild<T>(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<T> path);
+    }
+}

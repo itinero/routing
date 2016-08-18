@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using System;
@@ -46,6 +47,7 @@ namespace Itinero.Algorithms.Contracted
                         weight.Value < minWeight)
                     { // weight is better.
                         edge = edges.Current;
+                        minWeight = weight.Value;
                     }
                 }
             }

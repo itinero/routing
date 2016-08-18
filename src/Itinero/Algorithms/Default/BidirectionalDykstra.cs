@@ -152,36 +152,18 @@ namespace Itinero.Algorithms.Default
         /// Gets the path from source->target.
         /// </summary>
         /// <returns></returns>
-        public List<uint> GetPath(out T weight)
+        public EdgePath<T> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
-
-            weight = _weightHandler.Zero;
+            
             EdgePath<T> fromSource;
             EdgePath<T> toTarget;
             if(_sourceSearch.TryGetVisit(_bestVertex, out fromSource) &&
                _targetSearch.TryGetVisit(_bestVertex, out toTarget))
             {
-                var path = new List<uint>();
-                weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
-                fromSource.AddToList(path);
-                if (toTarget.From != null)
-                {
-                    toTarget.From.AddToListReverse(path);
-                }
-                return path;
+                return fromSource.Append(toTarget, _weightHandler);
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
-        }
-
-        /// <summary>
-        /// Returns the path.
-        /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath()
-        {
-            T weight;
-            return this.GetPath(out weight);
         }
     }
 

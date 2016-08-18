@@ -198,5 +198,22 @@ namespace Itinero.Data.Network
         {
             return new List<RoutingEdge>(network.GetEdgeEnumerator(vertex));
         }
+
+        /// <summary>
+        /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
+        /// </summary>
+        /// <remarks>
+        /// The relationship between a regular edge id and a directed edge id:
+        /// - 0 -> 1 forward, -1 backward.
+        /// - all other id's are offset by 1 and postive when forward, negative when backward.
+        /// </remarks>
+        public static long IdDirected(this RoutingEdge edge)
+        {
+            if (edge.DataInverted)
+            {
+                return -(edge.Id + 1);
+            }
+            return (edge.Id + 1);
+        }
     }
 }

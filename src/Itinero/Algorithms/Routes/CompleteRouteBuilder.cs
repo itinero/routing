@@ -391,10 +391,10 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<float> path)
+        public static Result<Route> TryBuild<T>(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<T> path)
         {
             var pathList = new List<uint>();
-            path.AddToList(pathList);
+            path.AddToListAsVertices(pathList);
             return CompleteRouteBuilder.TryBuild(db, profile, source, target, pathList);
         }
 

@@ -470,14 +470,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Returns the path.
         /// </summary>
-        public List<uint> GetPath(out T weight)
+        public List<uint> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
 
             var vertices = new List<uint>();
             var fromSource = _best.Item1.Expand(_graph, _weightHandler);
             var toTarget = _best.Item2.Expand(_graph, _weightHandler);
-            weight = _weightHandler.Add(fromSource.Weight, toTarget.Weight);
 
             // add vertices from source.
             vertices.Add(fromSource.Vertex);
@@ -503,16 +502,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 toTarget = toTarget.From;
             }
             return vertices;
-        }
-
-        /// <summary>
-        /// Returns the path.
-        /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath()
-        {
-            T weight;
-            return this.GetPath(out weight);
         }
         
         private class LinkedEdgePath

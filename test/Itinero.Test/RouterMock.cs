@@ -23,6 +23,7 @@ using Itinero.Profiles;
 using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using System;
+using Itinero.Algorithms;
 
 namespace Itinero.Test
 {
@@ -55,18 +56,18 @@ namespace Itinero.Test
             }
         }
 
-        public override Result<List<uint>[][]> TryCalculateRaw(Itinero.Profiles.Profile profile, RouterPoint[] sources, RouterPoint[] targets, 
+        public override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Itinero.Profiles.Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets, 
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
             throw new System.NotImplementedException();
         }
 
-        public override Result<List<uint>> TryCalculateRaw(Itinero.Profiles.Profile profile, RouterPoint source, RouterPoint target)
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(Itinero.Profiles.Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
         {
-            return new Result<List<uint>>(new List<uint>());
+            return new Result<EdgePath<T>>(new EdgePath<T>());
         }
 
-        public override Result<Route> BuildRoute(Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
+        public override Result<Route> BuildRoute<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
         {
             var route = new Route();
             route.Shape = new Coordinate[]

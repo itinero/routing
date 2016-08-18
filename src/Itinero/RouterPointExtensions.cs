@@ -412,7 +412,42 @@ namespace Itinero
             }
             return null;
         }
+        
+        /// <summary>
+        /// Calculates the edge path between this router point and one of it's neighbours.
+        /// </summary>
+        public static EdgePath<T> EdgePathTo<T>(this RouterPoint point, RouterDb db, WeightHandler<T> weightHandler, uint neighbour, bool backward = false)
+            where T : struct
+        {
+            Factor factor;
 
+            var edge = db.Network.GetEdge(point.EdgeId);
+            if (edge.From == neighbour)
+            {
+                var distance = ((float)System.Math.Abs((int)point.Offset) / (float)ushort.MaxValue) *  edge.Data.Distance;
+                var weight = weightHandler.Calculate(edge.Data.Profile, distance, out factor);
+                if (backward)
+                {
+                    return new EdgePath<T>(Constants.NO_VERTEX, weight, edge.IdDirected(), new EdgePath<T>(neighbour));
+                }
+                return new EdgePath<T>(neighbour, weight, edge.IdDirected(), new EdgePath<T>());
+            }
+            else if(edge.To == neighbour)
+            {
+                var distance = (1 - ((float)System.Math.Abs((int)point.Offset) / (float)ushort.MaxValue)) * edge.Data.Distance;
+                var weight = weightHandler.Calculate(edge.Data.Profile, distance, out factor);
+                if (backward)
+                {
+                    return new EdgePath<T>(Constants.NO_VERTEX, weight, edge.IdDirected(), new EdgePath<T>(neighbour));
+                }
+                return new EdgePath<T>(neighbour, weight, edge.IdDirected(), new EdgePath<T>());
+            }
+            else
+            {
+                throw new ArgumentException(string.Format("Cannot route to neighbour: {0} is not an edge {1}.", neighbour, point.EdgeId));
+            }
+        }
+        
         /// <summary>
         /// Returns the vertex id if any.
         /// </summary>

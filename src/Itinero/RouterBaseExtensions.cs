@@ -346,7 +346,8 @@ namespace Itinero
         public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets)
         {
-            var paths = router.TryCalculateRaw(profile, sources, targets, invalidSources, invalidTargets);
+            var weightHandler = router.GetDefaultWeightHandler(profile);
+            var paths = router.TryCalculateRaw(profile, weightHandler, sources, targets, invalidSources, invalidTargets);
             if (paths.IsError)
             {
                 return paths.ConvertError<Route[][]>();
@@ -361,7 +362,7 @@ namespace Itinero
                     var localPath = paths.Value[s][t];
                     if (localPath != null)
                     {
-                        var route = router.BuildRoute(profile, sources[s],
+                        var route = router.BuildRoute(profile, weightHandler, sources[s],
                             targets[t], localPath);
                         if (route.IsError)
                         {
@@ -609,12 +610,13 @@ namespace Itinero
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint target)
         {
-            var path = router.TryCalculateRaw(profile, source, target);
+            var weightHandler = router.GetDefaultWeightHandler(profile);
+            var path = router.TryCalculateRaw(profile, weightHandler, source, target);
             if (path.IsError)
             {
                 return path.ConvertError<Route>();
             }
-            return router.BuildRoute(profile, source, target, path.Value);
+            return router.BuildRoute(profile, weightHandler, source, target, path.Value);
         }
 
         /// <summary>
