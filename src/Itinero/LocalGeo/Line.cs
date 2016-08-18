@@ -34,12 +34,12 @@ namespace Itinero.LocalGeo
         {
             _coordinate1 = coordinate1;
             _coordinate2 = coordinate2;
-        }        
-        
+        }
+
         /// <summary>
         /// Returns parameter A of an equation describing this line as Ax + By = C
         /// </summary>
-        internal float A
+        public float A
         {
             get
             {
@@ -50,7 +50,7 @@ namespace Itinero.LocalGeo
         /// <summary>
         /// Returns parameter B of an equation describing this line as Ax + By = C
         /// </summary>
-        internal float B
+        public float B
         {
             get
             {
@@ -61,13 +61,36 @@ namespace Itinero.LocalGeo
         /// <summary>
         /// Returns parameter C of an equation describing this line as Ax + By = C
         /// </summary>
-        internal float C
+        public float C
         {
             get
             {
                 return this.A * _coordinate1.Longitude + this.B * _coordinate1.Latitude;
             }
         }
+
+        /// <summary>
+        /// Gets the first coordinate.
+        /// </summary>
+        public Coordinate Coordinate1
+        {
+            get
+            {
+                return _coordinate1;
+            }
+        }
+
+        /// <summary>
+        /// Gets the second coordinate.
+        /// </summary>
+        public Coordinate Coordinate2
+        {
+            get
+            {
+                return _coordinate2;
+            }
+        }
+
 
         /// <summary>
         /// Gets the length of this line.
