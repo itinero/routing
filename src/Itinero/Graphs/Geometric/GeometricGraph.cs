@@ -294,17 +294,26 @@ namespace Itinero.Graphs.Geometric
         /// Removes the given edge.
         /// </summary>
         /// <returns></returns>
-        public bool RemoveEdge(uint vertex1, uint vertex2)
+        public int RemoveEdges(uint vertex1, uint vertex2)
         {
-            var edge = this.GetEdgeEnumerator(vertex1);
-            while (edge.MoveNext())
+            var removedCount = 0;
+            var removed = true;
+            while (removed)
             {
-                if (edge.To == vertex2)
+                removed = false;
+                var edge = this.GetEdgeEnumerator(vertex1);
+                while (edge.MoveNext())
                 {
-                    return this.RemoveEdge(edge.Id);
+                    if (edge.To == vertex2)
+                    {
+                        this.RemoveEdge(edge.Id);
+                        removedCount++;
+                        removed = true;
+                        break; // need a new enumerator after graph has changed.
+                    }
                 }
             }
-            return false;
+            return removedCount;
         }
 
         /// <summary>

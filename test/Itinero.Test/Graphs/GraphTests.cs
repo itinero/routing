@@ -178,7 +178,7 @@ namespace Itinero.Test.Graphs
             // add another edge.
             uint vertex3 = 3;
             graph.AddVertex(vertex3);
-            var edgeId3 = graph.AddEdge(vertex1, vertex3, 3);
+            var edgeId3 = graph.AddEdge(vertex1, vertex3, 30);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(vertex0);
@@ -200,7 +200,7 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(edgeId2, edges.First(x => x.To == vertex2).Id);
             Assert.AreEqual(vertex1, edges.First(x => x.To == vertex2).From);
             Assert.IsTrue(edges.Any(x => x.To == vertex3));
-            Assert.AreEqual(3, edges.First(x => x.To == vertex3).Data[0]);
+            Assert.AreEqual(30, edges.First(x => x.To == vertex3).Data[0]);
             Assert.AreEqual(edgeId3, edges.First(x => x.To == vertex3).Id);
             Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3).From);
 
@@ -215,13 +215,13 @@ namespace Itinero.Test.Graphs
             edges = graph.GetEdgeEnumerator(vertex3);
             Assert.AreEqual(1, edges.Count());
             Assert.AreEqual(true, edges.First().DataInverted);
-            Assert.AreEqual(3, edges.First().Data[0]);
+            Assert.AreEqual(30, edges.First().Data[0]);
             Assert.AreEqual(edgeId3, edges.First().Id);
             Assert.AreEqual(vertex3, edges.First().From);
             Assert.AreEqual(vertex1, edges.First().To);
 
-            // overwrite another edge but in reverse.
-            var edgeId4 = graph.AddEdge(vertex3, vertex1, 3);
+            // add another edge but in reverse.
+            var edgeId4 = graph.AddEdge(vertex3, vertex1, 31);
 
             // verify all edges.
             edges = graph.GetEdgeEnumerator(vertex0);
@@ -232,7 +232,7 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(vertex1, edges.First().To);
 
             edges = graph.GetEdgeEnumerator(vertex1);
-            Assert.AreEqual(3, edges.Count());
+            Assert.AreEqual(4, edges.Count());
             Assert.IsTrue(edges.Any(x => x.To == vertex0));
             Assert.AreEqual(true, edges.First(x => x.To == vertex0).DataInverted);
             Assert.AreEqual(1, edges.First(x => x.To == vertex0).Data[0]);
@@ -242,11 +242,16 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(2, edges.First(x => x.To == vertex2).Data[0]);
             Assert.AreEqual(edgeId2, edges.First(x => x.To == vertex2).Id);
             Assert.AreEqual(vertex1, edges.First(x => x.To == vertex2).From);
-            Assert.IsTrue(edges.Any(x => x.To == vertex3));
-            Assert.AreEqual(true, edges.First(x => x.To == vertex3).DataInverted);
-            Assert.AreEqual(3, edges.First(x => x.To == vertex3).Data[0]);
-            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex3).Id);
-            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3).From);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3 && x.Data[0] == 30));
+            Assert.AreEqual(false, edges.First(x => x.To == vertex3 && x.Data[0] == 30).DataInverted);
+            Assert.AreEqual(30, edges.First(x => x.To == vertex3 && x.Data[0] == 30).Data[0]);
+            Assert.AreEqual(edgeId3, edges.First(x => x.To == vertex3 && x.Data[0] == 30).Id);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3 && x.Data[0] == 30).From);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3 && x.Data[0] == 30));
+            Assert.AreEqual(true, edges.First(x => x.To == vertex3 && x.Data[0] == 31).DataInverted);
+            Assert.AreEqual(31, edges.First(x => x.To == vertex3 && x.Data[0] == 31).Data[0]);
+            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex3 && x.Data[0] == 31).Id);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3 && x.Data[0] == 31).From);
 
             edges = graph.GetEdgeEnumerator(vertex2);
             Assert.AreEqual(1, edges.Count());
@@ -257,11 +262,15 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(vertex1, edges.First().To);
 
             edges = graph.GetEdgeEnumerator(vertex3);
-            Assert.AreEqual(1, edges.Count());
-            Assert.AreEqual(3, edges.First().Data[0]);
-            Assert.AreEqual(edgeId4, edges.First().Id);
-            Assert.AreEqual(vertex3, edges.First().From);
-            Assert.AreEqual(vertex1, edges.First().To);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(30, edges.First(x => x.To == 1 && x.Data[0] == 30).Data[0]);
+            Assert.AreEqual(edgeId3, edges.First(x => x.To == 1 && x.Data[0] == 30).Id);
+            Assert.AreEqual(vertex3, edges.First(x => x.To == 1 && x.Data[0] == 30).From);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == 1 && x.Data[0] == 30).To);
+            Assert.AreEqual(31, edges.First(x => x.To == 1 && x.Data[0] == 31).Data[0]);
+            Assert.AreEqual(edgeId4, edges.First(x => x.To == 1 && x.Data[0] == 31).Id);
+            Assert.AreEqual(vertex3, edges.First(x => x.To == 1 && x.Data[0] == 31).From);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == 1 && x.Data[0] == 31).To);
 
             // add another edge and start a new island.
             uint vertex4 = 4;
@@ -279,7 +288,7 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(vertex1, edges.First().To);
 
             edges = graph.GetEdgeEnumerator(vertex1);
-            Assert.AreEqual(3, edges.Count());
+            Assert.AreEqual(4, edges.Count());
             Assert.IsTrue(edges.Any(x => x.To == vertex0));
             Assert.AreEqual(true, edges.First(x => x.To == vertex0).DataInverted);
             Assert.AreEqual(1, edges.First(x => x.To == vertex0).Data[0]);
@@ -289,11 +298,16 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(2, edges.First(x => x.To == vertex2).Data[0]);
             Assert.AreEqual(edgeId2, edges.First(x => x.To == vertex2).Id);
             Assert.AreEqual(vertex1, edges.First(x => x.To == vertex2).From);
-            Assert.IsTrue(edges.Any(x => x.To == vertex3));
-            Assert.AreEqual(true, edges.First(x => x.To == vertex3).DataInverted);
-            Assert.AreEqual(3, edges.First(x => x.To == vertex3).Data[0]);
-            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex3).Id);
-            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3).From);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3 && x.Data[0] == 30));
+            Assert.AreEqual(false, edges.First(x => x.To == vertex3 && x.Data[0] == 30).DataInverted);
+            Assert.AreEqual(30, edges.First(x => x.To == vertex3 && x.Data[0] == 30).Data[0]);
+            Assert.AreEqual(edgeId3, edges.First(x => x.To == vertex3 && x.Data[0] == 30).Id);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3 && x.Data[0] == 30).From);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3 && x.Data[0] == 30));
+            Assert.AreEqual(true, edges.First(x => x.To == vertex3 && x.Data[0] == 31).DataInverted);
+            Assert.AreEqual(31, edges.First(x => x.To == vertex3 && x.Data[0] == 31).Data[0]);
+            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex3 && x.Data[0] == 31).Id);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3 && x.Data[0] == 31).From);
 
             edges = graph.GetEdgeEnumerator(vertex2);
             Assert.AreEqual(1, edges.Count());
@@ -304,11 +318,15 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(vertex1, edges.First().To);
 
             edges = graph.GetEdgeEnumerator(vertex3);
-            Assert.AreEqual(1, edges.Count());
-            Assert.AreEqual(3, edges.First().Data[0]);
-            Assert.AreEqual(edgeId4, edges.First().Id);
-            Assert.AreEqual(vertex3, edges.First().From);
-            Assert.AreEqual(vertex1, edges.First().To);
+            Assert.AreEqual(2, edges.Count());
+            Assert.AreEqual(30, edges.First(x => x.To == 1 && x.Data[0] == 30).Data[0]);
+            Assert.AreEqual(edgeId3, edges.First(x => x.To == 1 && x.Data[0] == 30).Id);
+            Assert.AreEqual(vertex3, edges.First(x => x.To == 1 && x.Data[0] == 30).From);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == 1 && x.Data[0] == 30).To);
+            Assert.AreEqual(31, edges.First(x => x.To == 1 && x.Data[0] == 31).Data[0]);
+            Assert.AreEqual(edgeId4, edges.First(x => x.To == 1 && x.Data[0] == 31).Id);
+            Assert.AreEqual(vertex3, edges.First(x => x.To == 1 && x.Data[0] == 31).From);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == 1 && x.Data[0] == 31).To);
 
             edges = graph.GetEdgeEnumerator(vertex4);
             Assert.AreEqual(1, edges.Count());
@@ -337,7 +355,7 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(vertex1, edges.First().To);
 
             edges = graph.GetEdgeEnumerator(vertex1);
-            Assert.AreEqual(3, edges.Count());
+            Assert.AreEqual(4, edges.Count());
             Assert.IsTrue(edges.Any(x => x.To == vertex0));
             Assert.AreEqual(true, edges.First(x => x.To == vertex0).DataInverted);
             Assert.AreEqual(1, edges.First(x => x.To == vertex0).Data[0]);
@@ -347,11 +365,16 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(2, edges.First(x => x.To == vertex2).Data[0]);
             Assert.AreEqual(edgeId2, edges.First(x => x.To == vertex2).Id);
             Assert.AreEqual(vertex1, edges.First(x => x.To == vertex2).From);
-            Assert.IsTrue(edges.Any(x => x.To == vertex3));
-            Assert.AreEqual(true, edges.First(x => x.To == vertex3).DataInverted);
-            Assert.AreEqual(3, edges.First(x => x.To == vertex3).Data[0]);
-            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex3).Id);
-            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3).From);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3 && x.Data[0] == 30));
+            Assert.AreEqual(false, edges.First(x => x.To == vertex3 && x.Data[0] == 30).DataInverted);
+            Assert.AreEqual(30, edges.First(x => x.To == vertex3 && x.Data[0] == 30).Data[0]);
+            Assert.AreEqual(edgeId3, edges.First(x => x.To == vertex3 && x.Data[0] == 30).Id);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3 && x.Data[0] == 30).From);
+            Assert.IsTrue(edges.Any(x => x.To == vertex3 && x.Data[0] == 30));
+            Assert.AreEqual(true, edges.First(x => x.To == vertex3 && x.Data[0] == 31).DataInverted);
+            Assert.AreEqual(31, edges.First(x => x.To == vertex3 && x.Data[0] == 31).Data[0]);
+            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex3 && x.Data[0] == 31).Id);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == vertex3 && x.Data[0] == 31).From);
 
             edges = graph.GetEdgeEnumerator(vertex2);
             Assert.AreEqual(1, edges.Count());
@@ -362,11 +385,15 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(vertex1, edges.First().To);
 
             edges = graph.GetEdgeEnumerator(vertex3);
-            Assert.AreEqual(2, edges.Count());
-            Assert.IsTrue(edges.Any(x => x.To == vertex1));
-            Assert.AreEqual(3, edges.First(x => x.To == vertex1).Data[0]);
-            Assert.AreEqual(edgeId4, edges.First(x => x.To == vertex1).Id);
-            Assert.AreEqual(vertex3, edges.First(x => x.To == vertex1).From);
+            Assert.AreEqual(3, edges.Count());
+            Assert.AreEqual(30, edges.First(x => x.To == 1 && x.Data[0] == 30).Data[0]);
+            Assert.AreEqual(edgeId3, edges.First(x => x.To == 1 && x.Data[0] == 30).Id);
+            Assert.AreEqual(vertex3, edges.First(x => x.To == 1 && x.Data[0] == 30).From);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == 1 && x.Data[0] == 30).To);
+            Assert.AreEqual(31, edges.First(x => x.To == 1 && x.Data[0] == 31).Data[0]);
+            Assert.AreEqual(edgeId4, edges.First(x => x.To == 1 && x.Data[0] == 31).Id);
+            Assert.AreEqual(vertex3, edges.First(x => x.To == 1 && x.Data[0] == 31).From);
+            Assert.AreEqual(vertex1, edges.First(x => x.To == 1 && x.Data[0] == 31).To);
             Assert.IsTrue(edges.Any(x => x.To == vertex5));
             Assert.AreEqual(true, edges.First(x => x.To == vertex5).DataInverted);
             Assert.AreEqual(5, edges.First(x => x.To == vertex5).Data[0]);
@@ -623,7 +650,7 @@ namespace Itinero.Test.Graphs
             graph.AddVertex(0);
             graph.AddVertex(1);
             graph.AddEdge(0, 1, 1);
-            Assert.IsTrue(graph.RemoveEdge(0, 1));
+            Assert.IsTrue(graph.RemoveEdges(0, 1) != 0);
 
             graph = new Graph(1, 10);
 
@@ -756,12 +783,12 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(2, graph.EdgeCount);
 
             graph.AddEdge(0, 11001, 2);
-            Assert.AreEqual(2, graph.EdgeCount);
+            Assert.AreEqual(3, graph.EdgeCount);
 
-            graph.RemoveEdge(0, 11001);
+            Assert.AreEqual(2, graph.RemoveEdges(0, 11001));
             Assert.AreEqual(1, graph.EdgeCount);
 
-            graph.RemoveEdge(0, 1);
+            Assert.AreEqual(1, graph.RemoveEdges(0, 1));
             Assert.AreEqual(0, graph.EdgeCount);
         }
 
@@ -806,7 +833,7 @@ namespace Itinero.Test.Graphs
             graph.AddEdge(1, 2, 2);
             graph.AddEdge(2, 3, 3);
             graph.AddEdge(3, 4, 4);
-            graph.RemoveEdge(1, 2);
+            graph.RemoveEdges(1, 2);
             graph.Compress();
 
             Assert.AreEqual(5, graph.VertexCount);

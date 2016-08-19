@@ -257,9 +257,9 @@ namespace Itinero.Data.Network
         /// Removes the given edge.
         /// </summary>
         /// <returns></returns>
-        public bool RemoveEdge(uint vertex1, uint vertex2)
+        public int RemoveEdges(uint vertex1, uint vertex2)
         {
-            return _graph.RemoveEdge(vertex1, vertex2);
+            return _graph.RemoveEdges(vertex1, vertex2);
         }
 
         /// <summary>

@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Profiles;
 
 namespace Itinero.Osm.Vehicles
 {
@@ -148,6 +149,29 @@ namespace Itinero.Osm.Vehicles
         public override string UniqueName
         {
             get { return "Pedestrian"; }
+        }
+
+        /// <summary>
+        /// Gets all profiles for this vehicle.
+        /// </summary>
+        /// <returns></returns>
+        public override Profile[] GetProfiles()
+        {
+            return new Profile[]
+            {
+                this.Fastest(),
+                this.Shortest(),
+                this.Shortcuts()
+            };
+        }
+
+        /// <summary>
+        /// Returns a profile specifically for pedestrians that uses all shortcuts added as much as possible.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Shortcuts()
+        {
+            return new Profiles.PedestrianShortcuts(this);
         }
     }
 }

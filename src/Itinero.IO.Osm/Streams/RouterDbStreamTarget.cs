@@ -582,6 +582,7 @@ namespace Itinero.IO.Osm.Streams
                                     splitDistance = edge.Data.Distance;
 
                                     // just add edge.
+                                    _db.Network.RemoveEdges(fromVertex, toVertex); // make sure to overwrite and not add an extra edge.
                                     this.AddCoreEdge(fromVertex, toVertex, new EdgeData()
                                     {
                                         MetaId = meta,

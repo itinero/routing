@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using Itinero.Data.Edges;
 using Itinero.Algorithms.Weights;
+using Itinero.Algorithms.Search.Hilbert;
 
 namespace Itinero
 {
@@ -437,6 +438,66 @@ namespace Itinero
         {
             return other.EdgeId == point.EdgeId &&
                 other.Offset == point.Offset;
+        }
+
+        /// <summary>
+        /// Adds the router point as a vertex.
+        /// </summary>
+        public static uint AddAsVertex(this RouterPoint point, RouterDb routerDb)
+        {
+            if (routerDb.HasContracted)
+            {
+                throw new InvalidOperationException("Cannot add new vertices to a routerDb with contracted versions of the network.");
+            }
+
+            if (point.IsVertex())
+            { // the router point is already a vertex.
+                return point.VertexId(routerDb);
+            }
+
+            // add a new vertex at the router point location.            
+            var location = point.LocationOnNetwork(routerDb);
+            var vertex = routerDb.Network.VertexCount;
+            routerDb.Network.AddVertex(vertex, location.Latitude, location.Longitude);
+
+            // add two new edges.
+            var edge = routerDb.Network.GetEdge(point.EdgeId);
+            var shapeFrom = point.ShapePointsTo(routerDb, edge.From);
+            shapeFrom.Reverse(); // we need this shape from edge.From -> vertex.
+            var shapeTo = point.ShapePointsTo(routerDb, edge.To);
+            var distanceFrom = point.DistanceTo(routerDb, edge.From);
+            var distanceTo = point.DistanceTo(routerDb, edge.To);
+
+            // remove edge id.
+            routerDb.Network.RemoveEdge(point.EdgeId);
+
+            // split in two.
+            routerDb.Network.AddEdge(edge.From, vertex, new Data.Network.Edges.EdgeData()
+            {
+                Distance = distanceFrom,
+                MetaId = edge.Data.MetaId,
+                Profile = edge.Data.Profile
+            }, shapeFrom);
+            routerDb.Network.AddEdge(vertex, edge.To, new Data.Network.Edges.EdgeData()
+            {
+                Distance = distanceTo,
+                MetaId = edge.Data.MetaId,
+                Profile = edge.Data.Profile
+            }, shapeTo);
+            
+            // sort the vertices again.
+            routerDb.Network.Sort((v1, v2) =>
+            {
+                if (vertex == v1)
+                {
+                    vertex = (uint)v2;
+                }
+                else if (vertex == v2)
+                {
+                    vertex = (uint)v1;
+                }
+            });
+            return vertex;
         }
     }
 }
