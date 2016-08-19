@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Data.Network;
+using Itinero.Graphs.Geometric;
 using System;
 
 namespace Itinero.Algorithms.Search
@@ -29,6 +30,6 @@ namespace Itinero.Algorithms.Search
         /// <summary>
         /// Delegate to create a resolver.
         /// </summary>
-        public delegate IResolver CreateResolver(float latitude, float longitude, Func<RoutingEdge, bool> isBetter);
+        public delegate IResolver CreateResolver(float latitude, float longitude, Func<GeometricEdge, bool> isAcceptable, Func<RoutingEdge, bool> isBetter);
     }
 }

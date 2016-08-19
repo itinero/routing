@@ -85,8 +85,8 @@ namespace Itinero.Algorithms.Default
                     target = _targetSearch.Step();
                 }
 
-                if(this.HasSucceeded)
-                {
+                if(!source && !target)
+                { // both source and target search failed or useless.
                     break;
                 }
             }

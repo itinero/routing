@@ -112,6 +112,16 @@ namespace Itinero.Algorithms.Default
             }
             return null;
         }
+
+        /// <summary>
+        /// Tries to get the path from source to target.
+        /// </summary>
+        public bool TryGetPath(int source, int target, out EdgePath<T> path)
+        {
+            this.CheckHasRunAndHasSucceeded();
+
+            return _sourceSearches[source].TryGetPath(target, out path);
+        }
     }
 
     /// <summary>

@@ -259,13 +259,18 @@ namespace Itinero.Osm.Vehicles
             }
             return false;
         }
-
+        
         /// <summary>
-        /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
+        /// Returns true if an edge with the given profile can be use for an end- or startpoint.
         /// </summary>
         public virtual bool CanStopOn(IAttributeCollection tags)
         {
-            return true;
+            string highway;
+            if (tags != null && tags.TryGetValue("highway", out highway))
+            {
+                return !string.IsNullOrWhiteSpace(highway);
+            }
+            return false;
         }
 
         /// <summary>

@@ -40,7 +40,7 @@ namespace Itinero.Test
             routerDb.AddSupportedProfile(MockProfile.CarMock());
             var router = new Router(routerDb);
             var called = false;
-            router.CreateCustomResolver = (latitude, longitude, isBetter) =>
+            router.CreateCustomResolver = (latitude, longitude, isAcceptable, isBetter) =>
                 {
                     called = true;
                     return new MockResolver(new RouterPoint(latitude, longitude, 0, 0));

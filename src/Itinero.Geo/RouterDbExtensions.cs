@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Itinero.Attributes;
+using Itinero.Geo.Attributes;
 
 namespace Itinero.Geo
 {
@@ -41,10 +43,14 @@ namespace Itinero.Geo
                         continue;
                     }
                     edges.Add(edgeEnumerator.Id);
-                    
+
+                    var edgeAttributes = new Itinero.Attributes.AttributeCollection(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
+                    edgeAttributes.AddOrReplace(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
+
                     var geometry = new LineString(network.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
-                    attributes = new AttributesTable();
+                    attributes = edgeAttributes.ToAttributesTable();
                     attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
+                    attributes.AddAttribute("distance", edgeEnumerator.Data.Distance.ToInvariantString());
                     var tags = db.GetProfileAndMeta(edgeEnumerator.Data.Profile, edgeEnumerator.Data.MetaId);
                     features.Add(new Feature(geometry,
                         attributes));
@@ -87,9 +93,13 @@ namespace Itinero.Geo
                         }
                         edges.Add(edgeEnumerator.Id);
 
+                        var edgeAttributes = new Itinero.Attributes.AttributeCollection(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
+                        edgeAttributes.AddOrReplace(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
+
                         var geometry = new LineString(db.Network.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
-                        attributes = new AttributesTable();
+                        attributes = edgeAttributes.ToAttributesTable();
                         attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
+                        attributes.AddAttribute("distance", edgeEnumerator.Data.Distance.ToInvariantString());
                         features.Add(new Feature(geometry,
                             attributes));
                     }

@@ -118,7 +118,7 @@ namespace Itinero
         /// <summary>
         /// Returns the IsAcceptable function to use in the default resolver algorithm.
         /// </summary>
-        public static Func<GeometricEdge, bool> GetIsAcceptable(this RouterBase router, Profile[] profiles)
+        public static Func<GeometricEdge, bool> GetIsAcceptable(this RouterBase router, params Profile[] profiles)
         {
             if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profiles))
             { // use cached version and don't consult profiles anymore.
@@ -233,6 +233,7 @@ namespace Itinero
         {
             return router.TryCalculate(profile, sourceLatitude, sourceLongitude, targetLatitude, targetLongitude).Value;
         }
+
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>

@@ -87,6 +87,10 @@ namespace Itinero
             }
 
             IResolver resolver = null;
+
+            // get is acceptable.
+            var isAcceptable = this.GetIsAcceptable(profiles);
+
             if (this.CreateCustomResolver == null)
             { // just use the default resolver algorithm.
                 Func<GeometricEdge, bool> isBetterGeometric = null;
@@ -98,9 +102,6 @@ namespace Itinero
                         };
                 }
 
-                // get is acceptable.
-                var isAcceptable = this.GetIsAcceptable(profiles);
-
                 // create resolver.
                 resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude, 
                     _db.Network.MaxEdgeDistance / 2,
@@ -108,7 +109,7 @@ namespace Itinero
             }
             else
             { // create the custom resolver algorithm.
-                resolver = this.CreateCustomResolver(latitude, longitude, isBetter);
+                resolver = this.CreateCustomResolver(latitude, longitude, isAcceptable, isBetter);
             }
             resolver.Run();
             if(!resolver.HasSucceeded)

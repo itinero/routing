@@ -16,7 +16,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+using Itinero.Attributes;
 
-[assembly: AssemblyVersion("0.16.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.16.0-rc1")]
+namespace Itinero.Algorithms.Shortcuts
+{
+    /// <summary>
+    /// Contains extension methods for shortcuts.
+    /// </summary>
+    public static class ShortcutExtensions
+    {
+        /// <summary>
+        /// Holds the shortcut key constant.
+        /// </summary>
+        public static string SHORTCUT_KEY = "shortcut";
+
+        /// <summary>
+        /// Returns true if the given attribute collection represents a shortcut and returns the name.
+        /// </summary>
+        public static bool IsShortcut(this IAttributeCollection attributes, out string name)
+        {
+            return attributes.TryGetValue(ShortcutExtensions.SHORTCUT_KEY, out name);
+        }
+    }
+}

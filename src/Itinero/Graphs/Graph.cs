@@ -295,7 +295,7 @@ namespace Itinero.Graphs
                 { // keep looping.
                     uint otherVertexId = 0;
                     uint previousEdgeId = edgeId;
-                    bool forward = true;
+                    //bool forward = true;
                     if (_edges[edgeId + NODEA] == vertex1)
                     {
                         otherVertexId = _edges[edgeId + NODEB];
@@ -307,28 +307,27 @@ namespace Itinero.Graphs
                         otherVertexId = _edges[edgeId + NODEA];
                         nextEdgeSlot = edgeId + NEXTNODEB;
                         edgeId = _edges[edgeId + NEXTNODEB];
-                        forward = false;
                     }
-                    if (otherVertexId == vertex2)
-                    { // this is the edge we need.
-                        if (!forward)
-                        { // switch things around.
-                            var temp = _edges[previousEdgeId + NODEA];
-                            _edges[previousEdgeId + NODEA] = _edges[previousEdgeId + NODEB];
-                            _edges[previousEdgeId + NODEB] = temp;
-                            temp = _edges[previousEdgeId + NEXTNODEA];
-                            _edges[previousEdgeId + NEXTNODEA] = _edges[previousEdgeId + NEXTNODEB];
-                            _edges[previousEdgeId + NEXTNODEB] = temp;
-                        }
+                    //if (otherVertexId == vertex2)
+                    //{ // this is the edge we need.
+                    //    if(!forward)
+                    //    { // switch things around.
+                    //        var temp = _edges[previousEdgeId + NODEA];
+                    //        _edges[previousEdgeId + NODEA] = _edges[previousEdgeId + NODEB];
+                    //        _edges[previousEdgeId + NODEB] = temp;
+                    //        temp = _edges[previousEdgeId + NEXTNODEA];
+                    //        _edges[previousEdgeId + NEXTNODEA] = _edges[previousEdgeId + NEXTNODEB];
+                    //        _edges[previousEdgeId + NEXTNODEB] = temp;
+                    //    }
 
-                        // overwrite data.
-                        for (var i = 0; i < _edgeDataSize; i++)
-                        {
-                            _edges[previousEdgeId + MINIMUM_EDGE_SIZE + i] =
-                                data[i];
-                        }
-                        return (uint)(previousEdgeId / _edgeSize);
-                    }
+                    //    // overwrite data.
+                    //    for (var i = 0; i < _edgeDataSize; i++)
+                    //    {
+                    //        _edges[previousEdgeId + MINIMUM_EDGE_SIZE + i] =
+                    //            data[i];
+                    //    }
+                    //    return (uint)(previousEdgeId / _edgeSize);
+                    //}
                 }
 
                 // create a new edge.
@@ -450,17 +449,13 @@ namespace Itinero.Graphs
         /// <summary>
         /// Deletes all edges leading from/to the given vertex. 
         /// </summary>
-        /// <param name="vertex"></param>
         public int RemoveEdges(uint vertex)
         {
             var removed = 0;
             var edges = this.GetEdgeEnumerator(vertex);
             while (edges.MoveNext())
             {
-                if (this.RemoveEdge(vertex, edges.To))
-                {
-                    removed++;
-                }
+                removed += this.RemoveEdges(vertex, edges.To);
             }
             return removed;
         }
@@ -477,13 +472,26 @@ namespace Itinero.Graphs
                 return false;
             }
 
-            return this.RemoveEdge(_edges[edgeId + NODEA], _edges[edgeId + NODEB]);
+            return this.RemoveEdges(_edges[edgeId + NODEA], _edges[edgeId + NODEB], edgeId);
         }
 
         /// <summary>
         /// Deletes the edge between the two given vertices.
         /// </summary>
-        public bool RemoveEdge(uint vertex1, uint vertex2)
+        public int RemoveEdges(uint vertex1, uint vertex2)
+        {
+            var removed = 0;
+            while(this.RemoveEdges(vertex1, vertex2, uint.MaxValue))
+            {
+                removed++;
+            }
+            return removed;
+        }
+
+        /// <summary>
+        /// Deletes the edge between the two given vertices.
+        /// </summary>
+        private bool RemoveEdges(uint vertex1, uint vertex2, uint edgeId = uint.MaxValue)
         {
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
@@ -520,7 +528,8 @@ namespace Itinero.Graphs
                     nextEdgeSlot = nextEdgeId + NEXTNODEB;
                     nextEdgeId = _edges[nextEdgeId + NEXTNODEB];
                 }
-                if (otherVertexId == vertex2)
+                if (otherVertexId == vertex2 && 
+                    (edgeId == uint.MaxValue || edgeId == currentEdgeId))
                 { // this is the edge we need.
                     if (_vertices[vertex1] == currentEdgeId)
                     { // the edge being remove if the 'first' edge.
@@ -562,7 +571,8 @@ namespace Itinero.Graphs
                         nextEdgeSlot = nextEdgeId + NEXTNODEB;
                         nextEdgeId = _edges[nextEdgeId + NEXTNODEB];
                     }
-                    if (otherVertexId == vertex1)
+                    if (otherVertexId == vertex1 &&
+                        (edgeId == uint.MaxValue || edgeId == currentEdgeId))
                     { // this is the edge we need.
                         if (_vertices[vertex2] == currentEdgeId)
                         { // the edge being remove if the 'first' edge.

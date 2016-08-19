@@ -40,5 +40,30 @@ namespace Itinero.Geo.Attributes
             }
             return attributes;
         }
+
+        /// <summary>
+        /// Converts an NTS attributes table to an attributes collection.
+        /// </summary>
+        public static IAttributeCollection ToAttributesCollection(this IAttributesTable table)
+        {
+            if (table == null) { return null; }
+
+            var attributes = new AttributeCollection();
+            var name = table.GetNames();
+            var values = table.GetValues();
+            for(var i = 0; i < name.Length; i++)
+            {
+                var value = values[i];
+                if (value == null)
+                {
+                    attributes.AddOrReplace(name[i], string.Empty);
+                }
+                else
+                {
+                    attributes.AddOrReplace(name[i], value.ToInvariantString());
+                }
+            }
+            return attributes;
+        }
     }
 }

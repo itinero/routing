@@ -580,6 +580,43 @@ namespace Itinero.Algorithms.Search.Hilbert
         }
 
         /// <summary>
+        /// Searches for the closest vertex with at least one edge that passes the isOk function check.
+        /// </summary>
+        public static uint SearchClosest(this GeometricGraph graph, float latitude, float longitude,
+            float latitudeOffset, float longitudeOffset, Func<GeometricEdge, bool> isOk)
+        {
+            // search for all nearby vertices.
+            var vertices = HilbertExtensions.Search(graph, latitude - latitudeOffset, longitude - longitudeOffset,
+                latitude + latitudeOffset, longitude + longitudeOffset);
+
+            var bestDistance = double.MaxValue;
+            var bestVertex = Constants.NO_VERTEX;
+            var enumerator = graph.GetEdgeEnumerator();
+            float lat, lon;
+            foreach (var vertex in vertices)
+            {
+                if (graph.GetVertex(vertex, out lat, out lon))
+                {
+                    var distance = Coordinate.DistanceEstimateInMeter(latitude, longitude, lat, lon);
+                    if (distance < bestDistance)
+                    { // a new closest vertex found.
+                        enumerator.MoveTo(vertex);
+                        while(enumerator.MoveNext())
+                        {
+                            if (isOk(enumerator.Current))
+                            {
+                                bestDistance = distance;
+                                bestVertex = vertex;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return bestVertex;
+        }
+
+        /// <summary>
         /// Searches for the closest edge.
         /// </summary>
         /// <returns></returns>

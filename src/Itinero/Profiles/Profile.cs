@@ -61,7 +61,8 @@ namespace Itinero.Profiles
         /// Creates a new routing profile.
         /// </summary>
         public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
-            Func<IAttributeCollection, IAttributeCollection, bool> equals, List<string> vehicleTypes, Func<IAttributeCollection, Factor> getFactor)
+            Func<IAttributeCollection, IAttributeCollection, bool> equals, List<string> vehicleTypes, Func<IAttributeCollection, Factor> getFactor, 
+            ProfileMetric metric = ProfileMetric.Custom)
         {
             _minSpeed = minSpeed;
             _getSpeed = getSpeed;
@@ -69,7 +70,7 @@ namespace Itinero.Profiles
             _equals = equals;
             _vehicleTypes = vehicleTypes;
             _name = name;
-            _metric = ProfileMetric.Custom;
+            _metric = metric;
             _getFactor = getFactor;
         }
 
@@ -78,7 +79,7 @@ namespace Itinero.Profiles
         /// </summary>
         public virtual Factor Factor(IAttributeCollection attributes)
         {
-            if (_metric == ProfileMetric.Custom)
+            if (_getFactor != null)
             { // use a custom factor.
                 return _getFactor(attributes);
             }

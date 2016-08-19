@@ -1,0 +1,2521 @@
+﻿{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.42065, 51.21782 ]
+      },
+      "properties": {
+        "id": 1,
+        "nearbyStations": "3,4,5,24",
+        "adressNumber": null,
+        "slots": 10,
+        "name": "001- Centraal Station - Astrid",
+        "address": "Koningin Astridplein",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.42075, 51.21758 ]
+      },
+      "properties": {
+        "id": 2,
+        "nearbyStations": "3,4,5,24",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "002- Centraal Station - Astrid 2",
+        "address": "Koningin Astridplein",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4217713388429436, 51.213085853125691 ]
+      },
+      "properties": {
+        "id": 3,
+        "nearbyStations": "1,2,4,6",
+        "adressNumber": null,
+        "slots": 4,
+        "name": "003- Centraal station Kievit 2",
+        "address": "Kievitplein",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4200944444444454, 51.21736388888889 ]
+      },
+      "properties": {
+        "id": 4,
+        "nearbyStations": "1,2,3,5",
+        "adressNumber": null,
+        "slots": 2,
+        "name": "004- De Keyserlei",
+        "address": "De Keyserlei",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.42173291660705, 51.213010729744092 ]
+      },
+      "properties": {
+        "id": 5,
+        "nearbyStations": "1,2,4,6",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "005- Centraal Station / Kievit",
+        "address": "Lange Kievitstraat",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.422179962645858, 51.210316661359037 ]
+      },
+      "properties": {
+        "id": 6,
+        "nearbyStations": "5,104,111,116",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "006- Premetro Plantin",
+        "address": "Mercatorstraat ",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4339477132710243, 51.201075847164233 ]
+      },
+      "properties": {
+        "id": 7,
+        "nearbyStations": "22,97,106,112",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "007- NMBS Berchem ",
+        "address": "Binnensingel ingang station Berchem",
+        "zip": "2600",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.43395840762151, 51.20108907303041 ]
+      },
+      "properties": {
+        "id": 8,
+        "nearbyStations": "22,97,106,112",
+        "adressNumber": null,
+        "slots": 1,
+        "name": "008- NMBS Berchem 2",
+        "address": "Ryckaertplein",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.43770089264917, 51.208965217072929 ]
+      },
+      "properties": {
+        "id": 9,
+        "nearbyStations": "69,105,110,132",
+        "adressNumber": null,
+        "slots": 14,
+        "name": "009- NMBS Oost",
+        "address": "Wilrijkstraat - Plantin Moretuslei",
+        "zip": "2140",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3907182613290168, 51.19846968971121 ]
+      },
+      "properties": {
+        "id": 10,
+        "nearbyStations": "12,40,86,87",
+        "adressNumber": null,
+        "slots": 22,
+        "name": "010- NMBS Zuid",
+        "address": "Desguinlei - Montignystraat",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.416330472403196, 51.219977935197349 ]
+      },
+      "properties": {
+        "id": 11,
+        "nearbyStations": "24,26,54",
+        "adressNumber": null,
+        "slots": 10,
+        "name": "011- Roosevelt",
+        "address": "Italiëlei - Franklin Rooseveltplaats",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.390135, 51.199306 ]
+      },
+      "properties": {
+        "id": 12,
+        "nearbyStations": "10,40,86,87",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "012- Brussel",
+        "address": "De Singel/ Brederodestraat",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.402245, 51.193882 ]
+      },
+      "properties": {
+        "id": 13,
+        "nearbyStations": "14,31,40,131",
+        "adressNumber": null,
+        "slots": 32,
+        "name": "013- De Singel",
+        "address": "Jan van rijswijcklaan aan bedrijf DE SINGEL",
+        "zip": null,
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.405689, 51.196813 ]
+      },
+      "properties": {
+        "id": 14,
+        "nearbyStations": "13,31,89,99",
+        "adressNumber": null,
+        "slots": 14,
+        "name": "014- Markgrave",
+        "address": "Jan Van Rijswijcklaan",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3943923409701817, 51.207822115171012 ]
+      },
+      "properties": {
+        "id": 15,
+        "nearbyStations": "16,75,80,83",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "015- Schone Kunsten",
+        "address": "Beeldhouwersstraat - Admiraal De Boisotstraat",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.396613, 51.21016 ]
+      },
+      "properties": {
+        "id": 16,
+        "nearbyStations": "15,72,74,83",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "016- Marnixplaats",
+        "address": "Karel Rogierstraat ",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4011970462789094, 51.2188842426134 ]
+      },
+      "properties": {
+        "id": 17,
+        "nearbyStations": "19,60,64,66",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "017- Groenplaats",
+        "address": "Groenplaats n° 7",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4061680812252852, 51.218187010036843 ]
+      },
+      "properties": {
+        "id": 18,
+        "nearbyStations": "17,19,20,23",
+        "adressNumber": null,
+        "slots": 2,
+        "name": "018- Meirbrug",
+        "address": "Meir n° 18",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.40361, 51.21924 ]
+      },
+      "properties": {
+        "id": 19,
+        "nearbyStations": "17,18,20,57",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "019- Eiermarkt",
+        "address": "Eiermarkt ",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.401, 51.2188 ]
+      },
+      "properties": {
+        "id": 20,
+        "nearbyStations": "18,19,60,66",
+        "adressNumber": null,
+        "slots": 6,
+        "name": "020- Groenplaats 2",
+        "address": "Groenkerkhofstraat/Nationalestraat",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.419189, 51.195482 ]
+      },
+      "properties": {
+        "id": 21,
+        "nearbyStations": "46,61,100,103",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "021- Driekoningen",
+        "address": "Grotesteenweg 150/Driekoningenstraat",
+        "zip": null,
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4309903590674988, 51.199924761619307 ]
+      },
+      "properties": {
+        "id": 22,
+        "nearbyStations": "8,47,55,97",
+        "adressNumber": null,
+        "slots": 2,
+        "name": "022- Statie",
+        "address": "Statiestraat 162",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.408880661964794, 51.217084162925509 ]
+      },
+      "properties": {
+        "id": 23,
+        "nearbyStations": "18,26,36,37",
+        "adressNumber": null,
+        "slots": 2,
+        "name": "023- Rubenshuis",
+        "address": "Wapper - Jodenstraat",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4165501591274676, 51.21791414153401 ]
+      },
+      "properties": {
+        "id": 24,
+        "nearbyStations": "1,2,4",
+        "adressNumber": null,
+        "slots": 6,
+        "name": "024- Opera",
+        "address": "De Keyserlei/Van Ertbornstraat",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4124752431597534, 51.218227891778049 ]
+      },
+      "properties": {
+        "id": 26,
+        "nearbyStations": "23,24,27",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "026- Meir-Antoon Van Dijck",
+        "address": "Meir 84",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4119491862150273, 51.219502912476457 ]
+      },
+      "properties": {
+        "id": 27,
+        "nearbyStations": "11,24,26",
+        "adressNumber": null,
+        "slots": 26,
+        "name": "027- Lange Nieuwstraat",
+        "address": "Lange Nieuwstraat 101",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4086596928893567, 51.221488045020521 ]
+      },
+      "properties": {
+        "id": 28,
+        "nearbyStations": "51,54,56,57",
+        "adressNumber": null,
+        "slots": 7,
+        "name": "028- Keizerstraat",
+        "address": "Keizerstraat ro n° 56",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4060645904105478, 51.201777902281428 ]
+      },
+      "properties": {
+        "id": 29,
+        "nearbyStations": "42,88,90,92",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "029- Lozana",
+        "address": "Lange Lozanastraat n° 149",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4335182987375132, 51.216318451018573 ]
+      },
+      "properties": {
+        "id": 30,
+        "nearbyStations": "107,108,109,113",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "030- Het Laar",
+        "address": "Laar",
+        "zip": "2140",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4080294507607514, 51.193119169424932 ]
+      },
+      "properties": {
+        "id": 31,
+        "nearbyStations": "13,14,99,131",
+        "adressNumber": null,
+        "slots": 5,
+        "name": "031- Wezenberg",
+        "address": "Karel Oomsstraat - Binnensingel",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4207083798295344, 51.221734856855477 ]
+      },
+      "properties": {
+        "id": 32,
+        "nearbyStations": "1,4,11,115",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "032- Permeke",
+        "address": "De Conickplein ro n° 26",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4096457715528388, 51.226218373722872 ]
+      },
+      "properties": {
+        "id": 33,
+        "nearbyStations": "45,52,53,129",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "033- Hessenhuis",
+        "address": "Hessenplein n° 2",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3903436814381314, 51.211015066009843 ]
+      },
+      "properties": {
+        "id": 34,
+        "nearbyStations": "35,74,75,82",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "034- M HKA",
+        "address": "Leuvenstraat - Waalsekaai",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3898, 51.21214 ]
+      },
+      "properties": {
+        "id": 35,
+        "nearbyStations": "34,71,74,75",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "035- Cockerillkaai",
+        "address": "cockerillkaai",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4059264578194224, 51.216453689177243 ]
+      },
+      "properties": {
+        "id": 36,
+        "nearbyStations": "18,19,23,67",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "036- Bourla",
+        "address": "Schuttershofstraat n° 2",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.41237196726086, 51.215593476438819 ]
+      },
+      "properties": {
+        "id": 37,
+        "nearbyStations": "23,77,95,96",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "037- Theater",
+        "address": "Tabakvest - Ibis Hotel",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.432635, 51.220157 ]
+      },
+      "properties": {
+        "id": 38,
+        "nearbyStations": "102,109,113,114",
+        "adressNumber": null,
+        "slots": 14,
+        "name": "038- Pastorijstraat",
+        "address": "Pastorijstraat tov huisnr28",
+        "zip": null,
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4340958914985933, 51.211059089441243 ]
+      },
+      "properties": {
+        "id": 39,
+        "nearbyStations": "9,105,107,132",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "039- Koxplein",
+        "address": "Betogingstraat tov3",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3966191435990716, 51.196761939529132 ]
+      },
+      "properties": {
+        "id": 40,
+        "nearbyStations": "10,12,13,89",
+        "adressNumber": null,
+        "slots": 24,
+        "name": "040- Desguinlei",
+        "address": "Desguinlei to 246",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.411606, 51.210802 ]
+      },
+      "properties": {
+        "id": 41,
+        "nearbyStations": "77,79,91,116",
+        "adressNumber": null,
+        "slots": 25,
+        "name": "041- Van Eyck",
+        "address": "Van Eycklei/Edelinckstraat 24 ",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4120701229413406, 51.20228489249466 ]
+      },
+      "properties": {
+        "id": 42,
+        "nearbyStations": "29,43,92,93",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "042- Harmonie",
+        "address": "Mechelsesteenweg - Ingang Harmoniepark",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.415281, 51.203684 ]
+      },
+      "properties": {
+        "id": 43,
+        "nearbyStations": "42,44,92,93",
+        "adressNumber": null,
+        "slots": 6,
+        "name": "043- Grétrystraat",
+        "address": "Belgiëlei/Gretrystraat",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.418194, 51.205721 ]
+      },
+      "properties": {
+        "id": 44,
+        "nearbyStations": "42,43,93,130",
+        "adressNumber": null,
+        "slots": 24,
+        "name": "044- Belgielei",
+        "address": "Belgiëlei 99",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4054975979962094, 51.226881774868239 ]
+      },
+      "properties": {
+        "id": 45,
+        "nearbyStations": "33,129,134",
+        "adressNumber": null,
+        "slots": 0,
+        "name": "045- Falconplein",
+        "address": "Oude Leeuwenrui n° 2",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4155165495856119, 51.199103721132637 ]
+      },
+      "properties": {
+        "id": 46,
+        "nearbyStations": "42,98,99,100",
+        "adressNumber": null,
+        "slots": 19,
+        "name": "046- De Merode",
+        "address": "Grotesteenweg/Boomgaardstraat",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4237095219605642, 51.201405828404987 ]
+      },
+      "properties": {
+        "id": 47,
+        "nearbyStations": "22,97,98,130",
+        "adressNumber": null,
+        "slots": 34,
+        "name": "047- Militair Hospitaal",
+        "address": "Boomgaardstraat/Marialei",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.40085616916769, 51.225853570944373 ]
+      },
+      "properties": {
+        "id": 49,
+        "nearbyStations": "45,50,58",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "049- Tolhuis",
+        "address": "Sint-Pietersvliet - Tolhuis",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4030240903727647, 51.223732815536962 ]
+      },
+      "properties": {
+        "id": 50,
+        "nearbyStations": "49,51,56,57",
+        "adressNumber": null,
+        "slots": 3,
+        "name": "050- Klapdorp",
+        "address": "Sint-Paulusstraat/ Lange Koepoortstraat",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4061128884678213, 51.222896207511774 ]
+      },
+      "properties": {
+        "id": 51,
+        "nearbyStations": "28,50,56,57",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "051- Mutsaardplein",
+        "address": "Mutsaardplein",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4146195314226633, 51.225837712185111 ]
+      },
+      "properties": {
+        "id": 52,
+        "nearbyStations": "33,53,117,127",
+        "adressNumber": null,
+        "slots": 11,
+        "name": "052- Waaslandtunnel",
+        "address": "Italiëlei n° 10",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4132983974089353, 51.224651454235932 ]
+      },
+      "properties": {
+        "id": 53,
+        "nearbyStations": "33,52,54,117",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "053- Paardenmarkt",
+        "address": "Paardenmarkt - Kleine Kauwenberg",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4129850003667581, 51.2218554387671 ]
+      },
+      "properties": {
+        "id": 54,
+        "nearbyStations": "11,27,28,53",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "054- Ossenmarkt",
+        "address": "Pieter Van Hobokenstraat n° 19",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4282312106277359, 51.19697723414253 ]
+      },
+      "properties": {
+        "id": 55,
+        "nearbyStations": "7,22,61",
+        "adressNumber": null,
+        "slots": 11,
+        "name": "055- Zonnebloemstraat",
+        "address": "Vredestraat/Zonnebloemstraat",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4045876216445574, 51.222187310742378 ]
+      },
+      "properties": {
+        "id": 56,
+        "nearbyStations": "50,51,57,60",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "056- Minderbroedersrui",
+        "address": "Minderbroederrui n° 46",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4026666666666667, 51.221541666666667 ]
+      },
+      "properties": {
+        "id": 57,
+        "nearbyStations": "50,51,56,60",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "057- Wolstraat",
+        "address": "Wolstraat - Korte Koepoortstraat 2",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3990970503701821, 51.224389429501933 ]
+      },
+      "properties": {
+        "id": 58,
+        "nearbyStations": "49,50,59",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "058- Noorderterras",
+        "address": "Jordaenskaai ro Saucierstraat",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3968044942767381, 51.221099223306062 ]
+      },
+      "properties": {
+        "id": 59,
+        "nearbyStations": "17,20,60,64",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "059- Het Steen",
+        "address": "Ernest Van Dijckkaai ro n° 13 - Zuiderterras",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4005127304847784, 51.221587619408709 ]
+      },
+      "properties": {
+        "id": 60,
+        "nearbyStations": "17,20,56,57",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "060- Grote Markt",
+        "address": "Wisselstraat 9",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4254064669713529, 51.197809668607661 ]
+      },
+      "properties": {
+        "id": 61,
+        "nearbyStations": "7,21,22,55",
+        "adressNumber": null,
+        "slots": 25,
+        "name": "061- Victor Jacobslei",
+        "address": "Statiestraat - Victor Jacobslei",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.426978, 51.231828 ]
+      },
+      "properties": {
+        "id": 62,
+        "nearbyStations": "63,118,123,124",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "062- Station Dam",
+        "address": "Damplein/Lange lobroekstraat ro n° 222",
+        "zip": null,
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.431567, 51.230014 ]
+      },
+      "properties": {
+        "id": 63,
+        "nearbyStations": "62,120,121,123",
+        "adressNumber": null,
+        "slots": 25,
+        "name": "063- Slachthuis",
+        "address": "Lange Lobroekstraat tov huisnr 93",
+        "zip": null,
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3948993211369487, 51.219092146698827 ]
+      },
+      "properties": {
+        "id": 64,
+        "nearbyStations": "17,20,59,65",
+        "adressNumber": null,
+        "slots": 26,
+        "name": "064- Zuiderterras",
+        "address": "Plantinkaai ro Jansvliet (Zuiderterras)",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.393691048333439, 51.2164345523202 ]
+      },
+      "properties": {
+        "id": 65,
+        "nearbyStations": "64,66,70,71",
+        "adressNumber": null,
+        "slots": 26,
+        "name": "065- Plantinkaai",
+        "address": "Plantinkaai ro n°27",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3992513910552153, 51.217088702234008 ]
+      },
+      "properties": {
+        "id": 66,
+        "nearbyStations": "17,20,64,67",
+        "adressNumber": null,
+        "slots": 4,
+        "name": "066- Modemuseum",
+        "address": "Drukkerijstraat n° 26",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4031419620808592, 51.21577842083218 ]
+      },
+      "properties": {
+        "id": 67,
+        "nearbyStations": "18,23,36,66",
+        "adressNumber": null,
+        "slots": 1,
+        "name": "067- Oudaan",
+        "address": "Oudaan n° 14",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.443683, 51.214571 ]
+      },
+      "properties": {
+        "id": 68,
+        "nearbyStations": "69,107,108,132",
+        "adressNumber": null,
+        "slots": 11,
+        "name": "068-  Turnhoutsepoort",
+        "address": "Turnhoutsebaan/Stenenbrug ",
+        "zip": "2140",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4419644706905492, 51.211159421441593 ]
+      },
+      "properties": {
+        "id": 69,
+        "nearbyStations": "9,39,68,132",
+        "adressNumber": null,
+        "slots": 31,
+        "name": "069- Fonteinstraat",
+        "address": "Fonteinstraat tov 72",
+        "zip": "2140",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3963442224057019, 51.214847821494132 ]
+      },
+      "properties": {
+        "id": 70,
+        "nearbyStations": "65,66,71,76",
+        "adressNumber": null,
+        "slots": 25,
+        "name": "070- Sint Andries",
+        "address": "Sint Andriesplaats n° 24",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3928187655215778, 51.215228827630021 ]
+      },
+      "properties": {
+        "id": 71,
+        "nearbyStations": "35,65,70,74",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "071- Sint-Michielskaai",
+        "address": "Sint-Michielskaai ro n° 21",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3989861827425631, 51.21187275413007 ]
+      },
+      "properties": {
+        "id": 72,
+        "nearbyStations": "16,73,74,76",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "072- Tropisch Instituut",
+        "address": "Kronenburgstraat ro n° 82",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.403718, 51.212309 ]
+      },
+      "properties": {
+        "id": 73,
+        "nearbyStations": "72,77,79,84",
+        "adressNumber": null,
+        "slots": 24,
+        "name": "073- Maarschalk Gérard",
+        "address": "Maarschalk Gerardstraat/schermersstraat",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3940228194450821, 51.212334197409092 ]
+      },
+      "properties": {
+        "id": 74,
+        "nearbyStations": "16,34,35,72",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "074- Vismijn",
+        "address": "Scheldestraat - Kronenburgstraat",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.390930567194764, 51.209766966838011 ]
+      },
+      "properties": {
+        "id": 75,
+        "nearbyStations": "15,34,35,82",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "075- Vlaamsekaai",
+        "address": "Vlaamsekaai 35",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.398093, 51.214035 ]
+      },
+      "properties": {
+        "id": 76,
+        "nearbyStations": "70,71,72,74",
+        "adressNumber": null,
+        "slots": 6,
+        "name": "076- Prekersplein",
+        "address": "Nationalestraat/Lange Vlierstraat",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.409466, 51.212753 ]
+      },
+      "properties": {
+        "id": 77,
+        "nearbyStations": "37,41,79,96",
+        "adressNumber": null,
+        "slots": 26,
+        "name": "077- Blauwtorenplein",
+        "address": "Frankrijklei - Blauwetorenplein",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.40301152163967, 51.209203171828669 ]
+      },
+      "properties": {
+        "id": 78,
+        "nearbyStations": "16,72,83,91",
+        "adressNumber": null,
+        "slots": 19,
+        "name": "078- Oud Gerechtshof",
+        "address": "Britselei n° 82",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4072607075203463, 51.21103450617727 ]
+      },
+      "properties": {
+        "id": 79,
+        "nearbyStations": "41,73,77,91",
+        "adressNumber": null,
+        "slots": 7,
+        "name": "079- Nationale Bank",
+        "address": "Britselei - Mechelsesteenweg",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3933898340195672, 51.206073818005827 ]
+      },
+      "properties": {
+        "id": 80,
+        "nearbyStations": "15,83,85,94",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "080- Montigny",
+        "address": "Amerikalei/Graaf Van Hoornestraat",
+        "zip": null,
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3876719715096391, 51.204680732033857 ]
+      },
+      "properties": {
+        "id": 81,
+        "nearbyStations": "80,82,86,94",
+        "adressNumber": null,
+        "slots": 27,
+        "name": "081- Justitiepaleis",
+        "address": "Bolivarplaats rechts van het gerechtsgebouw",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3873729924199729, 51.208774601784839 ]
+      },
+      "properties": {
+        "id": 82,
+        "nearbyStations": "34,35,74,75",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "082- Fotografiemuseum",
+        "address": "Verviersstraat - Waalsekaai",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.39850963935757, 51.207752878324129 ]
+      },
+      "properties": {
+        "id": 83,
+        "nearbyStations": "15,16,80,85",
+        "adressNumber": null,
+        "slots": 10,
+        "name": "083- Brederode",
+        "address": "Amerikalei n° 82",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4049666474295357, 51.213441440396451 ]
+      },
+      "properties": {
+        "id": 84,
+        "nearbyStations": "67,73,77,79",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "084- Elzenveld",
+        "address": "Lange Gasthuisstraat ro n° 3",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3988127416271938, 51.2058323663019 ]
+      },
+      "properties": {
+        "id": 85,
+        "nearbyStations": "15,80,83,94",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "085- Den Bell",
+        "address": "Boudewijnsstraat tegenover n° 19-21",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.392348, 51.203349 ]
+      },
+      "properties": {
+        "id": 86,
+        "nearbyStations": "12,81,87,94",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "086- Troonplaats",
+        "address": "Broederminstraat 59",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3942139160603544, 51.20073119866322 ]
+      },
+      "properties": {
+        "id": 87,
+        "nearbyStations": "10,12,40,86",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "087- Lange Elzen",
+        "address": "Lange Elzenstraat n° 56",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4022122326896254, 51.201140515457517 ]
+      },
+      "properties": {
+        "id": 88,
+        "nearbyStations": "14,29,89,90",
+        "adressNumber": null,
+        "slots": 19,
+        "name": "088- Haantjeslei",
+        "address": "Van Trierstraat - Haantjeslei",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4022302218407532, 51.198425910748 ]
+      },
+      "properties": {
+        "id": 89,
+        "nearbyStations": "13,14,40,88",
+        "adressNumber": null,
+        "slots": 19,
+        "name": "089- Hof van Leysen",
+        "address": "Van Schoonbekestraat - Markgravelei",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.40477427576202, 51.204546675722689 ]
+      },
+      "properties": {
+        "id": 90,
+        "nearbyStations": "29,88,91,92",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "090- Ballaarstraat",
+        "address": "Vinkenstraat ro n° 7",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4082974232882188, 51.20882346376338 ]
+      },
+      "properties": {
+        "id": 91,
+        "nearbyStations": "41,73,78,79",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "091- Hemelstraat",
+        "address": "Mechelsesteenweg n° 66",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.410634013269819, 51.204509611888383 ]
+      },
+      "properties": {
+        "id": 92,
+        "nearbyStations": "29,42,43,93",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "092- Sint-Thomas",
+        "address": "Mechelsesteenweg n° 180",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.41356, 51.20541 ]
+      },
+      "properties": {
+        "id": 93,
+        "nearbyStations": "42,43,44,92",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "093- Sint Vincentius",
+        "address": "sint vincentius",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3961, 51.2048 ]
+      },
+      "properties": {
+        "id": 94,
+        "nearbyStations": "15,80,83,85",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "094- Paleisstraat",
+        "address": "Paleisstraat ",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4163195227232137, 51.214151404317633 ]
+      },
+      "properties": {
+        "id": 95,
+        "nearbyStations": "24,37,96,116",
+        "adressNumber": null,
+        "slots": 29,
+        "name": "095- Quinten Matsijslei",
+        "address": "Quinten Mathijslei n° 12",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4131094984832542, 51.2132821418377 ]
+      },
+      "properties": {
+        "id": 96,
+        "nearbyStations": "37,41,77,95",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "096- Stadspark",
+        "address": "Rubenslei – Louiza – Marialei ",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4288289810415833, 51.202779812559392 ]
+      },
+      "properties": {
+        "id": 97,
+        "nearbyStations": "8,22,47,106",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "097- Cuperus",
+        "address": "Cuperusstraat ro Lange Leemstraat",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.418930242293162, 51.199839911369487 ]
+      },
+      "properties": {
+        "id": 98,
+        "nearbyStations": "42,43,46,47",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "098- Haringrode",
+        "address": "Boomgaardstraat 31",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.41026471525441, 51.197060067715469 ]
+      },
+      "properties": {
+        "id": 99,
+        "nearbyStations": "14,31,46,131",
+        "adressNumber": null,
+        "slots": 10,
+        "name": "099- Generaal Leman",
+        "address": "Generaal Lemanstraat - Karel Oomsstraat",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4166004093708349, 51.194851129846043 ]
+      },
+      "properties": {
+        "id": 100,
+        "nearbyStations": "21,46,103,131",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "100- Van Hombeeckplein",
+        "address": "Frans Van Hombeeckplein 25",
+        "zip": "2600",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.432, 51.2241 ]
+      },
+      "properties": {
+        "id": 101,
+        "nearbyStations": "102,114,121,122",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "101- Premetro Handel",
+        "address": "Lange Stuivenbergstraat ",
+        "zip": "2060",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.430256657794283, 51.222461014719357 ]
+      },
+      "properties": {
+        "id": 102,
+        "nearbyStations": "101,109,114,115",
+        "adressNumber": null,
+        "slots": 11,
+        "name": "102- Duinstraat",
+        "address": "Duinstraat",
+        "zip": "2060",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4210339281870059, 51.192945140567119 ]
+      },
+      "properties": {
+        "id": 103,
+        "nearbyStations": "21,55,100,131",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "103- Oude Kerk Berchem",
+        "address": "Heilig Hartstraat",
+        "zip": "2600",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.424294009067518, 51.208207812316807 ]
+      },
+      "properties": {
+        "id": 104,
+        "nearbyStations": "6,110,111,116",
+        "adressNumber": null,
+        "slots": 5,
+        "name": "104- Mercator",
+        "address": "Provinciestraat - Mercatorstraat",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4326252182392976, 51.209027738585178 ]
+      },
+      "properties": {
+        "id": 105,
+        "nearbyStations": "9,106,110,111",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "105- Plantin en Moretus",
+        "address": "Plantin Moretuslei n° 158",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4322102182935907, 51.205609036285807 ]
+      },
+      "properties": {
+        "id": 106,
+        "nearbyStations": "8,97,110,112",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "106- Draakplaats",
+        "address": "Draakplaats",
+        "zip": "2600",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4332766329600233, 51.213660847392511 ]
+      },
+      "properties": {
+        "id": 107,
+        "nearbyStations": "30,39,105,132",
+        "adressNumber": null,
+        "slots": 11,
+        "name": "107- Moorkensplein",
+        "address": "Moorkensplein ro n° 33A",
+        "zip": "2140",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4399686419065283, 51.21602303185675 ]
+      },
+      "properties": {
+        "id": 108,
+        "nearbyStations": "30,68,107,113",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "108- Krugerpark",
+        "address": "Delaraystraat ro n° 13",
+        "zip": "2140",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4305134665016821, 51.218579585329131 ]
+      },
+      "properties": {
+        "id": 109,
+        "nearbyStations": "30,38,108,113",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "109- Kerkstraat",
+        "address": "Kerkstraat n° 58",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4301017230129984, 51.2069431709448 ]
+      },
+      "properties": {
+        "id": 110,
+        "nearbyStations": "104,105,106,111",
+        "adressNumber": null,
+        "slots": 27,
+        "name": "110- Dageraadplaats",
+        "address": "Dageraadplaats",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4274, 51.2102 ]
+      },
+      "properties": {
+        "id": 111,
+        "nearbyStations": "6,104,105,110",
+        "adressNumber": null,
+        "slots": 32,
+        "name": "111- Van Der Meyden",
+        "address": "Plantin en Moretuslei",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4368407534196086, 51.203446266096087 ]
+      },
+      "properties": {
+        "id": 112,
+        "nearbyStations": "8,22,97,106",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "112- Pretoriastraat",
+        "address": "Uitbreidingstraat",
+        "zip": "2600",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4386220438290032, 51.218608995997563 ]
+      },
+      "properties": {
+        "id": 113,
+        "nearbyStations": "30,38,108,109",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "113- Helmstraat",
+        "address": "Vercammenstraat - Helmstraat",
+        "zip": "2140",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4337779927119394, 51.222053118770873 ]
+      },
+      "properties": {
+        "id": 114,
+        "nearbyStations": "38,101,102,122",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "114- ZNA Stuivenberg",
+        "address": "Pesthofstraat ro n° 5",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4241838156568818, 51.222754423402243 ]
+      },
+      "properties": {
+        "id": 115,
+        "nearbyStations": "32,101,102,125",
+        "adressNumber": null,
+        "slots": 15,
+        "name": "115- Metro Elisabeth",
+        "address": "Sint Elisabethstraat - Greinstraat",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4172159727027012, 51.210096006315091 ]
+      },
+      "properties": {
+        "id": 116,
+        "nearbyStations": "5,6,41,95",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "116- Loosplaats",
+        "address": "Van Eycklei ro n° 48",
+        "zip": "2018",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4184044183602662, 51.225419369818667 ]
+      },
+      "properties": {
+        "id": 117,
+        "nearbyStations": "52,53,118,125",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "117- Sint Jansplein",
+        "address": "Sint Jansplein ro n° 17",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4222473610060113, 51.2271420870328 ]
+      },
+      "properties": {
+        "id": 118,
+        "nearbyStations": "123,124,125,126",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "118- Dambrugge",
+        "address": "Trapstraat n° 10",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.425367882174795, 51.215371766191993 ]
+      },
+      "properties": {
+        "id": 119,
+        "nearbyStations": "1,2,3,5",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "119- Ploeg",
+        "address": "Provinciestraat (plein)",
+        "zip": "2018",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.439042, 51.227532 ]
+      },
+      "properties": {
+        "id": 120,
+        "nearbyStations": "63,101,121,122",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "120- Eendracht",
+        "address": "Schijnpoortweg ",
+        "zip": "2060",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4305338095332614, 51.2274604194794 ]
+      },
+      "properties": {
+        "id": 121,
+        "nearbyStations": "63,101,122,123",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "121- Stuivenbergplein",
+        "address": "Stuivenbergplein ro n° 36-1",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4365672077393024, 51.224708822052627 ]
+      },
+      "properties": {
+        "id": 122,
+        "nearbyStations": "101,114,120,121",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "122- Schijnpoort",
+        "address": "Pothoekstraat ro n° 124",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4249355368969168, 51.229038768621692 ]
+      },
+      "properties": {
+        "id": 123,
+        "nearbyStations": "62,63,118,124",
+        "adressNumber": null,
+        "slots": 6,
+        "name": "123- Park Spoor Noord 2",
+        "address": "Viséstraat 16",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.419613, 51.229962 ]
+      },
+      "properties": {
+        "id": 124,
+        "nearbyStations": "118,123,126,127",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "124- Park Spoor Noord 1",
+        "address": "Ellermansstraat – Fuggerstraat",
+        "zip": "2060",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4234741982066, 51.225955645521623 ]
+      },
+      "properties": {
+        "id": 125,
+        "nearbyStations": "115,117,118,123",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "125- Sint-Norbertus",
+        "address": "Sint-Norbertusstraat/Van Kerckhovenstraat",
+        "zip": "2060",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4190157864082931, 51.228050034031313 ]
+      },
+      "properties": {
+        "id": 126,
+        "nearbyStations": "118,123,124,125",
+        "adressNumber": null,
+        "slots": 7,
+        "name": "126- Lange Dijk",
+        "address": "Lange Dijkstraat 46/ Van Aerdtstraat",
+        "zip": "2060",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4133070957802989, 51.228578444757659 ]
+      },
+      "properties": {
+        "id": 127,
+        "nearbyStations": "52,129,133,139",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "127- FOD Financiën",
+        "address": "Italiëlei n° 4",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4088, 51.2284 ]
+      },
+      "properties": {
+        "id": 129,
+        "nearbyStations": "45,133,134,137",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "129- Godefriduskaai",
+        "address": "Godefriduskaai Qpark",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4208, 51.2038 ]
+      },
+      "properties": {
+        "id": 130,
+        "nearbyStations": "43,44,47,97",
+        "adressNumber": null,
+        "slots": 13,
+        "name": "130- Lamoriniere",
+        "address": "Lamorinièrestraat",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.41215292934981, 51.193756253382517 ]
+      },
+      "properties": {
+        "id": 131,
+        "nearbyStations": "21,31,99,100",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "131- De Wittestraat",
+        "address": "De wittestraat - Generaal Lemanstraat",
+        "zip": "2600",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4377859655341467, 51.211773597965511 ]
+      },
+      "properties": {
+        "id": 132,
+        "nearbyStations": "9,39,69,107",
+        "adressNumber": null,
+        "slots": 8,
+        "name": "132- Montgomery",
+        "address": "Maarschalk Montgomeryplein ro n° 4",
+        "zip": "2140",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4113493214490473, 51.229581467123381 ]
+      },
+      "properties": {
+        "id": 133,
+        "nearbyStations": "127,129,134,137",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "133- Willemdok",
+        "address": "Entrepotkaai n° 1",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4057286420589108, 51.22811203740126 ]
+      },
+      "properties": {
+        "id": 134,
+        "nearbyStations": "45,129,133,137",
+        "adressNumber": null,
+        "slots": 2,
+        "name": "134- MAS",
+        "address": "Godefriduskaai - Oostendekaai",
+        "zip": "2000",
+        "district": "1"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.405748, 51.229779 ]
+      },
+      "properties": {
+        "id": 137,
+        "nearbyStations": "129,133,134,138",
+        "adressNumber": null,
+        "slots": 12,
+        "name": "137- Sint-Laureiskaai",
+        "address": "napeleonkaai/Nassaustraat ",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4035523390805009, 51.2311985275547 ]
+      },
+      "properties": {
+        "id": 138,
+        "nearbyStations": "133,134,137,139",
+        "adressNumber": null,
+        "slots": 20,
+        "name": "138- Amsterdamstraat",
+        "address": "Amsterdamstraat",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.4126693942824708, 51.23105348045673 ]
+      },
+      "properties": {
+        "id": 139,
+        "nearbyStations": "127,133,137,138",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "139- Londenstraat",
+        "address": "Londenstraat",
+        "zip": "2000",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3916270186238719, 51.231422666361723 ]
+      },
+      "properties": {
+        "id": 140,
+        "nearbyStations": "141,142,144,146",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "140- Jachthaven LO",
+        "address": "Goethestraat/Thoneth",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3868753852416509, 51.2352525700327 ]
+      },
+      "properties": {
+        "id": 141,
+        "nearbyStations": "140,142,144,146",
+        "adressNumber": null,
+        "slots": 31,
+        "name": "141- Sint-Anna",
+        "address": "Gloriantlaan/Kastanjedreef",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3825421338103538, 51.2334399800564 ]
+      },
+      "properties": {
+        "id": 142,
+        "nearbyStations": "141,144,145,146",
+        "adressNumber": null,
+        "slots": 24,
+        "name": "142- Esmoreitlaan",
+        "address": "Esmoreitlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.386179, 51.231146 ]
+      },
+      "properties": {
+        "id": 143,
+        "nearbyStations": "140,141,142,146",
+        "adressNumber": null,
+        "slots": 14,
+        "name": "143- Melis Stokelaan",
+        "address": "Gloriantlaan/Melis Stokelaan 24  ",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.37866980097149, 51.231267105658738 ]
+      },
+      "properties": {
+        "id": 144,
+        "nearbyStations": "141,142,145,146",
+        "adressNumber": null,
+        "slots": 21,
+        "name": "144- August Vermeylenlaan",
+        "address": "August Vermeylenlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3785508357169434, 51.227842213432083 ]
+      },
+      "properties": {
+        "id": 145,
+        "nearbyStations": "142,144,146,147",
+        "adressNumber": null,
+        "slots": 16,
+        "name": "145- De Coster",
+        "address": "August Vermeylenlaan/ Charles de Costerlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3858905178536283, 51.227778771508362 ]
+      },
+      "properties": {
+        "id": 146,
+        "nearbyStations": "140,144,145,147",
+        "adressNumber": null,
+        "slots": 18,
+        "name": "146- Reinaartlaan",
+        "address": "Gloriantlaan/Reinaartlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3778767469508173, 51.223918702975617 ]
+      },
+      "properties": {
+        "id": 147,
+        "nearbyStations": "148,150,151,152",
+        "adressNumber": null,
+        "slots": 17,
+        "name": "147- Halewijnlaan",
+        "address": "Halewijnlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3862200884906883, 51.223198209027032 ]
+      },
+      "properties": {
+        "id": 148,
+        "nearbyStations": "146,147,149,150",
+        "adressNumber": null,
+        "slots": 32,
+        "name": "148- Verhaerenlaan",
+        "address": "Frederik Van Eedenstraa",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.386331953024964, 51.220613099914331 ]
+      },
+      "properties": {
+        "id": 149,
+        "nearbyStations": "148,150,151,153",
+        "adressNumber": null,
+        "slots": 27,
+        "name": "149- Van Eedenplein",
+        "address": "Blancefloerlaan tov Frederik van Eedenplein",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3817232789528537, 51.220073488674267 ]
+      },
+      "properties": {
+        "id": 150,
+        "nearbyStations": "149,151,152,153",
+        "adressNumber": null,
+        "slots": 22,
+        "name": "150- Waterhoenlaan",
+        "address": "Waterhoenlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3784070929934193, 51.220313008869567 ]
+      },
+      "properties": {
+        "id": 151,
+        "nearbyStations": "149,150,152,153",
+        "adressNumber": null,
+        "slots": 9,
+        "name": "151- Van Cauwelaert",
+        "address": "Blancefloerlaan/Halewijnlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.375590099454385, 51.220073040155327 ]
+      },
+      "properties": {
+        "id": 152,
+        "nearbyStations": "147,149,150,151",
+        "adressNumber": null,
+        "slots": 19,
+        "name": "152- Blancefloerlaan",
+        "address": "Blancefloerlaan",
+        "zip": "2050",
+        "district": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [ 4.3857064435462316, 51.218528603221081 ]
+      },
+      "properties": {
+        "id": 153,
+        "nearbyStations": "148,149,150,151",
+        "adressNumber": null,
+        "slots": 32,
+        "name": "153- Beatrijslaan",
+        "address": "Beatrijslaan",
+        "zip": "2050",
+        "district": null
+      }
+    }
+  ]
+}

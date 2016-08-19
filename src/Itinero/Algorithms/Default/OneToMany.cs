@@ -168,6 +168,18 @@ namespace Itinero.Algorithms.Default
         }
 
         /// <summary>
+        /// Tries to get the path to the given target.
+        /// </summary>
+        /// <returns></returns>
+        public bool TryGetPath(int target, out EdgePath<T> path)
+        {
+            this.CheckHasRunAndHasSucceeded();
+
+            path = _best[target];
+            return path != null;
+        }
+
+        /// <summary>
         /// Gets the weights.
         /// </summary>
         public T[] Weights

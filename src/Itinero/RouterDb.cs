@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Itinero.Data.Contracted;
+using Itinero.Data.Shortcuts;
 
 namespace Itinero
 {
@@ -44,6 +45,7 @@ namespace Itinero
         private readonly Dictionary<string, ContractedDb> _contracted;
         private readonly HashSet<string> _supportedProfiles;
         private readonly Dictionary<string, RestrictionsDb> _restrictionDbs;
+        private readonly Dictionary<string, ShortcutsDb> _shortcutsDbs;
 
         /// <summary>
         /// Creates a new router database.
@@ -59,6 +61,7 @@ namespace Itinero
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
+            _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -77,6 +80,7 @@ namespace Itinero
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
+            _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -95,6 +99,7 @@ namespace Itinero
             _supportedProfiles = new HashSet<string>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
+            _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -117,6 +122,7 @@ namespace Itinero
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
+            _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
 
             _guid = Guid.NewGuid();
         }
@@ -140,6 +146,7 @@ namespace Itinero
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
+            _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
         }
 
         /// <summary>
@@ -291,6 +298,30 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Adds a shortcuts db.
+        /// </summary>
+        public void AddShortcuts(string name, ShortcutsDb shortcutsDb)
+        {
+            _shortcutsDbs[name] = shortcutsDb;
+        }
+
+        /// <summary>
+        /// Removes a shortcuts db.
+        /// </summary>
+        public bool RemoveShortcuts(string name)
+        {
+            return _shortcutsDbs.Remove(name);
+        }
+        
+        /// <summary>
+        /// Tries to get a shortcuts db.
+        /// </summary>
+        public bool TryGetShortcuts(string name, out ShortcutsDb shortcutsDb)
+        {
+            return _shortcutsDbs.TryGetValue(name, out shortcutsDb);
+        }
+
+        /// <summary>
         /// Returns true if there are restrictions in this database.
         /// </summary>
         public bool HasRestrictions
@@ -333,8 +364,10 @@ namespace Itinero
             var position = stream.Position;
 
             // write version #.
+            // version1: OsmSharp.Routing state of layout.
+            // version2: Added ShortcutsDbs.
             long size = 1;
-            stream.WriteByte(1);
+            stream.WriteByte(2);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -346,8 +379,16 @@ namespace Itinero
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);
 
+            // serialize the # of shortcutsdbs profiles.
+            if (_shortcutsDbs.Count > byte.MaxValue)
+            {
+                throw new Exception("Cannot serialize a router db with more than 255 shortcut dbs.");
+            }
+            stream.WriteByte((byte)_shortcutsDbs.Count);
+            size += 1;
+
             // serialize the # of contracted profiles.
-            if(_contracted.Count > byte.MaxValue)
+            if (_contracted.Count > byte.MaxValue)
             {
                 throw new Exception("Cannot serialize a router db with more than 255 contracted graphs.");
             }
@@ -366,8 +407,16 @@ namespace Itinero
             size += _network.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
+            // serialize all shortcut dbs.
+            foreach (var shortcutsDb in _shortcutsDbs)
+            {
+                size += stream.WriteWithSize(shortcutsDb.Key);
+                size += shortcutsDb.Value.Serialize(
+                    new LimitedStream(stream));
+            }
+
             // serialize all contracted networks.
-            foreach(var contracted in _contracted)
+            foreach (var contracted in _contracted)
             {
                 size += stream.WriteWithSize(contracted.Key);
                 size += contracted.Value.Serialize(
@@ -437,8 +486,10 @@ namespace Itinero
         public static RouterDb Deserialize(Stream stream, RouterDbProfile profile)
         {
             // deserialize all basic data.
+            // version1: OsmSharp.Routing state of layout.
+            // version2: Added ShortcutsDbs.
             var version = stream.ReadByte();
-            if (version != 1)
+            if (version != 1 && version != 2)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
@@ -449,6 +500,11 @@ namespace Itinero
 
             var supportedProfiles = stream.ReadWithSizeStringArray();
             var metaDb = stream.ReadWithSizeAttributesCollection();
+            var shorcutsCount = (int)0;
+            if (version == 2)
+            { // when version < 1 there are no shortcuts and thus no shortcut count.
+                shorcutsCount = stream.ReadByte();
+            }
             var contractedCount = stream.ReadByte();
             var profiles = AttributesIndex.Deserialize(new LimitedStream(stream), true);
             var meta = AttributesIndex.Deserialize(new LimitedStream(stream), true);
@@ -456,6 +512,14 @@ namespace Itinero
 
             // create router db.
             var routerDb = new RouterDb(guid, network, profiles, meta, metaDb, supportedProfiles);
+
+            // read all shortcut dbs.
+            for (var i = 0; i < shorcutsCount; i++)
+            {
+                var shortcutsName = stream.ReadWithSizeString();
+                var shorcutsDb = ShortcutsDb.Deserialize(stream);
+                routerDb._shortcutsDbs[shortcutsName] = shorcutsDb;
+            }
             
             // read all contracted versions.
             for (var i = 0; i < contractedCount; i++)

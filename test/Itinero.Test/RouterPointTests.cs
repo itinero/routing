@@ -611,5 +611,39 @@ namespace Itinero.Test
             Assert.AreEqual(.1f, location.Latitude, 0.001f);
             Assert.AreEqual(-.1f, location.Longitude, 0.001f);
         }
+
+        /// <summary>
+        /// Tests adding a router point as a vertex.
+        /// </summary>
+        [Test]
+        public void TestAddAsVertex()
+        {
+            var distance = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
+                new Coordinate(0.1f, 0.1f));
+
+            // build router db.
+            var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, .1f, .1f);
+            var edge = routerDb.Network.AddEdge(0, 1, new EdgeData()
+            {
+                Distance = distance,
+                MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("name", "Abelshausen Blvd."))),
+                Profile = (ushort)routerDb.EdgeProfiles.Add(new AttributeCollection(
+                    new Attribute("highway", "residential")))
+            }, new Coordinate(0.025f, 0.025f),
+                new Coordinate(0.050f, 0.050f),
+                new Coordinate(0.075f, 0.075f));
+
+            // create router point.
+            var point = new RouterPoint(0.040f, 0.04f, edge, (ushort)(ushort.MaxValue * 0.4));
+
+            // add as vertex.
+            var v = point.AddAsVertex(routerDb);
+            Assert.AreEqual(1, v);
+            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+        }
     }
 }
