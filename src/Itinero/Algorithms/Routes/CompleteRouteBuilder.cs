@@ -22,6 +22,9 @@ using Itinero.Data.Network;
 using Itinero.Profiles;
 using System.Collections.Generic;
 using System.Linq;
+using Itinero.Algorithms.Shortcuts;
+using Itinero.Data.Shortcuts;
+using System;
 
 namespace Itinero.Algorithms.Routes
 {
@@ -291,7 +294,8 @@ namespace Itinero.Algorithms.Routes
                 //    return;
                 //}
             }
-            
+
+
             // get shapepoints and edge.
             var shape = new List<Coordinate>(0);
             RoutingEdge edge = null;
@@ -334,6 +338,12 @@ namespace Itinero.Algorithms.Routes
             else
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                
+                if (this.AddShorcut(edge))
+                {
+                    return;
+                }
+
                 distance = edge.Data.Distance;
                 var shapeEnumerable = edge.Shape;
                 if (shapeEnumerable != null)
@@ -377,6 +387,71 @@ namespace Itinero.Algorithms.Routes
             if (to != Constants.NO_VERTEX)
             {
                 _branches.AddBranches(_routerDb, _shape.Count - 1, to, edge.Id, next);
+            }
+        }
+
+        /// <summary>
+        /// Add shortcut if the current edge is one.
+        /// </summary>
+        private bool AddShorcut(RoutingEdge edge)
+        {
+            // when both are just regular vertices, this could be a shortcut.
+            var edgeProfile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
+            var shortcutName = string.Empty;
+            if (edgeProfile.IsShortcut(out shortcutName))
+            { // ok profile is a shortcut, get the actual path, expand and build route.
+                ShortcutsDb shortcutsDb;
+                if (_routerDb.TryGetShortcuts(shortcutName, out shortcutsDb))
+                {
+                    Profile shortcutProfile;
+                    if (Profile.TryGet(shortcutsDb.ProfileName, out shortcutProfile))
+                    {
+                        IAttributeCollection shortcutMeta;
+                        var shortcut = shortcutsDb.Get(edge.From, edge.To, out shortcutMeta);
+                        if (shortcut != null && shortcut.Length >= 2)
+                        {
+                            var route = CompleteRouteBuilder.Build(_routerDb, shortcutProfile,
+                                _routerDb.Network.CreateRouterPointForVertex(shortcut[0]), _routerDb.Network.CreateRouterPointForVertex(shortcut[shortcut.Length - 1]),
+                                    new List<uint>(shortcut));
+                            if (shortcutMeta == null)
+                            {
+                                shortcutMeta = new AttributeCollection();
+                            }
+                            shortcutMeta.AddOrReplace(ShortcutExtensions.SHORTCUT_KEY, shortcutName);
+
+                            this.AppendRoute(route, shortcutMeta);
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Appends a route to the existing data.
+        /// </summary>
+        private void AppendRoute(Route route, IAttributeCollection shortcutMeta)
+        {
+            var previousMeta = _shapeMeta[_shapeMeta.Count - 1];
+            var shapeOffset = _shape.Count;
+            for(var i = 0; i < route.Shape.Length; i++)
+            {
+                _shape.Add(route.Shape[i]);
+            }
+            for(var i = 0; i < route.ShapeMeta.Length;i++)
+            {
+                var meta = route.ShapeMeta[i];
+                var attributes = new AttributeCollection(meta.Attributes);
+                attributes.AddOrReplace(shortcutMeta);
+                _shapeMeta.Add(new Route.Meta()
+                {
+                    Attributes = attributes,
+                    Distance = meta.Distance + previousMeta.Distance,
+                    Profile = meta.Profile,
+                    Shape = shapeOffset + meta.Shape,
+                    Time = meta.Time + previousMeta.Time
+                });
             }
         }
 

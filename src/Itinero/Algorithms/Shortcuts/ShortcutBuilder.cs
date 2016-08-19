@@ -77,7 +77,7 @@ namespace Itinero.Algorithms.Shortcuts
             _shortcutIds = new uint[_locations.Length][];
             var pathList = new List<uint>();
             var shortcutProfile = _db.EdgeProfiles.Add(new AttributeCollection(
-                new Attribute("shortcut", _name)));
+                new Attribute(ShortcutExtensions.SHORTCUT_KEY, _name)));
             for (var i = 0; i < _locations.Length; i++)
             {
                 _shortcutIds[i] = new uint[_locations.Length];

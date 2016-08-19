@@ -87,6 +87,17 @@ namespace Itinero.Data.Shortcuts
         }
 
         /// <summary>
+        /// Gets the name of the profile that built these shortcuts.
+        /// </summary>
+        public string ProfileName
+        {
+            get
+            {
+                return _profileName;
+            }
+        }
+
+        /// <summary>
         /// Adds a stop with associated meta-data.
         /// </summary>
         public void AddStop(uint vertex, IAttributeCollection meta)
@@ -159,6 +170,26 @@ namespace Itinero.Data.Shortcuts
             }
 
             return vertices;
+        }
+
+        /// <summary>
+        /// Gets a shortcut but it's source and target vertex.
+        /// </summary>
+        public uint[] Get(uint vertex1, uint vertex2, out IAttributeCollection meta)
+        {
+            uint id = 0;
+            while(id < _shortcuts.Length)
+            {
+                var size = _shortcuts[id];
+                if (_shortcuts[id + 2] == vertex1 &&
+                    _shortcuts[id + size - 1] == vertex2)
+                {
+                    return this.Get(id, out meta);
+                }
+                id += size;
+            }
+            meta = null;
+            return null;
         }
 
         /// <summary>

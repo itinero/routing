@@ -233,6 +233,7 @@ namespace Itinero
         {
             return router.TryCalculate(profile, sourceLatitude, sourceLongitude, targetLatitude, targetLongitude).Value;
         }
+
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
