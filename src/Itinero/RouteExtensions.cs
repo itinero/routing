@@ -524,141 +524,259 @@ namespace Itinero
         /// <summary>
         /// Returns this route as geojson.
         /// </summary>
-        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true)
+        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
         {
             var stringWriter = new StringWriter();
-            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops);
+            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops, groupByShapeMeta);
             return stringWriter.ToInvariantString();
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true)
+        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
         {
-            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops);
+            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops, groupByShapeMeta);
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true)
+        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
 
-            var jsonWriter = new IO.Json.JsonWriter(writer);
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
-            jsonWriter.WritePropertyName("features", false);
-            jsonWriter.WriteArrayOpen();
-
-            if (route.Shape != null)
-            {
+            if (groupByShapeMeta)
+            { // group by shape meta.
+                var jsonWriter = new IO.Json.JsonWriter(writer);
                 jsonWriter.WriteOpen();
-                jsonWriter.WriteProperty("type", "Feature", true, false);
-                jsonWriter.WriteProperty("name", "Shape", true, false);
-                jsonWriter.WritePropertyName("properties");
-                jsonWriter.WriteOpen();
-                jsonWriter.WriteClose();
-                jsonWriter.WritePropertyName("geometry", false);
-
-
-                jsonWriter.WriteOpen();
-                jsonWriter.WriteProperty("type", "LineString", true, false);
-                jsonWriter.WritePropertyName("coordinates", false);
+                jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+                jsonWriter.WritePropertyName("features", false);
                 jsonWriter.WriteArrayOpen();
-                for (var i = 0; i < route.Shape.Length; i++)
+
+                if (route.Shape != null && route.ShapeMeta != null)
                 {
-                    jsonWriter.WriteArrayOpen();
-                    jsonWriter.WriteArrayValue(route.Shape[i].Longitude.ToInvariantString());
-                    jsonWriter.WriteArrayValue(route.Shape[i].Latitude.ToInvariantString());
-                    jsonWriter.WriteArrayClose();
+                    for(var i = 0; i < route.ShapeMeta.Length; i++)
+                    {
+                        var shapeMeta = route.ShapeMeta[i];
+                        var lowerShape = -1;
+                        if (i > 0)
+                        {
+                            lowerShape = route.ShapeMeta[i - 1].Shape;
+                        }
+                        var higherShape = route.ShapeMeta[i].Shape;
+                        if (lowerShape >= higherShape)
+                        {
+                            throw new Exception(string.Format("Invalid route: {0}", route.ToJson()));
+                        }
+
+                        var coordinates = new List<Coordinate>();
+                        for (var shape = lowerShape; shape <= higherShape; shape++)
+                        {
+                            if (shape >= 0 && shape < route.Shape.Length)
+                            {
+                                coordinates.Add(route.Shape[shape]);
+                            }
+                        }
+
+                        if (coordinates.Count >= 2)
+                        {
+                            jsonWriter.WriteOpen();
+                            jsonWriter.WriteProperty("type", "Feature", true, false);
+                            jsonWriter.WriteProperty("name", "ShapeMeta", true, false);
+                            jsonWriter.WritePropertyName("properties");
+                            jsonWriter.WriteOpen();
+                            jsonWriter.WriteClose();
+                            jsonWriter.WritePropertyName("geometry", false);
+
+                            jsonWriter.WriteOpen();
+                            jsonWriter.WriteProperty("type", "LineString", true, false);
+                            jsonWriter.WritePropertyName("coordinates", false);
+                            jsonWriter.WriteArrayOpen();
+
+                            for (var shape = 0; shape < coordinates.Count; shape++)
+                            {
+                                jsonWriter.WriteArrayOpen();
+                                jsonWriter.WriteArrayValue(coordinates[shape].Longitude.ToInvariantString());
+                                jsonWriter.WriteArrayValue(coordinates[shape].Latitude.ToInvariantString());
+                                jsonWriter.WriteArrayClose();
+                            }
+
+                            jsonWriter.WriteArrayClose();
+                            jsonWriter.WriteClose();
+
+                            jsonWriter.WritePropertyName("properties");
+                            jsonWriter.WriteOpen();
+                            if (shapeMeta.Attributes != null)
+                            {
+                                foreach (var attribute in shapeMeta.Attributes)
+                                {
+                                    jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                                }
+                            }
+                            jsonWriter.WriteClose();
+
+                            jsonWriter.WriteClose();
+                        }
+                    }
                 }
+
+                if (route.Stops != null &&
+                    includeStops)
+                {
+                    for (var i = 0; i < route.Stops.Length; i++)
+                    {
+                        var stop = route.Stops[i];
+
+                        jsonWriter.WriteOpen();
+                        jsonWriter.WriteProperty("type", "Feature", true, false);
+                        jsonWriter.WriteProperty("name", "Stop", true, false);
+                        jsonWriter.WriteProperty("Shape", stop.Shape.ToInvariantString(), true, false);
+                        jsonWriter.WritePropertyName("geometry", false);
+
+                        jsonWriter.WriteOpen();
+                        jsonWriter.WriteProperty("type", "Point", true, false);
+                        jsonWriter.WritePropertyName("coordinates", false);
+                        jsonWriter.WriteArrayOpen();
+                        jsonWriter.WriteArrayValue(stop.Coordinate.Longitude.ToInvariantString());
+                        jsonWriter.WriteArrayValue(stop.Coordinate.Latitude.ToInvariantString());
+                        jsonWriter.WriteArrayClose();
+                        jsonWriter.WriteClose();
+
+                        jsonWriter.WritePropertyName("properties");
+                        jsonWriter.WriteOpen();
+                        if (stop.Attributes != null)
+                        {
+                            foreach (var attribute in stop.Attributes)
+                            {
+                                jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                            }
+                        }
+                        jsonWriter.WriteClose();
+
+                        jsonWriter.WriteClose();
+                    }
+                }
+
                 jsonWriter.WriteArrayClose();
                 jsonWriter.WriteClose();
+            }
+            else
+            { // include shape meta as points if requested.
+                var jsonWriter = new IO.Json.JsonWriter(writer);
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+                jsonWriter.WritePropertyName("features", false);
+                jsonWriter.WriteArrayOpen();
 
+                if (route.Shape != null)
+                {
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteProperty("type", "Feature", true, false);
+                    jsonWriter.WriteProperty("name", "Shape", true, false);
+                    jsonWriter.WritePropertyName("properties");
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteClose();
+                    jsonWriter.WritePropertyName("geometry", false);
+
+
+                    jsonWriter.WriteOpen();
+                    jsonWriter.WriteProperty("type", "LineString", true, false);
+                    jsonWriter.WritePropertyName("coordinates", false);
+                    jsonWriter.WriteArrayOpen();
+                    for (var i = 0; i < route.Shape.Length; i++)
+                    {
+                        jsonWriter.WriteArrayOpen();
+                        jsonWriter.WriteArrayValue(route.Shape[i].Longitude.ToInvariantString());
+                        jsonWriter.WriteArrayValue(route.Shape[i].Latitude.ToInvariantString());
+                        jsonWriter.WriteArrayClose();
+                    }
+                    jsonWriter.WriteArrayClose();
+                    jsonWriter.WriteClose();
+
+                    jsonWriter.WriteClose();
+                }
+
+                if (route.ShapeMeta != null &&
+                    includeShapeMeta)
+                {
+                    for (var i = 0; i < route.ShapeMeta.Length; i++)
+                    {
+                        var meta = route.ShapeMeta[i];
+
+                        jsonWriter.WriteOpen();
+                        jsonWriter.WriteProperty("type", "Feature", true, false);
+                        jsonWriter.WriteProperty("name", "ShapeMeta", true, false);
+                        jsonWriter.WriteProperty("Shape", meta.Shape.ToInvariantString(), true, false);
+                        jsonWriter.WritePropertyName("geometry", false);
+
+                        var coordinate = route.Shape[meta.Shape];
+
+                        jsonWriter.WriteOpen();
+                        jsonWriter.WriteProperty("type", "Point", true, false);
+                        jsonWriter.WritePropertyName("coordinates", false);
+                        jsonWriter.WriteArrayOpen();
+                        jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                        jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                        jsonWriter.WriteArrayClose();
+                        jsonWriter.WriteClose();
+
+                        jsonWriter.WritePropertyName("properties");
+                        jsonWriter.WriteOpen();
+                        if (meta.Attributes != null)
+                        {
+                            foreach (var attribute in meta.Attributes)
+                            {
+                                jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                            }
+                        }
+                        jsonWriter.WriteClose();
+
+                        jsonWriter.WriteClose();
+                    }
+                }
+
+                if (route.Stops != null &&
+                    includeStops)
+                {
+                    for (var i = 0; i < route.Stops.Length; i++)
+                    {
+                        var stop = route.Stops[i];
+
+                        jsonWriter.WriteOpen();
+                        jsonWriter.WriteProperty("type", "Feature", true, false);
+                        jsonWriter.WriteProperty("name", "Stop", true, false);
+                        jsonWriter.WriteProperty("Shape", stop.Shape.ToInvariantString(), true, false);
+                        jsonWriter.WritePropertyName("geometry", false);
+
+                        jsonWriter.WriteOpen();
+                        jsonWriter.WriteProperty("type", "Point", true, false);
+                        jsonWriter.WritePropertyName("coordinates", false);
+                        jsonWriter.WriteArrayOpen();
+                        jsonWriter.WriteArrayValue(stop.Coordinate.Longitude.ToInvariantString());
+                        jsonWriter.WriteArrayValue(stop.Coordinate.Latitude.ToInvariantString());
+                        jsonWriter.WriteArrayClose();
+                        jsonWriter.WriteClose();
+
+                        jsonWriter.WritePropertyName("properties");
+                        jsonWriter.WriteOpen();
+                        if (stop.Attributes != null)
+                        {
+                            foreach (var attribute in stop.Attributes)
+                            {
+                                jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                            }
+                        }
+                        jsonWriter.WriteClose();
+
+                        jsonWriter.WriteClose();
+                    }
+                }
+
+                jsonWriter.WriteArrayClose();
                 jsonWriter.WriteClose();
             }
-
-            if (route.ShapeMeta != null &&
-                includeShapeMeta)
-            {
-                for (var i = 0; i < route.ShapeMeta.Length; i++)
-                {
-                    var meta = route.ShapeMeta[i];
-
-                    jsonWriter.WriteOpen();
-                    jsonWriter.WriteProperty("type", "Feature", true, false);
-                    jsonWriter.WriteProperty("name", "ShapeMeta", true, false);
-                    jsonWriter.WriteProperty("Shape", meta.Shape.ToInvariantString(), true, false);
-                    jsonWriter.WritePropertyName("geometry", false);
-
-                    var coordinate = route.Shape[meta.Shape];
-
-                    jsonWriter.WriteOpen();
-                    jsonWriter.WriteProperty("type", "Point", true, false);
-                    jsonWriter.WritePropertyName("coordinates", false);
-                    jsonWriter.WriteArrayOpen();
-                    jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
-                    jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
-                    jsonWriter.WriteArrayClose();
-                    jsonWriter.WriteClose();
-
-                    jsonWriter.WritePropertyName("properties");
-                    jsonWriter.WriteOpen();
-                    if (meta.Attributes != null)
-                    {
-                        foreach (var attribute in meta.Attributes)
-                        {
-                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
-                        }
-                    }
-                    jsonWriter.WriteClose();
-
-                    jsonWriter.WriteClose();
-                }
-            }
-
-            if (route.Stops != null &&
-                includeStops)
-            {
-                for (var i = 0; i < route.Stops.Length; i++)
-                {
-                    var stop = route.Stops[i];
-
-                    jsonWriter.WriteOpen();
-                    jsonWriter.WriteProperty("type", "Feature", true, false);
-                    jsonWriter.WriteProperty("name", "Stop", true, false);
-                    jsonWriter.WriteProperty("Shape", stop.Shape.ToInvariantString(), true, false);
-                    jsonWriter.WritePropertyName("geometry", false);
-                    
-                    jsonWriter.WriteOpen();
-                    jsonWriter.WriteProperty("type", "Point", true, false);
-                    jsonWriter.WritePropertyName("coordinates", false);
-                    jsonWriter.WriteArrayOpen();
-                    jsonWriter.WriteArrayValue(stop.Coordinate.Longitude.ToInvariantString());
-                    jsonWriter.WriteArrayValue(stop.Coordinate.Latitude.ToInvariantString());
-                    jsonWriter.WriteArrayClose();
-                    jsonWriter.WriteClose();
-
-                    jsonWriter.WritePropertyName("properties");
-                    jsonWriter.WriteOpen();
-                    if (stop.Attributes != null)
-                    {
-                        foreach (var attribute in stop.Attributes)
-                        {
-                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
-                        }
-                    }
-                    jsonWriter.WriteClose();
-
-                    jsonWriter.WriteClose();
-                }
-            }
-
-            jsonWriter.WriteArrayClose();
-            jsonWriter.WriteClose();
         }
     }
 }
