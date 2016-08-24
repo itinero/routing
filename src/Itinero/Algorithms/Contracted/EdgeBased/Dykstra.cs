@@ -53,7 +53,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         private DirectedDynamicGraph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<uint, LinkedEdgePath> _visits;
+        private Dictionary<uint, LinkedEdgePath<T>> _visits;
         private EdgePath<T> _current;
         private BinaryHeap<EdgePath<T>> _heap;
 
@@ -78,7 +78,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             this.HasSucceeded = true;
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<uint, LinkedEdgePath>();
+            _visits = new Dictionary<uint, LinkedEdgePath<T>>();
             _heap = new BinaryHeap<EdgePath<T>>();
 
             // queue all sources.
@@ -103,10 +103,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _current = _heap.Pop();
             while (_current != null)
             { // keep trying.
-                LinkedEdgePath edgePath = null;
+                LinkedEdgePath<T> edgePath = null;
                 if (!_visits.TryGetValue(_current.Vertex, out edgePath))
                 { // this vertex has not been visited before.
-                    _visits.Add(_current.Vertex, new LinkedEdgePath()
+                    _visits.Add(_current.Vertex, new LinkedEdgePath<T>()
                     {
                         Path = _current
                     });
@@ -116,7 +116,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 { // vertex has been visited before, check if edge has.
                     if (!edgePath.HasPath(_current))
                     { // current edge has not been used to get to this vertex.
-                        _visits[_current.Vertex] = new LinkedEdgePath()
+                        _visits[_current.Vertex] = new LinkedEdgePath<T>()
                         {
                             Path = _current,
                             Next = edgePath
@@ -192,7 +192,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     // build route to neighbour and check if it has been visited already.
                     var routeToNeighbour = new EdgePath<T>(
                         neighbourNeighbour, _weightHandler.Add(_current.Weight, neighbourWeight), _edgeEnumerator.IdDirected(), _current);
-                    LinkedEdgePath edgePath = null;
+                    LinkedEdgePath<T> edgePath = null;
                     if (!_visits.TryGetValue(_current.Vertex, out edgePath) ||
                         !edgePath.HasPath(routeToNeighbour))
                     { // this vertex has not been visited in this way before.
@@ -205,21 +205,32 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
-        /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
+        /// Returns true if the given vertex was visited and sets the visits output parameter with the actual visits data.
         /// </summary>
         /// <returns></returns>
-        public bool TryGetVisit(uint vertex, out EdgePath<T> visit)
+        public bool TryGetVisits(uint vertex, out LinkedEdgePath<T> visits)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            LinkedEdgePath path;
-            if (_visits.TryGetValue(vertex, out path))
+            return _visits.TryGetValue(vertex, out visits);
+        }
+
+        /// <summary>
+        /// Returns true if the given vertex was visited and sets the visits output parameter with the best visit data.
+        /// </summary>
+        /// <returns></returns>
+        public bool TryGetVisit(uint vertex, out EdgePath<T> visits)
+        {
+            this.CheckHasRunAndHasSucceeded();
+
+            LinkedEdgePath<T> linkedVisits;
+            if (!_visits.TryGetValue(vertex, out linkedVisits))
             {
-                visit = path.Best(_weightHandler);
-                return true;
+                visits = null;
+                return false;
             }
-            visit = null;
-            return false;
+            visits = linkedVisits.Best(_weightHandler);
+            return true;
         }
 
         /// <summary>
@@ -261,41 +272,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             get
             {
                 return _current;
-            }
-        }
-        
-        private class LinkedEdgePath
-        {
-            public EdgePath<T> Path { get; set; }
-            public LinkedEdgePath Next { get; set; }
-
-            public EdgePath<T> Best(WeightHandler<T> weightHandler)
-            {
-                var best = this.Path;
-                var current = this.Next;
-                while (current != null)
-                {
-                    if (weightHandler.IsSmallerThan(current.Path.Weight, best.Weight))
-                    {
-                        best = current.Path;
-                    }
-                    current = current.Next;
-                }
-                return best;
-            }
-
-            public bool HasPath(EdgePath<T> path)
-            {
-                var current = this;
-                while (current != null)
-                {
-                    if (current.Path.Edge == path.Edge)
-                    {
-                        return true;
-                    }
-                    current = current.Next;
-                }
-                return false;
             }
         }
     }

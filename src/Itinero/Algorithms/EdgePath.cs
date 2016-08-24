@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Weights;
 using System.Text;
 
 namespace Itinero.Algorithms
@@ -121,6 +122,59 @@ namespace Itinero.Algorithms
         {
             return this.Edge.GetHashCode() ^
                 this.Vertex.GetHashCode();
+        }
+    }
+    
+    /// <summary>
+    /// A linked list of edge paths.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class LinkedEdgePath<T>
+        where T : struct
+    {
+        /// <summary>
+        /// Gets the path.
+        /// </summary>
+        public EdgePath<T> Path { get; set; }
+
+        /// <summary>
+        /// Gets the next path.
+        /// </summary>
+        public LinkedEdgePath<T> Next { get; set; }
+
+        /// <summary>
+        /// Gets the best path in this linked list.
+        /// </summary>
+        public EdgePath<T> Best(WeightHandler<T> weightHandler)
+        {
+            var best = this.Path;
+            var current = this.Next;
+            while (current != null)
+            {
+                if (weightHandler.IsSmallerThan(current.Path.Weight, best.Weight))
+                {
+                    best = current.Path;
+                }
+                current = current.Next;
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// Returns true if this list contains the given path.
+        /// </summary>
+        public bool HasPath(EdgePath<T> path)
+        {
+            var current = this;
+            while (current != null)
+            {
+                if (current.Path.Edge == path.Edge)
+                {
+                    return true;
+                }
+                current = current.Next;
+            }
+            return false;
         }
     }
 }
