@@ -210,8 +210,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <returns></returns>
         public bool TryGetVisits(uint vertex, out LinkedEdgePath<T> visits)
         {
-            this.CheckHasRunAndHasSucceeded();
-
             return _visits.TryGetValue(vertex, out visits);
         }
 
@@ -221,8 +219,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <returns></returns>
         public bool TryGetVisit(uint vertex, out EdgePath<T> visits)
         {
-            this.CheckHasRunAndHasSucceeded();
-
             LinkedEdgePath<T> linkedVisits;
             if (!_visits.TryGetValue(vertex, out linkedVisits))
             {
