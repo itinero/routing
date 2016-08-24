@@ -1,5 +1,5 @@
 ﻿// OsmSharp - OpenStreetMap (OSM) SDK
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -19,11 +19,9 @@
 using NUnit.Framework;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Contracted.EdgeBased;
-using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
-using System.Collections.Generic;
 using Itinero.Data.Contracted.Edges;
-using Itinero.Algorithms.Contracted;
+using Itinero.Data.Network;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -40,12 +38,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestOneEdge()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(0) },
+                (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -64,12 +62,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(0, visit.From.Vertex);
 
             // build graph.
-            graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(1, 0, 100, null);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(1) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(1) },
+                (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -93,14 +91,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(2, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -120,8 +118,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -147,14 +146,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesRightHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 2, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -178,8 +177,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(1, visit.From.Vertex);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -209,14 +209,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesLeftHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(2, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -232,8 +232,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -255,14 +256,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesDirectedMiddleHighest()
         {
             // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(2, 1, 100, false);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -281,8 +282,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(2) }, true);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(2) },
+                    (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -306,15 +308,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         [Test]
         public void TestTwoEdgesRightMiddleHighest()
         {
-            // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
-            graph.AddEdge(1, 2, 100, true, Constants.NO_VERTEX);
+            // build graph.            
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, true);
+            graph.AddEdge(1, 2, 100, true);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -344,15 +346,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         [Test]
         public void TestTwoEdgesLeftMiddleHighest()
         {
-            // build graph.
-            var graph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                ContractedEdgeDataSerializer.MetaSize);
-            graph.AddEdge(1, 0, 100, false, Constants.NO_VERTEX);
-            graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
+            // build graph.            
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(1, 0, 100, false);
+            graph.AddEdge(2, 1, 100, false);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, false);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -368,8 +370,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(1) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(1) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -384,8 +387,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(2) }, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(2) },
+                    (v) => null, false);
             algorithm.Run();
 
             // check results.
@@ -400,8 +404,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(null, visit.From);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) }, true);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(0) },
+                    (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -416,8 +421,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(1) }, true);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(1) },
+                        (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -435,8 +441,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsFalse(algorithm.TryGetVisit(2, out visit));
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(2) }, true);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
+                new EdgePath<float>[] { new EdgePath<float>(2) },
+                    (v) => null, true);
             algorithm.Run();
 
             // check results.
@@ -455,6 +462,72 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(0, visit.Weight);
             Assert.AreEqual(2, visit.Vertex);
             Assert.AreEqual(null, visit.From);
+        }
+
+        /// <summary>
+        /// Tests routing for u-turns.
+        /// </summary>
+        /// <remarks>
+        /// Network:
+        ///  (0)----100m----(1)
+        ///   \             /
+        ///    \           /           
+        ///     \         /
+        ///     100m    100m
+        ///       \     /
+        ///        \   /
+        ///         (2)
+        [Test]
+        public void TestUTurn()
+        {
+            // build graph.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedProfile(Profiles.MockProfile.CarMock());
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.Network.AddEdge(2, 0, new Itinero.Data.Network.Edges.EdgeData()
+            {
+                Distance = 100,
+                Profile = 0,
+                MetaId = 0
+            });
+            routerDb.AddContracted(Profiles.MockProfile.CarMock(), true);
+            Itinero.Data.Contracted.ContractedDb contractedDb;
+            routerDb.TryGetContracted(Profiles.MockProfile.CarMock(), out contractedDb);
+            
+            var dykstra = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(contractedDb.EdgeBasedGraph,
+                new EdgePath<float>[] { new EdgePath<float>(0, 100 * Profiles.MockProfile.CarMock().Factor(null).Value, -1, new EdgePath<float>(1)) }, 
+                    (i) => null, false);
+            dykstra.Run();
+
+            EdgePath<float> path;
+            Assert.IsTrue(dykstra.TryGetVisit(0, out path));
+            Assert.AreEqual(0, path.Vertex);
+            Assert.AreEqual(1, path.From.Vertex);
+
+            Assert.IsTrue(dykstra.TryGetVisit(1, out path));
+            Assert.AreEqual(1, path.Vertex);
+            Assert.AreEqual(2, path.From.Vertex);
+            Assert.AreEqual(0, path.From.From.Vertex);
+            Assert.AreEqual(1, path.From.From.From.Vertex);
+
+            Assert.IsTrue(dykstra.TryGetVisit(2, out path));
+            Assert.AreEqual(2, path.Vertex);
+            Assert.AreEqual(0, path.From.Vertex);
+            Assert.AreEqual(1, path.From.From.Vertex);
         }
     }
 }

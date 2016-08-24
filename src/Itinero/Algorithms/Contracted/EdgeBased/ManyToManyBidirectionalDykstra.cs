@@ -37,6 +37,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly RouterPoint[] _targets;
         private readonly Dictionary<uint, Dictionary<int, T>> _buckets;
         private readonly WeightHandler<T> _weightHandler;
+        private readonly Profile _profile;
         
         /// <summary>
         /// Creates a new algorithm.
@@ -48,6 +49,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _weightHandler = weightHandler;
             _sources = sources;
             _targets = targets;
+            _profile = profile;
 
             ContractedDb contractedDb;
             if (!_routerDb.TryGetContracted(profile, out contractedDb))
@@ -98,7 +100,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), false);
+                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile, null), false);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -109,7 +111,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), true);
+                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile, null), true);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);

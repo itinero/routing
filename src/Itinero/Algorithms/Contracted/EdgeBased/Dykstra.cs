@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.PriorityQueues;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using System;
@@ -32,24 +33,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     {
         private readonly DirectedDynamicGraph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
+        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
         private readonly bool _backward;
         private readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, bool backward)
+        public Dykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources,
+            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward)
         {
             weightHandler.CheckCanUse(graph);
 
             _graph = graph;
+            _getRestrictions = getRestrictions;
             _sources = sources;
             _backward = backward;
             _weightHandler = weightHandler;
         }
 
         private DirectedDynamicGraph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<uint, EdgePath<T>> _visits;
+        private Dictionary<uint, LinkedEdgePath> _visits;
         private EdgePath<T> _current;
         private BinaryHeap<EdgePath<T>> _heap;
 
@@ -74,7 +78,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             this.HasSucceeded = true;
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<uint, EdgePath<T>>();
+            _visits = new Dictionary<uint, LinkedEdgePath>();
             _heap = new BinaryHeap<EdgePath<T>>();
 
             // queue all sources.
@@ -97,45 +101,106 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return false;
             }
             _current = _heap.Pop();
-            if (_current != null)
-            {
-                while(_visits.ContainsKey(_current.Vertex))
-                {
-                    _current = _heap.Pop();
-                    if(_current == null)
+            while (_current != null)
+            { // keep trying.
+                LinkedEdgePath edgePath = null;
+                if (!_visits.TryGetValue(_current.Vertex, out edgePath))
+                { // this vertex has not been visited before.
+                    _visits.Add(_current.Vertex, new LinkedEdgePath()
                     {
-                        return false;
+                        Path = _current
+                    });
+                    break;
+                }
+                else
+                { // vertex has been visited before, check if edge has.
+                    if (!edgePath.HasPath(_current))
+                    { // current edge has not been used to get to this vertex.
+                        _visits[_current.Vertex] = new LinkedEdgePath()
+                        {
+                            Path = _current,
+                            Next = edgePath
+                        };
+                        break;
                     }
                 }
+                _current = _heap.Pop();
             }
-            else
+
+            if (_current == null)
             {
                 return false;
             }
-            _visits.Add(_current.Vertex, _current);
 
             if(this.WasFound != null)
             {
                 this.WasFound(_current.Vertex, _current.Weight);
             }
+            
+            // get relevant restrictions.
+            var restrictions = _getRestrictions(_current.Vertex);
 
+            // get the edge enumerator.
+            var currentSequence = _current.GetSequence2(_edgeEnumerator);
+            currentSequence = currentSequence.Append(_current.Vertex);
+
+            // get neighbours.
             _edgeEnumerator.MoveTo(_current.Vertex);
+
+            // add the neighbours to the queue.
             while (_edgeEnumerator.MoveNext())
             {
                 bool? neighbourDirection;
                 var neighbourWeight = _weightHandler.GetEdgeWeight(_edgeEnumerator.Current, out neighbourDirection);
 
-                if (neighbourDirection == null || neighbourDirection.Value == !_backward)
+                if (neighbourDirection == null || (neighbourDirection.Value != _backward))
                 { // the edge is forward, and is to higher or was not contracted at all.
                     var neighbourNeighbour = _edgeEnumerator.Neighbour;
-                    if (!_visits.ContainsKey(neighbourNeighbour))
-                    { // if not yet settled.
-                        var routeToNeighbour = new EdgePath<T>(
-                            neighbourNeighbour, _weightHandler.Add(_current.Weight, neighbourWeight), _current);
+                    var neighbourSequence = Constants.EMPTY_SEQUENCE;
+                    if (_edgeEnumerator.IsOriginal())
+                    { // original edge.
+                        if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourNeighbour)
+                        { // this is a u-turn.
+                            continue;
+                        }
+                        if (restrictions != null)
+                        {
+                            neighbourSequence = currentSequence.Append(neighbourNeighbour);
+                        }
+                    }
+                    else
+                    { // not an original edge, use the sequence.
+                        neighbourSequence = _edgeEnumerator.GetSequence1();
+                        if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourSequence[0])
+                        { // this is a u-turn.
+                            continue;
+                        }
+                        if (restrictions != null)
+                        {
+                            neighbourSequence = currentSequence.Append(neighbourSequence);
+                        }
+                    }
+
+                    if (restrictions != null)
+                    { // check restrictions.
+                        if (!restrictions.IsSequenceAllowed(neighbourSequence))
+                        {
+                            continue;
+                        }
+                    }
+
+                    // build route to neighbour and check if it has been visited already.
+                    var routeToNeighbour = new EdgePath<T>(
+                        neighbourNeighbour, _weightHandler.Add(_current.Weight, neighbourWeight), _edgeEnumerator.IdDirected(), _current);
+                    LinkedEdgePath edgePath = null;
+                    if (!_visits.TryGetValue(_current.Vertex, out edgePath) ||
+                        !edgePath.HasPath(routeToNeighbour))
+                    { // this vertex has not been visited in this way before.
                         _heap.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                     }
                 }
             }
+
             return true;
         }
 
@@ -145,7 +210,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <returns></returns>
         public bool TryGetVisit(uint vertex, out EdgePath<T> visit)
         {
-            return _visits.TryGetValue(vertex, out visit);
+            this.CheckHasRunAndHasSucceeded();
+
+            LinkedEdgePath path;
+            if (_visits.TryGetValue(vertex, out path))
+            {
+                visit = path.Best(_weightHandler);
+                return true;
+            }
+            visit = null;
+            return false;
         }
 
         /// <summary>
@@ -189,6 +263,41 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return _current;
             }
         }
+        
+        private class LinkedEdgePath
+        {
+            public EdgePath<T> Path { get; set; }
+            public LinkedEdgePath Next { get; set; }
+
+            public EdgePath<T> Best(WeightHandler<T> weightHandler)
+            {
+                var best = this.Path;
+                var current = this.Next;
+                while (current != null)
+                {
+                    if (weightHandler.IsSmallerThan(current.Path.Weight, best.Weight))
+                    {
+                        best = current.Path;
+                    }
+                    current = current.Next;
+                }
+                return best;
+            }
+
+            public bool HasPath(EdgePath<T> path)
+            {
+                var current = this;
+                while (current != null)
+                {
+                    if (current.Path.Edge == path.Edge)
+                    {
+                        return true;
+                    }
+                    current = current.Next;
+                }
+                return false;
+            }
+        }
     }
 
     /// <summary>
@@ -199,8 +308,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, bool backward)
-            : base(graph, new DefaultWeightHandler(null), sources, backward)
+        public Dykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources,
+            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward)
+            : base(graph, new DefaultWeightHandler(null), sources, getRestrictions, backward)
         {
 
         }
