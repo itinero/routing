@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Tiles;
 using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
@@ -150,14 +151,14 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
                     if (result.ContainsKey(tileIndex))
                     {
                         var routingTile = result[tileIndex];
-                        routingTile.Weight = Math.Min(walkingWeight, routingTile.Weight);
+                        routingTile.Weight = (float)Math.Min(walkingWeight, routingTile.Weight);
                         result[tileIndex] = routingTile;
                     }
                     else
                     {
                         result[tileIndex] = new RoutingTile
                         {
-                            Weight = walkingWeight,
+                            Weight = (float)walkingWeight,
                             Index = tileIndex,
                         };
                     }
