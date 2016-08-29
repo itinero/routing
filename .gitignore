@@ -37,3 +37,5 @@ packages/*
 .vs/*
 
 *.routerdb
+*.osm.pbf
+*.osm

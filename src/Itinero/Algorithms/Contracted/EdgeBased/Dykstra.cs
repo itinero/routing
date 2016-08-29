@@ -22,6 +22,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -47,7 +48,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             _graph = graph;
             _getRestrictions = getRestrictions;
-            _sources = sources;
+            _sources = sources.Select(x => {
+                x.StripEdges();
+                return x;
+            });
             _backward = backward;
             _weightHandler = weightHandler;
         }

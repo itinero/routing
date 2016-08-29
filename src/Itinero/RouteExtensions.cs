@@ -62,9 +62,10 @@ namespace Itinero
             // merge metas.
             var metas1 = route1.ShapeMeta != null ? route1.ShapeMeta.Length : 0;
             var metas2 = route2.ShapeMeta != null ? route2.ShapeMeta.Length : 0;
-            var metas = new Route.Meta[metas1 + metas2 - 1];
+            Route.Meta[] metas = null;
             if (metas1 + metas2 - 1 > 0)
             {
+                metas = new Route.Meta[metas1 + metas2 - 1];
                 if (route1.ShapeMeta != null)
                 {
                     for (var i = 0; i < route1.ShapeMeta.Length; i++)

@@ -257,7 +257,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
             }
             if (dynamicData.Length < 2)
-            { // only a contracted id, the contracted is is the sequence.
+            { // only a contracted id, the contracted is the sequence.
                 return new uint[] { dynamicData[0] };
             }
             var size = dynamicData[1];
