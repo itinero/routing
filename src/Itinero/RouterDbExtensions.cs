@@ -29,6 +29,9 @@ using Itinero.Profiles;
 using Itinero.Algorithms.Weights;
 using Itinero.Algorithms;
 using Itinero.Graphs;
+using Itinero.Data.Network;
+using Itinero.Algorithms.Search.Hilbert;
+using Itinero.LocalGeo;
 
 namespace Itinero
 {
@@ -283,6 +286,192 @@ namespace Itinero
                 path = new EdgePath<T>(vertexPath[i], weightHandler.Add(weight, path.Weight), best, path);
             }
             return path;
+        }
+
+        /// <summary>
+        /// Adds the router point as a vertex.
+        /// </summary>
+        public static uint AddAsVertex(this RouterDb routerDb, RouterPoint point)
+        {
+            if (routerDb.HasContracted)
+            {
+                throw new InvalidOperationException("Cannot add new vertices to a routerDb with contracted versions of the network.");
+            }
+
+            if (point.IsVertex())
+            { // the router point is already a vertex.
+                return point.VertexId(routerDb);
+            }
+
+            // add a new vertex at the router point location.            
+            var location = point.LocationOnNetwork(routerDb);
+            var vertex = routerDb.Network.VertexCount;
+            routerDb.Network.AddVertex(vertex, location.Latitude, location.Longitude);
+
+            // add two new edges.
+            var edge = routerDb.Network.GetEdge(point.EdgeId);
+            var shapeFrom = point.ShapePointsTo(routerDb, edge.From);
+            shapeFrom.Reverse(); // we need this shape from edge.From -> vertex.
+            var shapeTo = point.ShapePointsTo(routerDb, edge.To);
+            var distanceFrom = point.DistanceTo(routerDb, edge.From);
+            var distanceTo = point.DistanceTo(routerDb, edge.To);
+
+            // remove edge id.
+            routerDb.Network.RemoveEdge(point.EdgeId);
+
+            // split in two.
+            routerDb.Network.AddEdge(edge.From, vertex, new Data.Network.Edges.EdgeData()
+            {
+                Distance = distanceFrom,
+                MetaId = edge.Data.MetaId,
+                Profile = edge.Data.Profile
+            }, shapeFrom);
+            routerDb.Network.AddEdge(vertex, edge.To, new Data.Network.Edges.EdgeData()
+            {
+                Distance = distanceTo,
+                MetaId = edge.Data.MetaId,
+                Profile = edge.Data.Profile
+            }, shapeTo);
+
+            // sort the vertices again.
+            routerDb.Network.Sort((v1, v2) =>
+            {
+                if (vertex == v1)
+                {
+                    vertex = (uint)v2;
+                }
+                else if (vertex == v2)
+                {
+                    vertex = (uint)v1;
+                }
+            });
+            return vertex;
+        }
+
+        /// <summary>
+        /// Adds the router point as a vertex.
+        /// </summary>
+        public static uint[] AddAsVertices(this RouterDb routerDb, RouterPoint[] points)
+        {
+            if (routerDb.HasContracted)
+            {
+                throw new InvalidOperationException("Cannot add new vertices to a routerDb with contracted versions of the network.");
+            }
+
+            var edges = new HashSet<uint>();
+            for(var i = 0; i < points.Length; i++)
+            {
+                var point = points[i];
+                if (edges.Contains(point.EdgeId))
+                {
+                    point = null;
+                }
+                else
+                {
+                    edges.Add(point.EdgeId);
+                }
+            }
+
+            var newVertices = new uint[points.Length];
+            var newEdges = new List<EdgeToSplit>();
+            for (var i = 0; i < points.Length; i++)
+            {
+                var point = points[i];
+
+                if (point == null)
+                { // there was a duplicate edge.
+                    newVertices[i] = Constants.NO_VERTEX;
+                    newEdges.Add(null);
+                    continue;
+                }
+
+                if (point.IsVertex())
+                { // the router point is already a vertex.
+                    newVertices[i] = point.VertexId(routerDb);
+                    newEdges.Add(null);
+                    continue;
+                }
+
+                // add a new vertex at the router point location.            
+                var location = point.LocationOnNetwork(routerDb);
+
+                // add two new edges.
+                var edge = routerDb.Network.GetEdge(point.EdgeId);
+                var shapeFrom = point.ShapePointsTo(routerDb, edge.From);
+                shapeFrom.Reverse(); // we need this shape from edge.From -> vertex.
+                var shapeTo = point.ShapePointsTo(routerDb, edge.To);
+                var distanceFrom = point.DistanceTo(routerDb, edge.From);
+                var distanceTo = point.DistanceTo(routerDb, edge.To);
+
+                // register new edge.
+                newEdges.Add(new EdgeToSplit()
+                {
+                    Coordinate = location,
+                    From = edge.From,
+                    To = edge.To,
+                    DistanceFrom = distanceFrom,
+                    DistanceTo = distanceTo,
+                    ShapeFrom = shapeFrom,
+                    ShapeTo = shapeTo,
+                    MetaId = edge.Data.MetaId,
+                    Profile = edge.Data.Profile
+                });
+            }
+
+            for (var i = 0; i < newEdges.Count; i++)
+            {
+                var edgeToSplit = newEdges[i];
+                if (edgeToSplit == null)
+                {
+                    continue;
+                }
+
+                // remove original edge.
+                routerDb.Network.RemoveEdges(edgeToSplit.From, edgeToSplit.To);
+
+                // add vertex.
+                var vertex = routerDb.Network.VertexCount;
+                routerDb.Network.AddVertex(vertex, edgeToSplit.Coordinate.Latitude, edgeToSplit.Coordinate.Longitude);
+
+                // add two new pieces.
+                routerDb.Network.AddEdge(edgeToSplit.From, vertex, new Data.Network.Edges.EdgeData()
+                {
+                    Distance = edgeToSplit.DistanceFrom,
+                    MetaId = edgeToSplit.MetaId,
+                    Profile = edgeToSplit.Profile
+                }, edgeToSplit.ShapeFrom);
+                routerDb.Network.AddEdge(vertex, edgeToSplit.To, new Data.Network.Edges.EdgeData()
+                {
+                    Distance = edgeToSplit.DistanceTo,
+                    MetaId = edgeToSplit.MetaId,
+                    Profile = edgeToSplit.Profile
+                }, edgeToSplit.ShapeTo);
+
+                newVertices[i] = vertex;
+            }
+
+            return newVertices;
+        }
+
+        private class EdgeToSplit
+        {
+            public Coordinate Coordinate { get; set; }
+
+            public uint From { get; set; }
+
+            public uint To { get; set; }
+
+            public float DistanceFrom { get; set; }
+
+            public float DistanceTo { get; set; }
+
+            public List<LocalGeo.Coordinate> ShapeFrom { get; set; }
+
+            public List<LocalGeo.Coordinate> ShapeTo { get; set; }
+
+            public uint MetaId { get; set; }
+
+            public ushort Profile { get; set; }
         }
     }
 }

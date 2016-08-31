@@ -189,6 +189,15 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets all the contracted db's.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetContracted()
+        {
+            return _supportedProfiles.ToList(); // don't allow modification of hashset externally, keep it inside the routerdb.
+        }
+
+        /// <summary>
         /// Adds a supported profile.
         /// </summary>
         public void AddSupportedProfile(Profiles.Profile profile)
@@ -290,6 +299,15 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets all the profiles that have contracted db's.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetContractedProfiles()
+        {
+            return _contracted.Select(x => x.Key);
+        }
+
+        /// <summary>
         /// Returns true if this routing db has a contracted version of the routing network for the given profile.
         /// </summary>
         public bool HasContractedFor(Profiles.Profile profile)
@@ -319,6 +337,26 @@ namespace Itinero
         public bool TryGetShortcuts(string name, out ShortcutsDb shortcutsDb)
         {
             return _shortcutsDbs.TryGetValue(name, out shortcutsDb);
+        }
+
+        /// <summary>
+        /// Gets all the names of the shortcuts databases.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<string> GetRestrictedVehicleTypes()
+        {
+            return _shortcutsDbs.Select(x => x.Key);
+        }
+
+        /// <summary>
+        /// Returns true if there are shortcuts in this database.
+        /// </summary>
+        public bool HasShortcuts
+        {
+            get
+            {
+                return _shortcutsDbs.Count > 0;
+            }
         }
 
         /// <summary>

@@ -19,11 +19,13 @@ namespace Itinero.Algorithms.Shortcuts
         private readonly IAttributeCollection[] _locationsMeta;
         private readonly string _name;
         private readonly float _switchPentaly;
+        private readonly float _minShortcutSize;
 
         /// <summary>
         /// Creates a new shortcut builder.
         /// </summary>
-        public ShortcutBuilder(RouterDb routerDb, Profile profile, string name, Coordinate[] locations, IAttributeCollection[] locationsMeta, float switchPenalty)
+        public ShortcutBuilder(RouterDb routerDb, Profile profile, string name, Coordinate[] locations, IAttributeCollection[] locationsMeta, float switchPenalty,
+            float minShortcutSize)
         {
             _db = routerDb;
             _profile = profile;
@@ -31,6 +33,7 @@ namespace Itinero.Algorithms.Shortcuts
             _locationsMeta = locationsMeta;
             _name = name;
             _switchPentaly = switchPenalty;
+            _minShortcutSize = minShortcutSize;
         }
 
         private ShortcutsDb _shortcutsDb;
@@ -94,7 +97,7 @@ namespace Itinero.Algorithms.Shortcuts
                         pathList.Clear();
                         path.AddToListAsVertices(pathList);
 
-                        if (path.Weight.Time < _switchPentaly)
+                        if (path.Weight.Time < _minShortcutSize)
                         { // don't add very short shortcuts.
                             continue;
                         }

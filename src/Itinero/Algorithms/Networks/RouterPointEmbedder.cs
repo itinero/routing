@@ -16,9 +16,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
 using Itinero.Profiles;
 using System;
+using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -48,6 +50,19 @@ namespace Itinero.Algorithms.Networks
             {
                 return router.Resolve(_profiles, loc, _searchDistanceInMeter);
             };
+
+            if (routerDb.HasContracted)
+            {
+                throw new InvalidOperationException("Cannot embed router points in a databases that has contracted networks, vertex id's have to change.");
+            }
+            if (routerDb.HasRestrictions)
+            {
+                throw new InvalidOperationException("Cannot embed router points in a databases that has restrictions, vertex id's have to change.");
+            }
+            if (routerDb.HasShortcuts)
+            {
+                throw new InvalidOperationException("Cannot embed router points in a databases that has shortcut db's, vertex id's have to change.");
+            }
         }
 
         /// <summary>
@@ -55,11 +70,58 @@ namespace Itinero.Algorithms.Networks
         /// </summary>
         protected override void DoRun()
         {
-            for (var i = 0; i < _locations.Length; i++)
-            {
-                var p = _resolver(_locations[i]);
+            var allSuccess = false;
 
-                p.AddAsVertex(_routerDb);
+            var newVertices = new uint[_locations.Length];
+            for(var i = 0; i < newVertices.Length; i++)
+            {
+                newVertices[i] = Constants.NO_VERTEX;
+            }
+
+            while (!allSuccess)
+            {
+                // pick the undone vertices.
+                var resolved = new List<RouterPoint>();
+                var resolvedIndexes = new List<int>();
+                for (var i = 0; i < _locations.Length; i++)
+                {
+                    if (newVertices[i] == Constants.NO_VERTEX)
+                    {
+                        resolvedIndexes.Add(i);
+                        resolved.Add(_resolver(_locations[i]));
+                    }
+                }
+
+                // add as vertices and merge with the local new vertices array.
+                allSuccess = true;
+                var newVerticesBatch = _routerDb.AddAsVertices(resolved.ToArray());
+                for(var i = 0; i < newVerticesBatch.Length; i++)
+                {
+                    if (newVerticesBatch[i] != Constants.NO_VERTEX)
+                    {
+                        newVertices[resolvedIndexes[i]] = newVerticesBatch[i];
+                    }
+                    else
+                    {
+                        allSuccess = false;
+                    }
+                }
+
+                // sort the vertices again.
+                _routerDb.Network.Sort((v1, v2) =>
+                {
+                    for (var i = 0; i < newVertices.Length; i++)
+                    {
+                        if (newVertices[i] == v1)
+                        {
+                            newVertices[i] = (uint)v2;
+                        }
+                        else if (newVertices[i] == v2)
+                        {
+                            newVertices[i] = (uint)v1;
+                        }
+                    }
+                });
             }
         }
     }
