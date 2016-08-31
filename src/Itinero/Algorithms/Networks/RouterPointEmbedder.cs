@@ -46,6 +46,7 @@ namespace Itinero.Algorithms.Networks
             _searchDistanceInMeter = searchDistanceInMeter;
 
             var router = new Router(_routerDb);
+            router.VerifyAllStoppable = true;
             _resolver = (loc) =>
             {
                 return router.Resolve(_profiles, loc, _searchDistanceInMeter);

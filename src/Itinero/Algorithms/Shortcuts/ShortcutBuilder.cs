@@ -20,12 +20,13 @@ namespace Itinero.Algorithms.Shortcuts
         private readonly string _name;
         private readonly float _switchPentaly;
         private readonly float _minShortcutSize;
+        private readonly float _maxShortcutDuration;
 
         /// <summary>
         /// Creates a new shortcut builder.
         /// </summary>
         public ShortcutBuilder(RouterDb routerDb, Profile profile, string name, Coordinate[] locations, IAttributeCollection[] locationsMeta, float switchPenalty,
-            float minShortcutSize)
+            float minShortcutSize, float maxShortcutDuration)
         {
             _db = routerDb;
             _profile = profile;
@@ -34,6 +35,7 @@ namespace Itinero.Algorithms.Shortcuts
             _name = name;
             _switchPentaly = switchPenalty;
             _minShortcutSize = minShortcutSize;
+            _maxShortcutDuration = maxShortcutDuration;
         }
 
         private ShortcutsDb _shortcutsDb;
@@ -45,14 +47,15 @@ namespace Itinero.Algorithms.Shortcuts
         protected override void DoRun()
         {
             var router = new Router(_db);
+            router.VerifyAllStoppable = true;
 
             // resolve locations as vertices.
             // WARNING: use RouterPointEmbedder first.
             var points = new RouterPoint[_locations.Length];
             for (var i = 0; i < points.Length; i++)
             {
-                var resolver = new Algorithms.Search.ResolveVertexAlgorithm(_db.Network.GeometricGraph, _locations[i].Latitude, _locations[i].Longitude, 500, 3000,
-                    router.GetIsAcceptable(_profile));
+                var resolver = new Algorithms.Search.ResolveVertexAlgorithm(_db.Network.GeometricGraph, _locations[i].Latitude, _locations[i].Longitude, 
+                    500, 3000, router.GetIsAcceptable(_profile));
                 resolver.Run();
                 if (!resolver.HasSucceeded)
                 {
@@ -63,7 +66,7 @@ namespace Itinero.Algorithms.Shortcuts
 
             // use non-contracted calculation.
             var weightHandler = _profile.AugmentedWeightHandlerCached(_db);
-            var algorithm = new Itinero.Algorithms.Default.ManyToMany<Weight>(_db, weightHandler, points, points, float.MaxValue);
+            var algorithm = new Itinero.Algorithms.Default.ManyToMany<Weight>(_db, weightHandler, points, points, _maxShortcutDuration);
             algorithm.Run();
             if (!algorithm.HasSucceeded)
             {

@@ -53,6 +53,11 @@ namespace Itinero.Algorithms.Shortcuts
         public float TransferTime { get; set; }
 
         /// <summary>
+        /// Gets or sets the max shortcut duration.
+        /// </summary>
+        public float MaxShortcutDuration { get; set; }
+
+        /// <summary>
         /// Gets or sets the shortcut profile.
         /// </summary>
         public Profile Profile { get; set; }

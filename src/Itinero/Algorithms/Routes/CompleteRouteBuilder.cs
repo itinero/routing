@@ -411,7 +411,8 @@ namespace Itinero.Algorithms.Routes
                         if (shortcut != null && shortcut.Length >= 2)
                         {
                             var route = CompleteRouteBuilder.Build(_routerDb, shortcutProfile,
-                                _routerDb.Network.CreateRouterPointForVertex(shortcut[0]), _routerDb.Network.CreateRouterPointForVertex(shortcut[shortcut.Length - 1]),
+                                _routerDb.CreateRouterPointForVertex(shortcut[0], shortcutProfile, _profile), 
+                                _routerDb.CreateRouterPointForVertex(shortcut[shortcut.Length - 1], shortcutProfile, _profile),
                                     new List<uint>(shortcut));
                             if (shortcutMeta == null)
                             {

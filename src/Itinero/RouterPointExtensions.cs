@@ -313,31 +313,63 @@ namespace Itinero
         /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
-        public static RouterPoint CreateRouterPointForVertex(this RoutingNetwork graph, uint vertex)
+        public static RouterPoint CreateRouterPointForVertex(this RouterDb routerDb, uint vertex, params Profile[] profile)
         {
-            return graph.GeometricGraph.CreateRouterPointForVertex(vertex);
+            float latitude, longitude;
+            if (!routerDb.Network.GeometricGraph.GetVertex(vertex, out latitude, out longitude))
+            {
+                throw new ArgumentException("Vertex doesn't exist, cannot create routerpoint.");
+            }
+            var edges = routerDb.Network.GetEdgeEnumerator(vertex);
+            while (edges.MoveNext())
+            {
+                var allowed = true;
+                for (var i = 0; i < profile.Length; i++)
+                {
+                    if (!profile[i].CanStopOn(
+                        routerDb.EdgeProfiles.Get(edges.Data.Profile)))
+                    {
+                        allowed = false;
+                        break;
+                    }
+                }
+
+                if (allowed)
+                {
+                    if (edges.DataInverted)
+                    {
+                        return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
+                    }
+                    return new RouterPoint(latitude, longitude, edges.Id, 0);
+                }
+            }
+            throw new ArgumentException("No edges associated with vertex can be used for all of the given profiles, cannot create routerpoint.");
         }
+
 
         /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
-        public static RouterPoint CreateRouterPointForVertex(this GeometricGraph graph, uint vertex)
+        public static RouterPoint CreateRouterPointForVertex(this GeometricGraph graph, uint vertex, Func<GeometricEdge, bool> isAcceptable)
         {
             float latitude, longitude;
-            if(!graph.GetVertex(vertex, out latitude, out longitude))
+            if (!graph.GetVertex(vertex, out latitude, out longitude))
             {
                 throw new ArgumentException("Vertex doesn't exist, cannot create routerpoint.");
             }
             var edges = graph.GetEdgeEnumerator(vertex);
-            if(!edges.MoveNext())
+            while (edges.MoveNext())
             {
-                throw new ArgumentException("No edges associated with vertex, cannot create routerpoint.");
+                if (isAcceptable(edges.Current))
+                {
+                    if (edges.DataInverted)
+                    {
+                        return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
+                    }
+                    return new RouterPoint(latitude, longitude, edges.Id, 0);
+                }
             }
-            if(edges.DataInverted)
-            {
-                return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
-            }
-            return new RouterPoint(latitude, longitude, edges.Id, 0);
+            throw new ArgumentException("No edges associated with vertex can be used for all of the given profiles, cannot create routerpoint.");
         }
 
         /// <summary>

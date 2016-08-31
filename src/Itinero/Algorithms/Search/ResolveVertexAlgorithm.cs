@@ -82,7 +82,7 @@ namespace Itinero.Algorithms.Search
                 return;
             }
 
-            _result = _graph.CreateRouterPointForVertex(vertexId);
+            _result = _graph.CreateRouterPointForVertex(vertexId, _isAcceptable);
 
             this.HasSucceeded = true;
         }

@@ -45,7 +45,7 @@ namespace Itinero.Algorithms.Default
             _weightHandler = weightHandler;
             _source = source;
             _targets = targets;
-            _maxSearch = float.MaxValue;
+            _maxSearch = maxSearch;
         }
 
         private EdgePath<T>[] _best;
