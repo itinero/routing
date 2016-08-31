@@ -640,7 +640,7 @@ namespace Itinero.Test
             var point = new RouterPoint(0.040f, 0.04f, edge, (ushort)(ushort.MaxValue * 0.4));
 
             // add as vertex.
-            var v = point.AddAsVertex(routerDb);
+            var v = routerDb.AddAsVertex(point);
             Assert.AreEqual(1, v);
             Assert.AreEqual(3, routerDb.Network.VertexCount);
             Assert.AreEqual(2, routerDb.Network.EdgeCount);

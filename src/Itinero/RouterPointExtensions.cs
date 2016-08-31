@@ -375,6 +375,28 @@ namespace Itinero
         /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
+        public static RouterPoint CreateRouterPointForVertex(this RoutingNetwork graph, uint vertex)
+        {
+            float latitude, longitude;
+            if (!graph.GetVertex(vertex, out latitude, out longitude))
+            {
+                throw new ArgumentException("Vertex doesn't exist, cannot create routerpoint.");
+            }
+            var edges = graph.GetEdgeEnumerator(vertex);
+            while (edges.MoveNext())
+            {
+                if (edges.DataInverted)
+                {
+                    return new RouterPoint(latitude, longitude, edges.Id, ushort.MaxValue);
+                }
+                return new RouterPoint(latitude, longitude, edges.Id, 0);
+            }
+            throw new ArgumentException("No edges associated with vertex can be used for all of the given profiles, cannot create routerpoint.");
+        }
+
+        /// <summary>
+        /// Creates a router point for the given vertex.
+        /// </summary>
         public static RouterPoint CreateRouterPointForVertex(this RoutingNetwork graph, uint vertex, uint neighbour)
         {
             return graph.GeometricGraph.CreateRouterPointForVertex(vertex, neighbour);
