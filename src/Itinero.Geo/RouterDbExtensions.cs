@@ -75,11 +75,7 @@ namespace Itinero.Geo
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
             foreach (var vertex in vertices)
             {
-                var attributes = new AttributesTable();
-                attributes.AddAttribute("id", vertex.ToInvariantString());
-                var vertexLocation = db.Network.GetVertex(vertex);
-                features.Add(new Feature(new Point(vertexLocation.ToCoordinate()),
-                    attributes));
+                features.Add(db.GetFeatureForVertex(vertex));
 
                 if (includeEdges)
                 {
@@ -97,7 +93,7 @@ namespace Itinero.Geo
                         edgeAttributes.AddOrReplace(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
 
                         var geometry = new LineString(db.Network.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
-                        attributes = edgeAttributes.ToAttributesTable();
+                        var attributes = edgeAttributes.ToAttributesTable();
                         attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
                         attributes.AddAttribute("distance", edgeEnumerator.Data.Distance.ToInvariantString());
                         features.Add(new Feature(geometry,
@@ -107,6 +103,35 @@ namespace Itinero.Geo
             }
 
             return features;
+        }
+
+        /// <summary>
+        /// Gets a feature representing the edge with the given id.
+        /// </summary>
+        public static Feature GetFeatureForEdge(this RouterDb routerDb, uint edgeId)
+        {
+            var edge = routerDb.Network.GetEdge(edgeId);
+
+            var edgeAttributes = new Itinero.Attributes.AttributeCollection(routerDb.EdgeMeta.Get(edge.Data.MetaId));
+            edgeAttributes.AddOrReplace(routerDb.EdgeProfiles.Get(edge.Data.Profile));
+
+            var geometry = new LineString(routerDb.Network.GetShape(edge).ToCoordinatesArray());
+            var attributes = edgeAttributes.ToAttributesTable();
+            attributes.AddAttribute("id", edge.Id.ToInvariantString());
+            attributes.AddAttribute("distance", edge.Data.Distance.ToInvariantString());
+            return new Feature(geometry, attributes);
+        }
+
+        /// <summary>
+        /// Gets a features representing the vertex with the given id.
+        /// </summary>
+        public static Feature GetFeatureForVertex(this RouterDb routerDb, uint vertex)
+        {
+            var coordinate = routerDb.Network.GetVertex(vertex).ToCoordinate();
+
+            var attributes = new AttributesTable();
+            attributes.AddAttribute("id", vertex);
+            return new Feature(new Point(coordinate), attributes);
         }
     }
 }

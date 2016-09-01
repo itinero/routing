@@ -65,6 +65,8 @@ namespace Itinero.Algorithms.Shortcuts
             for(var i = 0; i < shortcutSpecs.Length; i++)
             {
                 var specs = shortcutSpecs[i];
+                Itinero.Logging.Logger.Log("RouterDbExtensions", Logging.TraceEventType.Information,
+                    "Building shortcuts for {0}...", specs.Name);
 
                 var shortcutBuilder = new Itinero.Algorithms.Shortcuts.ShortcutBuilder(routerDb, specs.Profile, specs.Name, specs.Locations,
                     specs.LocationsMeta, specs.TransferTime, specs.MinTravelTime, specs.MaxShortcutDuration);
