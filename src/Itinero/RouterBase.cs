@@ -68,6 +68,12 @@ namespace Itinero
         public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target) where T : struct;
 
         /// <summary>
+        /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
+        /// </summary>
+        /// <returns></returns>
+        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge) where T : struct;
+
+        /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
         /// <returns></returns>

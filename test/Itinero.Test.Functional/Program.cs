@@ -34,6 +34,7 @@ using Itinero.LocalGeo;
 using Itinero;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.IO.Osm;
+using Itinero.Algorithms.Weights;
 
 namespace Itinero.Test.Functional
 {

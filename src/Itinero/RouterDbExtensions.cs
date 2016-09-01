@@ -473,5 +473,42 @@ namespace Itinero
 
             public ushort Profile { get; set; }
         }
+
+        /// <summary>
+        /// Generates an edge path for the given edge.
+        /// </summary>
+        public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, long directedEdgeId, bool asSource)
+            where T : struct
+        {
+            var edge = routerDb.Network.GetEdge(directedEdgeId);
+
+            return routerDb.GetPathForEdge(weightHandler, edge, directedEdgeId > 0, asSource);
+        }
+
+        /// <summary>
+        /// Generates an edge path for the given edge.
+        /// </summary>
+        public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, RoutingEdge edge, bool edgeForward, bool asSource)
+            where T : struct
+        {
+            var weight = weightHandler.Calculate(edge.Data.Profile, edge.Data.Distance);
+
+            if (asSource)
+            {
+                if (edgeForward)
+                {
+                    return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
+                }
+                return new EdgePath<T>(edge.From, weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
+            }
+            else
+            {
+                if (edgeForward)
+                {
+                    return new EdgePath<T>(edge.From, weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
+                }
+                return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
+            }
+        }
     }
 }

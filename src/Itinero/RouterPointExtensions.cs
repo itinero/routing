@@ -311,6 +311,44 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Creates a router point for the given edge.
+        /// </summary>
+        public static RouterPoint CreateRouterPointForEdge(this RouterDb routerDb, long directedEdgeId, bool atStart)
+        {
+            var edge = routerDb.Network.GetEdge(directedEdgeId);
+
+            return routerDb.CreateRouterPointForEdge(edge, directedEdgeId > 0, atStart);
+        }
+
+        /// <summary>
+        /// Creates a router point for the given edge.
+        /// </summary>
+        public static RouterPoint CreateRouterPointForEdge(this RouterDb routerDb, RoutingEdge edge, bool edgeIsForward, bool atStart)
+        {
+            Coordinate location;
+            if (atStart)
+            {
+                if (!edgeIsForward)
+                {
+                    location = routerDb.Network.GetVertex(edge.To);
+                    return new RouterPoint(location.Latitude, location.Longitude, edge.Id, ushort.MaxValue);
+                }
+                location = routerDb.Network.GetVertex(edge.From);
+                return new RouterPoint(location.Latitude, location.Longitude, edge.Id, 0);
+            }
+            else
+            {
+                if (!edgeIsForward)
+                {
+                    location = routerDb.Network.GetVertex(edge.From);
+                    return new RouterPoint(location.Latitude, location.Longitude, edge.Id, 0);
+                }
+                location = routerDb.Network.GetVertex(edge.To);
+                return new RouterPoint(location.Latitude, location.Longitude, edge.Id, ushort.MaxValue);
+            }
+        }
+
+        /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
         public static RouterPoint CreateRouterPointForVertex(this RouterDb routerDb, uint vertex, params Profile[] profile)
@@ -345,8 +383,7 @@ namespace Itinero
             }
             throw new ArgumentException("No edges associated with vertex can be used for all of the given profiles, cannot create routerpoint.");
         }
-
-
+        
         /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
