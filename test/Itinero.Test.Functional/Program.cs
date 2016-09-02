@@ -74,7 +74,7 @@ namespace Itinero.Test.Functional
             router.ProfileFactorAndSpeedCache = profileCache;
 
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
-            Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 1000).TestPerf("Testing route calculation speed.");
+            // Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 1000).TestPerf("Testing route calculation speed.");
 
             // TEST2: Tests find islands.
             Func<ushort, Factor> profile = (p) =>
@@ -102,11 +102,14 @@ namespace Itinero.Test.Functional
                     Value = 0
                 };
             };
-            Runner.GetTestIslandDetection(routerDb, profile).TestPerf("Testing island detection.", 10);
+            // Runner.GetTestIslandDetection(routerDb, profile).TestPerf("Testing island detection.", 10);
 
             // TEST3: calulate isochrones.
-            var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 10);
+            // var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 10);
 
+            // TEST4: calculate heatmaps.
+            var result = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
+            
             _logger.Log(TraceEventType.Information, "Testing finished.");
             Console.ReadLine();
         }
