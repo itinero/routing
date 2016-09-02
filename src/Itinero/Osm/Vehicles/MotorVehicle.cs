@@ -31,6 +31,7 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         protected MotorVehicle()
         {
+            AccessibleTags.Add("service", string.Empty);
             AccessibleTags.Add("road", string.Empty);
             AccessibleTags.Add("living_street", string.Empty);
             AccessibleTags.Add("residential", string.Empty);
@@ -80,6 +81,7 @@ namespace Itinero.Osm.Vehicles
                 case "footway":
                 case "living_street":
                     return 5;
+                case "service":
                 case "track":
                 case "road":
                     return 30;
