@@ -189,10 +189,10 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets all the contracted db's.
+        /// Gets all the supported profiles.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> GetContracted()
+        public IEnumerable<string> GetSupportedProfiles()
         {
             return _supportedProfiles.ToList(); // don't allow modification of hashset externally, keep it inside the routerdb.
         }
