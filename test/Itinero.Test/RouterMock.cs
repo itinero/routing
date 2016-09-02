@@ -57,17 +57,17 @@ namespace Itinero.Test
         }
 
         public override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Itinero.Profiles.Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets, 
-            ISet<int> invalidSources, ISet<int> invalidTargets)
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
         {
             throw new System.NotImplementedException();
         }
 
-        public override Result<EdgePath<T>> TryCalculateRaw<T>(Itinero.Profiles.Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(Itinero.Profiles.Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, RoutingSettings<T> settings)
         {
             return new Result<EdgePath<T>>(new EdgePath<T>());
         }
 
-        public override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge)
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge, RoutingSettings<T> settings)
         {
             return new Result<EdgePath<T>>(new EdgePath<T>());
         }
@@ -84,7 +84,7 @@ namespace Itinero.Test
         }
 
         public override Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler,
-            RouterPoint[] sources, RouterPoint[] targets, ISet<int> invalidSources, ISet<int> invalidTargets)
+            RouterPoint[] sources, RouterPoint[] targets, ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
         {
             var weights = new T[sources.Length][];
             for (var s = 0; s < sources.Length; s++)
@@ -105,11 +105,6 @@ namespace Itinero.Test
             }
 
             return new Result<T[][]>(weights);
-        }
-
-        public override Result<T> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
-        {
-            throw new System.NotImplementedException();
         }
 
         public override Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)

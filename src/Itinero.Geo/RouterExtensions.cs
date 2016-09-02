@@ -16,8 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Network;
+using Itinero.Geo;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
@@ -27,7 +29,7 @@ namespace Itinero.Geo
     /// <summary>
     /// Contains extension methods for the IRouter.
     /// </summary>
-    public static class IRouterExtensions
+    public static class RouterExtensions
     {
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
@@ -240,7 +242,7 @@ namespace Itinero.Geo
 
             var invalidSources = new HashSet<int>();
             var invalidTargets = new HashSet<int>();
-            var weights = router.TryCalculateWeight(profile, weightHandler, resolvedSources, resolvedTargets, invalidSources, invalidTargets);
+            var weights = router.TryCalculateWeight(profile, weightHandler, resolvedSources, resolvedTargets, invalidSources, invalidTargets, null);
             if (invalidSources.Count > 0)
             {
                 return new Result<T[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>

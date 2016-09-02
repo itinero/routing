@@ -66,7 +66,12 @@ namespace Itinero.Algorithms.Shortcuts
 
             // use non-contracted calculation.
             var weightHandler = _profile.AugmentedWeightHandlerCached(_db);
-            var algorithm = new Itinero.Algorithms.Default.ManyToMany<Weight>(_db, weightHandler, points, points, _maxShortcutDuration);
+            var algorithm = new Itinero.Algorithms.Default.ManyToMany<Weight>(_db, weightHandler, points, points, new Weight()
+            {
+                Distance = float.MaxValue,
+                Time = _maxShortcutDuration,
+                Value = _maxShortcutDuration
+            });
             algorithm.Run();
             if (!algorithm.HasSucceeded)
             {

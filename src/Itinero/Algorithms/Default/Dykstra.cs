@@ -35,7 +35,7 @@ namespace Itinero.Algorithms.Default
         private readonly Graph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly Func<uint, uint> _getRestriction;
-        private readonly float _sourceMax;
+        private readonly T _sourceMax;
         private readonly bool _backward;
         private readonly WeightHandler<T> _weightHandler;
 
@@ -43,7 +43,7 @@ namespace Itinero.Algorithms.Default
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public Dykstra(Graph graph, Func<uint, uint> getRestriction, WeightHandler<T> weightHandler,
-            IEnumerable<EdgePath<T>> sources, float sourceMax, bool backward)
+            IEnumerable<EdgePath<T>> sources, T sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;
@@ -196,7 +196,7 @@ namespace Itinero.Algorithms.Default
                         }
                     }
 
-                    if (_weightHandler.GetMetric(totalWeight) < _sourceMax)
+                    if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
                         _heap.Push(new EdgePath<T>(neighbour, totalWeight, _current),
                             _weightHandler.GetMetric(totalWeight));

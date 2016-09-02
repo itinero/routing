@@ -36,14 +36,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly WeightHandler<T> _weightHandler;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestriction;
-        private readonly float _sourceMax;
+        private readonly T _sourceMax;
         private readonly bool _backward;
 
         /// <summary>
         /// Creates a new one-to-all dykstra algorithm instance.
         /// </summary>
         public Dykstra(Graph graph, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestriction,
-            IEnumerable<EdgePath<T>> sources, float sourceMax, bool backward)
+            IEnumerable<EdgePath<T>> sources, T sourceMax, bool backward)
         {
             _graph = graph;
             _sources = sources;

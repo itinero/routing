@@ -33,15 +33,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly WeightHandler<T> _weightHandler;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
-        private readonly float _maxSearch;
+        private readonly T _maxSearch;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
         
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
         public ManyToMany(Router router, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
-            RouterPoint[] sources, RouterPoint[] targets,
-            float maxSearch)
+            RouterPoint[] sources, RouterPoint[] targets, T maxSearch)
         {
             _routerDb = router.Db;
             _weightHandler = weightHandler;

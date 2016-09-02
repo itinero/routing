@@ -442,6 +442,20 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Tries to calculate the weight between the given source and target.
+        /// </summary>
+        public static Result<T> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler,
+            RouterPoint source, RouterPoint target) where T : struct
+        {
+            var result = router.TryCalculateRaw<T>(profile, weightHandler, source, target);
+            if (result.IsError)
+            {
+                return result.ConvertError<T>();
+            }
+            return new Result<T>(result.Value.Weight);
+        }
+
+        /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] locations)

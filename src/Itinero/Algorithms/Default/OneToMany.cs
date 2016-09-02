@@ -33,13 +33,13 @@ namespace Itinero.Algorithms.Default
         private readonly RouterPoint _source;
         private readonly IList<RouterPoint> _targets;
         private readonly WeightHandler<T> _weightHandler;
-        private readonly float _maxSearch;
+        private readonly T _maxSearch;
         
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
         public OneToMany(RouterDb routerDb, WeightHandler<T> weightHandler,
-            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
+            RouterPoint source, IList<RouterPoint> targets, T maxSearch)
         {
             _routerDb = routerDb;
             _weightHandler = weightHandler;
@@ -85,7 +85,7 @@ namespace Itinero.Algorithms.Default
             }
 
             // determine the best max search radius.
-            var max = 0f;
+            var max = _weightHandler.Zero;
             for(var s = 0; s < _best.Length; s++)
             {
                 if(_best[s] == null)
@@ -94,10 +94,9 @@ namespace Itinero.Algorithms.Default
                 }
                 else
                 {
-                    var metric = _weightHandler.GetMetric(_best[s].Weight);
-                    if (metric > max)
+                    if (_weightHandler.IsLargerThan(_best[s].Weight, max))
                     {
-                        max = metric;
+                        max = _best[s].Weight;
                     }
                 }
             }

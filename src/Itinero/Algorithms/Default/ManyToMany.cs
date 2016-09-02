@@ -32,14 +32,13 @@ namespace Itinero.Algorithms.Default
         private readonly WeightHandler<T> _weightHandler;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
-        private readonly float _maxSearch;
+        private readonly T _maxSearch;
         
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
         public ManyToMany(RouterDb routerDb, WeightHandler<T> weightHandler,
-            RouterPoint[] sources, RouterPoint[] targets,
-            float maxSearch)
+            RouterPoint[] sources, RouterPoint[] targets, T maxSearch)
         {
             _routerDb = routerDb;
             _weightHandler = weightHandler;

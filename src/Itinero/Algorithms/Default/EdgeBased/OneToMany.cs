@@ -33,20 +33,20 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly RouterPoint _source;
         private readonly IList<RouterPoint> _targets;
         private readonly WeightHandler<T> _weightHandler;
-        private readonly float _maxSearch;
+        private readonly T _maxSearch;
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
         public OneToMany(RouterDb routerDb, WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions,
-            RouterPoint source, IList<RouterPoint> targets, float maxSearch)
+            RouterPoint source, IList<RouterPoint> targets, T maxSearch)
         {
             _routerDb = routerDb;
             _weightHandler = weightHandler;
             _source = source;
             _targets = targets;
-            _maxSearch = float.MaxValue;
+            _maxSearch = maxSearch;
             _getRestrictions = getRestrictions;
         }
 
@@ -87,7 +87,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             }
 
             // determine the best max search radius.
-            var max = 0f;
+            var max = _weightHandler.Zero;
             for (var s = 0; s < _best.Length; s++)
             {
                 if (_best[s] == null)
@@ -96,10 +96,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 else
                 {
-                    var metric = _weightHandler.GetMetric(_best[s].Weight);
-                    if (metric > max)
+                    if (_weightHandler.IsLargerThan(_best[s].Weight, max))
                     {
-                        max = metric;
+                        max = _best[s].Weight;
                     }
                 }
             }

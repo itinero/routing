@@ -154,7 +154,8 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
+            RoutingSettings<T> settings)
         {
             if (!_db.Supports(profile))
             {
@@ -162,6 +163,15 @@ namespace Itinero
                 {
                     return new Exception(message);
                 });
+            }
+
+            var maxSearch = weightHandler.Infinite;
+            if (settings != null)
+            {
+                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                {
+                    maxSearch = weightHandler.Infinite;
+                }
             }
 
             EdgePath<T> path;
@@ -222,9 +232,9 @@ namespace Itinero
                 if (_db.HasComplexRestrictions(profile))
                 {
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
-                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, weightHandler, true), float.MaxValue, false);
+                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
                     var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
-                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, weightHandler, false), float.MaxValue, true);
+                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -240,9 +250,9 @@ namespace Itinero
                 else
                 {
                     var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
-                        source.ToEdgePaths(_db, weightHandler, true), float.MaxValue, false);
+                        source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
                     var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
-                        target.ToEdgePaths(_db, weightHandler, false), float.MaxValue, true);
+                        target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                     var bidirectionalSearch = new BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -274,7 +284,8 @@ namespace Itinero
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge)
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
+            RoutingSettings<T> settings)
         {
             if (!_db.Supports(profile))
             {
@@ -282,6 +293,15 @@ namespace Itinero
                 {
                     return new Exception(message);
                 });
+            }
+
+            var maxSearch = weightHandler.Infinite;
+            if (settings != null)
+            {
+                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                {
+                    maxSearch = weightHandler.Infinite;
+                }
             }
 
             var sourcePath = _db.GetPathForEdge(weightHandler, sourceDirectedEdge, true);
@@ -352,9 +372,9 @@ namespace Itinero
                 if (_db.HasComplexRestrictions(profile))
                 {
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                        _db.GetGetRestrictions(profile, true), new EdgePath<T>[] { sourcePath }, float.MaxValue, false);
+                        _db.GetGetRestrictions(profile, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
                     var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                        _db.GetGetRestrictions(profile, false), new EdgePath<T>[] { targetPath }, float.MaxValue, true);
+                        _db.GetGetRestrictions(profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -370,9 +390,9 @@ namespace Itinero
                 else
                 {
                     var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
-                        new EdgePath<T>[] { sourcePath }, float.MaxValue, false);
+                        new EdgePath<T>[] { sourcePath }, maxSearch, false);
                     var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
-                        new EdgePath<T>[] { targetPath }, float.MaxValue, true);
+                        new EdgePath<T>[] { targetPath }, maxSearch, true);
 
                     var bidirectionalSearch = new BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -391,28 +411,11 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Calculates the weight of the route between the two locations.
-        /// </summary>
-        /// <returns></returns>
-        public sealed override Result<T> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target)
-        {
-            if (!_db.Supports(profile))
-            {
-                return new Result<T>("Routing profile is not supported.", (message) =>
-                {
-                    return new Exception(message);
-                });
-            }
-
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets)
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
         {
             if (!_db.Supports(profile))
             {
@@ -420,6 +423,15 @@ namespace Itinero
                 {
                     return new Exception(message);
                 });
+            }
+
+            var maxSearch = weightHandler.Infinite;
+            if (settings != null)
+            {
+                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                {
+                    maxSearch = weightHandler.Infinite;
+                }
             }
 
             ContractedDb contracted;
@@ -430,7 +442,7 @@ namespace Itinero
             }
 
             // use non-contracted calculation.
-            var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, float.MaxValue);
+            var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
             algorithm.Run();
             if (!algorithm.HasSucceeded)
             {
@@ -458,7 +470,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets)
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
         {
             if (!_db.Supports(profile))
             {
@@ -466,6 +478,15 @@ namespace Itinero
                 {
                     return new Exception(message);
                 });
+            }
+
+            var maxSearch = weightHandler.Infinite;
+            if (settings != null)
+            {
+                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                {
+                    maxSearch = weightHandler.Infinite;
+                }
             }
 
             ContractedDb contracted;
@@ -525,7 +546,7 @@ namespace Itinero
             { // use regular graph.
                 if (_db.HasComplexRestrictions(profile))
                 {
-                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
@@ -538,7 +559,7 @@ namespace Itinero
                 }
                 else
                 {
-                    var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, float.MaxValue);
+                    var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {

@@ -65,34 +65,29 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target) where T : struct;
+        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
+            RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge) where T : struct;
-
-        /// <summary>
-        /// Calculates the weight between the two locations.
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks>The weight is the distance * factor from the given profile.</remarks>
-        public abstract Result<T> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target) where T : struct;
+        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
+            RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public abstract Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets) where T : struct;
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public abstract Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets) where T : struct;
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings = null) where T : struct;
         
         /// <summary>
         /// Builds a route based on a raw path.
