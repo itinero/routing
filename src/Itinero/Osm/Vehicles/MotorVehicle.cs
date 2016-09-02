@@ -32,6 +32,7 @@ namespace Itinero.Osm.Vehicles
         protected MotorVehicle()
         {
             AccessibleTags.Add("service", string.Empty);
+            AccessibleTags.Add("track", string.Empty);
             AccessibleTags.Add("road", string.Empty);
             AccessibleTags.Add("living_street", string.Empty);
             AccessibleTags.Add("residential", string.Empty);
