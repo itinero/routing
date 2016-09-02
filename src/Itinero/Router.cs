@@ -283,9 +283,18 @@ namespace Itinero
                     return new Exception(message);
                 });
             }
-            
+
             var sourcePath = _db.GetPathForEdge(weightHandler, sourceDirectedEdge, true);
             var targetPath = _db.GetPathForEdge(weightHandler, targetDirectedEdge, false);
+
+            if (sourceDirectedEdge == targetDirectedEdge)
+            { // when edges match, path is always the edge itself.
+                var edgePath = sourcePath;
+                if (edgePath != null)
+                {
+                    return new Result<EdgePath<T>>(edgePath);
+                }
+            }
 
             EdgePath<T> path;
             ContractedDb contracted;
@@ -375,16 +384,6 @@ namespace Itinero
                         });
                     }
                     path = bidirectionalSearch.GetPath();
-                }
-            }
-
-            if (sourceDirectedEdge == targetDirectedEdge)
-            { // check for a shorter path on the same edge.
-                var edgePath = sourcePath;
-                if (edgePath != null &&
-                   weightHandler.IsSmallerThan(edgePath.Weight, path.Weight))
-                {
-                    path = edgePath;
                 }
             }
 
