@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -16,7 +16,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
-
-[assembly: AssemblyVersion("0.23.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.23.0-rc1")]
+namespace Itinero.IO.Shape.Vehicles
+{
+    /// <summary>
+    /// Abstract representation of a shape vehicle profile.
+    /// </summary>
+    public abstract class Vehicle
+    {
+        /// <summary>
+        /// Returns true if an attribute with the given key is relevant for the profile.
+        /// </summary>
+        public abstract bool IsRelevantForProfile(string key);
+    }
+}
