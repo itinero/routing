@@ -25,6 +25,7 @@ using Itinero.Logging;
 using Itinero.LocalGeo;
 using Itinero.IO.Shape.Vehicles;
 using Itinero.Attributes;
+using Itinero.Algorithms.Search.Hilbert;
 
 namespace Itinero.IO.Shape.Reader
 {
@@ -56,6 +57,14 @@ namespace Itinero.IO.Shape.Reader
         /// </summary>
         protected override void DoRun()
         {
+            foreach(var vehicle in _vehicles)
+            {
+                foreach (var profile in vehicle.GetProfiles())
+                {
+                    _routerDb.AddSupportedProfile(profile);
+                }
+            }
+
             var nodeToVertex = new Dictionary<long, uint>();
 
             // read all vertices.
@@ -117,7 +126,7 @@ namespace Itinero.IO.Shape.Reader
                     current++;
                     if (progress != latestProgress)
                     {
-                        Itinero.Logging.Logger.Log("ShapefileLiveGraphReader", TraceEventType.Information,
+                        Itinero.Logging.Logger.Log("ShapeFileReader", TraceEventType.Information,
                             "Reading vertices from file {1}/{2}... {0}%", progress, readerIdx + 1, _shapefileReaders.Count);
                         latestProgress = progress;
                     }
@@ -199,7 +208,7 @@ namespace Itinero.IO.Shape.Reader
                             {
                                 profile.AddOrReplace(field.Name, valueString);
                             }
-                            else
+                            else if(_vehicles.IsRelevantAny(field.Name))
                             {
                                 meta.AddOrReplace(field.Name, valueString);
                             }
@@ -224,12 +233,16 @@ namespace Itinero.IO.Shape.Reader
                     current++;
                     if (progress != latestProgress)
                     {
-                        Itinero.Logging.Logger.Log("ShapefileLiveGraphReader", TraceEventType.Information,
+                        Itinero.Logging.Logger.Log("ShapeFileReader", TraceEventType.Information,
                             "Reading edges {1}/{2}... {0}%", progress, readerIdx + 1, _shapefileReaders.Count);
                         latestProgress = progress;
                     }
                 }
             }
+
+            // sort the network.
+            Itinero.Logging.Logger.Log("ShapeFileReader", TraceEventType.Information, "Sorting vertices...");
+            _routerDb.Sort();
 
             this.HasSucceeded = true;
         }

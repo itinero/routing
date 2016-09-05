@@ -47,7 +47,7 @@ namespace Itinero.IO.Shape
                 readers.Add(new ShapefileDataReader(networkFile.FullName, geometryFactory));
             }
 
-            routerDb.LoadFromShape(readers, sourceVertexColumn, targetVertexColumn);
+            routerDb.LoadFromShape(readers, sourceVertexColumn, targetVertexColumn, vehicles);
         }
 
         /// <summary>

@@ -37,5 +37,20 @@ namespace Itinero.IO.Shape.Vehicles
             }
             return false;
         }
+
+        /// <summary>
+        /// Returns true if an attribute with the given key is relevant for any the profiles.
+        /// </summary>
+        public static bool IsRelevantAny(this Vehicle[] vehicles, string key)
+        {
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                if (vehicles[i].IsRelevant(key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
