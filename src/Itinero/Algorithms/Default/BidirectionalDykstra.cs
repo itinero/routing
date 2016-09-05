@@ -60,12 +60,12 @@ namespace Itinero.Algorithms.Default
             _sourceSearch.WasFound = (vertex, weight) =>
             {
                 _maxForward = weight;
-                return false;
+                return this.ReachedVertexForward(vertex, weight);
             };
             _targetSearch.WasFound = (vertex, weight) =>
             {
                 _maxBackward = weight;
-                return this.ReachedVertexBackward((uint)vertex, weight);
+                return this.ReachedVertexBackward(vertex, weight);
             };
 
             _sourceSearch.Initialize();
@@ -90,6 +90,27 @@ namespace Itinero.Algorithms.Default
                     break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Called when a vertex was reached during a forward search.
+        /// </summary>
+        /// <returns></returns>
+        private bool ReachedVertexForward(uint vertex, T weight)
+        {
+            // check backward search for the same vertex.
+            EdgePath<T> backwardVisit;
+            if (_targetSearch.TryGetVisit(vertex, out backwardVisit))
+            { // there is a status for this vertex in the source search.
+                weight = _weightHandler.Add(weight, backwardVisit.Weight);
+                if (_weightHandler.IsSmallerThan(weight, _bestWeight))
+                { // this vertex is a better match.
+                    _bestWeight = weight;
+                    _bestVertex = vertex;
+                    this.HasSucceeded = true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
