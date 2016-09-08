@@ -59,24 +59,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
 
             _edgeVisitor.Visit += (id, startWeight, endWeight, shape) =>
             {
-                var endCoordinate = shape[shape.Count - 1];
-                var index = TileIndex.WorldToTileIndex(endCoordinate.Latitude, endCoordinate.Longitude, _level);
-                RoutingTile tile;
-                if (!tiles.TryGetValue(index, out tile))
-                {
-                    tile = new RoutingTile
-                    {
-                        Weight = endWeight,
-                        Count = 1,
-                        Index = index
-                    };
-                }
-                else
-                {
-                    tile.Weight = (tile.Weight * tile.Count + endWeight) / tile.Count + 1;
-                    tile.Count++;
-                }
-                tiles[index] = tile;
+                this.AddEdgeVisit(tiles, startWeight, endWeight, shape);
             };
             _edgeVisitor.Run();
             
@@ -88,6 +71,93 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
                 var tilesWithin = tileList.Where(t => t.Weight < isochroneLimit).ToList();
                 var polygonOfTileIndexes = TilesToPolygon.TileSetToPolygon(tilesWithin);
                 _polygons.Add(new Polygon { ExteriorRing = TileHelper.ToWorldCoordinates(polygonOfTileIndexes, _level) });
+            }
+        }
+
+        private void AddEdgeVisit(Dictionary<TileIndex, RoutingTile> tiles, float startWeight, float endWeight, List<Coordinate> shape)
+        {
+            var startCoordinate = shape[0];
+            var startTile = TileIndex.WorldToTileIndex(startCoordinate.Latitude, startCoordinate.Longitude, _level);
+            var startTileTopLeft = TileIndex.TileIndexToWorld(startTile.X, startTile.Y, _level);
+            var startTileBottomRight = TileIndex.TileIndexToWorld(startTile.X + 1, startTile.Y + 1, _level);
+
+            var latitudeDiff = System.Math.Abs(startTileTopLeft.Latitude - startTileBottomRight.Latitude);
+            var longitudeDiff = System.Math.Abs(startTileTopLeft.Longitude - startTileBottomRight.Longitude);
+
+            var offsetLat = Coordinate.DistanceEstimateInMeter(startCoordinate.Latitude, startCoordinate.Longitude,
+                startCoordinate.Latitude + latitudeDiff, startCoordinate.Longitude);
+            var offsetLon = Coordinate.DistanceEstimateInMeter(startCoordinate.Latitude, startCoordinate.Longitude,
+                startCoordinate.Latitude, startCoordinate.Longitude + longitudeDiff);
+            var offsetMin = System.Math.Min(offsetLat, offsetLon);
+
+            var length = Coordinate.DistanceEstimateInMeter(shape);
+            var weight = endWeight - startWeight;
+            var currentLength = 0f;
+
+            for(var i = 0; i < shape.Count; i++)
+            {
+                var coordinate = shape[i];
+                var index = TileIndex.WorldToTileIndex(coordinate.Latitude, coordinate.Longitude, _level);
+
+                if (i > 0)
+                {
+                    currentLength += Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
+                }
+
+                var tileWeight = startWeight + (currentLength / length) * weight;
+                RoutingTile tile;
+                if (!tiles.TryGetValue(index, out tile))
+                {
+                    tile = new RoutingTile
+                    {
+                        Weight = tileWeight,
+                        Count = 1,
+                        Index = index
+                    };
+                }
+                else
+                {
+                    tile.Weight = (tile.Weight * tile.Count + tileWeight) / tile.Count + 1;
+                    tile.Count++;
+                }
+                tiles[index] = tile;
+
+                if (i < shape.Count - 1)
+                {
+                    var distance = Coordinate.DistanceEstimateInMeter(shape[i], shape[i + 1]);
+                    if (distance > offsetMin)
+                    { // it's possible these two skipped over a tile.
+                        var count = (float)System.Math.Ceiling(distance / offsetMin);
+                        var latOffset = (shape[i + 1].Latitude - shape[i].Latitude) / count;
+                        var lonOffset = (shape[i + 1].Longitude - shape[i].Longitude) / count;
+
+                        for(var j = 0; j < count - 1; j++)
+                        {
+                            coordinate = new Coordinate(shape[i].Latitude + (latOffset * (j + 1)),
+                                shape[i].Longitude + (lonOffset * (j + 1)));
+                            index = TileIndex.WorldToTileIndex(coordinate.Latitude, coordinate.Longitude, _level);
+
+                            var offsetLength = Coordinate.DistanceEstimateInMeter(shape[i], coordinate);
+                            tileWeight = startWeight + ((currentLength + offsetLength) / length) * weight;
+
+                            if (!tiles.TryGetValue(index, out tile))
+                            {
+                                tile = new RoutingTile
+                                {
+                                    Weight = tileWeight,
+                                    Count = 1,
+                                    Index = index
+                                };
+                            }
+                            else
+                            {
+                                tile.Weight = (tile.Weight * tile.Count + tileWeight) / tile.Count + 1;
+                                tile.Count++;
+                            }
+                            tiles[index] = tile;
+                        }
+                    }
+                }
             }
         }
 

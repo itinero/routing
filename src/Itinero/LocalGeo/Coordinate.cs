@@ -116,6 +116,20 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
+        /// Returns an estimate of the distance between the given sequence of coordinates.
+        /// </summary>
+        public static float DistanceEstimateInMeter(System.Collections.Generic.List<Coordinate> coordinates)
+        {
+            var length = 0f;
+            for(var i = 1; i < coordinates.Count; i++)
+            {
+                length += Coordinate.DistanceEstimateInMeter(coordinates[i - 1].Latitude, coordinates[i - 1].Longitude,
+                    coordinates[i].Latitude, coordinates[i].Longitude);
+            }
+            return length;
+        }
+
+        /// <summary>
         /// Offsets this coordinate with a given distance.
         /// </summary>
         public Coordinate OffsetWithDistances(float meter)

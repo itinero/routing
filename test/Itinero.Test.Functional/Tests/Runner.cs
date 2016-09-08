@@ -187,7 +187,7 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 return router.CalculateIsochrones(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
-                    new List<float>() { 900, 1800, 2700 }, 18);
+                    new List<float>() { 900, 1800 }, 18);
             };
         }
 

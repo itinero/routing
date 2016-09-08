@@ -63,7 +63,10 @@ namespace Itinero.Test.Functional
 
             // TEST1: Tests building a router db for cars, contracting it and calculating routes.
             // test building a router db.
-            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
+            //var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
+            //var router = new Router(routerDb);
+
+            var routerDb = RouterDb.Deserialize(File.OpenRead("temp.routerdb"));
             var router = new Router(routerDb);
 
             // build profile cache.
@@ -73,7 +76,7 @@ namespace Itinero.Test.Functional
             profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
             router.ProfileFactorAndSpeedCache = profileCache;
 
-            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
+            // Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
             // Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 1000).TestPerf("Testing route calculation speed.");
 
             // TEST2: Tests find islands.
@@ -105,7 +108,8 @@ namespace Itinero.Test.Functional
             // Runner.GetTestIslandDetection(routerDb, profile).TestPerf("Testing island detection.", 10);
 
             // TEST3: calulate isochrones.
-            // var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 10);
+            var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 1);
+            var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
 
             // TEST4: calculate heatmaps.
             var result = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
