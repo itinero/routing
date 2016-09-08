@@ -118,5 +118,5 @@ routerDb.LoadFromShape("/path/to/shape/", "wegvakken.shp",
   "JTE_ID_BEG",  "JTE_ID_END", vehicle);
 
 // write the router db to disk for later use.
-routerDb.Serialize("nwb.routerdb");
+routerDb.Serialize(File.OpenWrite("nwb.routerdb"));
 ```

@@ -185,7 +185,7 @@ namespace Itinero
                 Stops = stops.ToArray()
             };
             route.TotalDistance = route1.TotalDistance + route2.TotalDistance;
-            route.TotalTime = route1.TotalTime + route1.TotalTime;
+            route.TotalTime = route1.TotalTime + route2.TotalTime;
             return route;
         }
 
