@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Profiles;
 
 namespace Itinero.Osm.Vehicles
 {
@@ -136,6 +137,29 @@ namespace Itinero.Osm.Vehicles
         public override float MinSpeed()
         {
             return 30;
+        }
+
+        /// <summary>
+        /// Gets a profile that aggressively follows the road classifications.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Profile Classified()
+        {
+            return new Profiles.MotorVehicleClassifications(this);
+        }
+
+        /// <summary>
+        /// Gets all profiles for this vehicle.
+        /// </summary>
+        /// <returns></returns>
+        public override Profile[] GetProfiles()
+        {
+            return new Profile[]
+            {
+                this.Fastest(),
+                this.Shortest(),
+                this.Classified()
+            };
         }
     }
 }
