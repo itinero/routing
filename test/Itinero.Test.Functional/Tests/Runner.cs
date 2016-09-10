@@ -164,11 +164,39 @@ namespace Itinero.Test.Functional.Tests
             };
         }
 
+
+
         /// <summary>
         /// Tests detecting islands.
         /// </summary>
-        public static Action GetTestIslandDetection(RouterDb routerDb, Func<ushort, Factor> profile)
+        public static Action GetTestIslandDetection(RouterDb routerDb)
         {
+            Func<ushort, Factor> profile = (p) =>
+            {
+                var prof = routerDb.EdgeProfiles.Get(p);
+                if (prof != null)
+                {
+                    var highway = string.Empty;
+                    if (prof.TryGetValue("highway", out highway))
+                    {
+                        if (highway == "motorway" ||
+                            highway == "motorway_link")
+                        {
+                            return new Profiles.Factor()
+                            {
+                                Direction = 0,
+                                Value = 10
+                            };
+                        }
+                    }
+                }
+                return new Profiles.Factor()
+                {
+                    Direction = 0,
+                    Value = 0
+                };
+            };
+
             return () =>
             {
                 var islandDetector = new Itinero.Algorithms.Networks.IslandDetector(routerDb, new Func<ushort, Profiles.Factor>[]

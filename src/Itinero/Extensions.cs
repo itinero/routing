@@ -21,6 +21,7 @@ using System.IO;
 using Itinero.Attributes;
 using System.Globalization;
 using System;
+using System.Text;
 
 namespace Itinero
 {
@@ -177,6 +178,29 @@ namespace Itinero
             return obj is IConvertible ? ((IConvertible)obj).ToString(CultureInfo.InvariantCulture)
                 : obj is IFormattable ? ((IFormattable)obj).ToString(null, CultureInfo.InvariantCulture)
                 : obj.ToString();
+        }
+
+        /// <summary>
+        /// Returns a string for the given array even when null.
+        /// </summary>
+        public static string ToStringSafe<T>(this T[] array)
+        {
+            if (array == null)
+            {
+                return "null";
+            }
+            var stringBuilder = new StringBuilder();
+            stringBuilder.Append('[');
+            for(var i = 0; i < array.Length; i++)
+            {
+                if (i > 0)
+                {
+                    stringBuilder.Append(',');
+                }
+                stringBuilder.Append(array[i].ToInvariantString());
+            }
+            stringBuilder.Append(']');
+            return stringBuilder.ToString();
         }
 
         /// <summary>

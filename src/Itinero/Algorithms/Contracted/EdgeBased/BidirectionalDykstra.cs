@@ -475,8 +475,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             this.CheckHasRunAndHasSucceeded();
 
             var vertices = new List<uint>();
-            var fromSource = _best.Item1.Expand(_graph, _weightHandler);
-            var toTarget = _best.Item2.Expand(_graph, _weightHandler);
+            var fromSource = _best.Item1.Expand(_graph, _weightHandler, true);
+            var toTarget = _best.Item2.Expand(_graph, _weightHandler, false);
 
             // add vertices from source.
             vertices.Add(fromSource.Vertex);

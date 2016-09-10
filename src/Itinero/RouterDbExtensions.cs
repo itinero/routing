@@ -282,7 +282,6 @@ namespace Itinero
                 {
                     throw new Exception(string.Format("Cannot build vertex path, edge {0} -> {1} not found.", path.Vertex, vertexPath[i]));
                 }
-
                 path = new EdgePath<T>(vertexPath[i], weightHandler.Add(weight, path.Weight), best, path);
             }
             return path;

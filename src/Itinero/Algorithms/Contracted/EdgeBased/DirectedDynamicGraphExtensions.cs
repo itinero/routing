@@ -645,12 +645,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
             bool? direction, uint contractedId, float distance, float time, uint[] s1, uint[] s2)
         {
-            if ((vertex1 == 2692 && vertex2 == 2730) ||
-                (vertex1 == 2730 && vertex2 == 2692))
-            {
-                Itinero.Logging.Logger.Log("", Logging.TraceEventType.Information, "");
-            }
-
             var forward = false;
             var forwardWeight = float.MaxValue;
             var forwardContractedId = uint.MaxValue;
@@ -1373,10 +1367,43 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Moves this enumerator to an edge (vertex1->vertex2) that has an end sequence that matches the given sequence.
         /// </summary>
-        public static void MoveToEdge(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2)
+        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2, Weights.WeightHandler<T> weightHandler, bool direction)
+            where T : struct
         {
             enumerator.MoveTo(vertex1);
-            enumerator.MoveNextUntil(x => x.Neighbour == vertex2);
+            return enumerator.MoveNextUntil(x =>
+            {
+                if (x.Neighbour != vertex2)
+                {
+                    return false;
+                }
+                bool? xDirection;
+                var xWeight = weightHandler.GetEdgeWeight(enumerator.Current, out xDirection);
+                if (xDirection != null &&
+                    xDirection.Value != direction)
+                {
+                    return false;
+                }
+
+                var xSequence2 = x.GetSequence2();
+                if (xSequence2 == null || xSequence2.Length == 0)
+                {
+                    return sequence2 == null || sequence2.Length == 0 ||
+                        sequence2[0] == vertex1;
+                }
+                if (sequence2 == null || sequence2.Length == 0)
+                {
+                    return false;
+                }
+                for(var i = 0; i < System.Math.Min(sequence2.Length, xSequence2.Length); i++)
+                {
+                    if (sequence2[i] != xSequence2[i])
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            });
         }
 
         /// <summary>

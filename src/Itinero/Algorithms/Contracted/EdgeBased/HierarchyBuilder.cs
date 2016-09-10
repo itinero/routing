@@ -327,6 +327,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             for (var j = 1; j < edges.Count; j++)
             {
                 var edge1 = edges[j];
+                var edge1Sequence2 = edges[j].GetSequence2();
+                if (edge1Sequence2.Length == 0)
+                {
+                    edge1Sequence2 = new uint[] { vertex };
+                }
                 
                 bool? edge1Direction;
                 var edge1Weight = _weightHandler.GetEdgeWeight(edge1, out edge1Direction);
@@ -341,7 +346,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 for (var k = 0; k < j; k++)
                 {
                     var edge2 = edges[k];
-                    
+
                     bool? edge2Direction;
                     var edge2Weight = _weightHandler.GetEdgeWeight(edge2, out edge2Direction);
                     var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
@@ -379,15 +384,35 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var s2backward = new uint[backwardWitnesses.Length][];
                 for (var k = 0; k < j; k++)
                 {
+                    var edge2Sequence2 = edges[k].GetSequence2();
+                    if (edge2Sequence2.Length == 0)
+                    {
+                        edge2Sequence2 = new uint[] { vertex };
+                    }
+
                     if (forwardWitnesses[k].HasVertex(vertex))
                     { // get forward sequences.
                         s1forward[k] = forwardWitnesses[k].GetSequence1(enumerator, 1);
                         s2forward[k] = forwardWitnesses[k].GetSequence2(enumerator, 1);
+
+                        if (!s1forward[k].IsSequenceIdentical(edge1Sequence2) ||
+                            !s2forward[k].IsSequenceIdentical(edge2Sequence2))
+                        { // start and end sequences of shortest paths need to match.
+                            s1forward[k] = null;
+                            s2forward[k] = null;
+                        }
                     }
                     if (backwardWitnesses[k].HasVertex(vertex))
                     { // get backward sequences.
                         s1backward[k] = backwardWitnesses[k].GetSequence1(enumerator, 1);
                         s2backward[k] = backwardWitnesses[k].GetSequence2(enumerator, 1);
+
+                        if (!s1backward[k].IsSequenceIdentical(edge1Sequence2) ||
+                            !s2backward[k].IsSequenceIdentical(edge2Sequence2))
+                        { // start and end sequences of shortest paths need to match.
+                            s1backward[k] = null;
+                            s2backward[k] = null;
+                        }
                     }
                 }
 
@@ -400,22 +425,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     { // do not try to add a shortcut between identical vertices.
                         continue;
                     }
-                    if (s1forward[k] != null && s1backward[k] != null &&
-                        System.Math.Abs(_weightHandler.GetMetric(forwardWitnesses[k].Weight) - _weightHandler.GetMetric(backwardWitnesses[k].Weight)) < E)
-                    { // paths in both direction are possible and with the same weight, add just one edge in each direction.
-                        s1backward[k].Reverse();
-                        s2backward[k].Reverse();
-                        _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, null, 
-                            forwardWitnesses[k].Weight, s1forward[k], s2forward[k]);
-                        //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                        //    forwardWitnesses[k].Weight, null, vertex, s1forward[k], s2forward[k]);
-                        _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, null,
-                            backwardWitnesses[k].Weight, s2backward[k], s1backward[k]);
-                        //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                        //    backwardWitnesses[k].Weight, null, vertex, s2backward[k], s1backward[k]);
-                    }
-                    else
-                    { // add two edge per direction.
+
+                    //if (s1forward[k] != null && s1backward[k] != null &&
+                    //    System.Math.Abs(_weightHandler.GetMetric(forwardWitnesses[k].Weight) - _weightHandler.GetMetric(backwardWitnesses[k].Weight)) < E)
+                    //{ // paths in both direction are possible and with the same weight, add just one edge in each direction.
+                    //    s1backward[k].Reverse();
+                    //    s2backward[k].Reverse();
+                    //    _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, null,
+                    //        forwardWitnesses[k].Weight, s1forward[k], s2forward[k]);
+                    //    //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
+                    //    //    forwardWitnesses[k].Weight, null, vertex, s1forward[k], s2forward[k]);
+                    //    _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, null,
+                    //        backwardWitnesses[k].Weight, s2backward[k], s1backward[k]);
+                    //    //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
+                    //    //    backwardWitnesses[k].Weight, null, vertex, s2backward[k], s1backward[k]);
+                    //}
+                    //else
+                    //{ // add two edge per direction.
                         if (s1forward[k] != null)
                         { // add forward edge.
                             _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, true,
@@ -432,17 +458,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         if (s1backward[k] != null)
                         { // add forward edge.
                             _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, false,
-                                backwardWitnesses[k].Weight, s2backward[k], s1backward[k]);
+                                backwardWitnesses[k].Weight, s1backward[k], s2backward[k]);
                             //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
                             //    backwardWitnesses[k].Weight, false, vertex, s2backward[k], s1backward[k]);
                             s1backward[k].Reverse();
                             s2backward[k].Reverse();
                             _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, true,
-                                backwardWitnesses[k].Weight, s1backward[k], s2backward[k]);
+                                backwardWitnesses[k].Weight, s2backward[k], s1backward[k]);
                             //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
                             //    backwardWitnesses[k].Weight, true, vertex, s1backward[k], s2backward[k]);
                         }
-                    }
+                    //}
                 }
             }
 
