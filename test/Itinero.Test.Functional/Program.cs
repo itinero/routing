@@ -74,26 +74,20 @@ namespace Itinero.Test.Functional
             router.ProfileFactorAndSpeedCache = profileCache;
 
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
+
+            // TEST1: Test random routes.
             Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
 
-            //var coordinate = routerDb.Network.GetVertex(11028);
-            var edges = routerDb.GetFeaturesIn(49.65723860380936f, 6.122174263000488f, 49.662877947043356f, 6.132967472076416f, true).ToGeoJson();
+            // TEST2: Tests find islands.
+            Runner.GetTestIslandDetection(routerDb).TestPerf("Testing island detection.", 10);
 
-            var route = (new Router(routerDb)).Calculate(Vehicle.Car.Fastest(), new Coordinate(49.90403f, 6.228161f),
-                new Coordinate(49.64342f, 6.128012f));
-            //var route = (new Router(routerDb)).Calculate(Vehicle.Car.Fastest(), new Coordinate(49.53381f, 6.244405f), new Coordinate(49.68385f, 6.225332f));
-            //route = (new Router(routerDb)).Calculate(Vehicle.Car.Fastest(), new Coordinate(49.67331f, 6.077742f), new Coordinate(49.59933f, 5.871024f));
-
-            //// TEST2: Tests find islands.
-            //Runner.GetTestIslandDetection(routerDb).TestPerf("Testing island detection.", 10);
-
-            //// TEST3: calulate isochrones.
-            //var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 1);
+            // TEST3: calulate isochrones.
+            var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 1);
             //var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
 
-            //// TEST4: calculate heatmaps.
-            //var result = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
-            
+            // TEST4: calculate heatmaps.
+            var result = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
+
             _logger.Log(TraceEventType.Information, "Testing finished.");
             Console.ReadLine();
         }
