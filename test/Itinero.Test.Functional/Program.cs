@@ -89,7 +89,9 @@ namespace Itinero.Test.Functional
             var result = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
+#if DEBUG
             Console.ReadLine();
+#endif
         }
 
         private static string ToJson(FeatureCollection featureCollection)

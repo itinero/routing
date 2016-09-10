@@ -24,7 +24,7 @@
           "lib/net40/protobuf-net.dll": {}
         }
       },
-      "Reminiscence/1.0.5-rc1": {
+      "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
           "lib/net40/Reminiscence.dll": {}
@@ -37,7 +37,7 @@
         "type": "project",
         "framework": ".NETFramework,Version=v4.0",
         "dependencies": {
-          "Reminiscence": "1.0.5-rc1"
+          "Reminiscence": "1.0.5"
         },
         "frameworkAssemblies": [
           "System.Xml"
@@ -72,7 +72,7 @@
           "lib/net40/protobuf-net.dll": {}
         }
       },
-      "Reminiscence/1.0.5-rc1": {
+      "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
           "lib/net45/Reminiscence.dll": {}
@@ -85,7 +85,7 @@
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "Reminiscence": "1.0.5-rc1"
+          "Reminiscence": "1.0.5"
         },
         "frameworkAssemblies": [
           "System.Xml"
@@ -120,7 +120,7 @@
           "lib/portable-sl4+net40+wp7+windows8/protobuf-net.dll": {}
         }
       },
-      "Reminiscence/1.0.5-rc1": {
+      "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
           "lib/portable-net403+sl50+win+wp80+Xamarin.iOS10+MonoAndroid10+MonoTouch10/Reminiscence.dll": {}
@@ -133,7 +133,7 @@
         "type": "project",
         "framework": ".NETPortable,Version=v4.0,Profile=Profile147",
         "dependencies": {
-          "Reminiscence": "1.0.5-rc1"
+          "Reminiscence": "1.0.5"
         },
         "frameworkAssemblies": [
           "System",
@@ -335,7 +335,7 @@
           "lib/netstandard1.3/protobuf-net.dll": {}
         }
       },
-      "Reminiscence/1.0.5-rc1": {
+      "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
           "lib/netstandard1.3/Reminiscence.dll": {}
@@ -1200,7 +1200,7 @@
         "framework": ".NETStandard,Version=v1.3",
         "dependencies": {
           "NETStandard.Library": "1.6.0",
-          "Reminiscence": "1.0.5-rc1",
+          "Reminiscence": "1.0.5",
           "System.Xml.XmlSerializer": "4.0.11"
         },
         "compile": {
@@ -1537,12 +1537,12 @@
         "protobuf-net.nuspec"
       ]
     },
-    "Reminiscence/1.0.5-rc1": {
-      "sha512": "DKRBw2iThD+5ELtqhLltoEXViZ1xZD/TTpH1Xp9k9VsCOrAE3IZqcwJM1kJBQyYlyaDnq/07bbTxlXrHRwsIxw==",
+    "Reminiscence/1.0.5": {
+      "sha512": "PrjrLzIAT1fWIQLv7Bz3KDrQ3fvsqqafOPtiSpQ5K3UVMjvmO8c2T/yFpqO85SV97RH8XTc9f8V/KtTj+Sgsvw==",
       "type": "package",
-      "path": "Reminiscence/1.0.5-rc1",
+      "path": "Reminiscence/1.0.5",
       "files": [
-        "Reminiscence.1.0.5-rc1.nupkg.sha512",
+        "Reminiscence.1.0.5.nupkg.sha512",
         "Reminiscence.nuspec",
         "lib/net40/Reminiscence.dll",
         "lib/net45/Reminiscence.dll",

@@ -361,7 +361,7 @@
           "lib/net40/protobuf-net.dll": {}
         }
       },
-      "Reminiscence/1.0.5-rc1": {
+      "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
           "lib/net45/Reminiscence.dll": {}
@@ -740,7 +740,7 @@
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
-          "Reminiscence": "1.0.5-rc1"
+          "Reminiscence": "1.0.5"
         },
         "frameworkAssemblies": [
           "System.Xml"
@@ -1192,12 +1192,12 @@
         "protobuf-net.nuspec"
       ]
     },
-    "Reminiscence/1.0.5-rc1": {
-      "sha512": "DKRBw2iThD+5ELtqhLltoEXViZ1xZD/TTpH1Xp9k9VsCOrAE3IZqcwJM1kJBQyYlyaDnq/07bbTxlXrHRwsIxw==",
+    "Reminiscence/1.0.5": {
+      "sha512": "PrjrLzIAT1fWIQLv7Bz3KDrQ3fvsqqafOPtiSpQ5K3UVMjvmO8c2T/yFpqO85SV97RH8XTc9f8V/KtTj+Sgsvw==",
       "type": "package",
-      "path": "Reminiscence/1.0.5-rc1",
+      "path": "Reminiscence/1.0.5",
       "files": [
-        "Reminiscence.1.0.5-rc1.nupkg.sha512",
+        "Reminiscence.1.0.5.nupkg.sha512",
         "Reminiscence.nuspec",
         "lib/net40/Reminiscence.dll",
         "lib/net45/Reminiscence.dll",

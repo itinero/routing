@@ -15,7 +15,7 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-          <dependency id="Reminiscence" version="1.0.2" />
+          <dependency id="Reminiscence" version="1.0.5" />
         </dependencies>
     </metadata>
     <files>

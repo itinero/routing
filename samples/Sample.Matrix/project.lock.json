@@ -326,7 +326,7 @@
           "System.Xml.XDocument": "4.0.11"
         }
       },
-      "Reminiscence/1.0.5-rc1": {
+      "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
           "lib/netstandard1.3/Reminiscence.dll": {}
@@ -2070,7 +2070,7 @@
         "framework": ".NETStandard,Version=v1.3",
         "dependencies": {
           "NETStandard.Library": "1.6.0",
-          "Reminiscence": "1.0.5-rc1",
+          "Reminiscence": "1.0.5",
           "System.Xml.XmlSerializer": "4.0.11"
         },
         "compile": {
@@ -2450,12 +2450,12 @@
         "dotnet_library_license.txt"
       ]
     },
-    "Reminiscence/1.0.5-rc1": {
-      "sha512": "DKRBw2iThD+5ELtqhLltoEXViZ1xZD/TTpH1Xp9k9VsCOrAE3IZqcwJM1kJBQyYlyaDnq/07bbTxlXrHRwsIxw==",
+    "Reminiscence/1.0.5": {
+      "sha512": "PrjrLzIAT1fWIQLv7Bz3KDrQ3fvsqqafOPtiSpQ5K3UVMjvmO8c2T/yFpqO85SV97RH8XTc9f8V/KtTj+Sgsvw==",
       "type": "package",
-      "path": "Reminiscence/1.0.5-rc1",
+      "path": "Reminiscence/1.0.5",
       "files": [
-        "Reminiscence.1.0.5-rc1.nupkg.sha512",
+        "Reminiscence.1.0.5.nupkg.sha512",
         "Reminiscence.nuspec",
         "lib/net40/Reminiscence.dll",
         "lib/net45/Reminiscence.dll",
