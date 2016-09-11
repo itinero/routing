@@ -185,7 +185,7 @@ namespace Itinero
         /// </summary>
         public bool Supports(string profileName)
         {
-            return _supportedProfiles.Contains(profileName);
+            return _supportedProfiles.Any((x) => x.Equals(profileName, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
