@@ -122,6 +122,14 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Returns true if the given profile is supported.
+        /// </summary>
+        public static bool Supports(this RouterDb db, Profiles.Profile profile)
+        {
+            return db.Supports(profile.Name);
+        }
+
+        /// <summary>
         /// Returns one attribute collection containing both the profile and meta tags.
         /// </summary>
         public static IAttributeCollection GetProfileAndMeta(this RouterDb db, uint profileId, uint meta)

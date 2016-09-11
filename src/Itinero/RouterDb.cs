@@ -183,9 +183,9 @@ namespace Itinero
         /// <summary>
         /// Returns true if the given profile is supported.
         /// </summary>
-        public bool Supports(Profiles.Profile profile)
+        public bool Supports(string profileName)
         {
-            return _supportedProfiles.Contains(profile.Name);
+            return _supportedProfiles.Contains(profileName);
         }
 
         /// <summary>
