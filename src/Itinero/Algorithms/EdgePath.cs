@@ -67,17 +67,17 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the vertex.
         /// </summary>
-        public uint Vertex { get; private set; }
+        public uint Vertex { get; set; }
         
         /// <summary>
         /// Gets the weight at the vertex.
         /// </summary>
-        public T Weight { get; private set; }
+        public T Weight { get; set; }
 
         /// <summary>
         /// Gets previous path.
         /// </summary>
-        public EdgePath<T> From { get; private set; }
+        public EdgePath<T> From { get; set; }
 
         /// <summary>
         /// Returns a description of this path.

@@ -147,6 +147,26 @@ namespace Itinero.Algorithms
         }
 
         /// <summary>
+        /// Strips the source vertex.
+        /// </summary>
+        public static void StripSource<T>(this EdgePath<T> path)
+        {
+            while(path.From != null)
+            {
+                path = path.From;
+            }
+            path.Vertex = Constants.NO_VERTEX;
+        }
+
+        /// <summary>
+        /// Strips the target vertex.
+        /// </summary>
+        public static void StripTarget<T>(this EdgePath<T> path)
+        {
+            path.Vertex = Constants.NO_VERTEX;
+        }
+
+        /// <summary>
         /// Converts the path to a list.
         /// </summary>
         public static List<EdgePath<T>> ToList<T>(this EdgePath<T> path)
