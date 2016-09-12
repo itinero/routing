@@ -32,6 +32,7 @@ using Itinero.Profiles;
 using Itinero.Algorithms.Networks;
 using Itinero.LocalGeo;
 using Itinero;
+using Itinero.LocalGeo.IO;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.IO.Osm;
 using Itinero.Algorithms.Weights;
@@ -86,7 +87,11 @@ namespace Itinero.Test.Functional
             //var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
 
             // TEST4: calculate heatmaps.
-            var result = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
+            var heatmap = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
+
+            // TEST5: calculate tree.
+            var lines = Runner.GetTestTreeCalculation(router).TestPerf("Testing tree calculation.", 100);
+            //var linesJson = lines.ToGeoJson();
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

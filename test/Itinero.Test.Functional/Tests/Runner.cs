@@ -33,6 +33,7 @@ using Itinero.LocalGeo;
 using System.Collections.Generic;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.Algorithms.Networks.Analytics.Heatmaps;
+using Itinero.Algorithms.Networks.Analytics.Trees;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -227,6 +228,21 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 return router.CalculateHeatmap(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
+            };
+        }
+
+        /// <summary>
+        /// Gets a test function to calculate a tree.
+        /// </summary>
+        public static Func<List<Tuple<float, float, List<Coordinate>>>> GetTestTreeCalculation(Router router)
+        {
+            var random = new System.Random();
+            return () =>
+            {
+                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f = router.Db.Network.GetVertex(v);
+
+                return router.CalculateTree(Vehicle.Car.Fastest(), f, 360);
             };
         }
     }

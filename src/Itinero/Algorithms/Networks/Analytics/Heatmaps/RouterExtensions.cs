@@ -32,6 +32,12 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// </summary>
         public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, Coordinate origin, int limitInSeconds, int zoom = 16)
         {
+            if (!router.SupportsAll(profile))
+            {
+                throw new ArgumentException(string.Format("Profile {0} not supported.",
+                    profile.Name));
+            }
+
             var routerOrigin = router.Resolve(profile, origin);
             return router.CalculateHeatmap(profile, routerOrigin, limitInSeconds, zoom);
         }
@@ -41,6 +47,12 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// </summary>
         public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, RouterPoint origin, int limitInSeconds, int zoom = 16)
         {
+            if (!router.SupportsAll(profile))
+            {
+                throw new ArgumentException(string.Format("Profile {0} not supported.",
+                    profile.Name));
+            }
+
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",

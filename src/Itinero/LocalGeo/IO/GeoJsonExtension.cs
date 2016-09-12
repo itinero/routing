@@ -153,5 +153,79 @@ namespace Itinero.LocalGeo.IO
             jsonWriter.WriteArrayClose(); // closes the coordinates top level.
             jsonWriter.WriteClose(); // closes the geometry.
         }
+
+        /// <summary>
+        /// Converts all the lines to geojson.
+        /// </summary>
+        public static string ToGeoJson(this IEnumerable<Tuple<float, float, List<Coordinate>>> lines)
+        {
+            var stringWriter = new StringWriter();
+            lines.WriteGeoJson(stringWriter);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Writes the lines as geojson.
+        /// </summary>
+        private static void WriteGeoJson(this IEnumerable<Tuple<float, float, List<Coordinate>>> lines, TextWriter writer)
+        {
+            if (lines == null) { throw new ArgumentNullException("lines"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new Itinero.IO.Json.JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            foreach (var line in lines)
+            {
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Feature", true, false);
+                jsonWriter.WriteProperty("name", "Shape", true, false);
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteOpen();
+
+                jsonWriter.WritePropertyName("start_weight");
+                jsonWriter.WritePropertyValue(line.Item1.ToInvariantString());
+                jsonWriter.WritePropertyName("end_weight");
+                jsonWriter.WritePropertyValue(line.Item2.ToInvariantString());
+
+                jsonWriter.WriteClose();
+                jsonWriter.WritePropertyName("geometry", false);
+
+                line.Item3.WriteGeoJson(jsonWriter);
+
+                jsonWriter.WriteClose(); // closes the feature.
+            }
+
+            jsonWriter.WriteArrayClose(); // closes the feature array.
+            jsonWriter.WriteClose(); // closes the feature collection.
+        }
+
+        /// <summary>
+        /// Writes the line as geojson.
+        /// </summary>
+        private static void WriteGeoJson(this List<Coordinate> line, Itinero.IO.Json.JsonWriter jsonWriter)
+        {
+            if (line == null) { throw new ArgumentNullException("line"); }
+            if (jsonWriter == null) { throw new ArgumentNullException("jsonWriter"); }
+
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "LineString", true, false);
+            jsonWriter.WritePropertyName("coordinates", false);
+            jsonWriter.WriteArrayOpen();
+            
+            for (var i = 0; i < line.Count; i++)
+            {
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(line[i].Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(line[i].Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+            }
+
+            jsonWriter.WriteArrayClose(); // closes the coordinates top level.
+            jsonWriter.WriteClose(); // closes the geometry.
+        }
     }
 }
