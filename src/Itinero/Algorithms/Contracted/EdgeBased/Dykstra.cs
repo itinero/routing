@@ -37,12 +37,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
         private readonly bool _backward;
         private readonly WeightHandler<T> _weightHandler;
+        private readonly T _max;
 
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
         public Dykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources,
-            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward)
+            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward, T max)
         {
             weightHandler.CheckCanUse(graph);
 
@@ -54,6 +55,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             });
             _backward = backward;
             _weightHandler = weightHandler;
+            _max = max;
         }
 
         private DirectedDynamicGraph.EdgeEnumerator _edgeEnumerator;
@@ -200,6 +202,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (!_visits.TryGetValue(_current.Vertex, out edgePath) ||
                         !edgePath.HasPath(routeToNeighbour))
                     { // this vertex has not been visited in this way before.
+                        if (_weightHandler.IsLargerThan(routeToNeighbour.Weight, _max))
+                        {
+                            continue;
+                        }
                         _heap.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                     }
                 }
@@ -285,8 +291,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Creates a new routing algorithm instance.
         /// </summary>
         public Dykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources,
-            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward)
-            : base(graph, new DefaultWeightHandler(null), sources, getRestrictions, backward)
+            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward, float max = float.MaxValue)
+            : base(graph, new DefaultWeightHandler(null), sources, getRestrictions, backward, max)
         {
 
         }

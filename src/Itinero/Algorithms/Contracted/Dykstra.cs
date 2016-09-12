@@ -34,11 +34,12 @@ namespace Itinero.Algorithms.Contracted
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly bool _backward;
         private readonly WeightHandler<T> _weightHandler;
+        private readonly T _max;
 
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, bool backward)
+        public Dykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, bool backward, T max)
         {
             weightHandler.CheckCanUse(graph);
 
@@ -46,6 +47,7 @@ namespace Itinero.Algorithms.Contracted
             _sources = sources;
             _backward = backward;
             _weightHandler = weightHandler;
+            _max = max;
         }
 
         private DirectedMetaGraph.EdgeEnumerator _edgeEnumerator;
@@ -132,6 +134,10 @@ namespace Itinero.Algorithms.Contracted
                     { // if not yet settled.
                         var routeToNeighbour = new EdgePath<T>(
                             neighbourNeighbour, _weightHandler.Add(_current.Weight, neighbourWeight), _current);
+                        if (_weightHandler.IsLargerThan(routeToNeighbour.Weight, _max))
+                        {
+                            continue;
+                        }
                         _heap.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
                     }
                 }
@@ -199,8 +205,8 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedMetaGraph graph, IEnumerable<EdgePath<float>> sources, bool backward)
-            : base(graph, new DefaultWeightHandler(null), sources, backward)
+        public Dykstra(DirectedMetaGraph graph, IEnumerable<EdgePath<float>> sources, bool backward, float max = float.MaxValue)
+            : base(graph, new DefaultWeightHandler(null), sources, backward, max)
         {
 
         }

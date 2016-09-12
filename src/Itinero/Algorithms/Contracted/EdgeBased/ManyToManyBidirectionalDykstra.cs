@@ -38,18 +38,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly Dictionary<uint, Dictionary<int, T>> _buckets;
         private readonly WeightHandler<T> _weightHandler;
         private readonly Profile _profile;
+        private readonly T _max;
         
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
         public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources,
-            RouterPoint[] targets)
+            RouterPoint[] targets, T max)
         {
             _routerDb = routerDb;
             _weightHandler = weightHandler;
             _sources = sources;
             _targets = targets;
             _profile = profile;
+            _max = max;
 
             ContractedDb contractedDb;
             if (!_routerDb.TryGetContracted(profile, out contractedDb))
@@ -100,7 +102,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile, null), false);
+                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile, null), false, _max);
                 forward.WasFound += (vertex, weight) =>
                     {
                         return this.ForwardVertexFound(i, vertex, weight);
@@ -111,7 +113,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile, null), true);
+                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile, null), true, _max);
                 backward.WasFound += (vertex, weight) =>
                     {
                         return this.BackwardVertexFound(i, vertex, weight);
@@ -195,8 +197,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Creates a new algorithm.
         /// </summary>
         public ManyToManyBidirectionalDykstra(Router router, Profile profile, RouterPoint[] sources,
-            RouterPoint[] targets)
-            : base(router.Db, profile, profile.DefaultWeightHandler(router), sources, targets)
+            RouterPoint[] targets, float max = float.MaxValue)
+            : base(router.Db, profile, profile.DefaultWeightHandler(router), sources, targets, max)
         {
 
         }
@@ -205,8 +207,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Creates a new algorithm.
         /// </summary>
         public ManyToManyBidirectionalDykstra(RouterDb router, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
-            RouterPoint[] targets)
-            : base(router, profile, weightHandler, sources, targets)
+            RouterPoint[] targets, float max = float.MaxValue)
+            : base(router, profile, weightHandler, sources, targets, max)
         {
 
         }
