@@ -38,4 +38,3 @@ packages/*
 
 *.routerdb
 *.osm.pbf
-*.osm
