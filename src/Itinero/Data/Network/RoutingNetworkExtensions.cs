@@ -180,6 +180,11 @@ namespace Itinero.Data.Network
             // add edges.
             for(var i = 0; i < vertex2Edges.Count; i++)
             {
+                if (vertex1 == vertex2Edges[i].To)
+                {
+                    continue;
+                }
+
                 if (!vertex2Edges[i].DataInverted)
                 { // not inverted, add as vertex1 -> to.
                     network.AddEdge(vertex1, vertex2Edges[i].To, vertex2Edges[i].Data, vertex2Edges[i].Shape);

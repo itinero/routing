@@ -76,6 +76,19 @@ namespace Itinero.Test.Functional
 
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
 
+            //using (var stream = File.Open("temp.routerdb", FileMode.Create, FileAccess.ReadWrite))
+            //{
+            //    routerDb.Serialize(stream);
+            //    stream.Flush();
+            //    stream.Close();
+            //}
+
+            //using (var stream = File.Open("temp.routerdb", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+            //{
+            //    routerDb = RouterDb.Deserialize(stream);
+            //}
+            //router = new Router(routerDb);
+
             // TEST1: Test random routes.
             Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
 

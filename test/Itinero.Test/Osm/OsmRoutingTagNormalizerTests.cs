@@ -18,7 +18,7 @@
 
 using NUnit.Framework;
 using Itinero.Attributes;
-using Itinero.Osm;
+using Itinero.IO.Osm.Normalizer;
 
 namespace Itinero.Test.Osm
 {
