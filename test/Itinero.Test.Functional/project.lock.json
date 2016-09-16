@@ -185,6 +185,32 @@
           "lib/net45/PowerCollections.dll": {}
         }
       },
+      "NetTopologySuite.IO/1.14.0.1": {
+        "type": "package",
+        "dependencies": {
+          "NetTopologySuite": "1.14.0"
+        },
+        "frameworkAssemblies": [
+          "System",
+          "System.Core"
+        ],
+        "compile": {
+          "lib/net45/NetTopologySuite.IO.GeoTools.dll": {},
+          "lib/net45/NetTopologySuite.IO.MsSqlSpatial.dll": {},
+          "lib/net45/NetTopologySuite.IO.PostGis.dll": {},
+          "lib/net45/NetTopologySuite.IO.ShapeFile.Extended.dll": {},
+          "lib/net45/NetTopologySuite.IO.ShapeFile.dll": {},
+          "lib/net45/NetTopologySuite.IO.dll": {}
+        },
+        "runtime": {
+          "lib/net45/NetTopologySuite.IO.GeoTools.dll": {},
+          "lib/net45/NetTopologySuite.IO.MsSqlSpatial.dll": {},
+          "lib/net45/NetTopologySuite.IO.PostGis.dll": {},
+          "lib/net45/NetTopologySuite.IO.ShapeFile.Extended.dll": {},
+          "lib/net45/NetTopologySuite.IO.ShapeFile.dll": {},
+          "lib/net45/NetTopologySuite.IO.dll": {}
+        }
+      },
       "NetTopologySuite.IO.GeoJSON/1.14.0": {
         "type": "package",
         "dependencies": {
@@ -787,6 +813,26 @@
         "runtime": {
           "net45/Itinero.IO.Osm.dll": {}
         }
+      },
+      "Itinero.IO.Shape/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.5",
+        "dependencies": {
+          "GeoAPI": "1.7.4",
+          "Itinero": "1.0.0",
+          "NETStandard.Library": "1.6.0",
+          "NetTopologySuite": "1.14.0",
+          "NetTopologySuite.IO": "1.14.0.1"
+        },
+        "frameworkAssemblies": [
+          "System.Xml"
+        ],
+        "compile": {
+          "net45/Itinero.IO.Shape.dll": {}
+        },
+        "runtime": {
+          "net45/Itinero.IO.Shape.dll": {}
+        }
       }
     }
   },
@@ -956,6 +1002,71 @@
         "lib/portable-net403+sl5+netcore45+wpa81+wp8+MonoAndroid10+XamariniOS10+MonoTouch10/NetTopologySuite.xml",
         "lib/portable-net403+sl5+netcore45+wpa81+wp8+MonoAndroid10+XamariniOS10+MonoTouch10/PowerCollections.dll",
         "lib/portable-net403+sl5+netcore45+wpa81+wp8+MonoAndroid10+XamariniOS10+MonoTouch10/PowerCollections.xml"
+      ]
+    },
+    "NetTopologySuite.IO/1.14.0.1": {
+      "sha512": "XTsFycrhC/tUBepRnSwWvLDUWRMO0rxemU5HmXYfk4/vP626t9g/xcy2ZiN6qroFDWGEB2tPbSPnwwINaWefpA==",
+      "type": "package",
+      "path": "NetTopologySuite.IO/1.14.0.1",
+      "files": [
+        "NetTopologySuite.IO.1.14.0.1.nupkg.sha512",
+        "NetTopologySuite.IO.nuspec",
+        "lib/net20/NetTopologySuite.IO.GeoTools.dll",
+        "lib/net20/NetTopologySuite.IO.GeoTools.xml",
+        "lib/net20/NetTopologySuite.IO.MsSqlSpatial.dll",
+        "lib/net20/NetTopologySuite.IO.MsSqlSpatial.xml",
+        "lib/net20/NetTopologySuite.IO.PostGis.dll",
+        "lib/net20/NetTopologySuite.IO.PostGis.xml",
+        "lib/net20/NetTopologySuite.IO.ShapeFile.dll",
+        "lib/net20/NetTopologySuite.IO.ShapeFile.xml",
+        "lib/net20/NetTopologySuite.IO.dll",
+        "lib/net20/NetTopologySuite.IO.xml",
+        "lib/net35-client/NetTopologySuite.IO.GeoTools.dll",
+        "lib/net35-client/NetTopologySuite.IO.GeoTools.xml",
+        "lib/net35-client/NetTopologySuite.IO.MsSqlSpatial.dll",
+        "lib/net35-client/NetTopologySuite.IO.MsSqlSpatial.xml",
+        "lib/net35-client/NetTopologySuite.IO.PostGis.dll",
+        "lib/net35-client/NetTopologySuite.IO.PostGis.xml",
+        "lib/net35-client/NetTopologySuite.IO.ShapeFile.dll",
+        "lib/net35-client/NetTopologySuite.IO.ShapeFile.xml",
+        "lib/net35-client/NetTopologySuite.IO.dll",
+        "lib/net35-client/NetTopologySuite.IO.xml",
+        "lib/net40-client/NetTopologySuite.IO.GeoTools.dll",
+        "lib/net40-client/NetTopologySuite.IO.GeoTools.xml",
+        "lib/net40-client/NetTopologySuite.IO.MsSqlSpatial.dll",
+        "lib/net40-client/NetTopologySuite.IO.MsSqlSpatial.xml",
+        "lib/net40-client/NetTopologySuite.IO.PostGis.dll",
+        "lib/net40-client/NetTopologySuite.IO.PostGis.xml",
+        "lib/net40-client/NetTopologySuite.IO.ShapeFile.Extended.dll",
+        "lib/net40-client/NetTopologySuite.IO.ShapeFile.Extended.xml",
+        "lib/net40-client/NetTopologySuite.IO.ShapeFile.dll",
+        "lib/net40-client/NetTopologySuite.IO.ShapeFile.xml",
+        "lib/net40-client/NetTopologySuite.IO.dll",
+        "lib/net40-client/NetTopologySuite.IO.xml",
+        "lib/net403-client/NetTopologySuite.IO.GeoTools.dll",
+        "lib/net403-client/NetTopologySuite.IO.GeoTools.xml",
+        "lib/net403-client/NetTopologySuite.IO.MsSqlSpatial.dll",
+        "lib/net403-client/NetTopologySuite.IO.MsSqlSpatial.xml",
+        "lib/net403-client/NetTopologySuite.IO.PostGis.dll",
+        "lib/net403-client/NetTopologySuite.IO.PostGis.xml",
+        "lib/net403-client/NetTopologySuite.IO.ShapeFile.Extended.dll",
+        "lib/net403-client/NetTopologySuite.IO.ShapeFile.Extended.xml",
+        "lib/net403-client/NetTopologySuite.IO.ShapeFile.dll",
+        "lib/net403-client/NetTopologySuite.IO.ShapeFile.xml",
+        "lib/net403-client/NetTopologySuite.IO.dll",
+        "lib/net403-client/NetTopologySuite.IO.xml",
+        "lib/net45/NetTopologySuite.IO.GeoTools.dll",
+        "lib/net45/NetTopologySuite.IO.GeoTools.xml",
+        "lib/net45/NetTopologySuite.IO.MsSqlSpatial.dll",
+        "lib/net45/NetTopologySuite.IO.MsSqlSpatial.xml",
+        "lib/net45/NetTopologySuite.IO.PostGis.dll",
+        "lib/net45/NetTopologySuite.IO.PostGis.xml",
+        "lib/net45/NetTopologySuite.IO.ShapeFile.Extended.dll",
+        "lib/net45/NetTopologySuite.IO.ShapeFile.Extended.xml",
+        "lib/net45/NetTopologySuite.IO.ShapeFile.dll",
+        "lib/net45/NetTopologySuite.IO.ShapeFile.xml",
+        "lib/net45/NetTopologySuite.IO.dll",
+        "lib/net45/NetTopologySuite.IO.xml"
       ]
     },
     "NetTopologySuite.IO.GeoJSON/1.14.0": {
@@ -3307,6 +3418,11 @@
       "type": "project",
       "path": "../../src/Itinero.IO.Osm/project.json",
       "msbuildProject": "../../src/Itinero.IO.Osm/Itinero.IO.Osm.xproj"
+    },
+    "Itinero.IO.Shape/1.0.0": {
+      "type": "project",
+      "path": "../../src/Itinero.IO.Shape/project.json",
+      "msbuildProject": "../../src/Itinero.IO.Shape/Itinero.IO.Shape.xproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -3315,6 +3431,7 @@
       "Itinero >= 1.0.0-*",
       "Itinero.Geo >= 1.0.0-*",
       "Itinero.IO.Osm >= 1.0.0-*",
+      "Itinero.IO.Shape >= 1.0.0-*",
       "NUnit >= 3.4.1",
       "NetTopologySuite >= 1.14.0",
       "NetTopologySuite.IO.GeoJSON >= 1.14.0",

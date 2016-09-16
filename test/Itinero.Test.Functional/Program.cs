@@ -36,6 +36,7 @@ using Itinero.LocalGeo.IO;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.IO.Osm;
 using Itinero.Algorithms.Weights;
+using Itinero.IO.Shape;
 
 namespace Itinero.Test.Functional
 {
@@ -57,7 +58,7 @@ namespace Itinero.Test.Functional
             _logger = new Logger("Default");
 
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-
+            
             // download and extract test-data if not already there.
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();

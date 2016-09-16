@@ -26,6 +26,7 @@ using Itinero.LocalGeo;
 using Itinero.IO.Shape.Vehicles;
 using Itinero.Attributes;
 using Itinero.Algorithms.Search.Hilbert;
+using Itinero.Data.Network;
 
 namespace Itinero.IO.Shape.Reader
 {
@@ -219,12 +220,106 @@ namespace Itinero.IO.Shape.Reader
                         var metaId = _routerDb.EdgeMeta.Add(meta);
                         if (vertex1 != vertex2)
                         {
-                            _routerDb.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
+                            if (distance > _routerDb.Network.MaxEdgeDistance)
+                            { // edge is too long to fit into the network, adding an itermediate vertex.
+                                var shape = intermediates;
+                                if (shape == null)
+                                { // make sure there is a shape.
+                                    shape = new List<Coordinate>();
+                                }
+
+                                shape = new List<Coordinate>(shape);
+                                shape.Insert(0, _routerDb.Network.GetVertex(vertex1));
+                                shape.Add(_routerDb.Network.GetVertex(vertex2));
+
+                                var tooBig = true;
+                                while (tooBig)
+                                {
+                                    tooBig = false;
+                                    for (var s = 1; s < shape.Count; s++)
+                                    {
+                                        var localDistance = Coordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
+                                        if (localDistance >= _routerDb.Network.MaxEdgeDistance)
+                                        { // insert a new intermediate.
+                                            shape.Insert(s,
+                                                new Coordinate()
+                                                {
+                                                    Latitude = (float)(((double)shape[s - 1].Latitude +
+                                                        (double)shape[s].Latitude) / 2.0),
+                                                    Longitude = (float)(((double)shape[s - 1].Longitude +
+                                                        (double)shape[s].Longitude) / 2.0),
+                                                });
+                                            tooBig = true;
+                                            s--;
+                                        }
+                                    }
+                                }
+
+                                var i = 0;
+                                var shortShape = new List<Coordinate>();
+                                var shortDistance = 0.0f;
+                                uint shortVertex = Constants.NO_VERTEX;
+                                Coordinate? shortPoint;
+                                i++;
+                                while (i < shape.Count)
+                                {
+                                    var localDistance = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
+                                    if (localDistance + shortDistance > _routerDb.Network.MaxEdgeDistance)
+                                    { // ok, previous shapepoint was the maximum one.
+                                        shortPoint = shortShape[shortShape.Count - 1];
+                                        shortShape.RemoveAt(shortShape.Count - 1);
+
+                                        // add vertex.            
+                                        shortVertex = _routerDb.Network.VertexCount;
+                                        _routerDb.Network.AddVertex(shortVertex, shortPoint.Value.Latitude,
+                                            shortPoint.Value.Longitude);
+
+                                        // add edge.
+                                        _routerDb.Network.AddEdge(vertex1, shortVertex, new Data.Network.Edges.EdgeData()
+                                        {
+                                            Distance = (float)shortDistance,
+                                            MetaId = metaId,
+                                            Profile = (ushort)profileId
+                                        }, shortShape);
+                                        vertex1 = shortVertex;
+
+                                        // set new short distance, empty shape.
+                                        shortShape.Clear();
+                                        shortShape.Add(shape[i]);
+                                        shortDistance = localDistance;
+                                        i++;
+                                    }
+                                    else
+                                    { // just add short distance and move to the next shape point.
+                                        shortShape.Add(shape[i]);
+                                        shortDistance += localDistance;
+                                        i++;
+                                    }
+                                }
+
+                                // add final segment.
+                                if (shortShape.Count > 0)
+                                {
+                                    shortShape.RemoveAt(shortShape.Count - 1);
+                                }
+
+                                // add edge.
+                                _routerDb.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
+                                {
+                                    Distance = (float)shortDistance,
+                                    MetaId = metaId,
+                                    Profile = (ushort)profileId
+                                }, shortShape);
+                            }
+                            else
                             {
-                                Distance = distance,
-                                MetaId = metaId,
-                                Profile = (ushort)profileId
-                            }, new Graphs.Geometric.Shapes.ShapeEnumerable(intermediates));
+                                _routerDb.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
+                                {
+                                    Distance = distance,
+                                    MetaId = metaId,
+                                    Profile = (ushort)profileId
+                                }, new Graphs.Geometric.Shapes.ShapeEnumerable(intermediates));
+                            }
                         }
                     }
 
