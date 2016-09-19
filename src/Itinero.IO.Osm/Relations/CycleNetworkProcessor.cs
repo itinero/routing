@@ -38,12 +38,17 @@ namespace Itinero.IO.Osm.Relations
 
         static Func<Relation, bool> IsRelevant = (r) =>
         {
-            return (r.Tags.Contains("type", "route") &&
-                r.Tags.Contains("route", "bicycle"));
+            return r.Tags != null && 
+                (r.Tags.Contains("type", "route") &&
+                 r.Tags.Contains("route", "bicycle"));
         };
 
         static Action<Way, TagsCollectionBase> AddTags = (w, t) =>
         {
+            if (w.Tags == null)
+            {
+                return;
+            }
             w.Tags.AddOrReplace("cyclenetwork", "yes");
         };
         
@@ -56,6 +61,10 @@ namespace Itinero.IO.Osm.Relations
             {
                 return (after, before) =>
                 {
+                    if (after == null || before == null)
+                    {
+                        return;
+                    }
                     if (before.Contains("cyclenetwork", "yes"))
                     {
                         after.AddOrReplace("cyclenetwork", "yes");
