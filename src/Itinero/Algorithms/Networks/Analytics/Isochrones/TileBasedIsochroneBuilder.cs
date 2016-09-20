@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             var tiles = new Dictionary<TileIndex, RoutingTile>();
             _polygons = new List<Polygon>();
 
-            _edgeVisitor.Visit += (id, startWeight, endWeight, shape) =>
+            _edgeVisitor.Visit += (id, startVertex, startWeight, endVertex, endWeight, shape) =>
             {
                 this.AddEdgeVisit(tiles, startWeight, endWeight, shape);
             };

@@ -234,7 +234,7 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Gets a test function to calculate a tree.
         /// </summary>
-        public static Func<List<Tuple<float, float, List<Coordinate>>>> GetTestTreeCalculation(Router router)
+        public static Func<Algorithms.Networks.Analytics.Trees.Models.Tree> GetTestTreeCalculation(Router router)
         {
             var random = new System.Random();
             return () =>

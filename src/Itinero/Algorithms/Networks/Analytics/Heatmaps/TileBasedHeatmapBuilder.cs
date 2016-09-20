@@ -50,7 +50,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         {
             var tiles = new Dictionary<TileIndex, RoutingTile>();
 
-            _edgeVisitor.Visit += (id, startWeight, endWeight, shape) =>
+            _edgeVisitor.Visit += (id, startVertex, startWeight, endVertex, endWeight, shape) =>
             {
                 var endCoordinate = shape[shape.Count - 1];
                 var index = TileIndex.WorldToTileIndex(endCoordinate.Latitude, endCoordinate.Longitude, _level);

@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Paul Den Dulk, Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,24 +16,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.LocalGeo;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Networks.Analytics
+namespace Itinero.LocalGeo
 {
     /// <summary>
-    /// Abstract representation of an algorithm that generates edge visits.
+    /// Extension methods for the local geo objects.
     /// </summary>
-    public interface IEdgeVisitor : IAlgorithm
+    public static class Extensions
     {
         /// <summary>
-        /// Gets or sets the visit delegate.
+        /// Converts the coordinates to a double double array.
         /// </summary>
-        VisitDelegate Visit { get; set; }
-    }
+        public static double[][] ToLonLatArray(this List<Coordinate> coordinates)
+        {
+            var array = new double[coordinates.Count][];
 
-    /// <summary>
-    /// A delegate that defines a visit.
-    /// </summary>
-    public delegate void VisitDelegate(long edgeId, uint startVertex, float startWeight, uint endVertex, float endWeight, List<Coordinate> coordinates);
+            for(var i = 0; i < coordinates.Count; i++)
+            {
+                array[i] = new double[]
+                {
+                    coordinates[i].Longitude,
+                    coordinates[i].Latitude
+                };
+            }
+
+            return array;
+        }
+    }
 }

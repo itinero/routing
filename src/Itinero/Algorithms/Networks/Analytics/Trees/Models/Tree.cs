@@ -1,4 +1,4 @@
-﻿// Itinero - OpenStreetMap (OSM) SDK
+﻿// Itinero - Routing for .NET
 // Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
@@ -16,7 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
+namespace Itinero.Algorithms.Networks.Analytics.Trees.Models
+{
+    /// <summary>
+    /// Represents a tree.
+    /// </summary>
+    public class Tree
+    {
+        /// <summary>
+        /// Gets or sets the maximum.
+        /// </summary>
+        public float Max { get; set; }
 
-[assembly: AssemblyVersion("0.26.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.26.0-rc1")]
+        /// <summary>
+        /// Gets or sets the edges.
+        /// </summary>
+        public TreeEdge[] Edges { get; set; }
+    }
+}

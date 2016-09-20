@@ -18,7 +18,7 @@
 
 using Itinero.LocalGeo;
 using System.Collections.Generic;
-using System;
+using Itinero.Algorithms.Networks.Analytics.Trees.Models;
 
 namespace Itinero.Algorithms.Networks.Analytics.Trees
 {
@@ -38,23 +38,54 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             _edgeVisitor = edgeVisitor;
         }
 
-        private Dictionary<uint, Tuple<float, float, List<Coordinate>>> _trees;
+        private HashSet<uint> _edges;
+        private List<TreeEdge> _treeEdges;
+        private float _max = 0;
+        private Tree _tree;
 
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
         protected override void DoRun()
         {
-            _trees = new Dictionary<uint, Tuple<float, float, List<Coordinate>>>();
-            _edgeVisitor.Visit += (id, startWeight, endWeight, shape) =>
+            _edges = new HashSet<uint>();
+            _treeEdges = new List<TreeEdge>();
+            _edgeVisitor.Visit += (directedEdgeId, startVertex, startWeight, endVertex, endWeight, shape) =>
             {
-                if (!_trees.ContainsKey(id))
+                uint edgeId;
+                if (directedEdgeId > 0)
                 {
-                    _trees[id] = new Tuple<float, float, List<Coordinate>>(
-                        startWeight, endWeight, shape);
+                    edgeId = (uint)directedEdgeId - 1;
+                }
+                else
+                {
+                    edgeId = (uint)((-directedEdgeId) - 1);
+                }
+
+                if (!_edges.Contains(edgeId))
+                {
+                    _treeEdges.Add(new TreeEdge()
+                    {
+                        Weight1 = startWeight,
+                        Vertex1 = startVertex,
+                        Weight2 = endWeight,
+                        Vertex2 = endVertex,
+                        Shape = shape.ToLonLatArray()
+                    });
+
+                    if (_max < endWeight)
+                    {
+                        _max = endWeight;
+                    }
                 }
             };
             _edgeVisitor.Run();
+
+            _tree = new Tree()
+            {
+                Edges = _treeEdges.ToArray(),
+                Max = _max
+            };
 
             this.HasSucceeded = true;
         }
@@ -62,11 +93,11 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Gets all visited edges.
         /// </summary>
-        public Dictionary<uint, Tuple<float, float, List<Coordinate>>> Tree
+        public Tree Tree
         {
             get
             {
-                return _trees;
+                return _tree;
             }
         }
     }

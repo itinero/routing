@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Paul Den Dulk, Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,24 +16,36 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.LocalGeo;
-using System.Collections.Generic;
-
-namespace Itinero.Algorithms.Networks.Analytics
+namespace Itinero.Algorithms.Networks.Analytics.Trees.Models
 {
     /// <summary>
-    /// Abstract representation of an algorithm that generates edge visits.
+    /// Represents an edge in a tree.
     /// </summary>
-    public interface IEdgeVisitor : IAlgorithm
+    public class TreeEdge
     {
         /// <summary>
-        /// Gets or sets the visit delegate.
+        /// Gets or sets the first vertex.
         /// </summary>
-        VisitDelegate Visit { get; set; }
-    }
+        public uint Vertex1 { get; set; }
 
-    /// <summary>
-    /// A delegate that defines a visit.
-    /// </summary>
-    public delegate void VisitDelegate(long edgeId, uint startVertex, float startWeight, uint endVertex, float endWeight, List<Coordinate> coordinates);
+        /// <summary>
+        /// Gets or sets the first weight.
+        /// </summary>
+        public float Weight1 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the second vertex.
+        /// </summary>
+        public uint Vertex2 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the second weight.
+        /// </summary>
+        public float Weight2 { get; set; }
+
+        /// <summary>
+        /// Gets or sets the shape.
+        /// </summary>
+        public double[][] Shape { get; set; }
+    }
 }

@@ -16,12 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero;
+using Itinero.Algorithms.Networks.Analytics.Trees.Models;
 using Itinero.LocalGeo;
 using Itinero.Profiles;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Itinero.Algorithms.Networks.Analytics.Trees
 {
@@ -33,7 +30,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Tries to calculate a tree starting at the given location.
         /// </summary>
-        public static List<Tuple<float, float, List<Coordinate>>> CalculateTree(this RouterBase router, Profile profile, Coordinate origin, float max)
+        public static Tree CalculateTree(this RouterBase router, Profile profile, Coordinate origin, float max)
         {
             return router.TryCalculateTree(profile, router.Resolve(profile, origin), max).Value;
         }
@@ -41,7 +38,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Tries to calculate a tree starting at the given location.
         /// </summary>
-        public static List<Tuple<float, float, List<Coordinate>>> CalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max)
+        public static Tree CalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max)
         {
             return router.TryCalculateTree(profile, origin, max).Value;
         }
@@ -49,17 +46,17 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Tries to calculate a tree starting at the given location.
         /// </summary>
-        public static Result<List<Tuple<float, float, List<Coordinate>>>> TryCalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max)
+        public static Result<Tree> TryCalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max)
         {
             if (!router.SupportsAll(profile))
             {
-                return new Result<List<Tuple<float, float, List<Coordinate>>>>(string.Format("Profile {0} not supported.",
+                return new Result<Tree>(string.Format("Profile {0} not supported.",
                     profile.Name));
             }
 
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
-                return new Result<List<Tuple<float, float, List<Coordinate>>>>(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
+                return new Result<Tree>(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
                     profile.Name));
             }
 
@@ -73,7 +70,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
                     getFactor, origin.ToEdgePaths<float>(router.Db, weightHandler, true), max));
             treeBuilder.Run();
             
-            return new Result<List<Tuple<float, float, List<Coordinate>>>>(treeBuilder.Tree.Values.ToList());
+            return new Result<Tree>(treeBuilder.Tree);
         }
     }
 }

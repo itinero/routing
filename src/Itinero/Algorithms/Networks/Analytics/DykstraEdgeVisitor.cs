@@ -74,7 +74,7 @@ namespace Itinero.Algorithms.Networks.Analytics
                 var edge = _geometricGraph.GetEdge(edgeId);
                 var shape = _geometricGraph.GetShape(edge);
                 
-                Visit?.Invoke(edgeId, w1, w2, shape);
+                Visit?.Invoke(e, v1, w1, v2, w2, shape);
 
                 return false; // return false, returning true stops the search!
             };
