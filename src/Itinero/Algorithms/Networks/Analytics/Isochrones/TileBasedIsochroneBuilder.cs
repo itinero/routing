@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             var tiles = new Dictionary<TileIndex, RoutingTile>();
             _polygons = new List<Polygon>();
 
-            _edgeVisitor.Visit += (id, startVertex, startWeight, endVertex, endWeight, shape) =>
+            _edgeVisitor.Visit += (id, startWeight, endWeight, shape) =>
             {
                 this.AddEdgeVisit(tiles, startWeight, endWeight, shape);
             };
@@ -65,12 +65,18 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             
             var tileList = tiles.Values.ToList();
             tileList = UpdateForWalking(tileList, _level, _walkingSpeed, _limits.Max());
+            if (tileList == null)
+                return;
 
             foreach (var isochroneLimit in _limits)
             {
                 var tilesWithin = tileList.Where(t => t.Weight < isochroneLimit).ToList();
-                var polygonOfTileIndexes = TilesToPolygon.TileSetToPolygon(tilesWithin);
-                _polygons.Add(new Polygon { ExteriorRing = TileHelper.ToWorldCoordinates(polygonOfTileIndexes, _level) });
+                if (tilesWithin.Count > 0)
+                {
+                    var polygonOfTileIndexes = TilesToPolygon.TileSetToPolygon(tilesWithin);
+                    _polygons.Add(new Polygon { ExteriorRing = TileHelper.ToWorldCoordinates(polygonOfTileIndexes, _level) });
+                }
+                
             }
         }
 
@@ -181,8 +187,11 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         private static List<RoutingTile> UpdateForWalking(List<RoutingTile> tiles, int level,
             float speedInMetersPerSecond, float isochroneLimit)
         {
-            // todo: Determine the range the proper way. It should depend on level
             var result = new Dictionary<TileIndex, RoutingTile>();
+            if (tiles?.Count == 0)
+                return null;//result.Values.ToList();
+            // todo: Determine the range the proper way. It should depend on level
+            
 
             var size = GetTileSize(tiles.First(), level); // estimate the tile size
 
