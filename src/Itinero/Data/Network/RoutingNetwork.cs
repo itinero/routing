@@ -446,6 +446,15 @@ namespace Itinero.Data.Network
             }
 
             /// <summary>
+            /// Moves to the given edge.
+            /// </summary>
+            /// <returns></returns>
+            public void MoveToEdge(uint edgeId)
+            {
+                _enumerator.MoveToEdge(edgeId);
+            }
+
+            /// <summary>
             /// Returns the current edge.
             /// </summary>
             public RoutingEdge Current

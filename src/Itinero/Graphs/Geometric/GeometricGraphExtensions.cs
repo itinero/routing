@@ -314,7 +314,7 @@ namespace Itinero.Graphs.Geometric
         {
             return edge.Id + 1;
         }
-        
+
         /// <summary>
         /// Moves to the given directed edge-id.
         /// </summary>
