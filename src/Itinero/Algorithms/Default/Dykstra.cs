@@ -142,12 +142,10 @@ namespace Itinero.Algorithms.Default
                 return true;
             }
 
-            if (this.Visit != null)
-            {
-                if (this.Visit(_current))
-                { // edge was found and true was returned, this search should stop.
-                    return false;
-                }
+            if (this.Visit != null &&
+                this.Visit(_current))
+            { // edge was found and true was returned, this search should stop.
+                return false;
             }
 
             // get neighbours and queue them.
@@ -185,17 +183,6 @@ namespace Itinero.Algorithms.Default
                 { // it's ok; the edge can be traversed by the given vehicle.
                     // calculate neighbors weight.
                     var edgeWeight = (distance * factor.Value);
-
-                    if (_current.From != null &&
-                        _current.From.Vertex == neighbour)
-                    { // don't go back
-                        continue;
-                    }
-
-                    if (_visits.ContainsKey(neighbour))
-                    { // has already been choosen
-                        continue;
-                    }
 
                     if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
