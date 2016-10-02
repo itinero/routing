@@ -109,6 +109,13 @@ namespace Itinero.Algorithms.Default
                     { // nothing more to pop.
                         break;
                     }
+                    
+                    if (this.Visit != null &&
+                        this.Visit(_current))
+                    { // edge was found and true was returned, this search should stop.
+                        return false;
+                    }
+
                     _current = _heap.Pop();
                 }
             }
