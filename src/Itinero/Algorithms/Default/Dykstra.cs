@@ -162,14 +162,14 @@ namespace Itinero.Algorithms.Default
                 var edge = _edgeEnumerator;
                 var neighbour = edge.To;
 
+                if (_current.From != null &&
+                    _current.From.Vertex == neighbour)
+                { // don't go back
+                    continue;
+                }
+
                 if (this.Visit == null)
                 {
-                    if (_current.From != null &&
-                        _current.From.Vertex == neighbour)
-                    { // don't go back
-                        continue;
-                    }
-
                     if (_visits.ContainsKey(neighbour))
                     { // has already been choosen
                         continue;
