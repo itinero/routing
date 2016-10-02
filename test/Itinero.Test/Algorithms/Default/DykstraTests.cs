@@ -343,8 +343,23 @@ namespace Itinero.Test.Algorithms
             // run algorithm.
             var reportedEdges = new HashSet<long>();
             var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) }, float.MaxValue, false);
-            algorithm.WasEdgeFound += (v1, v2, w1, w2, e, l) =>
+            algorithm.Visit += (path) =>
             {
+                if (path.From == null)
+                {
+                    return false;
+                }
+
+                var v1 = path.From.Vertex;
+                var v2 = path.Vertex;
+                var w1 = path.From.Weight;
+                var w2 = path.Weight;
+                var e = path.Edge;
+                var edge = graph.GetEdge(e);
+                float l;
+                ushort p;
+                Itinero.Data.Edges.EdgeDataSerializer.Deserialize(edge.Data[0], out l, out p);
+
                 if (v1 == 0 && v2 == 1)
                 {
                     Assert.AreEqual(100, l);
@@ -401,11 +416,7 @@ namespace Itinero.Test.Algorithms
             Assert.IsTrue(algorithm.HasSucceeded);
 
             Assert.IsTrue(reportedEdges.Contains(e01));
-            Assert.IsTrue(reportedEdges.Contains(-e01));
             Assert.IsTrue(reportedEdges.Contains(e02));
-            Assert.IsTrue(reportedEdges.Contains(-e02));
-            Assert.IsTrue(reportedEdges.Contains(e12));
-            Assert.IsTrue(reportedEdges.Contains(-e12));
         }
     }
 }

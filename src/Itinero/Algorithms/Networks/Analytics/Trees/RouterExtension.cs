@@ -65,9 +65,9 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             var getFactor = router.GetDefaultGetFactor(profile);
 
             // calculate isochrones.
-            var treeBuilder = new TreeBuilder(
-                new DykstraEdgeVisitor(router.Db.Network.GeometricGraph,
-                    getFactor, origin.ToEdgePaths<float>(router.Db, weightHandler, true), max));
+            var treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
+                new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
+                    weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
             treeBuilder.Run();
             
             return new Result<Tree>(treeBuilder.Tree);

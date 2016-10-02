@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Tiles;
+using Itinero.Graphs.Geometric;
 using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
@@ -30,9 +31,10 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
     public class TileBasedIsochroneBuilder : AlgorithmBase
     {
         private readonly List<float> _limits;
-        private readonly IEdgeVisitor _edgeVisitor;
+        private readonly IEdgeVisitor<float> _edgeVisitor;
         private readonly int _level;
         private readonly float _walkingSpeed = 1.4f;
+        private readonly GeometricGraph _graph;
 
         /// <summary>
         /// Creates a new tile-based isochrone builder.
@@ -40,8 +42,9 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         /// <param name="edgeVisitor">The algorithm that visits the edges.</param>
         /// <param name="limits">The limits to generate isochrones for.</param>
         /// <param name="level">The level of detail specified as an OpenStreetMap tile zoom level.</param>
-        public TileBasedIsochroneBuilder(IEdgeVisitor edgeVisitor, List<float> limits, int level)
+        public TileBasedIsochroneBuilder(GeometricGraph graph, IEdgeVisitor<float> edgeVisitor, List<float> limits, int level)
         {
+            _graph = graph;
             _limits = limits;
             _level = level;
             _edgeVisitor = edgeVisitor;
@@ -57,9 +60,33 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             var tiles = new Dictionary<TileIndex, RoutingTile>();
             _polygons = new List<Polygon>();
 
-            _edgeVisitor.Visit += (id, startVertex, startWeight, endVertex, endWeight, shape) =>
+            _edgeVisitor.Visit += (path) =>
             {
+                var e = path.Edge;
+                var endWeight = path.Weight;
+                if (e == Constants.NO_EDGE ||
+                    path.From == null)
+                {
+                    return false;
+                }
+                var startWeight = path.From.Weight;
+
+                // Calculate weight at start vertex.
+                uint edgeId;
+                if (e > 0)
+                {
+                    edgeId = (uint)e - 1;
+                }
+                else
+                {
+                    edgeId = (uint)((-e) - 1);
+                }
+                var edge = _graph.GetEdge(edgeId);
+                var shape = _graph.GetShape(edge);
+
                 this.AddEdgeVisit(tiles, startWeight, endWeight, shape);
+
+                return false;
             };
             _edgeVisitor.Run();
             

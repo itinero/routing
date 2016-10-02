@@ -54,10 +54,10 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             var getFactor = router.GetDefaultGetFactor(profile);
 
             // calculate isochrones.
-            var isochrone = new TileBasedIsochroneBuilder(
-                new DykstraEdgeVisitor(router.Db.Network.GeometricGraph,
-                    getFactor, origin.ToEdgePaths<float>(router.Db, weightHandler, true),
-                            limits.Max() * 1.1f), limits, zoom);
+            var isochrone = new TileBasedIsochroneBuilder(router.Db.Network.GeometricGraph,
+                new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
+                    weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), limits.Max() * 1.1f, false), 
+                limits, zoom);
             isochrone.Run();
 
             return isochrone.Polygons;

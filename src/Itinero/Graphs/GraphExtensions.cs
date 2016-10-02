@@ -87,5 +87,24 @@ namespace Itinero.Graphs
             }
             return bestEdge;
         }
+
+        /// <summary>
+        /// Gets the given edge.
+        /// </summary>
+        public static Edge GetEdge(this Graph graph, long directedEdgeId)
+        {
+            if (directedEdgeId == 0) { throw new ArgumentOutOfRangeException("directedEdgeId"); }
+
+            uint edgeId;
+            if (directedEdgeId > 0)
+            {
+                edgeId = (uint)directedEdgeId - 1;
+            }
+            else
+            {
+                edgeId = (uint)((-directedEdgeId) - 1);
+            }
+            return graph.GetEdge(edgeId);
+        }
     }
 }

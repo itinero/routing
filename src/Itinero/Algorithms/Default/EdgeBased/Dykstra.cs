@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Algorithms.Networks.Analytics;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Edges;
@@ -29,7 +30,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
     /// <summary>
     /// An implementation of the dykstra routing algorithm.
     /// </summary>
-    public class Dykstra<T> : AlgorithmBase
+    public class Dykstra<T> : AlgorithmBase, IEdgeVisitor<T>
         where T : struct
     {
         private readonly Graph _graph;
@@ -167,17 +168,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     _visits[_current.Edge] = _current;
 
                     // report on visit.
-                    if (this.WasEdgeFound != null)
+                    if (this.Visit != null)
                     {
-                        // get edge details and report them.
-                        _edgeEnumerator.MoveToEdge(_current.Edge);
-                        float distance;
-                        ushort edgeProfile;
-                        EdgeDataSerializer.Deserialize(_edgeEnumerator.Data0, out distance, out edgeProfile);
-                        var factor = Factor.NoFactor;
-                        var edgeWeight = _weightHandler.Calculate(edgeProfile, distance, out factor);
-
-                        if (this.WasEdgeFound(_edgeEnumerator.From, _weightHandler.Subtract(_current.Weight, edgeWeight), distance, _current))
+                        if (this.Visit(_current))
                         {
                             return true;
                         }
@@ -331,19 +324,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
         public bool MaxReached { get; private set; }
 
         /// <summary>
-        /// The was edge found delegate.
+        /// Gets or sets the visit function to be called when a new path is found.
         /// </summary>
-        /// <param name="vertex1">The vertex where the search is coming from.</param>
-        /// <param name="weight1">The weight at vertex1.</param>
-        /// <param name="length">The length of the current edge.</param>
-        /// <param name="path">The path that leads to this edge.</param>
-        /// <returns></returns>
-        public delegate bool WasEdgeFoundDelegate(uint vertex1, T weight1, float length, EdgePath<T> path);
-
-        /// <summary>
-        /// Gets or sets the wasfound function to be called when a new vertex is found.
-        /// </summary>
-        public WasEdgeFoundDelegate WasEdgeFound
+        public VisitDelegate<T> Visit
         {
             get;
             set;

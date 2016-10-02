@@ -98,14 +98,14 @@ namespace Itinero.Test.Functional
 
             // TEST3: calulate isochrones.
             var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 1);
-            //var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
+            var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
 
             // TEST4: calculate heatmaps.
             var heatmap = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
 
             // TEST5: calculate tree.
             var lines = Runner.GetTestTreeCalculation(router).TestPerf("Testing tree calculation.", 100);
-            //var linesJson = lines.ToGeoJson();
+            var linesJson = lines.ToFeatureCollection().ToGeoJson();
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

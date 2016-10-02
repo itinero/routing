@@ -23,13 +23,14 @@ using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using Itinero.Algorithms.Networks.Analytics;
 
 namespace Itinero.Algorithms.Default
 {
     /// <summary>
     /// An implementation of the dykstra routing algorithm.
     /// </summary>
-    public class Dykstra<T> : AlgorithmBase
+    public class Dykstra<T> : AlgorithmBase, Networks.Analytics.IEdgeVisitor<T>
         where T : struct
     {
         private readonly Graph _graph;
@@ -141,6 +142,14 @@ namespace Itinero.Algorithms.Default
                 return true;
             }
 
+            if (this.Visit != null)
+            {
+                if (this.Visit(_current))
+                { // edge was found and true was returned, this search should stop.
+                    return false;
+                }
+            }
+
             // get neighbours and queue them.
             _edgeEnumerator.MoveTo(_current.Vertex);
             while (_edgeEnumerator.MoveNext())
@@ -148,7 +157,7 @@ namespace Itinero.Algorithms.Default
                 var edge = _edgeEnumerator;
                 var neighbour = edge.To;
 
-                if (this.WasEdgeFound == null)
+                if (this.Visit == null)
                 {
                     if (_current.From != null &&
                         _current.From.Vertex == neighbour)
@@ -177,28 +186,20 @@ namespace Itinero.Algorithms.Default
                     // calculate neighbors weight.
                     var edgeWeight = (distance * factor.Value);
 
-                    if (this.WasEdgeFound != null)
-                    {
-                        if (this.WasEdgeFound(_current.Vertex, edge.To, _current.Weight, totalWeight, edge.IdDirected(), distance))
-                        { // edge was found and true was returned, this search should stop.
-                            return false;
-                        }
+                    if (_current.From != null &&
+                        _current.From.Vertex == neighbour)
+                    { // don't go back
+                        continue;
+                    }
 
-                        if (_current.From != null &&
-                            _current.From.Vertex == neighbour)
-                        { // don't go back
-                            continue;
-                        }
-
-                        if (_visits.ContainsKey(neighbour))
-                        { // has already been choosen
-                            continue;
-                        }
+                    if (_visits.ContainsKey(neighbour))
+                    { // has already been choosen
+                        continue;
                     }
 
                     if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
-                        _heap.Push(new EdgePath<T>(neighbour, totalWeight, _current),
+                        _heap.Push(new EdgePath<T>(neighbour, totalWeight, edge.IdDirected(), _current),
                             _weightHandler.GetMetric(totalWeight));
                     }
                 }
@@ -251,21 +252,9 @@ namespace Itinero.Algorithms.Default
         }
 
         /// <summary>
-        /// The was edge found delegate.
+        /// Gets or sets the visit function to be called when a new path is found.
         /// </summary>
-        /// <param name="vertex1">The vertex where the search is coming from.</param>
-        /// <param name="vertex2">The vertex where the search is going to.</param>
-        /// <param name="weight1">The weight at vertex1.</param>
-        /// <param name="weight2">The weight at vertex2.</param>
-        /// <param name="edge">The id of the current edge.</param>
-        /// <param name="length">The length of the current edge.</param>
-        /// <returns></returns>
-        public delegate bool WasEdgeFoundDelegate(uint vertex1, uint vertex2, T weight1, T weight2, long edge, float length);
-
-        /// <summary>
-        /// Gets or sets the wasfound function to be called when a new vertex is found.
-        /// </summary>
-        public WasEdgeFoundDelegate WasEdgeFound
+        public VisitDelegate<T> Visit
         {
             get;
             set;

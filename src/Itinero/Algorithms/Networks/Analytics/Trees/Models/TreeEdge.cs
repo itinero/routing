@@ -24,19 +24,19 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees.Models
     public class TreeEdge
     {
         /// <summary>
-        /// Gets or sets the first vertex.
+        /// Gets or sets the edge id.
         /// </summary>
-        public uint Vertex1 { get; set; }
+        public uint EdgeId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the previous edge id.
+        /// </summary>
+        public uint PreviousEdgeId { get; set; }
 
         /// <summary>
         /// Gets or sets the first weight.
         /// </summary>
         public float Weight1 { get; set; }
-
-        /// <summary>
-        /// Gets or sets the second vertex.
-        /// </summary>
-        public uint Vertex2 { get; set; }
 
         /// <summary>
         /// Gets or sets the second weight.
@@ -46,6 +46,6 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees.Models
         /// <summary>
         /// Gets or sets the shape.
         /// </summary>
-        public double[][] Shape { get; set; }
+        public float[][] Shape { get; set; }
     }
 }

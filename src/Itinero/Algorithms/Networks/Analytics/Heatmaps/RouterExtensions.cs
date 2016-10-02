@@ -64,9 +64,9 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             var getFactor = router.GetDefaultGetFactor(profile);
 
             // calculate isochrones.
-            var isochrone = new TileBasedHeatmapBuilder(
-                new DykstraEdgeVisitor(router.Db.Network.GeometricGraph,
-                    getFactor, origin.ToEdgePaths<float>(router.Db, weightHandler, true), limitInSeconds), zoom);
+            var isochrone = new TileBasedHeatmapBuilder(router.Db.Network.GeometricGraph,
+                new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
+                    weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), limitInSeconds, false), zoom);
             isochrone.Run();
 
             var result = isochrone.Result;

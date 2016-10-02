@@ -55,15 +55,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(null, null, _weightHandler.Infinite);
             _maxForward = _weightHandler.Zero;
             _maxBackward = _weightHandler.Zero;
-            _sourceSearch.WasEdgeFound = (v1, w1, length, edge) =>
+            _sourceSearch.Visit = (path) =>
             {
-                _maxForward = edge.Weight;
+                _maxForward = path.Weight;
                 return false;
             };
-            _targetSearch.WasEdgeFound = (v1, w1, length, edge) =>
+            _targetSearch.Visit = (path) =>
             {
-                _maxBackward = edge.Weight;
-                return this.ReachedBackward(v1, w1, length, edge);
+                _maxBackward = path.Weight;
+                return this.ReachedBackward(path);
             };
 
             _sourceSearch.Initialize();
@@ -94,13 +94,17 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Called when a vertex was reached during a backward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedBackward(uint vertex1, T weight1, float length, EdgePath<T> edge)
+        private bool ReachedBackward(EdgePath<T> edge)
         {
             // check forward search for the same vertex.
             EdgePath<T> forwardVisit;
             if (_sourceSearch.TryGetVisit(-edge.Edge, out forwardVisit))
-            { // there is a status for this vertex in the source search.
-                var localWeight = _weightHandler.Subtract(edge.Weight, weight1);
+            { // there is a status for this edge in the source search.
+                var localWeight = _weightHandler.Zero;
+                if (edge.From != null)
+                {
+                    localWeight = edge.From.Weight;
+                }
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(edge.Weight, forwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this vertex is a better match.

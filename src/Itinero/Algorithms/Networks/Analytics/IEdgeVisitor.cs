@@ -16,24 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.LocalGeo;
-using System.Collections.Generic;
-
 namespace Itinero.Algorithms.Networks.Analytics
 {
     /// <summary>
     /// Abstract representation of an algorithm that generates edge visits.
     /// </summary>
-    public interface IEdgeVisitor : IAlgorithm
+    public interface IEdgeVisitor<T> : IAlgorithm
     {
         /// <summary>
         /// Gets or sets the visit delegate.
         /// </summary>
-        VisitDelegate Visit { get; set; }
+        VisitDelegate<T> Visit { get; set; }
     }
 
     /// <summary>
     /// A delegate that defines a visit.
     /// </summary>
-    public delegate void VisitDelegate(long edgeId, uint startVertex, float startWeight, uint endVertex, float endWeight, List<Coordinate> coordinates);
+    public delegate bool VisitDelegate<T>(EdgePath<T> path);
 }

@@ -156,5 +156,37 @@ namespace Itinero.Geo
             }
             return featureCollection;
         }
+
+        /// <summary>
+        /// Converts the given treeedge to a linestring.
+        /// </summary>
+        public static NetTopologySuite.Geometries.LineString ToLineString(this Algorithms.Networks.Analytics.Trees.Models.TreeEdge edge)
+        {
+            var coordinates = new GeoAPI.Geometries.Coordinate[edge.Shape.Length];
+            for(var i = 0; i < coordinates.Length; i++)
+            {
+                coordinates[i] = new GeoAPI.Geometries.Coordinate(edge.Shape[i][0], edge.Shape[i][1]);
+            }
+            return new NetTopologySuite.Geometries.LineString(coordinates);
+        }
+
+        /// <summary>
+        /// Converts the given tree to a feature collection.
+        /// </summary>
+        public static NetTopologySuite.Features.FeatureCollection ToFeatureCollection(this Algorithms.Networks.Analytics.Trees.Models.Tree tree)
+        {
+            var featureCollection = new NetTopologySuite.Features.FeatureCollection();
+            foreach (var treeEdge in tree.Edges)
+            {
+                var attributes = new NetTopologySuite.Features.AttributesTable();
+                attributes.AddAttribute("weight1", treeEdge.Weight1.ToInvariantString());
+                attributes.AddAttribute("weight2", treeEdge.Weight2.ToInvariantString());
+                attributes.AddAttribute("edge", treeEdge.EdgeId.ToInvariantString());
+                attributes.AddAttribute("previous_edge", treeEdge.PreviousEdgeId.ToInvariantString());
+                featureCollection.Add(new NetTopologySuite.Features.Feature(
+                    treeEdge.ToLineString(), attributes));
+            }
+            return featureCollection;
+        }
     }
 }

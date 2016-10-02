@@ -16,8 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.Algorithms.Tiles;
+using Itinero.Graphs.Geometric;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
@@ -27,7 +27,8 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
     /// </summary>
     public class TileBasedHeatmapBuilder : AlgorithmBase
     {
-        private readonly IEdgeVisitor _edgeVisitor;
+        private readonly GeometricGraph _graph;
+        private readonly IEdgeVisitor<float> _edgeVisitor;
         private readonly int _level;
 
         /// <summary>
@@ -35,8 +36,9 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// </summary>
         /// <param name="edgeVisitor">The algorithm that visits the edges.</param>
         /// <param name="level">The level of detail specified as an OpenStreetMap tile zoom level.</param>
-        public TileBasedHeatmapBuilder(IEdgeVisitor edgeVisitor, int level)
+        public TileBasedHeatmapBuilder(GeometricGraph graph, IEdgeVisitor<float> edgeVisitor, int level)
         {
+            _graph = graph;
             _level = level;
             _edgeVisitor = edgeVisitor;
         }
@@ -50,8 +52,28 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         {
             var tiles = new Dictionary<TileIndex, RoutingTile>();
 
-            _edgeVisitor.Visit += (id, startVertex, startWeight, endVertex, endWeight, shape) =>
+            _edgeVisitor.Visit += (path) =>
             {
+                var e = path.Edge;
+                var endWeight = path.Weight;
+                if (e == Constants.NO_EDGE)
+                {
+                    return false;
+                }
+
+                // Calculate weight at start vertex.
+                uint edgeId;
+                if (e > 0)
+                {
+                    edgeId = (uint)e - 1;
+                }
+                else
+                {
+                    edgeId = (uint)((-e) - 1);
+                }
+                var edge = _graph.GetEdge(edgeId);
+                var shape = _graph.GetShape(edge);
+
                 var endCoordinate = shape[shape.Count - 1];
                 var index = TileIndex.WorldToTileIndex(endCoordinate.Latitude, endCoordinate.Longitude, _level);
                 RoutingTile tile;
@@ -70,6 +92,8 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
                     tile.Count++;
                 }
                 tiles[index] = tile;
+
+                return false;
             };
             _edgeVisitor.Run();
 

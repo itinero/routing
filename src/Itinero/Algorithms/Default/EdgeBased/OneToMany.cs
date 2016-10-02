@@ -106,7 +106,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             // run the search.
             var dykstra = new Dykstra<T>(_routerDb.Network.GeometricGraph.Graph, _weightHandler, _getRestrictions,
                 sourcePaths, max, false);
-            dykstra.WasEdgeFound += (v1, w1, distance, path) =>
+            dykstra.Visit += (path) =>
             {
                 LinkedTarget target;
                 if (targetIndexesPerEdge.TryGetValue(path.Vertex, out target))
