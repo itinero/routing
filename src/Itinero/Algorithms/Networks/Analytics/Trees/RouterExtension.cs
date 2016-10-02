@@ -65,11 +65,22 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             var getFactor = router.GetDefaultGetFactor(profile);
 
             // calculate isochrones.
-            var treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
-                new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
-                    weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
+            TreeBuilder treeBuilder = null;
+
+            if (!router.Db.HasComplexRestrictions(profile))
+            {
+                treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
+                    new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
+                        weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
+            }
+            else
+            {
+                treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
+                    new Algorithms.Default.EdgeBased.Dykstra(router.Db.Network.GeometricGraph.Graph,
+                        weightHandler, router.Db.GetGetRestrictions(profile, true), origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
+            }
             treeBuilder.Run();
-            
+
             return new Result<Tree>(treeBuilder.Tree);
         }
     }
