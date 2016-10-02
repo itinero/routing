@@ -88,6 +88,10 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
                 }
                 var edge = _graph.GetEdge(edgeId);
                 var shape = _graph.GetShape(edge);
+                if (e < 0)
+                {
+                    shape.Reverse();
+                }
 
                 var shapeArray = new float[shape.Count][];
                 for(var i = 0; i < shapeArray.Length; i++)
