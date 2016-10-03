@@ -44,6 +44,23 @@ namespace Itinero.Graphs
         }
 
         /// <summary>
+        /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
+        /// </summary>
+        /// <remarks>
+        /// The relationship between a regular edge id and a directed edge id:
+        /// - 0 -> 1 forward, -1 backward.
+        /// - all other id's are offset by 1 and postive when forward, negative when backward.
+        /// </remarks>
+        public static long IdDirected(this Edge edge)
+        {
+            if (edge.DataInverted)
+            {
+                return -(edge.Id + 1);
+            }
+            return (edge.Id + 1);
+        }
+
+        /// <summary>
         /// Moves to the given directed edge-id.
         /// </summary>
         public static void MoveToEdge(this Graph.EdgeEnumerator enumerator, long directedEdgeId)

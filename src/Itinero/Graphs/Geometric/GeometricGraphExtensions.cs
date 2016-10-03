@@ -312,7 +312,23 @@ namespace Itinero.Graphs.Geometric
         /// </summary>
         public static long IdDirected(this GeometricEdge edge)
         {
-            return edge.Id + 1;
+            if (edge.DataInverted)
+            {
+                return -(edge.Id + 1);
+            }
+            return (edge.Id + 1);
+        }
+
+        /// <summary>
+        /// Gets a directed edge id. 
+        /// </summary>
+        public static long IdDirected(this GeometricGraph.EdgeEnumerator edge)
+        {
+            if (edge.DataInverted)
+            {
+                return -(edge.Id + 1);
+            }
+            return (edge.Id + 1);
         }
 
         /// <summary>
