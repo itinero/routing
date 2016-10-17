@@ -64,17 +64,17 @@ namespace Itinero.Geo
         /// Gets all features inside the given bounding box.
         /// </summary>
         public static FeatureCollection GetFeaturesIn(this RouterDb db, LocalGeo.Coordinate coord1,
-            LocalGeo.Coordinate coord2, bool includeEdges = true)
+            LocalGeo.Coordinate coord2, bool includeEdges = true, bool includeVertices = true)
         {
             return db.GetFeaturesIn(System.Math.Min(coord1.Latitude, coord2.Latitude), System.Math.Min(coord1.Longitude, coord2.Longitude),
-                System.Math.Max(coord1.Latitude, coord2.Latitude), System.Math.Max(coord1.Longitude, coord2.Longitude), includeEdges);
+                System.Math.Max(coord1.Latitude, coord2.Latitude), System.Math.Max(coord1.Longitude, coord2.Longitude), includeEdges, includeVertices);
         }
 
         /// <summary>
         /// Gets all features inside the given bounding box.
         /// </summary>
         public static FeatureCollection GetFeaturesIn(this RouterDb db, float minLatitude, float minLongitude,
-            float maxLatitude, float maxLongitude, bool includeEdges = true)
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
         {
             var features = new FeatureCollection();
 
@@ -85,7 +85,10 @@ namespace Itinero.Geo
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
             foreach (var vertex in vertices)
             {
-                features.Add(db.GetFeatureForVertex(vertex));
+                if (includeVertices)
+                {
+                    features.Add(db.GetFeatureForVertex(vertex));
+                }
 
                 if (includeEdges)
                 {

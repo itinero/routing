@@ -88,19 +88,22 @@ namespace Itinero.Osm.Vehicles
             if (_accessValues == null)
             {
                 _accessValues = new Dictionary<string, bool?>();
-                _accessValues.Add("private", false);
-                _accessValues.Add("yes", true);
-                _accessValues.Add("no", false);
-                _accessValues.Add("permissive", true);
-                _accessValues.Add("destination", true);
-                _accessValues.Add("customers", false);
-                _accessValues.Add("agricultural", null);
-                _accessValues.Add("forestry", null);
-                _accessValues.Add("designated", true);
-                _accessValues.Add("public", true);
-                _accessValues.Add("discouraged", null);
-                _accessValues.Add("delivery", true);
-                _accessValues.Add("use_sidepath", false);
+                lock (_accessValues)
+                {
+                    _accessValues.Add("private", false);
+                    _accessValues.Add("yes", true);
+                    _accessValues.Add("no", false);
+                    _accessValues.Add("permissive", true);
+                    _accessValues.Add("destination", true);
+                    _accessValues.Add("customers", false);
+                    _accessValues.Add("agricultural", null);
+                    _accessValues.Add("forestry", null);
+                    _accessValues.Add("designated", true);
+                    _accessValues.Add("public", true);
+                    _accessValues.Add("discouraged", null);
+                    _accessValues.Add("delivery", true);
+                    _accessValues.Add("use_sidepath", false);
+                }
             }
             return _accessValues;
         }
