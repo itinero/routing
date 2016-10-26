@@ -63,6 +63,19 @@ namespace Itinero.Test
                         Time = 60
                     }
                 },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60
+                    }
+                },
                 Attributes = new AttributeCollection(),
                 TotalDistance = 100,
                 TotalTime = 60
@@ -95,6 +108,19 @@ namespace Itinero.Test
                         Time = 60
                     }
                 },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60
+                    }
+                },
                 Attributes = new AttributeCollection(),
                 TotalDistance = 100,
                 TotalTime = 60
@@ -112,6 +138,12 @@ namespace Itinero.Test
             Assert.AreEqual(60, route.ShapeMeta[1].Time);
             Assert.AreEqual(200, route.ShapeMeta[2].Distance);
             Assert.AreEqual(120, route.ShapeMeta[2].Time);
+            Assert.AreEqual(0, route.Stops[0].Distance);
+            Assert.AreEqual(0, route.Stops[0].Time);
+            Assert.AreEqual(100, route.Stops[1].Distance);
+            Assert.AreEqual(60, route.Stops[1].Time);
+            Assert.AreEqual(200, route.Stops[2].Distance);
+            Assert.AreEqual(120, route.Stops[2].Time);
             Assert.AreEqual(200, route.TotalDistance);
             Assert.AreEqual(120, route.TotalTime);
         }

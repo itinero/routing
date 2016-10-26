@@ -128,6 +128,10 @@ namespace Itinero.Algorithms.Routes
                     Coordinate = _target.Location()
                 }
             };
+            stops[0].Distance = 0;
+            stops[0].Time = 0;
+            stops[1].Distance = _shapeMeta.Last().Distance;
+            stops[1].Time = _shapeMeta.Last().Time;
 
             // build route.
             _route = new Route()

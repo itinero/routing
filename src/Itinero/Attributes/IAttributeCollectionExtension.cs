@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Itinero.Attributes
@@ -520,6 +521,45 @@ namespace Itinero.Attributes
                 }
             }
             return true;
+        }
+
+        /// <summary>
+        /// Returns true if the given attribute collection contains the same attributes than the given collection.
+        /// </summary>
+        public static bool ContainsSame(this IAttributeCollection attributes, IAttributeCollection other, params string[] exclude)
+        {            
+            var attributesCount = 0;
+            var otherCount = 0;
+            if (attributes != null)
+            {
+                foreach (var a in attributes)
+                {
+                    if (!exclude.Contains(a.Key))
+                    {
+                        attributesCount++;
+                        if (!other.Contains(a.Key, a.Value))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            if (other != null)
+            {
+                foreach (var a in other)
+                {
+                    if (!exclude.Contains(a.Key))
+                    {
+                        otherCount++;
+                        if (!attributes.Contains(a.Key, a.Value))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return attributesCount == otherCount;
         }
     }
 }

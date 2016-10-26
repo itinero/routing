@@ -87,6 +87,62 @@ namespace Itinero
                     Coordinate = this.Coordinate
                 };
             }
+
+            /// <summary>
+            /// The distance in meter.
+            /// </summary>
+            public float Distance
+            {
+                get
+                {
+                    if (this.Attributes == null)
+                    {
+                        return 0;
+                    }
+                    float value;
+                    if (!this.Attributes.TryGetSingle("distance", out value))
+                    {
+                        return 0;
+                    }
+                    return value;
+                }
+                set
+                {
+                    if (this.Attributes == null)
+                    {
+                        this.Attributes = new AttributeCollection();
+                    }
+                    this.Attributes.SetSingle("distance", value);
+                }
+            }
+
+            /// <summary>
+            /// The time in seconds.
+            /// </summary>
+            public float Time
+            {
+                get
+                {
+                    if (this.Attributes == null)
+                    {
+                        return 0;
+                    }
+                    float value;
+                    if (!this.Attributes.TryGetSingle("time", out value))
+                    {
+                        return 0;
+                    }
+                    return value;
+                }
+                set
+                {
+                    if (this.Attributes == null)
+                    {
+                        this.Attributes = new AttributeCollection();
+                    }
+                    this.Attributes.SetSingle("time", value);
+                }
+            }
         }
 
         /// <summary>

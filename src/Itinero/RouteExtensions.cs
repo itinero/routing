@@ -118,7 +118,7 @@ namespace Itinero
                         if (existing.Shape == route1.Shape.Length - 1 &&
                             existing.Coordinate.Latitude == stop.Coordinate.Latitude &&
                             existing.Coordinate.Longitude == stop.Coordinate.Longitude &&
-                            existing.Attributes.ContainsSame(stop.Attributes))
+                            existing.Attributes.ContainsSame(stop.Attributes, "time", "distance"))
                         { // stop are identical, stop this one.
                             continue;
                         }
@@ -129,6 +129,8 @@ namespace Itinero
                         Coordinate = stop.Coordinate,
                         Shape = stop.Shape + shapeoffset
                     });
+                    stops[stops.Count - 1].Distance = stop.Distance + distanceoffset;
+                    stops[stops.Count - 1].Time = stop.Time + timeoffset;
                 }
             }
 
