@@ -515,7 +515,7 @@ namespace Itinero
             {
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
+                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<T>(_db, profile, weightHandler,
                         sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
