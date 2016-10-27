@@ -28,14 +28,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy.
     /// </summary>
-    public class ManyToManyWeightsBidirectionalDykstra<T> : AlgorithmBase
+    public class ManyToManyBidirectionalDykstra<T> : AlgorithmBase
         where T : struct
     {
         private readonly RouterDb _routerDb;
         private readonly DirectedDynamicGraph _graph;
         private readonly RouterPoint[] _sources;
         private readonly RouterPoint[] _targets;
-        private readonly Dictionary<uint, Dictionary<int, T>> _buckets;
+        private readonly Dictionary<uint, Dictionary<int, EdgePath<T>>> _buckets;
         private readonly WeightHandler<T> _weightHandler;
         private readonly Profile _profile;
         private readonly T _max;
@@ -43,7 +43,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyWeightsBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources,
+        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources,
             RouterPoint[] targets, T max)
         {
             _routerDb = routerDb;
@@ -67,10 +67,19 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _graph = contractedDb.EdgeBasedGraph;
             weightHandler.CheckCanUse(contractedDb);
             
-            _buckets = new Dictionary<uint, Dictionary<int, T>>();
+            _buckets = new Dictionary<uint, Dictionary<int, EdgePath<T>>>();
         }
 
-        private T[][] _weights;
+        private struct Solution
+        {
+            public EdgePath<T> Path1 { get; set; }
+
+            public EdgePath<T> Path2 { get; set; }
+
+            public EdgePath<T> Path { get; set; }
+        }
+
+        private Solution[][] _paths;
 
         /// <summary>
         /// Executes the actual run.
@@ -78,22 +87,24 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         protected override void DoRun()
         {
             // put in default weights and weights for one-edge-paths.
-            _weights = new T[_sources.Length][];
+            _paths = new Solution[_sources.Length][];
             for (var i = 0; i < _sources.Length; i++)
             {
                 var source = _sources[i];
-                _weights[i] = new T[_targets.Length];
+                _paths[i] = new Solution[_targets.Length];
                 for (var j = 0; j < _targets.Length; j++)
                 {
                     var target = _targets[j];
-                    _weights[i][j] = _weightHandler.Infinite;
 
                     if(target.EdgeId == source.EdgeId)
                     {
                         var path = source.EdgePathTo(_routerDb, _weightHandler, target);
                         if (path != null)
                         {
-                            _weights[i][j] = path.Weight;
+                            _paths[i][j] = new Solution()
+                            {
+                                Path = path
+                            };
                         }
                     }
                 }
@@ -105,7 +116,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile, null), false, _max);
                 forward.WasFound += (path) =>
                     {
-                        return this.ForwardVertexFound(i, path.Vertex, path.Weight);
+                        return this.ForwardVertexFound(i, path);
                     };
                 forward.Run();
             }
@@ -116,7 +127,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile, null), true, _max);
                 backward.WasFound += (path) =>
                     {
-                        return this.BackwardVertexFound(i, path.Vertex, path.Weight);
+                        return this.BackwardVertexFound(i, path);
                     };
                 backward.Run();
             }
@@ -124,42 +135,86 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
-        /// Gets the weights.
+        /// Gets the paths.
         /// </summary>
-        public T[][] Weights
+        public EdgePath<T> GetPath(int source, int target)
         {
-            get
+            this.CheckHasRunAndHasSucceeded();
+
+            var solution = _paths[source][target];
+            if (solution.Path != null)
             {
-                return _weights;
+                return solution.Path;
             }
+            if (solution.Path1 == null ||
+                solution.Path2 == null)
+            {
+                return null;
+            }
+
+            var vertices = new List<uint>();
+            var fromSource = solution.Path1.Expand(_graph, _weightHandler, true);
+            var toTarget = solution.Path2.Expand(_graph, _weightHandler, false);
+
+            // add vertices from source.
+            vertices.Add(fromSource.Vertex);
+            while (fromSource.From != null)
+            {
+                if (fromSource.From.Vertex != Constants.NO_VERTEX)
+                { // this should be the end of the path.
+                    if (fromSource.Edge == Constants.NO_EDGE)
+                    { // only expand when there is no edge id.
+                        _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
+                    }
+                }
+                vertices.Add(fromSource.From.Vertex);
+                fromSource = fromSource.From;
+            }
+            vertices.Reverse();
+
+            // and add vertices to target.
+            while (toTarget.From != null)
+            {
+                if (toTarget.From.Vertex != Constants.NO_VERTEX)
+                { // this should be the end of the path.
+                    if (toTarget.Edge == Constants.NO_EDGE)
+                    { // only expand when there is no edge id.
+                        _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
+                    }
+                }
+                vertices.Add(toTarget.From.Vertex);
+                toTarget = toTarget.From;
+            }
+
+            return _routerDb.BuildEdgePath(_weightHandler, _sources[source], _targets[target], vertices);
         }
 
         /// <summary>
         /// Called when a forward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool ForwardVertexFound(int i, uint vertex, T weight)
+        private bool ForwardVertexFound(int i, EdgePath<T> path)
         {
-            Dictionary<int, T> bucket;
-            if(!_buckets.TryGetValue(vertex, out bucket))
+            Dictionary<int, EdgePath<T>> bucket;
+            if (!_buckets.TryGetValue(path.Vertex, out bucket))
             {
-                bucket = new Dictionary<int, T>();
-                _buckets.Add(vertex, bucket);
-                bucket[i] = weight;
+                bucket = new Dictionary<int, EdgePath<T>>();
+                _buckets.Add(path.Vertex, bucket);
+                bucket[i] = path;
             }
             else
             {
-                T existing;
+                EdgePath<T> existing;
                 if (bucket.TryGetValue(i, out existing))
                 {
-                    if(_weightHandler.IsSmallerThan(weight, existing))
+                    if (_weightHandler.IsSmallerThan(path.Weight, existing.Weight))
                     {
-                        bucket[i] = weight;
+                        bucket[i] = path;
                     }
                 }
                 else
                 {
-                    bucket[i] = weight;
+                    bucket[i] = path;
                 }
             }
             return false;
@@ -169,18 +224,33 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Called when a backward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool BackwardVertexFound(int i, uint vertex, T weight)
+        private bool BackwardVertexFound(int i, EdgePath<T> path)
         {
-            Dictionary<int, T> bucket;
-            if(_buckets.TryGetValue(vertex, out bucket))
+            Dictionary<int, EdgePath<T>> bucket;
+            if (_buckets.TryGetValue(path.Vertex, out bucket))
             {
-                foreach(var pair in bucket)
+                foreach (var pair in bucket)
                 {
-                    var existing = _weights[pair.Key][i];
-                    var totalWeight = _weightHandler.Add(weight, pair.Value);
-                    if (_weightHandler.IsSmallerThan(totalWeight, existing))
+                    var existing = _paths[pair.Key][i];
+                    var total = _weightHandler.Add(path.Weight, pair.Value.Weight);
+                    var existingWeight = _weightHandler.Infinite;
+                    if (existing.Path != null)
                     {
-                        _weights[pair.Key][i] = totalWeight;
+                        existingWeight = existing.Path.Weight;
+                    }
+                    else if (existing.Path1 != null &&
+                        existing.Path2 != null)
+                    {
+                        existingWeight = _weightHandler.Add(existing.Path1.Weight,
+                            existing.Path2.Weight);
+                    }
+                    if (_weightHandler.IsSmallerThan(total, existingWeight))
+                    { // append the backward to the forward path.
+                        _paths[pair.Key][i] = new Solution()
+                        {
+                            Path1 = pair.Value,
+                            Path2 = path
+                        };
                     }
                 }
             }
@@ -191,12 +261,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy.
     /// </summary>
-    public sealed class ManyToManyWeightsBidirectionalDykstra : ManyToManyWeightsBidirectionalDykstra<float>
+    public sealed class ManyToManyBidirectionalDykstra : ManyToManyBidirectionalDykstra<float>
     {
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyWeightsBidirectionalDykstra(Router router, Profile profile, RouterPoint[] sources,
+        public ManyToManyBidirectionalDykstra(Router router, Profile profile, RouterPoint[] sources,
             RouterPoint[] targets, float max = float.MaxValue)
             : base(router.Db, profile, profile.DefaultWeightHandler(router), sources, targets, max)
         {
@@ -206,7 +276,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyWeightsBidirectionalDykstra(RouterDb router, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
+        public ManyToManyBidirectionalDykstra(RouterDb router, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
             RouterPoint[] targets, float max = float.MaxValue)
             : base(router, profile, weightHandler, sources, targets, max)
         {

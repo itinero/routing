@@ -140,7 +140,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             if(this.WasFound != null)
             {
-                this.WasFound(_current.Vertex, _current.Weight);
+                this.WasFound(_current);
             }
             
             // get relevant restrictions.
@@ -242,7 +242,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
-        public Func<uint, T, bool> WasFound
+        public Func<EdgePath<T>, bool> WasFound
         {
             get;
             set;

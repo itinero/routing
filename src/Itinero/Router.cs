@@ -482,6 +482,30 @@ namespace Itinero
                         }
                     }
                 }
+                else
+                { // use edge-based routing.
+                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
+                        sources, targets, maxSearch);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+
+                    // build all routes.
+                    paths = new EdgePath<T>[sources.Length][];
+                    for (var s = 0; s < sources.Length; s++)
+                    {
+                        paths[s] = new EdgePath<T>[targets.Length];
+                        for (var t = 0; t < targets.Length; t++)
+                        {
+                            paths[s][t] = algorithm.GetPath(s, t);
+                        }
+                    }
+                }
             }
 
             if (paths == null)
