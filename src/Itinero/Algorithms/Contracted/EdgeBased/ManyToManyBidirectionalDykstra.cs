@@ -232,19 +232,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 foreach (var pair in bucket)
                 {
                     var existing = _paths[pair.Key][i];
-                    var total = _weightHandler.Add(path.Weight, pair.Value.Weight);
-                    var existingWeight = _weightHandler.Infinite;
+                    var better = true;
                     if (existing.Path != null)
                     {
-                        existingWeight = existing.Path.Weight;
+                        var existingWeight = existing.Path.Weight;
+                        var total = _weightHandler.Add(path.Weight, pair.Value.Weight);
+                        better = _weightHandler.IsSmallerThan(total, existingWeight);
                     }
                     else if (existing.Path1 != null &&
                         existing.Path2 != null)
                     {
-                        existingWeight = _weightHandler.Add(existing.Path1.Weight,
+                        var existingWeight = _weightHandler.Add(existing.Path1.Weight,
                             existing.Path2.Weight);
+                        var total = _weightHandler.Add(path.Weight, pair.Value.Weight);
+                        better = _weightHandler.IsSmallerThan(total, existingWeight);
                     }
-                    if (_weightHandler.IsSmallerThan(total, existingWeight))
+                    if (better)
                     { // append the backward to the forward path.
                         _paths[pair.Key][i] = new Solution()
                         {

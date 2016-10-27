@@ -74,7 +74,17 @@ namespace Itinero.Test
             throw new NotImplementedException();
         }
 
+        public override float GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        {
+            throw new NotImplementedException();
+        }
+
         public override float GetEdgeWeight(MetaEdge edge, out bool? direction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override float GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction)
         {
             throw new NotImplementedException();
         }

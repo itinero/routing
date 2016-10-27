@@ -86,22 +86,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     }
 
                     // move to the first edge (contracted -> from vertex) and keep details.
-                    bool? localDirection;
-                    if (!enumerator.MoveToEdge(contractedId.Value, edgePath.From.Vertex, sequence1, weightHandler, !direction))
+                    T weight1;
+                    if (!enumerator.MoveToEdge(contractedId.Value, edgePath.From.Vertex, sequence1, weightHandler, !direction, out weight1))
                     {
                         throw new Exception(string.Format("Edge between {0} -> {1} with sequence {2} could not be found.",
                             contractedId.Value, edgePath.From.Vertex, sequence1.ToStringSafe()));
                     }
                     var edge1 = enumerator.IdDirected();
-                    var weight1 = weightHandler.GetEdgeWeight(enumerator.Current, out localDirection);
 
                     // move to the second edge (contracted -> to vertex) and keep details.
-                    if (!enumerator.MoveToEdge(contractedId.Value, edgePath.Vertex, sequence2, weightHandler, direction))
+                    T weight2;
+                    if (!enumerator.MoveToEdge(contractedId.Value, edgePath.Vertex, sequence2, weightHandler, direction, out weight2))
                     {
                         throw new Exception(string.Format("Edge between {0} -> {1} with sequence {2} could not be found.",
                             contractedId.Value, edgePath.Vertex, sequence2.ToStringSafe()));
                     }
-                    var weight2 = weightHandler.GetEdgeWeight(enumerator.Current, out localDirection);
                     var edge2 = enumerator.IdDirected();
 
                     var contractedPath = new EdgePath<T>(contractedId.Value, weightHandler.Add(edgePath.From.Weight, weight1), edge1, edgePath.From);

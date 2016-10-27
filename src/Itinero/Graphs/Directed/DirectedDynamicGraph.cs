@@ -772,6 +772,29 @@ namespace Itinero.Graphs.Directed
             }
 
             /// <summary>
+            /// Returns the dynamic part of the edge data.
+            /// </summary>
+            public uint DynamicData0
+            {
+                get
+                {
+                    var p = _currentEdgePointer + _graph._fixedEdgeDataSize;
+                    if (DirectedDynamicGraph.IsLastField(_graph._edges[p]))
+                    { // no dynamic data!
+                        return uint.MaxValue;
+                    }
+
+                    p++;
+                    var data = _graph._edges[p];
+                    if (DirectedDynamicGraph.IsLastField(data))
+                    {
+                        data = DirectedDynamicGraph.RemoveFlags(data);
+                    }
+                    return data;
+                }
+            }
+
+            /// <summary>
             /// Fills the given array with the dynamic part of the edge-data.
             /// </summary>
             public int FillWithDynamicData(ref uint[] data)

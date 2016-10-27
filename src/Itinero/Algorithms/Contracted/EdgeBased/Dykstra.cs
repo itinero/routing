@@ -157,7 +157,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             while (_edgeEnumerator.MoveNext())
             {
                 bool? neighbourDirection;
-                var neighbourWeight = _weightHandler.GetEdgeWeight(_edgeEnumerator.Current, out neighbourDirection);
+                var neighbourWeight = _weightHandler.GetEdgeWeight(_edgeEnumerator, out neighbourDirection);
 
                 if (neighbourDirection == null || (neighbourDirection.Value != _backward))
                 { // the edge is forward, and is to higher or was not contracted at all.

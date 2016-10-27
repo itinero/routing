@@ -118,15 +118,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         public static uint? GetContracted(this DirectedDynamicGraph.EdgeEnumerator edge)
         {
-            if (edge.DynamicData == null)
-            {
-                throw new ArgumentException("DynamicData array of an edge should not be null.");
-            }
-            if (edge.DynamicData.Length == 0)
+            var dynamicO = edge.DynamicData0;
+            if (dynamicO == uint.MaxValue)
             {
                 return null;
             }
-            return edge.DynamicData[0];
+            return dynamicO;
         }
 
         /// <summary>
@@ -1367,43 +1364,55 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Moves this enumerator to an edge (vertex1->vertex2) that has an end sequence that matches the given sequence.
         /// </summary>
-        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2, Weights.WeightHandler<T> weightHandler, bool direction)
+        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2, Weights.WeightHandler<T> weightHandler, 
+            bool direction, out T weight)
             where T : struct
         {
             enumerator.MoveTo(vertex1);
-            return enumerator.MoveNextUntil(x =>
+            while(enumerator.MoveNext())
             {
-                if (x.Neighbour != vertex2)
+                if (enumerator.Neighbour != vertex2)
                 {
-                    return false;
+                    continue;
                 }
+
                 bool? xDirection;
-                var xWeight = weightHandler.GetEdgeWeight(enumerator.Current, out xDirection);
+                var xWeight = weightHandler.GetEdgeWeight(enumerator, out xDirection);
                 if (xDirection != null &&
                     xDirection.Value != direction)
                 {
-                    return false;
+                    continue;
                 }
 
-                var xSequence2 = x.GetSequence2();
+                if (xDirection != null &&
+                    xDirection.Value != direction)
+                {
+                    continue;
+                }
+
+                var xSequence2 = enumerator.GetSequence2();
                 if (xSequence2 == null || xSequence2.Length == 0)
                 {
+                    weight = xWeight;
                     return sequence2 == null || sequence2.Length == 0 ||
                         sequence2[0] == vertex1;
                 }
                 if (sequence2 == null || sequence2.Length == 0)
                 {
-                    return false;
+                    continue;
                 }
-                for(var i = 0; i < System.Math.Min(sequence2.Length, xSequence2.Length); i++)
+                for (var i = 0; i < System.Math.Min(sequence2.Length, xSequence2.Length); i++)
                 {
                     if (sequence2[i] != xSequence2[i])
                     {
-                        return false;
+                        continue;
                     }
                 }
+                weight = xWeight;
                 return true;
-            });
+            }
+            weight = default(T);
+            return false;
         }
 
         /// <summary>

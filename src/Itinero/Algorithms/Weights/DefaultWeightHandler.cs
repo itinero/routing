@@ -157,10 +157,32 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
+        public sealed override float GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction)
+        {
+            float weight;
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0,
+                out weight, out direction);
+            return weight;
+        }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
         public sealed override float GetEdgeWeight(DynamicEdge edge, out bool? direction)
         {
             float weight;
             Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
+                out weight, out direction);
+            return weight;
+        }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
+        public sealed override float GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        {
+            float weight;
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0,
                 out weight, out direction);
             return weight;
         }
