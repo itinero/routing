@@ -28,7 +28,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy.
     /// </summary>
-    public class ManyToManyBidirectionalDykstra<T> : AlgorithmBase
+    public class ManyToManyWeightsBidirectionalDykstra<T> : AlgorithmBase
         where T : struct
     {
         private readonly RouterDb _routerDb;
@@ -43,7 +43,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources,
+        public ManyToManyWeightsBidirectionalDykstra(RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources,
             RouterPoint[] targets, T max)
         {
             _routerDb = routerDb;
@@ -191,12 +191,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy.
     /// </summary>
-    public sealed class ManyToManyBidirectionalDykstra : ManyToManyBidirectionalDykstra<float>
+    public sealed class ManyToManyWeightsBidirectionalDykstra : ManyToManyWeightsBidirectionalDykstra<float>
     {
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(Router router, Profile profile, RouterPoint[] sources,
+        public ManyToManyWeightsBidirectionalDykstra(Router router, Profile profile, RouterPoint[] sources,
             RouterPoint[] targets, float max = float.MaxValue)
             : base(router.Db, profile, profile.DefaultWeightHandler(router), sources, targets, max)
         {
@@ -206,7 +206,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public ManyToManyBidirectionalDykstra(RouterDb router, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
+        public ManyToManyWeightsBidirectionalDykstra(RouterDb router, Profile profile, WeightHandler<float> weightHandler, RouterPoint[] sources,
             RouterPoint[] targets, float max = float.MaxValue)
             : base(router, profile, weightHandler, sources, targets, max)
         {

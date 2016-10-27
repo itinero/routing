@@ -134,11 +134,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -180,11 +180,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -226,11 +226,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -306,11 +306,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -415,11 +415,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -483,11 +483,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -618,11 +618,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -704,11 +704,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -789,11 +789,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -875,11 +875,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -995,11 +995,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -1115,11 +1115,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -1204,11 +1204,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
@@ -1293,11 +1293,11 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(2, route.Stops.Length);
             var stop = route.Stops[0];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "source"));
             stop = route.Stops[1];
             Assert.IsNotNull(stop.Attributes);
-            Assert.AreEqual(1, stop.Attributes.Count);
+            Assert.AreEqual(3, stop.Attributes.Count);
             Assert.IsTrue(stop.Attributes.Contains("type", "target"));
 
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Distance, route.TotalDistance);
