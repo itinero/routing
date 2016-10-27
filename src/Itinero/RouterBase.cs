@@ -80,7 +80,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public abstract Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings = null) where T : struct;
+            RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.

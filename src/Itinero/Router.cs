@@ -415,7 +415,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
+            RoutingSettings<T> settings)
         {
             if (!_db.Supports(profile))
             {
@@ -435,31 +435,77 @@ namespace Itinero
             }
 
             ContractedDb contracted;
+            EdgePath<T>[][] paths = null;
+
+            bool useContracted = false;
             if (_db.TryGetContracted(profile, out contracted))
-            {
-                Logging.Logger.Log("Router", Logging.TraceEventType.Warning, 
-                    "Many to many route calculations are not possible yet using contracted algorithms.");
+            { // contracted calculation.
+                useContracted = true;
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
+                    Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                        "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
+                    useContracted = false;
+                }
+
+                if (!weightHandler.CanUse(contracted))
+                { // there is a contracted graph but it is not equipped to handle this weight-type.
+                    Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                        "There is a contracted graph but it's not built for the given weight calculations, using the default but slow implementation.");
+                    useContracted = false;
+                }
             }
 
-            // use non-contracted calculation.
-            var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
-            algorithm.Run();
-            if (!algorithm.HasSucceeded)
+            if (useContracted)
             {
-                return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
-                {
-                    return new RouteNotFoundException(message);
-                });
+                if (!contracted.HasEdgeBasedGraph)
+                { // use node-based routing.
+                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
+                        sources, targets, maxSearch);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new RouteNotFoundException(message);
+                        });
+                    }
+
+                    // build all routes.
+                    paths = new EdgePath<T>[sources.Length][];
+                    for (var s = 0; s < sources.Length; s++)
+                    {
+                        paths[s] = new EdgePath<T>[targets.Length];
+                        for (var t = 0; t < targets.Length; t++)
+                        {
+                            paths[s][t] = algorithm.GetPath(s, t);
+                        }
+                    }
+                }
             }
 
-            // build all routes.
-            var paths = new EdgePath<T>[sources.Length][];
-            for(var s = 0; s < sources.Length; s++)
+            if (paths == null)
             {
-                paths[s] = new EdgePath<T>[targets.Length];
-                for (var t = 0; t < targets.Length; t++)
+                // use non-contracted calculation.
+                var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
+                algorithm.Run();
+                if (!algorithm.HasSucceeded)
                 {
-                    paths[s][t] = algorithm.GetPath(s, t);
+                    return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                    {
+                        return new RouteNotFoundException(message);
+                    });
+                }
+
+                // build all routes.
+                paths = new EdgePath<T>[sources.Length][];
+                for (var s = 0; s < sources.Length; s++)
+                {
+                    paths[s] = new EdgePath<T>[targets.Length];
+                    for (var t = 0; t < targets.Length; t++)
+                    {
+                        paths[s][t] = algorithm.GetPath(s, t);
+                    }
                 }
             }
             return new Result<EdgePath<T>[][]>(paths);

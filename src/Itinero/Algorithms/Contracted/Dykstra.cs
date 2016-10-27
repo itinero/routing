@@ -118,7 +118,7 @@ namespace Itinero.Algorithms.Contracted
 
             if(this.WasFound != null)
             {
-                this.WasFound(_current.Vertex, _current.Weight);
+                this.WasFound(_current);
             }
 
             _edgeEnumerator.MoveTo(_current.Vertex);
@@ -157,7 +157,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
-        public Func<uint, T, bool> WasFound
+        public Func<EdgePath<T>, bool> WasFound
         {
             get;
             set;

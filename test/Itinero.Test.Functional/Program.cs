@@ -75,20 +75,7 @@ namespace Itinero.Test.Functional
             profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
             router.ProfileFactorAndSpeedCache = profileCache;
 
-            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest()");
-
-            //using (var stream = File.Open("temp.routerdb", FileMode.Create, FileAccess.ReadWrite))
-            //{
-            //    routerDb.Serialize(stream);
-            //    stream.Flush();
-            //    stream.Close();
-            //}
-
-            //using (var stream = File.Open("temp.routerdb", FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-            //{
-            //    routerDb = RouterDb.Deserialize(stream);
-            //}
-            //router = new Router(routerDb);
+            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
 
             // TEST1: Test random routes.
             Runner.GetTestRandomRoutes(new Router(routerDb), Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
@@ -106,6 +93,10 @@ namespace Itinero.Test.Functional
             // TEST5: calculate tree.
             var lines = Runner.GetTestTreeCalculation(router).TestPerf("Testing tree calculation.", 100);
             var linesJson = lines.ToFeatureCollection().ToGeoJson();
+
+            // TEST6: calculate many to many routes.
+            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
+            var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

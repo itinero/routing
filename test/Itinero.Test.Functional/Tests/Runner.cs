@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.Algorithms.Networks.Analytics.Heatmaps;
 using Itinero.Algorithms.Networks.Analytics.Trees;
+using Itinero.Algorithms;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -165,7 +166,35 @@ namespace Itinero.Test.Functional.Tests
             };
         }
 
+        /// <summary>
+        /// Tests calculating a collection of one to one routes.
+        /// </summary>
+        public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profile profile, int size)
+        {
+            var random = new System.Random();
+            var vertices = new HashSet<uint>();
+            while(vertices.Count < size)
+            {
+                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
+                if (!vertices.Contains(v))
+                {
+                    vertices.Add(v);
+                }
+            }
 
+            var resolvedPoints = new RouterPoint[vertices.Count];
+            var i = 0;
+            foreach(var v in vertices)
+            {
+                resolvedPoints[i] = router.Resolve(profile, router.Db.Network.GetVertex(v), 500);
+                i++;
+            }
+
+            return () =>
+             {
+                 return router.TryCalculateRaw(profile, router.GetDefaultWeightHandler(profile), resolvedPoints, resolvedPoints, null).Value;
+             };
+        }
 
         /// <summary>
         /// Tests detecting islands.

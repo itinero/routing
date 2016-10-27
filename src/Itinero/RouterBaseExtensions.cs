@@ -286,23 +286,7 @@ namespace Itinero
         /// </summary>
         public static Result<Route[]> TryCalculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint[] targets)
         {
-            var invalidSources = new HashSet<int>();
-            var invalidTargets = new HashSet<int>();
-            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets, invalidSources, invalidTargets);
-            if (invalidSources.Count > 0)
-            {
-                return new Result<Route[]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
-                {
-                    throw new Exceptions.RouteNotFoundException(s);
-                });
-            }
-            if (invalidTargets.Count > 0)
-            {
-                return new Result<Route[]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
-                {
-                    throw new Exceptions.RouteNotFoundException(s);
-                });
-            }
+            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets);
             if(result.IsError)
             {
                 return result.ConvertError<Route[]>();
@@ -335,20 +319,11 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Route[][] Calculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
-        {
-            return router.TryCalculate(profile, sources, targets).Value;
-        }
-
-        /// <summary>
-        /// Calculates all routes between all sources and all targets.
-        /// </summary>
         /// <returns></returns>
-        public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets)
+        public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
-            var paths = router.TryCalculateRaw(profile, weightHandler, sources, targets, invalidSources, invalidTargets);
+            var paths = router.TryCalculateRaw(profile, weightHandler, sources, targets);
             if (paths.IsError)
             {
                 return paths.ConvertError<Route[][]>();
@@ -379,45 +354,9 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
+        public static Route[][] Calculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
         {
-            var invalidSources = new HashSet<int>();
-            var invalidTargets = new HashSet<int>();
-            var result = router.TryCalculate(profile, sources, targets, invalidSources, invalidTargets).Value;
-            if (invalidSources.Count > 0)
-            {
-                return new Result<Route[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
-                {
-                    throw new Exceptions.RouteNotFoundException(s);
-                });
-            }
-            if (invalidTargets.Count > 0)
-            {
-                return new Result<Route[][]>("Some targets could not be routed to. Most likely there are islands in the loaded network.", (s) =>
-                {
-                    throw new Exceptions.RouteNotFoundException(s);
-                });
-            }
-
-            var routes = new Route[result.Length][];
-            for (var i = 0; i < result.Length; i++)
-            {
-                routes[i] = new Route[result[i].Length];
-                for (var j = 0; j < result[i].Length; j++)
-                {
-                    routes[i][j] = result[i][j];
-                }
-            }
-            return new Result<Route[][]>(routes);
-        }
-
-        /// <summary>
-        /// Calculates all routes between all sources and all targets.
-        /// </summary>
-        public static Route[][] Calculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets)
-        {
-            return router.TryCalculate(profile, sources, targets, invalidSources, invalidTargets).Value;
+            return router.TryCalculate(profile, sources, targets).Value;
         }
 
         /// <summary>
