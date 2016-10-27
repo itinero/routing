@@ -301,5 +301,23 @@ namespace Itinero.Data.Contracted.Edges
         {
             return edge.MetaData[0];
         }
+
+        /// <summary>
+        /// Gets contracted id.
+        /// </summary>
+        /// <returns></returns>
+        public static uint GetContractedId(this DirectedMetaGraph.EdgeEnumerator edge)
+        {
+            return edge.MetaData0;
+        }
+
+        /// <summary>
+        /// Gets contracted id.
+        /// </summary>
+        /// <returns></returns>
+        public static uint GetContractedId(this uint[] metaData)
+        {
+            return metaData[0];
+        }
     }
 }

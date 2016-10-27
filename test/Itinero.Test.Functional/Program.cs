@@ -96,7 +96,7 @@ namespace Itinero.Test.Functional
 
             // TEST6: calculate many to many routes.
             //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
-            var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 100).TestPerf("Testing calculating manytomany routes.");
+            var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

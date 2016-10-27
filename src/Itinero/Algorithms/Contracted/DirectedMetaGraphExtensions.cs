@@ -42,11 +42,18 @@ namespace Itinero.Algorithms.Contracted
             {
                 if (edges.Neighbour == vertex2)
                 { // the correct neighbour, get the weight.
-                    var weight = getWeight(edges.Data);
+                    var data = edges.Data;
+                    var weight = getWeight(data);
                     if (weight.HasValue &&
                         weight.Value < minWeight)
                     { // weight is better.
-                        edge = edges.Current;
+                        edge = new MetaEdge()
+                        {
+                            Data = data,
+                            Neighbour = vertex2,
+                            Id = edges.Id,
+                            MetaData = edges.MetaData
+                        };
                         minWeight = weight.Value;
                     }
                 }
@@ -55,41 +62,69 @@ namespace Itinero.Algorithms.Contracted
         }
 
         /// <summary>
+        /// Gets the contracted id for the shortest edge between two vertices.
+        /// </summary>
+        /// <returns></returns>
+        public static uint? GetShortestEdgeContractedId(this DirectedMetaGraph.EdgeEnumerator edgeEnumerator, uint vertex1, uint vertex2, bool forward)
+        {
+            var minWeight = float.MaxValue;
+            edgeEnumerator.MoveTo(vertex1);
+            uint? contractedId = null;
+            while (edgeEnumerator.MoveNext())
+            {
+                if (edgeEnumerator.Neighbour == vertex2)
+                { // the correct neighbour, get the weight.
+                    float weight;
+                    bool? direction;
+                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out weight, out direction);
+                    if (direction == null || direction.Value == forward)
+                    {
+                        if (weight < minWeight)
+                        { // weight is better.
+                            contractedId = edgeEnumerator.GetContractedId();
+                            minWeight = weight;
+                        }
+                    }
+                }
+            }
+            return contractedId;
+        }
+
+        /// <summary>
         /// Expands a the shortest edge between the two given vertices.
         /// </summary>
         public static void ExpandEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
             bool forward)
         {
+            var edgeEnumerator = graph.GetEdgeEnumerator();
+            edgeEnumerator.ExpandEdge(vertex1, vertex2, vertices, inverted, forward);
+        }
+
+        /// <summary>
+        /// Expands a the shortest edge between the two given vertices.
+        /// </summary>
+        public static void ExpandEdge(this DirectedMetaGraph.EdgeEnumerator edgeEnumerator, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
+            bool forward)
+        {
             // check if expansion is needed.
-            var edge = graph.GetShortestEdge(vertex1, vertex2, data =>
-                {
-                    float weight;
-                    bool? direction;
-                    ContractedEdgeDataSerializer.Deserialize(data[0], out weight, out direction);
-                    if (direction == null || direction.Value == forward)
-                    {
-                        return weight;
-                    }
-                    return null;
-                });
-            if(edge == null)
+            var edgeContractedId = edgeEnumerator.GetShortestEdgeContractedId(vertex1, vertex2, forward);
+            if(edgeContractedId == null)
             { // no edge found!
                 throw new Exception(string.Format("No edge found from {0} to {1}.", vertex1, vertex2));
             }
-            var edgeContractedId = edge.GetContractedId();
             if (edgeContractedId != Constants.NO_VERTEX)
             { // further expansion needed.
                 if (inverted)
                 {
-                    graph.ExpandEdge(edgeContractedId, vertex1, vertices, false, !forward);
-                    vertices.Add(edgeContractedId);
-                    graph.ExpandEdge(edgeContractedId, vertex2, vertices, true, forward);
+                    edgeEnumerator.ExpandEdge(edgeContractedId.Value, vertex1, vertices, false, !forward);
+                    vertices.Add(edgeContractedId.Value);
+                    edgeEnumerator.ExpandEdge(edgeContractedId.Value, vertex2, vertices, true, forward);
                 }
                 else
                 {
-                    graph.ExpandEdge(edgeContractedId, vertex2, vertices, false, forward);
-                    vertices.Add(edgeContractedId);
-                    graph.ExpandEdge(edgeContractedId, vertex1, vertices, true, !forward);
+                    edgeEnumerator.ExpandEdge(edgeContractedId.Value, vertex2, vertices, false, forward);
+                    vertices.Add(edgeContractedId.Value);
+                    edgeEnumerator.ExpandEdge(edgeContractedId.Value, vertex1, vertices, true, !forward);
                 }
             }
         }

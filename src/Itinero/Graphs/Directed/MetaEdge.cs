@@ -7,6 +7,14 @@ namespace Itinero.Graphs.Directed
     public class MetaEdge
     {
         /// <summary>
+        /// Creates a new empty meta-edge.
+        /// </summary>
+        public MetaEdge()
+        {
+
+        }
+
+        /// <summary>
         /// Creates a new edge keeping the current state of the given enumerator.
         /// </summary>
         internal MetaEdge(DirectedMetaGraph.EdgeEnumerator enumerator)
