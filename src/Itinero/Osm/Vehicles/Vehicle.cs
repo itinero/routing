@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
@@ -106,9 +107,9 @@ namespace Itinero.Osm.Vehicles
             }
             VehiclesByName[this.UniqueName.ToLowerInvariant()] = this;
 
-            foreach(var profile in this.GetProfiles())
+            foreach (var profile in this.GetProfileDefinitions())
             {
-                Itinero.Profiles.Profile.Register(profile);
+                Itinero.Profiles.ProfileDefinition.Register(profile);
             }
         }
 
@@ -413,13 +414,13 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public Itinero.Profiles.Profile Fastest()
         {
-            return new Itinero.Profiles.Profile(this.UniqueName,
-                this.GetGetSpeed(),
+            return new Itinero.Profiles.ProfileDefinition(this.UniqueName,
+                this.GetGetSpeed().ToUnconstrainedGetSpeed(),
                 this.GetGetMinSpeed(),
                 this.GetCanStop(),
                 this.GetEquals(), 
                 this.VehicleTypes,
-                Itinero.Profiles.ProfileMetric.TimeInSeconds);
+                Itinero.Profiles.ProfileMetric.TimeInSeconds).Default();
         }
 
         /// <summary>
@@ -427,24 +428,24 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public Itinero.Profiles.Profile Shortest()
         {
-            return new Itinero.Profiles.Profile(this.UniqueName + ".Shortest", 
-                this.GetGetSpeed(),
+            return new Itinero.Profiles.ProfileDefinition(this.UniqueName + ".Shortest", 
+                this.GetGetSpeed().ToUnconstrainedGetSpeed(),
                 this.GetGetMinSpeed(),
                 this.GetCanStop(),
                 this.GetEquals(), 
                 this.VehicleTypes, 
-                Itinero.Profiles.ProfileMetric.DistanceInMeters);
+                Itinero.Profiles.ProfileMetric.DistanceInMeters).Default();
         }
 
         /// <summary>
         /// Gets all profiles for this vehicles.
         /// </summary>
-        public virtual Itinero.Profiles.Profile[] GetProfiles()
+        public virtual Itinero.Profiles.ProfileDefinition[] GetProfileDefinitions()
         {
-            return new Itinero.Profiles.Profile[]
+            return new Itinero.Profiles.ProfileDefinition[]
             {
-                this.Fastest(),
-                this.Shortest()
+                this.Fastest().Definition,
+                this.Shortest().Definition
             };
         }
         

@@ -54,7 +54,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             _max = max;
 
             ContractedDb contractedDb;
-            if (!_routerDb.TryGetContracted(profile, out contractedDb))
+            if (!_routerDb.TryGetContracted(profile.Definition, out contractedDb))
             {
                 throw new NotSupportedException(
                     "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");
@@ -102,7 +102,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile, null), false, _max);
+                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile.Definition, null), false, _max);
                 forward.WasFound += (path) =>
                     {
                         return this.ForwardVertexFound(i, path.Vertex, path.Weight);
@@ -113,7 +113,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile, null), true, _max);
+                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile.Definition, null), true, _max);
                 backward.WasFound += (path) =>
                     {
                         return this.BackwardVertexFound(i, path.Vertex, path.Weight);

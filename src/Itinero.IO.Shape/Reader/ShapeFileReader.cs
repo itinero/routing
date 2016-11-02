@@ -60,7 +60,7 @@ namespace Itinero.IO.Shape.Reader
         {
             foreach(var vehicle in _vehicles)
             {
-                foreach (var profile in vehicle.GetProfiles())
+                foreach (var profile in vehicle.GetProfileDefinitions())
                 {
                     _routerDb.AddSupportedProfile(profile);
                 }

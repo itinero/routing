@@ -45,7 +45,7 @@ namespace Itinero.Test
                     called = true;
                     return new MockResolver(new RouterPoint(latitude, longitude, 0, 0));
                 };
-            router.Resolve(new Itinero.Profiles.Profile[] { MockProfile.CarMock() }, 0, 0);
+            router.Resolve(new Itinero.Profiles.Profile[] { MockProfile.CarMock().Default() }, 0, 0);
 
             Assert.IsTrue(called);
         }
@@ -75,7 +75,7 @@ namespace Itinero.Test
             routerDb.Network.Sort();
 
             var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            routerDb.AddSupportedProfile(car);
+            routerDb.AddSupportedProfile(car.Definition);
 
             var location1 = new Coordinate(52.35286546406f, 6.66554092450f);
             var location2 = new Coordinate(52.35476168070f, 6.66636669078f);
@@ -149,8 +149,8 @@ namespace Itinero.Test
             routerDb.Network.Sort();
 
             var pedestrian = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
-            routerDb.AddSupportedProfile(pedestrian);
-            routerDb.AddContracted(pedestrian, true);
+            routerDb.AddSupportedProfile(pedestrian.Definition);
+            routerDb.AddContracted(pedestrian.Definition, true);
             var router = new Router(routerDb);
 
             var location1 = new Coordinate(52.35286546406f, 6.66554092450f);
@@ -280,7 +280,7 @@ namespace Itinero.Test
                     "Itinero.Test.test_data.networks.network5.geojson"));
 
             var pedestrian = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
-            routerDb.AddSupportedProfile(pedestrian);
+            routerDb.AddSupportedProfile(pedestrian.Definition);
 
             var vertex0 = routerDb.Network.GetVertex(0);
             var vertex1 = routerDb.Network.GetVertex(1);
@@ -302,7 +302,7 @@ namespace Itinero.Test
             var vertex17 = routerDb.Network.GetVertex(17);
 
             routerDb.Network.Sort();
-            routerDb.AddContracted(pedestrian, true);
+            routerDb.AddContracted(pedestrian.Definition, true);
 
             var vertex0sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex0.Latitude, vertex0.Longitude, 0.0001f, 0.0001f);
             var vertex1sorted = routerDb.Network.GeometricGraph.SearchClosest(vertex1.Latitude, vertex1.Longitude, 0.0001f, 0.0001f);
@@ -349,7 +349,7 @@ namespace Itinero.Test
                     "Itinero.Test.test_data.networks.network6.geojson"));
 
             var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            routerDb.AddSupportedProfile(car);
+            routerDb.AddSupportedProfile(car.Definition);
 
             var vertex0 = routerDb.Network.GetVertex(0);
             var vertex1 = routerDb.Network.GetVertex(1);
@@ -361,7 +361,7 @@ namespace Itinero.Test
             var vertex7 = routerDb.Network.GetVertex(7);
 
             routerDb.Network.Sort();
-            routerDb.AddContracted(car, true);
+            routerDb.AddContracted(car.Definition, true);
 
             var router = new Router(routerDb);
 
@@ -389,7 +389,7 @@ namespace Itinero.Test
                     "Itinero.Test.test_data.networks.network7.geojson"));
 
             var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            routerDb.AddSupportedProfile(car);
+            routerDb.AddSupportedProfile(car.Definition);
 
             var vertices = new Coordinate[]
                 {
@@ -404,7 +404,7 @@ namespace Itinero.Test
                 };
 
             routerDb.Sort();
-            routerDb.AddContracted(car, true);
+            routerDb.AddContracted(car.Definition, true);
 
             var ids = new uint[vertices.Length];
             for(uint v = 0; v < ids.Length; v++)

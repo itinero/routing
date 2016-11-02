@@ -52,7 +52,7 @@ namespace Itinero.Test.Algorithms.Default
             });
 
             // run algorithm.
-            var algorithm = new ManyToMany(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToMany(new Router(routerDb), MockProfile.CarMock().Default(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) }, float.MaxValue);
             algorithm.Run();
@@ -63,7 +63,7 @@ namespace Itinero.Test.Algorithms.Default
             var path = algorithm.GetPath(0, 0);
             Assert.IsNotNull(path);
             Assert.AreEqual(1, path.Vertex);
-            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 100, path.Weight);
+            Assert.AreEqual(MockProfile.CarMock().Factor(null).Item1.Value * 100, path.Weight);
             path = path.From;
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Vertex);
@@ -95,7 +95,7 @@ namespace Itinero.Test.Algorithms.Default
             });
 
             // run algorithm.
-            var algorithm = new ManyToMany(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToMany(new Router(routerDb), MockProfile.CarMock().Default(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) }, float.MaxValue);
             algorithm.Run();
@@ -106,7 +106,7 @@ namespace Itinero.Test.Algorithms.Default
             var path = algorithm.GetPath(0, 0);
             Assert.IsNotNull(path);
             Assert.AreEqual(Constants.NO_VERTEX, path.Vertex);
-            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 80, path.Weight, 0.01);
+            Assert.AreEqual(MockProfile.CarMock().Factor(null).Item1.Value * 80, path.Weight, 0.01);
             path = path.From;
             Assert.IsNotNull(path);
             Assert.AreEqual(Constants.NO_VERTEX, path.Vertex);
@@ -165,7 +165,7 @@ namespace Itinero.Test.Algorithms.Default
             });
 
             // run algorithm (0, 1, 2)->(0, 1, 2).
-            var algorithm = new ManyToMany(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToMany(new Router(routerDb), MockProfile.CarMock().Default(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -184,15 +184,15 @@ namespace Itinero.Test.Algorithms.Default
             Assert.AreEqual(3, weights.Length);
             Assert.AreEqual(3, weights[0].Length);
             Assert.AreEqual(0, weights[0][0], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][1], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][2], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, weights[0][1], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, weights[0][2], 0.001);
             Assert.AreEqual(3, weights[1].Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][0], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, weights[1][0], 0.001);
             Assert.AreEqual(0, weights[1][1], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][2], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, weights[1][2], 0.001);
             Assert.AreEqual(3, weights[2].Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][0], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][1], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, weights[2][0], 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, weights[2][1], 0.001);
             Assert.AreEqual(0, weights[2][2], 0.001);
 
             var path = algorithm.GetPath(0, 0);
@@ -204,7 +204,7 @@ namespace Itinero.Test.Algorithms.Default
 
             path = algorithm.GetPath(0, 1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, path.Weight, 0.001);
             Assert.AreEqual(1, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -215,7 +215,7 @@ namespace Itinero.Test.Algorithms.Default
 
             path = algorithm.GetPath(0, 2);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, path.Weight, 0.001);
             Assert.AreEqual(2, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -226,7 +226,7 @@ namespace Itinero.Test.Algorithms.Default
 
             path = algorithm.GetPath(1, 0);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, path.Weight, 0.001);
             Assert.AreEqual(0, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -244,7 +244,7 @@ namespace Itinero.Test.Algorithms.Default
 
             path = algorithm.GetPath(1, 2);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, path.Weight, 0.001);
             Assert.AreEqual(2, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -255,7 +255,7 @@ namespace Itinero.Test.Algorithms.Default
 
             path = algorithm.GetPath(2, 0);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, path.Weight, 0.001);
             Assert.AreEqual(0, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -266,7 +266,7 @@ namespace Itinero.Test.Algorithms.Default
 
             path = algorithm.GetPath(2, 1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Item1.Value, path.Weight, 0.001);
             Assert.AreEqual(1, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);

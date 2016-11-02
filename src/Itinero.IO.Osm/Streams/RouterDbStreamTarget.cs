@@ -96,7 +96,7 @@ namespace Itinero.IO.Osm.Streams
 
             foreach (var vehicle in vehicles)
             {
-                foreach (var profiles in vehicle.GetProfiles())
+                foreach (var profiles in vehicle.GetProfileDefinitions())
                 {
                     db.AddSupportedProfile(profiles);
                 }

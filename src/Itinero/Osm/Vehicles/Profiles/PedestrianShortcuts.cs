@@ -25,11 +25,11 @@ namespace Itinero.Osm.Vehicles.Profiles
     /// <summary>
     /// A pedestrian profile that uses all shorcuts.
     /// </summary>
-    internal class PedestrianShortcuts : Profile
+    internal class PedestrianShortcuts : ProfileDefinition
     {
         internal PedestrianShortcuts(Pedestrian pedestrian)
-            : base(pedestrian.UniqueName + ".Shortcuts", pedestrian.GetGetSpeed(), pedestrian.GetGetMinSpeed(),
-                  pedestrian.GetCanStop(), pedestrian.GetEquals(), pedestrian.VehicleTypes, InternalGetFactor(pedestrian), ProfileMetric.TimeInSeconds)
+            : base(pedestrian.UniqueName + ".Shortcuts", pedestrian.GetGetSpeed().ToUnconstrainedGetSpeed(), pedestrian.GetGetMinSpeed(),
+                  pedestrian.GetCanStop(), pedestrian.GetEquals(), pedestrian.VehicleTypes, InternalGetFactor(pedestrian).ToUnconstrainedGetFactor(), ProfileMetric.TimeInSeconds)
         {
 
         }

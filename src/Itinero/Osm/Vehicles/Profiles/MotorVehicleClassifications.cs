@@ -26,7 +26,7 @@ namespace Itinero.Osm.Vehicles.Profiles
     /// <summary>
     /// A car profile that aggresively follows the road classifications. Motorway > Trunk > Primary > Secondary ... > Unclassified.
     /// </summary>
-    internal class MotorVehicleClassifications : Profile
+    internal class MotorVehicleClassifications : ProfileDefinition
     {
         private static float CLASS_FACTOR = 4;
         private static float MOTORWAY = 10;
@@ -38,8 +38,8 @@ namespace Itinero.Osm.Vehicles.Profiles
         private static float REST = 4;
 
         internal MotorVehicleClassifications(MotorVehicle mv)
-            : base(mv.UniqueName + ".Classifications", mv.GetGetSpeed(), mv.GetGetMinSpeed(),
-                  mv.GetCanStop(), mv.GetEquals(), mv.VehicleTypes, InternalGetFactor(mv))
+            : base(mv.UniqueName + ".Classifications", mv.GetGetSpeed().ToUnconstrainedGetSpeed(), mv.GetGetMinSpeed(),
+                  mv.GetCanStop(), mv.GetEquals(), mv.VehicleTypes, InternalGetFactor(mv).ToUnconstrainedGetFactor())
         {
 
         }

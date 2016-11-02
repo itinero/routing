@@ -509,7 +509,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             routerDb.TryGetContracted(Profiles.MockProfile.CarMock(), out contractedDb);
             
             var dykstra = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(contractedDb.EdgeBasedGraph,
-                new EdgePath<float>[] { new EdgePath<float>(0, 100 * Profiles.MockProfile.CarMock().Factor(null).Value, -1, new EdgePath<float>(1)) }, 
+                new EdgePath<float>[] { new EdgePath<float>(0, 100 * Profiles.MockProfile.CarMock().Factor(null).Item1.Value, -1, new EdgePath<float>(1)) }, 
                     (i) => null, false);
             dykstra.Run();
 

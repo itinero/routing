@@ -42,6 +42,6 @@ namespace Itinero.Profiles
         /// <summary>
         /// Returns a non-value.
         /// </summary>
-        public static Factor NoFactor { get { return new Factor() { Direction = 0, Value = 0 }; } }
+        public static FactorAndSpeed NoFactor { get { return new FactorAndSpeed() { Direction = 0, Value = 0, SpeedFactor = 0 }; } }
     }
 }

@@ -155,13 +155,13 @@ namespace Itinero.Osm.Vehicles
         /// Gets all profiles for this vehicle.
         /// </summary>
         /// <returns></returns>
-        public override Profile[] GetProfiles()
+        public override ProfileDefinition[] GetProfileDefinitions()
         {
-            return new Profile[]
+            return new ProfileDefinition[]
             {
-                this.Fastest(),
-                this.Shortest(),
-                this.Shortcuts()
+                this.Fastest().Definition,
+                this.Shortest().Definition,
+                this.Shortcuts().Definition
             };
         }
 
@@ -171,7 +171,7 @@ namespace Itinero.Osm.Vehicles
         /// <returns></returns>
         public Profile Shortcuts()
         {
-            return new Profiles.PedestrianShortcuts(this);
+            return new Profiles.PedestrianShortcuts(this).Default();
         }
     }
 }

@@ -50,7 +50,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(0, 0, 1, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 0, 1, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -99,7 +99,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -128,7 +128,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             var speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -145,7 +145,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route with similar path.
-            routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 0, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -174,7 +174,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -191,7 +191,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route with similar path.
-            routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 0, 1 }));
             routeBuilder.Run();
 
@@ -220,7 +220,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -262,7 +262,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -300,7 +300,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -355,7 +355,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 1, 1, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -400,7 +400,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -409,7 +409,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -426,7 +426,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route.
-            routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 0, 1, 2 }));
             routeBuilder.Run();
 
@@ -468,7 +468,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -477,7 +477,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -543,7 +543,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 2, 2, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -594,7 +594,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             var speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -603,7 +603,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.01);
             meta = route.ShapeMeta[3];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -612,7 +612,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(3000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(3000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -629,7 +629,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(route.ShapeMeta[route.ShapeMeta.Length - 1].Time, route.TotalTime);
 
             // build route.
-            routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 0, 1, 2, 3 }));
             routeBuilder.Run();
 
@@ -680,7 +680,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.01);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -689,7 +689,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.01);
             meta = route.ShapeMeta[3];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -698,7 +698,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(3000, meta.Distance, 0.01);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.01);
+            Assert.AreEqual(3000 / speed.Item1.Value, meta.Time, 0.01);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -716,7 +716,7 @@ namespace Itinero.Test.Algorithms.Routes
 
             // build route.
             source = new RouterPoint(0.4f, 0.4f, 0, ushort.MaxValue / 10 * 4, new Attribute("type", "source"));
-            routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, 3 }));
             routeBuilder.Run();
 
@@ -765,7 +765,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(600, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(600 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(600 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -774,7 +774,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1600, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1600 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(1600 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[3];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -783,7 +783,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2600, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2600 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(2600 / speed.Item1.Value, meta.Time, 0.1);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -802,7 +802,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             target = new RouterPoint(0, 1.6f, 2, ushort.MaxValue / 10 * 6, new Attribute("type", "target"));
-            routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 0, 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
 
@@ -851,7 +851,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -860,7 +860,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[3];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -869,7 +869,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2600, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2600 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(2600 / speed.Item1.Value, meta.Time, 0.1);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -938,7 +938,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 2, 3, ushort.MaxValue, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, 3 }));
             routeBuilder.Run();
 
@@ -971,7 +971,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.1);
             var speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -980,7 +980,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[3];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -989,7 +989,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(3000, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(3000 / speed.Item1.Value, meta.Time, 0.1);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -1058,7 +1058,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
             var target = new RouterPoint(1, 2, 3, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 1, 2, 3, 4 }));
             routeBuilder.Run();
 
@@ -1091,7 +1091,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(1000, meta.Distance, 0.1);
             var speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(1000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(1000 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[2];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -1100,7 +1100,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(2000, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(2000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(2000 / speed.Item1.Value, meta.Time, 0.1);
             meta = route.ShapeMeta[3];
             Assert.IsNotNull(meta.Attributes);
             Assert.AreEqual(5, meta.Attributes.Count);
@@ -1109,7 +1109,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.IsTrue(meta.Attributes.Contains("profile", profile.Name));
             Assert.AreEqual(3000, meta.Distance, 0.1);
             speed = profile.Speed(meta.Attributes);
-            Assert.AreEqual(3000 / speed.Value, meta.Time, 0.1);
+            Assert.AreEqual(3000 / speed.Item1.Value, meta.Time, 0.1);
 
             Assert.IsNotNull(route.Stops);
             Assert.AreEqual(2, route.Stops.Length);
@@ -1169,7 +1169,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
             var target = new RouterPoint(0, 1, 2, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 1, 2 }));
             routeBuilder.Run();
 
@@ -1258,7 +1258,7 @@ namespace Itinero.Test.Algorithms.Routes
             var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
             var target = new RouterPoint(0, 1, 2, 0, new Attribute("type", "target"));
             var profile = MockProfile.CarMock();
-            var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
+            var routeBuilder = new CompleteRouteBuilder(routerDb, profile.Default(),
                 source, target, new List<uint>(new uint[] { 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
 

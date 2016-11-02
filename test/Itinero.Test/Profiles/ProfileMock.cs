@@ -26,14 +26,14 @@ namespace Itinero.Test.Profiles
     /// <summary>
     /// A profile mock.
     /// </summary>
-    public class MockProfile : Profile
+    public class MockProfile : ProfileDefinition
     {
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
         private MockProfile(string name, Func<IAttributeCollection, Speed> getSpeed, 
             List<string> vehicleTypes)
-            : base(name, getSpeed, () => new Speed() { Value = 5, Direction = 0 }, x => true, (e1, e2) => true, vehicleTypes, 
+            : base(name, getSpeed.ToUnconstrainedGetSpeed(), () => new Speed() { Value = 5, Direction = 0 }, x => true, (e1, e2) => true, vehicleTypes, 
                   ProfileMetric.TimeInSeconds)
         {
 

@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Attributes;
 using System;
 
 namespace Itinero.Profiles
@@ -50,6 +51,63 @@ namespace Itinero.Profiles
                     Direction = f.Direction
                 };
             };
+        }
+
+        /// <summary>
+        /// Converts a regular get factor function to a get factor supporting contraints.
+        /// </summary>
+        public static Func<IAttributeCollection, Tuple<Factor, float[]>> ToUnconstrainedGetFactor(this Func<IAttributeCollection, Factor> getFactor)
+        {
+            return (attributes) =>
+            {
+                return new Tuple<Factor, float[]>(getFactor(attributes), null);
+            };
+        }
+
+        /// <summary>
+        /// Converts a regular get speed function to a get speed supporting contraints.
+        /// </summary>
+        public static Func<IAttributeCollection, Tuple<Speed, float[]>> ToUnconstrainedGetSpeed(this Func<IAttributeCollection, Speed> getSpeed)
+        {
+            return (attributes) =>
+            {
+                return new Tuple<Speed, float[]>(getSpeed(attributes), null);
+            };
+        }
+
+        /// <summary>
+        /// Gets the factor.
+        /// </summary>
+        public static Factor Factor(this Profile profileInstance, IAttributeCollection attributes)
+        {
+            var speedAndConstraints = profileInstance.Definition.Factor(attributes);
+            return profileInstance.Factor(speedAndConstraints.Item1, speedAndConstraints.Item2);
+        }
+
+        /// <summary>
+        /// Gets the factor.
+        /// </summary>
+        public static bool CanStopOn(this Profile profileInstance, IAttributeCollection attributes)
+        {
+            if (!profileInstance.Definition.CanStopOn(attributes))
+            {
+                return false;
+            }
+            var factor = profileInstance.Factor(attributes);
+            if (factor.Value <= 0)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Gets the speed.
+        /// </summary>
+        public static Speed Speed(this Profile profileInstance, IAttributeCollection attributes)
+        {
+            var speedAndConstraints = profileInstance.Definition.Speed(attributes);
+            return profileInstance.Speed(speedAndConstraints.Item1, speedAndConstraints.Item2);
         }
     }
 }

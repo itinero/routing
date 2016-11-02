@@ -43,10 +43,10 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         /// </summary>
         public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom = 16)
         {
-            if (profile.Metric != ProfileMetric.TimeInSeconds)
+            if (profile.Definition.Metric != ProfileMetric.TimeInSeconds)
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Name));
+                    profile.Definition.Name));
             }
 
             // get the weight handler.

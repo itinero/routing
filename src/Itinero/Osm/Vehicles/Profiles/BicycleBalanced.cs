@@ -25,7 +25,7 @@ namespace Itinero.Osm.Vehicles.Profiles
     /// <summary>
     /// A balanced bicycle profile.
     /// </summary>
-    internal class BicycleBalanced : Profile
+    internal class BicycleBalanced : ProfileDefinition
     {
         private const float HIGHEST_AVOID_FACTOR = 0.8f;
         private const float AVOID_FACTOR = 0.9f;
@@ -33,8 +33,8 @@ namespace Itinero.Osm.Vehicles.Profiles
         private const float HIGHEST_PREFER_FACTOR = 1.2f;
 
         internal BicycleBalanced(Bicycle bicycle)
-            : base(bicycle.UniqueName + ".Balanced", bicycle.GetGetSpeed(), bicycle.GetGetMinSpeed(), 
-                  bicycle.GetCanStop(), bicycle.GetEquals(), bicycle.VehicleTypes, InternalGetFactor(bicycle))
+            : base(bicycle.UniqueName + ".Balanced", bicycle.GetGetSpeed().ToUnconstrainedGetSpeed(), bicycle.GetGetMinSpeed(), 
+                  bicycle.GetCanStop(), bicycle.GetEquals(), bicycle.VehicleTypes, InternalGetFactor(bicycle).ToUnconstrainedGetFactor())
         {
 
         }

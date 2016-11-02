@@ -35,7 +35,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             if (!router.SupportsAll(profile))
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported.",
-                    profile.Name));
+                    profile.Definition.Name));
             }
 
             var routerOrigin = router.Resolve(profile, origin);
@@ -50,13 +50,13 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             if (!router.SupportsAll(profile))
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported.",
-                    profile.Name));
+                    profile.Definition.Name));
             }
 
-            if (profile.Metric != ProfileMetric.TimeInSeconds)
+            if (profile.Definition.Metric != ProfileMetric.TimeInSeconds)
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Name));
+                    profile.Definition.Name));
             }
 
             // get the weight handler.
@@ -70,7 +70,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             isochrone.Run();
 
             var result = isochrone.Result;
-            result.MaxMetric = profile.Name;
+            result.MaxMetric = profile.Definition.Name;
             return result;
         }
     }

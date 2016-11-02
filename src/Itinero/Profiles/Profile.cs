@@ -16,214 +16,169 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Attributes;
 using System;
-using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace Itinero.Profiles
 {
     /// <summary>
-    /// Represents a routing profile.
+    /// Represents a profile.
     /// </summary>
     public class Profile
     {
-        private readonly string _name;
-        private readonly Func<IAttributeCollection, Speed> _getSpeed;
-        private readonly Func<IAttributeCollection, Factor> _getFactor;
-        private readonly Func<IAttributeCollection, bool> _canStop;
-        private readonly Func<IAttributeCollection, IAttributeCollection, bool> _equals;
-        private readonly Func<Speed> _minSpeed;
-        private readonly List<string> _vehicleTypes;
-        private readonly ProfileMetric _metric;
+        private readonly ProfileDefinition _profile;
+        private readonly Constraint[] _constraints;
 
         /// <summary>
         /// Creates a new routing profile.
         /// </summary>
-        public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
-            Func<IAttributeCollection, IAttributeCollection, bool> equals, List<string> vehicleTypes, ProfileMetric metric)
+        public Profile(ProfileDefinition profile, Constraint[] constraints)
         {
-            if (metric == ProfileMetric.Custom)
+            if (_constraints != null && _constraints.Length > 255) { throw new ArgumentException("Maximum 255 constraints allowed."); }
+
+            _profile = profile;
+            _constraints = constraints;
+        }
+
+        /// <summary>
+        /// Verifies the constraints given the constraint values.
+        /// </summary>
+        public bool VerifyConstraints(float[] constraints)
+        {
+            if (constraints != null &&
+                _constraints != null)
             {
-                throw new ArgumentException("Cannot set a custom metric without a getFactor function.");
-            }
-
-            _minSpeed = minSpeed;
-            _getSpeed = getSpeed;
-            _canStop = canStop;
-            _equals = equals;
-            _vehicleTypes = vehicleTypes;
-            _name = name;
-            _metric = metric;
-            _getFactor = null;
-        }
-
-        /// <summary>
-        /// Creates a new routing profile.
-        /// </summary>
-        public Profile(string name, Func<IAttributeCollection, Speed> getSpeed, Func<Speed> minSpeed, Func<IAttributeCollection, bool> canStop,
-            Func<IAttributeCollection, IAttributeCollection, bool> equals, List<string> vehicleTypes, Func<IAttributeCollection, Factor> getFactor, 
-            ProfileMetric metric = ProfileMetric.Custom)
-        {
-            _minSpeed = minSpeed;
-            _getSpeed = getSpeed;
-            _canStop = canStop;
-            _equals = equals;
-            _vehicleTypes = vehicleTypes;
-            _name = name;
-            _metric = metric;
-            _getFactor = getFactor;
-        }
-
-        /// <summary>
-        /// Returns the multiplication factor for profile over a segment with the given attributes.
-        /// </summary>
-        public virtual Factor Factor(IAttributeCollection attributes)
-        {
-            if (_getFactor != null)
-            { // use a custom factor.
-                return _getFactor(attributes);
-            }
-
-            var speed = _getSpeed(attributes);
-            if (_metric == ProfileMetric.DistanceInMeters)
-            { // shortest, use a constant factor but take direction from speed.
-                return new Profiles.Factor()
+                for (var i = 0; i < _constraints.Length && i < constraints.Length; i++)
                 {
-                    Direction = speed.Direction,
-                    Value = 1
-                };
-            }
-            else if (_metric == ProfileMetric.TimeInSeconds)
-            { // fastest, use the speed as the factor.
-                if (speed.Value == 0)
-                {
-                    return new Factor()
+                    if (_constraints[i].Evaluate(constraints[i]))
                     {
-                        Value = 0,
-                        Direction = 0
-                    };
+                        return false;
+                    }
                 }
-                return new Factor()
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns the multiplication factor taking into account the given constraints.
+        /// </summary>
+        public virtual Factor Factor(Factor factor, float[] constraints)
+        {
+            if (!VerifyConstraints(constraints))
+            {
+                return Profiles.Factor.NoFactor;
+            }
+            return factor;
+        }
+
+        /// <summary>
+        /// Returns the speed taking into account the given constraints.
+        /// </summary>
+        public virtual FactorAndSpeed FactorAndSpeed(FactorAndSpeed factorAndSpeed, float[] constraints)
+        {
+            if (!VerifyConstraints(constraints))
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+            return factorAndSpeed;
+        }
+
+        /// <summary>
+        /// Returns the speed taking into account the given constraints.
+        /// </summary>
+        public virtual Speed Speed(Speed speed, float[] constraints)
+        {
+            if (!VerifyConstraints(constraints))
+            {
+                return Profiles.Speed.NoSpeed;
+            }
+            return speed;
+        }
+
+        /// <summary>
+        /// Gets the profile this is an instance for.
+        /// </summary>
+        public ProfileDefinition Definition
+        {
+            get
+            {
+                return _profile;
+            }
+        }
+
+        /// <summary>
+        /// Gets a unique description of this profile.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                var stringBuilder = new StringBuilder();
+                stringBuilder.Append(_profile.Name);
+                if (_constraints != null)
                 {
-                    Value = 1.0f / speed.Value,
-                    Direction = speed.Direction
-                };
+                    stringBuilder.Append("_[");
+                    for (var i = 0; i < _constraints.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            stringBuilder.Append(',');
+                        }
+                        if (_constraints[i] != null)
+                        {
+                            stringBuilder.Append(_constraints[i].Description);
+                        }
+                        else
+                        {
+                            stringBuilder.Append("null");
+                        }
+                    }
+                    stringBuilder.Append(']');
+                }
+                return stringBuilder.ToInvariantString();
             }
-            else
+        }
+
+        /// <summary>
+        /// Serializes this profile.
+        /// </summary>
+        public long Serialize(Stream stream)
+        {
+            long size = 0;
+            size += stream.WriteWithSize(this.Definition.Name);
+            var count = _constraints == null ? 0 : _constraints.Length;
+            stream.WriteByte((byte)count);
+            size += 4;
+            for (var i = 0; i < count; i++)
             {
-                throw new Exception(string.Format("Unknown metric used in profile: {0}", _name));
+                if (_constraints[i] == null)
+                {
+                    size += Constraint.SerializeNull(stream);
+                }
+                else
+                {
+                    size += _constraints[i].Serialize(stream);
+                }
             }
+            return size;
         }
 
         /// <summary>
-        /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
+        /// Deserializes this stream.
         /// </summary>
-        public virtual bool CanStopOn(IAttributeCollection attributes)
+        public static Profile Deserialize(Stream stream)
         {
-            return _canStop(attributes);
-        }
-
-        /// <summary>
-        /// Returns the speed a vehicle with this profile would have over a segment with the given attributes.
-        /// </summary>
-        public virtual Speed Speed(IAttributeCollection attributes)
-        {
-            return _getSpeed(attributes);
-        }
-
-        /// <summary>
-        /// Returns the minimum speed.
-        /// </summary>
-        /// <returns></returns>
-        public virtual Speed MinSpeed()
-        {
-            return _minSpeed();
-        }
-
-        /// <summary>
-        /// Returns true if the two tag collections are equal relative to this profile.
-        /// </summary>
-        public virtual bool Equals(IAttributeCollection edge1, IAttributeCollection edge2)
-        {
-            return _equals(edge1, edge2);
-        }
-
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
-        public virtual string Name
-        {
-            get
+            var name = stream.ReadWithSizeString();
+            var profileDefinition = ProfileDefinition.Get(name);
+            var count = stream.ReadByte();
+            var constraints = new Constraint[count];
+            for(var i = 0; i < constraints.Length; i++)
             {
-                return _name;
+                constraints[i] = Constraint.Deserialize(stream);
             }
+
+            return new Profile(profileDefinition, constraints);
         }
-
-        /// <summary>
-        /// Gets the metric.
-        /// </summary>
-        public virtual ProfileMetric Metric
-        {
-            get
-            {
-                return _metric;
-            }
-        }
-
-        /// <summary>
-        /// Gets the vehicle types.
-        /// </summary>
-        public virtual List<string> VehicleType
-        {
-            get
-            {
-                return _vehicleTypes;
-            }
-        }
-
-        #region Static profile management
-
-        private static Dictionary<string, Profile> _staticProfiles = 
-            new Dictionary<string,Profile>();
-
-        /// <summary>
-        /// Registers the given profile.
-        /// </summary>
-        public static void Register(Profile profile)
-        {
-            _staticProfiles[profile.Name] = profile;
-            _staticProfiles[profile.Name.ToLowerInvariant()] = profile;
-        }
-
-        /// <summary>
-        /// Gets all registered profiles.
-        /// </summary>
-        public static IEnumerable<Profile> GetAllRegistered()
-        {
-            return _staticProfiles.Values;
-        }
-
-        /// <summary>
-        /// Tries to get a profile for the given name.
-        /// </summary>
-        public static bool TryGet(string name, out Profile profile)
-        {
-            return _staticProfiles.TryGetValue(name, out profile);
-        }
-
-        /// <summary>
-        /// Gets the profile for the given name.
-        /// </summary>
-        public static Profile Get(string name)
-        {
-            Profile profile;
-            if(!Profile.TryGet(name, out profile))
-            {
-                throw new Exception(string.Format("Profile {0} not found.", name));
-            }
-            return profile;
-        }
-
-        #endregion
     }
 }

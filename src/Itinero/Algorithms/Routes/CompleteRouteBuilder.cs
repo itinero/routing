@@ -165,7 +165,7 @@ namespace Itinero.Algorithms.Routes
             _shapeMeta.Add(new Route.Meta()
             {
                 Attributes = new AttributeCollection(
-                    new Attributes.Attribute("profile", _profile.Name)),
+                    new Attributes.Attribute("profile", _profile.Definition.Name)),
                 Shape = _shape.Count - 1
             });
         }
@@ -258,7 +258,7 @@ namespace Itinero.Algorithms.Routes
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var attributes = new AttributeCollection(meta);
             attributes.AddOrReplace(profile);
-            attributes.AddOrReplace("profile", _profile.Name);
+            attributes.AddOrReplace("profile", _profile.Definition.Name);
             
             // add shape and meta.
             _shape.AddRange(shape);
@@ -373,7 +373,7 @@ namespace Itinero.Algorithms.Routes
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var attributes = new AttributeCollection(meta);
             attributes.AddOrReplace(profile);
-            attributes.AddOrReplace("profile", _profile.Name);
+            attributes.AddOrReplace("profile", _profile.Definition.Name);
 
             // add shape and meta.
             _shape.AddRange(shape);
@@ -407,26 +407,23 @@ namespace Itinero.Algorithms.Routes
                 ShortcutsDb shortcutsDb;
                 if (_routerDb.TryGetShortcuts(shortcutName, out shortcutsDb))
                 {
-                    Profile shortcutProfile;
-                    if (Profile.TryGet(shortcutsDb.ProfileName, out shortcutProfile))
+                    var shortcutProfile = shortcutsDb.Profile;
+                    IAttributeCollection shortcutMeta;
+                    var shortcut = shortcutsDb.Get(edge.From, edge.To, out shortcutMeta);
+                    if (shortcut != null && shortcut.Length >= 2)
                     {
-                        IAttributeCollection shortcutMeta;
-                        var shortcut = shortcutsDb.Get(edge.From, edge.To, out shortcutMeta);
-                        if (shortcut != null && shortcut.Length >= 2)
+                        var route = CompleteRouteBuilder.Build(_routerDb, shortcutProfile,
+                            _routerDb.CreateRouterPointForVertex(shortcut[0], shortcutProfile, _profile),
+                            _routerDb.CreateRouterPointForVertex(shortcut[shortcut.Length - 1], shortcutProfile, _profile),
+                                new List<uint>(shortcut));
+                        if (shortcutMeta == null)
                         {
-                            var route = CompleteRouteBuilder.Build(_routerDb, shortcutProfile,
-                                _routerDb.CreateRouterPointForVertex(shortcut[0], shortcutProfile, _profile), 
-                                _routerDb.CreateRouterPointForVertex(shortcut[shortcut.Length - 1], shortcutProfile, _profile),
-                                    new List<uint>(shortcut));
-                            if (shortcutMeta == null)
-                            {
-                                shortcutMeta = new AttributeCollection();
-                            }
-                            shortcutMeta.AddOrReplace(ShortcutExtensions.SHORTCUT_KEY, shortcutName);
-
-                            this.AppendRoute(route, shortcutMeta);
-                            return true;
+                            shortcutMeta = new AttributeCollection();
                         }
+                        shortcutMeta.AddOrReplace(ShortcutExtensions.SHORTCUT_KEY, shortcutName);
+
+                        this.AppendRoute(route, shortcutMeta);
+                        return true;
                     }
                 }
             }

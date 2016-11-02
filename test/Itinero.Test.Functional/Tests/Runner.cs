@@ -118,7 +118,7 @@ namespace Itinero.Test.Functional.Tests
         {
             return () =>
             {
-                routerDb.AddContracted(profile, forceEdgeBased);
+                routerDb.AddContracted(profile.Definition, forceEdgeBased);
             };
         }
 

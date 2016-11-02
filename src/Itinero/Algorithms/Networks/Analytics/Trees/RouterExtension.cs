@@ -51,13 +51,13 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             if (!router.SupportsAll(profile))
             {
                 return new Result<Tree>(string.Format("Profile {0} not supported.",
-                    profile.Name));
+                    profile.Definition.Name));
             }
 
-            if (profile.Metric != ProfileMetric.TimeInSeconds)
+            if (profile.Definition.Metric != ProfileMetric.TimeInSeconds)
             {
                 return new Result<Tree>(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Name));
+                    profile.Definition.Name));
             }
 
             // get the weight handler.
@@ -67,7 +67,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             // calculate isochrones.
             TreeBuilder treeBuilder = null;
 
-            if (!router.Db.HasComplexRestrictions(profile))
+            if (!router.Db.HasComplexRestrictions(profile.Definition))
             {
                 treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
                     new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
@@ -77,7 +77,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             {
                 treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
                     new Algorithms.Default.EdgeBased.Dykstra(router.Db.Network.GeometricGraph.Graph,
-                        weightHandler, router.Db.GetGetRestrictions(profile, true), origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
+                        weightHandler, router.Db.GetGetRestrictions(profile.Definition, true), origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
             }
             treeBuilder.Run();
 

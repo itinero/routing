@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
@@ -206,12 +207,12 @@ namespace Itinero.IO.Shape.Vehicles
         /// <summary>
         /// Gets all profiles for this vehicles.
         /// </summary>
-        public virtual Itinero.Profiles.Profile[] GetProfiles()
+        public virtual Itinero.Profiles.ProfileDefinition[] GetProfileDefinitions()
         {
-            return new Itinero.Profiles.Profile[]
+            return new Itinero.Profiles.ProfileDefinition[]
             {
-                this.Fastest(),
-                this.Shortest()
+                this.Fastest().Definition,
+                this.Shortest().Definition
             };
         }
 
@@ -220,8 +221,8 @@ namespace Itinero.IO.Shape.Vehicles
         /// </summary>
         public Itinero.Profiles.Profile Fastest()
         {
-            return new Itinero.Profiles.Profile(this.UniqueName,
-                this.GetGetSpeed(),
+            return new Itinero.Profiles.ProfileDefinition(this.UniqueName,
+                this.GetGetSpeed().ToUnconstrainedGetSpeed(),
                 () => new Itinero.Profiles.Speed()
                 {
                     Value = (float)this.MinSpeed() / 3.6f,
@@ -230,7 +231,7 @@ namespace Itinero.IO.Shape.Vehicles
                 this.GetCanStop(),
                 this.GetEquals(),
                 this.VehicleTypes,
-                Itinero.Profiles.ProfileMetric.TimeInSeconds);
+                Itinero.Profiles.ProfileMetric.TimeInSeconds).Default();
         }
 
         /// <summary>
@@ -238,8 +239,8 @@ namespace Itinero.IO.Shape.Vehicles
         /// </summary>
         public Itinero.Profiles.Profile Shortest()
         {
-            return new Itinero.Profiles.Profile(this.UniqueName + ".Shortest",
-                this.GetGetSpeed(),
+            return new Itinero.Profiles.ProfileDefinition(this.UniqueName + ".Shortest",
+                this.GetGetSpeed().ToUnconstrainedGetSpeed(),
                 () => new Itinero.Profiles.Speed()
                 {
                     Value = (float)this.MinSpeed() / 3.6f,
@@ -248,7 +249,7 @@ namespace Itinero.IO.Shape.Vehicles
                 this.GetCanStop(),
                 this.GetEquals(),
                 this.VehicleTypes,
-                Itinero.Profiles.ProfileMetric.DistanceInMeters);
+                Itinero.Profiles.ProfileMetric.DistanceInMeters).Default();
         }
     }
 }

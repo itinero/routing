@@ -108,7 +108,7 @@ namespace Itinero
         /// Creates a new router database.
         /// </summary>
         public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, IAttributeCollection dbMeta,
-            params Profiles.Profile[] supportedProfiles)
+            params Profiles.ProfileDefinition[] supportedProfiles)
         {
             _network = network;
             _edgeProfiles = profiles;
@@ -200,9 +200,9 @@ namespace Itinero
         /// <summary>
         /// Adds a supported profile.
         /// </summary>
-        public void AddSupportedProfile(Profiles.Profile profile)
+        public void AddSupportedProfile(Profiles.ProfileDefinition profileDefinition)
         {
-            _supportedProfiles.Add(profile.Name);
+            _supportedProfiles.Add(profileDefinition.Name);
         }
 
         /// <summary>
@@ -277,7 +277,7 @@ namespace Itinero
         /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
-        public void AddContracted(Profiles.Profile profile, ContractedDb contracted)
+        public void AddContracted(Profiles.ProfileDefinition profile, ContractedDb contracted)
         {
             _contracted[profile.Name] = contracted;
         }
@@ -285,7 +285,7 @@ namespace Itinero
         /// <summary>
         /// Removes the contracted version of the routing network for the given profile.
         /// </summary>
-        public bool RemoveContracted(Profile profile)
+        public bool RemoveContracted(ProfileDefinition profile)
         {
             return _contracted.Remove(profile.Name);
         }
@@ -293,7 +293,7 @@ namespace Itinero
         /// <summary>
         /// Tries to get a contracted version of the routing network for the given profile.
         /// </summary>
-        public bool TryGetContracted(Profiles.Profile profile, out ContractedDb contracted)
+        public bool TryGetContracted(Profiles.ProfileDefinition profile, out ContractedDb contracted)
         {
             return _contracted.TryGetValue(profile.Name, out contracted);
         }
@@ -310,7 +310,7 @@ namespace Itinero
         /// <summary>
         /// Returns true if this routing db has a contracted version of the routing network for the given profile.
         /// </summary>
-        public bool HasContractedFor(Profiles.Profile profile)
+        public bool HasContractedFor(Profiles.ProfileDefinition profile)
         {
             return _contracted.ContainsKey(profile.Name);
         }
@@ -466,7 +466,7 @@ namespace Itinero
         /// <summary>
         /// Writes the contracted graph for the given profile to the given stream.
         /// </summary>
-        public long SerializeContracted(Profile profile, Stream stream)
+        public long SerializeContracted(ProfileDefinition profile, Stream stream)
         {
             ContractedDb contracted;
             if (!this.TryGetContracted(profile, out contracted))

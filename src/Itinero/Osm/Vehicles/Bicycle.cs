@@ -237,14 +237,14 @@ namespace Itinero.Osm.Vehicles
         /// Gets all profiles for this vehicle.
         /// </summary>
         /// <returns></returns>
-        public override Profile[] GetProfiles()
+        public override ProfileDefinition[] GetProfileDefinitions()
         {
-            return new Profile[]
+            return new ProfileDefinition[]
             {
-                this.Fastest(),
-                this.Shortest(),
-                this.Balanced(),
-                this.Networks()
+                this.Fastest().Definition,
+                this.Shortest().Definition,
+                this.Balanced().Definition,
+                this.Networks().Definition
             };
         }
 
@@ -254,7 +254,7 @@ namespace Itinero.Osm.Vehicles
         /// <returns></returns>
         public Profile Balanced()
         {
-            return new Profiles.BicycleBalanced(this);
+            return new Profiles.BicycleBalanced(this).Default();
         }
 
         /// <summary>
@@ -263,7 +263,7 @@ namespace Itinero.Osm.Vehicles
         /// <returns></returns>
         public Profile Networks()
         {
-            return new Profiles.BicycleNetworks(this);
+            return new Profiles.BicycleNetworks(this).Default();
         }
     }
 }

@@ -25,7 +25,7 @@ namespace Itinero.Osm.Vehicles.Profiles
     /// <summary>
     /// A cycling network based bicycle profile.
     /// </summary>
-    internal class BicycleNetworks : Profile
+    internal class BicycleNetworks : ProfileDefinition
     {
         private const float HIGHEST_AVOID_FACTOR = 0.8f;
         private const float AVOID_FACTOR = 0.9f;
@@ -34,8 +34,8 @@ namespace Itinero.Osm.Vehicles.Profiles
         private const float CYCLE_NETWORK_PREFER_FACTOR = 40f; // force cyclists over the cycle network.
 
         internal BicycleNetworks(Bicycle bicycle)
-            : base(bicycle.UniqueName + ".Networks", bicycle.GetGetSpeed(), bicycle.GetGetMinSpeed(),
-                  bicycle.GetCanStop(), bicycle.GetEquals(), bicycle.VehicleTypes, InternalGetFactor(bicycle))
+            : base(bicycle.UniqueName + ".Networks", bicycle.GetGetSpeed().ToUnconstrainedGetSpeed(), bicycle.GetGetMinSpeed(),
+                  bicycle.GetCanStop(), bicycle.GetEquals(), bicycle.VehicleTypes, InternalGetFactor(bicycle).ToUnconstrainedGetFactor())
         {
 
         }

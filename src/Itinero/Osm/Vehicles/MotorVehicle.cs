@@ -145,20 +145,20 @@ namespace Itinero.Osm.Vehicles
         /// <returns></returns>
         public virtual Profile Classified()
         {
-            return new Profiles.MotorVehicleClassifications(this);
+            return new Profiles.MotorVehicleClassifications(this).Default();
         }
 
         /// <summary>
         /// Gets all profiles for this vehicle.
         /// </summary>
         /// <returns></returns>
-        public override Profile[] GetProfiles()
+        public override ProfileDefinition[] GetProfileDefinitions()
         {
-            return new Profile[]
+            return new ProfileDefinition[]
             {
-                this.Fastest(),
-                this.Shortest(),
-                this.Classified()
+                this.Fastest().Definition,
+                this.Shortest().Definition,
+                this.Classified().Definition
             };
         }
     }
