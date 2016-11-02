@@ -31,6 +31,7 @@ namespace Itinero.Profiles
         private readonly Script _script;
         private readonly string[] _vehicleTypes;
         private readonly string _name;
+        private readonly ProfileMetric _metric;
 
         /// <summary>
         /// Creates a new dynamic profile based on the given lua script.
@@ -54,6 +55,21 @@ namespace Itinero.Profiles
             if (dynVehicleTypes != null)
             {
                 _vehicleTypes = dynVehicleTypes.Table.Values.Select(x => x.String).ToArray();
+            }
+
+            _metric = ProfileMetric.Custom;
+            var dynMetric = _script.Globals.Get("metric");
+            if (dynMetric != null)
+            {
+                switch(dynMetric.String)
+                {
+                    case "time":
+                        _metric = ProfileMetric.TimeInSeconds;
+                        break;
+                    case "distance":
+                        _metric = ProfileMetric.DistanceInMeters;
+                        break;
+                }
             }
         }
 
@@ -96,16 +112,27 @@ namespace Itinero.Profiles
                     // get the results.
                     var result = new DynamicFactorAndSpeed();
                     float val;
-                    if (!_resultsTable.TryGetFloat("factor", out val))
-                    {
-                        val = 0;
-                    }
-                    result.Factor = val;
                     if (!_resultsTable.TryGetFloat("speed", out val))
                     {
                         val = 0;
-                    }
+                    }                    
                     result.SpeedFactor = 1.0f / (val / 3.6f); // 1/m/s
+                    if (_metric == ProfileMetric.TimeInSeconds)
+                    { // use 1/speed as factor.
+                        result.Factor = result.SpeedFactor;
+                    }
+                    else if(_metric == ProfileMetric.DistanceInMeters)
+                    { // use 1 as factor.
+                        result.Factor = 1;
+                    }
+                    else
+                    { // use a custom factor.
+                        if (!_resultsTable.TryGetFloat("factor", out val))
+                        {
+                            val = 0;
+                        }
+                        result.Factor = val;
+                    }
                     bool boolVal;
                     if (!_resultsTable.TryGetBool("canstop", out boolVal))
                     { // default stopping everywhere.

@@ -57,8 +57,7 @@ namespace Itinero.Test.Functional
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
             _logger = new Logger("Default");
-
-
+            
             var fileContent = File.ReadAllText(@"Tests\Profiles\car.lua");
             var profile = new DynamicProfile(fileContent);
             var getGetFactorAndSpeed = profile.GetGetFactorAndSpeed();
