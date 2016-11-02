@@ -46,6 +46,6 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets or sets the direction value.
         /// </summary>
-        public ushort Direction { get; set; }
+        public short Direction { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿
-name = "car"
-metric = "time"
+name = "car.shortest"
+metric = "distance"
 vehicle_types = { "motor_vehicle", "car" }
 
 speed_profile = {

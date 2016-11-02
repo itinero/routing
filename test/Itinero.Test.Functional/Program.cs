@@ -60,10 +60,9 @@ namespace Itinero.Test.Functional
             
             var fileContent = File.ReadAllText(@"Tests\Profiles\car.lua");
             var profile = new DynamicProfile(fileContent);
-            var getGetFactorAndSpeed = profile.GetGetFactorAndSpeed();
 
-            var factor = getGetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "residential")));
-            factor = getGetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "primary")));
+            var factor = profile.GetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "residential")));
+            factor = profile.GetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "primary")));
 
             //Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 

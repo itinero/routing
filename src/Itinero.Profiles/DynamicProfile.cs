@@ -20,6 +20,7 @@ using System;
 using MoonSharp.Interpreter;
 using Itinero.Attributes;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Itinero.Profiles
 {
@@ -32,6 +33,7 @@ namespace Itinero.Profiles
         private readonly string[] _vehicleTypes;
         private readonly string _name;
         private readonly ProfileMetric _metric;
+        private readonly float _minSpeed;
 
         /// <summary>
         /// Creates a new dynamic profile based on the given lua script.
@@ -91,63 +93,112 @@ namespace Itinero.Profiles
         /// Get a function to calculate properties for a set given edge attributes.
         /// </summary>
         /// <returns></returns>
-        public Func<IAttributeCollection, DynamicFactorAndSpeed> GetGetFactorAndSpeed()
+        public DynamicFactorAndSpeed GetFactorAndSpeed(IAttributeCollection attributes)
         {
-            return (attributes) =>
+            lock (_script)
             {
-                lock (_script)
+                // build lua table.
+                _attributesTable.Clear();
+                foreach (var attribute in attributes)
                 {
-                    // build lua table.
-                    _attributesTable.Clear();
-                    foreach (var attribute in attributes)
-                    {
-                        _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
-                    }
-
-                    // call factor_and_speed function.
-                    _resultsTable.Clear();
-                    var function = _script.Globals["factor_and_speed"];
-                    _script.Call(function, _attributesTable, _resultsTable);
-
-                    // get the results.
-                    var result = new DynamicFactorAndSpeed();
-                    float val;
-                    if (!_resultsTable.TryGetFloat("speed", out val))
-                    {
-                        val = 0;
-                    }                    
-                    result.SpeedFactor = 1.0f / (val / 3.6f); // 1/m/s
-                    if (_metric == ProfileMetric.TimeInSeconds)
-                    { // use 1/speed as factor.
-                        result.Factor = result.SpeedFactor;
-                    }
-                    else if(_metric == ProfileMetric.DistanceInMeters)
-                    { // use 1 as factor.
-                        result.Factor = 1;
-                    }
-                    else
-                    { // use a custom factor.
-                        if (!_resultsTable.TryGetFloat("factor", out val))
-                        {
-                            val = 0;
-                        }
-                        result.Factor = val;
-                    }
-                    bool boolVal;
-                    if (!_resultsTable.TryGetBool("canstop", out boolVal))
-                    { // default stopping everywhere.
-                        boolVal = true;
-                    }
-                    result.CanStop = boolVal;
-                    if (!_resultsTable.TryGetFloat("direction", out val))
-                    {
-                        val = 0;
-                    }
-                    result.Direction = (ushort)val;
-
-                    return result;
+                    _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
                 }
-            };
+
+                // call factor_and_speed function.
+                _resultsTable.Clear();
+                var function = _script.Globals["factor_and_speed"];
+                _script.Call(function, _attributesTable, _resultsTable);
+
+                // get the results.
+                var result = new DynamicFactorAndSpeed();
+                float val;
+                if (!_resultsTable.TryGetFloat("speed", out val))
+                {
+                    val = 0;
+                }
+                result.SpeedFactor = 1.0f / (val / 3.6f); // 1/m/s
+                if (_metric == ProfileMetric.TimeInSeconds)
+                { // use 1/speed as factor.
+                    result.Factor = result.SpeedFactor;
+                }
+                else if (_metric == ProfileMetric.DistanceInMeters)
+                { // use 1 as factor.
+                    result.Factor = 1;
+                }
+                else
+                { // use a custom factor.
+                    if (!_resultsTable.TryGetFloat("factor", out val))
+                    {
+                        val = 0;
+                    }
+                    result.Factor = val;
+                }
+                bool boolVal;
+                if (!_resultsTable.TryGetBool("canstop", out boolVal))
+                { // default stopping everywhere.
+                    boolVal = true;
+                }
+                result.CanStop = boolVal;
+                if (!_resultsTable.TryGetFloat("direction", out val))
+                {
+                    val = 0;
+                }
+                result.Direction = (short)val;
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the two edges with the given attributes are identical as far as this profile is concerned.
+        /// </summary>
+        /// <remarks>
+        /// Default implementation compares attributes one-by-one.
+        /// </remarks>
+        public bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
+        {
+            return attributes1.ContainsSame(attributes2);
+        }
+
+        public Profile BuildProfile()
+        {
+            return new Profile("Dynamic." + this.Name, (attributes) =>
+            {
+                var factorAndSpeed = this.GetFactorAndSpeed(attributes);
+                return new Speed()
+                {
+                    Direction = factorAndSpeed.Direction,
+                    Value = 1 / factorAndSpeed.SpeedFactor
+                };
+            },
+            () =>
+            {
+                return new Speed()
+                {
+                    Direction = 0,
+                    Value = 0.1f
+                };
+            },
+            (attributes) =>
+            {
+                var factorAndSpeed = this.GetFactorAndSpeed(attributes);
+                return factorAndSpeed.CanStop;
+            },
+            (a1, a2) =>
+            {
+                return this.Equals(a1, a2);
+            },
+            new List<string>(_vehicleTypes),
+            (attributes) =>
+            {
+                var factorAndSpeed = this.GetFactorAndSpeed(attributes);
+                return new Factor()
+                {
+                    Direction = factorAndSpeed.Direction,
+                    Value = 1 / factorAndSpeed.Factor
+                };
+            },
+            _metric);
         }
     }
 }
