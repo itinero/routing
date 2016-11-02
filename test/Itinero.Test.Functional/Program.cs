@@ -64,9 +64,10 @@ namespace Itinero.Test.Functional
             var getGetFactorAndSpeed = profile.GetGetFactorAndSpeed();
 
             var factor = getGetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "residential")));
+            factor = getGetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "primary")));
 
             //Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-            
+
             //// download and extract test-data if not already there.
             //_logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             //Download.DownloadLuxembourgAll();
