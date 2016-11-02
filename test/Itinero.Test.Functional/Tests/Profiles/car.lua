@@ -1,5 +1,6 @@
 ﻿
 name = "car.shortest"
+metric = "time"
 vehicle_types = { "motor_vehicle", "car" }
 
 function factor_and_speed (attributes, result)

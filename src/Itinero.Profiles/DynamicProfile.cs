@@ -19,6 +19,7 @@
 using System;
 using MoonSharp.Interpreter;
 using Itinero.Attributes;
+using System.Linq;
 
 namespace Itinero.Profiles
 {
@@ -48,6 +49,12 @@ namespace Itinero.Profiles
                 throw new Exception("Dynamic profile doesn't define a name.");
             }
             _name = dynName.String;
+            
+            var dynVehicleTypes = _script.Globals.Get("vehicle_types");
+            if (dynVehicleTypes != null)
+            {
+                _vehicleTypes = dynVehicleTypes.Table.Values.Select(x => x.String).ToArray();
+            }
         }
 
         private readonly Table _attributesTable;
