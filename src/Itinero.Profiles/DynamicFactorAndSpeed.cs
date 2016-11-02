@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -19,30 +19,33 @@
 namespace Itinero.Profiles
 {
     /// <summary>
-    /// A factor returned by a routing profile to influence routing augmented with the speed.
+    /// Represents a factor and speed calculated by the dynamic profile.
     /// </summary>
-    public struct FactorAndSpeed
+    public struct DynamicFactorAndSpeed
     {
         /// <summary>
-        /// Gets or sets the actual factor.
+        /// Gets or sets the factor.
         /// </summary>
-        public float Value { get; set; }
+        public float Factor { get; set; }
 
         /// <summary>
-        /// Gets or sets the speed (1/m/s).
+        /// Gets or sets the speed factor.
         /// </summary>
         public float SpeedFactor { get; set; }
 
         /// <summary>
-        /// Gets or sets the direction.
+        /// Gets or sets the can stop bool.
         /// </summary>
-        /// 0=bidirectional, 1=forward, 2=backward.
-        /// 3=bidirectional, 4=forward, 5=backward but without stopping abilities.
-        public short Direction { get; set; }
+        public bool CanStop { get; set; }
 
         /// <summary>
-        /// Returns a non-value.
+        /// Gets or sets the constraint values.
         /// </summary>
-        public static Factor NoFactor { get { return new Factor() { Direction = 0, Value = 0 }; } }
+        public float[] Constraints { get; set; }
+
+        /// <summary>
+        /// Gets or sets the direction value.
+        /// </summary>
+        public ushort Direction { get; set; }
     }
 }
