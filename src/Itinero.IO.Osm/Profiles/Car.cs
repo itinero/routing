@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,30 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Osm.Vehicles
+using Itinero.IO.Osm.Profiles.Defaults;
+
+namespace Itinero.IO.Osm.Profiles
 {
-
     /// <summary>
-    /// Represents a bus that is not acting as a public service.
+    /// Defines a default OSM car.
     /// </summary>
-    /// <remarks>http://wiki.openstreetmap.org/wiki/Key:tourist_bus</remarks>
-    public class Bus : MotorVehicle
+    public class Car : Vehicle
     {
-        /// <summary>
-        /// Default constructor.
-        /// </summary>
-        public Bus()
+        public Car()
+            : base(Loader.Load("car.lua"))
         {
-            // http://wiki.openstreetmap.org/wiki/Key:tourist_bus
-            VehicleTypes.Add("tourist_bus");
-        }
 
-        /// <summary>
-        /// Returns a unique name this vehicle type.
-        /// </summary>
-        public override string UniqueName
-        {
-            get { return "Bus"; }
         }
     }
 }

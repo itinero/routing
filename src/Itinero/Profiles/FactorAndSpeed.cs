@@ -41,8 +41,13 @@ namespace Itinero.Profiles
         public short Direction { get; set; }
 
         /// <summary>
+        /// Gets or sets the constraint values.
+        /// </summary>
+        public float[] Constraints { get; set; }
+        
+        /// <summary>
         /// Returns a non-value.
         /// </summary>
-        public static Factor NoFactor { get { return new Factor() { Direction = 0, Value = 0 }; } }
+        public static FactorAndSpeed NoFactor { get { return new FactorAndSpeed() { Direction = 0, Value = 0, SpeedFactor = 0, Constraints = null }; } }
     }
 }

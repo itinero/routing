@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,28 +16,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System.IO;
+using System.Reflection;
+using System.Resources;
 
-namespace Itinero.Osm.Vehicles
+namespace Itinero.IO.Osm.Profiles.Defaults
 {
     /// <summary>
-    /// Represents a MotorCycle
+    /// A loader loading embedded profiles.
     /// </summary>
-    public class MotorCycle : MotorVehicle
+    static class Loader
     {
-        /// <summary>
-        /// Default Constructor
-        /// </summary>
-        public MotorCycle()
-        {
-            VehicleTypes.Add("motorcycle");
-        }
+        private static string PATH = "Itinero.IO.Osm.Profiles.Defaults.";
 
         /// <summary>
-        /// Returns a unique name this vehicle type.
+        /// Loads the given profile from embedded resources.
         /// </summary>
-        public override string UniqueName
+        public static string Load(string name)
         {
-            get { return "MotorCycle"; }
+#if NETSTANDARD
+            var assembly = typeof(Car).GetTypeInfo().Assembly;
+#else
+            var assembly = typeof(Car).Assembly;
+#endif
+            using (var stream = assembly.GetManifestResourceStream(PATH + name))
+            using (var streamReader = new StreamReader(stream))
+            {
+                return streamReader.ReadToEnd();
+            }
         }
     }
 }

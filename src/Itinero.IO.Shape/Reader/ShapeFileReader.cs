@@ -23,10 +23,10 @@ using System;
 using NetTopologySuite.Geometries;
 using Itinero.Logging;
 using Itinero.LocalGeo;
-using Itinero.IO.Shape.Vehicles;
 using Itinero.Attributes;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data.Network;
+using Itinero.IO.Shape.Profiles;
 
 namespace Itinero.IO.Shape.Reader
 {
@@ -196,6 +196,8 @@ namespace Itinero.IO.Shape.Reader
                         // get profile and meta attributes.
                         var profile = new AttributeCollection();
                         var meta = new AttributeCollection();
+                        var profileWhiteList = new HashSet<string>();
+                        _vehicles.AddToProfileWhiteList(profileWhiteList, reader);
                         foreach (var field in reader.DbaseHeader.Fields)
                         {
                             var valueString = string.Empty;
@@ -205,11 +207,12 @@ namespace Itinero.IO.Shape.Reader
                                 valueString = value.ToInvariantString();
                             }
 
-                            if (_vehicles.IsRelevantForProfileAny(field.Name))
+                            if (profileWhiteList.Contains(field.Name) ||
+                                _vehicles.IsOnProfileWhiteList(field.Name))
                             {
                                 profile.AddOrReplace(field.Name, valueString);
                             }
-                            else if(_vehicles.IsRelevantAny(field.Name))
+                            else if(_vehicles.IsOnMetaWhiteList(field.Name))
                             {
                                 meta.AddOrReplace(field.Name, valueString);
                             }

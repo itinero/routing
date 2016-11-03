@@ -17,71 +17,43 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using MoonSharp.Interpreter;
 using Itinero.Attributes;
-using System.Linq;
-using System.Collections.Generic;
+using MoonSharp.Interpreter;
 
 namespace Itinero.Profiles
 {
     /// <summary>
-    /// A dynamic profile.
+    /// Represents a dynamic routing profile that is based on a lua function.
     /// </summary>
-    public class DynamicProfile
+    public class DynamicProfile : Profile
     {
         private readonly Script _script;
-        private readonly string[] _vehicleTypes;
+        private readonly object _function;
         private readonly string _name;
         private readonly ProfileMetric _metric;
-        private readonly float _minSpeed;
-
-        /// <summary>
-        /// Creates a new dynamic profile based on the given lua script.
-        /// </summary>
-        public DynamicProfile(string script)
-        {
-            _script = new Script();
-            _script.DoString(script);
-
-            _attributesTable = new Table(_script);
-            _resultsTable = new Table(_script);
-
-            var dynName = _script.Globals.Get("name");
-            if (dynName == null)
-            {
-                throw new Exception("Dynamic profile doesn't define a name.");
-            }
-            _name = dynName.String;
-            
-            var dynVehicleTypes = _script.Globals.Get("vehicle_types");
-            if (dynVehicleTypes != null)
-            {
-                _vehicleTypes = dynVehicleTypes.Table.Values.Select(x => x.String).ToArray();
-            }
-
-            _metric = ProfileMetric.Custom;
-            var dynMetric = _script.Globals.Get("metric");
-            if (dynMetric != null)
-            {
-                switch(dynMetric.String)
-                {
-                    case "time":
-                        _metric = ProfileMetric.TimeInSeconds;
-                        break;
-                    case "distance":
-                        _metric = ProfileMetric.DistanceInMeters;
-                        break;
-                }
-            }
-        }
-
+        private readonly string[] _vehicleTypes;
         private readonly Table _attributesTable;
         private readonly Table _resultsTable;
 
         /// <summary>
+        /// Creates a new dynamic profile.
+        /// </summary>
+        internal DynamicProfile(string name, ProfileMetric metric, string[] vehicleTypes, Script script, object factor_and_speed)
+        {
+            _name = name;
+            _metric = metric;
+            _vehicleTypes = vehicleTypes;
+            _script = script;
+            _function = factor_and_speed;
+            
+            _attributesTable = new Table(_script);
+            _resultsTable = new Table(_script);
+        }
+
+        /// <summary>
         /// Gets the name.
         /// </summary>
-        public string Name
+        public override string Name
         {
             get
             {
@@ -90,15 +62,41 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Gets the metric.
+        /// </summary>
+        public override ProfileMetric Metric
+        {
+            get
+            {
+                return _metric;
+            }
+        }
+
+        /// <summary>
+        /// Gets the vehicle types.
+        /// </summary>
+        public override string[] VehicleTypes
+        {
+            get
+            {
+                return _vehicleTypes;
+            }
+        }
+
+        /// <summary>
         /// Get a function to calculate properties for a set given edge attributes.
         /// </summary>
         /// <returns></returns>
-        public DynamicFactorAndSpeed GetFactorAndSpeed(IAttributeCollection attributes)
+        public sealed override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes)
         {
             lock (_script)
             {
                 // build lua table.
                 _attributesTable.Clear();
+                if (attributes == null || attributes.Count == 0)
+                {
+                    return Profiles.FactorAndSpeed.NoFactor;
+                }
                 foreach (var attribute in attributes)
                 {
                     _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
@@ -110,7 +108,7 @@ namespace Itinero.Profiles
                 _script.Call(function, _attributesTable, _resultsTable);
 
                 // get the results.
-                var result = new DynamicFactorAndSpeed();
+                var result = new FactorAndSpeed();
                 float val;
                 if (!_resultsTable.TryGetFloat("speed", out val))
                 {
@@ -119,11 +117,11 @@ namespace Itinero.Profiles
                 result.SpeedFactor = 1.0f / (val / 3.6f); // 1/m/s
                 if (_metric == ProfileMetric.TimeInSeconds)
                 { // use 1/speed as factor.
-                    result.Factor = result.SpeedFactor;
+                    result.Value = result.SpeedFactor;
                 }
                 else if (_metric == ProfileMetric.DistanceInMeters)
                 { // use 1 as factor.
-                    result.Factor = 1;
+                    result.Value = 1;
                 }
                 else
                 { // use a custom factor.
@@ -131,19 +129,22 @@ namespace Itinero.Profiles
                     {
                         val = 0;
                     }
-                    result.Factor = val;
+                    result.Value = val;
                 }
-                bool boolVal;
-                if (!_resultsTable.TryGetBool("canstop", out boolVal))
-                { // default stopping everywhere.
-                    boolVal = true;
-                }
-                result.CanStop = boolVal;
                 if (!_resultsTable.TryGetFloat("direction", out val))
                 {
                     val = 0;
                 }
                 result.Direction = (short)val;
+                bool boolVal;
+                if (!_resultsTable.TryGetBool("canstop", out boolVal))
+                { // default stopping everywhere.
+                    boolVal = true;
+                }
+                if (!boolVal)
+                {
+                    result.Direction += 3;
+                }
 
                 return result;
             }
@@ -155,50 +156,9 @@ namespace Itinero.Profiles
         /// <remarks>
         /// Default implementation compares attributes one-by-one.
         /// </remarks>
-        public bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
+        public override sealed bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
         {
             return attributes1.ContainsSame(attributes2);
-        }
-
-        public Profile BuildProfile()
-        {
-            return new Profile("Dynamic." + this.Name, (attributes) =>
-            {
-                var factorAndSpeed = this.GetFactorAndSpeed(attributes);
-                return new Speed()
-                {
-                    Direction = factorAndSpeed.Direction,
-                    Value = 1 / factorAndSpeed.SpeedFactor
-                };
-            },
-            () =>
-            {
-                return new Speed()
-                {
-                    Direction = 0,
-                    Value = 0.1f
-                };
-            },
-            (attributes) =>
-            {
-                var factorAndSpeed = this.GetFactorAndSpeed(attributes);
-                return factorAndSpeed.CanStop;
-            },
-            (a1, a2) =>
-            {
-                return this.Equals(a1, a2);
-            },
-            new List<string>(_vehicleTypes),
-            (attributes) =>
-            {
-                var factorAndSpeed = this.GetFactorAndSpeed(attributes);
-                return new Factor()
-                {
-                    Direction = factorAndSpeed.Direction,
-                    Value = 1 / factorAndSpeed.Factor
-                };
-            },
-            _metric);
         }
     }
 }

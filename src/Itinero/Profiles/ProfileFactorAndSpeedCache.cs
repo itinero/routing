@@ -29,7 +29,7 @@ namespace Itinero.Profiles
     public class ProfileFactorAndSpeedCache
     {
         private readonly RouterDb _db;
-        private readonly Dictionary<string, CachedAndSpeedFactor[]> _edgeProfileFactors;
+        private readonly Dictionary<string, FactorAndSpeed[]> _edgeProfileFactors;
 
         /// <summary>
         /// A profile factor cache.
@@ -37,7 +37,7 @@ namespace Itinero.Profiles
         public ProfileFactorAndSpeedCache(RouterDb db)
         {
             _db = db;
-            _edgeProfileFactors = new Dictionary<string, CachedAndSpeedFactor[]>();
+            _edgeProfileFactors = new Dictionary<string, FactorAndSpeed[]>();
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace Itinero.Profiles
         /// </summary>
         public void CalculateForAll()
         {
-            this.CalculateFor(Profile.GetAllRegistered().ToArray());
+            this.CalculateFor(Profile.GetRegistered().ToArray());
         }
 
         /// <summary>
@@ -79,37 +79,18 @@ namespace Itinero.Profiles
         /// </summary>
         public void CalculateFor(params Profile[] profiles)
         {
-            var edgeProfileFactors = new CachedAndSpeedFactor[profiles.Length][];
+            var edgeProfileFactors = new FactorAndSpeed[profiles.Length][];
             for (var p = 0; p < profiles.Length; p++)
             {
-                edgeProfileFactors[p] = new CachedAndSpeedFactor[(int)_db.EdgeProfiles.Count];
+                edgeProfileFactors[p] = new FactorAndSpeed[(int)_db.EdgeProfiles.Count];
             }
             for (uint edgeProfile = 0; edgeProfile < _db.EdgeProfiles.Count; edgeProfile++)
             {
                 var edgeProfileTags = _db.EdgeProfiles.Get(edgeProfile);
                 for (var p = 0; p < profiles.Length; p++)
                 {
-                    var factor = profiles[p].Factor(edgeProfileTags);
-                    var speed = profiles[p].Speed(edgeProfileTags);
-                    var stoppable = profiles[p].CanStopOn(edgeProfileTags);
-                    if(stoppable)
-                    {
-                        edgeProfileFactors[p][edgeProfile] = new CachedAndSpeedFactor()
-                        {
-                            Type = factor.Direction,
-                            SpeedFactor = 1 / speed.Value,
-                            Value = factor.Value
-                        };
-                    }
-                    else
-                    {
-                        edgeProfileFactors[p][edgeProfile] = new CachedAndSpeedFactor()
-                        {
-                            Type = (short)(factor.Direction + 4),
-                            SpeedFactor = 1 / speed.Value,
-                            Value = factor.Value
-                        };
-                    }
+                    edgeProfileFactors[p][edgeProfile] 
+                        = profiles[p].FactorAndSpeed(edgeProfileTags);
                 }
             }
 
@@ -126,7 +107,7 @@ namespace Itinero.Profiles
         {
             if(!this.ContainsAll(profiles)) { throw new ArgumentException("Not all given profiles are supported."); }
 
-            var cachedFactors = new CachedAndSpeedFactor[profiles.Length][];
+            var cachedFactors = new FactorAndSpeed[profiles.Length][];
             for(var p = 0; p < profiles.Length; p++)
             {
                 cachedFactors[p] = _edgeProfileFactors[profiles[p].Name];
@@ -141,7 +122,7 @@ namespace Itinero.Profiles
                 for (var i = 0; i < profiles.Length; i++)
                 {
                     var cachedFactor = cachedFactors[i][edgeProfileId];
-                    if ((verifyCanStopOn && cachedFactor.Type > 4) || 
+                    if ((verifyCanStopOn && cachedFactor.Direction > 4) || 
                         cachedFactor.Value <= 0)
                     {
                         return false;
@@ -162,17 +143,17 @@ namespace Itinero.Profiles
             return (p) =>
             {
                 var cachedFactor = cachedFactors[p];
-                if (cachedFactor.Type >= 4)
+                if (cachedFactor.Direction >= 4)
                 {
                     return new Factor()
                     {
-                        Direction = (short)(cachedFactor.Type - 4),
+                        Direction = (short)(cachedFactor.Direction - 4),
                         Value = cachedFactor.Value
                     };
                 }
                 return new Factor()
                 {
-                    Direction = cachedFactor.Type,
+                    Direction = cachedFactor.Direction,
                     Value = cachedFactor.Value
                 };
             };
@@ -189,18 +170,18 @@ namespace Itinero.Profiles
             return (p) =>
             {
                 var cachedFactor = cachedFactors[p];
-                if (cachedFactor.Type >= 4)
+                if (cachedFactor.Direction >= 4)
                 {
                     return new FactorAndSpeed()
                     {
-                        Direction = (short)(cachedFactor.Type - 4),
+                        Direction = (short)(cachedFactor.Direction - 4),
                         SpeedFactor = cachedFactor.SpeedFactor,
                         Value = cachedFactor.Value
                     };
                 }
                 return new FactorAndSpeed()
                 {
-                    Direction = cachedFactor.Type,
+                    Direction = cachedFactor.Direction,
                     SpeedFactor = cachedFactor.SpeedFactor,
                     Value = cachedFactor.Value
                 };
@@ -212,7 +193,7 @@ namespace Itinero.Profiles
         /// </summary>
         public Factor GetFactor(ushort edgeProfile, string profileName)
         {
-            CachedAndSpeedFactor[] factorsForProfile;
+            FactorAndSpeed[] factorsForProfile;
             if (!_edgeProfileFactors.TryGetValue(profileName, out factorsForProfile))
             {
                 throw new ArgumentOutOfRangeException(string.Format("{0} not found.", profileName));
@@ -220,17 +201,17 @@ namespace Itinero.Profiles
             if (edgeProfile < factorsForProfile.Length)
             {
                 var cachedFactor = factorsForProfile[edgeProfile];
-                if(cachedFactor.Type >= 4)
+                if(cachedFactor.Direction >= 4)
                 {
                     return new Factor()
                     {
-                        Direction = (short)(cachedFactor.Type << 2),
+                        Direction = (short)(cachedFactor.Direction << 2),
                         Value = cachedFactor.Value
                     };
                 }
                 return new Factor()
                 {
-                    Direction = cachedFactor.Type,
+                    Direction = cachedFactor.Direction,
                     Value = cachedFactor.Value
                 };
             }
@@ -242,7 +223,7 @@ namespace Itinero.Profiles
         /// </summary>
         public FactorAndSpeed GetFactorAndSpeed(ushort edgeProfile, string profileName)
         {
-            CachedAndSpeedFactor[] factorsForProfile;
+            FactorAndSpeed[] factorsForProfile;
             if (!_edgeProfileFactors.TryGetValue(profileName, out factorsForProfile))
             {
                 throw new ArgumentOutOfRangeException(string.Format("{0} not found.", profileName));
@@ -250,18 +231,18 @@ namespace Itinero.Profiles
             if (edgeProfile < factorsForProfile.Length)
             {
                 var cachedFactor = factorsForProfile[edgeProfile];
-                if (cachedFactor.Type >= 4)
+                if (cachedFactor.Direction >= 4)
                 {
                     return new FactorAndSpeed()
                     {
-                        Direction = (short)(cachedFactor.Type << 2),
+                        Direction = (short)(cachedFactor.Direction << 2),
                         SpeedFactor = cachedFactor.SpeedFactor,
                         Value = cachedFactor.Value
                     };
                 }
                 return new FactorAndSpeed()
                 {
-                    Direction = cachedFactor.Type,
+                    Direction = cachedFactor.Direction,
                     SpeedFactor = cachedFactor.SpeedFactor,
                     Value = cachedFactor.Value
                 };
@@ -274,36 +255,16 @@ namespace Itinero.Profiles
         /// </summary>
         public bool CanStopOn(ushort edgeProfile, string profileName)
         {
-            CachedAndSpeedFactor[] factorsForProfile;
+            FactorAndSpeed[] factorsForProfile;
             if(!_edgeProfileFactors.TryGetValue(profileName, out factorsForProfile))
             {
                 throw new ArgumentOutOfRangeException(string.Format("{0} not found.", profileName));
             }
             if (edgeProfile < factorsForProfile.Length)
             {
-                return factorsForProfile[edgeProfile].Type < 4;
+                return factorsForProfile[edgeProfile].Direction < 4;
             }
             throw new ArgumentOutOfRangeException("Edgeprofile invalid.");
-        }
-
-        private struct CachedAndSpeedFactor
-        {
-            /// <summary>
-            /// Gets or sets the actual factor.
-            /// </summary>
-            public float Value { get; set; }
-
-            /// <summary>
-            /// Gets or sets the speed factor.
-            /// </summary>
-            public float SpeedFactor { get; set; }
-
-            /// <summary>
-            /// Gets or sets the direction.
-            /// </summary>
-            /// 0=bidirectional and stoppable, 1=forward and stoppable, 2=backward and stoppable,
-            /// 4=bidirectional and not stoppable, 5=forward and not stoppable, 6=backward and not stoppable
-            public short Type { get; set; }
         }
     }
 }

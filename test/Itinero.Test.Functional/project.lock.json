@@ -811,6 +811,7 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -829,6 +830,7 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -1634,6 +1636,7 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -1652,6 +1655,7 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -2457,6 +2461,7 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -2475,6 +2480,7 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -3283,6 +3289,7 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -3301,6 +3308,7 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
+          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"

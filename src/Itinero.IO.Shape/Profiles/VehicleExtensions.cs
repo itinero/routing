@@ -16,21 +16,34 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.IO.Shape.Vehicles
+using NetTopologySuite.IO;
+using System.Collections.Generic;
+
+namespace Itinero.IO.Shape.Profiles
 {
-    /// <summary>
-    /// Contains extension methods related to the vehicles.
-    /// </summary>
     public static class VehicleExtensions
     {
         /// <summary>
-        /// Returns true if an attribute with the given key is relevant for any the profiles.
+        /// Adds all the keys to the whitelist if they are relevante for the profiles.
         /// </summary>
-        public static bool IsRelevantForProfileAny(this Vehicle[] vehicles, string key)
+        public static bool AddToProfileWhiteList(this Vehicle[] vehicles, HashSet<string> whiteList, ShapefileDataReader reader)
+        {
+            var traversable = false;
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                traversable = traversable || vehicles[i].AddToProfileWhiteList(whiteList, reader);
+            }
+            return traversable;
+        }
+
+        /// <summary>
+        /// Returns true if the given key is on any of the vehicles profile whitelist.
+        /// </summary>
+        public static bool IsOnProfileWhiteList(this Vehicle[] vehicles, string key)
         {
             for (var i = 0; i < vehicles.Length; i++)
             {
-                if (vehicles[i].IsRelevantForProfile(key))
+                if (vehicles[i].ProfileWhiteList.Contains(key))
                 {
                     return true;
                 }
@@ -39,13 +52,13 @@ namespace Itinero.IO.Shape.Vehicles
         }
 
         /// <summary>
-        /// Returns true if an attribute with the given key is relevant for any the profiles.
+        /// Returns true if the given key is on any of the vehicles meta whitelist.
         /// </summary>
-        public static bool IsRelevantAny(this Vehicle[] vehicles, string key)
+        public static bool IsOnMetaWhiteList(this Vehicle[] vehicles, string key)
         {
             for (var i = 0; i < vehicles.Length; i++)
             {
-                if (vehicles[i].IsRelevant(key))
+                if (vehicles[i].MetaWhiteList.Contains(key))
                 {
                     return true;
                 }

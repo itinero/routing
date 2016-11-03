@@ -7,7 +7,7 @@
 
   <Import Project="$(VSToolsPath)\DotNet\Microsoft.DotNet.Props" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup Label="Globals">
-    <ProjectGuid>792f515b-6f6b-4dd7-9815-b1911af9f4a3</ProjectGuid>
+    <ProjectGuid>dcd67911-89f0-4c12-b5dc-186179514300</ProjectGuid>
     <RootNamespace>Itinero.Profiles</RootNamespace>
     <BaseIntermediateOutputPath Condition="'$(BaseIntermediateOutputPath)'=='' ">.\obj</BaseIntermediateOutputPath>
     <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>

@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using Itinero.Osm.Vehicles;
+using Itinero.IO.Osm.Profiles;
 using System.Collections.Generic;
 
 namespace Itinero.IO.Osm.Normalizer
@@ -43,7 +43,7 @@ namespace Itinero.IO.Osm.Normalizer
         public static void NormalizeAccess(this AttributeCollection tags, Vehicle vehicle, string highwayType, AttributeCollection profileTags)
         {
             var access = vehicle.CanTraverse(new AttributeCollection(new Attribute("highway", highwayType)));
-            tags.NormalizeAccess(profileTags, access, vehicle.VehicleTypes.ToArray());
+            tags.NormalizeAccess(profileTags, access, vehicle.VehicleTypes);
         }
 
         /// <summary>

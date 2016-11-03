@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using Itinero.Osm.Vehicles;
+using Itinero.IO.Osm.Profiles;
 using System.Collections.Generic;
 
 namespace Itinero.IO.Osm.Normalizer

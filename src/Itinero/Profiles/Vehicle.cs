@@ -16,28 +16,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Attributes;
 using System.Collections.Generic;
 
 namespace Itinero.Profiles
 {
     /// <summary>
-    /// Represents a routing profile.
+    /// Represents a vehicle.
     /// </summary>
-    public abstract class Profile
+    public abstract class Vehicle
     {
+        private readonly Dictionary<string, Profile> _profiles = new Dictionary<string, Profiles.Profile>();
+        
         /// <summary>
-        /// Gets the name of this profile.
+        /// Gets the name of this vehicle.
         /// </summary>
         public abstract string Name
-        {
-            get;
-        }
-
-        /// <summary>
-        /// Gets the profile metric.
-        /// </summary>
-        public abstract ProfileMetric Metric
         {
             get;
         }
@@ -51,52 +44,46 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
-        /// Get a function to calculate properties for a set given edge attributes.
-        /// </summary>
-        /// <returns></returns>
-        public abstract FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes);
-
-        /// <summary>
-        /// Returns true if the two edges with the given attributes are identical as far as this profile is concerned.
-        /// </summary>
-        /// <remarks>
-        /// Default implementation compares attributes one-by-one.
-        /// </remarks>
-        public abstract bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2);
-
-        private static Dictionary<string, Profile> _profiles;
-
-        /// <summary>
         /// Registers a profile.
         /// </summary>
-        public static void Register(Profile profile)
+        public void Register(Profile profile)
         {
             _profiles[profile.Name] = profile;
         }
 
         /// <summary>
-        /// Gets a registered profiles.
+        /// Returns the profile with the given name.
         /// </summary>
-        public static Profile GetRegistered(string name)
+        public Profile Profile(string name)
         {
             return _profiles[name];
         }
 
         /// <summary>
-        /// Tries to get a registred profile.
+        /// Returns the profiles for this vehicle.
         /// </summary>
-        public static bool TryGet(string name, out Profile value)
+        /// <returns></returns>
+        public IEnumerable<Profile> GetProfiles()
         {
-            return _profiles.TryGetValue(name, out value);
+            return _profiles.Values;
         }
 
         /// <summary>
-        /// Gets all registered profiles.
+        /// Gets the profile to calculate shortest routes.
         /// </summary>
         /// <returns></returns>
-        public static IEnumerable<Profile> GetRegistered()
+        public Profile Shortest()
         {
-            return _profiles.Values;
+            return this.Profile(this.Name + ".shortest");
+        }
+
+        /// <summary>
+        /// Gets the profile to calculate fastest routes.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Fastest()
+        {
+            return this.Profile(this.Name + ".fastest");
         }
     }
 }

@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using Itinero.Attributes;
 using Itinero.IO.Shape.Vehicles;
-using Itinero.Profiles;
 
 namespace Sample.Shape
 {

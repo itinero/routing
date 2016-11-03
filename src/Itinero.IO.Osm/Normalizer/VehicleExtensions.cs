@@ -17,9 +17,14 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.IO.Osm.Profiles;
+using OsmSharp.Tags;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Itinero.Osm.Vehicles
+namespace Itinero.IO.Osm.Normalizer
 {
     /// <summary>
     /// Contains extension methods for vehicles.
@@ -27,13 +32,85 @@ namespace Itinero.Osm.Vehicles
     public static class VehicleExtensions
     {
         /// <summary>
+        /// Returns true if the given vehicle can traverse a way with the given tags.
+        /// </summary>
+        public static bool CanTraverse(this Vehicle vehicle, IAttributeCollection tags)
+        {
+            foreach(var profile in vehicle.GetProfiles())
+            {
+                var factorAndSpeed = profile.FactorAndSpeed(tags);
+                if (factorAndSpeed.Value != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Adds all the keys to the whitelist if they are relevante for the profiles.
+        /// </summary>
+        public static bool AddToProfileWhiteList(this Vehicle[] vehicles, HashSet<string> whiteList, TagsCollectionBase tags)
+        {
+            var traversable = false;
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                traversable = traversable || vehicles[i].AddToProfileWhiteList(whiteList, tags);
+            }
+            return traversable;
+        }
+
+        /// <summary>
+        /// Adds all the keys to the whitelist if they are relevante for the profiles.
+        /// </summary>
+        public static bool AddToProfileWhiteList(this Vehicle[] vehicles, HashSet<string> whiteList, IAttributeCollection tags)
+        {
+            var traversable = false;
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                traversable = traversable || vehicles[i].AddToProfileWhiteList(whiteList, tags);
+            }
+            return traversable;
+        }
+
+        /// <summary>
         /// Returns true if any vehicle in the given array can traverse a way with the given tags.
         /// </summary>
         public static bool AnyCanTraverse(this Vehicle[] vehicles, IAttributeCollection tags)
         {
-            for(var i  = 0; i < vehicles.Length; i++)
+            for (var i = 0; i < vehicles.Length; i++)
             {
-                if(vehicles[i].CanTraverse(tags))
+                if (vehicles[i].CanTraverse(tags))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if the given key is on any of the vehicles profile whitelist.
+        /// </summary>
+        public static bool IsOnProfileWhiteList(this Vehicle[] vehicles, string key)
+        {
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                if (vehicles[i].ProfileWhiteList.Contains(key))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if the given key is on any of the vehicles meta whitelist.
+        /// </summary>
+        public static bool IsOnMetaWhiteList(this Vehicle[] vehicles, string key)
+        {
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                if (vehicles[i].MetaWhiteList.Contains(key))
                 {
                     return true;
                 }
@@ -53,27 +130,7 @@ namespace Itinero.Osm.Vehicles
 
             for (var i = 0; i < vehicles.Length; i++)
             {
-                if (vehicles[i].IsRelevantForMeta(key))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Returns true if the key is relevant for profile-data.
-        /// </summary>
-        public static bool IsRelevantForProfile(this Vehicle[] vehicles, string key)
-        {
-            if (string.IsNullOrEmpty(key))
-            {
-                return false;
-            }
-
-            for (var i = 0; i < vehicles.Length; i++)
-            {
-                if (vehicles[i].IsRelevantForProfile(key))
+                if (vehicles[i].MetaWhiteList.Contains(key))
                 {
                     return true;
                 }

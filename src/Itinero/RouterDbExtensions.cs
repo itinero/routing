@@ -197,7 +197,7 @@ namespace Itinero
         /// </summary>
         public static bool HasComplexRestrictions(this RouterDb db, Profiles.Profile profile)
         {
-            return db.HasComplexRestrictions(profile.VehicleType);
+            return db.HasComplexRestrictions(profile.VehicleTypes);
         }
 
         /// <summary>
@@ -208,7 +208,7 @@ namespace Itinero
         /// <param name="first">When true, only restrictions starting with given vertex, when false only restrictions ending with given vertex already reversed, when null all restrictions are returned.</param>
         public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.Profile profile, bool? first)
         {
-            var vehicleTypes = new List<string>(profile.VehicleType);
+            var vehicleTypes = new List<string>(profile.VehicleTypes);
             vehicleTypes.Insert(0, string.Empty);
             return (vertex) =>
             {

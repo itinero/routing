@@ -20,15 +20,12 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Itinero.Geo;
-using Itinero.Osm.Vehicles;
 using Itinero.Test.Functional.Staging;
-using Itinero.Test.Functional.Tests;
 using System;
 using System.IO;
 using System.Reflection;
 using Itinero.Logging;
 using System.Collections.Generic;
-using Itinero.Profiles;
 using Itinero.Algorithms.Networks;
 using Itinero.LocalGeo;
 using Itinero;
@@ -38,6 +35,8 @@ using Itinero.IO.Osm;
 using Itinero.Algorithms.Weights;
 using Itinero.IO.Shape;
 using Itinero.Attributes;
+using Itinero.Test.Functional.Tests;
+using Itinero.IO.Osm.Profiles;
 
 namespace Itinero.Test.Functional
 {
@@ -58,29 +57,23 @@ namespace Itinero.Test.Functional
             };
             _logger = new Logger("Default");
             
-            var fileContent = File.ReadAllText(@"Tests\Profiles\car.lua");
-            var profile = new DynamicProfile(fileContent);
-
-            var factor = profile.GetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "residential")));
-            factor = profile.GetFactorAndSpeed(new AttributeCollection(new Attributes.Attribute("highway", "primary")));
-
             //Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 
-            //// download and extract test-data if not already there.
-            //_logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
-            //Download.DownloadLuxembourgAll();
+            // download and extract test-data if not already there.
+            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
+            Download.DownloadLuxembourgAll();
 
-            //// TEST1: Tests building a router db for cars, contracting it and calculating routes.
-            //// test building a router db.
-            //var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
-            //var router = new Router(routerDb);
+            // TEST1: Tests building a router db for cars, contracting it and calculating routes.
+            // test building a router db.
+            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
+            var router = new Router(routerDb);
 
-            //// build profile cache.
-            //var profileCache = new Profiles.ProfileFactorAndSpeedCache(routerDb);
-            //profileCache.CalculateFor(Vehicle.Car.Fastest());
+            // build profile cache.
+            var profileCache = new Profiles.ProfileFactorAndSpeedCache(routerDb);
+            profileCache.CalculateFor(Vehicle.Car.Fastest());
             //profileCache.CalculateFor(Vehicle.Bicycle.Fastest());
             //profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
-            //router.ProfileFactorAndSpeedCache = profileCache;
+            router.ProfileFactorAndSpeedCache = profileCache;
 
             //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
 

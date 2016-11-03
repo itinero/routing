@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Attributes;
 using System;
 
 namespace Itinero.Profiles
@@ -26,30 +27,91 @@ namespace Itinero.Profiles
     public static class ProfileExtensions
     {
         /// <summary>
-        /// Gets a get factor function for the given profile.
+        /// Gets the speed for the given profile on the link defined by the given attributes.
         /// </summary>
-        public static Func<ushort, Factor> GetGetFactor(this Profile profile, RouterDb routerDb)
+        public static Speed Speed(this Profile profile, IAttributeCollection attributes)
         {
-            return (e) => profile.Factor(routerDb.EdgeProfiles.Get(e));
+            return profile.FactorAndSpeed(attributes).ToSpeed();
         }
 
         /// <summary>
-        /// Gets a get factor and speed function for the given profile.
+        /// Converts a speed definition for the given factor and speed.
+        /// </summary>
+        public static Speed ToSpeed(this FactorAndSpeed factorAndSpeed)
+        {
+            if (factorAndSpeed.Direction > 3)
+            {
+                return new Profiles.Speed()
+                {
+                    Direction = (short)(factorAndSpeed.Direction - 3),
+                    Value = 1.0f / factorAndSpeed.SpeedFactor
+                };
+            }
+            return new Profiles.Speed()
+            {
+                Direction = factorAndSpeed.Direction,
+                Value = 1.0f / factorAndSpeed.SpeedFactor
+            };
+        }
+
+        /// <summary>
+        /// Gets a get factor function based on the given routerdb.
+        /// </summary>
+        public static Func<ushort, Factor> GetGetFactor(this Profile profile, RouterDb routerDb)
+        {
+            return (profileId) =>
+            {
+                var edgeProfile = routerDb.EdgeProfiles.Get(profileId);
+                return profile.Factor(edgeProfile);
+            };
+        }
+
+        /// <summary>
+        /// Gets a get factor function based on the given routerdb.
         /// </summary>
         public static Func<ushort, FactorAndSpeed> GetGetFactorAndSpeed(this Profile profile, RouterDb routerDb)
         {
-            return (e) =>
+            return (profileId) =>
             {
-                var att = routerDb.EdgeProfiles.Get(e);
-                var f = profile.Factor(att);
-                var s = profile.Speed(att);
-                return new FactorAndSpeed()
-                {
-                    SpeedFactor = 1 / s.Value,
-                    Value = f.Value,
-                    Direction = f.Direction
-                };
+                var edgeProfile = routerDb.EdgeProfiles.Get(profileId);
+                return profile.FactorAndSpeed(edgeProfile);
             };
+        }
+
+        /// <summary>
+        /// Gets the factor for the given profile on the link defined by the given attributes.
+        /// </summary>
+        public static Factor Factor(this Profile profile, IAttributeCollection attributes)
+        {
+            return profile.FactorAndSpeed(attributes).ToFactor();
+        }
+
+        /// <summary>
+        /// Converts a factor definition for the given factor and speed.
+        /// </summary>
+        public static Factor ToFactor(this FactorAndSpeed factorAndSpeed)
+        {
+            if (factorAndSpeed.Direction > 3)
+            {
+                return new Profiles.Factor()
+                {
+                    Direction = (short)(factorAndSpeed.Direction - 3),
+                    Value = factorAndSpeed.Value
+                };
+            }
+            return new Profiles.Factor()
+            {
+                Direction = factorAndSpeed.Direction,
+                Value = factorAndSpeed.Value
+            };
+        }
+
+        /// <summary>
+        /// Returns true if the link defined by the given attributes can be stopped on.
+        /// </summary>
+        public static bool CanStopOn(this Profile profile, IAttributeCollection attributes)
+        {
+            return profile.FactorAndSpeed(attributes).Direction < 4;
         }
     }
 }

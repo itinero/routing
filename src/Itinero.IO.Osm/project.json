@@ -1,18 +1,21 @@
 {
   "version": "1.0.0-*",
-
   "dependencies": {
     "Itinero": "1.0.0-*",
+    "Itinero.Profiles": "1.0.0-*",
     "OsmSharp.Core": "2.2.8-beta"
   },
   "frameworks": {
-    "netstandard1.3": {
+    "netstandard1.6": {
       "buildOptions": {
-        "define": [ "NETSTANDARD13" ],
+        "define": [ "NETSTANDARD" ],
         "compile": {
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
+        },
+        "embed": {
+          "include": [ "Profiles/Defaults/*.lua" ]
         }
       },
       "imports": "dnxcore50",
@@ -28,6 +31,9 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
+        },
+        "embed": {
+          "include": [ "Profiles/Defaults/*.lua" ]
         }
       },
       "frameworkAssemblies": {
@@ -41,6 +47,9 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
+        },
+        "embed": {
+          "include": [ "Profiles/Defaults/*.lua" ]
         }
       },
       "frameworkAssemblies": {
@@ -54,12 +63,17 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
+        },
+        "embed": {
+          "include": [ "Profiles/Defaults/*.lua" ]
         }
       },
       "frameworkAssemblies": {
         "System": "",
         "System.Xml": "",
         "System.Xml.Serialization": ""
+      },
+      "dependencies": {
       }
     }
   }
