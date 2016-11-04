@@ -59,7 +59,7 @@ profiles = {
 	}
 }
 
-function access (attributes, access_types)
+function has_access (attributes, access_types)
 	
 end
 
@@ -85,5 +85,6 @@ function factor_and_speed (attributes, result)
 	    return
 	 end
 
-
+	 local access = access (attributes, vehicle_types)
+	 if 
 end

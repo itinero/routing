@@ -36,7 +36,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.IO.Shape;
 using Itinero.Attributes;
 using Itinero.Test.Functional.Tests;
-using Itinero.IO.Osm.Profiles;
+using Itinero.Osm.Vehicles;
 
 namespace Itinero.Test.Functional
 {
@@ -71,8 +71,8 @@ namespace Itinero.Test.Functional
             // build profile cache.
             var profileCache = new Profiles.ProfileFactorAndSpeedCache(routerDb);
             profileCache.CalculateFor(Vehicle.Car.Fastest());
-            //profileCache.CalculateFor(Vehicle.Bicycle.Fastest());
-            //profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
+            profileCache.CalculateFor(Vehicle.Bicycle.Fastest());
+            profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
             router.ProfileFactorAndSpeedCache = profileCache;
 
             //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");

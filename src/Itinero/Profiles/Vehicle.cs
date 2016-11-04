@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Attributes;
 using System.Collections.Generic;
 
 namespace Itinero.Profiles
@@ -28,6 +29,15 @@ namespace Itinero.Profiles
         private readonly Dictionary<string, Profile> _profiles = new Dictionary<string, Profiles.Profile>();
         
         /// <summary>
+        /// Creates a new vehicle.
+        /// </summary>
+        public Vehicle()
+        {
+            this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, this));
+            this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, this));
+        }
+
+        /// <summary>
         /// Gets the name of this vehicle.
         /// </summary>
         public abstract string Name
@@ -38,9 +48,57 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the vehicle types.
         /// </summary>
-        public abstract string[] VehicleTypes
+        public virtual string[] VehicleTypes
         {
-            get;
+            get
+            {
+                return new string[] { };
+            }
+        }
+
+        /// <summary>
+        /// Gets a whitelist of attributes to keep as meta-data.
+        /// </summary>
+        public virtual HashSet<string> MetaWhiteList
+        {
+            get
+            {
+                return new HashSet<string>();
+            }
+        }
+
+        /// <summary>
+        /// Gets a whitelist of attributes to keep as part of the profile.
+        /// </summary>
+        public virtual HashSet<string> ProfileWhiteList
+        {
+            get
+            {
+                return new HashSet<string>();
+            }
+        }
+
+        /// <summary>
+        /// Adds a number of keys to the given whitelist when they are relevant for this vehicle.
+        /// </summary>
+        /// <returns>True if the edge with the given attributes is usefull for this vehicle.</returns>
+        public virtual bool AddToWhiteList(IAttributeCollection attributes, Whitelist whitelist)
+        {
+            return this.FactorAndSpeed(attributes, whitelist).Value > 0;
+        }
+
+        /// <summary>
+        /// Calculates a factor and speed and adds a keys to the given whitelist that are relevant.
+        /// </summary>
+        /// <returns>True if the edge with the given attributes is usefull for this vehicle.</returns>
+        public abstract FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whitelist);
+
+        /// <summary>
+        /// Returns true if the two given edges are equals as far as this vehicle is concerned.
+        /// </summary>
+        public virtual bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
+        {
+            return attributes1.ContainsSame(attributes2);
         }
 
         /// <summary>
@@ -83,7 +141,7 @@ namespace Itinero.Profiles
         /// <returns></returns>
         public Profile Fastest()
         {
-            return this.Profile(this.Name + ".fastest");
+            return this.Profile(this.Name);
         }
     }
 }

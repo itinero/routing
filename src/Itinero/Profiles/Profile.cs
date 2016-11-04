@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using System;
 using System.Collections.Generic;
 
 namespace Itinero.Profiles
@@ -24,47 +25,104 @@ namespace Itinero.Profiles
     /// <summary>
     /// Represents a routing profile.
     /// </summary>
-    public abstract class Profile
+    public class Profile
     {
+        private readonly string _name;
+        private readonly ProfileMetric _metric;
+        private readonly string[] _vehicleTypes;
+        private readonly Vehicle _parent;
+        private readonly Func<IAttributeCollection, FactorAndSpeed> _custom;
+
         /// <summary>
-        /// Gets the name of this profile.
+        /// Creates a new profile.
         /// </summary>
-        public abstract string Name
+        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent)
+            : this(name, metric, vehicleTypes, parent, null)
         {
-            get;
+
         }
 
         /// <summary>
-        /// Gets the profile metric.
+        /// Creates a new profile.
         /// </summary>
-        public abstract ProfileMetric Metric
+        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent, Func<IAttributeCollection, FactorAndSpeed> custom)
         {
-            get;
+            _name = name;
+            _metric = metric;
+            _vehicleTypes = vehicleTypes;
+            _parent = parent;
+            _custom = custom;
+        }
+
+        /// <summary>
+        /// Gets the name used by this profile.
+        /// </summary>
+        public virtual string Name
+        {
+            get
+            {
+                return _name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the metric used by this profile.
+        /// </summary>
+        public virtual ProfileMetric Metric
+        {
+            get
+            {
+                return _metric;
+            }
         }
 
         /// <summary>
         /// Gets the vehicle types.
         /// </summary>
-        public abstract string[] VehicleTypes
+        public virtual string[] VehicleTypes
         {
-            get;
+            get
+            {
+                return _vehicleTypes;
+            }
         }
 
         /// <summary>
         /// Get a function to calculate properties for a set given edge attributes.
         /// </summary>
         /// <returns></returns>
-        public abstract FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes);
+        public virtual FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes)
+        {
+            FactorAndSpeed result;
+            if (_custom != null)
+            {
+                result = _custom(attributes);
+            }
+            else
+            {
+                result = _parent.FactorAndSpeed(attributes, Whitelist.Dummy);
+            }
+
+            if (_metric == ProfileMetric.TimeInSeconds)
+            { // use 1/speed as factor.
+                result.Value = result.SpeedFactor;
+            }
+            else if (_metric == ProfileMetric.DistanceInMeters)
+            { // use 1 as factor.
+                result.Value = 1;
+            }
+            return result;
+        }
 
         /// <summary>
-        /// Returns true if the two edges with the given attributes are identical as far as this profile is concerned.
+        /// Returns true if the two given edges are equals as far as this vehicle is concerned.
         /// </summary>
-        /// <remarks>
-        /// Default implementation compares attributes one-by-one.
-        /// </remarks>
-        public abstract bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2);
+        public virtual bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
+        {
+            return _parent.Equals(attributes1, attributes2);
+        }
 
-        private static Dictionary<string, Profile> _profiles;
+        private static Dictionary<string, Profile> _profiles = new Dictionary<string, Profile>();
 
         /// <summary>
         /// Registers a profile.

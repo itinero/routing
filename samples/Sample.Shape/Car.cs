@@ -23,7 +23,7 @@
 using System;
 using System.Collections.Generic;
 using Itinero.Attributes;
-using Itinero.IO.Shape.Vehicles;
+using Itinero.Profiles;
 
 namespace Sample.Shape
 {
@@ -35,7 +35,7 @@ namespace Sample.Shape
         /// <summary>
         /// Gets the unique name.
         /// </summary>
-        public override string UniqueName
+        public override string Name
         {
             get
             {
@@ -44,88 +44,70 @@ namespace Sample.Shape
         }
 
         /// <summary>
-        /// Gets the vehicle types.
+        /// Gets the profile whitelist.
         /// </summary>
-        public override List<string> VehicleTypes
+        public override HashSet<string> ProfileWhiteList
         {
             get
             {
-                return new List<string>(new[] { "motor_vehicle", "car" });
+                return new HashSet<string>(new string[] { "BST_CODE", "BAANSUBSRT", "RIJRICHTNG", "WEGBEHSRT", "HECTO_LTTR" });
             }
         }
 
         /// <summary>
-        /// Returns true if an attribute with the given key is relevant for the profile.
+        /// Adds a number of keys to the given whitelist when they are relevant for this vehicle.
         /// </summary>
-        public override bool IsRelevantForProfile(string key)
+        /// <returns>True if the edge with the given attributes is usefull for this vehicle.</returns>
+        public override bool AddToWhiteList(IAttributeCollection attributes, Whitelist whitelist)
         {
-            return key == "BST_CODE" || 
-                key == "BAANSUBSRT" ||
-                key == "RIJRICHTNG" ||
-                key == "WEGBEHSRT" ||
-                key == "HECTO_LTTR";
+            return true;
         }
 
         /// <summary>
-        /// Returns the maximum speed.
+        /// Gets series of attributes and returns the factor and speed that applies. Adds relevant tags to a whitelist.
         /// </summary>
-        /// <returns></returns>
-        public override float MaxSpeed()
-        {
-            return 130;
-        }
-
-        /// <summary>
-        /// Returns the minimum speed.
-        /// </summary>
-        /// <returns></returns>
-        public override float MinSpeed()
-        {
-            return 5;
-        }
-
-        /// <summary>
-        /// Returns the probable speed.
-        /// </summary>
-        public override float ProbableSpeed(IAttributeCollection tags)
+        public override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
         {
             string highwayType;
-            if (tags.TryGetValue("BAANSUBSRT", out highwayType))
+            if (!attributes.TryGetValue("BST_CODE", out highwayType))
             {
-                switch (highwayType)
-                {
-                    case "BVD":
-                        return 50;
-                    case "AF":
-                    case "OP":
-                        return 70;
-                    case "HR":
-                        return 120;
-                    default:
-                        return 70;
-                }
+                return Itinero.Profiles.FactorAndSpeed.NoFactor;
             }
-            return 0;
-        }
-
-        /// <summary>
-        /// Returns true if the edge is oneway forward, false if backward, null if bidirectional.
-        /// </summary>
-        protected override bool? IsOneWay(IAttributeCollection tags)
-        {
+            float speed = 70;
+            switch (highwayType)
+            {
+                case "BVD":
+                    speed = 50;
+                    break;
+                case "AF":
+                case "OP":
+                    speed = 70;
+                    break;
+                case "HR":
+                    speed = 120;
+                    break;
+            }
             string oneway;
-            if (tags.TryGetValue("RIJRICHTNG", out oneway))
+            short direction = 0;
+            if (attributes.TryGetValue("RIJRICHTNG", out oneway))
             {
                 if (oneway == "H")
                 {
-                    return true;
+                    direction = 1;
                 }
                 else if (oneway == "T")
                 {
-                    return false;
+                    direction = 2;
                 }
             }
-            return null;
+
+            return new Itinero.Profiles.FactorAndSpeed()
+            {
+                Constraints = null,
+                Direction = direction,
+                SpeedFactor = 1.0f / speed,
+                Value = 1.0f / speed
+            };
         }
     }
 }

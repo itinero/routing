@@ -33,7 +33,7 @@ using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.Algorithms.Networks.Analytics.Heatmaps;
 using Itinero.Algorithms.Networks.Analytics.Trees;
 using Itinero.Algorithms;
-using Itinero.IO.Osm.Profiles;
+using Itinero.Profiles;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -47,7 +47,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) =>
             {
-                return router.TryResolve(Vehicle.Car.Fastest(), coordinate);
+                return router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), coordinate);
             };
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Itinero.Test.Functional.Tests
                     var f1 = router.Db.Network.GetVertex(v1);
                     var f2 = router.Db.Network.GetVertex(v2);
 
-                    var route = router.TryCalculate(Vehicle.Car.Fastest(), f1, f2);
+                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
                 }
             };
         }
@@ -243,7 +243,7 @@ namespace Itinero.Test.Functional.Tests
         {
             return () =>
             {
-                return router.CalculateIsochrones(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
+                return router.CalculateIsochrones(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
                     new List<float>() { 900, 1800 }, 18);
             };
         }
@@ -255,7 +255,7 @@ namespace Itinero.Test.Functional.Tests
         {
             return () =>
             {
-                return router.CalculateHeatmap(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
+                return router.CalculateHeatmap(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
             };
         }
 
@@ -270,7 +270,7 @@ namespace Itinero.Test.Functional.Tests
                 var v = (uint)random.Next((int)router.Db.Network.VertexCount);
                 var f = router.Db.Network.GetVertex(v);
 
-                return router.CalculateTree(Vehicle.Car.Fastest(), f, 360);
+                return router.CalculateTree(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f, 360);
             };
         }
     }

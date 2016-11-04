@@ -18,7 +18,7 @@
 
 using System.Collections.Generic;
 using Itinero.Attributes;
-using Itinero.IO.Osm.Profiles;
+using Itinero.Profiles;
 
 namespace Itinero.IO.Osm.Normalizer
 {

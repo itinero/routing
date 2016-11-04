@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using Itinero.IO.Osm.Profiles;
+using Itinero.Profiles;
 using System.Collections.Generic;
 
 namespace Itinero.IO.Osm.Normalizer
@@ -51,10 +51,10 @@ namespace Itinero.IO.Osm.Normalizer
         /// </summary>
         public static void NormalizeAccess(this AttributeCollection tags, AttributeCollection profileTags, bool defaultAccess, params string[] accessTags)
         {
-            bool? access = tags.InterpretAccessValue("access");
+            bool? access = Itinero.Osm.Vehicles.Vehicle.InterpretAccessValue(tags, "access");
             for (var i = 0; i < accessTags.Length; i++)
             {
-                var currentAccess = tags.InterpretAccessValue(accessTags[i]);
+                var currentAccess = Itinero.Osm.Vehicles.Vehicle.InterpretAccessValue(tags, accessTags[i]);
                 if (currentAccess != null)
                 {
                     access = currentAccess;

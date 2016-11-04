@@ -26,7 +26,7 @@ using Itinero.LocalGeo;
 using Itinero.Attributes;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data.Network;
-using Itinero.IO.Shape.Profiles;
+using Itinero.Profiles;
 
 namespace Itinero.IO.Shape.Reader
 {
@@ -135,6 +135,7 @@ namespace Itinero.IO.Shape.Reader
             }
 
             // read all edges.
+            var attributes = new AttributeCollection();
             for (int readerIdx = 0; readerIdx < _shapefileReaders.Count; readerIdx++)
             {
                 var reader = _shapefileReaders[readerIdx];
@@ -196,8 +197,10 @@ namespace Itinero.IO.Shape.Reader
                         // get profile and meta attributes.
                         var profile = new AttributeCollection();
                         var meta = new AttributeCollection();
-                        var profileWhiteList = new HashSet<string>();
-                        _vehicles.AddToProfileWhiteList(profileWhiteList, reader);
+                        var profileWhiteList = new Whitelist();
+                        attributes.Clear();
+                        reader.AddToAttributeCollection(attributes);
+                        _vehicles.AddToWhiteList(attributes, profileWhiteList);
                         foreach (var field in reader.DbaseHeader.Fields)
                         {
                             var valueString = string.Empty;

@@ -22,10 +22,11 @@ using System.Collections.Generic;
 namespace Itinero.Profiles
 {
     /// <summary>
-    /// Contains extensions methods related to the dynamic vehicle class.
+    /// Contains extension methods related to the vehicle class.
     /// </summary>
-    public static class DynamicVehicleExtensions
+    public static class VehicleExtensions
     {
+
         /// <summary>
         /// Returns true if the given vehicle can traverse a way with the given attributes.
         /// </summary>
@@ -45,12 +46,12 @@ namespace Itinero.Profiles
         /// <summary>
         /// Adds all the keys to the whitelist if they are relevante for the profiles.
         /// </summary>
-        public static bool AddToProfileWhiteList(this DynamicVehicle[] vehicles, HashSet<string> whiteList, IAttributeCollection attributes)
+        public static bool AddToWhiteList(this Vehicle[] vehicles, IAttributeCollection attributes, Whitelist whiteList)
         {
             var traversable = false;
             for (var i = 0; i < vehicles.Length; i++)
             {
-                traversable = traversable || vehicles[i].AddToProfileWhiteList(whiteList, attributes);
+                traversable = traversable || vehicles[i].AddToWhiteList(attributes, whiteList);
             }
             return traversable;
         }
@@ -73,7 +74,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Returns true if the given key is on any of the vehicles profile whitelist.
         /// </summary>
-        public static bool IsOnProfileWhiteList(this DynamicVehicle[] vehicles, string key)
+        public static bool IsOnProfileWhiteList(this Vehicle[] vehicles, string key)
         {
             for (var i = 0; i < vehicles.Length; i++)
             {
@@ -88,7 +89,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Returns true if the given key is on any of the vehicles meta whitelist.
         /// </summary>
-        public static bool IsOnMetaWhiteList(this DynamicVehicle[] vehicles, string key)
+        public static bool IsOnMetaWhiteList(this Vehicle[] vehicles, string key)
         {
             for (var i = 0; i < vehicles.Length; i++)
             {

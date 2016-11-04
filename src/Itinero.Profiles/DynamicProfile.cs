@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using Itinero.Attributes;
 using MoonSharp.Interpreter;
 
@@ -38,7 +37,8 @@ namespace Itinero.Profiles
         /// <summary>
         /// Creates a new dynamic profile.
         /// </summary>
-        internal DynamicProfile(string name, ProfileMetric metric, string[] vehicleTypes, Script script, object factor_and_speed)
+        internal DynamicProfile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent, Script script, object factor_and_speed)
+            : base(name, metric, vehicleTypes, parent)
         {
             _name = name;
             _metric = metric;

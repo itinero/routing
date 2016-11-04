@@ -31,7 +31,7 @@ using Itinero.IO.Osm.Restrictions;
 using Itinero.Data.Network.Restrictions;
 using Itinero.IO.Osm.Relations;
 using Itinero.IO.Osm.Normalizer;
-using Itinero.IO.Osm.Profiles;
+using Itinero.Profiles;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -215,17 +215,17 @@ namespace Itinero.IO.Osm.Streams
                 {
                     if (osmGeo.Type == OsmGeoType.Way)
                     {
-                        var whiteList = new HashSet<string>();
-                        _vehicles.AddToProfileWhiteList(whiteList, osmGeo.Tags);
+                        var whiteList = new Whitelist();
+                        var tags = osmGeo.Tags.ToAttributes();
+                        _vehicles.AddToWhiteList(tags, whiteList);
 
-                        var tags = new TagsCollection(osmGeo.Tags);
                         foreach (var tag in tags)
                         {
                             if (!whiteList.Contains(tag.Key) &&
                                 !_vehicles.IsOnProfileWhiteList(tag.Key) &&
                                 !_vehicles.IsOnMetaWhiteList(tag.Key))
                             {
-                                osmGeo.Tags.RemoveKeyValue(tag);
+                                osmGeo.Tags.RemoveKey(tag.Key);
                             }
                         }
                     }
@@ -413,8 +413,8 @@ namespace Itinero.IO.Osm.Streams
                 }
 
                 var wayAttributes = way.Tags.ToAttributes();
-                var profileWhiteList = new HashSet<string>();
-                if (_vehicles.AddToProfileWhiteList(profileWhiteList, wayAttributes))
+                var profileWhiteList = new Whitelist();
+                if (_vehicles.AddToWhiteList(wayAttributes, profileWhiteList))
                 { // way has some use.
                     if (_processedWays.Contains(way.Id.Value))
                     { // way was already processed.

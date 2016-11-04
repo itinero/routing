@@ -93,7 +93,7 @@ namespace Itinero.Profiles
                 {
                     _profileFunctions[functionName] = function;
                 }
-                var profile = new DynamicProfile(this.Name + "." + profileName, metric, _vehicleTypes, _script, function);
+                var profile = new DynamicProfile(this.Name + "." + profileName, metric, _vehicleTypes, this, _script, function);
                 this.Register(profile);
             }
             
@@ -170,7 +170,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the attributes whitelist.
         /// </summary>
-        public HashSet<string> MetaWhiteList
+        public override HashSet<string> MetaWhiteList
         {
             get
             {
@@ -181,7 +181,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the attributes whitelist.
         /// </summary>
-        public HashSet<string> ProfileWhiteList
+        public override HashSet<string> ProfileWhiteList
         {
             get
             {
@@ -190,9 +190,9 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
-        /// Pushes the attributes through this profiles and returns only those that are used in routing.
+        /// 
         /// </summary>
-        public bool AddToProfileWhiteList(HashSet<string> whiteList, IAttributeCollection attributes)
+        public override bool AddToWhiteList(IAttributeCollection attributes, Whitelist whitelist)
         {
             if (_attributesTable == null)
             {
@@ -233,10 +233,18 @@ namespace Itinero.Profiles
                 }
                 foreach (var attribute in dynAttributesToKeep.Table.Keys.Select(x => x.String))
                 {
-                    whiteList.Add(attribute);
+                    whitelist.Add(attribute);
                 }
             }
             return traversable;
+        }
+
+        /// <summary>
+        /// Pushes the attributes through this profiles and adds used keys in the given whitelist.
+        /// </summary>
+        public override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
+        {
+            throw new NotImplementedException("Not used and unavailable with dynamic vehicles.");
         }
     }
 }
