@@ -26,7 +26,7 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Represents the default OSM car profile.
     /// </summary>
-    public class Car : Vehicle
+    public class Car : MotorVehicle
     {
         /// <summary>
         /// Gets the name of this vehicle.

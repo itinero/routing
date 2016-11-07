@@ -26,7 +26,7 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Represents the default OSM big truck profile.
     /// </summary>
-    public class BigTruck : Vehicle
+    public class BigTruck : MotorVehicle
     {
         /// <summary>
         /// Gets the name of this vehicle.

@@ -28,6 +28,15 @@ namespace Itinero.Osm.Vehicles
     public class Bicycle : Vehicle
     {
         /// <summary>
+        /// Creates a new bicycle.
+        /// </summary>
+        public Bicycle()
+        {
+            this.Register(new BicycleBalancedProfile(this));
+            this.Register(new BicycleNetworksProfile(this));
+        }
+
+        /// <summary>
         /// Gets the name of this vehicle.
         /// </summary>
         public override string Name
@@ -36,6 +45,24 @@ namespace Itinero.Osm.Vehicles
             {
                 return "Bicycle";
             }
+        }
+
+        /// <summary>
+        /// Gets the profile to calculate routes along cyclenetworks.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Networks()
+        {
+            return this.Profile(this.Name + ".networks");
+        }
+
+        /// <summary>
+        /// Gets the profile to calculate balanced routes.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Balanced()
+        {
+            return this.Profile(this.Name + ".balanced");
         }
 
         /// <summary>
@@ -67,7 +94,7 @@ namespace Itinero.Osm.Vehicles
         {
             get
             {
-                return new HashSet<string>();
+                return new HashSet<string>(new[] { "cycleway", "cyclenetwork" });
             }
         }
 

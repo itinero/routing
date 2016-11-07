@@ -28,6 +28,14 @@ namespace Itinero.Osm.Vehicles
     public class Pedestrian : Vehicle
     {
         /// <summary>
+        /// Creates a new pedestrian.
+        /// </summary>
+        public Pedestrian()
+        {
+            this.Register(new PedestrianShortcutsProfile(this));
+        }
+
+        /// <summary>
         /// Gets the name of this vehicle.
         /// </summary>
         public override string Name
@@ -47,6 +55,15 @@ namespace Itinero.Osm.Vehicles
             {
                 return new string[] { "foot" };
             }
+        }
+
+        /// <summary>
+        /// Gets the profile to calculate routes including shortcuts.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Shortcuts()
+        {
+            return this.Profile(this.Name + ".shortcuts");
         }
 
         /// <summary>
