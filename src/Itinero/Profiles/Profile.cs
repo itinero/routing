@@ -114,6 +114,11 @@ namespace Itinero.Profiles
                 result = _parent.FactorAndSpeed(attributes, Whitelist.Dummy);
             }
 
+            if (result.Value == 0)
+            { // nothing to add when result is zero.
+                return result;
+            }
+
             if (_metric == ProfileMetric.TimeInSeconds)
             { // use 1/speed as factor.
                 result.Value = result.SpeedFactor;

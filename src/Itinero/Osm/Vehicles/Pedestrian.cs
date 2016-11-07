@@ -85,6 +85,7 @@ namespace Itinero.Osm.Vehicles
             }
 
             var speed = 4f;
+            var access = true;
             switch (highway)
             {
                 case "services":
@@ -95,26 +96,22 @@ namespace Itinero.Osm.Vehicles
                 case "path":
                 case "footway":
                 case "living_street":
-                    speed = 5;
-                    break;
                 case "service":
                 case "track":
                 case "road":
-                    speed = 4.5f;
-                    break;
                 case "residential":
                 case "unclassified":
-                    speed = 4.4f;
-                    break;
-                case "trunk":
-                case "trunk_link":
+                case "tertiary":
+                case "tertiary_link":
+                case "secondary":
+                case "secondary_link":
                 case "primary":
                 case "primary_link":
-                    speed = 4.2f;
+                    speed = 4;
                     break;
-                case "motorway":
-                case "motorway_link":
-                    return Profiles.FactorAndSpeed.NoFactor;
+                default:
+                    access = false;
+                    break;
             }
             whiteList.Add("highway");
 
@@ -123,16 +120,27 @@ namespace Itinero.Osm.Vehicles
             {
                 return Profiles.FactorAndSpeed.NoFactor;
             }
-            var foot = string.Empty;
-            if (attributes.TryGetValue("foot", out foot))
+            // do the designated tags.
+            var bicycle = string.Empty;
+            if (attributes.TryGetValue("foot", out bicycle))
             {
-                if (foot == "no")
+                if (bicycle == "no")
                 {
+                    whiteList.Add("foot");
                     return Profiles.FactorAndSpeed.NoFactor;
                 }
-                whiteList.Add("foot");
+                else if (bicycle == "yes" ||
+                    bicycle == "designated")
+                {
+                    whiteList.Add("foot");
+                    access = true;
+                }
             }
-            
+            if (!access)
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+
             short direction = 0;
 
             speed = speed / 3.6f; // to m/s

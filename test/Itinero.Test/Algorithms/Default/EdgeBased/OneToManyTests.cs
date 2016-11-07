@@ -41,7 +41,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
             routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
@@ -52,7 +52,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             });
 
             // run algorithm.
-            var algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), (x) => new uint[0][], 
+            var algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(), (x) => new uint[0][], 
                 new RouterPoint(0, 0, 0, 0), new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) }, float.MaxValue);
             algorithm.Run();
 
@@ -62,7 +62,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             var path = algorithm.GetPath(0);
             Assert.IsNotNull(path);
             Assert.AreEqual(1, path.Vertex);
-            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 100, path.Weight);
+            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 100, path.Weight);
             path = path.From;
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Vertex);
@@ -83,7 +83,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
@@ -94,7 +94,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             });
 
             // run algorithm.
-            var algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), (x) => new uint[0][],
+            var algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(), (x) => new uint[0][],
                 new RouterPoint(0, 0, 0, ushort.MaxValue / 10), 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) }, float.MaxValue);
             algorithm.Run();
@@ -105,7 +105,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             var path = algorithm.GetPath(0);
             Assert.IsNotNull(path);
             Assert.AreEqual(Constants.NO_VERTEX, path.Vertex);
-            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 80, path.Weight, 0.01);
+            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 80, path.Weight, 0.01);
             path = path.From;
             Assert.IsNotNull(path);
             Assert.AreEqual(Constants.NO_VERTEX, path.Vertex);
@@ -140,7 +140,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -164,7 +164,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             });
 
             // run algorithm 0->(1, 2).
-            var algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), (x) => new uint[0][], 
+            var algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(), (x) => new uint[0][], 
                 routerDb.Network.CreateRouterPointForVertex(0), 
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -178,12 +178,12 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             var weights = algorithm.Weights;
             Assert.IsNotNull(weights);
             Assert.AreEqual(2, weights.Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1], 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0], 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1], 0.001);
 
             var path = algorithm.GetPath(0);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, path.Weight, 0.001);
             Assert.AreEqual(1, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -194,7 +194,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
 
             path = algorithm.GetPath(1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, path.Weight, 0.001);
             Assert.AreEqual(2, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -204,7 +204,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             Assert.IsNull(path);
 
             // run algorithm 1->(0, 2).
-            algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), (x) => new uint[0][], 
+            algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(), (x) => new uint[0][], 
                 routerDb.Network.CreateRouterPointForVertex(1),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
@@ -218,12 +218,12 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             weights = algorithm.Weights;
             Assert.IsNotNull(weights);
             Assert.AreEqual(2, weights.Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1], 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0], 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1], 0.001);
 
             path = algorithm.GetPath(0);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, path.Weight, 0.001);
             Assert.AreEqual(0, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -234,7 +234,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
 
             path = algorithm.GetPath(1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, path.Weight, 0.001);
             Assert.AreEqual(2, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -244,7 +244,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             Assert.IsNull(path);
 
             // run algorithm 2->(0, 1).
-            algorithm = new OneToMany(new Router(routerDb), MockProfile.CarMock(), (x) => new uint[0][], 
+            algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(), (x) => new uint[0][], 
                 routerDb.Network.CreateRouterPointForVertex(2),
                 new RouterPoint[] {
                     routerDb.Network.CreateRouterPointForVertex(0),
@@ -258,12 +258,12 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             weights = algorithm.Weights;
             Assert.IsNotNull(weights);
             Assert.AreEqual(2, weights.Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1], 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0], 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1], 0.001);
 
             path = algorithm.GetPath(0);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, path.Weight, 0.001);
             Assert.AreEqual(0, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -274,7 +274,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
 
             path = algorithm.GetPath(1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, path.Weight, 0.001);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, path.Weight, 0.001);
             Assert.AreEqual(1, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);

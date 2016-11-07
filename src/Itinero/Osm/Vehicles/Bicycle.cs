@@ -84,36 +84,33 @@ namespace Itinero.Osm.Vehicles
                 return Profiles.FactorAndSpeed.NoFactor;
             }
 
-            var speed = 4f;
+            var speed = 15f;
+            var access = true;
             switch (highway)
             {
                 case "services":
                 case "proposed":
                 case "cycleway":
-                case "steps":
                 case "path":
-                case "footway":
                 case "living_street":
-                    speed = 5;
-                    break;
                 case "service":
                 case "track":
                 case "road":
-                    speed = 4.5f;
-                    break;
                 case "residential":
                 case "unclassified":
-                    speed = 4.4f;
-                    break;
-                case "trunk":
-                case "trunk_link":
+                case "tertiary":
+                case "tertiary_link":
+                case "secondary":
+                case "secondary_link":
                 case "primary":
                 case "primary_link":
-                    speed = 4.2f;
+                case "trunk":
+                case "trunk_link":
+                    speed = 15f;
                     break;
-                case "motorway":
-                case "motorway_link":
-                    return Profiles.FactorAndSpeed.NoFactor;
+                default:
+                    access = false;
+                    break;
             }
             whiteList.Add("highway");
 
@@ -128,9 +125,15 @@ namespace Itinero.Osm.Vehicles
             {
                 if (bicycle == "no")
                 {
+                    whiteList.Add("bicycle");
                     return Profiles.FactorAndSpeed.NoFactor;
                 }
-                whiteList.Add("bicycle");
+                else if (bicycle == "yes" || 
+                    bicycle == "designated")
+                {
+                    whiteList.Add("bicycle");
+                    access = true;
+                }
             }
             if (highway == "steps")
             {
@@ -138,8 +141,12 @@ namespace Itinero.Osm.Vehicles
                 {
                     return Profiles.FactorAndSpeed.NoFactor;
                 }
-                whiteList.Add("steps");
+                access = true;
                 whiteList.Add("ramp");
+            }
+            if (!access)
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
             }
 
             short direction = 0;

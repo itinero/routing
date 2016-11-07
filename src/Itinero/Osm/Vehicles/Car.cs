@@ -90,7 +90,6 @@ namespace Itinero.Osm.Vehicles
             switch (highway)
             {
                 case "services":
-                case "pedestrian":
                 case "living_street":
                     speed = 5;
                     break;
@@ -103,17 +102,25 @@ namespace Itinero.Osm.Vehicles
                 case "unclassified":
                     speed = 50;
                     break;
+                case "tertiary":
+                case "tertiary_link":
+                case "secondary":
+                case "secondary_link":
+                    speed = 70;
+                    break;
                 case "trunk":
                 case "trunk_link":
                 case "primary":
                 case "primary_link":
-                    speed = 70;
+                    speed = 90;
                     break;
                 case "motorway":
                 case "motorway_link":
                     canstopon = false;
-                    speed = 100;
+                    speed = 120;
                     break;
+                default:
+                    return Profiles.FactorAndSpeed.NoFactor;
             }
             whiteList.Add("highway");
 

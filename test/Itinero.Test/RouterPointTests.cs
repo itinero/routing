@@ -82,7 +82,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
             var paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
@@ -156,14 +156,15 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.Mock("OnwayMock", x =>
+            var profile = VehicleMock.Mock("OnwayMock", x =>
                 {
-                    return new Itinero.Profiles.Speed()
+                    return new Itinero.Profiles.FactorAndSpeed()
                     {
                         Direction = 1,
-                        Value = 50f / 3.6f
+                        Value = 1 / 50f / 3.6f,
+                        SpeedFactor = 1 / 50f / 3.6f
                     };
-                });
+                }).Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -265,14 +266,15 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.Mock("OnwayMock", x =>
+            var profile = VehicleMock.Mock("OnwayMock", x =>
             {
-                return new Itinero.Profiles.Speed()
+                return new Itinero.Profiles.FactorAndSpeed()
                 {
                     Direction = 2,
-                    Value = 50f / 3.6f
+                    Value = 1 / 50f / 3.6f,
+                    SpeedFactor = 1 / 50f / 3.6f
                 };
-            });
+            }).Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -371,7 +373,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -405,7 +407,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -465,7 +467,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point1 = new RouterPoint(0.01f, 0.01f, 0,
                 (ushort)(0.1 * ushort.MaxValue));
@@ -491,11 +493,12 @@ namespace Itinero.Test
             Assert.AreEqual(0, path.Weight, 0.001f);
 
             // mock profile and force oneway forward.
-            profile = MockProfile.CarMock(x => new Speed()
+            profile = VehicleMock.Car(x => new FactorAndSpeed()
             {
-                Value = 50f / 3.6f,
+                Value = 1 / 50f / 3.6f,
+                SpeedFactor = 1 / 50f / 3.6f,
                 Direction = 1
-            });
+            }).Fastest();
 
             path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
@@ -514,11 +517,12 @@ namespace Itinero.Test
             Assert.AreEqual(0, path.Weight, 0.001f);
 
             // mock profile and force oneway backward.
-            profile = MockProfile.CarMock(x => new Speed()
+            profile = VehicleMock.Car(x => new FactorAndSpeed()
             {
-                Value = 50f / 3.6f,
+                Value = 1 / 50f / 3.6f,
+                SpeedFactor = 1 / 50f / 3.6f,
                 Direction = 2
-            });
+            }).Fastest();
 
             path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNull(path);
@@ -537,7 +541,7 @@ namespace Itinero.Test
             Assert.AreEqual(0, path.Weight, 0.001f);
 
             // test the full edge.
-            profile = MockProfile.CarMock();
+            profile = VehicleMock.Car().Fastest();
             point1 = new RouterPoint(0f, 0f, 0, 0);
             point2 = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
 
@@ -585,7 +589,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, -0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, -0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 

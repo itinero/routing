@@ -45,7 +45,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
             routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
@@ -54,10 +54,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(MockProfile.CarMock(), true);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), true);
 
             // create algorithm and run.
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) });
             algorithm.Run();
@@ -69,7 +69,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsNotNull(algorithm.Weights);
             Assert.AreEqual(1, algorithm.Weights.Length);
             Assert.AreEqual(1, algorithm.Weights[0].Length);
-            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 100, algorithm.Weights[0][0], 0.01);
+            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 100, algorithm.Weights[0][0], 0.01);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 0, 0);
             routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
@@ -93,10 +93,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(MockProfile.CarMock(), true);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), true);
 
             // run algorithm.
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) });
             algorithm.Run();
@@ -107,7 +107,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsNotNull(algorithm.Weights);
             Assert.AreEqual(1, algorithm.Weights.Length);
             Assert.AreEqual(1, algorithm.Weights[0].Length);
-            Assert.AreEqual(MockProfile.CarMock().Factor(null).Value * 80, algorithm.Weights[0][0], 0.01);
+            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 80, algorithm.Weights[0][0], 0.01);
         }
 
         /// <summary>
@@ -136,7 +136,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -158,10 +158,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(MockProfile.CarMock(), true);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), true);
 
             // run algorithm (0, 1, 2)->(0, 1, 2).
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -180,15 +180,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, weights.Length);
             Assert.AreEqual(3, weights[0].Length);
             Assert.AreEqual(0, weights[0][0], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][1], 0.01);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[0][2], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0][1], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0][2], 0.01);
             Assert.AreEqual(3, weights[1].Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][0], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1][0], 0.01);
             Assert.AreEqual(0, weights[1][1], 0.001);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[1][2], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1][2], 0.01);
             Assert.AreEqual(3, weights[2].Length);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][0], 0.01);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, weights[2][1], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[2][0], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[2][1], 0.01);
             Assert.AreEqual(0, weights[2][2], 0.001);
         }
 
@@ -200,7 +200,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -219,12 +219,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // build graph.
             var graph = new DirectedDynamicGraph();
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -247,15 +247,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -266,7 +266,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -285,12 +285,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // build graph.
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(1, 2, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -313,15 +313,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -332,7 +332,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -351,12 +351,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // build graph.
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            graph.AddEdge(1, 0, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -379,15 +379,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -397,13 +397,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesDirectedMiddleHighest()
         {
             // build graph.
-            var oneway = MockProfile.CarMock(t => new Speed()
+            var oneway = VehicleMock.Car(t => new FactorAndSpeed()
                 {
-                    Value = MockProfile.CarMock().Speed(null).Value,
+                    Value = VehicleMock.Car().Fastest().FactorAndSpeed(null).Value,
+                    SpeedFactor = VehicleMock.Car().Fastest().FactorAndSpeed(null).SpeedFactor,
                     Direction = 1
-                });
+                }).Fastest();
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(oneway);
+            routerDb.AddSupportedVehicle(oneway.Parent);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -425,7 +426,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, true);
             graph.AddEdge(2, 1, 100, false);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), oneway,
@@ -451,15 +452,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -469,13 +470,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesRightMiddleHighest()
         {
             // build graph.
-            var oneway = MockProfile.CarMock(t => new Speed()
+            var oneway = VehicleMock.Car(t => new FactorAndSpeed()
             {
-                Value = MockProfile.CarMock().Speed(null).Value,
+                Value = VehicleMock.Car().Fastest().FactorAndSpeed(null).Value,
+                SpeedFactor = VehicleMock.Car().Fastest().FactorAndSpeed(null).SpeedFactor,
                 Direction = 1
-            });
+            }).Fastest();
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(oneway);
+            routerDb.AddSupportedVehicle(oneway.Parent);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -494,9 +496,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // build graph.
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, true);
-            graph.AddEdge(1, 2, 100 * MockProfile.CarMock().Factor(null).Value, true);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, true);
+            graph.AddEdge(1, 2, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, true);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), oneway,
@@ -522,15 +524,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -540,13 +542,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestTwoEdgesLeftMiddleHighest()
         {
             // build graph.
-            var oneway = MockProfile.CarMock(t => new Speed()
+            var oneway = VehicleMock.Car(t => new FactorAndSpeed()
             {
-                Value = MockProfile.CarMock().Speed(null).Value,
+                Value = VehicleMock.Car().Fastest().FactorAndSpeed(null).Value,
+                SpeedFactor = VehicleMock.Car().Fastest().FactorAndSpeed(null).SpeedFactor,
                 Direction = 1
-            });
+            }).Fastest();
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(oneway);
+            routerDb.AddSupportedVehicle(oneway.Parent);
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -565,9 +568,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // build graph.
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(1, 0, 100 * MockProfile.CarMock().Factor(null).Value, false);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, false);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            graph.AddEdge(1, 0, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, false);
+            graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, false);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), oneway,
@@ -593,15 +596,15 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
         }
 
         /// <summary>
@@ -611,7 +614,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         public void TestPentagon()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -650,17 +653,17 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // build graph.
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(0, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(0, 4, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(2, 1, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(2, 3, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            graph.AddEdge(3, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 2, null, null);
-            graph.AddEdge(4, 1, 200 * MockProfile.CarMock().Factor(null).Value, null, 0, null, null);
-            graph.AddEdge(4, 3, 100 * MockProfile.CarMock().Factor(null).Value, null);
-            routerDb.AddContracted(MockProfile.CarMock(), new ContractedDb(graph));
+            graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(0, 4, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(2, 3, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            graph.AddEdge(3, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 2, null, null);
+            graph.AddEdge(4, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 0, null, null);
+            graph.AddEdge(4, 3, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 
             // create algorithm and run.
-            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), MockProfile.CarMock(),
+            var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { 
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(1),
@@ -690,23 +693,23 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(5, algorithm.Weights[3].Length);
             Assert.AreEqual(5, algorithm.Weights[4].Length);
 
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][3], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[0][4], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][3], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][4], 0.1);
 
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][3], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[1][4], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][3], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][4], 0.1);
 
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][2], 0.1);
-            Assert.AreEqual(100 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][3], 0.1);
-            Assert.AreEqual(200 * MockProfile.CarMock().Factor(null).Value, algorithm.Weights[2][4], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][3], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][4], 0.1);
         }
     }
 }

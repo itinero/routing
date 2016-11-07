@@ -90,15 +90,26 @@ namespace Itinero.Osm.Vehicles
             switch (highway)
             {
                 case "services":
-                case "pedestrian":
                 case "living_street":
                     speed = 5;
                     break;
                 case "service":
                 case "track":
                 case "road":
-                    speed = 30;
+                case "residential":
+                case "unclassified":
+                case "tertiary":
+                case "tertiary_link":
+                case "secondary":
+                case "secondary_link":
+                case "trunk":
+                case "trunk_link":
+                case "primary":
+                case "primary_link":
+                    speed = 40;
                     break;
+                default:
+                    return Profiles.FactorAndSpeed.NoFactor;
             }
             whiteList.Add("highway");
 
@@ -107,7 +118,14 @@ namespace Itinero.Osm.Vehicles
             if (attributes.TryGetMaxSpeed(out maxSpeed))
             {
                 whiteList.Add("maxspeed");
-                speed = maxSpeed * 0.75f;
+                if (speed > 40)
+                {
+                    speed = 40;
+                }
+                else
+                {
+                    speed = maxSpeed * 0.75f;
+                }
             }
 
             // access tags.

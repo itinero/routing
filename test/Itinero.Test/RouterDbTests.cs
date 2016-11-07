@@ -41,7 +41,7 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork1()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network1.geojson"));
@@ -82,7 +82,7 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -130,7 +130,7 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork1ContractedCar()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network1.geojson"));
@@ -177,7 +177,7 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2ContractedCar()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -228,8 +228,8 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2ContractedMultiple()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Pedestrian);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -281,8 +281,8 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2ContractedMultipleDefaultProfile()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Pedestrian);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -334,8 +334,8 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2ContractedMultipleNoCacheProfile()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Pedestrian);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -387,8 +387,8 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2Meta()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Pedestrian);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -419,7 +419,7 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork2ContractedCarOnly()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
@@ -438,7 +438,7 @@ namespace Itinero.Test
 
                 // create a new db.
                 routerDb = new RouterDb();
-                routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+                routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
                 routerDb.LoadTestNetwork(
                     System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                         "Itinero.Test.test_data.networks.network2.geojson"));
@@ -458,7 +458,7 @@ namespace Itinero.Test
         public void TestSaveLoadNetwork4()
         {
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network4.geojson"));

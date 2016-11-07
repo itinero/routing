@@ -51,7 +51,10 @@ namespace Itinero.Profiles
             var traversable = false;
             for (var i = 0; i < vehicles.Length; i++)
             {
-                traversable = traversable || vehicles[i].AddToWhiteList(attributes, whiteList);
+                if (vehicles[i].AddToWhiteList(attributes, whiteList))
+                {
+                    traversable = true;
+                }
             }
             return traversable;
         }

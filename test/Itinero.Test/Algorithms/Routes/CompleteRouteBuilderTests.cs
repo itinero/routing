@@ -25,6 +25,7 @@ using Itinero.Test.Profiles;
 using System.Collections.Generic;
 using System.Linq;
 using Itinero.Data.Network.Edges;
+using Itinero.Profiles;
 
 namespace Itinero.Test.Algorithms.Routes
 {
@@ -49,7 +50,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(0, 0, 1, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 0, 1, 0, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX }));
             routeBuilder.Run();
@@ -98,7 +99,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
             routeBuilder.Run();
@@ -261,7 +262,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, Constants.NO_VERTEX }));
             routeBuilder.Run();
@@ -354,7 +355,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 1, 1, ushort.MaxValue, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, Constants.NO_VERTEX }));
             routeBuilder.Run();
@@ -542,7 +543,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 2, 2, ushort.MaxValue, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();
@@ -937,7 +938,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(0, 0, 0, 0, new Attribute("type", "source"));
             var target = new RouterPoint(0, 2, 3, ushort.MaxValue, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX, 1, 2, 3 }));
             routeBuilder.Run();
@@ -1057,7 +1058,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
             var target = new RouterPoint(1, 2, 3, 0, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 1, 2, 3, 4 }));
             routeBuilder.Run();
@@ -1168,7 +1169,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
             var target = new RouterPoint(0, 1, 2, 0, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 1, 2 }));
             routeBuilder.Run();
@@ -1257,7 +1258,7 @@ namespace Itinero.Test.Algorithms.Routes
             // build route.
             var source = new RouterPoint(1, 1, 0, ushort.MaxValue, new Attribute("type", "source"));
             var target = new RouterPoint(0, 1, 2, 0, new Attribute("type", "target"));
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { 1, 2, Constants.NO_VERTEX }));
             routeBuilder.Run();

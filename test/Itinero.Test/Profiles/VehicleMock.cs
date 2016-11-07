@@ -40,6 +40,10 @@ namespace Itinero.Test.Profiles
             _name = name;
             _vehicleTypes = vehicleTypes;
             _getFactorAndSpeed = getFactorAndSpeed;
+
+
+            this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, this));
+            this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, this));
         }
 
         /// <summary>

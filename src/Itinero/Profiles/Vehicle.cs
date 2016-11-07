@@ -33,8 +33,11 @@ namespace Itinero.Profiles
         /// </summary>
         public Vehicle()
         {
-            this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, this));
-            this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, this));
+            if (!string.IsNullOrEmpty(this.Name))
+            {
+                this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, this));
+                this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, this));
+            }
         }
 
         /// <summary>
@@ -142,6 +145,42 @@ namespace Itinero.Profiles
         public Profile Fastest()
         {
             return this.Profile(this.Name);
+        }
+
+
+        private static Dictionary<string, Vehicle> _vehicles = new Dictionary<string, Vehicle>();
+
+        /// <summary>
+        /// Registers a vehicle.
+        /// </summary>
+        public static void Register(Vehicle vehicle)
+        {
+            _vehicles[vehicle.Name] = vehicle;
+        }
+
+        /// <summary>
+        /// Gets a registered vehicle.
+        /// </summary>
+        public static Vehicle GetRegistered(string name)
+        {
+            return _vehicles[name];
+        }
+
+        /// <summary>
+        /// Tries to get a registred vehicle.
+        /// </summary>
+        public static bool TryGet(string name, out Vehicle value)
+        {
+            return _vehicles.TryGetValue(name, out value);
+        }
+
+        /// <summary>
+        /// Gets all registered vehicles.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Vehicle> GetRegistered()
+        {
+            return _vehicles.Values;
         }
     }
 }
