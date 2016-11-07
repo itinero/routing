@@ -122,7 +122,7 @@ namespace Itinero.Profiles
                 for (var i = 0; i < profiles.Length; i++)
                 {
                     var cachedFactor = cachedFactors[i][edgeProfileId];
-                    if ((verifyCanStopOn && cachedFactor.Direction > 4) || 
+                    if ((verifyCanStopOn && !cachedFactor.CanStopOn()) || 
                         cachedFactor.Value <= 0)
                     {
                         return false;
@@ -142,20 +142,7 @@ namespace Itinero.Profiles
             var cachedFactors = _edgeProfileFactors[profile.Name];
             return (p) =>
             {
-                var cachedFactor = cachedFactors[p];
-                if (cachedFactor.Direction >= 4)
-                {
-                    return new Factor()
-                    {
-                        Direction = (short)(cachedFactor.Direction - 4),
-                        Value = cachedFactor.Value
-                    };
-                }
-                return new Factor()
-                {
-                    Direction = cachedFactor.Direction,
-                    Value = cachedFactor.Value
-                };
+                return cachedFactors[p].ToFactor();
             };
         }
 
@@ -169,22 +156,7 @@ namespace Itinero.Profiles
             var cachedFactors = _edgeProfileFactors[profile.Name];
             return (p) =>
             {
-                var cachedFactor = cachedFactors[p];
-                if (cachedFactor.Direction >= 4)
-                {
-                    return new FactorAndSpeed()
-                    {
-                        Direction = (short)(cachedFactor.Direction - 4),
-                        SpeedFactor = cachedFactor.SpeedFactor,
-                        Value = cachedFactor.Value
-                    };
-                }
-                return new FactorAndSpeed()
-                {
-                    Direction = cachedFactor.Direction,
-                    SpeedFactor = cachedFactor.SpeedFactor,
-                    Value = cachedFactor.Value
-                };
+                return cachedFactors[p];
             };
         }
 
@@ -200,20 +172,7 @@ namespace Itinero.Profiles
             }
             if (edgeProfile < factorsForProfile.Length)
             {
-                var cachedFactor = factorsForProfile[edgeProfile];
-                if(cachedFactor.Direction >= 4)
-                {
-                    return new Factor()
-                    {
-                        Direction = (short)(cachedFactor.Direction << 2),
-                        Value = cachedFactor.Value
-                    };
-                }
-                return new Factor()
-                {
-                    Direction = cachedFactor.Direction,
-                    Value = cachedFactor.Value
-                };
+                return factorsForProfile[edgeProfile].ToFactor();
             }
             throw new ArgumentOutOfRangeException("Edgeprofile invalid.");
         }
@@ -230,22 +189,7 @@ namespace Itinero.Profiles
             }
             if (edgeProfile < factorsForProfile.Length)
             {
-                var cachedFactor = factorsForProfile[edgeProfile];
-                if (cachedFactor.Direction >= 4)
-                {
-                    return new FactorAndSpeed()
-                    {
-                        Direction = (short)(cachedFactor.Direction << 2),
-                        SpeedFactor = cachedFactor.SpeedFactor,
-                        Value = cachedFactor.Value
-                    };
-                }
-                return new FactorAndSpeed()
-                {
-                    Direction = cachedFactor.Direction,
-                    SpeedFactor = cachedFactor.SpeedFactor,
-                    Value = cachedFactor.Value
-                };
+                return factorsForProfile[edgeProfile];
             }
             throw new ArgumentOutOfRangeException("Edgeprofile invalid.");
         }
@@ -262,7 +206,7 @@ namespace Itinero.Profiles
             }
             if (edgeProfile < factorsForProfile.Length)
             {
-                return factorsForProfile[edgeProfile].Direction < 4;
+                return factorsForProfile[edgeProfile].CanStopOn();
             }
             throw new ArgumentOutOfRangeException("Edgeprofile invalid.");
         }

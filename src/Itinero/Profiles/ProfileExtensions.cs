@@ -39,7 +39,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static Speed ToSpeed(this FactorAndSpeed factorAndSpeed)
         {
-            if (factorAndSpeed.Direction > 3)
+            if (factorAndSpeed.Direction >= 3)
             {
                 return new Profiles.Speed()
                 {
@@ -91,7 +91,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static Factor ToFactor(this FactorAndSpeed factorAndSpeed)
         {
-            if (factorAndSpeed.Direction > 3)
+            if (factorAndSpeed.Direction >= 3)
             {
                 return new Profiles.Factor()
                 {
@@ -107,11 +107,19 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Converts a factor definition for the given factor and speed.
+        /// </summary>
+        public static bool CanStopOn(this FactorAndSpeed factorAndSpeed)
+        {
+            return factorAndSpeed.Direction < 3;
+        }
+
+        /// <summary>
         /// Returns true if the link defined by the given attributes can be stopped on.
         /// </summary>
         public static bool CanStopOn(this Profile profile, IAttributeCollection attributes)
         {
-            return profile.FactorAndSpeed(attributes).Direction < 4;
+            return profile.FactorAndSpeed(attributes).Direction < 3;
         }
     }
 }

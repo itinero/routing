@@ -32,7 +32,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// </summary>
         public static Tree CalculateTree(this RouterBase router, Profile profile, Coordinate origin, float max)
         {
-            return router.TryCalculateTree(profile, router.Resolve(profile, origin), max).Value;
+            return router.TryCalculateTree(profile, router.Resolve(profile, origin, 500), max).Value;
         }
 
         /// <summary>
