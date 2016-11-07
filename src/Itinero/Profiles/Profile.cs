@@ -66,6 +66,17 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// The vehicle this profile is for.
+        /// </summary>
+        public Vehicle Parent
+        {
+            get
+            {
+                return _parent;
+            }
+        }
+
+        /// <summary>
         /// Gets the metric used by this profile.
         /// </summary>
         public virtual ProfileMetric Metric

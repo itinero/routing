@@ -482,7 +482,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Profiles.MockProfile.CarMock());
+            routerDb.AddSupportedProfile(Profiles.VehicleMock.CarMock());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);

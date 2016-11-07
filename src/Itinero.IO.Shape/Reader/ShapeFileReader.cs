@@ -58,12 +58,9 @@ namespace Itinero.IO.Shape.Reader
         /// </summary>
         protected override void DoRun()
         {
-            foreach(var vehicle in _vehicles)
+            foreach (var vehicle in _vehicles)
             {
-                foreach (var profile in vehicle.GetProfiles())
-                {
-                    _routerDb.AddSupportedProfile(profile);
-                }
+                _routerDb.AddSupportedVehicle(vehicle);
             }
 
             var nodeToVertex = new Dictionary<long, uint>();
