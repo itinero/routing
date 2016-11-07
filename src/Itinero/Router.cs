@@ -178,10 +178,10 @@ namespace Itinero
             ContractedDb contracted;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile.Definition, out contracted))
+            if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile.Definition) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -212,7 +212,7 @@ namespace Itinero
                 else
                 { // use edge-based routing.
                     var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
-                        source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profile.Definition, null));
+                        source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -229,12 +229,12 @@ namespace Itinero
             }
             else
             { // use the regular graph.
-                if (_db.HasComplexRestrictions(profile.Definition))
+                if (_db.HasComplexRestrictions(profile))
                 {
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
-                        _db.GetGetRestrictions(profile.Definition, true), source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
+                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
                     var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
-                        _db.GetGetRestrictions(profile.Definition, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
+                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -320,10 +320,10 @@ namespace Itinero
             ContractedDb contracted;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile.Definition, out contracted))
+            if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile.Definition) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -350,7 +350,7 @@ namespace Itinero
                 else
                 { // use edge-based routing.
                     var bidirectionalSearch = new Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
-                        new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profile.Definition, null));
+                        new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -369,12 +369,12 @@ namespace Itinero
             }
             else
             { // use the regular graph.
-                if (_db.HasComplexRestrictions(profile.Definition))
+                if (_db.HasComplexRestrictions(profile))
                 {
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                        _db.GetGetRestrictions(profile.Definition, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
+                        _db.GetGetRestrictions(profile, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
                     var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                        _db.GetGetRestrictions(profile.Definition, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
+                        _db.GetGetRestrictions(profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -438,10 +438,10 @@ namespace Itinero
             EdgePath<T>[][] paths = null;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile.Definition, out contracted))
+            if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile.Definition) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -563,10 +563,10 @@ namespace Itinero
             T[][] weights = null;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile.Definition, out contracted))
+            if (_db.TryGetContracted(profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile.Definition) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -614,9 +614,9 @@ namespace Itinero
             }
             else
             { // use regular graph.
-                if (_db.HasComplexRestrictions(profile.Definition))
+                if (_db.HasComplexRestrictions(profile))
                 {
-                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profile.Definition, true), sources, targets, maxSearch);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {

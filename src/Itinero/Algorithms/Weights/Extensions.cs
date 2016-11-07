@@ -98,7 +98,7 @@ namespace Itinero.Algorithms.Weights
         {            
             // prebuild profile factor cache.
             var profileCache = new ProfileFactorAndSpeedCache(routerDb);
-            profileCache.CalculateFor(profile.Definition);
+            profileCache.CalculateFor(profile);
 
             return new Weights.DefaultWeightHandler(profileCache.GetGetFactor(profile));
         }
@@ -118,7 +118,7 @@ namespace Itinero.Algorithms.Weights
         {
             // prebuild profile factor cache.
             var profileCache = new ProfileFactorAndSpeedCache(routerDb);
-            profileCache.CalculateFor(profile.Definition);
+            profileCache.CalculateFor(profile);
 
             return new Weights.WeightHandler(profileCache.GetGetFactorAndSpeed(profile));
         }

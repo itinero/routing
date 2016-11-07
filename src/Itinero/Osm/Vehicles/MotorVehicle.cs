@@ -16,150 +16,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Attributes;
 using Itinero.Profiles;
 
 namespace Itinero.Osm.Vehicles
 {
-
     /// <summary>
-    /// Represents a MotorVehicle
+    /// Defines a motorized vehicle.
     /// </summary>
     public abstract class MotorVehicle : Vehicle
     {
         /// <summary>
-        /// Default Constructor
+        /// Creates a motor vehicle.
         /// </summary>
-        protected MotorVehicle()
+        public MotorVehicle()
         {
-            AccessibleTags.Add("service", string.Empty);
-            AccessibleTags.Add("track", string.Empty);
-            AccessibleTags.Add("road", string.Empty);
-            AccessibleTags.Add("living_street", string.Empty);
-            AccessibleTags.Add("residential", string.Empty);
-            AccessibleTags.Add("unclassified", string.Empty);
-            AccessibleTags.Add("secondary", string.Empty);
-            AccessibleTags.Add("secondary_link", string.Empty);
-            AccessibleTags.Add("primary", string.Empty);
-            AccessibleTags.Add("primary_link", string.Empty);
-            AccessibleTags.Add("tertiary", string.Empty);
-            AccessibleTags.Add("tertiary_link", string.Empty);
-            AccessibleTags.Add("trunk", string.Empty);
-            AccessibleTags.Add("trunk_link", string.Empty);
-            AccessibleTags.Add("motorway", string.Empty);
-            AccessibleTags.Add("motorway_link", string.Empty);
-
-            VehicleTypes.Add("vehicle"); // a motor vehicle is a generic vehicle.
-            VehicleTypes.Add("motor_vehicle"); // ... and also a generic motor vehicle.
+            this.Register(new MotorVehicleClassifications(this));
         }
 
         /// <summary>
-        /// Returns true if the vehicle is allowed on the way represented by these tags
-        /// </summary>
-        protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
-        {
-            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
-            {
-                return false;
-            }
-            return AccessibleTags.ContainsKey(highwayType);
-        }
-
-        /// <summary>
-        /// Returns the Max Speed for the highwaytype in Km/h.
-        /// 
-        /// This does not take into account how fast this vehicle can go just the max possible speed.
-        /// </summary>
-        public override float MaxSpeedAllowed(string highwayType)
-        {
-            switch (highwayType)
-            {
-                case "services":
-                case "proposed":
-                case "cycleway":
-                case "pedestrian":
-                case "steps":
-                case "path":
-                case "footway":
-                case "living_street":
-                    return 5;
-                case "service":
-                case "track":
-                case "road":
-                    return 30;
-                case "residential":
-                case "unclassified":
-                    return 50;
-                case "motorway":
-                case "motorway_link":
-                    return 120;
-                case "trunk":
-                case "trunk_link":
-                case "primary":
-                case "primary_link":
-                    return 90;
-                default:
-                    return 70;
-            }
-        }
-
-        /// <summary>
-        /// Returns true if the vehicle represented by this profile can stop on the edge with the given attributes.
-        /// </summary>
-        public override bool CanStopOn(IAttributeCollection tags)
-        {
-            var highwayType = string.Empty;
-            if (this.TryGetHighwayType(tags, out highwayType))
-            {
-                if (!string.IsNullOrWhiteSpace(highwayType))
-                {
-                    if(highwayType.ToLowerInvariant().Equals("motorway") ||
-                       highwayType.ToLowerInvariant().Equals("motorway_link"))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Returns the maximum possible speed this vehicle can achieve.
-        /// </summary>
-        public override float MaxSpeed()
-        {
-            return 200;
-        }
-
-        /// <summary>
-        /// Returns the minimum possible speed.
-        /// </summary>
-        public override float MinSpeed()
-        {
-            return 30;
-        }
-
-        /// <summary>
-        /// Gets a profile that aggressively follows the road classifications.
+        /// Gets the profile to calculate routes that aggressively follow classifications as intended.
         /// </summary>
         /// <returns></returns>
-        public virtual Profile Classified()
+        public Profile Classified()
         {
-            return new Profiles.MotorVehicleClassifications(this).Default();
-        }
-
-        /// <summary>
-        /// Gets all profiles for this vehicle.
-        /// </summary>
-        /// <returns></returns>
-        public override ProfileDefinition[] GetProfileDefinitions()
-        {
-            return new ProfileDefinition[]
-            {
-                this.Fastest().Definition,
-                this.Shortest().Definition,
-                this.Classified().Definition
-            };
+            return this.Profile(this.Name + ".classifications");
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Itinero.Test
                 new AttributesIndex(),
                 new AttributesIndex(),
                 new AttributeCollection(),
-                Itinero.Osm.Vehicles.Vehicle.Car.Fastest().Definition);
+                Itinero.Osm.Vehicles.Vehicle.Car);
             routerDb.LoadTestNetwork(
                 Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network1.geojson"));

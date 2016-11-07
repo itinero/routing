@@ -16,40 +16,46 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.IO.Shape.Vehicles
+using MoonSharp.Interpreter;
+
+namespace Itinero.Profiles
 {
     /// <summary>
-    /// Contains extension methods related to the vehicles.
+    /// Containts extension methods related to Lua and Moonscharp.
     /// </summary>
-    public static class VehicleExtensions
+    public static class LuaExtensions
     {
         /// <summary>
-        /// Returns true if an attribute with the given key is relevant for any the profiles.
+        /// Tries to get a number as a float for the given key.
         /// </summary>
-        public static bool IsRelevantForProfileAny(this Vehicle[] vehicles, string key)
+        public static bool TryGetFloat(this Table table, string key, out float value)
         {
-            for (var i = 0; i < vehicles.Length; i++)
+            var dynValue = table.Get(key);
+            if (dynValue != null)
             {
-                if (vehicles[i].IsRelevantForProfile(key))
+                var number = dynValue.CastToNumber();
+                if (number.HasValue)
                 {
+                    value = (float)number.Value;
                     return true;
                 }
             }
+            value = float.MaxValue;
             return false;
         }
 
         /// <summary>
-        /// Returns true if an attribute with the given key is relevant for any the profiles.
+        /// Tries to get a bool for the given key.
         /// </summary>
-        public static bool IsRelevantAny(this Vehicle[] vehicles, string key)
+        public static bool TryGetBool(this Table table, string key, out bool value)
         {
-            for (var i = 0; i < vehicles.Length; i++)
+            var dynValue = table.Get(key);
+            if (dynValue != null)
             {
-                if (vehicles[i].IsRelevant(key))
-                {
-                    return true;
-                }
+                value = dynValue.CastToBool();
+                return true;
             }
+            value = false;
             return false;
         }
     }

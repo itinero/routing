@@ -82,17 +82,17 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
-            var paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            var paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
 
             var factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
-                new Coordinate(0.04f, 0.04f)) * factor.Item1.Value;
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             var weight1 = Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
-                new Coordinate(0.04f, 0.04f)) * factor.Item1.Value;
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -107,22 +107,22 @@ namespace Itinero.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
             Assert.AreEqual(0, paths.First(x => x.Vertex == 0).Weight, 0.01);
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 1));
-            Assert.AreEqual(distance * profile.Factor(null).Item1.Value, paths.First(x => x.Vertex == 1).Weight, 0.01);
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 1).Weight, 0.01);
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(0, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(.1f, .1f, 0, ushort.MaxValue);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
-            Assert.AreEqual(distance * profile.Factor(null).Item1.Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
             Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
             Assert.AreEqual(1, paths.First(x => x.Vertex == 0).From.Vertex);
 
@@ -156,24 +156,25 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.Mock("OnwayMock", x =>
+            var profile = VehicleMock.Mock("OnwayMock", x =>
                 {
-                    return new Itinero.Profiles.Speed()
+                    return new Itinero.Profiles.FactorAndSpeed()
                     {
                         Direction = 1,
-                        Value = 50f / 3.6f
+                        Value = 1 / 50f / 3.6f,
+                        SpeedFactor = 1 / 50f / 3.6f
                     };
-                });
+                }).Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
-            var paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            var paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
             var factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
-                new Coordinate(0.04f, 0.04f)) * factor.Item1.Value;
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             var weight1 = Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
-                new Coordinate(0.04f, 0.04f)) * factor.Item1.Value;
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -182,7 +183,7 @@ namespace Itinero.Test
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
             factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             Assert.IsNotNull(paths);
@@ -194,7 +195,7 @@ namespace Itinero.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -203,12 +204,12 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 1));
-            Assert.AreEqual(distance * profile.Factor(null).Item1.Value, paths.First(x => x.Vertex == 1).Weight, 0.01);
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 1).Weight, 0.01);
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(0, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -217,7 +218,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -226,7 +227,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 1).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -235,7 +236,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 1).From);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
-            Assert.AreEqual(distance * profile.Factor(null).Item1.Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
             Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
             Assert.AreEqual(1, paths.First(x => x.Vertex == 0).From.Vertex);
         }
@@ -265,24 +266,25 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.Mock("OnwayMock", x =>
+            var profile = VehicleMock.Mock("OnwayMock", x =>
             {
-                return new Itinero.Profiles.Speed()
+                return new Itinero.Profiles.FactorAndSpeed()
                 {
                     Direction = 2,
-                    Value = 50f / 3.6f
+                    Value = 1 / 50f / 3.6f,
+                    SpeedFactor = 1 / 50f / 3.6f
                 };
-            });
+            }).Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
-            var paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            var paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
             var factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             var weight0 = Coordinate.DistanceEstimateInMeter(new Coordinate(0, 0),
-                new Coordinate(0.04f, 0.04f)) * factor.Item1.Value;
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             var weight1 = Coordinate.DistanceEstimateInMeter(new Coordinate(.1f, .1f),
-                new Coordinate(0.04f, 0.04f)) * factor.Item1.Value;
+                new Coordinate(0.04f, 0.04f)) * factor.Value;
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -291,7 +293,7 @@ namespace Itinero.Test
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 1).From.Vertex);
 
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
             factor = profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential")));
             Assert.IsNotNull(paths);
@@ -303,7 +305,7 @@ namespace Itinero.Test
             Assert.AreEqual(Constants.NO_VERTEX, paths.First(x => x.Vertex == 0).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -312,12 +314,12 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 1));
-            Assert.AreEqual(distance * profile.Factor(null).Item1.Value, paths.First(x => x.Vertex == 1).Weight, 0.01);
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 1).Weight, 0.01);
             Assert.IsNotNull(paths.First(x => x.Vertex == 1).From);
             Assert.AreEqual(0, paths.First(x => x.Vertex == 1).From.Vertex);
 
             point = new RouterPoint(0, 0, 0, 0);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -326,7 +328,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 0).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), false);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), false);
             Assert.IsNotNull(paths);
             Assert.AreEqual(1, paths.Length);
 
@@ -335,7 +337,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 1).From);
 
             point = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
-            paths = point.ToEdgePaths(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), true);
+            paths = point.ToEdgePaths(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), true);
             Assert.IsNotNull(paths);
             Assert.AreEqual(2, paths.Length);
 
@@ -344,7 +346,7 @@ namespace Itinero.Test
             Assert.IsNull(paths.First(x => x.Vertex == 1).From);
 
             Assert.IsNotNull(paths.First(x => x.Vertex == 0));
-            Assert.AreEqual(distance * profile.Factor(null).Item1.Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
+            Assert.AreEqual(distance * profile.Factor(null).Value, paths.First(x => x.Vertex == 0).Weight, 0.01);
             Assert.IsNotNull(paths.First(x => x.Vertex == 0).From);
             Assert.AreEqual(1, paths.First(x => x.Vertex == 0).From.Vertex);
         }
@@ -371,7 +373,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -405,7 +407,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, 0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 
@@ -465,85 +467,87 @@ namespace Itinero.Test
                 new Coordinate(0.075f, 0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point1 = new RouterPoint(0.01f, 0.01f, 0,
                 (ushort)(0.1 * ushort.MaxValue));
             var point2 = new RouterPoint(0.09f, 0.09f, 0,
                 (ushort)(0.9 * ushort.MaxValue));
 
-            var path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            var path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
-                    new Attribute("highway", "residential"))).Item1.Value, path.Weight, 0.001f);
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
-                    new Attribute("highway", "residential"))).Item1.Value, path.Weight, 0.001f);
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
             // mock profile and force oneway forward.
-            profile = MockProfile.CarMock(x => new Speed()
+            profile = VehicleMock.Car(x => new FactorAndSpeed()
             {
-                Value = 50f / 3.6f,
+                Value = 1 / 50f / 3.6f,
+                SpeedFactor = 1 / 50f / 3.6f,
                 Direction = 1
-            });
+            }).Fastest();
 
-            path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
-                    new Attribute("highway", "residential"))).Item1.Value, path.Weight, 0.001f);
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNull(path);
 
-            path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
             // mock profile and force oneway backward.
-            profile = MockProfile.CarMock(x => new Speed()
+            profile = VehicleMock.Car(x => new FactorAndSpeed()
             {
-                Value = 50f / 3.6f,
+                Value = 1 / 50f / 3.6f,
+                SpeedFactor = 1 / 50f / 3.6f,
                 Direction = 2
-            });
+            }).Fastest();
 
-            path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNull(path);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
-                    new Attribute("highway", "residential"))).Item1.Value, path.Weight, 0.001f);
+                    new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
 
-            path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
             Assert.AreEqual(0, path.Weight, 0.001f);
 
             // test the full edge.
-            profile = MockProfile.CarMock();
+            profile = VehicleMock.Car().Fastest();
             point1 = new RouterPoint(0f, 0f, 0, 0);
             point2 = new RouterPoint(0.1f, 0.1f, 0, ushort.MaxValue);
 
-            path = point1.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point2);
+            path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point2);
             Assert.IsNotNull(path);
-            Assert.AreEqual(1000 * profile.Factor(null).Item1.Value, path.Weight, 0.001f);
+            Assert.AreEqual(1000 * profile.Factor(null).Value, path.Weight, 0.001f);
             Assert.AreEqual(1, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -552,9 +556,9 @@ namespace Itinero.Test
             path = path.From;
             Assert.IsNull(path);
 
-            path = point2.EdgePathTo(routerDb, profile.Default().DefaultWeightHandler(new Router(routerDb)), point1);
+            path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
-            Assert.AreEqual(1000 * profile.Factor(null).Item1.Value, path.Weight, 0.001f);
+            Assert.AreEqual(1000 * profile.Factor(null).Value, path.Weight, 0.001f);
             Assert.AreEqual(0, path.Vertex);
             path = path.From;
             Assert.IsNotNull(path);
@@ -585,7 +589,7 @@ namespace Itinero.Test
                 new Coordinate(0.075f, -0.075f));
 
             // mock profile.
-            var profile = MockProfile.CarMock();
+            var profile = VehicleMock.Car().Fastest();
 
             var point = new RouterPoint(0.04f, -0.04f, 0, (ushort)(0.4 * ushort.MaxValue));
 

@@ -43,7 +43,7 @@ namespace Itinero
         private Guid _guid;
 
         private readonly Dictionary<string, ContractedDb> _contracted;
-        private readonly HashSet<string> _supportedProfiles;
+        private readonly Dictionary<string, Vehicle> _supportedVehicles;
         private readonly Dictionary<string, RestrictionsDb> _restrictionDbs;
         private readonly Dictionary<string, ShortcutsDb> _shortcutsDbs;
 
@@ -53,12 +53,12 @@ namespace Itinero
         public RouterDb(float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _network = new RoutingNetwork(new Graphs.Geometric.GeometricGraph(1), maxEdgeDistance);
-            _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne 
+            _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne
                 | AttributesIndexMode.ReverseAll);
             _meta = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
             _dbMeta = new AttributeCollection();
 
-            _supportedProfiles = new HashSet<string>();
+            _supportedVehicles = new Dictionary<string, Vehicle>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
             _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
@@ -77,7 +77,7 @@ namespace Itinero
             _meta = new AttributesIndex(map, AttributesIndexMode.ReverseStringIndexKeysOnly);
             _dbMeta = new AttributeCollection();
 
-            _supportedProfiles = new HashSet<string>();
+            _supportedVehicles = new Dictionary<string, Vehicle>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
             _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
@@ -91,12 +91,12 @@ namespace Itinero
         public RouterDb(MemoryMap map, RoutingNetworkProfile profile, float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _network = new RoutingNetwork(map, profile, maxEdgeDistance);
-            _edgeProfiles = new AttributesIndex(map, AttributesIndexMode.IncreaseOne | 
+            _edgeProfiles = new AttributesIndex(map, AttributesIndexMode.IncreaseOne |
                 AttributesIndexMode.ReverseCollectionIndex | AttributesIndexMode.ReverseStringIndex);
             _meta = new AttributesIndex(map);
             _dbMeta = new AttributeCollection();
 
-            _supportedProfiles = new HashSet<string>();
+            _supportedVehicles = new Dictionary<string, Vehicle>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
             _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
@@ -108,17 +108,17 @@ namespace Itinero
         /// Creates a new router database.
         /// </summary>
         public RouterDb(RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, IAttributeCollection dbMeta,
-            params Profiles.ProfileDefinition[] supportedProfiles)
+            params Profiles.Vehicle[] supportedVehicles)
         {
             _network = network;
             _edgeProfiles = profiles;
             _meta = meta;
             _dbMeta = dbMeta;
 
-            _supportedProfiles = new HashSet<string>();
-            foreach (var supportedProfile in supportedProfiles)
+            _supportedVehicles = new Dictionary<string, Vehicle>();
+            foreach (var vehicle in supportedVehicles)
             {
-                _supportedProfiles.Add(supportedProfile.Name);
+                _supportedVehicles[vehicle.Name] = vehicle;
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
@@ -131,7 +131,7 @@ namespace Itinero
         /// Creates a new router database.
         /// </summary>
         private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, IAttributeCollection dbMeta,
-            string[] supportedProfiles)
+            Profiles.Vehicle[] supportedVehicles)
         {
             _guid = guid;
             _network = network;
@@ -139,10 +139,10 @@ namespace Itinero
             _meta = meta;
             _dbMeta = dbMeta;
 
-            _supportedProfiles = new HashSet<string>();
-            foreach (var supportedProfile in supportedProfiles)
+            _supportedVehicles = new Dictionary<string, Vehicle>();
+            foreach (var vehicle in supportedVehicles)
             {
-                _supportedProfiles.Add(supportedProfile);
+                _supportedVehicles[vehicle.Name] = vehicle;
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
@@ -181,28 +181,28 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Returns true if the given profile is supported.
+        /// Returns true if the given vehicle is supported.
         /// </summary>
-        public bool Supports(string profileName)
+        public bool Supports(string vehicleName)
         {
-            return _supportedProfiles.Any((x) => x.Equals(profileName, StringComparison.OrdinalIgnoreCase));
+            return _supportedVehicles.ContainsKey(vehicleName);
         }
 
         /// <summary>
-        /// Gets all the supported profiles.
+        /// Gets all the supported vehicle.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<string> GetSupportedProfiles()
+        public IEnumerable<Vehicle> GetSupportedVehicles()
         {
-            return _supportedProfiles.ToList(); // don't allow modification of hashset externally, keep it inside the routerdb.
+            return _supportedVehicles.Values;
         }
 
         /// <summary>
-        /// Adds a supported profile.
+        /// Adds a supported vehicle.
         /// </summary>
-        public void AddSupportedProfile(Profiles.ProfileDefinition profileDefinition)
+        public void AddSupportedVehicle(Profiles.Vehicle vehicle)
         {
-            _supportedProfiles.Add(profileDefinition.Name);
+            _supportedVehicles[vehicle.Name] = vehicle;
         }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace Itinero
         {
             get
             {
-                foreach(var kv in _restrictionDbs)
+                foreach (var kv in _restrictionDbs)
                 {
                     yield return new RestrictionsDbMeta(kv.Key, kv.Value);
                 }
@@ -277,7 +277,7 @@ namespace Itinero
         /// <summary>
         /// Adds a contracted version of the routing network for the given profile.
         /// </summary>
-        public void AddContracted(Profiles.ProfileDefinition profile, ContractedDb contracted)
+        public void AddContracted(Profiles.Profile profile, ContractedDb contracted)
         {
             _contracted[profile.Name] = contracted;
         }
@@ -285,7 +285,7 @@ namespace Itinero
         /// <summary>
         /// Removes the contracted version of the routing network for the given profile.
         /// </summary>
-        public bool RemoveContracted(ProfileDefinition profile)
+        public bool RemoveContracted(Profile profile)
         {
             return _contracted.Remove(profile.Name);
         }
@@ -293,7 +293,7 @@ namespace Itinero
         /// <summary>
         /// Tries to get a contracted version of the routing network for the given profile.
         /// </summary>
-        public bool TryGetContracted(Profiles.ProfileDefinition profile, out ContractedDb contracted)
+        public bool TryGetContracted(Profiles.Profile profile, out ContractedDb contracted)
         {
             return _contracted.TryGetValue(profile.Name, out contracted);
         }
@@ -310,7 +310,7 @@ namespace Itinero
         /// <summary>
         /// Returns true if this routing db has a contracted version of the routing network for the given profile.
         /// </summary>
-        public bool HasContractedFor(Profiles.ProfileDefinition profile)
+        public bool HasContractedFor(Profiles.Profile profile)
         {
             return _contracted.ContainsKey(profile.Name);
         }
@@ -330,7 +330,7 @@ namespace Itinero
         {
             return _shortcutsDbs.Remove(name);
         }
-        
+
         /// <summary>
         /// Tries to get a shortcuts db.
         /// </summary>
@@ -412,7 +412,7 @@ namespace Itinero
             size += 16;
 
             // serialize supported profiles.
-            size += stream.WriteWithSize(_supportedProfiles.ToArray());
+            size += stream.WriteWithSize(_supportedVehicles.Keys.ToArray());
 
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);
@@ -466,7 +466,7 @@ namespace Itinero
         /// <summary>
         /// Writes the contracted graph for the given profile to the given stream.
         /// </summary>
-        public long SerializeContracted(ProfileDefinition profile, Stream stream)
+        public long SerializeContracted(Profile profile, Stream stream)
         {
             ContractedDb contracted;
             if (!this.TryGetContracted(profile, out contracted))
@@ -536,7 +536,21 @@ namespace Itinero
             stream.Read(guidBytes, 0, 16);
             var guid = new Guid(guidBytes);
 
-            var supportedProfiles = stream.ReadWithSizeStringArray();
+            var supportedVehicles = stream.ReadWithSizeStringArray();
+            var supportedVehicleInstances = new List<Vehicle>();
+            foreach (var vehicleName in supportedVehicles)
+            {
+                Profile vehicleProfile;
+                if (Profile.TryGet(vehicleName, out vehicleProfile))
+                {
+                    supportedVehicleInstances.Add(vehicleProfile.Parent);
+                }
+                else
+                {
+                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Warning, "Vehicle with name {0} was not found, register all vehicle profiles before deserializing the router db.",
+                        vehicleName);
+                }
+            }
             var metaDb = stream.ReadWithSizeAttributesCollection();
             var shorcutsCount = (int)0;
             if (version == 2)
@@ -549,7 +563,7 @@ namespace Itinero
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.
-            var routerDb = new RouterDb(guid, network, profiles, meta, metaDb, supportedProfiles);
+            var routerDb = new RouterDb(guid, network, profiles, meta, metaDb, supportedVehicleInstances.ToArray());
 
             // read all shortcut dbs.
             for (var i = 0; i < shorcutsCount; i++)
@@ -558,7 +572,7 @@ namespace Itinero
                 var shorcutsDb = ShortcutsDb.Deserialize(stream);
                 routerDb._shortcutsDbs[shortcutsName] = shorcutsDb;
             }
-            
+
             // read all contracted versions.
             for (var i = 0; i < contractedCount; i++)
             {

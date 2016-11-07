@@ -52,7 +52,7 @@ namespace Itinero.Algorithms.Contracted
             _max = max;
 
             ContractedDb contractedDb;
-            if (!_routerDb.TryGetContracted(profile.Definition, out contractedDb))
+            if (!_routerDb.TryGetContracted(profile, out contractedDb))
             {
                 throw new NotSupportedException(
                     "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");

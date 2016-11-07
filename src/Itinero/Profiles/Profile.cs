@@ -16,9 +16,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Attributes;
 using System;
-using System.IO;
-using System.Text;
+using System.Collections.Generic;
 
 namespace Itinero.Profiles
 {
@@ -27,158 +27,150 @@ namespace Itinero.Profiles
     /// </summary>
     public class Profile
     {
-        private readonly ProfileDefinition _profile;
-        private readonly Constraint[] _constraints;
+        private readonly string _name;
+        private readonly ProfileMetric _metric;
+        private readonly string[] _vehicleTypes;
+        private readonly Vehicle _parent;
+        private readonly Func<IAttributeCollection, FactorAndSpeed> _custom;
 
         /// <summary>
-        /// Creates a new routing profile.
+        /// Creates a new profile.
         /// </summary>
-        public Profile(ProfileDefinition profile, Constraint[] constraints)
+        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent)
+            : this(name, metric, vehicleTypes, parent, null)
         {
-            if (_constraints != null && _constraints.Length > 255) { throw new ArgumentException("Maximum 255 constraints allowed."); }
 
-            _profile = profile;
-            _constraints = constraints;
         }
 
         /// <summary>
-        /// Verifies the constraints given the constraint values.
+        /// Creates a new profile.
         /// </summary>
-        public bool VerifyConstraints(float[] constraints)
+        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent, Func<IAttributeCollection, FactorAndSpeed> custom)
         {
-            if (constraints != null &&
-                _constraints != null)
-            {
-                for (var i = 0; i < _constraints.Length && i < constraints.Length; i++)
-                {
-                    if (_constraints[i].Evaluate(constraints[i]))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
+            _name = name;
+            _metric = metric;
+            _vehicleTypes = vehicleTypes;
+            _parent = parent;
+            _custom = custom;
         }
 
         /// <summary>
-        /// Returns the multiplication factor taking into account the given constraints.
+        /// Gets the name used by this profile.
         /// </summary>
-        public virtual Factor Factor(Factor factor, float[] constraints)
-        {
-            if (!VerifyConstraints(constraints))
-            {
-                return Profiles.Factor.NoFactor;
-            }
-            return factor;
-        }
-
-        /// <summary>
-        /// Returns the speed taking into account the given constraints.
-        /// </summary>
-        public virtual FactorAndSpeed FactorAndSpeed(FactorAndSpeed factorAndSpeed, float[] constraints)
-        {
-            if (!VerifyConstraints(constraints))
-            {
-                return Profiles.FactorAndSpeed.NoFactor;
-            }
-            return factorAndSpeed;
-        }
-
-        /// <summary>
-        /// Returns the speed taking into account the given constraints.
-        /// </summary>
-        public virtual Speed Speed(Speed speed, float[] constraints)
-        {
-            if (!VerifyConstraints(constraints))
-            {
-                return Profiles.Speed.NoSpeed;
-            }
-            return speed;
-        }
-
-        /// <summary>
-        /// Gets the profile this is an instance for.
-        /// </summary>
-        public ProfileDefinition Definition
+        public virtual string Name
         {
             get
             {
-                return _profile;
+                return _name;
             }
         }
 
         /// <summary>
-        /// Gets a unique description of this profile.
+        /// The vehicle this profile is for.
         /// </summary>
-        public string Name
+        public Vehicle Parent
         {
             get
             {
-                var stringBuilder = new StringBuilder();
-                stringBuilder.Append(_profile.Name);
-                if (_constraints != null)
-                {
-                    stringBuilder.Append("_[");
-                    for (var i = 0; i < _constraints.Length; i++)
-                    {
-                        if (i > 0)
-                        {
-                            stringBuilder.Append(',');
-                        }
-                        if (_constraints[i] != null)
-                        {
-                            stringBuilder.Append(_constraints[i].Description);
-                        }
-                        else
-                        {
-                            stringBuilder.Append("null");
-                        }
-                    }
-                    stringBuilder.Append(']');
-                }
-                return stringBuilder.ToInvariantString();
+                return _parent;
             }
         }
 
         /// <summary>
-        /// Serializes this profile.
+        /// Gets the metric used by this profile.
         /// </summary>
-        public long Serialize(Stream stream)
+        public virtual ProfileMetric Metric
         {
-            long size = 0;
-            size += stream.WriteWithSize(this.Definition.Name);
-            var count = _constraints == null ? 0 : _constraints.Length;
-            stream.WriteByte((byte)count);
-            size += 4;
-            for (var i = 0; i < count; i++)
+            get
             {
-                if (_constraints[i] == null)
-                {
-                    size += Constraint.SerializeNull(stream);
-                }
-                else
-                {
-                    size += _constraints[i].Serialize(stream);
-                }
+                return _metric;
             }
-            return size;
         }
 
         /// <summary>
-        /// Deserializes this stream.
+        /// Gets the vehicle types.
         /// </summary>
-        public static Profile Deserialize(Stream stream)
+        public virtual string[] VehicleTypes
         {
-            var name = stream.ReadWithSizeString();
-            var profileDefinition = ProfileDefinition.Get(name);
-            var count = stream.ReadByte();
-            var constraints = new Constraint[count];
-            for(var i = 0; i < constraints.Length; i++)
+            get
             {
-                constraints[i] = Constraint.Deserialize(stream);
+                return _vehicleTypes;
+            }
+        }
+
+        /// <summary>
+        /// Get a function to calculate properties for a set given edge attributes.
+        /// </summary>
+        /// <returns></returns>
+        public virtual FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes)
+        {
+            FactorAndSpeed result;
+            if (_custom != null)
+            {
+                result = _custom(attributes);
+            }
+            else
+            {
+                result = _parent.FactorAndSpeed(attributes, Whitelist.Dummy);
             }
 
-            return new Profile(profileDefinition, constraints);
+            if (result.Value == 0)
+            { // nothing to add when result is zero.
+                return result;
+            }
+
+            if (_metric == ProfileMetric.TimeInSeconds)
+            { // use 1/speed as factor.
+                result.Value = result.SpeedFactor;
+            }
+            else if (_metric == ProfileMetric.DistanceInMeters)
+            { // use 1 as factor.
+                result.Value = 1;
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Returns true if the two given edges are equals as far as this vehicle is concerned.
+        /// </summary>
+        public virtual bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
+        {
+            return _parent.Equals(attributes1, attributes2);
+        }
+
+        private static Dictionary<string, Profile> _profiles = new Dictionary<string, Profile>();
+
+        /// <summary>
+        /// Registers a profile.
+        /// </summary>
+        public static void Register(Profile profile)
+        {
+            _profiles[profile.Name] = profile;
+        }
+
+        /// <summary>
+        /// Gets a registered profiles.
+        /// </summary>
+        public static Profile GetRegistered(string name)
+        {
+            return _profiles[name];
+        }
+
+        /// <summary>
+        /// Tries to get a registred profile.
+        /// </summary>
+        public static bool TryGet(string name, out Profile value)
+        {
+            return _profiles.TryGetValue(name, out value);
+        }
+
+        /// <summary>
+        /// Gets all registered profiles.
+        /// </summary>
+        /// <returns></returns>
+        public static IEnumerable<Profile> GetRegistered()
+        {
+            return _profiles.Values;
         }
     }
 }

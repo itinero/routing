@@ -20,15 +20,12 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using Itinero.Geo;
-using Itinero.Osm.Vehicles;
 using Itinero.Test.Functional.Staging;
-using Itinero.Test.Functional.Tests;
 using System;
 using System.IO;
 using System.Reflection;
 using Itinero.Logging;
 using System.Collections.Generic;
-using Itinero.Profiles;
 using Itinero.Algorithms.Networks;
 using Itinero.LocalGeo;
 using Itinero;
@@ -37,6 +34,9 @@ using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.IO.Osm;
 using Itinero.Algorithms.Weights;
 using Itinero.IO.Shape;
+using Itinero.Attributes;
+using Itinero.Test.Functional.Tests;
+using Itinero.Osm.Vehicles;
 
 namespace Itinero.Test.Functional
 {
@@ -56,16 +56,16 @@ namespace Itinero.Test.Functional
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
             _logger = new Logger("Default");
-
-            Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
             
+            //Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
+
             // download and extract test-data if not already there.
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();
 
             // TEST1: Tests building a router db for cars, contracting it and calculating routes.
             // test building a router db.
-            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car).TestPerf("Build belgium router db for Car.");
+            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car, Vehicle.Bicycle, Vehicle.Pedestrian).TestPerf("Build belgium router db for Car.");
             var router = new Router(routerDb);
 
             // build profile cache.

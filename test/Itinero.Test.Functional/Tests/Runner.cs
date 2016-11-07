@@ -22,19 +22,18 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using NUnit.Framework;
-using Itinero.Osm.Vehicles;
 using System;
 using System.IO;
 using System.Reflection;
 using OsmSharp.Streams;
 using Itinero.IO.Osm;
-using Itinero.Profiles;
 using Itinero.LocalGeo;
 using System.Collections.Generic;
 using Itinero.Algorithms.Networks.Analytics.Isochrones;
 using Itinero.Algorithms.Networks.Analytics.Heatmaps;
 using Itinero.Algorithms.Networks.Analytics.Trees;
 using Itinero.Algorithms;
+using Itinero.Profiles;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -46,20 +45,20 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Default resolver test function.
         /// </summary>
-        public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) => 
+        public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) =>
             {
-                return router.TryResolve(Vehicle.Car.Fastest(), coordinate);
+                return router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), coordinate);
             };
 
         /// <summary>
         /// Tests resolving all points in the given feature collection.
         /// </summary>
-        public static void TestResolve(Router router, FeatureCollection features, 
+        public static void TestResolve(Router router, FeatureCollection features,
             Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
-            foreach(var feature in features.Features)
+            foreach (var feature in features.Features)
             {
-                if(feature.Geometry is Point)
+                if (feature.Geometry is Point)
                 {
                     Assert.IsNotNull(resolve(router, (feature.Geometry as Point).Coordinate));
                 }
@@ -69,7 +68,7 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests resolving all points in the given feature collection.
         /// </summary>
-        public static void TestResolve(Router router, string embeddedResourceId, 
+        public static void TestResolve(Router router, string embeddedResourceId,
             Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
             FeatureCollection featureCollection;
@@ -118,7 +117,7 @@ namespace Itinero.Test.Functional.Tests
         {
             return () =>
             {
-                routerDb.AddContracted(profile.Definition, forceEdgeBased);
+                routerDb.AddContracted(profile, forceEdgeBased);
             };
         }
 
@@ -161,7 +160,7 @@ namespace Itinero.Test.Functional.Tests
                     var f1 = router.Db.Network.GetVertex(v1);
                     var f2 = router.Db.Network.GetVertex(v2);
 
-                    var route = router.TryCalculate(Vehicle.Car.Fastest(), f1, f2);
+                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
                 }
             };
         }
@@ -169,11 +168,11 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a collection of one to one routes.
         /// </summary>
-        public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profile profile, int size)
+        public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
         {
             var random = new System.Random();
             var vertices = new HashSet<uint>();
-            while(vertices.Count < size)
+            while (vertices.Count < size)
             {
                 var v = (uint)random.Next((int)router.Db.Network.VertexCount);
                 if (!vertices.Contains(v))
@@ -184,7 +183,7 @@ namespace Itinero.Test.Functional.Tests
 
             var resolvedPoints = new RouterPoint[vertices.Count];
             var i = 0;
-            foreach(var v in vertices)
+            foreach (var v in vertices)
             {
                 resolvedPoints[i] = router.Resolve(profile, router.Db.Network.GetVertex(v), 500);
                 i++;
@@ -201,7 +200,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Action GetTestIslandDetection(RouterDb routerDb)
         {
-            Func<ushort, Factor> profile = (p) =>
+            Func<ushort, Profiles.Factor> profile = (p) =>
             {
                 var prof = routerDb.EdgeProfiles.Get(p);
                 if (prof != null)
@@ -244,7 +243,7 @@ namespace Itinero.Test.Functional.Tests
         {
             return () =>
             {
-                return router.CalculateIsochrones(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
+                return router.CalculateIsochrones(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
                     new List<float>() { 900, 1800 }, 18);
             };
         }
@@ -256,7 +255,7 @@ namespace Itinero.Test.Functional.Tests
         {
             return () =>
             {
-                return router.CalculateHeatmap(Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
+                return router.CalculateHeatmap(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
             };
         }
 
@@ -271,7 +270,7 @@ namespace Itinero.Test.Functional.Tests
                 var v = (uint)random.Next((int)router.Db.Network.VertexCount);
                 var f = router.Db.Network.GetVertex(v);
 
-                return router.CalculateTree(Vehicle.Car.Fastest(), f, 360);
+                return router.CalculateTree(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f, 360);
             };
         }
     }

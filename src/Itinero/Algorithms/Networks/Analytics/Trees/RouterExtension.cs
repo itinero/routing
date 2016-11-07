@@ -32,7 +32,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// </summary>
         public static Tree CalculateTree(this RouterBase router, Profile profile, Coordinate origin, float max)
         {
-            return router.TryCalculateTree(profile, router.Resolve(profile, origin), max).Value;
+            return router.TryCalculateTree(profile, router.Resolve(profile, origin, 500), max).Value;
         }
 
         /// <summary>
@@ -51,13 +51,13 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             if (!router.SupportsAll(profile))
             {
                 return new Result<Tree>(string.Format("Profile {0} not supported.",
-                    profile.Definition.Name));
+                    profile.Name));
             }
 
-            if (profile.Definition.Metric != ProfileMetric.TimeInSeconds)
+            if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
                 return new Result<Tree>(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Definition.Name));
+                    profile.Name));
             }
 
             // get the weight handler.
@@ -67,7 +67,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             // calculate isochrones.
             TreeBuilder treeBuilder = null;
 
-            if (!router.Db.HasComplexRestrictions(profile.Definition))
+            if (!router.Db.HasComplexRestrictions(profile))
             {
                 treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
                     new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
@@ -77,7 +77,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             {
                 treeBuilder = new TreeBuilder(router.Db.Network.GeometricGraph,
                     new Algorithms.Default.EdgeBased.Dykstra(router.Db.Network.GeometricGraph.Graph,
-                        weightHandler, router.Db.GetGetRestrictions(profile.Definition, true), origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
+                        weightHandler, router.Db.GetGetRestrictions(profile, true), origin.ToEdgePaths<float>(router.Db, weightHandler, true), max, false));
             }
             treeBuilder.Run();
 

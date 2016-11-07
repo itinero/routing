@@ -482,7 +482,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
         {
             // build graph.
             var routerDb = new RouterDb();
-            routerDb.AddSupportedProfile(Profiles.MockProfile.CarMock());
+            routerDb.AddSupportedVehicle(Profiles.VehicleMock.Car());
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
             routerDb.Network.AddVertex(2, 2, 2);
@@ -504,12 +504,12 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(Profiles.MockProfile.CarMock(), true);
+            routerDb.AddContracted(Profiles.VehicleMock.Car().Fastest(), true);
             Itinero.Data.Contracted.ContractedDb contractedDb;
-            routerDb.TryGetContracted(Profiles.MockProfile.CarMock(), out contractedDb);
+            routerDb.TryGetContracted(Profiles.VehicleMock.Car().Fastest(), out contractedDb);
             
             var dykstra = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(contractedDb.EdgeBasedGraph,
-                new EdgePath<float>[] { new EdgePath<float>(0, 100 * Profiles.MockProfile.CarMock().Factor(null).Item1.Value, -1, new EdgePath<float>(1)) }, 
+                new EdgePath<float>[] { new EdgePath<float>(0, 100 * Profiles.VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, -1, new EdgePath<float>(1)) }, 
                     (i) => null, false);
             dykstra.Run();
 

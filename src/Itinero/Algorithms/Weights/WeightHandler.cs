@@ -209,11 +209,7 @@ namespace Itinero.Algorithms.Weights
         public sealed override Weight Add(Weight weight, ushort edgeProfile, float distance, out Factor factor)
         {
             var factorAndSpeed = _getFactorAndSpeed(edgeProfile);
-            factor = new Factor()
-            {
-                Direction = factorAndSpeed.Direction,
-                Value = factorAndSpeed.Value
-            };
+            factor = factorAndSpeed.ToFactor();
             return new Weight()
             {
                 Distance = weight.Distance + distance,
@@ -228,11 +224,7 @@ namespace Itinero.Algorithms.Weights
         public sealed override Weight Calculate(ushort edgeProfile, float distance, out Factor factor)
         {
             var factorAndSpeed = _getFactorAndSpeed(edgeProfile);
-            factor = new Factor()
-            {
-                Direction = factorAndSpeed.Direction,
-                Value = factorAndSpeed.Value
-            };
+            factor = factorAndSpeed.ToFactor();
             return new Weight()
             {
                 Distance = distance,

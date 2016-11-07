@@ -18,14 +18,12 @@
 
 using Itinero.Algorithms.Collections;
 using Itinero.LocalGeo;
-using Itinero.Osm.Vehicles;
 using Itinero.Data.Network;
 using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Itinero.Attributes;
-using Itinero.Osm;
 using OsmSharp.Tags;
 using OsmSharp;
 using Itinero.Data.Network.Edges;
@@ -33,6 +31,7 @@ using Itinero.IO.Osm.Restrictions;
 using Itinero.Data.Network.Restrictions;
 using Itinero.IO.Osm.Relations;
 using Itinero.IO.Osm.Normalizer;
+using Itinero.Profiles;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -96,10 +95,7 @@ namespace Itinero.IO.Osm.Streams
 
             foreach (var vehicle in vehicles)
             {
-                foreach (var profiles in vehicle.GetProfileDefinitions())
-                {
-                    db.AddSupportedProfile(profiles);
-                }
+                db.AddSupportedVehicle(vehicle);
             }
 
             if (processors == null)
@@ -131,7 +127,7 @@ namespace Itinero.IO.Osm.Streams
         private void InitializeDefaultProcessors(bool processRestrictions)
         {
             // check for bicycle profile and add cycle network processor by default.
-            if (_vehicles.FirstOrDefault(x => x.UniqueName == "Bicycle") != null &&
+            if (_vehicles.FirstOrDefault(x => x.Name.ToLowerInvariant() == "bicycle") != null &&
                this.Processors.FirstOrDefault(x => x.GetType().Equals(typeof(CycleNetworkProcessor))) == null)
             { // bicycle profile present and processor not there yet, add it here.
                 this.Processors.Add(new CycleNetworkProcessor());
@@ -216,22 +212,17 @@ namespace Itinero.IO.Osm.Streams
                 {
                     if (osmGeo.Type == OsmGeoType.Way)
                     {
-                        var tags = new TagsCollection(osmGeo.Tags);
+                        var whiteList = new Whitelist();
+                        var tags = osmGeo.Tags.ToAttributes();
+                        _vehicles.AddToWhiteList(tags, whiteList);
+
                         foreach (var tag in tags)
                         {
-                            var relevant = false;
-                            for (var i = 0; i < _vehicles.Length; i++)
+                            if (!whiteList.Contains(tag.Key) &&
+                                !_vehicles.IsOnProfileWhiteList(tag.Key) &&
+                                !_vehicles.IsOnMetaWhiteList(tag.Key))
                             {
-                                if (_vehicles[i].IsRelevant(tag.Key, tag.Value))
-                                {
-                                    relevant = true;
-                                    break;
-                                }
-                            }
-
-                            if (!relevant)
-                            {
-                                osmGeo.Tags.RemoveKeyValue(tag);
+                                osmGeo.Tags.RemoveKey(tag.Key);
                             }
                         }
                     }
@@ -418,19 +409,22 @@ namespace Itinero.IO.Osm.Streams
                     }
                 }
 
-                if (_vehicles.AnyCanTraverse(way.Tags.ToAttributes()))
+                var wayAttributes = way.Tags.ToAttributes();
+                var profileWhiteList = new Whitelist();
+                if (_vehicles.AddToWhiteList(wayAttributes, profileWhiteList))
                 { // way has some use.
                     if (_processedWays.Contains(way.Id.Value))
                     { // way was already processed.
                         return;
                     }
-                    
+
                     // build profile and meta-data.
                     var profileTags = new AttributeCollection();
                     var metaTags = new AttributeCollection();
                     foreach (var tag in way.Tags)
                     {
-                        if (_vehicles.IsRelevantForProfile(tag.Key))
+                        if (profileWhiteList.Contains(tag.Key) || 
+                            _vehicles.IsOnProfileWhiteList(tag.Key))
                         {
                             profileTags.Add(tag);
                         }

@@ -32,7 +32,6 @@ using Itinero.Graphs;
 using Itinero.Data.Network;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
-using Itinero;
 
 namespace Itinero
 {
@@ -44,15 +43,15 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted(this RouterDb db, Profiles.ProfileDefinition profileDefinition, bool forceEdgeBased = false)
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
         {
-            db.AddContracted<float>(profileDefinition, profileDefinition.Default().DefaultWeightHandlerCached(db), forceEdgeBased);
+            db.AddContracted<float>(profile, profile.DefaultWeightHandlerCached(db), forceEdgeBased);
         }
 
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted<T>(this RouterDb db, Profiles.ProfileDefinition profileDefinition, WeightHandler<T> weightHandler, bool forceEdgeBased = false)
+        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased = false)
             where T : struct
         {
             // create the raw directed graph.
@@ -74,7 +73,7 @@ namespace Itinero
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder<T>(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue), weightHandler, db.GetGetRestrictions(profileDefinition, null));
+                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue), weightHandler, db.GetGetRestrictions(profile, null));
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted);
@@ -100,9 +99,9 @@ namespace Itinero
             }
 
             // add the graph.
-            lock(db)
+            lock (db)
             {
-                db.AddContracted(profileDefinition, contractedDb);
+                db.AddContracted(profile, contractedDb);
             }
         }
 
@@ -127,7 +126,7 @@ namespace Itinero
         /// </summary>
         public static bool Supports(this RouterDb db, Profiles.Profile profile)
         {
-            return db.Supports(profile.Name);
+            return db.Supports(profile.Parent.Name);
         }
 
         /// <summary>
@@ -183,7 +182,7 @@ namespace Itinero
             {
                 return true;
             }
-            foreach(var vehicleType in vehicleTypes)
+            foreach (var vehicleType in vehicleTypes)
             {
                 if (db.HasComplexRestrictions(vehicleType))
                 {
@@ -196,9 +195,9 @@ namespace Itinero
         /// <summary>
         /// Returns true if this db contains complex restrictions for the given profile.
         /// </summary>
-        public static bool HasComplexRestrictions(this RouterDb db, Profiles.ProfileDefinition profileDefinition)
+        public static bool HasComplexRestrictions(this RouterDb db, Profiles.Profile profile)
         {
-            return db.HasComplexRestrictions(profileDefinition.VehicleType);
+            return db.HasComplexRestrictions(profile.VehicleTypes);
         }
 
         /// <summary>
@@ -207,9 +206,9 @@ namespace Itinero
         /// <param name="db">The router db.</param>
         /// <param name="profile">The vehicle profile.</param>
         /// <param name="first">When true, only restrictions starting with given vertex, when false only restrictions ending with given vertex already reversed, when null all restrictions are returned.</param>
-        public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.ProfileDefinition profileDefinition, bool? first)
+        public static Func<uint, IEnumerable<uint[]>> GetGetRestrictions(this RouterDb db, Profiles.Profile profile, bool? first)
         {
-            var vehicleTypes = new List<string>(profileDefinition.VehicleType);
+            var vehicleTypes = new List<string>(profile.VehicleTypes);
             vehicleTypes.Insert(0, string.Empty);
             return (vertex) =>
             {
@@ -251,7 +250,7 @@ namespace Itinero
                 return restrictionList;
             };
         }
-        
+
         /// <summary>
         /// Builds an edge path from a path consisiting of only vertices.
         /// </summary>
@@ -367,7 +366,7 @@ namespace Itinero
             }
 
             var edges = new HashSet<uint>();
-            for(var i = 0; i < points.Length; i++)
+            for (var i = 0; i < points.Length; i++)
             {
                 var point = points[i];
                 if (edges.Contains(point.EdgeId))

@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.IO.Shape.Vehicles;
+using Itinero.Profiles;
 using NetTopologySuite;
 using NetTopologySuite.IO;
 using System.Collections.Generic;

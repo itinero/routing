@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero;
 using Itinero.Attributes;
 using Itinero.Profiles;
 using Reminiscence.Arrays;
@@ -206,7 +207,7 @@ namespace Itinero.Data.Shortcuts
             stream.WriteByte(1);
 
             // write profile name.
-            size += _profile.Serialize(stream);
+            size += stream.WriteWithSize(_profile.Name);
 
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);
@@ -242,8 +243,13 @@ namespace Itinero.Data.Shortcuts
             }
 
             // read profile name.
-            var profile = Profile.Deserialize(stream);
-
+            var profileName = stream.ReadWithSizeString();
+            Profile profile;
+            if (!Profile.TryGet(profileName, out profile))
+            {
+                throw new Exception(string.Format("Cannot deserialize shortcuts db: Profile not found: {0}. Make sure to register all vehicle profile before deserializing.", profileName));
+            }
+            
             // read meta-data.
             var metaDb = stream.ReadWithSizeAttributesCollection();
 

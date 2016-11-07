@@ -21,249 +21,171 @@ using Itinero.Profiles;
 using System.Collections.Generic;
 
 namespace Itinero.Osm.Vehicles
-{  
+{
     /// <summary>
-    /// Represents a bicycle
+    /// Represents the default OSM pedestrian profile.
     /// </summary>
     public class Bicycle : Vehicle
     {
         /// <summary>
-        /// Default Constructor
+        /// Creates a new bicycle.
         /// </summary>
         public Bicycle()
         {
-            AccessibleTags.Add("steps", string.Empty); // only when there is a ramp.
-            AccessibleTags.Add("service", string.Empty);
-            AccessibleTags.Add("cycleway", string.Empty);
-            AccessibleTags.Add("path", string.Empty);
-            AccessibleTags.Add("road", string.Empty);
-            AccessibleTags.Add("track", string.Empty);
-            AccessibleTags.Add("living_street", string.Empty);
-            AccessibleTags.Add("residential", string.Empty);
-            AccessibleTags.Add("unclassified", string.Empty);
-            AccessibleTags.Add("secondary", string.Empty);
-            AccessibleTags.Add("secondary_link", string.Empty);
-            AccessibleTags.Add("primary", string.Empty);
-            AccessibleTags.Add("primary_link", string.Empty);
-            AccessibleTags.Add("tertiary", string.Empty);
-            AccessibleTags.Add("tertiary_link", string.Empty);
-
-            VehicleTypes.Add("vehicle"); // a bicycle is a generic vehicle.
-            VehicleTypes.Add("bicycle");
+            this.Register(new BicycleBalancedProfile(this));
+            this.Register(new BicycleNetworksProfile(this));
         }
 
         /// <summary>
-        /// Returns true if the vehicle is allowed on the way represented by these tags
+        /// Gets the name of this vehicle.
         /// </summary>
-        protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
+        public override string Name
         {
-            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
+            get
             {
-                return false;
+                return "Bicycle";
             }
-
-            // do the designated tags.
-            var bicycle = string.Empty;
-            if (tags.TryGetValue("bicycle", out bicycle))
-            {
-                if (bicycle == "designated")
-                {
-                    return true; // designated bicycle
-                }
-                if (bicycle == "yes")
-                {
-                    return true; // yes for bicycle
-                }
-                if (bicycle == "no")
-                {
-                    return false; //  no for bicycle
-                }
-            }
-            if (highwayType == "steps")
-            {
-                if (tags.Contains("ramp", "yes"))
-                {
-                    return true;
-                }
-                return false;
-            }
-            return AccessibleTags.ContainsKey(highwayType);
         }
 
         /// <summary>
-        /// Returns the Max Speed for the highwaytype in Km/h.
-        /// 
-        /// This does not take into account how fast this vehicle can go just the max possible speed.
-        /// </summary>
-        public override float MaxSpeedAllowed(string highwayType)
-        {
-            switch (highwayType)
-            {
-                case "services":
-                case "proposed":
-                case "cycleway":
-                case "pedestrian":
-                case "steps":
-                case "path":
-                case "footway":
-                case "living_street":
-                    return this.MaxSpeed();
-                case "track":
-                case "road":
-                    return 30;
-                case "residential":
-                case "unclassified":
-                    return 50;
-                case "motorway":
-                case "motorway_link":
-                    return 120;
-                case "trunk":
-                case "trunk_link":
-                case "primary":
-                case "primary_link":
-                    return 90;
-                default:
-                    return 70;
-            }
-        }
-
-        private static HashSet<string> _relevantProfileKeys = new HashSet<string> { "bicycle", "cycleway", "ramp" };
-
-        /// <summary>
-        /// Returns true if the given key is relevant.
-        /// </summary>
-        public override bool IsRelevant(string key)
-        {
-            if (base.IsRelevant(key))
-            {
-                return true;
-            }
-
-            if (key.StartsWith("cn_"))
-            { // include all cycle network tags.
-                return true;
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Returns true if the given key is relevant for the given profile.
-        /// </summary>
-        public override bool IsRelevantForProfile(string key)
-        {
-            if (base.IsRelevantForProfile(key))
-            {
-                return true;
-            }
-
-            if (key.StartsWith("cn_"))
-            { // include all cycle network tags.
-                return true;
-            }
-
-            return _relevantProfileKeys.Contains(key);
-        }
-
-        /// <summary>
-        /// Returns true if the edge is one way forward, false if backward, null if bidirectional.
-        /// </summary>
-        public override bool? IsOneWay(IAttributeCollection tags)
-        {
-            string oneway;
-            if (tags.TryGetValue("oneway:bicycle", out oneway))
-            {
-                if (oneway == "yes")
-                {
-                    return true;
-                }
-                else if (oneway == "no")
-                {
-                    return null;
-                }
-                return false;
-            }
-
-            if (tags.TryGetValue("oneway", out oneway))
-            {
-                if (oneway == "yes")
-                {
-                    return true;
-                }
-                else if (oneway == "no")
-                {
-                    return null;
-                }
-                return false;
-            }
-
-            string junction;
-            if (tags.TryGetValue("junction", out junction))
-            {
-                if (junction == "roundabout")
-                {
-                    return true;
-                }
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Returns the maximum possible speed this vehicle can achieve.
-        /// </summary>
-        /// <returns></returns>
-        public override float MaxSpeed()
-        {
-            return 15;
-        }
-
-        /// <summary>
-        /// Returns the minimum speed.
-        /// </summary>
-        /// <returns></returns>
-        public override float MinSpeed()
-        {
-            return 3;
-        }
-
-        /// <summary>
-        /// Returns a unique name this vehicle type.
-        /// </summary>
-        public override string UniqueName
-        {
-            get { return "Bicycle"; }
-        }
-
-        /// <summary>
-        /// Gets all profiles for this vehicle.
-        /// </summary>
-        /// <returns></returns>
-        public override ProfileDefinition[] GetProfileDefinitions()
-        {
-            return new ProfileDefinition[]
-            {
-                this.Fastest().Definition,
-                this.Shortest().Definition,
-                this.Balanced().Definition,
-                this.Networks().Definition
-            };
-        }
-
-        /// <summary>
-        /// Returns a profile specifically for bicycle that tries to balance between bicycle infrastructure and fastest route.
-        /// </summary>
-        /// <returns></returns>
-        public Profile Balanced()
-        {
-            return new Profiles.BicycleBalanced(this).Default();
-        }
-
-        /// <summary>
-        /// Returns a profile specifically for bicycles that uses cycling networks as much as possible. Behaves as balanced in the absences of cycling network data.
+        /// Gets the profile to calculate routes along cyclenetworks.
         /// </summary>
         /// <returns></returns>
         public Profile Networks()
         {
-            return new Profiles.BicycleNetworks(this).Default();
+            return this.Profile(this.Name + ".networks");
+        }
+
+        /// <summary>
+        /// Gets the profile to calculate balanced routes.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Balanced()
+        {
+            return this.Profile(this.Name + ".balanced");
+        }
+
+        /// <summary>
+        /// Gets the vehicle types.
+        /// </summary>
+        public override string[] VehicleTypes
+        {
+            get
+            {
+                return new string[] { "vehicle", "bicycle" };
+            }
+        }
+
+        /// <summary>
+        /// Gets a whitelist of attributes to keep as meta-data.
+        /// </summary>
+        public override HashSet<string> MetaWhiteList
+        {
+            get
+            {
+                return new HashSet<string>(new[] { "name" });
+            }
+        }
+
+        /// <summary>
+        /// Gets a whitelist of attributes to keep as part of the profile.
+        /// </summary>
+        public override HashSet<string> ProfileWhiteList
+        {
+            get
+            {
+                return new HashSet<string>(new[] { "cycleway", "cyclenetwork" });
+            }
+        }
+
+        /// <summary>
+        /// Get a function to calculate properties for a set given edge attributes.
+        /// </summary>
+        /// <returns></returns>
+        public sealed override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
+        {
+            string highway = string.Empty;
+            if (attributes == null ||
+                !attributes.TryGetValue("highway", out highway))
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+
+            var speed = 15f;
+            var access = true;
+            switch (highway)
+            {
+                case "services":
+                case "proposed":
+                case "cycleway":
+                case "path":
+                case "living_street":
+                case "service":
+                case "track":
+                case "road":
+                case "residential":
+                case "unclassified":
+                case "tertiary":
+                case "tertiary_link":
+                case "secondary":
+                case "secondary_link":
+                case "primary":
+                case "primary_link":
+                case "trunk":
+                case "trunk_link":
+                    speed = 15f;
+                    break;
+                default:
+                    access = false;
+                    break;
+            }
+            whiteList.Add("highway");
+
+            // access tags.
+            if (!Vehicle.InterpretAccessValues(attributes, whiteList, this.VehicleTypes, "access"))
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }            
+            // do the designated tags.
+            var bicycle = string.Empty;
+            if (attributes.TryGetValue("bicycle", out bicycle))
+            {
+                if (bicycle == "no")
+                {
+                    whiteList.Add("bicycle");
+                    return Profiles.FactorAndSpeed.NoFactor;
+                }
+                else if (bicycle == "yes" || 
+                    bicycle == "designated")
+                {
+                    whiteList.Add("bicycle");
+                    access = true;
+                }
+            }
+            if (highway == "steps")
+            {
+                if (!attributes.Contains("ramp", "yes"))
+                {
+                    return Profiles.FactorAndSpeed.NoFactor;
+                }
+                access = true;
+                whiteList.Add("ramp");
+            }
+            if (!access)
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+
+            short direction = 0;
+
+            speed = speed / 3.6f; // to m/s
+            return new Profiles.FactorAndSpeed()
+            {
+                Constraints = null,
+                Direction = direction,
+                SpeedFactor = 1.0f / speed,
+                Value = 1.0f / speed
+            };
         }
     }
 }

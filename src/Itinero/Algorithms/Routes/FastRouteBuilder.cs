@@ -158,7 +158,7 @@ namespace Itinero.Algorithms.Routes
             _shapeMeta.Add(new Route.Meta()
             {
                 Attributes = new AttributeCollection(
-                    new Attributes.Attribute("profile", _profile.Definition.Name)),
+                    new Attributes.Attribute("profile", _profile.Name)),
                 Shape = _shape.Count - 1
             });
         }
@@ -245,7 +245,7 @@ namespace Itinero.Algorithms.Routes
 
             // build attributes.
             var attributes = new AttributeCollection(
-                new Attributes.Attribute("profile", _profile.Definition.Name));
+                new Attributes.Attribute("profile", _profile.Name));
 
             // add shape and meta.
             _shape.AddRange(shape);
@@ -342,7 +342,7 @@ namespace Itinero.Algorithms.Routes
 
             // build attributes.
             var attributes = new AttributeCollection(
-                new Attributes.Attribute("profile", _profile.Definition.Name));
+                new Attributes.Attribute("profile", _profile.Name));
 
             // add shape and meta.
             _shape.AddRange(shape);
@@ -367,7 +367,7 @@ namespace Itinero.Algorithms.Routes
                 Direction = 0,
                 Value = 1.0f
             };
-            if (_profile.Definition.Metric == ProfileMetric.TimeInSeconds)
+            if (_profile.Metric == ProfileMetric.TimeInSeconds)
             { // in this case factor is 1/speed so just reuse.
                 var factor = _getFactor(profileId).Value;
                 if (factor != 0)

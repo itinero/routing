@@ -35,7 +35,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, Stream data, params Itinero.Profiles.Vehicle[] vehicles)
         {
             db.LoadOsmData(data, false, vehicles);
         }
@@ -43,7 +43,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore = false, params Itinero.Profiles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -58,7 +58,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore = false, bool processRestrictions = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, Stream data, bool allCore = false, bool processRestrictions = false, params Itinero.Profiles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -73,7 +73,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, params Itinero.Profiles.Vehicle[] vehicles)
         {
             db.LoadOsmData(source, false, false, true, new DefaultTagNormalizer(), null, vehicles);
         }
@@ -81,7 +81,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, params Itinero.Profiles.Vehicle[] vehicles)
         {
             db.LoadOsmData(source, allCore, false, true, new DefaultTagNormalizer(), null, vehicles);
         }
@@ -89,7 +89,7 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = false, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = false, params Itinero.Profiles.Vehicle[] vehicles)
         {
             db.LoadOsmData(source, allCore, processRestrictions, true, new DefaultTagNormalizer(), null, vehicles);
         }
@@ -98,7 +98,7 @@ namespace Itinero.IO.Osm
         /// Loads a routing network created from OSM data.
         /// </summary>
         public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = false, bool normalizeTags = true, 
-            ITagNormalizer tagNormalizer = null, IEnumerable<ITwoPassProcessor> processors = null, params Itinero.Osm.Vehicles.Vehicle[] vehicles)
+            ITagNormalizer tagNormalizer = null, IEnumerable<ITwoPassProcessor> processors = null, params Itinero.Profiles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {

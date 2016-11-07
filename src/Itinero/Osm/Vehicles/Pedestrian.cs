@@ -18,78 +18,92 @@
 
 using Itinero.Attributes;
 using Itinero.Profiles;
+using System.Collections.Generic;
 
 namespace Itinero.Osm.Vehicles
 {
     /// <summary>
-    /// Represents a pedestrian
+    /// Represents the default OSM pedestrian profile.
     /// </summary>
     public class Pedestrian : Vehicle
     {
         /// <summary>
-        /// Default Constructor
+        /// Creates a new pedestrian.
         /// </summary>
         public Pedestrian()
         {
-            AccessibleTags.Add("service", string.Empty);
-            AccessibleTags.Add("services", string.Empty);
-            AccessibleTags.Add("steps", string.Empty);
-            AccessibleTags.Add("footway", string.Empty);
-            AccessibleTags.Add("cycleway", string.Empty);
-            AccessibleTags.Add("path", string.Empty);
-            AccessibleTags.Add("road", string.Empty);
-            AccessibleTags.Add("track", string.Empty);
-            AccessibleTags.Add("pedestrian", string.Empty);
-            AccessibleTags.Add("living_street", string.Empty);
-            AccessibleTags.Add("residential", string.Empty);
-            AccessibleTags.Add("unclassified", string.Empty);
-            AccessibleTags.Add("secondary", string.Empty);
-            AccessibleTags.Add("secondary_link", string.Empty);
-            AccessibleTags.Add("primary", string.Empty);
-            AccessibleTags.Add("primary_link", string.Empty);
-            AccessibleTags.Add("tertiary", string.Empty);
-            AccessibleTags.Add("tertiary_link", string.Empty);
-
-            VehicleTypes.Add("foot");
+            this.Register(new PedestrianShortcutsProfile(this));
         }
 
         /// <summary>
-        /// Returns true if the vehicle is allowed on the way represented by these tags
+        /// Gets the name of this vehicle.
         /// </summary>
-        protected override bool IsVehicleAllowed(IAttributeCollection tags, string highwayType)
+        public override string Name
         {
-            if (!tags.InterpretAccessValues(VehicleTypes, "access"))
+            get
             {
-                return false;
+                return "Pedestrian";
             }
-
-            var foot = string.Empty;
-            if (tags.TryGetValue("foot", out foot))
-            {
-                if (foot == "designated")
-                {
-                    return true; // designated foot
-                }
-                if (foot == "yes")
-                {
-                    return true; // yes for foot
-                }
-                if (foot == "no")
-                {
-                    return false; // no for foot
-                }
-            }
-            return AccessibleTags.ContainsKey(highwayType);
         }
 
         /// <summary>
-        /// Returns the Max Speed for the highwaytype in Km/h.
-        /// 
-        /// This does not take into account how fast this vehicle can go just the max possible speed.
+        /// Gets the vehicle types.
         /// </summary>
-        public override float MaxSpeedAllowed(string highwayType)
+        public override string[] VehicleTypes
         {
-            switch (highwayType)
+            get
+            {
+                return new string[] { "foot" };
+            }
+        }
+
+        /// <summary>
+        /// Gets the profile to calculate routes including shortcuts.
+        /// </summary>
+        /// <returns></returns>
+        public Profile Shortcuts()
+        {
+            return this.Profile(this.Name + ".shortcuts");
+        }
+
+        /// <summary>
+        /// Gets a whitelist of attributes to keep as meta-data.
+        /// </summary>
+        public override HashSet<string> MetaWhiteList
+        {
+            get
+            {
+                return new HashSet<string>(new[] { "name" });
+            }
+        }
+
+        /// <summary>
+        /// Gets a whitelist of attributes to keep as part of the profile.
+        /// </summary>
+        public override HashSet<string> ProfileWhiteList
+        {
+            get
+            {
+                return new HashSet<string>();
+            }
+        }
+
+        /// <summary>
+        /// Get a function to calculate properties for a set given edge attributes.
+        /// </summary>
+        /// <returns></returns>
+        public sealed override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
+        {
+            string highway = string.Empty;
+            if (attributes == null ||
+                !attributes.TryGetValue("highway", out highway))
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+
+            var speed = 4f;
+            var access = true;
+            switch (highway)
             {
                 case "services":
                 case "proposed":
@@ -99,79 +113,62 @@ namespace Itinero.Osm.Vehicles
                 case "path":
                 case "footway":
                 case "living_street":
-                    return 5f;
+                case "service":
                 case "track":
                 case "road":
-                    return 4.5f;
                 case "residential":
                 case "unclassified":
-                    return 4.4f;
-                case "motorway":
-                case "motorway_link":
-                    return 4.3f;
-                case "trunk":
-                case "trunk_link":
+                case "tertiary":
+                case "tertiary_link":
+                case "secondary":
+                case "secondary_link":
                 case "primary":
                 case "primary_link":
-                    return 4.2f;
+                    speed = 4;
+                    break;
                 default:
-                    return 4f;
+                    access = false;
+                    break;
             }
-        }
+            whiteList.Add("highway");
 
-        /// <summary>
-        /// Returns true if the edge is one way forward, false if backward, null if bidirectional.
-        /// </summary>
-        public override bool? IsOneWay(IAttributeCollection tags)
-        {
-            return null;
-        }
-
-        /// <summary>
-        /// Returns the maximum possible speed this vehicle can achieve in Km/h.
-        /// </summary>
-        public override float MaxSpeed()
-        {
-            return 5;
-        }
-
-        /// <summary>
-        /// Returns the minimum speed in Km/h.
-        /// </summary>
-        public override float MinSpeed()
-        {
-            return 3;
-        }
-
-        /// <summary>
-        /// Returns a unique name this vehicle type.
-        /// </summary>
-        public override string UniqueName
-        {
-            get { return "Pedestrian"; }
-        }
-
-        /// <summary>
-        /// Gets all profiles for this vehicle.
-        /// </summary>
-        /// <returns></returns>
-        public override ProfileDefinition[] GetProfileDefinitions()
-        {
-            return new ProfileDefinition[]
+            // access tags.
+            if (!Vehicle.InterpretAccessValues(attributes, whiteList, this.VehicleTypes, "access"))
             {
-                this.Fastest().Definition,
-                this.Shortest().Definition,
-                this.Shortcuts().Definition
-            };
-        }
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+            // do the designated tags.
+            var bicycle = string.Empty;
+            if (attributes.TryGetValue("foot", out bicycle))
+            {
+                if (bicycle == "no")
+                {
+                    whiteList.Add("foot");
+                    return Profiles.FactorAndSpeed.NoFactor;
+                }
+                else if (bicycle == "yes" ||
+                    bicycle == "designated")
+                {
+                    whiteList.Add("foot");
+                    access = true;
+                }
+            }
+            if (!access)
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
 
-        /// <summary>
-        /// Returns a profile specifically for pedestrians that uses all shortcuts added as much as possible.
-        /// </summary>
-        /// <returns></returns>
-        public Profile Shortcuts()
-        {
-            return new Profiles.PedestrianShortcuts(this).Default();
+            short direction = 0;
+
+            speed = speed / 3.6f; // to m/s
+
+            return new Profiles.FactorAndSpeed()
+            {
+                Constraints = null,
+                Direction = direction,
+                SpeedFactor = 1.0f / speed,
+                Value = 1.0f / speed
+            };
         }
     }
 }

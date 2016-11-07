@@ -30,6 +30,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.IO.Shape", "src\Iti
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Sample.Shape", "samples\Sample.Shape\Sample.Shape.xproj", "{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.Profiles", "src\Itinero.Profiles\Itinero.Profiles.xproj", "{DCD67911-89F0-4C12-B5DC-186179514300}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,14 @@ Global
 		{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06}.Release|x64.ActiveCfg = Release|Any CPU
 		{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06}.Release|x64.Build.0 = Release|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Debug|x64.Build.0 = Debug|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Release|x64.ActiveCfg = Release|Any CPU
+		{DCD67911-89F0-4C12-B5DC-186179514300}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -115,5 +125,6 @@ Global
 		{414D079B-1194-495E-AFDD-0595284D8F35} = {77BC0AC3-41A6-4672-A3AB-9C27710756BE}
 		{79003AC2-B9AF-4F51-AA95-C061771A9689} = {4B330D21-2EE5-4C34-B716-0DB1FBC58E29}
 		{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06} = {77BC0AC3-41A6-4672-A3AB-9C27710756BE}
+		{DCD67911-89F0-4C12-B5DC-186179514300} = {4B330D21-2EE5-4C34-B716-0DB1FBC58E29}
 	EndGlobalSection
 EndGlobal

@@ -27,87 +27,99 @@ namespace Itinero.Profiles
     public static class ProfileExtensions
     {
         /// <summary>
-        /// Gets a get factor function for the given profile.
+        /// Gets the speed for the given profile on the link defined by the given attributes.
+        /// </summary>
+        public static Speed Speed(this Profile profile, IAttributeCollection attributes)
+        {
+            return profile.FactorAndSpeed(attributes).ToSpeed();
+        }
+
+        /// <summary>
+        /// Converts a speed definition for the given factor and speed.
+        /// </summary>
+        public static Speed ToSpeed(this FactorAndSpeed factorAndSpeed)
+        {
+            if (factorAndSpeed.Direction >= 3)
+            {
+                return new Profiles.Speed()
+                {
+                    Direction = (short)(factorAndSpeed.Direction - 3),
+                    Value = 1.0f / factorAndSpeed.SpeedFactor
+                };
+            }
+            return new Profiles.Speed()
+            {
+                Direction = factorAndSpeed.Direction,
+                Value = 1.0f / factorAndSpeed.SpeedFactor
+            };
+        }
+
+        /// <summary>
+        /// Gets a get factor function based on the given routerdb.
         /// </summary>
         public static Func<ushort, Factor> GetGetFactor(this Profile profile, RouterDb routerDb)
         {
-            return (e) => profile.Factor(routerDb.EdgeProfiles.Get(e));
+            return (profileId) =>
+            {
+                var edgeProfile = routerDb.EdgeProfiles.Get(profileId);
+                return profile.Factor(edgeProfile);
+            };
         }
 
         /// <summary>
-        /// Gets a get factor and speed function for the given profile.
+        /// Gets a get factor function based on the given routerdb.
         /// </summary>
         public static Func<ushort, FactorAndSpeed> GetGetFactorAndSpeed(this Profile profile, RouterDb routerDb)
         {
-            return (e) =>
+            return (profileId) =>
             {
-                var att = routerDb.EdgeProfiles.Get(e);
-                var f = profile.Factor(att);
-                var s = profile.Speed(att);
-                return new FactorAndSpeed()
+                var edgeProfile = routerDb.EdgeProfiles.Get(profileId);
+                return profile.FactorAndSpeed(edgeProfile);
+            };
+        }
+
+        /// <summary>
+        /// Gets the factor for the given profile on the link defined by the given attributes.
+        /// </summary>
+        public static Factor Factor(this Profile profile, IAttributeCollection attributes)
+        {
+            return profile.FactorAndSpeed(attributes).ToFactor();
+        }
+
+        /// <summary>
+        /// Converts a factor definition for the given factor and speed.
+        /// </summary>
+        public static Factor ToFactor(this FactorAndSpeed factorAndSpeed)
+        {
+            if (factorAndSpeed.Direction >= 3)
+            {
+                return new Profiles.Factor()
                 {
-                    SpeedFactor = 1 / s.Value,
-                    Value = f.Value,
-                    Direction = f.Direction
+                    Direction = (short)(factorAndSpeed.Direction - 3),
+                    Value = factorAndSpeed.Value
                 };
-            };
-        }
-
-        /// <summary>
-        /// Converts a regular get factor function to a get factor supporting contraints.
-        /// </summary>
-        public static Func<IAttributeCollection, Tuple<Factor, float[]>> ToUnconstrainedGetFactor(this Func<IAttributeCollection, Factor> getFactor)
-        {
-            return (attributes) =>
-            {
-                return new Tuple<Factor, float[]>(getFactor(attributes), null);
-            };
-        }
-
-        /// <summary>
-        /// Converts a regular get speed function to a get speed supporting contraints.
-        /// </summary>
-        public static Func<IAttributeCollection, Tuple<Speed, float[]>> ToUnconstrainedGetSpeed(this Func<IAttributeCollection, Speed> getSpeed)
-        {
-            return (attributes) =>
-            {
-                return new Tuple<Speed, float[]>(getSpeed(attributes), null);
-            };
-        }
-
-        /// <summary>
-        /// Gets the factor.
-        /// </summary>
-        public static Factor Factor(this Profile profileInstance, IAttributeCollection attributes)
-        {
-            var speedAndConstraints = profileInstance.Definition.Factor(attributes);
-            return profileInstance.Factor(speedAndConstraints.Item1, speedAndConstraints.Item2);
-        }
-
-        /// <summary>
-        /// Gets the factor.
-        /// </summary>
-        public static bool CanStopOn(this Profile profileInstance, IAttributeCollection attributes)
-        {
-            if (!profileInstance.Definition.CanStopOn(attributes))
-            {
-                return false;
             }
-            var factor = profileInstance.Factor(attributes);
-            if (factor.Value <= 0)
+            return new Profiles.Factor()
             {
-                return false;
-            }
-            return true;
+                Direction = factorAndSpeed.Direction,
+                Value = factorAndSpeed.Value
+            };
         }
 
         /// <summary>
-        /// Gets the speed.
+        /// Converts a factor definition for the given factor and speed.
         /// </summary>
-        public static Speed Speed(this Profile profileInstance, IAttributeCollection attributes)
+        public static bool CanStopOn(this FactorAndSpeed factorAndSpeed)
         {
-            var speedAndConstraints = profileInstance.Definition.Speed(attributes);
-            return profileInstance.Speed(speedAndConstraints.Item1, speedAndConstraints.Item2);
+            return factorAndSpeed.Direction < 3;
+        }
+
+        /// <summary>
+        /// Returns true if the link defined by the given attributes can be stopped on.
+        /// </summary>
+        public static bool CanStopOn(this Profile profile, IAttributeCollection attributes)
+        {
+            return profile.FactorAndSpeed(attributes).Direction < 3;
         }
     }
 }
