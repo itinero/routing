@@ -52,46 +52,46 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude,
+        public abstract Result<RouterPoint> TryResolve(IProfileInstance[] profiles, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters);
+        public abstract Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeters);
 
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
+        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
             RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
+        public abstract Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
             RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+        public abstract Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+        public abstract Result<T[][]> TryCalculateWeight<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings = null) where T : struct;
         
         /// <summary>
         /// Builds a route based on a raw path.
         /// </summary>
-        public abstract Result<Route> BuildRoute<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path) where T : struct;
+        public abstract Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path) where T : struct;
     }
 }

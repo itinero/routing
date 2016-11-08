@@ -67,6 +67,21 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Returns true if all the given profiles are cached and supported.
+        /// </summary>
+        public bool ContainsAll(params IProfileInstance[] profileInstances)
+        {
+            for (var p = 0; p < profileInstances.Length; p++)
+            {
+                if (!_edgeProfileFactors.ContainsKey(profileInstances[p].Profile.Name))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Calculates for all registered profiles.
         /// </summary>
         public void CalculateForAll()
@@ -103,14 +118,14 @@ namespace Itinero.Profiles
         /// <summary>
         /// Returns an isacceptable function using the cached data.
         /// </summary>
-        public Func<GeometricEdge, bool> GetIsAcceptable(bool verifyCanStopOn, params Profile[] profiles)
+        public Func<GeometricEdge, bool> GetIsAcceptable(bool verifyCanStopOn, params IProfileInstance[] profileInstances)
         {
-            if (!this.ContainsAll(profiles)) { throw new ArgumentException("Not all given profiles are supported."); }
+            if (!this.ContainsAll(profileInstances)) { throw new ArgumentException("Not all given profiles are supported."); }
 
-            var cachedFactors = new FactorAndSpeed[profiles.Length][];
-            for (var p = 0; p < profiles.Length; p++)
+            var cachedFactors = new FactorAndSpeed[profileInstances.Length][];
+            for (var p = 0; p < profileInstances.Length; p++)
             {
-                cachedFactors[p] = _edgeProfileFactors[profiles[p].Name];
+                cachedFactors[p] = _edgeProfileFactors[profileInstances[p].Profile.Name];
             }
 
             return (edge) =>
@@ -119,12 +134,24 @@ namespace Itinero.Profiles
                 ushort edgeProfileId;
                 Data.Edges.EdgeDataSerializer.Deserialize(edge.Data[0],
                     out distance, out edgeProfileId);
-                for (var i = 0; i < profiles.Length; i++)
+                for (var i = 0; i < profileInstances.Length; i++)
                 {
                     var cachedFactor = cachedFactors[i][edgeProfileId];
-                    if ((verifyCanStopOn && !cachedFactor.CanStopOn()) ||
-                        cachedFactor.Value <= 0)
-                    {
+                    if (cachedFactor.Value <= 0)
+                    { // edge is not accessible to this profile.
+                        return false;
+                    }
+
+                    if (verifyCanStopOn)
+                    { // check for a stopping point.
+                        if (!cachedFactor.CanStopOn())
+                        { // can't use this edge as stopping point. 
+                            return false;
+                        }
+                    }
+
+                    if (profileInstances[i].IsConstrained(cachedFactor.Constraints))
+                    { // edge is constrained, vehicle too heavy or too big for example.
                         return false;
                     }
                 }
@@ -135,11 +162,23 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the get factor function for the given profile.
         /// </summary>
-        public Func<ushort, Factor> GetGetFactor(Profile profile)
+        public Func<ushort, Factor> GetGetFactor(IProfileInstance profileInstance)
         {
-            if (!this.ContainsAll(profile)) { throw new ArgumentException("Given profile not supported."); }
+            if (!this.ContainsAll(profileInstance)) { throw new ArgumentException("Given profile not supported."); }
 
-            var cachedFactors = _edgeProfileFactors[profile.Name];
+            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.Name];
+            if (profileInstance.Constraints != null)
+            {
+                return (p) =>
+                {
+                    var cachedFactor = cachedFactors[p];
+                    if (profileInstance.IsConstrained(cachedFactor.Constraints))
+                    {
+                        return Factor.NoFactor;
+                    }
+                    return cachedFactor.ToFactor();
+                };
+            }
             return (p) =>
             {
                 return cachedFactors[p].ToFactor();
@@ -149,11 +188,23 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the get factor function for the given profile.
         /// </summary>
-        public Func<ushort, FactorAndSpeed> GetGetFactorAndSpeed(Profile profile)
+        public Func<ushort, FactorAndSpeed> GetGetFactorAndSpeed(IProfileInstance profileInstance)
         {
-            if (!this.ContainsAll(profile)) { throw new ArgumentException("Given profile not supported."); }
+            if (!this.ContainsAll(profileInstance)) { throw new ArgumentException("Given profile not supported."); }
 
-            var cachedFactors = _edgeProfileFactors[profile.Name];
+            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.Name];
+            if (profileInstance.Constraints != null)
+            {
+                return (p) =>
+                {
+                    var cachedFactor = cachedFactors[p];
+                    if (profileInstance.IsConstrained(cachedFactor.Constraints))
+                    {
+                        return FactorAndSpeed.NoFactor;
+                    }
+                    return cachedFactor;
+                };
+            }
             return (p) =>
             {
                 return cachedFactors[p];

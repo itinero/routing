@@ -35,7 +35,7 @@ namespace Itinero.Osm.Vehicles
         /// Creates a new profile.
         /// </summary>
         public BicycleBalancedProfile(Vehicle parent)
-            : base(parent.Name + ".balanced", ProfileMetric.Custom, parent.VehicleTypes, parent, null)
+            : base(parent.Name + ".balanced", ProfileMetric.Custom, parent.VehicleTypes, null, parent, null)
         {
 
         }

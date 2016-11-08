@@ -25,19 +25,20 @@ namespace Itinero.Profiles
     /// <summary>
     /// Represents a profile.
     /// </summary>
-    public class Profile
+    public class Profile : IProfileInstance
     {
         private readonly string _name;
         private readonly ProfileMetric _metric;
         private readonly string[] _vehicleTypes;
         private readonly Vehicle _parent;
         private readonly Func<IAttributeCollection, FactorAndSpeed> _custom;
+        private readonly Constraint[] _constrainedVariables;
 
         /// <summary>
         /// Creates a new profile.
         /// </summary>
-        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent)
-            : this(name, metric, vehicleTypes, parent, null)
+        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Constraint[] constrainedVariables, Vehicle parent)
+            : this(name, metric, vehicleTypes, constrainedVariables, parent, null)
         {
 
         }
@@ -45,11 +46,12 @@ namespace Itinero.Profiles
         /// <summary>
         /// Creates a new profile.
         /// </summary>
-        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent, Func<IAttributeCollection, FactorAndSpeed> custom)
+        public Profile(string name, ProfileMetric metric, string[] vehicleTypes, Constraint[] constrainedVariables, Vehicle parent, Func<IAttributeCollection, FactorAndSpeed> custom)
         {
             _name = name;
             _metric = metric;
             _vehicleTypes = vehicleTypes;
+            _constrainedVariables = constrainedVariables;
             _parent = parent;
             _custom = custom;
         }
@@ -95,6 +97,39 @@ namespace Itinero.Profiles
             get
             {
                 return _vehicleTypes;
+            }
+        }
+
+        /// <summary>
+        /// Gets the constrained variables.
+        /// </summary>
+        public virtual Constraint[] ConstrainedVariables
+        {
+            get
+            {
+                return _constrainedVariables;
+            }
+        }
+
+        /// <summary>
+        /// Gets the profile.
+        /// </summary>
+        Profile IProfileInstance.Profile
+        {
+            get
+            {
+                return this;
+            }
+        }
+
+        /// <summary>
+        /// Gets the constraint variables.
+        /// </summary>
+        float[] IProfileInstance.Constraints
+        {
+            get
+            {
+                return null;
             }
         }
 

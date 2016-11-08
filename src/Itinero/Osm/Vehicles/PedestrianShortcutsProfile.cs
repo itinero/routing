@@ -27,7 +27,7 @@ namespace Itinero.Osm.Vehicles
     internal class PedestrianShortcutsProfile : Profile
     {
         internal PedestrianShortcutsProfile(Pedestrian pedestrian)
-            : base(pedestrian.Name + ".shortcuts", ProfileMetric.Custom, pedestrian.VehicleTypes, pedestrian, null)
+            : base(pedestrian.Name + ".shortcuts", ProfileMetric.Custom, pedestrian.VehicleTypes, null, pedestrian, null)
         {
 
         }

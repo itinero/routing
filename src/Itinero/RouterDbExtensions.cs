@@ -109,6 +109,22 @@ namespace Itinero
         /// Returns true if all of the given profiles are supported.
         /// </summary>
         /// <returns></returns>
+        public static bool SupportsAll(this RouterDb db, params Profiles.IProfileInstance[] profiles)
+        {
+            for (var i = 0; i < profiles.Length; i++)
+            {
+                if (!db.Supports(profiles[i].Profile))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if all of the given profiles are supported.
+        /// </summary>
+        /// <returns></returns>
         public static bool SupportsAll(this RouterDb db, params Profiles.Profile[] profiles)
         {
             for (var i = 0; i < profiles.Length; i++)

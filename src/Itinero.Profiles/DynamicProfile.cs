@@ -38,7 +38,7 @@ namespace Itinero.Profiles
         /// Creates a new dynamic profile.
         /// </summary>
         internal DynamicProfile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent, Script script, object factor_and_speed)
-            : base(name, metric, vehicleTypes, parent)
+            : base(name, metric, vehicleTypes, null, parent)
         {
             _name = name;
             _metric = metric;

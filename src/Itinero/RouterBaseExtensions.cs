@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Geometric;
 using Itinero.Data.Edges;
+using Itinero.Logging;
 
 namespace Itinero
 {
@@ -53,34 +54,38 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets the default get factor for the given profile but used the cached version whenever available.
+        /// Gets the default get factor for the given profile instance but used the cached version whenever available.
         /// </summary>
-        public static Func<ushort, Factor> GetDefaultGetFactor(this RouterBase router, Profile profile)
+        public static Func<ushort, Factor> GetDefaultGetFactor(this RouterBase router, IProfileInstance profileInstance)
         {
-            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profileInstance))
             { // use cached version and don't consult profiles anymore.
-                return router.ProfileFactorAndSpeedCache.GetGetFactor(profile);
+                return router.ProfileFactorAndSpeedCache.GetGetFactor(profileInstance);
             }
             else
             { // use the regular function, and consult profiles continuously.
-                return profile.GetGetFactor(router.Db);
+                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                    profileInstance.Profile.Name);
+                return profileInstance.GetGetFactor(router.Db);
             }
         }
         
         /// <summary>
-        /// Gets the default weight handler for the given profile.
+        /// Gets the default weight handler for the given profile instance.
         /// </summary>
-        public static DefaultWeightHandler GetDefaultWeightHandler(this RouterBase router, Profile profile)
+        public static DefaultWeightHandler GetDefaultWeightHandler(this RouterBase router, IProfileInstance profileInstance)
         {
-            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profileInstance))
             { // use cached version and don't consult profiles anymore.
-                return new DefaultWeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactor(profile));
+                return new DefaultWeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactor(profileInstance));
             }
             else
-            { // use the regular function, and consult profiles continuously.
+            { // use the regular function, and consult the profile continuously.
+                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                    profileInstance.Profile.Name);
                 return new DefaultWeightHandler((p) =>
                 {
-                    return profile.Factor(router.Db.EdgeProfiles.Get(p));
+                    return profileInstance.Factor(router.Db.EdgeProfiles.Get(p));
                 });
             }
         }
@@ -88,37 +93,41 @@ namespace Itinero
         /// <summary>
         /// Gets the default weight handler for the given profile.
         /// </summary>
-        public static WeightHandler GetAugmentedWeightHandler(this RouterBase router, Profile profile)
+        public static WeightHandler GetAugmentedWeightHandler(this RouterBase router, IProfileInstance profileInstance)
         {
-            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profileInstance))
             { // use cached version and don't consult profiles anymore.
-                return new WeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profile));
+                return new WeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profileInstance));
             }
             else
             { // use the regular function, and consult profiles continuously.
-                return new WeightHandler(profile.GetGetFactorAndSpeed(router.Db));
+                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                    profileInstance.Profile.Name);
+                return new WeightHandler(profileInstance.GetGetFactorAndSpeed(router.Db));
             }
         }
 
         /// <summary>
         /// Gets the augmented get factor for the given profile but used the cached version whenever available.
         /// </summary>
-        public static Func<ushort, FactorAndSpeed> GetAugmentedGetFactor(this RouterBase router, Profile profile)
+        public static Func<ushort, FactorAndSpeed> GetAugmentedGetFactor(this RouterBase router, IProfileInstance profileInstance)
         {
-            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profile))
+            if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profileInstance))
             { // use cached version and don't consult profiles anymore.
-                return router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profile);
+                return router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profileInstance);
             }
             else
             { // use the regular function, and consult profiles continuously.
-                return profile.GetGetFactorAndSpeed(router.Db);
+                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                    profileInstance.Profile.Name);
+                return profileInstance.GetGetFactorAndSpeed(router.Db);
             }
         }
 
         /// <summary>
         /// Returns the IsAcceptable function to use in the default resolver algorithm.
         /// </summary>
-        public static Func<GeometricEdge, bool> GetIsAcceptable(this RouterBase router, params Profile[] profiles)
+        public static Func<GeometricEdge, bool> GetIsAcceptable(this RouterBase router, params IProfileInstance[] profiles)
         {
             if (router.ProfileFactorAndSpeedCache != null && router.ProfileFactorAndSpeedCache.ContainsAll(profiles))
             { // use cached version and don't consult profiles anymore.
@@ -127,6 +136,8 @@ namespace Itinero
             }
             else
             { // use the regular function, and consult profiles continuously.
+                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, 
+                    "Not all profiles are cached, this could slow down routing significantly, consider building a profile cache.");
                 return (edge) =>
                 { // check all profiles, they all need to be traversible.
                   // get profile.
@@ -137,17 +148,22 @@ namespace Itinero
                     var edgeProfile = router.Db.EdgeProfiles.Get(edgeProfileId);
                     for (var i = 0; i < profiles.Length; i++)
                     {
+                        var factorAndSpeed = profiles[i].Profile.FactorAndSpeed(edgeProfile);
                         // get factor from profile.
-                        if (profiles[i].Factor(edgeProfile).Value <= 0)
+                        if (factorAndSpeed.Value <= 0)
                         { // cannot be traversed by this profile.
                             return false;
                         }
                         if (router.VerifyAllStoppable)
                         { // verify stoppable.
-                            if (!profiles[i].CanStopOn(edgeProfile))
+                            if (!factorAndSpeed.CanStopOn())
                             { // this profile cannot stop on this edge.
                                 return false;
                             }
+                        }
+                        if (profiles[i].IsConstrained(factorAndSpeed.Constraints))
+                        { // this edge is constrained, this vehicle cannot travel here.
+                            return false;
                         }
                     }
                     return true;

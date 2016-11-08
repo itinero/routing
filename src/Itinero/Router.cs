@@ -75,10 +75,10 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<RouterPoint> TryResolve(Profile[] profiles, float latitude, float longitude, 
+        public sealed override Result<RouterPoint> TryResolve(IProfileInstance[] profileInstances, float latitude, float longitude, 
             Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter)
         {
-            if(!_db.SupportsAll(profiles))
+            if(!_db.SupportsAll(profileInstances))
             {
                 return new Result<RouterPoint>("Not all routing profiles are supported.", (message) =>
                 {
@@ -89,7 +89,7 @@ namespace Itinero
             IResolver resolver = null;
 
             // get is acceptable.
-            var isAcceptable = this.GetIsAcceptable(profiles);
+            var isAcceptable = this.GetIsAcceptable(profileInstances);
 
             if (this.CreateCustomResolver == null)
             { // just use the default resolver algorithm.
@@ -126,9 +126,9 @@ namespace Itinero
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(Profile profile, RouterPoint point, float radiusInMeters)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeters)
         {
-            if (!_db.Supports(profile))
+            if (!_db.Supports(profileInstance.Profile))
             {
                 return new Result<bool>("Routing profile is not supported.", (message) =>
                 {
@@ -137,7 +137,7 @@ namespace Itinero
             }
 
             // get the weight handler.
-            var weightHandler = this.GetDefaultWeightHandler(profile);
+            var weightHandler = this.GetDefaultWeightHandler(profileInstance);
      
             // build and run dykstra search.
             var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
@@ -154,10 +154,10 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
             RoutingSettings<T> settings)
         {
-            if (!_db.Supports(profile))
+            if (!_db.Supports(profileInstance.Profile))
             {
                 return new Result<EdgePath<T>>("Routing profile is not supported.", (message) =>
                 {
@@ -168,7 +168,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -178,10 +178,10 @@ namespace Itinero
             ContractedDb contracted;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile, out contracted))
+            if (_db.TryGetContracted(profileInstance.Profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -212,7 +212,7 @@ namespace Itinero
                 else
                 { // use edge-based routing.
                     var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
-                        source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profile, null));
+                        source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profileInstance.Profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -229,12 +229,12 @@ namespace Itinero
             }
             else
             { // use the regular graph.
-                if (_db.HasComplexRestrictions(profile))
+                if (_db.HasComplexRestrictions(profileInstance.Profile))
                 {
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
-                        _db.GetGetRestrictions(profile, true), source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
+                        _db.GetGetRestrictions(profileInstance.Profile, true), source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
                     var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler, 
-                        _db.GetGetRestrictions(profile, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
+                        _db.GetGetRestrictions(profileInstance.Profile, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -284,10 +284,10 @@ namespace Itinero
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
             RoutingSettings<T> settings)
         {
-            if (!_db.Supports(profile))
+            if (!_db.Supports(profileInstance.Profile))
             {
                 return new Result<EdgePath<T>>("Routing profile is not supported.", (message) =>
                 {
@@ -298,7 +298,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -320,10 +320,10 @@ namespace Itinero
             ContractedDb contracted;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile, out contracted))
+            if (_db.TryGetContracted(profileInstance.Profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -350,7 +350,7 @@ namespace Itinero
                 else
                 { // use edge-based routing.
                     var bidirectionalSearch = new Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
-                        new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profile, null));
+                        new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profileInstance.Profile, null));
                     bidirectionalSearch.Run();
                     if (!bidirectionalSearch.HasSucceeded)
                     {
@@ -369,12 +369,12 @@ namespace Itinero
             }
             else
             { // use the regular graph.
-                if (_db.HasComplexRestrictions(profile))
+                if (_db.HasComplexRestrictions(profileInstance.Profile))
                 {
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                        _db.GetGetRestrictions(profile, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
+                        _db.GetGetRestrictions(profileInstance.Profile, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
                     var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                        _db.GetGetRestrictions(profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
+                        _db.GetGetRestrictions(profileInstance.Profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
                     bidirectionalSearch.Run();
@@ -414,10 +414,10 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+        public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             RoutingSettings<T> settings)
         {
-            if (!_db.Supports(profile))
+            if (!_db.Supports(profileInstance.Profile))
             {
                 return new Result<EdgePath<T>[][]>("Routing profile is not supported.", (message) =>
                 {
@@ -428,7 +428,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -438,10 +438,10 @@ namespace Itinero
             EdgePath<T>[][] paths = null;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile, out contracted))
+            if (_db.TryGetContracted(profileInstance.Profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -460,7 +460,7 @@ namespace Itinero
             {
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
+                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                         sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
@@ -484,7 +484,7 @@ namespace Itinero
                 }
                 else
                 { // use edge-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profile, weightHandler,
+                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                         sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
@@ -539,10 +539,10 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<T[][]> TryCalculateWeight<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+        public sealed override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
         {
-            if (!_db.Supports(profile))
+            if (!_db.Supports(profileInstance.Profile))
             {
                 return new Result<T[][]>("Routing profile is not supported.", (message) =>
                 {
@@ -553,7 +553,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -563,10 +563,10 @@ namespace Itinero
             T[][] weights = null;
 
             bool useContracted = false;
-            if (_db.TryGetContracted(profile, out contracted))
+            if (_db.TryGetContracted(profileInstance.Profile, out contracted))
             { // contracted calculation.
                 useContracted = true;
-                if (_db.HasComplexRestrictions(profile) && !contracted.HasEdgeBasedGraph)
+                if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
                 { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                     Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                         "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -585,7 +585,7 @@ namespace Itinero
             {
                 if (!contracted.HasEdgeBasedGraph)
                 { // use node-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<T>(_db, profile, weightHandler,
+                    var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                         sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
@@ -599,7 +599,7 @@ namespace Itinero
                 }
                 else
                 { // use edge-based routing.
-                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyWeightsBidirectionalDykstra<T>(_db, profile, weightHandler,
+                    var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                         sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
@@ -614,9 +614,9 @@ namespace Itinero
             }
             else
             { // use regular graph.
-                if (_db.HasComplexRestrictions(profile))
+                if (_db.HasComplexRestrictions(profileInstance.Profile))
                 {
-                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profile, true), sources, targets, maxSearch);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profileInstance.Profile, true), sources, targets, maxSearch);
                     algorithm.Run();
                     if (!algorithm.HasSucceeded)
                     {
@@ -674,15 +674,15 @@ namespace Itinero
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public override sealed Result<Route> BuildRoute<T>(Profile profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
+        public override sealed Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
         {
             if(this.CustomRouteBuilder != null)
             { // there is a custom route builder.
-                return this.CustomRouteBuilder.TryBuild(_db, profile, source, target, path);
+                return this.CustomRouteBuilder.TryBuild(_db, profileInstance.Profile, source, target, path);
             }
 
             // use the default.
-            return CompleteRouteBuilder.TryBuild(_db, profile, source, target, path);
+            return CompleteRouteBuilder.TryBuild(_db, profileInstance.Profile, source, target, path);
         }
     }
 }

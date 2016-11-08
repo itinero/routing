@@ -16,144 +16,58 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using System;
-using System.IO;
-
 namespace Itinero.Profiles
 {
     /// <summary>
-    /// Abstract definition of a constraint.
+    /// Defines a constraint variable.
     /// </summary>
-    public sealed class Constraint
+    public class Constraint
     {
-        private readonly float _min = float.MinValue;
-        private readonly float _max = float.MaxValue;
-        private readonly bool _minEqualsOk = false;
-        private readonly bool _maxEqualsOk = false;
+        private readonly string _name;
+        private readonly bool _isMax;
+        private readonly float _defaultValue;
 
         /// <summary>
-        /// Creates a new constraint.
+        /// Creates a new constraint variable.
         /// </summary>
-        public Constraint(float min, bool minEqualsOk, float max, bool maxEqualsOk)
+        public Constraint(string name, bool isMax, float defaultValue)
         {
-            _min = min;
-            _max = max;
-            _minEqualsOk = minEqualsOk;
-            _maxEqualsOk = maxEqualsOk;
-
-            if (_min == float.MinValue ||
-                _max == float.MaxValue)
-            {
-                throw new ArgumentException("No reasonable range defined.");
-            }
+            _name = name;
+            _defaultValue = defaultValue;
+            _isMax = isMax;
         }
 
         /// <summary>
-        /// Evaluates this constraint, true means this constraint applies.
+        /// Gets or sets the name.
         /// </summary>
-        public bool Evaluate(float value)
-        {
-            if (_minEqualsOk && _maxEqualsOk)
-            {
-                return _min <= value && value <= _max;
-            }
-            else if(_minEqualsOk)
-            {
-                return _min <= value && value < _max;
-            }
-            else if (_maxEqualsOk)
-            {
-                return _min < value && value <= _max;
-            }
-            return _min < value && value < _max;
-        }
-
-        /// <summary>
-        /// Gets a string describing this constraint.
-        /// </summary>
-        public string Description
+        public string Name
         {
             get
             {
-                var min = "<";
-                if (_minEqualsOk)
-                {
-                    min = "<=";
-                }
-                if (_min != float.MinValue)
-                {
-                    min = min + _min.ToInvariantString();
-                }
-                var max = ">";
-                if (_maxEqualsOk)
-                {
-                    max = ">=";
-                }
-                if (_max != float.MaxValue)
-                {
-                    max = max + _min.ToInvariantString();
-                }
-                if (_min != float.MinValue && _max != float.MaxValue)
-                {
-                    return min + "&" + max;
-                }
-                else if (_min != float.MinValue)
-                {
-                    return min;
-                }
-                return max;
+                return _name;
             }
         }
 
         /// <summary>
-        /// Serializes to the given stream.
+        /// Gets the is max boolean.
         /// </summary>
-        public int Serialize(Stream stream)
+        public bool IsMax
         {
-            return Serialize(stream, _min, _max, _minEqualsOk, _maxEqualsOk);
-        }
-
-        /// <summary>
-        /// Serializes as null.
-        /// </summary>
-        public static int SerializeNull(Stream stream)
-        {
-            return Serialize(stream, float.MinValue, float.MaxValue, true, true);
-        }
-
-        /// <summary>
-        /// Serializes a constraint with the given parameters.
-        /// </summary>
-        /// <returns></returns>
-        public static int Serialize(Stream stream, float min, float max, bool minEqualsOk, bool maxEqualsOk)
-        {
-            byte flags = (byte)((minEqualsOk ? 1 : 0) +
-                (maxEqualsOk ? 2 : 0));
-            stream.WriteByte(flags);
-            var bytes = BitConverter.GetBytes(min);
-            stream.Write(bytes, 0, 4);
-            bytes = BitConverter.GetBytes(max);
-            stream.Write(bytes, 0, 4);
-            return 4 + 4 + 1;
-        }
-
-        /// <summary>
-        /// Deserializes a stream.
-        /// </summary>
-        public static Constraint Deserialize(Stream stream)
-        {
-            var flags = stream.ReadByte();
-            var minEqualsOk = (flags & (1 << 0)) != 0;
-            var maxEqualsOk = (flags & (1 << 1)) != 0;
-            var bytes = new byte[8];
-            stream.Read(bytes, 0, 8);
-            var max = BitConverter.ToSingle(bytes, 0);
-            var min = BitConverter.ToSingle(bytes, 4);
-            if (max == float.MaxValue && min == float.MinValue)
+            get
             {
-                return null;
+                return _isMax;
             }
-            return new Constraint(min, minEqualsOk, max, maxEqualsOk);
+        }
+
+        /// <summary>
+        /// Gets the default value.
+        /// </summary>
+        public float DefaultValue
+        {
+            get
+            {
+                return _defaultValue;
+            }
         }
     }
 }

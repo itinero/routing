@@ -37,7 +37,7 @@ namespace Itinero.Osm.Vehicles
         private static float REST = 4;
 
         internal MotorVehicleClassifications(MotorVehicle mv)
-            : base(mv.Name + ".classifications", ProfileMetric.Custom, mv.VehicleTypes, mv, null)
+            : base(mv.Name + ".classifications", ProfileMetric.Custom, mv.VehicleTypes, null, mv, null)
         {
 
         }
