@@ -134,7 +134,7 @@ namespace Itinero.Profiles
         /// </summary>
         public virtual Profile Shortest()
         {
-            return this.Profile(this.Name + ".shortest");
+            return this.Profile(this.Name + ".Shortest");
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static void Register(Vehicle vehicle)
         {
-            _vehicles[vehicle.Name] = vehicle;
+            _vehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static Vehicle GetRegistered(string name)
         {
-            return _vehicles[name];
+            return _vehicles[name.ToLowerInvariant()];
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static bool TryGet(string name, out Vehicle value)
         {
-            return _vehicles.TryGetValue(name, out value);
+            return _vehicles.TryGetValue(name.ToLowerInvariant(), out value);
         }
 
         /// <summary>

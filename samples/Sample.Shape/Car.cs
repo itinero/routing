@@ -69,7 +69,7 @@ namespace Sample.Shape
         public override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
         {
             string highwayType;
-            if (!attributes.TryGetValue("BST_CODE", out highwayType))
+            if (attributes == null || !attributes.TryGetValue("BST_CODE", out highwayType))
             {
                 return Itinero.Profiles.FactorAndSpeed.NoFactor;
             }
