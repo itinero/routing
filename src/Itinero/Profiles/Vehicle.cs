@@ -109,7 +109,7 @@ namespace Itinero.Profiles
         /// </summary>
         public void Register(Profile profile)
         {
-            _profiles[profile.Name] = profile;
+            _profiles[profile.Name.ToLowerInvariant()] = profile;
         }
 
         /// <summary>
@@ -117,7 +117,7 @@ namespace Itinero.Profiles
         /// </summary>
         public Profile Profile(string name)
         {
-            return _profiles[name];
+            return _profiles[name.ToLowerInvariant()];
         }
 
         /// <summary>
