@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Itinero.Profiles.Lua.Interop;
-using Itinero.Profiles.Lua.Loaders;
+//using Itinero.Profiles.Lua.Loaders;
 
 namespace Itinero.Profiles.Lua.Platforms
 {
@@ -126,22 +126,22 @@ namespace Itinero.Profiles.Lua.Platforms
 #endif
 		}
 
-		internal static IScriptLoader GetDefaultScriptLoader()
-		{
-			AutoDetectPlatformFlags();
+//		internal static IScriptLoader GetDefaultScriptLoader()
+//		{
+//			AutoDetectPlatformFlags();
 
-			if (IsRunningOnUnity)
-				return new UnityAssetsScriptLoader();
-			else
-			{
-#if (DOTNET_CORE)
-				return new FileSystemScriptLoader();
-#elif (PCL || ENABLE_DOTNET || NETFX_CORE)
-				return new InvalidScriptLoader("Portable Framework");
-#else
-				return new FileSystemScriptLoader();
-#endif
-			}
-		}
+//			if (IsRunningOnUnity)
+//				return new UnityAssetsScriptLoader();
+//			else
+//			{
+//#if (DOTNET_CORE)
+//				return new FileSystemScriptLoader();
+//#elif (PCL || ENABLE_DOTNET || NETFX_CORE)
+//				return new InvalidScriptLoader("Portable Framework");
+//#else
+//				return new FileSystemScriptLoader();
+//#endif
+//			}
+//		}
 	}
 }

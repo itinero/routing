@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using Itinero.Profiles.Lua.Loaders;
+//using Itinero.Profiles.Lua.Loaders;
 
 namespace Itinero.Profiles.Lua
 {
@@ -24,15 +24,15 @@ namespace Itinero.Profiles.Lua
 			this.Stderr = defaults.Stderr;
 			this.TailCallOptimizationThreshold = defaults.TailCallOptimizationThreshold;
 
-			this.ScriptLoader = defaults.ScriptLoader;
+			//this.ScriptLoader = defaults.ScriptLoader;
 
 			this.CheckThreadAccess = defaults.CheckThreadAccess;
 		}
 
-		/// <summary>
-		/// Gets or sets the current script-loader.
-		/// </summary>
-		public IScriptLoader ScriptLoader { get; set; }
+		///// <summary>
+		///// Gets or sets the current script-loader.
+		///// </summary>
+		//public IScriptLoader ScriptLoader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the debug print handler

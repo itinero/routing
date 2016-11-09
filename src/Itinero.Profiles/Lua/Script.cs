@@ -49,7 +49,7 @@ namespace Itinero.Profiles.Lua
 				DebugPrint = s => { Script.GlobalOptions.Platform.DefaultPrint(s); },
 				DebugInput = s => { return Script.GlobalOptions.Platform.DefaultInput(s); },
 				CheckThreadAccess = true,
-				ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader(),
+				//ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader(),
 				TailCallOptimizationThreshold = 65536
 			};
 		}
@@ -267,53 +267,53 @@ namespace Itinero.Profiles.Lua
 		}
 
 
-		/// <summary>
-		/// Loads a string containing a Lua/MoonSharp script.
-		/// </summary>
-		/// <param name="filename">The code.</param>
-		/// <param name="globalContext">The global table to bind to this chunk.</param>
-		/// <param name="friendlyFilename">The filename to be used in error messages.</param>
-		/// <returns>
-		/// A DynValue containing a function which will execute the loaded code.
-		/// </returns>
-		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
-		{
-			this.CheckScriptOwnership(globalContext);
+//		/// <summary>
+//		/// Loads a string containing a Lua/MoonSharp script.
+//		/// </summary>
+//		/// <param name="filename">The code.</param>
+//		/// <param name="globalContext">The global table to bind to this chunk.</param>
+//		/// <param name="friendlyFilename">The filename to be used in error messages.</param>
+//		/// <returns>
+//		/// A DynValue containing a function which will execute the loaded code.
+//		/// </returns>
+//		public DynValue LoadFile(string filename, Table globalContext = null, string friendlyFilename = null)
+//		{
+//			this.CheckScriptOwnership(globalContext);
 
-#pragma warning disable 618
-			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
-#pragma warning restore 618
+//#pragma warning disable 618
+//			filename = Options.ScriptLoader.ResolveFileName(filename, globalContext ?? m_GlobalTable);
+//#pragma warning restore 618
 
-			object code = Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable);
+//			object code = Options.ScriptLoader.LoadFile(filename, globalContext ?? m_GlobalTable);
 
-			if (code is string)
-			{
-				return LoadString((string)code, globalContext, friendlyFilename ?? filename);
-			}
-			else if (code is byte[])
-			{
-				using (MemoryStream ms = new MemoryStream((byte[])code))
-					return LoadStream(ms, globalContext, friendlyFilename ?? filename);
-			}
-			else if (code is Stream)
-			{
-				try
-				{
-					return LoadStream((Stream)code, globalContext, friendlyFilename ?? filename);
-				}
-				finally
-				{
-					((Stream)code).Dispose();
-				}
-			}
-			else
-			{
-				if (code == null)
-					throw new InvalidCastException("Unexpected null from IScriptLoader.LoadFile");
-				else
-					throw new InvalidCastException(string.Format("Unsupported return type from IScriptLoader.LoadFile : {0}", code.GetType()));
-			}
-		}
+//			if (code is string)
+//			{
+//				return LoadString((string)code, globalContext, friendlyFilename ?? filename);
+//			}
+//			else if (code is byte[])
+//			{
+//				using (MemoryStream ms = new MemoryStream((byte[])code))
+//					return LoadStream(ms, globalContext, friendlyFilename ?? filename);
+//			}
+//			else if (code is Stream)
+//			{
+//				try
+//				{
+//					return LoadStream((Stream)code, globalContext, friendlyFilename ?? filename);
+//				}
+//				finally
+//				{
+//					((Stream)code).Dispose();
+//				}
+//			}
+//			else
+//			{
+//				if (code == null)
+//					throw new InvalidCastException("Unexpected null from IScriptLoader.LoadFile");
+//				else
+//					throw new InvalidCastException(string.Format("Unsupported return type from IScriptLoader.LoadFile : {0}", code.GetType()));
+//			}
+//		}
 
 
 		/// <summary>
@@ -348,32 +348,32 @@ namespace Itinero.Profiles.Lua
 		}
 
 
-		/// <summary>
-		/// Loads and executes a file containing a Lua/MoonSharp script.
-		/// </summary>
-		/// <param name="filename">The filename.</param>
-		/// <param name="globalContext">The global context.</param>
-		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
-		/// <returns>
-		/// A DynValue containing the result of the processing of the loaded chunk.
-		/// </returns>
-		public DynValue DoFile(string filename, Table globalContext = null, string codeFriendlyName = null)
-		{
-			DynValue func = LoadFile(filename, globalContext, codeFriendlyName);
-			return Call(func);
-		}
+		///// <summary>
+		///// Loads and executes a file containing a Lua/MoonSharp script.
+		///// </summary>
+		///// <param name="filename">The filename.</param>
+		///// <param name="globalContext">The global context.</param>
+		///// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
+		///// <returns>
+		///// A DynValue containing the result of the processing of the loaded chunk.
+		///// </returns>
+		//public DynValue DoFile(string filename, Table globalContext = null, string codeFriendlyName = null)
+		//{
+		//	DynValue func = LoadFile(filename, globalContext, codeFriendlyName);
+		//	return Call(func);
+		//}
 
 
-		/// <summary>
-		/// Runs the specified file with all possible defaults for quick experimenting.
-		/// </summary>
-		/// <param name="filename">The filename.</param>
-		/// A DynValue containing the result of the processing of the executed script.
-		public static DynValue RunFile(string filename)
-		{
-			Script S = new Script();
-			return S.DoFile(filename);
-		}
+		///// <summary>
+		///// Runs the specified file with all possible defaults for quick experimenting.
+		///// </summary>
+		///// <param name="filename">The filename.</param>
+		///// A DynValue containing the result of the processing of the executed script.
+		//public static DynValue RunFile(string filename)
+		//{
+		//	Script S = new Script();
+		//	return S.DoFile(filename);
+		//}
 
 		/// <summary>
 		/// Runs the specified code with all possible defaults for quick experimenting.
@@ -623,14 +623,14 @@ namespace Itinero.Profiles.Lua
 		{
 			this.CheckScriptOwnership(globalContext);
 
-			Table globals = globalContext ?? m_GlobalTable;
-			string filename = Options.ScriptLoader.ResolveModuleName(modname, globals);
+			//Table globals = globalContext ?? m_GlobalTable;
+			//string filename = Options.ScriptLoader.ResolveModuleName(modname, globals);
 
-			if (filename == null)
-				throw new ScriptRuntimeException("module '{0}' not found", modname);
+			//if (filename == null)
+				throw new ScriptRuntimeException("module '{0}' not found: loading modules not supported.", modname);
 
-			DynValue func = LoadFile(filename, globalContext, filename);
-			return func;
+			//DynValue func = LoadFile(filename, globalContext, filename);
+			//return func;
 		}
 
 
