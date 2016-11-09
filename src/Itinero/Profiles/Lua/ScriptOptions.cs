@@ -24,15 +24,8 @@ namespace Itinero.Profiles.Lua
 			this.Stderr = defaults.Stderr;
 			this.TailCallOptimizationThreshold = defaults.TailCallOptimizationThreshold;
 
-			//this.ScriptLoader = defaults.ScriptLoader;
-
 			this.CheckThreadAccess = defaults.CheckThreadAccess;
 		}
-
-		///// <summary>
-		///// Gets or sets the current script-loader.
-		///// </summary>
-		//public IScriptLoader ScriptLoader { get; set; }
 
 		/// <summary>
 		/// Gets or sets the debug print handler

@@ -7,8 +7,6 @@ using Itinero.Profiles.Lua.CoreLib;
 using Itinero.Profiles.Lua.Debugging;
 using Itinero.Profiles.Lua.Diagnostics;
 using Itinero.Profiles.Lua.Execution.VM;
-using Itinero.Profiles.Lua.IO;
-//using Itinero.Profiles.Lua.Platforms;
 using Itinero.Profiles.Lua.Tree.Expressions;
 using Itinero.Profiles.Lua.Tree.Fast_Interface;
 

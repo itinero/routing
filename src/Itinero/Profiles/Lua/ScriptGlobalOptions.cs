@@ -11,7 +11,6 @@ namespace Itinero.Profiles.Lua
 	{
 		internal ScriptGlobalOptions()
 		{
-			//Platform = PlatformAutoDetector.GetDefaultPlatform();
 			CustomConverters = new CustomConvertersCollection();
 		}
 
@@ -19,14 +18,6 @@ namespace Itinero.Profiles.Lua
 		/// Gets or sets the custom converters.
 		/// </summary>
 		public CustomConvertersCollection CustomConverters { get; set; }
-
-        /// <summary>
-        /// Gets or sets the platform abstraction to use.
-        /// </summary>
-        /// <value>
-        /// The current platform abstraction.
-        /// </value>
-        //public IPlatformAccessor Platform { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether interpreter exceptions should be 

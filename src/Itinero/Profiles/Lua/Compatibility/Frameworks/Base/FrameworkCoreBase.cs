@@ -84,7 +84,11 @@ namespace Itinero.Profiles.Lua.Compatibility.Frameworks
 
         public override bool IsAssignableFrom(Type current, Type toCompare)
         {
+#if NETFX_CORE
+            return GetTypeInfoFromType(current).IsAssignableFrom(toCompare.GetTypeInfo());
+#else
             return GetTypeInfoFromType(current).IsAssignableFrom(toCompare.GetType());
+#endif
         }
 
         public override bool IsInstanceOfType(Type t, object o)

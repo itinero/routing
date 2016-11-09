@@ -565,7 +565,7 @@
           "System.Runtime": "4.1.0"
         },
         "compile": {
-          "ref/netstandard1.3/_._": {}
+          "ref/netstandard1.3/System.Reflection.TypeExtensions.dll": {}
         },
         "runtime": {
           "lib/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
@@ -3852,6 +3852,8 @@
     ],
     ".NETStandard,Version=v1.3": [
       "NETStandard.Library >= 1.6.0",
+      "System.Reflection >= 4.1.0",
+      "System.Reflection.TypeExtensions >= 4.1.0",
       "System.Xml.XmlSerializer >= 4.0.11"
     ]
   },

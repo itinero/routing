@@ -802,7 +802,6 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -821,7 +820,6 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -835,22 +833,6 @@
         },
         "runtime": {
           "net45/Itinero.IO.Shape.dll": {}
-        }
-      },
-      "Itinero.Profiles/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
-        "dependencies": {
-          "Itinero": "1.0.0"
-        },
-        "frameworkAssemblies": [
-          "System.Xml"
-        ],
-        "compile": {
-          "net45/Itinero.Profiles.dll": {}
-        },
-        "runtime": {
-          "net45/Itinero.Profiles.dll": {}
         }
       }
     },
@@ -1618,7 +1600,6 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -1637,7 +1618,6 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -1651,22 +1631,6 @@
         },
         "runtime": {
           "net45/Itinero.IO.Shape.dll": {}
-        }
-      },
-      "Itinero.Profiles/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
-        "dependencies": {
-          "Itinero": "1.0.0"
-        },
-        "frameworkAssemblies": [
-          "System.Xml"
-        ],
-        "compile": {
-          "net45/Itinero.Profiles.dll": {}
-        },
-        "runtime": {
-          "net45/Itinero.Profiles.dll": {}
         }
       }
     },
@@ -2434,7 +2398,6 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -2453,7 +2416,6 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -2467,22 +2429,6 @@
         },
         "runtime": {
           "net45/Itinero.IO.Shape.dll": {}
-        }
-      },
-      "Itinero.Profiles/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
-        "dependencies": {
-          "Itinero": "1.0.0"
-        },
-        "frameworkAssemblies": [
-          "System.Xml"
-        ],
-        "compile": {
-          "net45/Itinero.Profiles.dll": {}
-        },
-        "runtime": {
-          "net45/Itinero.Profiles.dll": {}
         }
       }
     },
@@ -3253,7 +3199,6 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -3272,7 +3217,6 @@
         "dependencies": {
           "GeoAPI": "1.7.4",
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "NETStandard.Library": "1.6.0",
           "NetTopologySuite": "1.14.0",
           "NetTopologySuite.IO": "1.14.0.1"
@@ -3286,22 +3230,6 @@
         },
         "runtime": {
           "net45/Itinero.IO.Shape.dll": {}
-        }
-      },
-      "Itinero.Profiles/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
-        "dependencies": {
-          "Itinero": "1.0.0"
-        },
-        "frameworkAssemblies": [
-          "System.Xml"
-        ],
-        "compile": {
-          "net45/Itinero.Profiles.dll": {}
-        },
-        "runtime": {
-          "net45/Itinero.Profiles.dll": {}
         }
       }
     }
@@ -5893,11 +5821,6 @@
       "type": "project",
       "path": "../../src/Itinero.IO.Shape/project.json",
       "msbuildProject": "../../src/Itinero.IO.Shape/Itinero.IO.Shape.xproj"
-    },
-    "Itinero.Profiles/1.0.0": {
-      "type": "project",
-      "path": "../../src/Itinero.Profiles/project.json",
-      "msbuildProject": "../../src/Itinero.Profiles/Itinero.Profiles.xproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -5907,7 +5830,6 @@
       "Itinero.Geo >= 1.0.0-*",
       "Itinero.IO.Osm >= 1.0.0-*",
       "Itinero.IO.Shape >= 1.0.0-*",
-      "Itinero.Profiles >= 1.0.0-*",
       "NUnit >= 3.4.1",
       "NetTopologySuite >= 1.14.0",
       "NetTopologySuite.IO.GeoJSON >= 1.14.0",
