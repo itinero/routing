@@ -23,6 +23,6 @@
       <file src="src\Itinero.IO.Osm\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.IO.Osm.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.IO.Osm.dll" />
       <file src="src\Itinero.IO.Osm\bin\Release\net40\Itinero.IO.Osm.dll" target="lib\net40\Itinero.IO.Osm.dll" />
       <file src="src\Itinero.IO.Osm\bin\Release\net45\Itinero.IO.Osm.dll" target="lib\net45\Itinero.IO.Osm.dll" />
-      <file src="src\Itinero.IO.Osm\bin\Release\netstandard1.3\Itinero.IO.Osm.dll" target="lib\netstandard1.3\Itinero.IO.Osm.dll" />
+      <file src="src\Itinero.IO.Osm\bin\Release\netstandard1.6\Itinero.IO.Osm.dll" target="lib\netstandard1.6\Itinero.IO.Osm.dll" />
     </files>
 </package>
