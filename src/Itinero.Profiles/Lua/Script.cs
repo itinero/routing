@@ -165,13 +165,13 @@ namespace Itinero.Profiles.Lua
 		{
 			this.CheckScriptOwnership(globalTable);
 
-			if (code.StartsWith(StringModule.BASE64_DUMP_HEADER))
-			{
-				code = code.Substring(StringModule.BASE64_DUMP_HEADER.Length);
-				byte[] data = Convert.FromBase64String(code);
-				using (MemoryStream ms = new MemoryStream(data))
-					return LoadStream(ms, globalTable, codeFriendlyName);
-			}
+			//if (code.StartsWith(StringModule.BASE64_DUMP_HEADER))
+			//{
+			//	code = code.Substring(StringModule.BASE64_DUMP_HEADER.Length);
+			//	byte[] data = Convert.FromBase64String(code);
+			//	using (MemoryStream ms = new MemoryStream(data))
+			//		return LoadStream(ms, globalTable, codeFriendlyName);
+			//}
 
 			string chunkName = string.Format("{0}", codeFriendlyName ?? "chunk_" + m_Sources.Count.ToString());
 
@@ -189,82 +189,82 @@ namespace Itinero.Profiles.Lua
 			return MakeClosure(address, globalTable ?? m_GlobalTable);
 		}
 
-		/// <summary>
-		/// Loads a Lua/MoonSharp script from a System.IO.Stream. NOTE: This will *NOT* close the stream!
-		/// </summary>
-		/// <param name="stream">The stream containing code.</param>
-		/// <param name="globalTable">The global table to bind to this chunk.</param>
-		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
-		/// <returns>
-		/// A DynValue containing a function which will execute the loaded code.
-		/// </returns>
-		public DynValue LoadStream(Stream stream, Table globalTable = null, string codeFriendlyName = null)
-		{
-			this.CheckScriptOwnership(globalTable);
+		///// <summary>
+		///// Loads a Lua/MoonSharp script from a System.IO.Stream. NOTE: This will *NOT* close the stream!
+		///// </summary>
+		///// <param name="stream">The stream containing code.</param>
+		///// <param name="globalTable">The global table to bind to this chunk.</param>
+		///// <param name="codeFriendlyName">Name of the code - used to report errors, etc.</param>
+		///// <returns>
+		///// A DynValue containing a function which will execute the loaded code.
+		///// </returns>
+		//public DynValue LoadStream(Stream stream, Table globalTable = null, string codeFriendlyName = null)
+		//{
+		//	this.CheckScriptOwnership(globalTable);
 
-			Stream codeStream = new UndisposableStream(stream);
+		//	// Stream codeStream = new UndisposableStream(stream);
 
-			if (!Processor.IsDumpStream(codeStream))
-			{
-				using (StreamReader sr = new StreamReader(codeStream))
-				{
-					string scriptCode = sr.ReadToEnd();
-					return LoadString(scriptCode, globalTable, codeFriendlyName);
-				}
-			}
-			else
-			{
-				string chunkName = string.Format("{0}", codeFriendlyName ?? "dump_" + m_Sources.Count.ToString());
+		//	//if (!Processor.IsDumpStream(codeStream))
+		//	//{
+		//		using (StreamReader sr = new StreamReader(stream))
+		//		{
+		//			string scriptCode = sr.ReadToEnd();
+		//			return LoadString(scriptCode, globalTable, codeFriendlyName);
+		//		}
+		//	//}
+		//	//else
+		//	//{
+		//	//	string chunkName = string.Format("{0}", codeFriendlyName ?? "dump_" + m_Sources.Count.ToString());
 
-				SourceCode source = new SourceCode(codeFriendlyName ?? chunkName,
-					string.Format("-- This script was decoded from a binary dump - dump_{0}", m_Sources.Count),
-					m_Sources.Count, this);
+		//	//	SourceCode source = new SourceCode(codeFriendlyName ?? chunkName,
+		//	//		string.Format("-- This script was decoded from a binary dump - dump_{0}", m_Sources.Count),
+		//	//		m_Sources.Count, this);
 
-				m_Sources.Add(source);
+		//	//	m_Sources.Add(source);
 
-				bool hasUpvalues;
-				int address = m_MainProcessor.Undump(codeStream, m_Sources.Count - 1, globalTable ?? m_GlobalTable, out hasUpvalues);
+		//	//	bool hasUpvalues;
+		//	//	int address = m_MainProcessor.Undump(codeStream, m_Sources.Count - 1, globalTable ?? m_GlobalTable, out hasUpvalues);
 
-				SignalSourceCodeChange(source);
-				SignalByteCodeChange();
+		//	//	SignalSourceCodeChange(source);
+		//	//	SignalByteCodeChange();
 
-				if (hasUpvalues)
-					return MakeClosure(address, globalTable ?? m_GlobalTable);
-				else
-					return MakeClosure(address);
-			}
-		}
+		//	//	if (hasUpvalues)
+		//	//		return MakeClosure(address, globalTable ?? m_GlobalTable);
+		//	//	else
+		//	//		return MakeClosure(address);
+		//	//}
+		//}
 
-		/// <summary>
-		/// Dumps on the specified stream.
-		/// </summary>
-		/// <param name="function">The function.</param>
-		/// <param name="stream">The stream.</param>
-		/// <exception cref="System.ArgumentException">
-		/// function arg is not a function!
-		/// or
-		/// stream is readonly!
-		/// or
-		/// function arg has upvalues other than _ENV
-		/// </exception>
-		public void Dump(DynValue function, Stream stream)
-		{
-			this.CheckScriptOwnership(function);
+		///// <summary>
+		///// Dumps on the specified stream.
+		///// </summary>
+		///// <param name="function">The function.</param>
+		///// <param name="stream">The stream.</param>
+		///// <exception cref="System.ArgumentException">
+		///// function arg is not a function!
+		///// or
+		///// stream is readonly!
+		///// or
+		///// function arg has upvalues other than _ENV
+		///// </exception>
+		//public void Dump(DynValue function, Stream stream)
+		//{
+		//	this.CheckScriptOwnership(function);
 
-			if (function.Type != DataType.Function)
-				throw new ArgumentException("function arg is not a function!");
+		//	if (function.Type != DataType.Function)
+		//		throw new ArgumentException("function arg is not a function!");
 
-			if (!stream.CanWrite)
-				throw new ArgumentException("stream is readonly!");
+		//	if (!stream.CanWrite)
+		//		throw new ArgumentException("stream is readonly!");
 
-			Closure.UpvaluesType upvaluesType = function.Function.GetUpvaluesType();
+		//	Closure.UpvaluesType upvaluesType = function.Function.GetUpvaluesType();
 
-			if (upvaluesType == Closure.UpvaluesType.Closure)
-				throw new ArgumentException("function arg has upvalues other than _ENV");
+		//	if (upvaluesType == Closure.UpvaluesType.Closure)
+		//		throw new ArgumentException("function arg has upvalues other than _ENV");
 
-			UndisposableStream outStream = new UndisposableStream(stream);
-			m_MainProcessor.Dump(outStream, function.Function.EntryPointByteCodeLocation, upvaluesType == Closure.UpvaluesType.Environment);
-		}
+		//	UndisposableStream outStream = new UndisposableStream(stream);
+		//	m_MainProcessor.Dump(outStream, function.Function.EntryPointByteCodeLocation, upvaluesType == Closure.UpvaluesType.Environment);
+		//}
 
 
 //		/// <summary>
@@ -332,20 +332,20 @@ namespace Itinero.Profiles.Lua
 		}
 
 
-		/// <summary>
-		/// Loads and executes a stream containing a Lua/MoonSharp script.
-		/// </summary>
-		/// <param name="stream">The stream.</param>
-		/// <param name="globalContext">The global context.</param>
-		/// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
-		/// <returns>
-		/// A DynValue containing the result of the processing of the loaded chunk.
-		/// </returns>
-		public DynValue DoStream(Stream stream, Table globalContext = null, string codeFriendlyName = null)
-		{
-			DynValue func = LoadStream(stream, globalContext, codeFriendlyName);
-			return Call(func);
-		}
+		///// <summary>
+		///// Loads and executes a stream containing a Lua/MoonSharp script.
+		///// </summary>
+		///// <param name="stream">The stream.</param>
+		///// <param name="globalContext">The global context.</param>
+		///// <param name="codeFriendlyName">Name of the code - used to report errors, etc. Also used by debuggers to locate the original source file.</param>
+		///// <returns>
+		///// A DynValue containing the result of the processing of the loaded chunk.
+		///// </returns>
+		//public DynValue DoStream(Stream stream, Table globalContext = null, string codeFriendlyName = null)
+		//{
+		//	DynValue func = LoadStream(stream, globalContext, codeFriendlyName);
+		//	return Call(func);
+		//}
 
 
 		///// <summary>
@@ -375,16 +375,16 @@ namespace Itinero.Profiles.Lua
 		//	return S.DoFile(filename);
 		//}
 
-		/// <summary>
-		/// Runs the specified code with all possible defaults for quick experimenting.
-		/// </summary>
-		/// <param name="code">The Lua/MoonSharp code.</param>
-		/// A DynValue containing the result of the processing of the executed script.
-		public static DynValue RunString(string code)
-		{
-			Script S = new Script();
-			return S.DoString(code);
-		}
+		///// <summary>
+		///// Runs the specified code with all possible defaults for quick experimenting.
+		///// </summary>
+		///// <param name="code">The Lua/MoonSharp code.</param>
+		///// A DynValue containing the result of the processing of the executed script.
+		//public static DynValue RunString(string code)
+		//{
+		//	Script S = new Script();
+		//	return S.DoString(code);
+		//}
 
 		/// <summary>
 		/// Creates a closure from a bytecode address.

@@ -24,28 +24,28 @@ namespace Itinero.Profiles.Lua.CoreLib
 		}
 
 
-		[MoonSharpModuleMethod]
-		public static DynValue dump(ScriptExecutionContext executionContext, CallbackArguments args)
-		{
-			DynValue fn = args.AsType(0, "dump", DataType.Function, false);
+		//[MoonSharpModuleMethod]
+		//public static DynValue dump(ScriptExecutionContext executionContext, CallbackArguments args)
+		//{
+		//	DynValue fn = args.AsType(0, "dump", DataType.Function, false);
 
-			try
-			{
-				byte[] bytes;
-				using (MemoryStream ms = new MemoryStream())
-				{
-					executionContext.GetScript().Dump(fn, ms);
-					ms.Seek(0, SeekOrigin.Begin);
-					bytes = ms.ToArray();
-				}
-				string base64 = Convert.ToBase64String(bytes);
-				return DynValue.NewString(BASE64_DUMP_HEADER + base64);
-			}
-			catch (Exception ex)
-			{
-				throw new ScriptRuntimeException(ex.Message);
-			}
-		}
+		//	try
+		//	{
+		//		byte[] bytes;
+		//		using (MemoryStream ms = new MemoryStream())
+		//		{
+		//			executionContext.GetScript().Dump(fn, ms);
+		//			ms.Seek(0, SeekOrigin.Begin);
+		//			bytes = ms.ToArray();
+		//		}
+		//		string base64 = Convert.ToBase64String(bytes);
+		//		return DynValue.NewString(BASE64_DUMP_HEADER + base64);
+		//	}
+		//	catch (Exception ex)
+		//	{
+		//		throw new ScriptRuntimeException(ex.Message);
+		//	}
+		//}
 
 
 		[MoonSharpModuleMethod]
