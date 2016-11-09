@@ -40,22 +40,22 @@ namespace Itinero.Test.Osm
             var profileTags = new AttributeCollection();
             var metaTags = new AttributeCollection();
 
-            Assert.IsFalse(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsFalse(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             profileTags.Clear();
             tags.Clear();
 
             tags.AddOrReplace(new Attribute("highway", "footway"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "footway"));
             profileTags.Clear();
             tags.Clear();
 
             tags.AddOrReplace(new Attribute("highway", "motorway"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "motorway"));
             profileTags.Clear();
             tags.Clear();
@@ -76,7 +76,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("bicycle", "yes"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("bicycle", "yes"));
             profileTags.Clear();
@@ -84,7 +84,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("bicycle", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("bicycle", "no"));
             profileTags.Clear();
@@ -92,7 +92,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("bicycle", "mistake"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("bicycle", "mistake"));
             profileTags.Clear();
@@ -100,7 +100,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "footway"));
             tags.AddOrReplace(new Attribute("bicycle", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "footway"));
             Assert.IsFalse(profileTags.Contains("bicycle", "no"));
             profileTags.Clear();
@@ -110,7 +110,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace("highway", "residential");
             tags.AddOrReplace("bicycle", "no");
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("bicycle", "no"));
             profileTags.Clear();
@@ -132,7 +132,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("foot", "yes"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("foot", "yes"));
             profileTags.Clear();
@@ -140,7 +140,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("foot", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("foot", "no"));
             profileTags.Clear();
@@ -148,7 +148,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("foot", "mistake"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("foot", "mistake"));
             profileTags.Clear();
@@ -156,7 +156,7 @@ namespace Itinero.Test.Osm
 			
             tags.AddOrReplace(new Attribute("highway", "cycleway"));
             tags.AddOrReplace(new Attribute("foot", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "cycleway"));
             Assert.IsTrue(profileTags.Contains("foot", "no"));
             profileTags.Clear();
@@ -178,7 +178,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("motor_vehicle", "yes"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("motor_vehicle", "yes"));
             profileTags.Clear();
@@ -186,7 +186,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("motorcar", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("motorcar", "no"));
             profileTags.Clear();
@@ -194,7 +194,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("motorcar", "mistake"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("motorcar", "mistake"));
             profileTags.Clear();
@@ -202,7 +202,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "cycleway"));
             tags.AddOrReplace(new Attribute("motorcar", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "cycleway"));
             Assert.IsFalse(profileTags.Contains("motorcar", "no"));
             profileTags.Clear();
@@ -223,7 +223,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("oneway", "no"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("oneway", "no"));
             profileTags.Clear();
@@ -231,7 +231,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("oneway", "yes"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("oneway", "yes"));
             profileTags.Clear();
@@ -239,7 +239,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("oneway", "-1"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("oneway", "-1"));
             profileTags.Clear();
@@ -260,7 +260,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("access", "yes"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("access", "yes"));
             profileTags.Clear();
@@ -268,7 +268,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("access", "mistake"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("access", "mistake"));
             profileTags.Clear();
@@ -289,7 +289,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("junction", "roundabout"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("junction", "roundabout"));
             profileTags.Clear();
@@ -297,7 +297,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("junction", "mistake"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("junction", "mistake"));
             profileTags.Clear();
@@ -318,7 +318,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("maxspeed", "50"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("maxspeed", "50"));
             profileTags.Clear();
@@ -326,7 +326,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("maxspeed", "mistake"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsFalse(profileTags.Contains("maxspeed", "mistake"));
             profileTags.Clear();
@@ -334,7 +334,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace(new Attribute("highway", "residential"));
             tags.AddOrReplace(new Attribute("maxspeed", "50 mph"));
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("maxspeed", "50 mph"));
             profileTags.Clear();
@@ -355,7 +355,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace("highway", "steps");
             tags.AddOrReplace("ramp", "yes");
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "steps"));
             Assert.IsTrue(profileTags.Contains("ramp", "yes"));
             profileTags.Clear();
@@ -376,7 +376,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace("highway", "residential");
             tags.AddOrReplace("cycleway", "cyclestreet");
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered()));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, Itinero.Profiles.Vehicle.GetRegistered(), new Itinero.Profiles.Whitelist()));
             Assert.IsTrue(profileTags.Contains("highway", "residential"));
             Assert.IsTrue(profileTags.Contains("cycleway", "cyclestreet"));
             profileTags.Clear();
@@ -402,7 +402,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace("highway", "motorway");
             tags.AddOrReplace("access", "no");
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.AreEqual(2, profileTags.Count);
             Assert.IsTrue(profileTags.Contains("highway", "motorway"));
             Assert.IsTrue(profileTags.Contains("motorcar", "no"));
@@ -411,7 +411,7 @@ namespace Itinero.Test.Osm
 
             tags.AddOrReplace("highway", "motorway");
             tags.AddOrReplace("access", "yes");
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.AreEqual(3, profileTags.Count);
             Assert.IsTrue(profileTags.Contains("highway", "motorway"));
             Assert.IsTrue(profileTags.Contains("bicycle", "yes"));
@@ -422,7 +422,7 @@ namespace Itinero.Test.Osm
             tags.AddOrReplace("highway", "motorway");
             tags.AddOrReplace("access", "no");
             tags.AddOrReplace("vehicle", "yes");
-            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles));
+            Assert.IsTrue(tags.Normalize(profileTags, metaTags, vehicles, new Itinero.Profiles.Whitelist()));
             Assert.AreEqual(2, profileTags.Count);
             Assert.IsTrue(profileTags.Contains("highway", "motorway"));
             Assert.IsTrue(profileTags.Contains("bicycle", "yes"));
