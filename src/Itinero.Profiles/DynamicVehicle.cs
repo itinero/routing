@@ -20,7 +20,9 @@ using Itinero.Attributes;
 using Itinero.Profiles.Lua;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace Itinero.Profiles
 {
@@ -30,6 +32,7 @@ namespace Itinero.Profiles
     public class DynamicVehicle : Vehicle
     {
         private readonly Script _script;
+        private readonly string _source;
         private readonly string[] _vehicleTypes;
         private readonly string _name;
         private readonly HashSet<string> _metaWhiteList;
@@ -41,6 +44,7 @@ namespace Itinero.Profiles
         public DynamicVehicle(string script)
         {
             _profileFunctions = new Dictionary<string, object>();
+            _source = script;
 
             _script = new Script();
             _script.DoString(script);
@@ -65,8 +69,8 @@ namespace Itinero.Profiles
             }
             foreach(var dynProfile in dynProfiles.Table.Pairs)
             {
-                var profileName = dynProfile.Key.String;
                 var profileDefinition = dynProfile.Value;
+                var profileName = profileDefinition.Table.Get("name").String;
                 var functionName = profileDefinition.Table.Get("function_name").String;
                 var function = _script.Globals[functionName];
                 if (function == null)
@@ -93,7 +97,11 @@ namespace Itinero.Profiles
                 {
                     _profileFunctions[functionName] = function;
                 }
-                var profile = new DynamicProfile(this.Name + "." + profileName, metric, _vehicleTypes, this, _script, function);
+                if (!string.IsNullOrWhiteSpace(profileName))
+                {
+                    profileName = "." + profileName;
+                }
+                var profile = new DynamicProfile(this.Name + profileName, metric, _vehicleTypes, this, _script, function);
                 this.Register(profile);
             }
             
@@ -245,6 +253,38 @@ namespace Itinero.Profiles
         public override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
         {
             throw new NotImplementedException("Not used and unavailable with dynamic vehicles.");
+        }
+
+        /// <summary>
+        /// Loads the vehicle from the given script.
+        /// </summary>
+        public static DynamicVehicle Load(string script)
+        {
+            return new DynamicVehicle(script);
+        }
+
+        /// <summary>
+        /// Loads the vehicle from the given stream using the current position as the size.
+        /// </summary>
+        public static DynamicVehicle LoadWithSize(Stream stream)
+        {
+            return DynamicVehicle.Load(stream.ReadWithSizeString());
+        }
+
+        /// <summary>
+        /// Loads the vehicle from the given stream.
+        /// </summary>
+        public static DynamicVehicle LoadFromStream(Stream stream)
+        {
+            return DynamicVehicle.Load(stream.ReadToEnd());
+        }
+
+        /// <summary>
+        /// Loads the vehicle from the embedded resources.
+        /// </summary>
+        public static DynamicVehicle LoadFromEmbeddedResource(Assembly assembly, string embeddedResource)
+        {
+            return DynamicVehicle.Load(assembly.GetManifestResourceStream(embeddedResource).ReadToEnd());
         }
     }
 }

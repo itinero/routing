@@ -3337,6 +3337,7 @@
       "Itinero >= 1.0.0-*",
       "Itinero.Geo >= 1.0.0-*",
       "Itinero.IO.Osm >= 1.0.0-*",
+      "Itinero.Profiles >= 1.0.0-*",
       "NUnit >= 3.4.1",
       "NetTopologySuite >= 1.14.0",
       "NetTopologySuite.IO.GeoJSON >= 1.14.0",

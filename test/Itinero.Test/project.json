@@ -1,10 +1,11 @@
-﻿{
+{
   "version": "1.0.0-*",
 
   "dependencies": {
     "NUnit": "3.4.1",
     "NetTopologySuite.IO.GeoJSON": "1.14.0",
     "NetTopologySuite": "1.14.0",
+    "Itinero.Profiles": "1.0.0-*",
     "Itinero.IO.Osm": "1.0.0-*",
     "Itinero.Geo": "1.0.0-*",
     "Itinero": "1.0.0-*",
@@ -21,7 +22,8 @@
       },
       "buildOptions": {
         "embed": [
-          "test-data/networks/*.geojson"
+          "test-data/networks/*.geojson",
+          "test-data/profiles/osm/*.lua"
         ]
       }
     }

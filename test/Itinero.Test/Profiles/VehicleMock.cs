@@ -42,8 +42,8 @@ namespace Itinero.Test.Profiles
             _getFactorAndSpeed = getFactorAndSpeed;
 
 
-            this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, this));
-            this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, this));
+            this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, null, this));
+            this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, null, this));
         }
 
         /// <summary>
