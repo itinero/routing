@@ -87,6 +87,7 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public void Register()
         {
+            Profiles.Vehicle.Register(this);
             foreach (var profile in this.GetProfiles())
             {
                 Profiles.Profile.Register(profile);
