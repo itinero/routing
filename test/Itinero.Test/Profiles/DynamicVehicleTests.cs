@@ -36,7 +36,7 @@ namespace Itinero.Test.Profiles
         {
             var car = DynamicVehicle.LoadFromEmbeddedResource(typeof(DynamicVehicleTests).Assembly, "Itinero.Test.test_data.profiles.osm.car.lua");
 
-            var test = car.Fastest().FactorAndSpeed(new AttributeCollection());
+            var test = car.Fastest().FactorAndSpeed(new AttributeCollection(new Attribute("highway", "residential")));
         }
     }
 }

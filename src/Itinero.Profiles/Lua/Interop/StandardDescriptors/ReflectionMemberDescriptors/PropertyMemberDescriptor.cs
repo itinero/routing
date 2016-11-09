@@ -115,8 +115,8 @@ namespace Itinero.Profiles.Lua.Interop
 			if (getter == null && setter == null)
 				throw new ArgumentNullException("getter and setter cannot both be null");
 
-			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
-				accessMode = InteropAccessMode.Reflection;
+			//if (Script.GlobalOptions.Platform.IsRunningOnAOT())
+			//	accessMode = InteropAccessMode.Reflection;
 
 			this.PropertyInfo = pi;
 			this.AccessMode = accessMode;

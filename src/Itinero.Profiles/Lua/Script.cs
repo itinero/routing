@@ -8,7 +8,7 @@ using Itinero.Profiles.Lua.Debugging;
 using Itinero.Profiles.Lua.Diagnostics;
 using Itinero.Profiles.Lua.Execution.VM;
 using Itinero.Profiles.Lua.IO;
-using Itinero.Profiles.Lua.Platforms;
+//using Itinero.Profiles.Lua.Platforms;
 using Itinero.Profiles.Lua.Tree.Expressions;
 using Itinero.Profiles.Lua.Tree.Fast_Interface;
 
@@ -46,8 +46,8 @@ namespace Itinero.Profiles.Lua
 
 			DefaultOptions = new ScriptOptions()
 			{
-				DebugPrint = s => { Script.GlobalOptions.Platform.DefaultPrint(s); },
-				DebugInput = s => { return Script.GlobalOptions.Platform.DefaultInput(s); },
+				//DebugPrint = s => { Script.GlobalOptions.Platform.DefaultPrint(s); },
+				//DebugInput = s => { return Script.GlobalOptions.Platform.DefaultInput(s); },
 				CheckThreadAccess = true,
 				//ScriptLoader = PlatformAutoDetector.GetDefaultScriptLoader(),
 				TailCallOptimizationThreshold = 65536
@@ -735,10 +735,11 @@ namespace Itinero.Profiles.Lua
 			subproduct = (subproduct != null) ? (subproduct + " ") : "";
 
 			StringBuilder sb = new StringBuilder();
-			sb.AppendLine(string.Format("MoonSharp {0}{1} [{2}]", subproduct, Script.VERSION, Script.GlobalOptions.Platform.GetPlatformName()));
+			sb.AppendLine(string.Format("MoonSharp {0}{1}", subproduct, Script.VERSION));
 			sb.AppendLine("Copyright (C) 2014-2016 Marco Mastropaolo");
 			sb.AppendLine("http://www.moonsharp.org");
-			return sb.ToString();
+            sb.AppendLine("Customized for embedding in Itinero.");
+            return sb.ToString();
 		}
 
 		Script IScriptPrivateResource.OwnerScript

@@ -1,5 +1,5 @@
 ﻿using Itinero.Profiles.Lua.Interop;
-using Itinero.Profiles.Lua.Platforms;
+//using Itinero.Profiles.Lua.Platforms;
 
 namespace Itinero.Profiles.Lua
 {
@@ -11,7 +11,7 @@ namespace Itinero.Profiles.Lua
 	{
 		internal ScriptGlobalOptions()
 		{
-			Platform = PlatformAutoDetector.GetDefaultPlatform();
+			//Platform = PlatformAutoDetector.GetDefaultPlatform();
 			CustomConverters = new CustomConvertersCollection();
 		}
 
@@ -26,7 +26,7 @@ namespace Itinero.Profiles.Lua
         /// <value>
         /// The current platform abstraction.
         /// </value>
-        public IPlatformAccessor Platform { get; set; }
+        //public IPlatformAccessor Platform { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether interpreter exceptions should be 

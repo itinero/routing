@@ -86,6 +86,4 @@ function factor_and_speed (attributes, result)
 	 else
 	    return
 	 end
-
-	 local access = access (attributes, vehicle_types)
 end

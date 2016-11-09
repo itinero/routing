@@ -29,8 +29,8 @@ namespace Itinero.Profiles.Lua.Interop
 			if (accessMode == InteropAccessMode.NoReflectionAllowed)
 				throw new ArgumentException("Can't create a StandardUserDataDescriptor under a NoReflectionAllowed access mode");
 
-			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
-				accessMode = InteropAccessMode.Reflection;
+			//if (Script.GlobalOptions.Platform.IsRunningOnAOT())
+			//	accessMode = InteropAccessMode.Reflection;
 
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = UserData.DefaultAccessMode;

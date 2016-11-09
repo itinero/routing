@@ -68,8 +68,8 @@ namespace Itinero.Profiles.Lua.Interop
 		/// <param name="accessMode">The <see cref="InteropAccessMode" /> </param>
 		public FieldMemberDescriptor(FieldInfo fi, InteropAccessMode accessMode)
 		{
-			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
-				accessMode = InteropAccessMode.Reflection;
+			//if (Script.GlobalOptions.Platform.IsRunningOnAOT())
+			//	accessMode = InteropAccessMode.Reflection;
 
 			this.FieldInfo = fi;
 			this.AccessMode = accessMode;

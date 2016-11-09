@@ -80,8 +80,8 @@ namespace Itinero.Profiles.Lua.Interop
 			base.Initialize(methodBase.Name, isStatic, parameters, isExtensionMethod);
 
 			// adjust access mode
-			if (Script.GlobalOptions.Platform.IsRunningOnAOT())
-				accessMode = InteropAccessMode.Reflection;
+			//if (Script.GlobalOptions.Platform.IsRunningOnAOT())
+			//	accessMode = InteropAccessMode.Reflection;
 
 			if (accessMode == InteropAccessMode.Default)
 				accessMode = UserData.DefaultAccessMode;
