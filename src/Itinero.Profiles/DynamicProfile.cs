@@ -17,7 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using MoonSharp.Interpreter;
+using Itinero.Profiles.Lua;
 
 namespace Itinero.Profiles
 {

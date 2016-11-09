@@ -3,15 +3,6 @@
   "version": 2,
   "targets": {
     ".NETFramework,Version=v4.0": {
-      "MoonSharp/2.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/net40-client/MoonSharp.Interpreter.dll": {}
-        },
-        "runtime": {
-          "lib/net40-client/MoonSharp.Interpreter.dll": {}
-        }
-      },
       "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
@@ -39,15 +30,6 @@
       }
     },
     ".NETFramework,Version=v4.5": {
-      "MoonSharp/2.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/net40-client/MoonSharp.Interpreter.dll": {}
-        },
-        "runtime": {
-          "lib/net40-client/MoonSharp.Interpreter.dll": {}
-        }
-      },
       "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
@@ -75,15 +57,6 @@
       }
     },
     ".NETPortable,Version=v4.0,Profile=Profile147": {
-      "MoonSharp/2.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.dll": {}
-        },
-        "runtime": {
-          "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.dll": {}
-        }
-      },
       "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
@@ -140,15 +113,6 @@
         },
         "compile": {
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
-        }
-      },
-      "MoonSharp/2.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/netstandard1.6/MoonSharp.Interpreter.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard1.6/MoonSharp.Interpreter.dll": {}
         }
       },
       "NETStandard.Library/1.6.0": {
@@ -741,7 +705,7 @@
           "System.Runtime": "4.1.0"
         },
         "compile": {
-          "ref/netstandard1.5/_._": {}
+          "ref/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
         },
         "runtime": {
           "lib/netstandard1.5/System.Reflection.TypeExtensions.dll": {}
@@ -1323,32 +1287,6 @@
         "ref/xamarinmac20/_._",
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
-      ]
-    },
-    "MoonSharp/2.0.0": {
-      "sha512": "uiAcRh7d+53k3xW9pFDJfAFVw4RnjHVCJG05M3oPAVEVwPtFavhg1H/IpC6So4X1j9kJlzuLlA3OghhPcIvc5A==",
-      "type": "package",
-      "path": "MoonSharp/2.0.0",
-      "files": [
-        "MoonSharp.2.0.0.nupkg.sha512",
-        "MoonSharp.nuspec",
-        "lib/net35-client/MoonSharp.Interpreter.dll",
-        "lib/net35-client/MoonSharp.Interpreter.pdb",
-        "lib/net35-client/MoonSharp.Interpreter.xml",
-        "lib/net40-client/MoonSharp.Interpreter.dll",
-        "lib/net40-client/MoonSharp.Interpreter.pdb",
-        "lib/net40-client/MoonSharp.Interpreter.xml",
-        "lib/netcore/MoonSharp.Interpreter.deps.json",
-        "lib/netcore/MoonSharp.Interpreter.dll",
-        "lib/netcore/MoonSharp.Interpreter.pdb",
-        "lib/netcore/MoonSharp.Interpreter.xml",
-        "lib/netstandard1.6/MoonSharp.Interpreter.deps.json",
-        "lib/netstandard1.6/MoonSharp.Interpreter.dll",
-        "lib/netstandard1.6/MoonSharp.Interpreter.pdb",
-        "lib/netstandard1.6/MoonSharp.Interpreter.xml",
-        "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.dll",
-        "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.pdb",
-        "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.xml"
       ]
     },
     "NETStandard.Library/1.6.0": {
@@ -4360,8 +4298,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Itinero >= 1.0.0-*",
-      "MoonSharp >= 2.0.0"
+      "Itinero >= 1.0.0-*"
     ],
     ".NETFramework,Version=v4.0": [
       "System.Xml"
@@ -4376,6 +4313,7 @@
     ],
     ".NETStandard,Version=v1.6": [
       "NETStandard.Library >= 1.6.0",
+      "System.Reflection.TypeExtensions >= 4.1.0",
       "System.Xml.XmlSerializer >= 4.0.11"
     ]
   },
