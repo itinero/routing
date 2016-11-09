@@ -6,21 +6,22 @@ maxspeed = 200
 
 speed_profile = {
 	["motorway"] = 120,
-	["motorway_link"] = 70,
+	["motorway_link"] = 120,
 	["trunk"] = 90,
-	["trunk_link"] = 70,
+	["trunk_link"] = 90,
 	["primary"] = 90,
-	["primary_link"] = 70,
+	["primary_link"] = 90,
 	["secondary"] = 70,
-	["secondary_link"] = 50,
+	["secondary_link"] = 70,
 	["tertiary"] = 70,
-	["tertiary_link"] = 50,
+	["tertiary_link"] = 70,
 	["unclassified"] = 50,
 	["residential"] = 50,
 	["service"] = 30,
 	["services"] = 30,
+	["road"] = 30,
+	["track"] = 30,
 	["living_street"] = 5,
-	["track"] = 5,
 	["ferry"] = 5,
 	["movable"] = 5,
 	["shuttle_train"] = 10,
@@ -55,7 +56,7 @@ profiles = {
 		metric = "time"
 	},
 	{ 
-		shortest = "shortest",
+		name = "shortest",
 		function_name = "factor_and_speed",
 		metric = "distance",
 	}
@@ -70,7 +71,7 @@ function factor_and_speed (attributes, result)
 	 
 	 result.speed = 0
 	 result.direction = 0
-	 result.canstop = false
+	 result.canstop = true
 	 result.attributes_to_keep = {}
 
 	 local highway_speed = speed_profile[highway]
