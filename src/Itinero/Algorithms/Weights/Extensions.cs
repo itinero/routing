@@ -86,7 +86,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Returns the default weight handler.
         /// </summary>
-        public static DefaultWeightHandler DefaultWeightHandler(this Profile profile, RouterBase router)
+        public static DefaultWeightHandler DefaultWeightHandler(this IProfileInstance profile, RouterBase router)
         {
             return router.GetDefaultWeightHandler(profile);
         }
@@ -94,11 +94,11 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Returns the default weight handler but calculates a profile cache first.
         /// </summary>
-        public static DefaultWeightHandler DefaultWeightHandlerCached(this Profile profile, RouterDb routerDb)
+        public static DefaultWeightHandler DefaultWeightHandlerCached(this IProfileInstance profile, RouterDb routerDb)
         {            
             // prebuild profile factor cache.
             var profileCache = new ProfileFactorAndSpeedCache(routerDb);
-            profileCache.CalculateFor(profile);
+            profileCache.CalculateFor(profile.Profile);
 
             return new Weights.DefaultWeightHandler(profileCache.GetGetFactor(profile));
         }
@@ -106,7 +106,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Returns the augmented weight handler.
         /// </summary>
-        public static WeightHandler AugmentedWeightHandler(this Profile profile, RouterBase router)
+        public static WeightHandler AugmentedWeightHandler(this IProfileInstance profile, RouterBase router)
         {
             return router.GetAugmentedWeightHandler(profile);
         }
@@ -114,11 +114,11 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Returns the augmented weight handler.
         /// </summary>
-        public static WeightHandler AugmentedWeightHandlerCached(this Profile profile, RouterDb routerDb)
+        public static WeightHandler AugmentedWeightHandlerCached(this IProfileInstance profile, RouterDb routerDb)
         {
             // prebuild profile factor cache.
             var profileCache = new ProfileFactorAndSpeedCache(routerDb);
-            profileCache.CalculateFor(profile);
+            profileCache.CalculateFor(profile.Profile);
 
             return new Weights.WeightHandler(profileCache.GetGetFactorAndSpeed(profile));
         }

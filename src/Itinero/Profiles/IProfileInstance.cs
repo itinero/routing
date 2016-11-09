@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+
 namespace Itinero.Profiles
 {
     /// <summary>
@@ -37,6 +39,43 @@ namespace Itinero.Profiles
         float[] Constraints
         {
             get;
+        }
+    }
+
+    class ProfileInstance : IProfileInstance
+    {
+        private readonly Profile _profile;
+        private readonly float[] _constraints;
+
+        /// <summary>
+        /// Creates a new profile instance.
+        /// </summary>
+        public ProfileInstance(Profile profile, float[] constraints)
+        {
+            _profile = profile;
+            _constraints = constraints;
+        }
+
+        /// <summary>
+        /// Gets the constraints.
+        /// </summary>
+        public float[] Constraints
+        {
+            get
+            {
+                return _constraints;
+            }
+        }
+
+        /// <summary>
+        /// Gets the profile.
+        /// </summary>
+        public Profile Profile
+        {
+            get
+            {
+                return _profile;
+            }
         }
     }
 }

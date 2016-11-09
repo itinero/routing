@@ -29,6 +29,23 @@ namespace Itinero.Osm.Vehicles
     public class BigTruck : MotorVehicle
     {
         /// <summary>
+        /// Creates a new big truck.
+        /// </summary>
+        public BigTruck()
+        {
+            this.Register(new Profiles.Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, new Constraint[]
+            {
+                new Constraint("maxweight", true, 0),
+                new Constraint("maxwidth", true, 0)
+            }, this, null));
+            this.Register(new Profiles.Profile(this.Name + ".shortest", ProfileMetric.TimeInSeconds, this.VehicleTypes, new Constraint[]
+            {
+                new Constraint("maxweight", true, 0),
+                new Constraint("maxwidth", true, 0)
+            }, this, null));
+        }
+
+        /// <summary>
         /// Gets the name of this vehicle.
         /// </summary>
         public override string Name
@@ -70,6 +87,16 @@ namespace Itinero.Osm.Vehicles
             {
                 return new HashSet<string>();
             }
+        }
+
+        /// <summary>
+        /// Creates a new fastest bigtruck profile but with weight and width constraints.
+        /// </summary>
+        /// <param name="weight">The weight in kilograms.</param>
+        /// <param name="width">The width in meters.</param>
+        public IProfileInstance Fastest(float weight, float width)
+        {
+            return this.Fastest().BuildConstrained(new float[] { weight, width });
         }
 
         /// <summary>
@@ -167,6 +194,34 @@ namespace Itinero.Osm.Vehicles
                 whiteList.Add("oneway");
             }
 
+            // try to parse maxweight.
+            var maxweight = 0f;
+            if (!attributes.TryGetMaxWeight(out maxweight))
+            { // there is a valid max weight.
+                maxweight = 0;
+            }
+            else
+            {
+                whiteList.Add("maxweight");
+            }
+
+            // try to parse maxwidth.
+            var maxwidth = 0f;
+            if (!attributes.TryGetMaxWidth(out maxwidth))
+            { // there is a valid max width.
+                maxwidth = 0;
+            }
+            else
+            {
+                whiteList.Add("maxwidth");
+            }
+
+            float[] constraints = null;
+            if (maxwidth != 0 || maxweight != 0)
+            {
+                constraints = new float[] { maxweight, maxwidth };
+            }
+
             speed = speed / 3.6f; // to m/s
             if (!canstopon)
             { // add canstop on info to direction.
@@ -175,7 +230,7 @@ namespace Itinero.Osm.Vehicles
 
             return new Profiles.FactorAndSpeed()
             {
-                Constraints = null,
+                Constraints = constraints,
                 Direction = direction,
                 SpeedFactor = 1.0f / speed,
                 Value = 1.0f / speed

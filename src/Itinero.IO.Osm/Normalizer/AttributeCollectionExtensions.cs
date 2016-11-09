@@ -31,10 +31,10 @@ namespace Itinero.IO.Osm.Normalizer
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
         public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, IEnumerable<Vehicle> vehicles)
+            AttributeCollection metaTags, IEnumerable<Vehicle> vehicles, Whitelist whitelist)
         {
             var normalizer = new DefaultTagNormalizer();
-            return normalizer.Normalize(tags, profileTags, metaTags, vehicles);
+            return normalizer.Normalize(tags, profileTags, metaTags, vehicles, whitelist);
         }
 
         /// <summary>

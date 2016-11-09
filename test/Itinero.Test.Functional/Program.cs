@@ -65,11 +65,12 @@ namespace Itinero.Test.Functional
 
             // TEST1: Tests building a router db for cars, contracting it and calculating routes.
             // test building a router db.
-            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.Car, Vehicle.Bicycle, Vehicle.Pedestrian).TestPerf("Build belgium router db for Car.");
+            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Vehicle.BigTruck, Vehicle.Car, Vehicle.Bicycle, Vehicle.Pedestrian).TestPerf("Build belgium router db for Car.");
             var router = new Router(routerDb);
 
             // build profile cache.
             var profileCache = new Profiles.ProfileFactorAndSpeedCache(routerDb);
+            profileCache.CalculateFor(Vehicle.BigTruck.Fastest());
             profileCache.CalculateFor(Vehicle.Car.Fastest());
             profileCache.CalculateFor(Vehicle.Bicycle.Fastest());
             profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());

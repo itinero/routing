@@ -28,11 +28,11 @@ namespace Itinero.IO.Osm.Normalizer
     public class DefaultTagNormalizer : ITagNormalizer
     {
         public static ITagNormalizer Default = new DefaultTagNormalizer();
-
+        
         /// <summary>
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
-        public virtual bool Normalize(AttributeCollection tags, AttributeCollection profileTags, AttributeCollection metaTags, IEnumerable<Vehicle> vehicles)
+        public virtual bool Normalize(AttributeCollection tags, AttributeCollection profileTags, AttributeCollection metaTags, IEnumerable<Vehicle> vehicles, Whitelist whitelist)
         {
             string highway;
             if (!tags.TryGetValue("highway", out highway))
@@ -94,6 +94,16 @@ namespace Itinero.IO.Osm.Normalizer
             foreach (var vehicle in vehicles)
             {
                 tags.NormalizeAccess(vehicle, highway, profileTags);
+            }
+
+            // add whitelisted tags.
+            foreach (var key in whitelist)
+            {
+                var value = string.Empty;
+                if (tags.TryGetValue(key, out value))
+                {
+                    profileTags.AddOrReplace(key, value);
+                }
             }
 
             return true;

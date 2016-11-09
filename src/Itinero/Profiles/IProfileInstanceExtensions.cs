@@ -41,6 +41,11 @@ namespace Itinero.Profiles
                 return false;
             }
 
+            if (edgeValues == null)
+            {
+                return false;
+            }
+
             for (var i = 0; i < profileInstance.Profile.ConstrainedVariables.Length && i < profileInstance.Constraints.Length; i++)
             {
                 var constraint = profileInstance.Profile.ConstrainedVariables[i];

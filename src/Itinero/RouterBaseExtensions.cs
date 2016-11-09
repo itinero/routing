@@ -41,11 +41,11 @@ namespace Itinero
         /// <summary>
         /// Returns true if all given profiles are supported.
         /// </summary>
-        public static bool SupportsAll(this RouterBase router, params Profile[] profiles)
+        public static bool SupportsAll(this RouterBase router, params IProfileInstance[] profiles)
         {
             for (var i = 0; i < profiles.Length; i++)
             {
-                if (!router.Db.Supports(profiles[i]))
+                if (!router.Db.Supports(profiles[i].Profile))
                 {
                     return false;
                 }
@@ -174,16 +174,16 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this RouterBase router, Profile profile, float latitude, float longitude, 
+        public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance profile, float latitude, float longitude, 
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
-            return router.TryResolve(new Profile[] { profile }, latitude, longitude, searchDistanceInMeter);
+            return router.TryResolve(new IProfileInstance[] { profile }, latitude, longitude, searchDistanceInMeter);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this RouterBase router, Profile[] profiles, float latitude, float longitude,
+        public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance[] profiles, float latitude, float longitude,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, latitude, longitude, null, 
@@ -193,16 +193,16 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this RouterBase router, Profile profile, float latitude, float longitude,
+        public static RouterPoint Resolve(this RouterBase router, IProfileInstance profile, float latitude, float longitude,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
-            return router.Resolve(new Profile[] { profile }, latitude, longitude, searchDistanceInMeter);
+            return router.Resolve(new IProfileInstance[] { profile }, latitude, longitude, searchDistanceInMeter);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this RouterBase router, Profile[] profiles, float latitude, float longitude,
+        public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, float latitude, float longitude,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, latitude, longitude, searchDistanceInMeter).Value;
@@ -211,7 +211,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this RouterBase router, Profile[] profiles, float latitude, float longitude,
+        public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, latitude, longitude, isBetter, searchDistanceInMeter).Value;
@@ -220,7 +220,7 @@ namespace Itinero
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
-        public static bool CheckConnectivity(this RouterBase router, Profile profile, RouterPoint point, float radiusInMeters)
+        public static bool CheckConnectivity(this RouterBase router, IProfileInstance profile, RouterPoint point, float radiusInMeters)
         {
             return router.TryCheckConnectivity(profile, point, radiusInMeters).Value;
         }
@@ -228,7 +228,7 @@ namespace Itinero
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
-        public static bool CheckConnectivity(this RouterBase router, Profile profile, RouterPoint point)
+        public static bool CheckConnectivity(this RouterBase router, IProfileInstance profile, RouterPoint point)
         {
             return router.CheckConnectivity(profile, point, DefaultConnectivityRadius);
         }
@@ -236,7 +236,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, Profile profile, RouterPoint[] locations)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations)
         {
             return router.TryCalculate(profile, locations).Value;
         }
@@ -244,7 +244,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, Profile profile,
+        public static Route Calculate(this RouterBase router, IProfileInstance profile,
             float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
         {
             return router.TryCalculate(profile, sourceLatitude, sourceLongitude, targetLatitude, targetLongitude).Value;
@@ -253,7 +253,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] locations)
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations)
         {
             if (locations.Length < 2)
             {
@@ -279,10 +279,10 @@ namespace Itinero
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, Profile profile,
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
             float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
         {
-            var profiles = new Profile[] { profile };
+            var profiles = new IProfileInstance[] { profile };
             var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
             var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
 
@@ -300,7 +300,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Result<Route[]> TryCalculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint[] targets)
+        public static Result<Route[]> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint[] targets)
         {
             var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets);
             if(result.IsError)
@@ -319,7 +319,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint target)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target)
         {
             return router.TryCalculate(profile, source, target).Value;
         }
@@ -327,7 +327,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Route[] Calculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint[] targets)
+        public static Route[] Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint[] targets)
         {
             return router.TryCalculate(profile, source, targets).Value;
         }
@@ -336,7 +336,7 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public static Result<Route[][]> TryCalculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
+        public static Result<Route[][]> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] sources, RouterPoint[] targets)
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
             var paths = router.TryCalculateRaw(profile, weightHandler, sources, targets);
@@ -370,7 +370,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Route[][] Calculate(this RouterBase router, Profile profile, RouterPoint[] sources, RouterPoint[] targets)
+        public static Route[][] Calculate(this RouterBase router, IProfileInstance profile, RouterPoint[] sources, RouterPoint[] targets)
         {
             return router.TryCalculate(profile, sources, targets).Value;
         }
@@ -378,10 +378,10 @@ namespace Itinero
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<T> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler,
+        public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler,
             float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude) where T : struct
         {
-            var profiles = new Profile[] { profile };
+            var profiles = new IProfileInstance[] { profile };
             var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
             var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
 
@@ -399,7 +399,7 @@ namespace Itinero
         /// <summary>
         /// Tries to calculate the weight between the given source and target.
         /// </summary>
-        public static Result<T> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler,
+        public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler,
             RouterPoint source, RouterPoint target) where T : struct
         {
             var result = router.TryCalculateRaw<T>(profile, weightHandler, source, target);
@@ -413,7 +413,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] locations)
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations)
             where T : struct
         {
             var invalids = new HashSet<int>();
@@ -431,7 +431,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
             ISet<int> invalids) where T : struct
         {
             return router.TryCalculateWeight(profile, weightHandler, locations, locations, invalids, invalids);
@@ -440,7 +440,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
-        public static T[][] CalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
+        public static T[][] CalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
             ISet<int> invalids) where T : struct
         {
             return router.TryCalculateWeight(profile, weightHandler, locations, invalids).Value;
@@ -449,7 +449,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
-        public static float[][] CalculateWeight(this RouterBase router, Profile profile, RouterPoint[] locations,
+        public static float[][] CalculateWeight(this RouterBase router, IProfileInstance profile, RouterPoint[] locations,
             ISet<int> invalids)
         {
             return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, invalids).Value;
@@ -458,7 +458,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
-        public static Result<RouterPoint>[] TryResolve(this RouterBase router, Profile profile, Coordinate[] coordinates,
+        public static Result<RouterPoint>[] TryResolve(this RouterBase router, IProfileInstance profile, Coordinate[] coordinates,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -474,16 +474,16 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this RouterBase router, Profile profile, Coordinate coordinate,
+        public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance profile, Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
-            return router.TryResolve(new Profile[] { profile }, coordinate, searchDistanceInMeter);
+            return router.TryResolve(new IProfileInstance[] { profile }, coordinate, searchDistanceInMeter);
         }
 
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
-        public static Result<RouterPoint>[] TryResolve(this RouterBase router, Profile[] profiles, Coordinate[] coordinates,
+        public static Result<RouterPoint>[] TryResolve(this RouterBase router, IProfileInstance[] profiles, Coordinate[] coordinates,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -499,7 +499,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this RouterBase router, Profile[] profiles, Coordinate coordinate,
+        public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude,
@@ -509,7 +509,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static Result<RouterPoint> TryResolve(this RouterBase router, Profile[] profiles, Coordinate coordinate,
+        public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude, isBetter,
@@ -519,7 +519,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this RouterBase router, Profile profile, Coordinate coordinate,
+        public static RouterPoint Resolve(this RouterBase router, IProfileInstance profile, Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profile, coordinate, searchDistanceInMeter).Value;
@@ -528,7 +528,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this RouterBase router, Profile[] profiles, Coordinate coordinate,
+        public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, coordinate, searchDistanceInMeter).Value;
@@ -537,7 +537,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint[] Resolve(this RouterBase router, Profile profile, Coordinate[] coordinates,
+        public static RouterPoint[] Resolve(this RouterBase router, IProfileInstance profile, Coordinate[] coordinates,
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             var results = router.TryResolve(profile, coordinates, searchDistanceInMeter);
@@ -552,7 +552,7 @@ namespace Itinero
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        public static RouterPoint Resolve(this RouterBase router, Profile[] profiles, Coordinate coordinate,
+        public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
             Func<RoutingEdge, bool> isBetter,
                 float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
@@ -562,7 +562,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, Profile profile, Coordinate source, Coordinate target)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, Coordinate source, Coordinate target)
         {
             return router.TryCalculate(profile, source, target).Value;
         }
@@ -570,7 +570,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, Profile profile, Coordinate[] locations)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations)
         {
             return router.TryCalculate(profile, locations).Value;
         }
@@ -578,7 +578,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route the given locations;
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, Profile profile, RouterPoint source, RouterPoint target)
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target)
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
             var path = router.TryCalculateRaw(profile, weightHandler, source, target);
@@ -592,7 +592,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, Profile profile, Coordinate source,
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate source,
             Coordinate target)
         {
             return router.TryCalculate(profile, source.Latitude, source.Longitude, target.Latitude, target.Longitude);
@@ -601,7 +601,7 @@ namespace Itinero
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, Profile profile, Coordinate[] locations)
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations)
         {
             if (locations.Length < 2)
             {
@@ -628,7 +628,7 @@ namespace Itinero
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<float> TryCalculateWeight(this RouterBase router, Profile profile, Coordinate source, Coordinate target)
+        public static Result<float> TryCalculateWeight(this RouterBase router, IProfileInstance profile, Coordinate source, Coordinate target)
         {
             return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), source, target);
         }
@@ -636,7 +636,7 @@ namespace Itinero
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<T> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate source, Coordinate target)
+        public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate source, Coordinate target)
             where T : struct
         {
             return router.TryCalculateWeight(profile, weightHandler, source.Latitude, source.Longitude, target.Latitude, target.Longitude);
@@ -645,7 +645,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all given locations.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, WeightHandler<T> weightHandler, Profile profile, Coordinate[] locations)
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, WeightHandler<T> weightHandler, IProfileInstance profile, Coordinate[] locations)
             where T : struct
         {
             return router.TryCalculateWeight(profile,  weightHandler, locations, locations);
@@ -654,7 +654,7 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] sources, Coordinate[] targets)
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] sources, Coordinate[] targets)
             where T : struct
         {
             var resolvedSources = new RouterPoint[sources.Length];

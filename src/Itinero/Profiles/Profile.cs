@@ -134,6 +134,14 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Builds a constrained instance of this profile.
+        /// </summary>
+        public IProfileInstance BuildConstrained(float[] values)
+        {
+            return new ProfileInstance(this, values);
+        }
+
+        /// <summary>
         /// Get a function to calculate properties for a set given edge attributes.
         /// </summary>
         /// <returns></returns>

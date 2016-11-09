@@ -132,8 +132,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the profile to calculate shortest routes.
         /// </summary>
-        /// <returns></returns>
-        public Profile Shortest()
+        public virtual Profile Shortest()
         {
             return this.Profile(this.Name + ".shortest");
         }
@@ -141,12 +140,10 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the profile to calculate fastest routes.
         /// </summary>
-        /// <returns></returns>
-        public Profile Fastest()
+        public virtual Profile Fastest()
         {
             return this.Profile(this.Name);
         }
-
 
         private static Dictionary<string, Vehicle> _vehicles = new Dictionary<string, Vehicle>();
 

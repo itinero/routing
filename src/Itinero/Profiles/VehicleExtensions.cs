@@ -17,7 +17,6 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
-using System.Collections.Generic;
 
 namespace Itinero.Profiles
 {
@@ -26,7 +25,6 @@ namespace Itinero.Profiles
     /// </summary>
     public static class VehicleExtensions
     {
-
         /// <summary>
         /// Returns true if the given vehicle can traverse a way with the given attributes.
         /// </summary>

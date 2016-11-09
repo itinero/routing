@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Itinero.Profiles
@@ -23,7 +25,7 @@ namespace Itinero.Profiles
     /// <summary>
     /// Represents a whitelist of attribute keys.
     /// </summary>
-    public class Whitelist
+    public class Whitelist : IEnumerable<string>
     {
         private readonly HashSet<string> _whitelist;
 
@@ -86,6 +88,20 @@ namespace Itinero.Profiles
             {
                 _whitelist.Clear();
             }
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<string> GetEnumerator()
+        {
+            return _whitelist.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _whitelist.GetEnumerator();
         }
 
         /// <summary>
