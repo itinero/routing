@@ -23,21 +23,22 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Defines a motorized vehicle.
     /// </summary>
-    public abstract class MotorVehicle : Vehicle
+    public abstract class MotorVehicle : DynamicVehicle
     {
         /// <summary>
         /// Creates a motor vehicle.
         /// </summary>
-        public MotorVehicle()
+        public MotorVehicle(string script)
+            : base(script)
         {
-            this.Register(new MotorVehicleClassifications(this));
+
         }
 
         /// <summary>
         /// Gets the profile to calculate routes that aggressively follow classifications as intended.
         /// </summary>
         /// <returns></returns>
-        public Profile Classified()
+        public Profile Classifications()
         {
             return this.Profile(this.Name + ".classifications");
         }

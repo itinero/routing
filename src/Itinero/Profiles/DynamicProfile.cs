@@ -104,8 +104,7 @@ namespace Itinero.Profiles
 
                 // call factor_and_speed function.
                 _resultsTable.Clear();
-                var function = _script.Globals["factor_and_speed"];
-                _script.Call(function, _attributesTable, _resultsTable);
+                _script.Call(_function, _attributesTable, _resultsTable);
 
                 // get the results.
                 var result = new FactorAndSpeed();

@@ -1,0 +1,150 @@
+﻿
+name = "bicycle"
+vehicle_types = { "vehicle", "bicycle" }
+
+minspeed = 15
+maxspeed = 15
+
+speed_profile = {
+	["primary"] = { speed = 15, access = true },
+	["primary_link"] = { speed = 15, access = true },
+	["secondary"] = { speed = 15, access = true },
+	["secondary_link"] = { speed = 15, access = true },
+	["tertiary"] = { speed = 15, access = true },
+	["tertiary_link"] = { speed = 15, access = true },
+	["unclassified"] = { speed = 15, access = true },
+	["residential"] = { speed = 15, access = true },
+	["service"] = { speed = 15, access = true },
+	["services"] = { speed = 15, access = true },
+	["road"] = { speed = 15, access = true },
+	["track"] = { speed = 15, access = true },
+	["cycleway"] = { speed = 15, access = true },
+	["footway"] = { speed = 15, access = false },
+	["path"] = { speed = 15, access = true },
+	["living_street"] = { speed = 15, access = true },
+	["ferry"] = { speed = 15, access = true },
+	["movable"] = { speed = 15, access = true },
+	["shuttle_train"] = { speed = 15, access = true },
+  	["default"] = { speed = 15, access = true }
+}
+
+access_values = {
+	["private"] = false,
+	["yes"] = true,
+	["no"] = false,
+	["permissive"] = true,
+	["destination"] = true,
+	["customers"] = false,
+	["designated"] = true,
+	["public"] = true,
+	["delivery"] = true,
+	["use_sidepath"] = false
+}
+
+profile_whitelist = {
+	"cycleway", "cyclenetwork"
+}
+
+meta_whitelist = {
+	"name"
+}
+
+profiles = {
+	{
+		name = "",
+		function_name = "factor_and_speed",
+		metric = "time"
+	},
+	{ 
+		name = "shortest",
+		function_name = "factor_and_speed",
+		metric = "distance",
+	}
+}
+
+function can_access (attributes, result)
+	local last_access = nil
+	local access = access_values[attributes.access]
+	if access != nil then
+		result.attributes_to_keep.access = true
+		last_access = access
+	end
+	for i=0, 10 do
+		local access_key = attributes[vehicle_types[i]]
+		if access_key then
+			access = access_values[access_key]
+			if access != nil then
+				result.attributes_to_keep[access_key] = true
+				last_access = access
+			end
+		end
+	end
+	return last_access
+end
+
+-- turns a oneway tag value into a direction
+function is_oneway (attributes, name)
+	local oneway = attributes[name]
+	if oneway != nil then
+		if oneway == "yes" or 
+		   oneway == "true" or 
+		   oneway == "1" then
+			return 1
+		end
+		if oneway == "-1" then
+			return 2
+		end
+		if oneway == "no" then
+			return 0
+		end
+	end
+	return nil
+end
+
+function factor_and_speed (attributes, result)
+	 local highway = attributes.highway
+	 
+	 result.speed = 0
+	 result.direction = 0
+	 result.canstop = true
+	 result.attributes_to_keep = {}
+
+	 local highway_speed = speed_profile[highway]
+	 if highway_speed then
+        result.speed = highway_speed.speed
+		result.access = highway_speed.access
+        result.direction = 0
+		result.canstop = true
+		result.attributes_to_keep.highway = highway
+	 else
+		return
+	 end
+
+	 local access = can_access (attributes, result)
+	 if access != nil then
+		result.access = access
+	 end
+
+	 if result.access then
+	 else
+		result.speed = 0
+		result.direction = 0
+		result.canstop = true
+		result.attributes_to_keep = {}
+		return
+	 end
+
+	-- get directional information
+	local junction = attributes.junction
+	if junction == "roundabout" then
+		result.direction = 1
+	end
+	local direction = is_oneway (attributes, "oneway")
+	if direction != nil then
+		result.direction = direction
+	end
+	direction = is_oneway (attributes, "oneway:bicycle")
+	if direction != nil then
+		result.direction = direction
+	end
+end

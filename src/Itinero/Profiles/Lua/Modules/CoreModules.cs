@@ -81,12 +81,15 @@ namespace Itinero.Profiles.Lua
 		/// The "json" package (introduced by MoonSharp).
 		/// </summary>
 		Json = 0x10000,
-
-
-		/// <summary>
-		/// A sort of "hard" sandbox preset, including string, math, table, bit32 packages, constants and table iterators.
-		/// </summary>
-		Preset_HardSandbox = GlobalConsts | TableIterators | String | Table | Basic | Math | Bit32,
+        /// <summary>
+        /// The "itinero" package (added by Itinero).
+        /// </summary>
+        Itinero = 0x20000,
+        
+        /// <summary>
+        /// A sort of "hard" sandbox preset, including string, math, table, bit32 packages, constants and table iterators.
+        /// </summary>
+        Preset_HardSandbox = GlobalConsts | TableIterators | String | Table | Basic | Math | Bit32,
 		/// <summary>
 		/// A softer sandbox preset, adding metatables support, error handling, coroutine, time functions, json parsing and dynamic evaluations.
 		/// </summary>
@@ -95,13 +98,12 @@ namespace Itinero.Profiles.Lua
 		/// The default preset. Includes everything except "debug" as now.
 		/// Beware that using this preset allows scripts unlimited access to the system.
 		/// </summary>
-		Preset_Default = Preset_SoftSandbox | LoadMethods | OS_System | IO,
+		Preset_Default = Preset_SoftSandbox | LoadMethods | OS_System | IO | Itinero,
 		/// <summary>
 		/// The complete package.
 		/// Beware that using this preset allows scripts unlimited access to the system.
 		/// </summary>
-		Preset_Complete = Preset_Default | Debug,
-
+		Preset_Complete = Preset_Default | Debug
 	}
 
 	internal static class CoreModules_ExtensionMethods

@@ -69,7 +69,7 @@ namespace Itinero.Test.Osm
         public void TestBicycleRestrictions()
         {
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-            var vehicles = new Itinero.Osm.Vehicles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Bicycle };
+            var vehicles = new Itinero.Profiles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Bicycle };
 
             var tags = new AttributeCollection();
             var profileTags = new AttributeCollection();
@@ -107,7 +107,7 @@ namespace Itinero.Test.Osm
             profileTags.Clear();
             tags.Clear();
 
-            vehicles = new Itinero.Osm.Vehicles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Car };
+            vehicles = new Itinero.Profiles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Car };
 
             tags.AddOrReplace("highway", "residential");
             tags.AddOrReplace("bicycle", "no");
@@ -125,7 +125,7 @@ namespace Itinero.Test.Osm
         public void TestFootRestrictions()
         {
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-            var vehicles = new Itinero.Osm.Vehicles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Pedestrian };
+            var vehicles = new Itinero.Profiles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Pedestrian };
 
             var tags = new AttributeCollection();
             var profileTags = new AttributeCollection();
@@ -171,7 +171,7 @@ namespace Itinero.Test.Osm
         public void TestMotorvehicleRestrictions()
         {
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-            var vehicles = new Itinero.Osm.Vehicles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Car };
+            var vehicles = new Itinero.Profiles.Vehicle[] { Itinero.Osm.Vehicles.Vehicle.Car };
 
             var tags = new AttributeCollection();
             var profileTags = new AttributeCollection();
@@ -391,7 +391,7 @@ namespace Itinero.Test.Osm
         public void TestMotorwayAccess()
         {
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
-            var vehicles = new Itinero.Osm.Vehicles.Vehicle[] {
+            var vehicles = new Itinero.Profiles.Vehicle[] {
                 Itinero.Osm.Vehicles.Vehicle.Pedestrian,
                 Itinero.Osm.Vehicles.Vehicle.Bicycle,
                 Itinero.Osm.Vehicles.Vehicle.Car

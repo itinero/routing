@@ -1,24 +1,20 @@
-﻿
-name = "car"
-vehicle_types = { "vehicle", "motor_vehicle", "motorcar" }
-constraints =  { "maxweight", "maxwidth" }
+﻿-- moped globals
+name = "moped"
+vehicle_types = { "vehicle", "motor_vehicle", "moped" }
 
-minspeed = 30
-maxspeed = 200
+minspeed = 40
+maxspeed = 40
 
+-- default speed profiles
 speed_profile = {
-	["motorway"] = 120,
-	["motorway_link"] = 120,
-	["trunk"] = 90,
-	["trunk_link"] = 90,
-	["primary"] = 90,
-	["primary_link"] = 90,
-	["secondary"] = 70,
-	["secondary_link"] = 70,
-	["tertiary"] = 70,
-	["tertiary_link"] = 70,
-	["unclassified"] = 50,
-	["residential"] = 50,
+	["primary"] = 40,
+	["primary_link"] = 40,
+	["secondary"] = 40,
+	["secondary_link"] = 40,
+	["tertiary"] = 40,
+	["tertiary_link"] = 40,
+	["unclassified"] = 40,
+	["residential"] = 40,
 	["service"] = 30,
 	["services"] = 30,
 	["road"] = 30,
@@ -30,6 +26,7 @@ speed_profile = {
   	["default"] = 10
 }
 
+-- default access values
 access_values = {
 	["private"] = false,
 	["yes"] = true,
@@ -43,14 +40,15 @@ access_values = {
 	["use_sidepath"] = false
 }
 
+-- whitelists for profile and meta
 profile_whitelist = {
 
 }
-
 meta_whitelist = {
 	"name"
 }
 
+-- profile definitions linking a function to a profile
 profiles = {
 	{
 		name = "",
@@ -64,6 +62,7 @@ profiles = {
 	}
 }
 
+-- interprets access tags
 function can_access (attributes, result)
 	local last_access = true
 	local access = access_values[attributes.access]
@@ -84,6 +83,23 @@ function can_access (attributes, result)
 	return last_access
 end
 
+-- turns a oneway tag value into a direction
+function is_oneway (attributes, name)
+	local oneway = attributes[name]
+	if oneway != nil then
+		if oneway == "yes" or 
+		   oneway == "true" or 
+		   oneway == "1" then
+			return 1
+		end
+		if oneway == "-1" then
+			return 2
+		end
+	end
+	return nil
+end
+
+-- the main function turning attributes into a factor_and_speed and a tag whitelist
 function factor_and_speed (attributes, result)
 	 local highway = attributes.highway
 	 
@@ -92,6 +108,7 @@ function factor_and_speed (attributes, result)
 	 result.canstop = true
 	 result.attributes_to_keep = {}
 
+	 -- get default speed profiles
 	 local highway_speed = speed_profile[highway]
 	 if highway_speed then
         result.speed = highway_speed
@@ -106,6 +123,7 @@ function factor_and_speed (attributes, result)
 	    return
 	 end
 
+	 -- interpret access tags
 	 if can_access (attributes, result) == false then
 	 	result.speed = 0
 		result.direction = 0
@@ -114,22 +132,25 @@ function factor_and_speed (attributes, result)
 	    return
 	 end
 	 
-	if attributes.maxspeed then
+	 -- get maxspeed if any.
+	 if attributes.maxspeed then
 		local speed = itinero.parsespeed (attributes.maxspeed)
 		if speed then
+			if speed > 40 then
+				speed = 40
+			end
 			result.speed = speed * 0.75
+			result.attributes_to_keep.maxspeed = true
 		end
 	end
-	local maxweight = 0
-	local maxwidth = 0
-	if attributes.maxweight then
-		maxweight = itinero.parseweight (attributes.maxweight)
-	end
-	if attributes.maxwidth then
-		maxwidth = itinero.parseweight (attributes.maxwidth)
-	end
 
-	if maxwidth != 0 and maxweight != 0 then
-		result.constraints = { maxweight, maxwidth }
+	-- get directional information
+	local junction = attributes.junction
+	if junction == "roundabout" then
+		result.direction = 1
+	end
+	local direction = is_oneway (attributes, "oneway")
+	if direction != nil then
+		result.direction = direction
 	end
 end

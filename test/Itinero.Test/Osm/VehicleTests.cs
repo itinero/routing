@@ -88,8 +88,6 @@ namespace Itinero.Test.Osm
             // default highway types.
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
-            this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "trunk");
-            this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "trunk_link");
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "path");
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "cycleway");
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "road");
@@ -103,6 +101,8 @@ namespace Itinero.Test.Osm
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "secondary_link");
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "primary");
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "primary_link");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "trunk_link");
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "motorway");
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "motorway_link");
 
@@ -117,6 +117,12 @@ namespace Itinero.Test.Osm
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "primary", "maxspeed", "20 mph");
+
+            // check oneway tags.
+            this.TestFactorAndSpeed(vehicle, 1, null, 15, "highway", "unclassified", "oneway", "yes");
+            this.TestFactorAndSpeed(vehicle, 2, null, 15, "highway", "unclassified", "oneway", "-1");
+            this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "unclassified", "oneway", "yes", "oneway:bicycle", "no");
+            this.TestFactorAndSpeed(vehicle, 0, null, 15, "highway", "unclassified", "oneway", "-1", "oneway:bicycle", "no");
         }
 
         /// <summary>
@@ -136,8 +142,8 @@ namespace Itinero.Test.Osm
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
             this.TestFactorAndSpeed(vehicle, 0, null, 05, "highway", "living_street");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "road");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "track");
+            this.TestFactorAndSpeed(vehicle, 0, null, 30, "highway", "road");
+            this.TestFactorAndSpeed(vehicle, 0, null, 30, "highway", "track");
             this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified");
             this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "residential");
             this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "tertiary");
@@ -146,22 +152,23 @@ namespace Itinero.Test.Osm
             this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "secondary_link");
             this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "primary");
             this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "primary_link");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "trunk");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "trunk_link");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "trunk_link");
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "motorway");
             this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "motorway_link");
 
             // designated roads.
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "foot", "designated");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "foot", "yes");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "foot", "no");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "bicycle", "designated");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "bicycle", "yes");
-            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "bicycle", "no");
+            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "moped", "designated");
+            this.TestFactorAndSpeed(vehicle, 0, null, 40, "highway", "unclassified", "moped", "yes");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "unclassified", "moped", "no");
 
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+
+            // check oneway tags.
+            this.TestFactorAndSpeed(vehicle, 1, null, 40, "highway", "unclassified", "oneway", "yes");
+            this.TestFactorAndSpeed(vehicle, 2, null, 40, "highway", "unclassified", "oneway", "-1");
         }
 
         /// <summary>
@@ -207,6 +214,30 @@ namespace Itinero.Test.Osm
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+
+            // test the classifications profile.
+            vehicle = Vehicle.MotorCycle.Classifications();
+
+            // default highway types.
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (05 / 3.6f)) / 4, 05, "highway", "living_street");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "road");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "track");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "unclassified");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "residential");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk_link");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway_link");
         }
 
         /// <summary>
@@ -215,6 +246,16 @@ namespace Itinero.Test.Osm
         [Test]
         public void TestCar()
         {
+            // enable logging.
+            OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
+            };
+            Itinero.Logging.Logger.LogAction = (o, level, message, parameters) =>
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
+            };
+
             var vehicle = Vehicle.Car.Fastest();
 
             // invalid highway types.
@@ -241,7 +282,7 @@ namespace Itinero.Test.Osm
             this.TestFactorAndSpeed(vehicle, 3, null, 120, "highway", "motorway");
             this.TestFactorAndSpeed(vehicle, 3, null, 120, "highway", "motorway_link");
 
-            // designated roads.
+            // access tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "designated");
             this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "yes");
             this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "no");
@@ -252,6 +293,34 @@ namespace Itinero.Test.Osm
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+
+            // check oneway tags.
+            this.TestFactorAndSpeed(vehicle, 1, null, 50, "highway", "unclassified", "oneway", "yes");
+            this.TestFactorAndSpeed(vehicle, 2, null, 50, "highway", "unclassified", "oneway", "-1");
+            
+            // test the classifications profile.
+            vehicle = Vehicle.Car.Classifications();
+
+            // default highway types.
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (05 / 3.6f)) / 4, 05, "highway", "living_street");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "road");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "track");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "unclassified");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "residential");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk_link");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway_link");
         }
         
         /// <summary>
@@ -297,6 +366,30 @@ namespace Itinero.Test.Osm
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+
+            // test the classifications profile.
+            vehicle = Vehicle.Bus.Classifications();
+
+            // default highway types.
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (05 / 3.6f)) / 4, 05, "highway", "living_street");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "road");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "track");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "unclassified");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "residential");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk_link");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway_link");
         }
 
         /// <summary>
@@ -342,6 +435,30 @@ namespace Itinero.Test.Osm
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+
+            // test the classifications profile.
+            vehicle = Vehicle.SmallTruck.Classifications();
+
+            // default highway types.
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (05 / 3.6f)) / 4, 05, "highway", "living_street");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "road");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "track");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "unclassified");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "residential");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk_link");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway_link");
         }
 
         /// <summary>
@@ -387,6 +504,30 @@ namespace Itinero.Test.Osm
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
             this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+
+            // test the classifications profile.
+            vehicle = Vehicle.BigTruck.Classifications();
+
+            // default highway types.
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (05 / 3.6f)) / 4, 05, "highway", "living_street");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "road");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (30 / 3.6f)) / 4, 30, "highway", "track");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "unclassified");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (50 / 3.6f)) / 5, 50, "highway", "residential");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 6, 70, "highway", "tertiary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (70 / 3.6f)) / 7, 70, "highway", "secondary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 8, 90, "highway", "primary_link");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk");
+            this.TestFactorAndSpeed(vehicle, 0, (1.0f / (90 / 3.6f)) / 9, 90, "highway", "trunk_link");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway");
+            this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway_link");
         }
 
         /// <summary>
@@ -407,7 +548,7 @@ namespace Itinero.Test.Osm
             }
             if (factor != null)
             {
-                Assert.AreEqual(factor.Value, factorAndSpeed.Value);
+                Assert.AreEqual(factor.Value, factorAndSpeed.Value, 0.0001);
             }
             if (speed != null)
             {

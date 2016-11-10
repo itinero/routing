@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Profiles;
+using System.Reflection;
 
 namespace Itinero.Osm.Vehicles
 {
@@ -25,6 +26,25 @@ namespace Itinero.Osm.Vehicles
     /// </summary>
     public static class VehicleExtensions
     {
+        /// <summary>
+        /// Gets the itinero assembly to load embedded resources.
+        /// </summary>
+        /// <returns></returns>
+        public static Assembly ItineroAssembly()
+        {
+#if NETFX_CORE
+            return typeof(Vehicle).GetTypeInfo().Assembly;
+#else
+            return typeof(Vehicle).Assembly;
+#endif
+        }
 
+        /// <summary>
+        /// Loads a string from an embedded resource stream.
+        /// </summary>
+        public static string LoadEmbeddedResource(string name)
+        {
+            return VehicleExtensions.ItineroAssembly().GetManifestResourceStream(name).ReadToEnd();
+        }
     }
 }

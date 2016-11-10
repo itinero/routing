@@ -1,11 +1,12 @@
-﻿
-name = "car"
+﻿-- bigtruck globals
+name = "bigtruck"
 vehicle_types = { "vehicle", "motor_vehicle", "motorcar" }
 constraints =  { "maxweight", "maxwidth" }
 
 minspeed = 30
 maxspeed = 200
 
+-- default speed profiles
 speed_profile = {
 	["motorway"] = 120,
 	["motorway_link"] = 120,
@@ -30,6 +31,7 @@ speed_profile = {
   	["default"] = 10
 }
 
+-- default access values
 access_values = {
 	["private"] = false,
 	["yes"] = true,
@@ -43,14 +45,15 @@ access_values = {
 	["use_sidepath"] = false
 }
 
+-- whitelists for profile and meta
 profile_whitelist = {
 
 }
-
 meta_whitelist = {
 	"name"
 }
 
+-- profile definitions linking a function to a profile
 profiles = {
 	{
 		name = "",
@@ -61,9 +64,15 @@ profiles = {
 		name = "shortest",
 		function_name = "factor_and_speed",
 		metric = "distance",
+	},
+	{
+		name = "classifications",
+		function_name = "factor_and_speed_classifications",
+		metric = "custom"
 	}
 }
 
+-- interprets access tags
 function can_access (attributes, result)
 	local last_access = true
 	local access = access_values[attributes.access]
@@ -84,6 +93,23 @@ function can_access (attributes, result)
 	return last_access
 end
 
+-- turns a oneway tag value into a direction
+function is_oneway (attributes, name)
+	local oneway = attributes[name]
+	if oneway != nil then
+		if oneway == "yes" or 
+		   oneway == "true" or 
+		   oneway == "1" then
+			return 1
+		end
+		if oneway == "-1" then
+			return 2
+		end
+	end
+	return nil
+end
+
+-- the main function turning attributes into a factor_and_speed and a tag whitelist
 function factor_and_speed (attributes, result)
 	 local highway = attributes.highway
 	 
@@ -92,6 +118,7 @@ function factor_and_speed (attributes, result)
 	 result.canstop = true
 	 result.attributes_to_keep = {}
 
+	 -- get default speed profiles
 	 local highway_speed = speed_profile[highway]
 	 if highway_speed then
         result.speed = highway_speed
@@ -106,6 +133,7 @@ function factor_and_speed (attributes, result)
 	    return
 	 end
 
+	 -- interpret access tags
 	 if can_access (attributes, result) == false then
 	 	result.speed = 0
 		result.direction = 0
@@ -114,12 +142,16 @@ function factor_and_speed (attributes, result)
 	    return
 	 end
 	 
-	if attributes.maxspeed then
+	 -- get maxspeed if any.
+	 if attributes.maxspeed then
 		local speed = itinero.parsespeed (attributes.maxspeed)
 		if speed then
 			result.speed = speed * 0.75
+			result.attributes_to_keep.maxspeed = true
 		end
 	end
+
+	-- get maxweight and maxwidth constraints if any
 	local maxweight = 0
 	local maxwidth = 0
 	if attributes.maxweight then
@@ -128,8 +160,58 @@ function factor_and_speed (attributes, result)
 	if attributes.maxwidth then
 		maxwidth = itinero.parseweight (attributes.maxwidth)
 	end
-
-	if maxwidth != 0 and maxweight != 0 then
+	if maxwidth != 0 or maxweight != 0 then
 		result.constraints = { maxweight, maxwidth }
+		result.attributes_to_keep.maxweight = true
+		result.attributes_to_keep.maxwidth = true
 	end
+
+	-- get directional information
+	local junction = attributes.junction
+	if junction == "roundabout" then
+		result.direction = 1
+	end
+	local direction = is_oneway (attributes, "oneway")
+	if direction != nil then
+		result.direction = direction
+	end
+end
+
+-- multiplication factors per classification
+classifications_factors = {
+	["motorway"] = 10,
+	["motorway_link"] = 10,
+	["trunk"] = 9,
+	["trunk_link"] = 9,
+	["primary"] = 8,
+	["primary_link"] = 8,
+	["secondary"] = 7,
+	["secondary_link"] = 7,
+	["tertiary"] = 6,
+	["tertiary_link"] = 6,
+	["unclassified"] = 5,
+	["residential"] = 5
+}
+
+-- the classifications function for the classifications profile
+function factor_and_speed_classifications (attributes, result)
+
+	itinero.log ("before factor and speed")
+
+	factor_and_speed (attributes, result)
+
+	if result.speed == 0 then
+		return
+	end
+
+	itinero.log ("speed: " .. result.speed)
+	result.factor = 1.0 / (result.speed / 3.6)
+	itinero.log ("factor: " .. result.factor)
+	local classification_factor = classifications_factors[attributes.highway]
+	if classification_factor != nil then
+		result.factor = result.factor / classification_factor
+	else
+		result.factor = result.factor / 4
+	end
+	itinero.log ("factor: " .. result.factor)
 end

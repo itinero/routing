@@ -25,6 +25,8 @@ using System.Text.RegularExpressions;
 
 namespace Itinero.Attributes
 {
+    // TODO: move this to the OSM namespace, this has nothing to do with Itinero.
+
     /// <summary>
     /// Contains extension methods for attribute collections.
     /// </summary>

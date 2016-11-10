@@ -90,7 +90,7 @@ namespace Itinero.Test.IO.Osm.Relations
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 }, processors: processors);
             target.RegisterSource(source);

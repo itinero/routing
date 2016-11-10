@@ -72,14 +72,14 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public static void RegisterVehicles()
         {
-            Car.Register();
-            Pedestrian.Register();
-            Bicycle.Register();
-            Moped.Register();
-            MotorCycle.Register();
-            SmallTruck.Register();
-            BigTruck.Register();
-            Bus.Register();
+            //Car.Register();
+            //Pedestrian.Register();
+            //Bicycle.Register();
+            //Moped.Register();
+            //MotorCycle.Register();
+            //SmallTruck.Register();
+            //BigTruck.Register();
+            //Bus.Register();
         }
 
         /// <summary>

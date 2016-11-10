@@ -10,7 +10,10 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/Lua/*.lua"
+        ]
       },
       "imports": "dnxcore50",
       "dependencies": {
@@ -27,7 +30,10 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/Lua/*.lua"
+        ]
       },
       "frameworkAssemblies": {
         "System.Xml": ""
@@ -40,7 +46,10 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/Lua/*.lua"
+        ]
       },
       "frameworkAssemblies": {
         "System.Xml": ""
@@ -53,7 +62,10 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/Lua/*.lua"
+        ]
       },
       "frameworkAssemblies": {
         "System": "",

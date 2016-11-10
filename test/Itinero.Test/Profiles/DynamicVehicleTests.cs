@@ -67,6 +67,8 @@ namespace Itinero.Test.Profiles
             this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "designated");
             this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "yes");
             this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "no");
+            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "motorcar", "yes");
+            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "unclassified", "motorcar", "no");
 
             // test maxspeed tags.
             this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");

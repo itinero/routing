@@ -1,33 +1,32 @@
 ﻿
-name = "car"
-vehicle_types = { "vehicle", "motor_vehicle", "motorcar" }
-constraints =  { "maxweight", "maxwidth" }
+name = "pedestrian"
+vehicle_types = { "foot" }
 
-minspeed = 30
-maxspeed = 200
+minspeed = 4
+maxspeed = 5
 
 speed_profile = {
-	["motorway"] = 120,
-	["motorway_link"] = 120,
-	["trunk"] = 90,
-	["trunk_link"] = 90,
-	["primary"] = 90,
-	["primary_link"] = 90,
-	["secondary"] = 70,
-	["secondary_link"] = 70,
-	["tertiary"] = 70,
-	["tertiary_link"] = 70,
-	["unclassified"] = 50,
-	["residential"] = 50,
-	["service"] = 30,
-	["services"] = 30,
-	["road"] = 30,
-	["track"] = 30,
-	["living_street"] = 5,
-	["ferry"] = 5,
-	["movable"] = 5,
-	["shuttle_train"] = 10,
-  	["default"] = 10
+	["primary"] = 4,
+	["primary_link"] = 4,
+	["secondary"] = 4,
+	["secondary_link"] = 4,
+	["tertiary"] = 4,
+	["tertiary_link"] = 4,
+	["unclassified"] = 4,
+	["residential"] = 4,
+	["service"] = 4,
+	["services"] = 4,
+	["road"] = 4,
+	["track"] = 4,
+	["cycleway"] = 4,
+	["path"] = 4,
+	["footway"] = 4,
+	["pedestrian"] = 4,
+	["living_street"] = 4,
+	["ferry"] = 4,
+	["movable"] = 4,
+	["shuttle_train"] = 4,
+  	["default"] = 4
 }
 
 access_values = {
@@ -98,10 +97,6 @@ function factor_and_speed (attributes, result)
         result.direction = 0
 		result.canstop = true
 		result.attributes_to_keep.highway = highway
-		if highway == "motorway" or 
-		   highway == "motorway_link" then
-		   result.canstop = false
-		end
 	 else
 	    return
 	 end
@@ -113,23 +108,4 @@ function factor_and_speed (attributes, result)
 		result.attributes_to_keep = {}
 	    return
 	 end
-	 
-	if attributes.maxspeed then
-		local speed = itinero.parsespeed (attributes.maxspeed)
-		if speed then
-			result.speed = speed * 0.75
-		end
-	end
-	local maxweight = 0
-	local maxwidth = 0
-	if attributes.maxweight then
-		maxweight = itinero.parseweight (attributes.maxweight)
-	end
-	if attributes.maxwidth then
-		maxwidth = itinero.parseweight (attributes.maxwidth)
-	end
-
-	if maxwidth != 0 and maxweight != 0 then
-		result.constraints = { maxweight, maxwidth }
-	end
 end
