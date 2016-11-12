@@ -59,6 +59,16 @@ profiles = {
 		name = "shortest",
 		function_name = "factor_and_speed",
 		metric = "distance",
+	},
+	{ 
+		name = "balanced",
+		function_name = "factor_and_speed_balanced",
+		metric = "custom",
+	},
+	{ 
+		name = "networks",
+		function_name = "factor_and_speed_networks",
+		metric = "custom",
 	}
 }
 
@@ -147,4 +157,56 @@ function factor_and_speed (attributes, result)
 	if direction != nil then
 		result.direction = direction
 	end
+end
+
+highest_avoid_factor = 0.8
+avoid_factor = 0.9
+prefer_factor = 1.1
+highest_prefer_factor = 1.2
+
+-- multiplication factors per classification
+bicycle_balanced_factors = {
+	["primary"] = highest_avoid_factor,
+	["primary_link"] = highest_avoid_factor,
+	["secondary"] = highest_avoid_factor,
+	["secondary_link"] = highest_avoid_factor,
+	["tertiary"] = avoid_factor,
+	["tertiary_link"] = avoid_factor,
+	["residential"] = 1,
+	["path"] = highest_prefer_factor,
+	["cycleway"] = highest_prefer_factor,
+	["footway"] = prefer_factor,
+	["pedestrian"] = prefer_factor,
+	["steps"] = prefer_factor
+}
+
+-- the factor function for the factor profile
+function factor_and_speed_balanced (attributes, result)
+
+	factor_and_speed (attributes, result)
+
+	if result.speed == 0 then
+		return
+	end
+
+	result.factor = 1.0 / (result.speed / 3.6)
+	local balanced_factor = bicycle_balanced_factors[attributes.highway]
+	if balanced_factor != nil then
+		result.factor = result.factor / balanced_factor
+	end
+
+end
+
+function factor_and_speed_networks (attributes, result)
+	
+	factor_and_speed_balanced (attributes, result)
+
+	if result.speed == 0 then
+		return
+	end
+
+	if attributes.cyclenetwork then
+		result.factor = result.factor / 5
+	end
+
 end

@@ -33,5 +33,23 @@ namespace Itinero.Osm.Vehicles
         {
 
         }
+
+        /// <summary>
+        /// Gets the balanced profile.
+        /// </summary>
+        /// <returns></returns>
+        public IProfileInstance Balanced()
+        {
+            return this.Profile(this.Name + ".balanced");
+        }
+
+        /// <summary>
+        /// Gets the cycle network profile.
+        /// </summary>
+        /// <returns></returns>
+        public IProfileInstance Networks()
+        {
+            return this.Profile(this.Name + ".networks");
+        }
     }
 }

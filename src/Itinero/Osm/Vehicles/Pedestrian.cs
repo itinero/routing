@@ -31,7 +31,16 @@ namespace Itinero.Osm.Vehicles
         public Pedestrian()
             : base(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.Lua.pedestrian.lua"))
         {
+            this.Register(new PedestrianShortcutsProfile(this));
+        }
 
+        /// <summary>
+        /// Returns the shortcuts profile.
+        /// </summary>
+        /// <returns></returns>
+        public IProfileInstance Shortcuts()
+        {
+            return this.Profile(this.Name + ".shortcuts");
         }
     }
 }
