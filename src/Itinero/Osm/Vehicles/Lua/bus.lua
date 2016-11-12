@@ -74,18 +74,19 @@ profiles = {
 
 -- interprets access tags
 function can_access (attributes, result)
-	local last_access = true
+	local last_access = nil
 	local access = access_values[attributes.access]
 	if access != nil then
 		result.attributes_to_keep.access = true
 		last_access = access
 	end
 	for i=0, 10 do
-		local access_key = attributes[vehicle_types[i]]
+		local access_key_key = vehicle_types[i]
+		local access_key = attributes[access_key_key]
 		if access_key then
 			access = access_values[access_key]
 			if access != nil then
-				result.attributes_to_keep[access_key] = true
+				result.attributes_to_keep[access_key_key] = true
 				last_access = access
 			end
 		end
@@ -138,7 +139,6 @@ function factor_and_speed (attributes, result)
 	 	result.speed = 0
 		result.direction = 0
 		result.canstop = true
-		result.attributes_to_keep = {}
 	    return
 	 end
 	 
@@ -170,10 +170,12 @@ function factor_and_speed (attributes, result)
 	local junction = attributes.junction
 	if junction == "roundabout" then
 		result.direction = 1
+		result.attributes_to_keep.junction = true
 	end
 	local direction = is_oneway (attributes, "oneway")
 	if direction != nil then
 		result.direction = direction
+		result.attributes_to_keep.oneway = true
 	end
 end
 

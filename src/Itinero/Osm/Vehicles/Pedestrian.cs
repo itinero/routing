@@ -31,7 +31,7 @@ namespace Itinero.Osm.Vehicles
         public Pedestrian()
             : base(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.Lua.pedestrian.lua"))
         {
-            this.Register(new PedestrianShortcutsProfile(this));
+            this.Register(new PedestrianShortcutsProfile(this.Fastest()));
         }
 
         /// <summary>

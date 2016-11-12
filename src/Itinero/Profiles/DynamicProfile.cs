@@ -113,10 +113,11 @@ namespace Itinero.Profiles
                 {
                     val = 0;
                 }
-                if (val != 0)
+                if (val == 0)
                 {
-                    result.SpeedFactor = 1.0f / (val / 3.6f); // 1/m/s
+                    return Profiles.FactorAndSpeed.NoFactor;
                 }
+                result.SpeedFactor = 1.0f / (val / 3.6f); // 1/m/s
                 if (_metric == ProfileMetric.TimeInSeconds)
                 { // use 1/speed as factor.
                     result.Value = result.SpeedFactor;
