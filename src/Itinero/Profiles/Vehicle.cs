@@ -145,6 +145,14 @@ namespace Itinero.Profiles
             return this.Profile(this.Name);
         }
 
+        /// <summary>
+        /// Registers this vehicle.
+        /// </summary>
+        public virtual void Register()
+        {
+            Vehicle.Register(this);
+        }
+
         private static Dictionary<string, Vehicle> _vehicles = new Dictionary<string, Vehicle>();
 
         /// <summary>

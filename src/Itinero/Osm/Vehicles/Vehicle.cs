@@ -25,7 +25,7 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Vehicle class contains routing info
     /// </summary>
-    public abstract class Vehicle : Profiles.Vehicle
+    public static class Vehicle
     {
         /// <summary>
         /// Default Car
@@ -72,30 +72,19 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public static void RegisterVehicles()
         {
-            //Car.Register();
-            //Pedestrian.Register();
-            //Bicycle.Register();
-            //Moped.Register();
-            //MotorCycle.Register();
-            //SmallTruck.Register();
-            //BigTruck.Register();
-            //Bus.Register();
-        }
-
-        /// <summary>
-        /// Registers all profiles in this vehicle.
-        /// </summary>
-        public void Register()
-        {
-            foreach (var profile in this.GetProfiles())
-            {
-                Profiles.Profile.Register(profile);
-            }
+            Car.Register();
+            Pedestrian.Register();
+            Bicycle.Register();
+            Moped.Register();
+            MotorCycle.Register();
+            SmallTruck.Register();
+            BigTruck.Register();
+            Bus.Register();
         }
 
         private static Dictionary<string, bool?> _accessValues = null;
 
-        protected static Dictionary<string, bool?> GetAccessValues()
+        private static Dictionary<string, bool?> GetAccessValues()
         {
             if (_accessValues == null)
             {
