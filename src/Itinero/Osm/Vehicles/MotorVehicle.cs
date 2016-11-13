@@ -23,7 +23,7 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Defines a motorized vehicle.
     /// </summary>
-    public abstract class MotorVehicle : DynamicVehicle
+    public abstract class MotorVehicle : Vehicle
     {
         /// <summary>
         /// Creates a motor vehicle.

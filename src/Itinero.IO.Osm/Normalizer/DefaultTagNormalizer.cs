@@ -105,6 +105,17 @@ namespace Itinero.IO.Osm.Normalizer
                     profileTags.AddOrReplace(key, value);
                 }
             }
+            foreach(var vehicle in vehicles)
+            {
+                foreach (var key in vehicle.ProfileWhiteList)
+                {
+                    var value = string.Empty;
+                    if (tags.TryGetValue(key, out value))
+                    {
+                        profileTags.AddOrReplace(key, value);
+                    }
+                }
+            }
 
             return true;
         }

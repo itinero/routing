@@ -16,40 +16,41 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Profiles;
+using Itinero.Osm.Vehicles;
+using OsmSharp;
+using OsmSharp.Tags;
 
-namespace Itinero.Osm.Vehicles
+namespace Itinero.IO.Osm.Relations
 {
     /// <summary>
-    /// Represents the default OSM bicycle profile.
+    /// Processes relation tags for a vehicle.
     /// </summary>
-    public class Bicycle : Vehicle
+    public class VehicleRelationTagProcessor : RelationTagProcessor
     {
-        /// <summary>
-        /// Creates a new bicycle.
-        /// </summary>
-        public Bicycle()
-            : base(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.Lua.bicycle.lua"))
-        {
+        private readonly Vehicle _vehicle;
 
+        /// <summary>
+        /// Creates a new vehicle relation tag processor.
+        /// </summary>
+        public VehicleRelationTagProcessor(Vehicle vehicle)
+        {
+            _vehicle = vehicle;
         }
 
         /// <summary>
-        /// Gets the balanced profile.
+        /// Returns true if relation is relevant.
         /// </summary>
-        /// <returns></returns>
-        public IProfileInstance Balanced()
+        public override bool IsRelevant(Relation relation)
         {
-            return this.Profile(this.Name + ".balanced");
+            return _vehicle.IsRelevantRelation(new TagAttributeCollection(relation.Tags));
         }
 
         /// <summary>
-        /// Gets the cycle network profile.
+        /// Adds tags to the given way.
         /// </summary>
-        /// <returns></returns>
-        public IProfileInstance Networks()
+        public override void AddTags(Way way, TagsCollectionBase attributes)
         {
-            return this.Profile(this.Name + ".networks");
+            _vehicle.AddRelationTags(new TagAttributeCollection(attributes), new TagAttributeCollection(way.Tags));
         }
     }
 }

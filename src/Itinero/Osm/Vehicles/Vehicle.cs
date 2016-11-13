@@ -18,15 +18,36 @@
 
 using Itinero.Attributes;
 using Itinero.Profiles;
+using Itinero.Profiles.Lua;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Osm.Vehicles
 {
     /// <summary>
     /// Vehicle class contains routing info
     /// </summary>
-    public static class Vehicle
+    public class Vehicle : DynamicVehicle
     {
+        private readonly object _relationTagProcessor;
+        private readonly Table _attributesTable;
+        private readonly Table _resultsTable;
+
+        /// <summary>
+        /// Creates a new OSM vehicle.
+        /// </summary>
+        public Vehicle(string script)
+            : base(script)
+        {
+            _relationTagProcessor = this.Script.Globals["relation_tag_processor"];
+
+            if (_relationTagProcessor != null)
+            {
+                _attributesTable = new Table(this.Script);
+                _resultsTable = new Table(this.Script);
+            }
+        }
+
         /// <summary>
         /// Default Car
         /// </summary>
@@ -80,6 +101,84 @@ namespace Itinero.Osm.Vehicles
             SmallTruck.Register();
             BigTruck.Register();
             Bus.Register();
+        }
+
+        /// <summary>
+        /// Returns true if the given relation is relevant.
+        /// </summary>
+        public bool IsRelevantRelation(IAttributeCollection attributes)
+        {
+            if (_relationTagProcessor == null)
+            {
+                return false;
+            }
+
+            lock (this.Script)
+            {
+                // build lua table.
+                _attributesTable.Clear();
+                if (attributes == null || attributes.Count == 0)
+                {
+                    return false;
+                }
+                foreach (var attribute in attributes)
+                {
+                    _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
+                }
+
+                // call factor_and_speed function.
+                _resultsTable.Clear();
+                this.Script.Call(_relationTagProcessor, _attributesTable, _resultsTable);
+
+                // get the result.
+                var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
+                if (dynAttributesToKeep != null &&
+                    dynAttributesToKeep.Table.Keys.Count() > 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Adds relation tags to a child way.
+        /// </summary>
+        public void AddRelationTags(IAttributeCollection relationTags, IAttributeCollection wayTags)
+        {
+            if (_relationTagProcessor == null)
+            {
+                return;
+            }
+
+            lock (this.Script)
+            {
+                // build lua table.
+                _attributesTable.Clear();
+                if (relationTags == null || relationTags.Count == 0)
+                {
+                    return;
+                }
+                foreach (var attribute in relationTags)
+                {
+                    _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
+                }
+
+                // call factor_and_speed function.
+                _resultsTable.Clear();
+                this.Script.Call(_relationTagProcessor, _attributesTable, _resultsTable);
+
+                // get the result.
+                var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
+                if (dynAttributesToKeep != null &&
+                    dynAttributesToKeep.Table.Keys.Count() > 0)
+                {
+                    foreach(var attribute in dynAttributesToKeep.Table.Pairs)
+                    {
+                        wayTags.AddOrReplace(attribute.Key.String, attribute.Value.String);
+                    }
+                }
+            }
         }
 
         private static Dictionary<string, bool?> _accessValues = null;

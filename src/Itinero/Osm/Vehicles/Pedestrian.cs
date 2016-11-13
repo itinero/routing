@@ -23,7 +23,7 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Represents the default OSM pedestrian profile.
     /// </summary>
-    public class Pedestrian : DynamicVehicle
+    public class Pedestrian : Vehicle
     {
         /// <summary>
         /// Creates a new pedestrian.

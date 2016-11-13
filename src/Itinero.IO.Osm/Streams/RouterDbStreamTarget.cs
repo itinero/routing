@@ -24,7 +24,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Itinero.Attributes;
-using OsmSharp.Tags;
 using OsmSharp;
 using Itinero.Data.Network.Edges;
 using Itinero.IO.Osm.Restrictions;
@@ -126,11 +125,13 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         private void InitializeDefaultProcessors(bool processRestrictions)
         {
-            // check for bicycle profile and add cycle network processor by default.
-            if (_vehicles.FirstOrDefault(x => x.Name.ToLowerInvariant() == "bicycle") != null &&
-               this.Processors.FirstOrDefault(x => x.GetType().Equals(typeof(CycleNetworkProcessor))) == null)
-            { // bicycle profile present and processor not there yet, add it here.
-                this.Processors.Add(new CycleNetworkProcessor());
+            // add all vehicle relation processors.
+            foreach(var vehicle in _vehicles)
+            {
+                if (vehicle is Itinero.Osm.Vehicles.Vehicle)
+                {
+                    this.Processors.Add(new VehicleRelationTagProcessor(vehicle as Itinero.Osm.Vehicles.Vehicle));
+                }
             }
 
             // add restriction processor if needed.

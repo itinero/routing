@@ -27,24 +27,29 @@ namespace Itinero.IO.Osm.Relations
     /// <summary>
     /// A relation-tag processor that allows adding relation-tags to their member ways.
     /// </summary>
-    public class RelationTagProcessor : ITwoPassProcessor
+    public abstract class RelationTagProcessor : ITwoPassProcessor
     {
-        private readonly Action<Way, TagsCollectionBase> _addTags;
-        private readonly Func<Relation, bool> _isRelevant;
         private readonly Dictionary<long, LinkedRelation> _linkedRelations; // keeps an index of way->relation relations.
         private readonly Dictionary<long, TagsCollectionBase> _relationTags; // keeps an index or relationId->tags.
 
         /// <summary>
         /// Creates a new relation tag processor.
         /// </summary>
-        public RelationTagProcessor(Func<Relation, bool> isRelevant, Action<Way, TagsCollectionBase> addTags)
+        public RelationTagProcessor()
         {
-            _addTags = addTags;
-            _isRelevant = isRelevant;
-
             _linkedRelations = new Dictionary<long, LinkedRelation>();
             _relationTags = new Dictionary<long, TagsCollectionBase>();
         }
+
+        /// <summary>
+        /// Returns true if the given relation is relevant.
+        /// </summary>
+        public abstract bool IsRelevant(Relation relation);
+
+        /// <summary>
+        /// Adds relation tags to the given way.
+        /// </summary>
+        public abstract void AddTags(Way way, TagsCollectionBase attributes);
 
         /// <summary>
         /// Gets or sets the action executed after normalization on the normalized collection and the original collection.
@@ -62,7 +67,7 @@ namespace Itinero.IO.Osm.Relations
         /// </summary>
         public void FirstPass(Relation relation)
         {
-            if (_isRelevant(relation))
+            if (IsRelevant(relation))
             {
                 _relationTags[relation.Id.Value] = relation.Tags;
 
@@ -122,7 +127,7 @@ namespace Itinero.IO.Osm.Relations
                 while(linkedRelation != null)
                 {
                     var tags = _relationTags[linkedRelation.RelationId];
-                    _addTags(way, tags);
+                    this.AddTags(way, tags);
 
                     linkedRelation = linkedRelation.Next;
                 }

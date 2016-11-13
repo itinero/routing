@@ -59,19 +59,29 @@ profiles = {
 	{ 
 		name = "shortest",
 		function_name = "factor_and_speed",
-		metric = "distance",
+		metric = "distance"
 	},
 	{ 
 		name = "balanced",
 		function_name = "factor_and_speed_balanced",
-		metric = "custom",
+		metric = "custom"
 	},
 	{ 
 		name = "networks",
 		function_name = "factor_and_speed_networks",
-		metric = "custom",
+		metric = "custom"
 	}
 }
+
+-- processes relation and addes the attributes_to_keep to the child ways for use in routing
+function relation_tag_processor (attributes, result)
+	if attributes.type == "route" and
+	   attributes.route == "bicycle" then
+		result.attributes_to_keep = {
+			cyclenetwork = "yes"
+		}
+	end
+end
 
 function can_access (attributes, result)
 	local last_access = nil
