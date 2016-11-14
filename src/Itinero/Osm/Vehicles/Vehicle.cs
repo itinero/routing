@@ -27,66 +27,57 @@ namespace Itinero.Osm.Vehicles
     /// <summary>
     /// Vehicle class contains routing info
     /// </summary>
-    public class Vehicle : DynamicVehicle
+    public static class Vehicle
     {
-        private readonly object _relationTagProcessor;
-        private readonly Table _attributesTable;
-        private readonly Table _resultsTable;
 
-        /// <summary>
-        /// Creates a new OSM vehicle.
-        /// </summary>
-        public Vehicle(string script)
-            : base(script)
-        {
-            _relationTagProcessor = this.Script.Globals["relation_tag_processor"];
 
-            if (_relationTagProcessor != null)
-            {
-                _attributesTable = new Table(this.Script);
-                _resultsTable = new Table(this.Script);
-            }
-        }
+        ///// <summary>
+        ///// Creates a new OSM vehicle.
+        ///// </summary>
+        //public Vehicle(string script)
+        //    : base(script)
+        //{
+        //}
 
         /// <summary>
         /// Default Car
         /// </summary>
-        public static readonly Car Car = new Car();
+        public static readonly Profiles.Vehicle Car = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.car.lua"));
 
         /// <summary>
         /// Default Pedestrian
         /// </summary>
-        public static readonly Pedestrian Pedestrian = new Pedestrian();
+        public static readonly Profiles.Vehicle Pedestrian = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.pedestrian.lua"));
 
         /// <summary>
         /// Default Bicycle
         /// </summary>
-        public static readonly Bicycle Bicycle = new Bicycle();
+        public static readonly Profiles.Vehicle Bicycle = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bicycle.lua"));
 
         /// <summary>
         /// Default Moped
         /// </summary>
-        public static readonly Moped Moped = new Moped();
+        public static readonly Profiles.Vehicle Moped = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.moped.lua"));
 
         /// <summary>
         /// Default MotorCycle
         /// </summary>
-        public static readonly MotorCycle MotorCycle = new MotorCycle();
+        public static readonly Profiles.Vehicle MotorCycle = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.motorcycle.lua"));
 
         /// <summary>
         /// Default SmallTruck
         /// </summary>
-        public static readonly SmallTruck SmallTruck = new SmallTruck();
+        public static readonly Profiles.Vehicle SmallTruck = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.smalltruck.lua"));
 
         /// <summary>
         /// Default BigTruck
         /// </summary>
-        public static readonly BigTruck BigTruck = new BigTruck();
+        public static readonly Profiles.Vehicle BigTruck = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bigtruck.lua"));
 
         /// <summary>
         /// Default BigTruck
         /// </summary>
-        public static readonly Bus Bus = new Bus();
+        public static readonly Profiles.Vehicle Bus = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bus.lua"));
 
         /// <summary>
         /// Registers all default vehicles.
@@ -103,84 +94,7 @@ namespace Itinero.Osm.Vehicles
             Bus.Register();
         }
 
-        /// <summary>
-        /// Returns true if the given relation is relevant.
-        /// </summary>
-        public bool IsRelevantRelation(IAttributeCollection attributes)
-        {
-            if (_relationTagProcessor == null)
-            {
-                return false;
-            }
-
-            lock (this.Script)
-            {
-                // build lua table.
-                _attributesTable.Clear();
-                if (attributes == null || attributes.Count == 0)
-                {
-                    return false;
-                }
-                foreach (var attribute in attributes)
-                {
-                    _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
-                }
-
-                // call factor_and_speed function.
-                _resultsTable.Clear();
-                this.Script.Call(_relationTagProcessor, _attributesTable, _resultsTable);
-
-                // get the result.
-                var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
-                if (dynAttributesToKeep != null &&
-                    dynAttributesToKeep.Table != null &&
-                    dynAttributesToKeep.Table.Keys.Count() > 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        
-        /// <summary>
-        /// Adds relation tags to a child way.
-        /// </summary>
-        public void AddRelationTags(IAttributeCollection relationTags, IAttributeCollection wayTags)
-        {
-            if (_relationTagProcessor == null)
-            {
-                return;
-            }
-
-            lock (this.Script)
-            {
-                // build lua table.
-                _attributesTable.Clear();
-                if (relationTags == null || relationTags.Count == 0)
-                {
-                    return;
-                }
-                foreach (var attribute in relationTags)
-                {
-                    _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
-                }
-
-                // call factor_and_speed function.
-                _resultsTable.Clear();
-                this.Script.Call(_relationTagProcessor, _attributesTable, _resultsTable);
-
-                // get the result.
-                var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
-                if (dynAttributesToKeep != null &&
-                    dynAttributesToKeep.Table.Keys.Count() > 0)
-                {
-                    foreach(var attribute in dynAttributesToKeep.Table.Pairs)
-                    {
-                        wayTags.AddOrReplace(attribute.Key.String, attribute.Value.String);
-                    }
-                }
-            }
-        }
+     
 
         private static Dictionary<string, bool?> _accessValues = null;
 

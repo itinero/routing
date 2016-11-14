@@ -68,6 +68,21 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Gets the full name used by this profile.
+        /// </summary>
+        public virtual string FullName
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_name))
+                {
+                    return _parent.Name;
+                }
+                return _parent.Name + "." + _name;
+            }
+        }
+
+        /// <summary>
         /// The vehicle this profile is for.
         /// </summary>
         public Vehicle Parent
@@ -188,7 +203,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static void Register(Profile profile)
         {
-            _profiles[profile.Name] = profile;
+            _profiles[profile.FullName] = profile;
         }
 
         /// <summary>

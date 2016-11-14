@@ -65,7 +65,7 @@ namespace Itinero
             else
             { // use the regular function, and consult profiles continuously.
                 Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
-                    profileInstance.Profile.Name);
+                    profileInstance.Profile.FullName);
                 return profileInstance.GetGetFactor(router.Db);
             }
         }
@@ -82,7 +82,7 @@ namespace Itinero
             else
             { // use the regular function, and consult the profile continuously.
                 Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
-                    profileInstance.Profile.Name);
+                    profileInstance.Profile.FullName);
                 return new DefaultWeightHandler((p) =>
                 {
                     return profileInstance.Factor(router.Db.EdgeProfiles.Get(p));
@@ -102,7 +102,7 @@ namespace Itinero
             else
             { // use the regular function, and consult profiles continuously.
                 Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
-                    profileInstance.Profile.Name);
+                    profileInstance.Profile.FullName);
                 return new WeightHandler(profileInstance.GetGetFactorAndSpeed(router.Db));
             }
         }
@@ -119,7 +119,7 @@ namespace Itinero
             else
             { // use the regular function, and consult profiles continuously.
                 Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
-                    profileInstance.Profile.Name);
+                    profileInstance.Profile.FullName);
                 return profileInstance.GetGetFactorAndSpeed(router.Db);
             }
         }

@@ -51,13 +51,13 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             if (!router.SupportsAll(profile))
             {
                 return new Result<Tree>(string.Format("Profile {0} not supported.",
-                    profile.Name));
+                    profile.FullName));
             }
 
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
                 return new Result<Tree>(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Name));
+                    profile.FullName));
             }
 
             // get the weight handler.

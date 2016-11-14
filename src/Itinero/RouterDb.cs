@@ -279,7 +279,7 @@ namespace Itinero
         /// </summary>
         public void AddContracted(Profiles.Profile profile, ContractedDb contracted)
         {
-            _contracted[profile.Name] = contracted;
+            _contracted[profile.FullName] = contracted;
         }
 
         /// <summary>
@@ -287,7 +287,7 @@ namespace Itinero
         /// </summary>
         public bool RemoveContracted(Profile profile)
         {
-            return _contracted.Remove(profile.Name);
+            return _contracted.Remove(profile.FullName);
         }
 
         /// <summary>
@@ -295,7 +295,7 @@ namespace Itinero
         /// </summary>
         public bool TryGetContracted(Profiles.Profile profile, out ContractedDb contracted)
         {
-            return _contracted.TryGetValue(profile.Name, out contracted);
+            return _contracted.TryGetValue(profile.FullName, out contracted);
         }
 
         /// <summary>
@@ -312,7 +312,7 @@ namespace Itinero
         /// </summary>
         public bool HasContractedFor(Profiles.Profile profile)
         {
-            return _contracted.ContainsKey(profile.Name);
+            return _contracted.ContainsKey(profile.FullName);
         }
 
         /// <summary>
@@ -404,15 +404,22 @@ namespace Itinero
             // write version #.
             // version1: OsmSharp.Routing state of layout.
             // version2: Added ShortcutsDbs.
+            // version3: Add advanced profile serialization.
             long size = 1;
-            stream.WriteByte(2);
+            stream.WriteByte(3);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
             size += 16;
 
             // serialize supported profiles.
-            size += stream.WriteWithSize(_supportedVehicles.Keys.ToArray());
+            var lengthBytes = BitConverter.GetBytes(_supportedVehicles.Count);
+            size += 4;
+            stream.Write(lengthBytes, 0, 4);
+            foreach(var vehicle in _supportedVehicles)
+            {
+                size += vehicle.Value.Serialize(stream);
+            }
 
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);
@@ -433,7 +440,7 @@ namespace Itinero
             stream.WriteByte((byte)_contracted.Count);
             size += 1;
 
-            // serialize profiles.
+            // serialize edge profiles.
             size += _edgeProfiles.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
@@ -471,7 +478,7 @@ namespace Itinero
             ContractedDb contracted;
             if (!this.TryGetContracted(profile, out contracted))
             {
-                throw new Exception(string.Format("Contracted graph for profile {0} not found.", profile.Name));
+                throw new Exception(string.Format("Contracted graph for profile {0} not found.", profile.FullName));
             }
 
             // write: guid, name and data.
@@ -479,7 +486,7 @@ namespace Itinero
             var guid = this.Guid;
             long size = 16;
             stream.Write(guid.ToByteArray(), 0, 16);
-            size += stream.WriteWithSize(profile.Name);
+            size += stream.WriteWithSize(profile.FullName);
             size += contracted.Serialize(stream, true);
             return size;
         }
@@ -526,8 +533,9 @@ namespace Itinero
             // deserialize all basic data.
             // version1: OsmSharp.Routing state of layout.
             // version2: Added ShortcutsDbs.
+            // version3: Add advanced profile serialization.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2)
+            if (version != 1 && version != 2 && version != 3)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
@@ -536,24 +544,38 @@ namespace Itinero
             stream.Read(guidBytes, 0, 16);
             var guid = new Guid(guidBytes);
 
-            var supportedVehicles = stream.ReadWithSizeStringArray();
             var supportedVehicleInstances = new List<Vehicle>();
-            foreach (var vehicleName in supportedVehicles)
-            {
-                Profile vehicleProfile;
-                if (Profile.TryGet(vehicleName, out vehicleProfile))
+            if (version <= 2)
+            { // just contains vehicle names.
+                var supportedVehicles = stream.ReadWithSizeStringArray();
+                foreach (var vehicleName in supportedVehicles)
                 {
-                    supportedVehicleInstances.Add(vehicleProfile.Parent);
-                }
-                else
-                {
-                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Warning, "Vehicle with name {0} was not found, register all vehicle profiles before deserializing the router db.",
-                        vehicleName);
+                    Profile vehicleProfile;
+                    if (Profile.TryGet(vehicleName, out vehicleProfile))
+                    {
+                        supportedVehicleInstances.Add(vehicleProfile.Parent);
+                    }
+                    else
+                    {
+                        Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Warning, "Vehicle with name {0} was not found, register all vehicle profiles before deserializing the router db.",
+                            vehicleName);
+                    }
                 }
             }
+            else
+            { // contains the full vehicles.
+                var lengthBytes = new byte[4];
+                stream.Read(lengthBytes, 0, 4);
+                var size = BitConverter.ToInt32(lengthBytes, 0);
+                for(var i = 0; i < size; i++)
+                {
+                    supportedVehicleInstances.Add(Vehicle.Deserialize(stream));
+                }
+            }
+            
             var metaDb = stream.ReadWithSizeAttributesCollection();
             var shorcutsCount = (int)0;
-            if (version == 2)
+            if (version >= 2)
             { // when version < 1 there are no shortcuts and thus no shortcut count.
                 shorcutsCount = stream.ReadByte();
             }

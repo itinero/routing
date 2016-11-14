@@ -44,7 +44,6 @@ namespace Itinero.IO.Osm.Streams
         private readonly bool _allNodesAreCore;
         private readonly int _minimumStages = 1;
         private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
-        private readonly bool _normalizeTags = true;
         private readonly HashSet<string> _vehicleTypes;
 
         /// <summary>
@@ -116,9 +115,9 @@ namespace Itinero.IO.Osm.Streams
             // add all vehicle relation processors.
             foreach(var vehicle in _vehicles)
             {
-                if (vehicle is Itinero.Osm.Vehicles.Vehicle)
+                if (vehicle is Itinero.Profiles.DynamicVehicle)
                 {
-                    this.Processors.Add(new VehicleRelationTagProcessor(vehicle as Itinero.Osm.Vehicles.Vehicle));
+                    this.Processors.Add(new DynamicVehicleRelationTagProcessor(vehicle as Itinero.Profiles.DynamicVehicle));
                 }
             }
 

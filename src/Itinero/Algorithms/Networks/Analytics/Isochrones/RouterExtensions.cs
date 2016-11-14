@@ -46,7 +46,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Name));
+                    profile.FullName));
             }
 
             // get the weight handler.

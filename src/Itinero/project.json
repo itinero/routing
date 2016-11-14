@@ -12,7 +12,7 @@
           ]
         },
         "embed": [
-          "Osm/Vehicles/Lua/*.lua"
+          "Osm/Vehicles/*.lua"
         ]
       },
       "imports": "dnxcore50",
@@ -32,7 +32,7 @@
           ]
         },
         "embed": [
-          "Osm/Vehicles/Lua/*.lua"
+          "Osm/Vehicles/*.lua"
         ]
       },
       "frameworkAssemblies": {
@@ -48,7 +48,7 @@
           ]
         },
         "embed": [
-          "Osm/Vehicles/Lua/*.lua"
+          "Osm/Vehicles/*.lua"
         ]
       },
       "frameworkAssemblies": {
@@ -64,7 +64,7 @@
           ]
         },
         "embed": [
-          "Osm/Vehicles/Lua/*.lua"
+          "Osm/Vehicles/*.lua"
         ]
       },
       "frameworkAssemblies": {

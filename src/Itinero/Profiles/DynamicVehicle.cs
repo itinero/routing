@@ -97,11 +97,7 @@ namespace Itinero.Profiles
                 {
                     _profileFunctions[functionName] = function;
                 }
-                if (!string.IsNullOrWhiteSpace(profileName))
-                {
-                    profileName = "." + profileName;
-                }
-                var profile = new DynamicProfile(this.Name + profileName, metric, _vehicleTypes, this, _script, function);
+                var profile = new DynamicProfile(profileName, metric, _vehicleTypes, this, _script, function);
                 this.Register(profile);
             }
             
@@ -142,7 +138,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the script.
         /// </summary>
-        protected Script Script
+        public Script Script
         {
             get
             {
@@ -253,6 +249,14 @@ namespace Itinero.Profiles
         public override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whiteList)
         {
             throw new NotImplementedException("Not used and unavailable with dynamic vehicles.");
+        }
+
+        /// <summary>
+        /// Serializes the content of this vehicle.
+        /// </summary>
+        protected override long DoSerialize(Stream stream)
+        {
+            return stream.WriteWithSize(this._source);
         }
 
         /// <summary>

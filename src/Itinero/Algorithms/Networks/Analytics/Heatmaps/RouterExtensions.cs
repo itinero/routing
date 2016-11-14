@@ -35,7 +35,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             if (!router.SupportsAll(profile))
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported.",
-                    profile.Name));
+                    profile.FullName));
             }
 
             var routerOrigin = router.Resolve(profile, origin);
@@ -50,13 +50,13 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             if (!router.SupportsAll(profile))
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported.",
-                    profile.Name));
+                    profile.FullName));
             }
 
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported, only profiles with metric TimeInSeconds are supported.",
-                    profile.Name));
+                    profile.FullName));
             }
 
             // get the weight handler.

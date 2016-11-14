@@ -924,7 +924,7 @@ namespace Itinero.Test.Osm
             Assert.IsFalse(route.IsError);
             Assert.IsNotNull(route.Value.From);
             Assert.IsNull(route.Value.From.From);
-            profile = Vehicle.Bicycle.Networks();
+            profile = Vehicle.Bicycle.Profile("networks");
             weightHandler = router.GetDefaultWeightHandler(profile);
             route = router.TryCalculateRaw<float>(profile, weightHandler,
                 router.Resolve(profile, new Coordinate(51.44979479062501f, 5.960791110992432f)),
