@@ -43,7 +43,18 @@ access_values = {
 }
 
 profile_whitelist = {
-	"cycleway", "cyclenetwork"
+	"highway",
+	"oneway",
+	"bicycle",
+	"vehicle",
+	"access",
+	"maxspeed",
+	"maxweight",
+	"maxwidth",
+	"roundabout",
+	"cycleway", 
+	"cyclenetwork",
+	"oneway:bicycle"
 }
 
 meta_whitelist = {

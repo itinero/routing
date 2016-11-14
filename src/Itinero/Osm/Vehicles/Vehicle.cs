@@ -133,6 +133,7 @@ namespace Itinero.Osm.Vehicles
                 // get the result.
                 var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
                 if (dynAttributesToKeep != null &&
+                    dynAttributesToKeep.Table != null &&
                     dynAttributesToKeep.Table.Keys.Count() > 0)
                 {
                     return true;

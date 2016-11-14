@@ -46,7 +46,16 @@ access_values = {
 
 -- whitelists for profile and meta
 profile_whitelist = {
-
+	"highway",
+	"oneway",
+	"motorcar",
+	"motor_vehicle",
+	"vehicle",
+	"access",
+	"maxspeed",
+	"maxweight",
+	"maxwidth",
+	"roundabout"
 }
 meta_whitelist = {
 	"name"
@@ -182,22 +191,17 @@ classifications_factors = {
 -- the classifications function for the classifications profile
 function factor_and_speed_classifications (attributes, result)
 
-	itinero.log ("before factor and speed")
-
 	factor_and_speed (attributes, result)
 
 	if result.speed == 0 then
 		return
 	end
 
-	itinero.log ("speed: " .. result.speed)
 	result.factor = 1.0 / (result.speed / 3.6)
-	itinero.log ("factor: " .. result.factor)
 	local classification_factor = classifications_factors[attributes.highway]
 	if classification_factor != nil then
 		result.factor = result.factor / classification_factor
 	else
 		result.factor = result.factor / 4
 	end
-	itinero.log ("factor: " .. result.factor)
 end

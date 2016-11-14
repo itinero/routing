@@ -43,7 +43,9 @@ access_values = {
 }
 
 profile_whitelist = {
-
+	"highway",
+	"foot",
+	"access"
 }
 
 meta_whitelist = {

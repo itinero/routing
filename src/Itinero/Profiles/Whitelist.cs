@@ -69,6 +69,17 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Gets the number of items.
+        /// </summary>
+        public int Count
+        {
+            get
+            {
+                return _whitelist.Count;
+            }
+        }
+
+        /// <summary>
         /// Returns true if this is a dummy whitelist.
         /// </summary>
         public bool IsDummy

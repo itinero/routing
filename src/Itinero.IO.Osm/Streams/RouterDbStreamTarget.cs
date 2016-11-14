@@ -29,7 +29,6 @@ using Itinero.Data.Network.Edges;
 using Itinero.IO.Osm.Restrictions;
 using Itinero.Data.Network.Restrictions;
 using Itinero.IO.Osm.Relations;
-using Itinero.IO.Osm.Normalizer;
 using Itinero.Profiles;
 
 namespace Itinero.IO.Osm.Streams
@@ -41,31 +40,22 @@ namespace Itinero.IO.Osm.Streams
     {
         private readonly RouterDb _db;
         private readonly Vehicle[] _vehicles;
+        private readonly VehicleCache _vehicleCache;
         private readonly bool _allNodesAreCore;
         private readonly int _minimumStages = 1;
         private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
         private readonly bool _normalizeTags = true;
         private readonly HashSet<string> _vehicleTypes;
-        private readonly ITagNormalizer _tagNormalizer;
 
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
-            int minimumStages = 1, bool normalizeTags = true, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
-            : this(db, vehicles, new DefaultTagNormalizer(), allCore, minimumStages, normalizeTags, processors, processRestrictions)
-        {
-            
-        }
-
-        /// <summary>
-        /// Creates a new router db stream target.
-        /// </summary>
-        public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, ITagNormalizer tagNormalizer, bool allCore = false,
-            int minimumStages = 1, bool normalizeTags = true, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
+            int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
         {
             _db = db;
             _vehicles = vehicles;
+            _vehicleCache = new VehicleCache(vehicles);
 
             _vehicleTypes = new HashSet<string>();
             foreach(var vehicle in _vehicles)
@@ -77,8 +67,6 @@ namespace Itinero.IO.Osm.Streams
             }
 
             _allNodesAreCore = allCore;
-            _normalizeTags = normalizeTags;
-            _tagNormalizer = tagNormalizer;
 
             _createNodeCoordinatesDictionary = () =>
             {
@@ -213,14 +201,11 @@ namespace Itinero.IO.Osm.Streams
                 {
                     if (osmGeo.Type == OsmGeoType.Way)
                     {
-                        var whiteList = new Whitelist();
                         var tags = osmGeo.Tags.ToAttributes();
-                        _vehicles.AddToWhiteList(tags, whiteList);
 
                         foreach (var tag in tags)
                         {
-                            if (!whiteList.Contains(tag.Key) &&
-                                !_vehicles.IsOnProfileWhiteList(tag.Key) &&
+                            if (!_vehicles.IsOnProfileWhiteList(tag.Key) &&
                                 !_vehicles.IsOnMetaWhiteList(tag.Key))
                             {
                                 osmGeo.Tags.RemoveKey(tag.Key);
@@ -384,7 +369,7 @@ namespace Itinero.IO.Osm.Streams
                     }
                 }
 
-                if (_vehicles.AnyCanTraverse(way.Tags.ToAttributes()))
+                if (_vehicleCache.AnyCanTraverse(way.Tags.ToAttributes()))
                 { // way has some use.
                     for (var i = 0; i < way.Nodes.Length; i++)
                     {
@@ -412,7 +397,7 @@ namespace Itinero.IO.Osm.Streams
 
                 var wayAttributes = way.Tags.ToAttributes();
                 var profileWhiteList = new Whitelist();
-                if (_vehicles.AddToWhiteList(wayAttributes, profileWhiteList))
+                if (_vehicleCache.AddToWhiteList(wayAttributes, profileWhiteList))
                 { // way has some use.
                     if (_processedWays.Contains(way.Id.Value))
                     { // way was already processed.
@@ -429,20 +414,10 @@ namespace Itinero.IO.Osm.Streams
                         {
                             profileTags.Add(tag);
                         }
-                        else
+                        else if (_vehicles.IsOnMetaWhiteList(tag.Key))
                         {
                             metaTags.Add(tag);
                         }
-                    }
-
-                    if (_normalizeTags)
-                    { // normalize profile tags.
-                        var normalizedProfileTags = new AttributeCollection();
-                        if (!_tagNormalizer.Normalize(profileTags, normalizedProfileTags, metaTags, _vehicles,  profileWhiteList))
-                        { // invalid data, no access, or tags make no sense at all.
-                            return;
-                        }
-                        profileTags = normalizedProfileTags;
                     }
 
                     // get profile and meta-data id's.

@@ -42,7 +42,16 @@ access_values = {
 
 -- whitelists for profile and meta
 profile_whitelist = {
-
+	"highway",
+	"oneway",
+	"moped",
+	"motor_vehicle",
+	"vehicle",
+	"access",
+	"maxspeed",
+	"maxweight",
+	"maxwidth",
+	"roundabout"
 }
 meta_whitelist = {
 	"name"
