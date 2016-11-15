@@ -45,15 +45,19 @@ namespace Sample.Shape
 
             // create a new router db and load the shapefile.
             var vehicle = new Car(); // load data for the car profile.
+            Itinero.Profiles.Vehicle.Register(vehicle);
             var routerDb = new RouterDb(EdgeDataSerializer.MAX_DISTANCE);
             routerDb.LoadFromShape(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp"), "wegvakken.shp", "JTE_ID_BEG", "JTE_ID_END", vehicle);
+
+            // build a contracted version of the routing graph.
+            routerDb.AddContracted(vehicle.Fastest());
 
             // write the router db to disk for later use.
             routerDb.Serialize(File.OpenWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "nwb.routerdb")));
 
             // calculate a test route.
             var router = new Router(routerDb);
-            var route = router.Calculate(vehicle.Shortest(), new Coordinate(51.57060821506861f, 5.46792984008789f), 
+            var route = router.Calculate(vehicle.Fastest(), new Coordinate(51.57060821506861f, 5.46792984008789f), 
                 new Coordinate(51.58711643524425f, 5.4957228899002075f));
         }
     }

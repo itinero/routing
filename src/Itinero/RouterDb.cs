@@ -118,7 +118,7 @@ namespace Itinero
             _supportedVehicles = new Dictionary<string, Vehicle>();
             foreach (var vehicle in supportedVehicles)
             {
-                _supportedVehicles[vehicle.Name] = vehicle;
+                _supportedVehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
@@ -142,7 +142,7 @@ namespace Itinero
             _supportedVehicles = new Dictionary<string, Vehicle>();
             foreach (var vehicle in supportedVehicles)
             {
-                _supportedVehicles[vehicle.Name] = vehicle;
+                _supportedVehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
@@ -185,7 +185,7 @@ namespace Itinero
         /// </summary>
         public bool Supports(string vehicleName)
         {
-            return _supportedVehicles.ContainsKey(vehicleName);
+            return _supportedVehicles.ContainsKey(vehicleName.ToLowerInvariant());
         }
 
         /// <summary>
@@ -202,7 +202,7 @@ namespace Itinero
         /// </summary>
         public void AddSupportedVehicle(Profiles.Vehicle vehicle)
         {
-            _supportedVehicles[vehicle.Name] = vehicle;
+            _supportedVehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
         }
 
         /// <summary>

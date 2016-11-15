@@ -111,7 +111,7 @@ namespace Itinero.Profiles
         /// </summary>
         public void Register(Profile profile)
         {
-            _profiles[profile.Name] = profile;
+            _profiles[profile.Name.ToLowerInvariant()] = profile;
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace Itinero.Profiles
         /// </summary>
         public Profile Profile(string name)
         {
-            return _profiles[name];
+            return _profiles[name.ToLowerInvariant()];
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static void Register(Vehicle vehicle)
         {
-            _vehicles[vehicle.Name] = vehicle;
+            _vehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static Vehicle Get(string name)
         {
-            return _vehicles[name];
+            return _vehicles[name.ToLowerInvariant()];
         }
 
         /// <summary>
@@ -178,7 +178,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static bool TryGet(string name, out Vehicle value)
         {
-            return _vehicles.TryGetValue(name, out value);
+            return _vehicles.TryGetValue(name.ToLowerInvariant(), out value);
         }
 
         /// <summary>

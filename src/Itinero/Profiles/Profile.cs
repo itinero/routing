@@ -211,7 +211,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static Profile GetRegistered(string name)
         {
-            return _profiles[name];
+            return _profiles[name.ToLowerInvariant()];
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace Itinero.Profiles
         /// </summary>
         public static bool TryGet(string name, out Profile value)
         {
-            return _profiles.TryGetValue(name, out value);
+            return _profiles.TryGetValue(name.ToLowerInvariant(), out value);
         }
 
         /// <summary>

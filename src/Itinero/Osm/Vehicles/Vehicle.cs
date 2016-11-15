@@ -29,16 +29,6 @@ namespace Itinero.Osm.Vehicles
     /// </summary>
     public static class Vehicle
     {
-
-
-        ///// <summary>
-        ///// Creates a new OSM vehicle.
-        ///// </summary>
-        //public Vehicle(string script)
-        //    : base(script)
-        //{
-        //}
-
         /// <summary>
         /// Default Car
         /// </summary>
@@ -93,8 +83,6 @@ namespace Itinero.Osm.Vehicles
             BigTruck.Register();
             Bus.Register();
         }
-
-     
 
         private static Dictionary<string, bool?> _accessValues = null;
 
