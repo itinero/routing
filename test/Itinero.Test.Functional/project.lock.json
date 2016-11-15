@@ -836,6 +836,7 @@
           "NetTopologySuite.IO": "1.14.0.1"
         },
         "frameworkAssemblies": [
+          "System.Data",
           "System.Xml"
         ],
         "compile": {
@@ -1661,6 +1662,7 @@
           "NetTopologySuite.IO": "1.14.0.1"
         },
         "frameworkAssemblies": [
+          "System.Data",
           "System.Xml"
         ],
         "compile": {
@@ -2486,6 +2488,7 @@
           "NetTopologySuite.IO": "1.14.0.1"
         },
         "frameworkAssemblies": [
+          "System.Data",
           "System.Xml"
         ],
         "compile": {
@@ -3314,6 +3317,7 @@
           "NetTopologySuite.IO": "1.14.0.1"
         },
         "frameworkAssemblies": [
+          "System.Data",
           "System.Xml"
         ],
         "compile": {
