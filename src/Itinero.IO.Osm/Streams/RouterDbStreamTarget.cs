@@ -30,6 +30,8 @@ using Itinero.IO.Osm.Restrictions;
 using Itinero.Data.Network.Restrictions;
 using Itinero.IO.Osm.Relations;
 using Itinero.Profiles;
+using System.Text;
+using Itinero.IO.Osm.Normalizer;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -200,14 +202,25 @@ namespace Itinero.IO.Osm.Streams
                 {
                     if (osmGeo.Type == OsmGeoType.Way)
                     {
+                        // normalize tags, reduce the combination of tags meaning the same thing.
                         var tags = osmGeo.Tags.ToAttributes();
+                        var normalizedTags = new AttributeCollection();
+                        if (!DefaultTagNormalizer.Normalize(tags, normalizedTags, _vehicleCache))
+                        { // invalid data, no access, or tags make no sense at all.
+                            return osmGeo;
+                        }
 
+                        // rewrite tags and keep whitelisted meta-tags.
+                        osmGeo.Tags.Clear();
+                        foreach (var tag in normalizedTags)
+                        {
+                            osmGeo.Tags.Add(tag.Key, tag.Value);
+                        }
                         foreach (var tag in tags)
                         {
-                            if (!_vehicles.IsOnProfileWhiteList(tag.Key) &&
-                                !_vehicles.IsOnMetaWhiteList(tag.Key))
+                            if (_vehicles.IsOnMetaWhiteList(tag.Key))
                             {
-                                osmGeo.Tags.RemoveKey(tag.Key);
+                                osmGeo.Tags.Add(tag.Key, tag.Value);
                             }
                         }
                     }
@@ -408,19 +421,33 @@ namespace Itinero.IO.Osm.Streams
                     var metaTags = new AttributeCollection();
                     foreach (var tag in way.Tags)
                     {
-                        if (profileWhiteList.Contains(tag.Key) || 
+                        if (profileWhiteList.Contains(tag.Key) ||
                             _vehicles.IsOnProfileWhiteList(tag.Key))
                         {
                             profileTags.Add(tag);
                         }
-                        else if (_vehicles.IsOnMetaWhiteList(tag.Key))
+                        if (_vehicles.IsOnMetaWhiteList(tag.Key))
                         {
                             metaTags.Add(tag);
                         }
                     }
 
                     // get profile and meta-data id's.
+                    var profileCount = _db.EdgeProfiles.Count;
                     var profile = _db.EdgeProfiles.Add(profileTags);
+                    if (profileCount != _db.EdgeProfiles.Count)
+                    {
+                        var stringBuilder = new StringBuilder();
+                        foreach(var att in profileTags)
+                        {
+                            stringBuilder.Append(att.Key);
+                            stringBuilder.Append('=');
+                            stringBuilder.Append(att.Value);
+                            stringBuilder.Append(' ');
+                        }
+                        Itinero.Logging.Logger.Log("RouterDbStreamTarget", Logging.TraceEventType.Information,
+                            "Normalized: # profiles {0}: {1}", _db.EdgeProfiles.Count, stringBuilder.ToInvariantString());
+                    }
                     if (profile > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
                     {
                         throw new Exception("Maximum supported profiles exeeded, make sure only routing tags are included in the profiles.");

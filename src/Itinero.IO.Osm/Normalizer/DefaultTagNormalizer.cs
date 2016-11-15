@@ -1,124 +1,93 @@
-﻿//// Itinero - Routing for .NET
-//// Copyright (C) 2016 Abelshausen Ben
-//// 
-//// This file is part of Itinero.
-//// 
-//// OsmSharp is free software: you can redistribute it and/or modify
-//// it under the terms of the GNU General Public License as published by
-//// the Free Software Foundation, either version 2 of the License, or
-//// (at your option) any later version.
-//// 
-//// OsmSharp is distributed in the hope that it will be useful,
-//// but WITHOUT ANY WARRANTY; without even the implied warranty of
-//// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//// GNU General Public License for more details.
-//// 
-//// You should have received a copy of the GNU General Public License
-//// along with Itinero. If not, see <http://www.gnu.org/licenses/>.
+﻿// Itinero - Routing for .NET
+// Copyright (C) 2016 Abelshausen Ben
+// 
+// This file is part of Itinero.
+// 
+// OsmSharp is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// OsmSharp is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-//using System.Collections.Generic;
-//using Itinero.Attributes;
-//using Itinero.Profiles;
-//using Itinero.IO.Osm.Streams;
+using System.Collections.Generic;
+using Itinero.Attributes;
+using Itinero.Profiles;
+using Itinero.IO.Osm.Streams;
 
-//namespace Itinero.IO.Osm.Normalizer
-//{
-//    /// <summary>
-//    /// A default tag normalizer implementation.
-//    /// </summary>
-//    public class DefaultTagNormalizer : ITagNormalizer
-//    {
-//        public static ITagNormalizer Default = new DefaultTagNormalizer();
-        
-//        /// <summary>
-//        /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
-//        /// </summary>
-//        public virtual bool Normalize(AttributeCollection tags, AttributeCollection profileTags, AttributeCollection metaTags, VehicleCache vehicleCache, Whitelist whitelist)
-//        {
-//            string highway;
-//            if (!tags.TryGetValue("highway", out highway))
-//            { // there is no highway tag, don't continue the search.
-//                return false;
-//            }
+namespace Itinero.IO.Osm.Normalizer
+{
+    /// <summary>
+    /// A default tag normalizer implementation.
+    /// </summary>
+    public static class DefaultTagNormalizer
+    {
+        /// <summary>
+        /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
+        /// </summary>
+        public static bool Normalize(IAttributeCollection tags, IAttributeCollection profileTags, VehicleCache vehicleCache)
+        {
+            var normalizedTags = new HashSet<string>(new string[] { "highway", "maxspeed", "oneway", "oneway:bicycle",
+                "cycleway", "junction", "access" });
+            foreach(var vehicle in vehicleCache.Vehicles)
+            {
+                foreach(var vehicleType in vehicle.VehicleTypes)
+                {
+                    normalizedTags.Add(vehicleType);
+                }
+            }
 
-//            // normalize maxspeed tags.
-//            tags.NormalizeMaxspeed(profileTags, metaTags);
+            string highway;
+            if (!tags.TryGetValue("highway", out highway))
+            { // there is no highway tag, don't continue the search.
+                return false;
+            }
 
-//            // normalize oneway tags.
-//            tags.NormalizeOneway(profileTags, metaTags);
-//            tags.NormalizeOnewayBicycle(profileTags, metaTags);
+            // add the highway tag.
+            profileTags.AddOrReplace("highway", highway);
 
-//            // normalize cyclceway.
-//            tags.NormalizeCycleway(profileTags, metaTags);
+            // normalize maxspeed tags.
+            tags.NormalizeMaxspeed(profileTags);
 
-//            // normalize junction=roundabout tag.
-//            tags.NormalizeJunction(profileTags, metaTags);
+            // normalize oneway tags.
+            tags.NormalizeOneway(profileTags);
+            tags.NormalizeOnewayBicycle(profileTags);
 
-//            switch (highway)
-//            {
-//                case "motorway":
-//                case "motorway_link":
-//                case "trunk":
-//                case "trunk_link":
-//                case "primary":
-//                case "primary_link":
-//                    profileTags.AddOrReplace("highway", highway);
-//                    break;
-//                case "secondary":
-//                case "secondary_link":
-//                case "tertiary":
-//                case "tertiary_link":
-//                case "unclassified":
-//                case "residential":
-//                case "road":
-//                case "service":
-//                case "services":
-//                case "living_street":
-//                case "track":
-//                    profileTags.AddOrReplace("highway", highway);
-//                    break;
-//                case "cycleway":
-//                    profileTags.AddOrReplace("highway", highway);
-//                    break;
-//                case "path":
-//                    profileTags.AddOrReplace("highway", highway);
-//                    break;
-//                case "pedestrian":
-//                case "footway":
-//                case "steps":
-//                    tags.NormalizeRamp(profileTags, metaTags, false);
-//                    profileTags.AddOrReplace("highway", highway);
-//                    break;
-//            }
+            // normalize cyclceway.
+            tags.NormalizeCycleway(profileTags);
 
-//            // normalize access tags.
-//            foreach (var vehicle in vehicleCache.Vehicles)
-//            {
-//                tags.NormalizeAccess(vehicleCache, vehicle, highway, profileTags);
-//            }
+            // normalize junction=roundabout tag.
+            tags.NormalizeJunction(profileTags);
 
-//            // add whitelisted tags.
-//            foreach (var key in whitelist)
-//            {
-//                var value = string.Empty;
-//                if (tags.TryGetValue(key, out value))
-//                {
-//                    profileTags.AddOrReplace(key, value);
-//                }
-//            }
-//            foreach(var vehicle in vehicleCache.Vehicles)
-//            {
-//                foreach (var key in vehicle.ProfileWhiteList)
-//                {
-//                    var value = string.Empty;
-//                    if (tags.TryGetValue(key, out value))
-//                    {
-//                        profileTags.AddOrReplace(key, value);
-//                    }
-//                }
-//            }
+            // normalize access tags.
+            foreach (var vehicle in vehicleCache.Vehicles)
+            {
+                tags.NormalizeAccess(vehicleCache, vehicle, highway, profileTags);
+            }
 
-//            return true;
-//        }
-//    }
-//}
+            // add whitelisted tags but only when they haven't been considered for normalization.
+            foreach (var vehicle in vehicleCache.Vehicles)
+            {
+                foreach (var key in vehicle.ProfileWhiteList)
+                {
+                    var value = string.Empty;
+                    if (tags.TryGetValue(key, out value))
+                    {
+                        if (!normalizedTags.Contains(key))
+                        {
+                            profileTags.AddOrReplace(key, value);
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
+}
