@@ -132,15 +132,6 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "MoonSharp/2.0.0": {
-        "type": "package",
-        "compile": {
-          "lib/net40-client/MoonSharp.Interpreter.dll": {}
-        },
-        "runtime": {
-          "lib/net40-client/MoonSharp.Interpreter.dll": {}
-        }
-      },
       "NETStandard.Library/1.6.0": {
         "type": "package",
         "dependencies": {
@@ -785,7 +776,6 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
-          "Itinero.Profiles": "1.0.0",
           "OsmSharp.Core": "2.2.8-beta"
         },
         "frameworkAssemblies": [
@@ -796,23 +786,6 @@
         },
         "runtime": {
           "net45/Itinero.IO.Osm.dll": {}
-        }
-      },
-      "Itinero.Profiles/1.0.0": {
-        "type": "project",
-        "framework": ".NETFramework,Version=v4.5",
-        "dependencies": {
-          "Itinero": "1.0.0",
-          "MoonSharp": "2.0.0"
-        },
-        "frameworkAssemblies": [
-          "System.Xml"
-        ],
-        "compile": {
-          "net45/Itinero.Profiles.dll": {}
-        },
-        "runtime": {
-          "net45/Itinero.Profiles.dll": {}
         }
       }
     }
@@ -937,32 +910,6 @@
         "dotnet_library_license.txt",
         "lib/netstandard1.0/_._",
         "runtime.json"
-      ]
-    },
-    "MoonSharp/2.0.0": {
-      "sha512": "uiAcRh7d+53k3xW9pFDJfAFVw4RnjHVCJG05M3oPAVEVwPtFavhg1H/IpC6So4X1j9kJlzuLlA3OghhPcIvc5A==",
-      "type": "package",
-      "path": "MoonSharp/2.0.0",
-      "files": [
-        "MoonSharp.2.0.0.nupkg.sha512",
-        "MoonSharp.nuspec",
-        "lib/net35-client/MoonSharp.Interpreter.dll",
-        "lib/net35-client/MoonSharp.Interpreter.pdb",
-        "lib/net35-client/MoonSharp.Interpreter.xml",
-        "lib/net40-client/MoonSharp.Interpreter.dll",
-        "lib/net40-client/MoonSharp.Interpreter.pdb",
-        "lib/net40-client/MoonSharp.Interpreter.xml",
-        "lib/netcore/MoonSharp.Interpreter.deps.json",
-        "lib/netcore/MoonSharp.Interpreter.dll",
-        "lib/netcore/MoonSharp.Interpreter.pdb",
-        "lib/netcore/MoonSharp.Interpreter.xml",
-        "lib/netstandard1.6/MoonSharp.Interpreter.deps.json",
-        "lib/netstandard1.6/MoonSharp.Interpreter.dll",
-        "lib/netstandard1.6/MoonSharp.Interpreter.pdb",
-        "lib/netstandard1.6/MoonSharp.Interpreter.xml",
-        "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.dll",
-        "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.pdb",
-        "lib/portable-net4+sl5+wp8+win8/MoonSharp.Interpreter.xml"
       ]
     },
     "NETStandard.Library/1.6.0": {
@@ -3360,11 +3307,6 @@
       "type": "project",
       "path": "../../src/Itinero.IO.Osm/project.json",
       "msbuildProject": "../../src/Itinero.IO.Osm/Itinero.IO.Osm.xproj"
-    },
-    "Itinero.Profiles/1.0.0": {
-      "type": "project",
-      "path": "../../src/Itinero.Profiles/project.json",
-      "msbuildProject": "../../src/Itinero.Profiles/Itinero.Profiles.xproj"
     }
   },
   "projectFileDependencyGroups": {

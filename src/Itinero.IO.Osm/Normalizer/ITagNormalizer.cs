@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.IO.Osm.Streams;
 using Itinero.Profiles;
 using System.Collections.Generic;
 
@@ -31,6 +32,6 @@ namespace Itinero.IO.Osm.Normalizer
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
         bool Normalize(AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, IEnumerable<Vehicle> vehicles, Whitelist whitelist);
+            AttributeCollection metaTags, VehicleCache vehicleCach, Whitelist whitelist);
     }
 }

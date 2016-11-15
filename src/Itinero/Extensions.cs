@@ -153,6 +153,17 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Reads a string.
+        /// </summary>
+        public static string ReadToEnd(this System.IO.Stream stream)
+        {
+            using (var streamReader = new StreamReader(stream))
+            {
+                return streamReader.ReadToEnd();
+            }
+        }
+
+        /// <summary>
         /// Sets the position within the given stream. 
         /// </summary>
         public static long SeekBegin(this BinaryWriter stream, long offset)

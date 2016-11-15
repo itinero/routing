@@ -68,7 +68,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -129,7 +129,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -191,7 +191,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -229,7 +229,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             routerDb = new RouterDb();
             target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -294,7 +294,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -433,7 +433,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -533,7 +533,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             routerDb = new RouterDb();
             target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -663,7 +663,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -771,7 +771,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             routerDb = new RouterDb();
             target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -856,7 +856,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -902,7 +902,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -979,7 +979,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -1062,7 +1062,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
             target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 });
             target.RegisterSource(source);
@@ -1170,7 +1170,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 }, processRestrictions: true);
             target.RegisterSource(source);
@@ -1296,7 +1296,7 @@ namespace Itinero.Test.IO.Osm.Streams
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 }, processRestrictions: true);
             target.RegisterSource(source);

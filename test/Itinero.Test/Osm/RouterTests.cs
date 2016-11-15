@@ -826,5 +826,113 @@ namespace Itinero.Test.Osm
             Assert.IsFalse(route.IsError);
             Assert.IsTrue(route.Value.TotalDistance < 180);
         }
+        
+        /// <summary>
+        /// An integration test that loads two ways, on shorter with no cycle network and one longer with cycle network.
+        /// </summary>
+        [Test]
+        public void TestBicycleWithCyclenetwork()
+        {
+            // the input osm-data.
+            var osmGeos = new OsmGeo[]
+            {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = 51.44979479062501f,
+                    Longitude = 5.960791110992432f
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = 51.448825279548814f,
+                    Longitude = 5.961284637451172f
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = 51.448577883770454f,
+                    Longitude = 5.962904691696167f
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Nodes = new long[]
+                    {
+                        1, 3
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Nodes = new long[]
+                    {
+                        1, 2
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Way()
+                {
+                    Id = 3,
+                    Nodes = new long[]
+                    {
+                        2, 3
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential"))
+                },
+                new Relation()
+                {
+                    Id = 1,
+                    Members = new RelationMember[]
+                    {
+                        new RelationMember()
+                        {
+                            Id = 2,
+                            Type = OsmGeoType.Way,
+                            Role = string.Empty
+                        },
+                        new RelationMember()
+                        {
+                            Id = 3,
+                            Type = OsmGeoType.Way,
+                            Role = string.Empty
+                        }
+                    },
+                    Tags = new TagsCollection(
+                        new Tag("type", "route"),
+                        new Tag("route", "bicycle"))
+                }
+            };
+
+            // build router db.
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(osmGeos, Vehicle.Bicycle);
+
+            // test some routes.
+            var router = new Router(routerDb);
+
+            // confirm it's not working for bicycles.
+            var profile = Vehicle.Bicycle.Fastest() as Itinero.Profiles.IProfileInstance;
+            var weightHandler = router.GetDefaultWeightHandler(profile);
+            var route = router.TryCalculateRaw<float>(profile, weightHandler,
+                router.Resolve(profile, new Coordinate(51.44979479062501f, 5.960791110992432f)),
+                router.Resolve(profile, new Coordinate(51.44857788377045f, 5.962904691696167f)), null);
+            Assert.IsFalse(route.IsError);
+            Assert.IsNotNull(route.Value.From);
+            Assert.IsNull(route.Value.From.From);
+            profile = Vehicle.Bicycle.Profile("networks");
+            weightHandler = router.GetDefaultWeightHandler(profile);
+            route = router.TryCalculateRaw<float>(profile, weightHandler,
+                router.Resolve(profile, new Coordinate(51.44979479062501f, 5.960791110992432f)),
+                router.Resolve(profile, new Coordinate(51.44857788377045f, 5.962904691696167f)), null);
+            Assert.IsFalse(route.IsError);
+            Assert.IsNotNull(route.Value.From);
+            Assert.IsNotNull(route.Value.From.From);
+            Assert.IsNull(route.Value.From.From.From);
+        }
     }
 }

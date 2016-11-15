@@ -42,8 +42,8 @@ namespace Itinero.Test.Profiles
             _getFactorAndSpeed = getFactorAndSpeed;
 
 
-            this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, null, this));
-            this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, null, this));
+            this.Register(new Profile("shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, null, this));
+            this.Register(new Profile(string.Empty, ProfileMetric.TimeInSeconds, this.VehicleTypes, null, this));
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace Itinero.Test.Profiles
         /// <returns></returns>
         public static VehicleMock Car(Func<IAttributeCollection, FactorAndSpeed> getFactorAndSpeed)
         {
-            return new VehicleMock("Car", new string[] { "motor_vehicle", "vehicle" }, getFactorAndSpeed);
+            return new VehicleMock("Car", new string[] { "motorcar", "motor_vehicle", "vehicle" }, getFactorAndSpeed);
         }
 
         /// <summary>

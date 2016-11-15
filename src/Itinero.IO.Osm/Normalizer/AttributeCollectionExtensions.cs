@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.IO.Osm.Streams;
 using Itinero.Profiles;
 using System.Collections.Generic;
 
@@ -28,28 +29,18 @@ namespace Itinero.IO.Osm.Normalizer
     public static class AttributeCollectionExtensions
     {
         /// <summary>
-        /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
-        /// </summary>
-        public static bool Normalize(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, IEnumerable<Vehicle> vehicles, Whitelist whitelist)
-        {
-            var normalizer = new DefaultTagNormalizer();
-            return normalizer.Normalize(tags, profileTags, metaTags, vehicles, whitelist);
-        }
-
-        /// <summary>
         /// Normalizes nothing but the access tags.
         /// </summary>
-        public static void NormalizeAccess(this AttributeCollection tags, Vehicle vehicle, string highwayType, AttributeCollection profileTags)
+        public static void NormalizeAccess(this IAttributeCollection tags, VehicleCache vehicleCache, Vehicle vehicle, string highwayType, IAttributeCollection profileTags)
         {
-            var access = vehicle.CanTraverse(new AttributeCollection(new Attribute("highway", highwayType)));
+            var access = vehicleCache.CanTraverse(new AttributeCollection(new Attribute("highway", highwayType)), vehicle, false);
             tags.NormalizeAccess(profileTags, access, vehicle.VehicleTypes);
         }
 
         /// <summary>
         /// Normalizes access for the given hierarchy of access tags.
         /// </summary>
-        public static void NormalizeAccess(this AttributeCollection tags, AttributeCollection profileTags, bool defaultAccess, params string[] accessTags)
+        public static void NormalizeAccess(this IAttributeCollection tags, IAttributeCollection profileTags, bool defaultAccess, params string[] accessTags)
         {
             bool? access = Itinero.Osm.Vehicles.Vehicle.InterpretAccessValue(tags, "access");
             for (var i = 0; i < accessTags.Length; i++)
@@ -98,8 +89,7 @@ namespace Itinero.IO.Osm.Normalizer
         /// <summary>
         /// Normalizes the oneway tag.
         /// </summary>
-        public static void NormalizeOneway(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags)
+        public static void NormalizeOneway(this IAttributeCollection tags, IAttributeCollection profileTags)
         {
             string oneway;
             if (!tags.TryGetValue("oneway", out oneway))
@@ -125,7 +115,7 @@ namespace Itinero.IO.Osm.Normalizer
         /// <summary>
         /// Normalize the cycleway tag.
         /// </summary>
-        public static void NormalizeCycleway(this AttributeCollection tags, AttributeCollection profileTags, AttributeCollection metaTags)
+        public static void NormalizeCycleway(this IAttributeCollection tags, IAttributeCollection profileTags)
         {
             string cycleway;
             if (!tags.TryGetValue("cycleway", out cycleway))
@@ -147,8 +137,7 @@ namespace Itinero.IO.Osm.Normalizer
         /// <summary>
         /// Normalizes the oneway bicycle tag.
         /// </summary>
-        public static void NormalizeOnewayBicycle(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags)
+        public static void NormalizeOnewayBicycle(this IAttributeCollection tags, IAttributeCollection profileTags)
         {
             string oneway;
             if (!tags.TryGetValue("oneway:bicycle", out oneway))
@@ -164,8 +153,7 @@ namespace Itinero.IO.Osm.Normalizer
         /// <summary>
         /// Normalizes maxspeed.
         /// </summary>
-        public static void NormalizeMaxspeed(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags)
+        public static void NormalizeMaxspeed(this IAttributeCollection tags, IAttributeCollection profileTags)
         {
             string maxspeed;
             if (!tags.TryGetValue("maxspeed", out maxspeed))
@@ -192,8 +180,7 @@ namespace Itinero.IO.Osm.Normalizer
         /// Normalizes the junction tag.
         /// </summary>
         /// <returns></returns>
-        public static void NormalizeJunction(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags)
+        public static void NormalizeJunction(this IAttributeCollection tags, IAttributeCollection profileTags)
         {
             string junction;
             if (!tags.TryGetValue("junction", out junction))
@@ -227,8 +214,7 @@ namespace Itinero.IO.Osm.Normalizer
         /// <summary>
         /// Normalizes the ramp tag.
         /// </summary>
-        public static void NormalizeRamp(this AttributeCollection tags, AttributeCollection profileTags,
-            AttributeCollection metaTags, bool defaultAccess)
+        public static void NormalizeRamp(this IAttributeCollection tags, IAttributeCollection profileTags, bool defaultAccess)
         {
             string ramp;
             if (!tags.TryGetValue("ramp", out ramp))

@@ -5,16 +5,21 @@
   "frameworks": {
     "netstandard1.3": {
       "buildOptions": {
-        "define": [ "NETSTANDARD13" ],
+        "define": [ "NETSTANDARD13", "NETFX_CORE", "DOTNET_CORE" ],
         "compile": {
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/*.lua"
+        ]
       },
       "imports": "dnxcore50",
       "dependencies": {
         "NETStandard.Library": "1.6.0",
+        "System.Reflection": "4.1.0",
+        "System.Reflection.TypeExtensions": "4.1.0",
         "System.Xml.XmlSerializer": "4.0.11"
       }
     },
@@ -25,7 +30,10 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/*.lua"
+        ]
       },
       "frameworkAssemblies": {
         "System.Xml": ""
@@ -38,7 +46,10 @@
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/*.lua"
+        ]
       },
       "frameworkAssemblies": {
         "System.Xml": ""
@@ -46,12 +57,15 @@
     },
     ".NETPortable,Version=v4.0,Profile=Profile147": {
       "buildOptions": {
-        "define": [ "PORTABLE147" ],
+        "define": [ "PORTABLE147", "PCL" ],
         "compile": {
           "includeFiles": [
             "../../SharedAssemblyVersion.cs"
           ]
-        }
+        },
+        "embed": [
+          "Osm/Vehicles/*.lua"
+        ]
       },
       "frameworkAssemblies": {
         "System": "",

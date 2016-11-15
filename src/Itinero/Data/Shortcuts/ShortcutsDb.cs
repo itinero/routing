@@ -207,7 +207,7 @@ namespace Itinero.Data.Shortcuts
             stream.WriteByte(1);
 
             // write profile name.
-            size += stream.WriteWithSize(_profile.Name);
+            size += stream.WriteWithSize(_profile.FullName);
 
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);

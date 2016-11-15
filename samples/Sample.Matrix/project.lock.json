@@ -2071,6 +2071,8 @@
         "dependencies": {
           "NETStandard.Library": "1.6.0",
           "Reminiscence": "1.0.5",
+          "System.Reflection": "4.1.0",
+          "System.Reflection.TypeExtensions": "4.1.0",
           "System.Xml.XmlSerializer": "4.0.11"
         },
         "compile": {

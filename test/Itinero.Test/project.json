@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-*",
 
   "dependencies": {
@@ -21,7 +21,8 @@
       },
       "buildOptions": {
         "embed": [
-          "test-data/networks/*.geojson"
+          "test-data/networks/*.geojson",
+          "test-data/profiles/osm/*.lua"
         ]
       }
     }

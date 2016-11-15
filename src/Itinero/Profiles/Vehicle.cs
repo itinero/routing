@@ -18,6 +18,8 @@
 
 using Itinero.Attributes;
 using System.Collections.Generic;
+using System.IO;
+using System;
 
 namespace Itinero.Profiles
 {
@@ -35,8 +37,8 @@ namespace Itinero.Profiles
         {
             if (!string.IsNullOrEmpty(this.Name))
             {
-                this.Register(new Profile(this.Name + ".Shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, null, this));
-                this.Register(new Profile(this.Name, ProfileMetric.TimeInSeconds, this.VehicleTypes, null, this));
+                this.Register(new Profile("shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, null, this));
+                this.Register(new Profile(string.Empty, ProfileMetric.TimeInSeconds, this.VehicleTypes, null, this));
             }
         }
 
@@ -134,7 +136,7 @@ namespace Itinero.Profiles
         /// </summary>
         public virtual Profile Shortest()
         {
-            return this.Profile(this.Name + ".Shortest");
+            return this.Profile("shortest");
         }
 
         /// <summary>
@@ -142,7 +144,15 @@ namespace Itinero.Profiles
         /// </summary>
         public virtual Profile Fastest()
         {
-            return this.Profile(this.Name);
+            return this.Profile(string.Empty);
+        }
+
+        /// <summary>
+        /// Registers this vehicle.
+        /// </summary>
+        public virtual void Register()
+        {
+            Vehicle.Register(this);
         }
 
         private static Dictionary<string, Vehicle> _vehicles = new Dictionary<string, Vehicle>();
@@ -158,7 +168,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets a registered vehicle.
         /// </summary>
-        public static Vehicle GetRegistered(string name)
+        public static Vehicle Get(string name)
         {
             return _vehicles[name.ToLowerInvariant()];
         }
@@ -178,6 +188,53 @@ namespace Itinero.Profiles
         public static IEnumerable<Vehicle> GetRegistered()
         {
             return _vehicles.Values;
+        }
+
+        /// <summary>
+        /// Serializes this vehicle.
+        /// </summary>
+        public long Serialize(Stream stream)
+        {
+            var size = stream.WriteWithSize(this.GetType().FullName);
+
+            size += this.DoSerialize(stream);
+
+            return size;
+        }
+
+        /// <summary>
+        /// Serializes the content of this vehicle.
+        /// </summary
+        protected virtual long DoSerialize(Stream stream)
+        {
+            return 0;
+        }
+        
+        /// <summary>
+        /// Deserializes a vehicle from the given stream.
+        /// </summary>
+        public static Vehicle Deserialize(Stream stream)
+        {
+            var typeName = stream.ReadWithSizeString();
+            switch (typeName)
+            {
+                case "Itinero.Profiles.DynamicVehicle":
+                    return new DynamicVehicle(stream.ReadWithSizeString());
+            }
+            if (Vehicle.CustomDeserializer != null)
+            {
+                return Vehicle.CustomDeserializer(typeName, stream);
+            }
+            throw new Exception(string.Format("Cannot deserialize for type with name: {0}", typeName));
+        }
+
+        /// <summary>
+        /// Gets or sets a custom vehicle deserializer.
+        /// </summary>
+        public static Func<string, Stream, Vehicle> CustomDeserializer
+        {
+            get;
+            set;
         }
     }
 }

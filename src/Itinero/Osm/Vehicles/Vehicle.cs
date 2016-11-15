@@ -18,54 +18,56 @@
 
 using Itinero.Attributes;
 using Itinero.Profiles;
+using Itinero.Profiles.Lua;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Osm.Vehicles
 {
     /// <summary>
     /// Vehicle class contains routing info
     /// </summary>
-    public abstract class Vehicle : Profiles.Vehicle
+    public static class Vehicle
     {
         /// <summary>
         /// Default Car
         /// </summary>
-        public static readonly Car Car = new Car();
+        public static readonly Profiles.Vehicle Car = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.car.lua"));
 
         /// <summary>
         /// Default Pedestrian
         /// </summary>
-        public static readonly Pedestrian Pedestrian = new Pedestrian();
+        public static readonly Profiles.Vehicle Pedestrian = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.pedestrian.lua"));
 
         /// <summary>
         /// Default Bicycle
         /// </summary>
-        public static readonly Bicycle Bicycle = new Bicycle();
+        public static readonly Profiles.Vehicle Bicycle = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bicycle.lua"));
 
         /// <summary>
         /// Default Moped
         /// </summary>
-        public static readonly Moped Moped = new Moped();
+        public static readonly Profiles.Vehicle Moped = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.moped.lua"));
 
         /// <summary>
         /// Default MotorCycle
         /// </summary>
-        public static readonly MotorCycle MotorCycle = new MotorCycle();
+        public static readonly Profiles.Vehicle MotorCycle = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.motorcycle.lua"));
 
         /// <summary>
         /// Default SmallTruck
         /// </summary>
-        public static readonly SmallTruck SmallTruck = new SmallTruck();
+        public static readonly Profiles.Vehicle SmallTruck = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.smalltruck.lua"));
 
         /// <summary>
         /// Default BigTruck
         /// </summary>
-        public static readonly BigTruck BigTruck = new BigTruck();
+        public static readonly Profiles.Vehicle BigTruck = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bigtruck.lua"));
 
         /// <summary>
         /// Default BigTruck
         /// </summary>
-        public static readonly Bus Bus = new Bus();
+        public static readonly Profiles.Vehicle Bus = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bus.lua"));
 
         /// <summary>
         /// Registers all default vehicles.
@@ -82,21 +84,9 @@ namespace Itinero.Osm.Vehicles
             Bus.Register();
         }
 
-        /// <summary>
-        /// Registers all profiles in this vehicle.
-        /// </summary>
-        public void Register()
-        {
-            Profiles.Vehicle.Register(this);
-            foreach (var profile in this.GetProfiles())
-            {
-                Profiles.Profile.Register(profile);
-            }
-        }
-
         private static Dictionary<string, bool?> _accessValues = null;
 
-        protected static Dictionary<string, bool?> GetAccessValues()
+        private static Dictionary<string, bool?> GetAccessValues()
         {
             if (_accessValues == null)
             {

@@ -19,90 +19,71 @@
 using System.Collections.Generic;
 using Itinero.Attributes;
 using Itinero.Profiles;
+using Itinero.IO.Osm.Streams;
 
 namespace Itinero.IO.Osm.Normalizer
 {
     /// <summary>
     /// A default tag normalizer implementation.
     /// </summary>
-    public class DefaultTagNormalizer : ITagNormalizer
+    public static class DefaultTagNormalizer
     {
-        public static ITagNormalizer Default = new DefaultTagNormalizer();
-        
         /// <summary>
         /// Splits the given tags into a normalized version, profile tags, and the rest in metatags.
         /// </summary>
-        public virtual bool Normalize(AttributeCollection tags, AttributeCollection profileTags, AttributeCollection metaTags, IEnumerable<Vehicle> vehicles, Whitelist whitelist)
+        public static bool Normalize(IAttributeCollection tags, IAttributeCollection profileTags, VehicleCache vehicleCache)
         {
+            var normalizedTags = new HashSet<string>(new string[] { "highway", "maxspeed", "oneway", "oneway:bicycle",
+                "cycleway", "junction", "access" });
+            foreach(var vehicle in vehicleCache.Vehicles)
+            {
+                foreach(var vehicleType in vehicle.VehicleTypes)
+                {
+                    normalizedTags.Add(vehicleType);
+                }
+            }
+
             string highway;
             if (!tags.TryGetValue("highway", out highway))
             { // there is no highway tag, don't continue the search.
                 return false;
             }
 
+            // add the highway tag.
+            profileTags.AddOrReplace("highway", highway);
+
             // normalize maxspeed tags.
-            tags.NormalizeMaxspeed(profileTags, metaTags);
+            tags.NormalizeMaxspeed(profileTags);
 
             // normalize oneway tags.
-            tags.NormalizeOneway(profileTags, metaTags);
-            tags.NormalizeOnewayBicycle(profileTags, metaTags);
+            tags.NormalizeOneway(profileTags);
+            tags.NormalizeOnewayBicycle(profileTags);
 
             // normalize cyclceway.
-            tags.NormalizeCycleway(profileTags, metaTags);
+            tags.NormalizeCycleway(profileTags);
 
             // normalize junction=roundabout tag.
-            tags.NormalizeJunction(profileTags, metaTags);
-
-            switch (highway)
-            {
-                case "motorway":
-                case "motorway_link":
-                case "trunk":
-                case "trunk_link":
-                case "primary":
-                case "primary_link":
-                    profileTags.AddOrReplace("highway", highway);
-                    break;
-                case "secondary":
-                case "secondary_link":
-                case "tertiary":
-                case "tertiary_link":
-                case "unclassified":
-                case "residential":
-                case "road":
-                case "service":
-                case "services":
-                case "living_street":
-                case "track":
-                    profileTags.AddOrReplace("highway", highway);
-                    break;
-                case "cycleway":
-                    profileTags.AddOrReplace("highway", highway);
-                    break;
-                case "path":
-                    profileTags.AddOrReplace("highway", highway);
-                    break;
-                case "pedestrian":
-                case "footway":
-                case "steps":
-                    tags.NormalizeRamp(profileTags, metaTags, false);
-                    profileTags.AddOrReplace("highway", highway);
-                    break;
-            }
+            tags.NormalizeJunction(profileTags);
 
             // normalize access tags.
-            foreach (var vehicle in vehicles)
+            foreach (var vehicle in vehicleCache.Vehicles)
             {
-                tags.NormalizeAccess(vehicle, highway, profileTags);
+                tags.NormalizeAccess(vehicleCache, vehicle, highway, profileTags);
             }
 
-            // add whitelisted tags.
-            foreach (var key in whitelist)
+            // add whitelisted tags but only when they haven't been considered for normalization.
+            foreach (var vehicle in vehicleCache.Vehicles)
             {
-                var value = string.Empty;
-                if (tags.TryGetValue(key, out value))
+                foreach (var key in vehicle.ProfileWhiteList)
                 {
-                    profileTags.AddOrReplace(key, value);
+                    var value = string.Empty;
+                    if (tags.TryGetValue(key, out value))
+                    {
+                        if (!normalizedTags.Contains(key))
+                        {
+                            profileTags.AddOrReplace(key, value);
+                        }
+                    }
                 }
             }
 

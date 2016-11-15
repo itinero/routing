@@ -58,7 +58,7 @@ namespace Itinero.Profiles
         {
             for (var p = 0; p < profiles.Length; p++)
             {
-                if (!_edgeProfileFactors.ContainsKey(profiles[p].Name))
+                if (!_edgeProfileFactors.ContainsKey(profiles[p].FullName))
                 {
                     return false;
                 }
@@ -73,7 +73,7 @@ namespace Itinero.Profiles
         {
             for (var p = 0; p < profileInstances.Length; p++)
             {
-                if (!_edgeProfileFactors.ContainsKey(profileInstances[p].Profile.Name))
+                if (!_edgeProfileFactors.ContainsKey(profileInstances[p].Profile.FullName))
                 {
                     return false;
                 }
@@ -111,7 +111,7 @@ namespace Itinero.Profiles
 
             for (var p = 0; p < profiles.Length; p++)
             {
-                _edgeProfileFactors[profiles[p].Name] = edgeProfileFactors[p];
+                _edgeProfileFactors[profiles[p].FullName] = edgeProfileFactors[p];
             }
         }
 
@@ -125,7 +125,7 @@ namespace Itinero.Profiles
             var cachedFactors = new FactorAndSpeed[profileInstances.Length][];
             for (var p = 0; p < profileInstances.Length; p++)
             {
-                cachedFactors[p] = _edgeProfileFactors[profileInstances[p].Profile.Name];
+                cachedFactors[p] = _edgeProfileFactors[profileInstances[p].Profile.FullName];
             }
 
             return (edge) =>
@@ -166,7 +166,7 @@ namespace Itinero.Profiles
         {
             if (!this.ContainsAll(profileInstance)) { throw new ArgumentException("Given profile not supported."); }
 
-            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.Name];
+            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.FullName];
             if (profileInstance.Constraints != null)
             {
                 return (p) =>
@@ -192,7 +192,7 @@ namespace Itinero.Profiles
         {
             if (!this.ContainsAll(profileInstance)) { throw new ArgumentException("Given profile not supported."); }
 
-            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.Name];
+            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.FullName];
             if (profileInstance.Constraints != null)
             {
                 return (p) =>

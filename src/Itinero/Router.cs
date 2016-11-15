@@ -168,7 +168,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -298,7 +298,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -428,7 +428,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }
@@ -553,7 +553,7 @@ namespace Itinero
             var maxSearch = weightHandler.Infinite;
             if (settings != null)
             {
-                if (!settings.TryGetMaxSearch(profileInstance.Profile.Name, out maxSearch))
+                if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
                 {
                     maxSearch = weightHandler.Infinite;
                 }

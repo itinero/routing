@@ -158,7 +158,7 @@ namespace Itinero.Algorithms.Routes
             _shapeMeta.Add(new Route.Meta()
             {
                 Attributes = new AttributeCollection(
-                    new Attributes.Attribute("profile", _profile.Name)),
+                    new Attributes.Attribute("profile", _profile.FullName)),
                 Shape = _shape.Count - 1
             });
         }
@@ -245,7 +245,7 @@ namespace Itinero.Algorithms.Routes
 
             // build attributes.
             var attributes = new AttributeCollection(
-                new Attributes.Attribute("profile", _profile.Name));
+                new Attributes.Attribute("profile", _profile.FullName));
 
             // add shape and meta.
             _shape.AddRange(shape);
@@ -342,7 +342,7 @@ namespace Itinero.Algorithms.Routes
 
             // build attributes.
             var attributes = new AttributeCollection(
-                new Attributes.Attribute("profile", _profile.Name));
+                new Attributes.Attribute("profile", _profile.FullName));
 
             // add shape and meta.
             _shape.AddRange(shape);

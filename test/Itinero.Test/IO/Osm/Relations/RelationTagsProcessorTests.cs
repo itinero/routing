@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using Itinero.IO.Osm.Relations;
 using Itinero.IO.Osm.Streams;
 using Itinero.LocalGeo;
@@ -81,21 +82,32 @@ namespace Itinero.Test.IO.Osm.Relations
             // create processor.
             var processors = new ITwoPassProcessor[]
             {
-                new RelationTagProcessor((r) => true, (w, t) => {
-                    w.Tags.AddOrReplace(t);
-                    Assert.AreEqual(1, w.Id.Value);
-                })
+                new SimpleRelationTagProcessor()
             };
 
             // build db from stream.
             var routerDb = new RouterDb();
             var target = new RouterDbStreamTarget(
-                routerDb, new Vehicle[] {
+                routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
                 }, processors: processors);
             target.RegisterSource(source);
             target.Initialize();
             target.Pull();
+        }
+
+        class SimpleRelationTagProcessor : RelationTagProcessor
+        {
+            public override void AddTags(Way w, TagsCollectionBase t)
+            {
+                w.Tags.AddOrReplace(t);
+                Assert.AreEqual(1, w.Id.Value);
+            }
+
+            public override bool IsRelevant(Relation relation)
+            {
+                return true;
+            }
         }
     }
 }

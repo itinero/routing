@@ -4,7 +4,6 @@
   "dependencies": {
     "GeoAPI": "1.7.4",
     "Itinero": "1.0.0-*",
-    "Itinero.Profiles": "1.0.0-*",
     "NETStandard.Library": "1.6.0",
     "NetTopologySuite": "1.14.0",
     "NetTopologySuite.IO": "1.14.0.1"

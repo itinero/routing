@@ -2,7 +2,6 @@
   "version": "1.0.0-*",
   "dependencies": {
     "Itinero": "1.0.0-*",
-    "Itinero.Profiles": "1.0.0-*",
     "OsmSharp.Core": "2.2.8-beta"
   },
   "frameworks": {

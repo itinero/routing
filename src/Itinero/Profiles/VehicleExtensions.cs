@@ -58,6 +58,24 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Adds all the keys to the whitelist if they are relevante for the profiles.
+        /// </summary>
+        public static bool AddToWhiteList(this Vehicle[] vehicles, IAttributeCollection attributes, Whitelist whiteList, bool[] canTraverse)
+        {
+            var traversable = false;
+            for (var i = 0; i < vehicles.Length; i++)
+            {
+                canTraverse[i] = false;
+                if (vehicles[i].AddToWhiteList(attributes, whiteList))
+                {
+                    traversable = true;
+                    canTraverse[i] = true;
+                }
+            }
+            return traversable;
+        }
+
+        /// <summary>
         /// Returns true if any vehicle in the given array can traverse a way with the given tags.
         /// </summary>
         public static bool AnyCanTraverse(this Vehicle[] vehicles, IAttributeCollection tags)
