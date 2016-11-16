@@ -146,7 +146,7 @@ namespace Itinero.Test.Navigation
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
             Assert.AreEqual(1, instructions.Count);
-            Assert.AreEqual("The one and only instruction!", instructions[0]);
+            Assert.AreEqual("The one and only instruction!", instructions[0].Text);
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Itinero.Test.Navigation
                 {
                     i = new Instruction()
                     {
-                        Text = string.Format("Merged instruction: {0} -> {1}", i1, i2)
+                        Text = string.Format("Merged instruction: {0} -> {1}", i1.Text, i2.Text)
                     };
                     return true;
                 }, new MockLanguageReference());
@@ -209,7 +209,7 @@ namespace Itinero.Test.Navigation
             Assert.IsNotNull(instructions);
             Assert.AreEqual(1, instructions.Count);
             Assert.AreEqual("Merged instruction: Merged instruction: Instruction 0 -> Instruction 1 -> Instruction 2",
-                instructions[0]);
+                instructions[0].Text);
         }
     }
 }
