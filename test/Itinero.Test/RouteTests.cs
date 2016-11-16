@@ -667,5 +667,231 @@ namespace Itinero.Test
             Assert.AreEqual(200, route.TotalDistance);
             Assert.AreEqual(120, route.TotalTime);
         }
+
+        /// <summary>
+        /// Test getting a segment.
+        /// </summary>
+        [Test]
+        public void TestGetSegment()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2,
+                        Distance = 100,
+                        Time = 60
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 4,
+                        Distance = 200,
+                        Time = 120
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            int segmentStart, segmentEnd;
+            route.SegmentFor(0, out segmentStart, out segmentEnd);
+            Assert.AreEqual(0, segmentStart);
+            Assert.AreEqual(2, segmentEnd);
+            route.SegmentFor(1, out segmentStart, out segmentEnd);
+            Assert.AreEqual(0, segmentStart);
+            Assert.AreEqual(2, segmentEnd);
+            route.SegmentFor(2, out segmentStart, out segmentEnd);
+            Assert.AreEqual(2, segmentStart);
+            Assert.AreEqual(4, segmentEnd);
+            route.SegmentFor(3, out segmentStart, out segmentEnd);
+            Assert.AreEqual(2, segmentStart);
+            Assert.AreEqual(4, segmentEnd);
+            route.SegmentFor(4, out segmentStart, out segmentEnd);
+            Assert.AreEqual(2, segmentStart);
+            Assert.AreEqual(4, segmentEnd);
+        }
+
+        /// <summary>
+        /// Test distance and time at a shape.
+        /// </summary>
+        [Test]
+        public void TestGetDistanceAndTimeAt()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 49.76851543353109f,
+                        Longitude = 5.912189483642578f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.768522363042294f,
+                        Longitude = 5.9135788679122925f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.76852929255253f,
+                        Longitude = 5.914962887763977f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.76852929255253f,
+                        Longitude = 5.916352272033691f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.768546616323725f,
+                        Longitude = 5.917741656303405f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2,
+                        Distance = 100,
+                        Time = 60
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 4,
+                        Distance = 200,
+                        Time = 120
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 200,
+                TotalTime = 120
+            };
+
+            float time, distance;
+            route.DistanceAndTimeAt(0, out distance, out time);
+            Assert.AreEqual(0, distance);
+            Assert.AreEqual(0, time);
+            route.DistanceAndTimeAt(1, out distance, out time);
+            Assert.AreEqual(50, distance, 1);
+            Assert.AreEqual(30, time, 1);
+            route.DistanceAndTimeAt(2, out distance, out time);
+            Assert.AreEqual(100, distance, 1);
+            Assert.AreEqual(60, time, 1);
+            route.DistanceAndTimeAt(3, out distance, out time);
+            Assert.AreEqual(150, distance, 1);
+            Assert.AreEqual(90, time, 1);
+            route.DistanceAndTimeAt(4, out distance, out time);
+            Assert.AreEqual(200, distance, 1);
+            Assert.AreEqual(120, time, 1);
+        }
+
+        /// <summary>
+        /// Tests the default instruction generation.
+        /// </summary>
+        [Test]
+        public void TestGenerateInstructions()
+        {
+            Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
+
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 49.76851543353109f,
+                        Longitude = 5.912189483642578f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.768522363042294f,
+                        Longitude = 5.9135788679122925f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.76852929255253f,
+                        Longitude = 5.914962887763977f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.76852929255253f,
+                        Longitude = 5.916352272033691f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 49.768546616323725f,
+                        Longitude = 5.917741656303405f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2,
+                        Distance = 100,
+                        Time = 60
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 4,
+                        Distance = 200,
+                        Time = 120
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 200,
+                TotalTime = 120,
+                Profile = "car"
+            };
+
+            var instructions = route.GenerateInstruction();
+            Assert.IsNotNull(instructions);
+            Assert.AreEqual(2, instructions.Count);
+            Assert.AreEqual(0, instructions[0].Shape);
+            Assert.AreEqual(4, instructions[1].Shape);
+        }
     }
 }

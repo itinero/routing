@@ -153,6 +153,11 @@ namespace Itinero.Profiles
         public virtual void Register()
         {
             Vehicle.Register(this);
+
+            foreach(var profile in _profiles)
+            {
+                Itinero.Profiles.Profile.Register(profile.Value);
+            }
         }
 
         private static Dictionary<string, Vehicle> _vehicles = new Dictionary<string, Vehicle>();

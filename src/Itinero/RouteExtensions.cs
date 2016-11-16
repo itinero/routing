@@ -19,6 +19,8 @@
 using Itinero.Attributes;
 using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
+using Itinero.Navigation.Instructions;
+using Itinero.Navigation.Language;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -217,6 +219,135 @@ namespace Itinero
                 distanceMeter += currentDistance;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Distance and time a the given shape index.
+        /// </summary>
+        public static void DistanceAndTimeAt(this Route route, int shape, out float distance, out float time)
+        {
+            int segmentStart, segmentEnd;
+            route.SegmentFor(shape, out segmentStart, out segmentEnd);
+
+            if (shape == segmentStart)
+            {
+                if (shape == 0)
+                {
+                    distance = 0;
+                    time = 0;
+                    return;
+                }
+                else
+                {
+                    var shapeMeta = route.ShapeMetaFor(shape);
+                    distance = shapeMeta.Distance;
+                    time = shapeMeta.Time;
+                    return;
+                }
+            }
+            if (shape == segmentEnd)
+            {
+                if (shape == route.Shape.Length - 1)
+                {
+                    distance = route.TotalDistance;
+                    time = route.TotalTime;
+                    return;
+                }
+                else
+                {
+                    var shapeMeta = route.ShapeMetaFor(shape);
+                    distance = shapeMeta.Distance;
+                    time = shapeMeta.Time;
+                    return;
+                }
+            }
+            var startDistance = 0f;
+            var startTime = 0f;
+            if (segmentStart == 0)
+            {
+                startDistance = 0;
+                startTime = 0;
+            }
+            else
+            {
+                var shapeMeta = route.ShapeMetaFor(segmentStart);
+                startDistance = shapeMeta.Distance;
+                startTime = shapeMeta.Time;
+            }
+            var endDistance = 0f;
+            var endTime = 0f;
+            if (segmentEnd == route.Shape.Length - 1)
+            {
+                endDistance = route.TotalDistance;
+                endTime = route.TotalTime;
+            }
+            else
+            {
+                var shapeMeta = route.ShapeMetaFor(segmentEnd);
+                endDistance = shapeMeta.Distance;
+                endTime = shapeMeta.Time;
+            }
+            var distanceToShape = 0f;
+            var distanceOfSegment = 0f;
+            for(var i = segmentStart; i < segmentEnd; i++)
+            {
+                if (i == shape)
+                {
+                    distanceToShape = distanceOfSegment;
+                }
+                distanceOfSegment += Coordinate.DistanceEstimateInMeter(
+                    route.Shape[i].Latitude, route.Shape[i].Longitude, 
+                    route.Shape[i + 1].Latitude, route.Shape[i + 1].Longitude);
+            }
+            var ratio = distanceToShape / distanceOfSegment;
+            distance = ((endDistance - startDistance) * ratio) + startDistance;
+            time = ((endTime - startTime) * ratio) + startTime;
+        }
+
+        /// <summary>
+        /// Gets the shape meta for the given shape index.
+        /// </summary>
+        public static Route.Meta ShapeMetaFor(this Route route, int shape)
+        {
+            foreach (var shapeMeta in route.ShapeMeta)
+            {
+                if (shapeMeta.Shape == shape)
+                {
+                    return shapeMeta;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Searches the segment the given shape index exists in.
+        /// </summary>
+        public static void SegmentFor(this Route route, int shape, out int segmentStart, out int segmentEnd)
+        {
+            segmentStart = 0;
+            segmentEnd = route.Shape.Length - 1;
+            if (route.ShapeMeta == null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < route.ShapeMeta.Length; i++)
+            {
+                if (route.ShapeMeta[i].Shape <= shape)
+                {
+                    if (segmentStart <= route.ShapeMeta[i].Shape &&
+                        route.ShapeMeta[i].Shape < route.Shape.Length - 1)
+                    {
+                        segmentStart = route.ShapeMeta[i].Shape;
+                    }
+                }
+                else if (route.ShapeMeta[i].Shape > shape)
+                {
+                    segmentEnd = route.ShapeMeta[i].Shape;
+                    break;
+                }
+            }
+            return;
         }
 
         /// <summary>
@@ -780,6 +911,35 @@ namespace Itinero
                 jsonWriter.WriteArrayClose();
                 jsonWriter.WriteClose();
             }
+        }
+        
+        /// <summary>
+        /// Returns true if this route has multiple profiles.
+        /// </summary>
+        public static bool IsMultimodal(this Route route)
+        {
+            return string.IsNullOrWhiteSpace(route.Profile);
+        }
+
+        /// <summary>
+        /// Generates instructions for the given route.
+        /// </summary>
+        public static IList<Instruction> GenerateInstruction(this Route route)
+        {
+            return route.GenerateInstruction(new DefaultLanguageReference());
+        }
+
+        /// <summary>
+        /// Generates instructions for the given route.
+        /// </summary>
+        public static IList<Instruction> GenerateInstruction(this Route route, ILanguageReference languageReference)
+        {
+            if (route.IsMultimodal())
+            {
+                throw new NotSupportedException("Generate instruction for multimodal routes is not supported.");
+            }
+            var profile = Profiles.Profile.GetRegistered(route.Profile);
+            return profile.InstructionGenerator.Generate(route, languageReference);
         }
     }
 }

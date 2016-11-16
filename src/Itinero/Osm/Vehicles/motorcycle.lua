@@ -1,5 +1,5 @@
-﻿-- car globals
-name = "car"
+﻿-- motorcycle globals
+name = "motorcycle"
 vehicle_types = { "vehicle", "motor_vehicle", "motorcycle" }
 
 minspeed = 30

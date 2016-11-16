@@ -21,6 +21,7 @@ using Itinero.LocalGeo;
 using Itinero.Navigation;
 using Itinero.Navigation.Language;
 using Itinero.Test.Navigation.Language;
+using Itinero.Navigation.Instructions;
 
 namespace Itinero.Test.Navigation
 {
@@ -63,12 +64,15 @@ namespace Itinero.Test.Navigation
                 TotalTime = 0
             };
 
-            var generator = new InstructionGenerator<string>(route,
-                new InstructionGenerator<string>.TryGetDelegate[]
+            var generator = new UnimodalInstructionGenerator(route,
+                new UnimodalInstructionGenerator.TryGetDelegate[]
                 {
-                    (RoutePosition pos, ILanguageReference langRef, out string instruction) =>
+                    (RoutePosition pos, ILanguageReference langRef, out Instruction instruction) =>
                         {
-                            instruction = string.Format("Instruction {0}", pos.Shape);
+                            instruction = new Instruction() {
+                                Shape = pos.Shape,
+                                Text = string.Format("Instruction {0}", pos.Shape)
+                            };
                             return 1;
                         }
                 }, new MockLanguageReference());
@@ -77,9 +81,9 @@ namespace Itinero.Test.Navigation
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
             Assert.AreEqual(3, instructions.Count);
-            Assert.AreEqual(string.Format("Instruction {0}", 0), instructions[0]);
-            Assert.AreEqual(string.Format("Instruction {0}", 1), instructions[1]);
-            Assert.AreEqual(string.Format("Instruction {0}", 2), instructions[2]);
+            Assert.AreEqual(string.Format("Instruction {0}", 0), instructions[0].Text);
+            Assert.AreEqual(string.Format("Instruction {0}", 1), instructions[1].Text);
+            Assert.AreEqual(string.Format("Instruction {0}", 2), instructions[2].Text);
         }
 
         /// <summary>
@@ -115,17 +119,25 @@ namespace Itinero.Test.Navigation
                 TotalTime = 0
             };
 
-            var generator = new InstructionGenerator<string>(route,
-                new InstructionGenerator<string>.TryGetDelegate[]
+            var generator = new UnimodalInstructionGenerator(route,
+                new UnimodalInstructionGenerator.TryGetDelegate[]
                 {
-                    (RoutePosition pos, ILanguageReference langRef, out string instruction) =>
+                    (RoutePosition pos, ILanguageReference langRef, out Instruction instruction) =>
                         {
                             if(pos.Shape == 2)
                             {
-                                instruction = "The one and only instruction!";
+                                instruction = new Instruction()
+                                {
+                                    Text = "The one and only instruction!",
+                                    Shape = pos.Shape
+                                };
                                 return 3;
                             }
-                            instruction = string.Format("Instruction {0}", pos.Shape);
+                            instruction = instruction = new Instruction()
+                            {
+                                    Text = string.Format("Instruction {0}", pos.Shape),
+                                    Shape = pos.Shape
+                            };
                             return 1;
                         }
                 }, new MockLanguageReference());
@@ -170,19 +182,25 @@ namespace Itinero.Test.Navigation
                 TotalTime = 0
             };
 
-            var generator = new InstructionGenerator<string>(route,
-                new InstructionGenerator<string>.TryGetDelegate[]
+            var generator = new UnimodalInstructionGenerator(route,
+                new UnimodalInstructionGenerator.TryGetDelegate[]
                 {
-                    (RoutePosition pos, ILanguageReference langRef, out string instruction) =>
+                    (RoutePosition pos, ILanguageReference langRef, out Instruction instruction) =>
                         {
-                            instruction = string.Format("Instruction {0}", pos.Shape);
+                            instruction = new Instruction()
+                            {
+                                Text = string.Format("Instruction {0}", pos.Shape),
+                                Shape = pos.Shape
+                            };
                             return 1;
                         }
                 },
-                (Route r, ILanguageReference langRef, string i1, string i2, out string i) =>
+                (Route r, ILanguageReference langRef, Instruction i1, Instruction i2, out Instruction i) =>
                 {
-                    i = string.Format("Merged instruction: {0} -> {1}",
-                        i1, i2);
+                    i = new Instruction()
+                    {
+                        Text = string.Format("Merged instruction: {0} -> {1}", i1, i2)
+                    };
                     return true;
                 }, new MockLanguageReference());
             generator.Run();

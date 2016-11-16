@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Navigation.Instructions;
 using System;
 using System.Collections.Generic;
 
@@ -194,6 +195,17 @@ namespace Itinero.Profiles
         public virtual bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
         {
             return _parent.Equals(attributes1, attributes2);
+        }
+
+        /// <summary>
+        /// Gets the instruction generator for this profile.
+        /// </summary>
+        public virtual IUnimodalInstructionGenerator InstructionGenerator
+        {
+            get
+            {
+                throw new NotImplementedException("No default instruction generators implement, use dynamic lua profiles or override InstructionGeneration getter.");
+            }
         }
 
         private static Dictionary<string, Profile> _profiles = new Dictionary<string, Profile>();

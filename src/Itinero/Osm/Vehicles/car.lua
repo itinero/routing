@@ -222,3 +222,41 @@ function factor_and_speed_classifications (attributes, result)
 		result.factor = result.factor / 4
 	end
 end
+
+-- instruction generators
+instruction_generators = {
+	{
+		applies_to = "", -- applies to all profiles when empty
+		generators = {
+			{
+				name = "start",
+				function_name = "get_start"
+			},
+			{ 
+				name = "stop",
+				function_name = "get_stop"
+			}
+		}
+	}
+}
+
+-- gets the first instruction
+function get_start (route_position, language_reference, instruction)
+	if route_position.is_first() then
+		local direction = route_position.direction()
+		instruction.text = itinero.format(language_reference.get("Start {0}."), language_reference.get(direction));
+		instruction.shape = route_position.shape
+		return 1
+	end
+	return 0
+end
+
+-- gets the last instruction
+function get_stop (route_position, language_reference, instruction) 
+	if route_position.is_last() then
+		instruction.text = language_reference.get("Arrived at destination.");
+		instruction.shape = route_position.shape
+		return 1
+	end
+	return 0
+end

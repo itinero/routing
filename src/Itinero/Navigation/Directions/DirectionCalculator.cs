@@ -131,37 +131,37 @@ namespace Itinero.Navigation.Directions
 
             angle = angle.NormalizeDegrees();
 
-            if (angle >= 360 - straightOn || angle < straightOn)
-            {
-                direction.Direction = RelativeDirectionEnum.StraightOn;
-            }
-            else if (angle >= straightOn && angle < 90 - margin)
-            {
-                direction.Direction = RelativeDirectionEnum.SlightlyLeft;
-            }
-            else if (angle >= 90 - margin && angle < 90 + margin)
-            {
-                direction.Direction = RelativeDirectionEnum.Left;
-            }
-            else if (angle >= 90 + margin && angle < 180 - turnBack)
-            {
-                direction.Direction = RelativeDirectionEnum.SharpLeft;
-            }
-            else if (angle >= 180 - turnBack  && angle < 180 + turnBack)
+            if (angle >= 360 - turnBack || angle < turnBack)
             {
                 direction.Direction = RelativeDirectionEnum.TurnBack;
             }
-            else if (angle >= 180 + turnBack && angle < 270 - margin)
+            else if (angle >= turnBack && angle < 90 - margin)
             {
                 direction.Direction = RelativeDirectionEnum.SharpRight;
             }
-            else if (angle >= 270 - margin && angle < 270 + margin)
+            else if (angle >= 90 - margin && angle < 90 + margin)
             {
                 direction.Direction = RelativeDirectionEnum.Right;
             }
-            else if (angle >= 270 + margin && angle < 360 - straightOn)
+            else if (angle >= 90 + margin && angle < 180 - straightOn)
             {
                 direction.Direction = RelativeDirectionEnum.SlightlyRight;
+            }
+            else if (angle >= 180 - straightOn && angle < 180 + straightOn)
+            {
+                direction.Direction = RelativeDirectionEnum.StraightOn;
+            }
+            else if (angle >= 180 + straightOn && angle < 270 - margin)
+            {
+                direction.Direction = RelativeDirectionEnum.SlightlyLeft;
+            }
+            else if (angle >= 270 - margin && angle < 270 + margin)
+            {
+                direction.Direction = RelativeDirectionEnum.Left;
+            }
+            else if (angle >= 270 + margin && angle < 360 - turnBack)
+            {
+                direction.Direction = RelativeDirectionEnum.SharpLeft;
             }
             direction.Angle = (float)angle;
 

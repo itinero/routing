@@ -37,6 +37,8 @@ using Itinero.IO.Shape;
 using Itinero.Attributes;
 using Itinero.Test.Functional.Tests;
 using Itinero.Osm.Vehicles;
+using Itinero.Navigation;
+using Itinero.Navigation.Instructions;
 
 namespace Itinero.Test.Functional
 {
@@ -76,28 +78,36 @@ namespace Itinero.Test.Functional
             profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
             router.ProfileFactorAndSpeedCache = profileCache;
 
-            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
+            //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
 
-            // TEST1: Test random routes.
-            Runner.GetTestRandomRoutes(router, Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
+            //var route = router.Calculate(Vehicle.Car.Fastest(), new Coordinate(49.743840094193196f, 6.040034294128418f), 
+            //    new Coordinate(49.756719969761846f, 6.102969646453857f));
+            //var instructionGenerator = new Itinero.Navigation.Osm.InstructionCarGenerator(route, new Itinero.Navigation.Language.DefaultLanguageReference());
+            //instructionGenerator.Run();
+            //var instructions = instructionGenerator.Instructions;
+            //route.AddInstructions(instructions);
+            //var json = route.ToGeoJson();
 
-            // TEST2: Tests find islands.
-            Runner.GetTestIslandDetection(routerDb).TestPerf("Testing island detection.", 10);
+            //// TEST1: Test random routes.
+            //Runner.GetTestRandomRoutes(router, Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
 
-            // TEST3: calulate isochrones.
-            var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 1);
-            var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
+            //// TEST2: Tests find islands.
+            //Runner.GetTestIslandDetection(routerDb).TestPerf("Testing island detection.", 10);
 
-            // TEST4: calculate heatmaps.
-            var heatmap = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
+            //// TEST3: calulate isochrones.
+            //var polygons = Runner.GetTestIsochroneCalculation(router).TestPerf("Testing isochrone calculation.", 1);
+            //var polygonsJson = polygons.ToFeatureCollection().ToGeoJson();
 
-            // TEST5: calculate tree.
-            var lines = Runner.GetTestTreeCalculation(router).TestPerf("Testing tree calculation.", 100);
-            var linesJson = lines.ToFeatureCollection().ToGeoJson();
+            //// TEST4: calculate heatmaps.
+            //var heatmap = Runner.GetTestHeatmapCalculation(router).TestPerf("Testing heatmap calculation.", 10);
 
-            // TEST6: calculate many to many routes.
-            //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
-            var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
+            //// TEST5: calculate tree.
+            //var lines = Runner.GetTestTreeCalculation(router).TestPerf("Testing tree calculation.", 100);
+            //var linesJson = lines.ToFeatureCollection().ToGeoJson();
+
+            //// TEST6: calculate many to many routes.
+            ////Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
+            //var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

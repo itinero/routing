@@ -17,6 +17,7 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Attributes;
+using Itinero.Navigation.Instructions;
 using Itinero.Profiles.Lua;
 
 namespace Itinero.Profiles
@@ -37,7 +38,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Creates a new dynamic profile.
         /// </summary>
-        internal DynamicProfile(string name, ProfileMetric metric, string[] vehicleTypes, Vehicle parent, Script script, object factor_and_speed)
+        internal DynamicProfile(string name, ProfileMetric metric, string[] vehicleTypes, DynamicVehicle parent, Script script, object factor_and_speed)
             : base(name, metric, vehicleTypes, null, parent)
         {
             _name = name;
@@ -162,6 +163,28 @@ namespace Itinero.Profiles
         public override sealed bool Equals(IAttributeCollection attributes1, IAttributeCollection attributes2)
         {
             return attributes1.ContainsSame(attributes2);
+        }
+
+        private DynamicUnimodalInstructionGenerator _instructionGenerator;
+
+        /// <summary>
+        /// Gets the unimodal instruction generator.
+        /// </summary>
+        public override IUnimodalInstructionGenerator InstructionGenerator
+        {
+            get
+            {
+                if (_instructionGenerator == null)
+                {
+                    var vehicle = this.Parent as DynamicVehicle;
+                    if (vehicle.Script.Globals.Get("instruction_generators") == null)
+                    {
+                        throw new System.Exception(string.Format("Profile {0} does not define an instruction generator.", this.FullName));
+                    }
+                    _instructionGenerator = new DynamicUnimodalInstructionGenerator(this);
+                }
+                return _instructionGenerator;
+            }
         }
     }
 }

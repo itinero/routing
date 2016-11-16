@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Navigation
+namespace Itinero.Navigation.Instructions
 {
     /// <summary>
     /// Represents an instruction.

@@ -16,13 +16,19 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-namespace Itinero.Navigation
+using Itinero.Navigation.Language;
+using System.Collections.Generic;
+
+namespace Itinero.Navigation.Instructions
 {
     /// <summary>
-    /// Contains extension methods related to instructions.
+    /// Abstract representation of a unimodal instruction generator.
     /// </summary>
-    public static class InstructionExtensions
+    public interface IUnimodalInstructionGenerator
     {
-
+        /// <summary>
+        /// Generates instructions for the given route using the given language reference.
+        /// </summary>
+        IList<Instruction> Generate(Route route, ILanguageReference languageReference);
     }
 }

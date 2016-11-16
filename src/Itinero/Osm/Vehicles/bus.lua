@@ -1,5 +1,5 @@
-﻿-- car globals
-name = "car"
+﻿-- bus globals
+name = "bus"
 vehicle_types = { "vehicle", "motor_vehicle", "motorcar" }
 constraints =  { "maxweight", "maxwidth" }
 
