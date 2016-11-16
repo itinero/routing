@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Attributes;
+
 namespace Itinero.Profiles.Lua
 {
     /// <summary>
@@ -55,6 +57,23 @@ namespace Itinero.Profiles.Lua
             }
             value = false;
             return false;
+        }
+
+        /// <summary>
+        /// Converts the given attribute collection to a lua table.
+        /// </summary>
+        public static Table ToTable(this IAttributeCollection attributes, Script script)
+        {
+            var table = new Table(script);
+            if (attributes == null)
+            {
+                return table;
+            }
+            foreach(var attribute in attributes)
+            {
+                table[attribute.Key] = attribute.Value;
+            }
+            return table;
         }
     }
 }

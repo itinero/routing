@@ -48,10 +48,15 @@ namespace Itinero.Logging
         /// </summary>
         public void Log(TraceEventType type, string message, params object[] args)
         {
-            if (Logger.LogAction != null)
+            if (Logger.LogAction == null)
             {
-                Logger.LogAction(_name, type.ToInvariantString().ToLower(), string.Format(message, args), null);
+                Logger.LogAction = (o, level, localmessage, parameters) =>
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("[{0}] {1} - {2}", o, level, localmessage));
+                };
             }
+
+            Logger.LogAction(_name, type.ToInvariantString().ToLower(), string.Format(message, args), null);
         }
 
         /// <summary>
@@ -59,10 +64,14 @@ namespace Itinero.Logging
         /// </summary>
         public static void Log(string name, TraceEventType type, string message, params object[] args)
         {
-            if (Logger.LogAction != null)
+            if (Logger.LogAction == null)
             {
-                Logger.LogAction(name, type.ToInvariantString().ToLower(), string.Format(message, args), null);
+                Logger.LogAction = (o, level, localmessage, parameters) =>
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Format("[{0}] {1} - {2}", o, level, localmessage));
+                };
             }
+            Logger.LogAction(name, type.ToInvariantString().ToLower(), string.Format(message, args), null);
         }
 
         /// <summary>

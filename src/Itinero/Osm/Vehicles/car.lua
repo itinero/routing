@@ -235,6 +235,10 @@ instruction_generators = {
 			{ 
 				name = "stop",
 				function_name = "get_stop"
+			},
+			{
+				name = "turn",
+				function_name = "get_turn"
 			}
 		}
 	}
@@ -256,6 +260,48 @@ function get_stop (route_position, language_reference, instruction)
 	if route_position.is_last() then
 		instruction.text = language_reference.get("Arrived at destination.");
 		instruction.shape = route_position.shape
+		return 1
+	end
+	return 0
+end
+
+-- gets a turn
+function get_turn (route_position, language_reference, instruction) 
+	local relative_direction = route_position.relative_direction().direction
+
+	local turn_relevant = false
+	local branches = route_position.branches
+	itinero.log ("branches")
+	if branches then
+		itinero.log ("in branches")
+		if relative_direction == "straighton" and
+			branches.count >= 2 then
+			turn_relevant = true -- straight on at cross road
+		end
+		if relative_direction != "straighton" and
+			relative_direction != "slightlyleft" and
+			relative_direction != "slightlyright" and
+			branches.count > 0 then
+			turn_relevant = true -- an actual normal turn
+		end
+	end
+
+	if turn_relevant then
+		local next = route_position.next()
+		local name = nil
+		if next then
+			name = next.attributes.name
+		end
+		if name then
+			instruction.text = itinero.format(language_reference.get("Go {0} on {1}."), 
+				language_reference.get(relative_direction), name)
+			instruction.shape = route_position.shape
+		else
+			instruction.text = itinero.format(language_reference.get("Go {0}."), 
+				language_reference.get(relative_direction))
+			instruction.shape = route_position.shape
+		end
+
 		return 1
 	end
 	return 0

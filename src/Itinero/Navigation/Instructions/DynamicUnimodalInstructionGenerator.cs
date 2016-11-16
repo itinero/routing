@@ -21,6 +21,7 @@ using Itinero.Profiles;
 using Itinero.Profiles.Lua;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Navigation.Instructions
 {
@@ -212,15 +213,78 @@ namespace Itinero.Navigation.Instructions
             {
                 return position.Direction().ToInvariantString().ToLowerInvariant();
             });
+            positionTable["relative_direction"] = (Func<Table>)(() =>
+            {
+                var table = new Table(_script);
+                var direction = position.RelativeDirection();
+                table["angle"] = direction.Angle.ToInvariantString();
+                table["direction"] = direction.Direction.ToInvariantString().ToLowerInvariant();
+                return table;
+            });
+            positionTable["has_branches"] = (Func<bool>)(() =>
+            {
+                return position.HasBranches();
+            });
+            positionTable["next"] = (Func<Table>)(() =>
+            {
+                var next = position.Next();
+                if (next == null)
+                {
+                    return null;
+                }
+                return this.BuildRoutePositionTable(next.Value);
+            });
+            positionTable["previous"] = (Func<Table>)(() =>
+            {
+                var previous = position.Previous();
+                if (previous == null)
+                {
+                    return null;
+                }
+                return this.BuildRoutePositionTable(previous.Value);
+            });
+
             return positionTable;
         }
 
-        private static void UpdateTable(RoutePosition position, Table positionTable)
+        private void UpdateTable(RoutePosition position, Table positionTable)
         {
             positionTable["shape"] = position.Shape;
             positionTable["stop_index"] = position.StopIndex;
             positionTable["meta_index"] = position.MetaIndex;
             positionTable["branch_index"] = position.BranchIndex;
+            if (position.HasBranches())
+            {
+                var branches = position.Branches().ToList();
+                var branchesItems = new Table(_script);
+                for (var i = 0; i < branches.Count; i++)
+                {
+                    var banchesItem = new Table(_script);
+                    banchesItem["attibutes"] = branches[i].Attributes.ToTable(_script);
+                    banchesItem["latitude"] = branches[i].Coordinate.Latitude;
+                    banchesItem["longitude"] = branches[i].Coordinate.Longitude;
+                    banchesItem["shape"] = branches[i].Shape;
+                    branchesItems[i] = banchesItem;
+                }
+                var branchesTable = new Table(_script);
+                branchesTable["count"] = branches.Count;
+                branchesTable["items"] = branchesItems;
+
+                positionTable["branches"] = branchesTable;
+            }
+            else
+            {
+                positionTable["branches"] = DynValue.Nil;
+            }
+            var meta = position.Meta();
+            if (meta != null)
+            {
+                positionTable["attributes"] = meta.Attributes.ToTable(_script);
+            }
+            else
+            {
+                positionTable["attributes"] = new Table(_script);
+            }
         }
 
         /// <summary>
