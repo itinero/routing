@@ -56,7 +56,7 @@ profile_whitelist = {
 	"maxspeed",
 	"maxweight",
 	"maxwidth",
-	"roundabout"
+	"junction"
 }
 meta_whitelist = {
 	"name"
@@ -271,16 +271,13 @@ function get_turn (route_position, language_reference, instruction)
 
 	local turn_relevant = false
 	local branches = route_position.branches
-	itinero.log ("branches")
 	if branches then
-		itinero.log ("in branches")
+		branches = branches.get_traversable()
 		if relative_direction == "straighton" and
 			branches.count >= 2 then
 			turn_relevant = true -- straight on at cross road
 		end
-		if relative_direction != "straighton" and
-			relative_direction != "slightlyleft" and
-			relative_direction != "slightlyright" and
+		if  relative_direction != "straighton" and 
 			branches.count > 0 then
 			turn_relevant = true -- an actual normal turn
 		end

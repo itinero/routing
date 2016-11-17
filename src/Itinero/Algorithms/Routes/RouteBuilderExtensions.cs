@@ -20,7 +20,6 @@ using Itinero.Attributes;
 using Itinero.LocalGeo;
 using Itinero.Data.Network;
 using Itinero.Profiles;
-using System;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Routes
@@ -47,6 +46,7 @@ namespace Itinero.Algorithms.Routes
                     edges.To != nextVertex)
                 {
                     var edge = edges.Current;
+                    var direction = !edges.DataInverted;
                     var attributes = routerDb.GetProfileAndMeta(edge.Data.Profile, edge.Data.MetaId);
 
                     var point = routerDb.Network.GetFirstPoint(edge, edges.From);
@@ -58,7 +58,8 @@ namespace Itinero.Algorithms.Routes
                             Latitude = point.Latitude,
                             Longitude = point.Longitude
                         },
-                        Attributes = new AttributeCollection(attributes)
+                        Attributes = new AttributeCollection(attributes),
+                        AttributesDirection = direction
                     });
                 }
             }

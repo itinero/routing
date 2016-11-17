@@ -141,7 +141,8 @@ namespace Itinero.Algorithms.Routes
                 Stops = stops,
 				Branches = _branches.ToArray(),
                 TotalDistance = _shapeMeta.Last().Distance,
-                TotalTime = _shapeMeta.Last().Time
+                TotalTime = _shapeMeta.Last().Time,
+                Profile = _profile.FullName
             };
         }
 
@@ -166,6 +167,7 @@ namespace Itinero.Algorithms.Routes
             {
                 Attributes = new AttributeCollection(
                     new Attributes.Attribute("profile", _profile.FullName)),
+                AttributesDirection = true,
                 Shape = _shape.Count - 1
             });
         }
@@ -196,6 +198,7 @@ namespace Itinero.Algorithms.Routes
             RoutingEdge edge = null;
             Coordinate? targetLocation = null;
             var distance = 0f;
+            var direction = true;
             if(from == Constants.NO_VERTEX &&
                to == Constants.NO_VERTEX)
             { // from is the source and to is the target.
@@ -233,6 +236,7 @@ namespace Itinero.Algorithms.Routes
             else
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                direction = !edge.DataInverted;
                 distance = edge.Data.Distance;
                 var shapeEnumerable = edge.Shape;
                 if (shapeEnumerable != null)
@@ -266,7 +270,8 @@ namespace Itinero.Algorithms.Routes
             var shapeMeta = new Route.Meta()
             {
                 Shape = _shape.Count - 1,
-                Attributes = attributes
+                Attributes = attributes,
+                AttributesDirection = direction
             };
             shapeMeta.Distance = distance + previousMeta.Distance;
             shapeMeta.Time = time + previousMeta.Time;
@@ -305,6 +310,7 @@ namespace Itinero.Algorithms.Routes
             RoutingEdge edge = null;
             Coordinate? targetLocation = null;
             var distance = 0f;
+            var direction = true;
             if (from == Constants.NO_VERTEX &&
                to == Constants.NO_VERTEX)
             { // from is the source and to is the target.
@@ -342,7 +348,7 @@ namespace Itinero.Algorithms.Routes
             else
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
-                
+                direction = !edge.DataInverted;
                 if (this.AddShorcut(edge))
                 {
                     return;
@@ -381,7 +387,8 @@ namespace Itinero.Algorithms.Routes
             var shapeMeta = new Route.Meta()
             {
                 Shape = _shape.Count - 1,
-                Attributes = attributes
+                Attributes = attributes,
+                AttributesDirection = direction
             };
             shapeMeta.Distance = distance + previousMeta.Distance;
             shapeMeta.Time = time + previousMeta.Time;

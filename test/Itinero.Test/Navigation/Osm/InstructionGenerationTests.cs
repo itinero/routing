@@ -91,7 +91,7 @@ namespace Itinero.Test.Navigation.Osm
                 Profile = "car"
             };
 
-            var instructions = route.GenerateInstruction();
+            var instructions = route.GenerateInstructions();
             Assert.IsNotNull(instructions);
             Assert.AreEqual(2, instructions.Count);
             Assert.AreEqual(0, instructions[0].Shape);
@@ -135,7 +135,7 @@ namespace Itinero.Test.Navigation.Osm
                     },
                     new Route.Meta()
                     {
-                        Attributes = new AttributeCollection(new Attribute("highway", "residentail"),
+                        Attributes = new AttributeCollection(new Attribute("highway", "residential"),
                             new Attribute("name", "Street 1")),
                         Shape = 2,
                         Distance = 100,
@@ -143,7 +143,7 @@ namespace Itinero.Test.Navigation.Osm
                     },
                     new Route.Meta()
                     {
-                        Attributes = new AttributeCollection(new Attribute("highway", "residentail"),
+                        Attributes = new AttributeCollection(new Attribute("highway", "residential"),
                             new Attribute("name", "Street 2")),
                         Shape = 3,
                         Distance = 200,
@@ -154,7 +154,7 @@ namespace Itinero.Test.Navigation.Osm
                 {
                     new Route.Branch()
                     {
-                        Attributes = new AttributeCollection(new Attribute("highway", "residentail")),
+                        Attributes = new AttributeCollection(new Attribute("highway", "residential")),
                         Coordinate = new Coordinate()
                         {
                             Latitude = 49.768546616323725f,
@@ -169,7 +169,7 @@ namespace Itinero.Test.Navigation.Osm
                 Profile = "car"
             };
 
-            var instructions = route.GenerateInstruction();
+            var instructions = route.GenerateInstructions();
             Assert.IsNotNull(instructions);
             Assert.AreEqual(3, instructions.Count);
             Assert.AreEqual(0, instructions[0].Shape);

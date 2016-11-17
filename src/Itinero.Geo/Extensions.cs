@@ -16,6 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.Navigation.Instructions;
 using System.Collections.Generic;
 
 namespace Itinero.Geo
@@ -187,6 +188,35 @@ namespace Itinero.Geo
                     treeEdge.ToLineString(), attributes));
             }
             return featureCollection;
+        }
+
+        /// <summary>
+        /// Converts the instructions to features.
+        /// </summary>
+        public static NetTopologySuite.Features.FeatureCollection ToFeatures(this IEnumerable<Instruction> instructions, Route route)
+        {
+            var featureCollection = new NetTopologySuite.Features.FeatureCollection();
+            foreach (var instruction in instructions)
+            {
+                var attributes = new NetTopologySuite.Features.AttributesTable();
+                attributes.AddAttribute("text", instruction.Text);
+                attributes.AddAttribute("type", instruction.Type);
+                var location = route.Shape[instruction.Shape];
+                featureCollection.Add(new NetTopologySuite.Features.Feature(
+                    new NetTopologySuite.Geometries.Point(location.ToCoordinate()), attributes));
+            }
+            return featureCollection;
+        }
+
+        /// <summary>
+        /// Adds features from on collection to another.
+        /// </summary>
+        public static void Add(this NetTopologySuite.Features.FeatureCollection features, NetTopologySuite.Features.FeatureCollection featuresToAdd)
+        {
+            foreach(var feature in featuresToAdd.Features)
+            {
+                features.Add(feature);
+            }
         }
     }
 }

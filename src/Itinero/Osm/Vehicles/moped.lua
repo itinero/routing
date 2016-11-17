@@ -51,7 +51,7 @@ profile_whitelist = {
 	"maxspeed",
 	"maxweight",
 	"maxwidth",
-	"roundabout"
+	"junction"
 }
 meta_whitelist = {
 	"name"

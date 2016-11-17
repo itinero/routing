@@ -924,15 +924,15 @@ namespace Itinero
         /// <summary>
         /// Generates instructions for the given route.
         /// </summary>
-        public static IList<Instruction> GenerateInstruction(this Route route)
+        public static IList<Instruction> GenerateInstructions(this Route route)
         {
-            return route.GenerateInstruction(new DefaultLanguageReference());
+            return route.GenerateInstructions(new DefaultLanguageReference());
         }
 
         /// <summary>
         /// Generates instructions for the given route.
         /// </summary>
-        public static IList<Instruction> GenerateInstruction(this Route route, ILanguageReference languageReference)
+        public static IList<Instruction> GenerateInstructions(this Route route, ILanguageReference languageReference)
         {
             if (route.IsMultimodal())
             {

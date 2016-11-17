@@ -255,21 +255,8 @@ namespace Itinero.Navigation.Instructions
             positionTable["branch_index"] = position.BranchIndex;
             if (position.HasBranches())
             {
-                var branches = position.Branches().ToList();
-                var branchesItems = new Table(_script);
-                for (var i = 0; i < branches.Count; i++)
-                {
-                    var banchesItem = new Table(_script);
-                    banchesItem["attibutes"] = branches[i].Attributes.ToTable(_script);
-                    banchesItem["latitude"] = branches[i].Coordinate.Latitude;
-                    banchesItem["longitude"] = branches[i].Coordinate.Longitude;
-                    banchesItem["shape"] = branches[i].Shape;
-                    branchesItems[i] = banchesItem;
-                }
                 var branchesTable = new Table(_script);
-                branchesTable["count"] = branches.Count;
-                branchesTable["items"] = branchesItems;
-
+                UpdateTable(position.Branches().ToList(), branchesTable);
                 positionTable["branches"] = branchesTable;
             }
             else
@@ -285,6 +272,61 @@ namespace Itinero.Navigation.Instructions
             {
                 positionTable["attributes"] = new Table(_script);
             }
+        }
+
+        private void UpdateTable(List<Route.Branch> branches, Table branchesTable)
+        {
+            var branchesItems = new Table(_script);
+            for (var i = 0; i < branches.Count; i++)
+            {
+                var branchesItem = new Table(_script);
+                branchesItem["attibutes"] = branches[i].Attributes.ToTable(_script);
+                branchesItem["latitude"] = branches[i].Coordinate.Latitude;
+                branchesItem["longitude"] = branches[i].Coordinate.Longitude;
+                branchesItem["shape"] = branches[i].Shape;
+                branchesItem["can_traverse"] = this._profile.FactorAndSpeed(branches[i].Attributes).SpeedFactor != 0;
+                branchesItems[i] = branchesItem;
+            }
+            branchesTable["count"] = branches.Count;
+            branchesTable["items"] = branchesItems;
+            branchesTable["get_traversable"] = (Func<Table>)(() =>
+            {
+                var traversable = new List<Route.Branch>();
+                foreach(var branch in branches)
+                {
+                    var factorAndSpeed = this._profile.FactorAndSpeed(branch.Attributes);
+                    if (factorAndSpeed.SpeedFactor != 0)
+                    {
+                        if (factorAndSpeed.Direction == 0 ||
+                            factorAndSpeed.Direction == 3)
+                        {
+                            traversable.Add(branch);
+                        }
+                        else
+                        {
+                            if (branch.AttributesDirection)
+                            {
+                                if (factorAndSpeed.Direction == 1 ||
+                                    factorAndSpeed.Direction == 4)
+                                {
+                                    traversable.Add(branch);
+                                }
+                            }
+                            else
+                            {
+                                if (factorAndSpeed.Direction == 2 ||
+                                    factorAndSpeed.Direction == 5)
+                                {
+                                    traversable.Add(branch);
+                                }
+                            }
+                        }
+                    }
+                }
+                var table = new Table(_script);
+                UpdateTable(traversable, table);
+                return table;
+            });
         }
 
         /// <summary>

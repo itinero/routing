@@ -59,7 +59,7 @@ namespace Itinero.Test.Functional
             };
             _logger = new Logger("Default");
             
-            //Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
+            Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 
             // download and extract test-data if not already there.
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
@@ -80,14 +80,14 @@ namespace Itinero.Test.Functional
 
             //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
 
-            //var route = router.Calculate(Vehicle.Car.Fastest(), new Coordinate(49.743840094193196f, 6.040034294128418f), 
-            //    new Coordinate(49.756719969761846f, 6.102969646453857f));
-            //var instructionGenerator = new Itinero.Navigation.Osm.InstructionCarGenerator(route, new Itinero.Navigation.Language.DefaultLanguageReference());
-            //instructionGenerator.Run();
-            //var instructions = instructionGenerator.Instructions;
-            //route.AddInstructions(instructions);
-            //var json = route.ToGeoJson();
-
+            var route = router.Calculate(Vehicle.Car.Fastest(), new Coordinate(49.743840094193196f, 6.040034294128418f),
+                new Coordinate(49.756719969761846f, 6.102969646453857f));
+            var instructions = route.GenerateInstructions();
+            var features = route.ToFeatureCollection();
+            var instructionFeatures = instructions.ToFeatures(route);
+            features.Add(instructionFeatures);
+            var json = features.ToGeoJson();
+            
             //// TEST1: Test random routes.
             //Runner.GetTestRandomRoutes(router, Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
 

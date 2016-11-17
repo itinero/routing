@@ -161,6 +161,11 @@ namespace Itinero
             public IAttributeCollection Attributes { get; set; }
 
             /// <summary>
+            /// Gets or sets the relative direction flag of the attributes.
+            /// </summary>
+            public bool AttributesDirection { get; set; }
+
+            /// <summary>
             /// Gets or sets the profile.
             /// </summary>
             public string Profile
@@ -287,6 +292,11 @@ namespace Itinero
             /// Gets or sets the attributes.
             /// </summary>
             public IAttributeCollection Attributes { get; set; }
+
+            /// <summary>
+            /// Gets or sets the relative direction flag of the attributes.
+            /// </summary>
+            public bool AttributesDirection { get; set; }
 
             /// <summary>
             /// Creates a clone of this object.
