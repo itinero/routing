@@ -18,5 +18,5 @@
 
 using System.Reflection;
 
-[assembly: AssemblyVersion("0.30.0")] // semantic versioning Major.Minor.Patch
-[assembly: AssemblyInformationalVersion("0.30.0-rc1")]
+[assembly: AssemblyVersion("0.31.0")] // semantic versioning Major.Minor.Patch
+[assembly: AssemblyInformationalVersion("0.31.0-rc1")]

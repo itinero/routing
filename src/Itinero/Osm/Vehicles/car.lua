@@ -282,7 +282,6 @@ function get_roundabout (route_position, language_reference, instruction)
 		local attributes = route_position.next().attributes
 		if attributes.junction then
 		else
-			itinero.log("roundabout end detected")
 			local exit = 1
 			local count = 1
 			local previous = route_position.previous()
