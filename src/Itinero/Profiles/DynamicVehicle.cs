@@ -57,9 +57,14 @@ namespace Itinero.Profiles
             _name = dynName.String;
 
             var dynVehicleTypes = _script.Globals.Get("vehicle_types");
-            if (dynVehicleTypes != null)
+            if (dynVehicleTypes != null &&
+                dynVehicleTypes.Type == DataType.Table)
             {
                 _vehicleTypes = dynVehicleTypes.Table.Values.Select(x => x.String).ToArray();
+            }
+            else
+            {
+                _vehicleTypes = new string[0];
             }
 
             var dynProfiles = _script.Globals.Get("profiles");
@@ -264,7 +269,9 @@ namespace Itinero.Profiles
         /// </summary>
         public static DynamicVehicle Load(string script)
         {
-            return new DynamicVehicle(script);
+            var vehicle = new DynamicVehicle(script);
+            vehicle.Register();
+            return vehicle;
         }
 
         /// <summary>

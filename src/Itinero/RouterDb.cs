@@ -189,6 +189,14 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets one if the supported vehicles.
+        /// </summary>
+        public Vehicle GetSupportedVehicle(string vehicleName)
+        {
+            return _supportedVehicles[vehicleName.ToLowerInvariant()];
+        }
+
+        /// <summary>
         /// Gets all the supported vehicle.
         /// </summary>
         /// <returns></returns>

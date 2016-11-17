@@ -99,6 +99,15 @@
           "lib/net45/NetTopologySuite.IO.dll": {}
         }
       },
+      "Newtonsoft.Json/9.0.1": {
+        "type": "package",
+        "compile": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        },
+        "runtime": {
+          "lib/net45/Newtonsoft.Json.dll": {}
+        }
+      },
       "Reminiscence/1.0.5": {
         "type": "package",
         "compile": {
@@ -460,6 +469,25 @@
           "net45/Itinero.dll": {}
         }
       },
+      "Itinero.Geo/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.5",
+        "dependencies": {
+          "GeoAPI": "1.7.4",
+          "Itinero": "1.0.0",
+          "NETStandard.Library": "1.6.0",
+          "NetTopologySuite": "1.14.0"
+        },
+        "frameworkAssemblies": [
+          "System.Xml"
+        ],
+        "compile": {
+          "net45/Itinero.Geo.dll": {}
+        },
+        "runtime": {
+          "net45/Itinero.Geo.dll": {}
+        }
+      },
       "Itinero.IO.Shape/1.0.0": {
         "type": "project",
         "framework": ".NETFramework,Version=v4.5",
@@ -627,6 +655,30 @@
         "lib/net45/NetTopologySuite.IO.ShapeFile.xml",
         "lib/net45/NetTopologySuite.IO.dll",
         "lib/net45/NetTopologySuite.IO.xml"
+      ]
+    },
+    "Newtonsoft.Json/9.0.1": {
+      "sha512": "U82mHQSKaIk+lpSVCbWYKNavmNH1i5xrExDEquU1i6I5pV6UMOqRnJRSlKO3cMPfcpp0RgDY+8jUXHdQ4IfXvw==",
+      "type": "package",
+      "path": "Newtonsoft.Json/9.0.1",
+      "files": [
+        "Newtonsoft.Json.9.0.1.nupkg.sha512",
+        "Newtonsoft.Json.nuspec",
+        "lib/net20/Newtonsoft.Json.dll",
+        "lib/net20/Newtonsoft.Json.xml",
+        "lib/net35/Newtonsoft.Json.dll",
+        "lib/net35/Newtonsoft.Json.xml",
+        "lib/net40/Newtonsoft.Json.dll",
+        "lib/net40/Newtonsoft.Json.xml",
+        "lib/net45/Newtonsoft.Json.dll",
+        "lib/net45/Newtonsoft.Json.xml",
+        "lib/netstandard1.0/Newtonsoft.Json.dll",
+        "lib/netstandard1.0/Newtonsoft.Json.xml",
+        "lib/portable-net40+sl5+wp80+win8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net40+sl5+wp80+win8+wpa81/Newtonsoft.Json.xml",
+        "lib/portable-net45+wp80+win8+wpa81/Newtonsoft.Json.dll",
+        "lib/portable-net45+wp80+win8+wpa81/Newtonsoft.Json.xml",
+        "tools/install.ps1"
       ]
     },
     "Reminiscence/1.0.5": {
@@ -2622,6 +2674,11 @@
       "path": "../../src/Itinero/project.json",
       "msbuildProject": "../../src/Itinero/Itinero.xproj"
     },
+    "Itinero.Geo/1.0.0": {
+      "type": "project",
+      "path": "../../src/Itinero.Geo/project.json",
+      "msbuildProject": "../../src/Itinero.Geo/Itinero.Geo.xproj"
+    },
     "Itinero.IO.Shape/1.0.0": {
       "type": "project",
       "path": "../../src/Itinero.IO.Shape/project.json",
@@ -2631,7 +2688,9 @@
   "projectFileDependencyGroups": {
     "": [
       "Itinero >= 1.0.0-*",
+      "Itinero.Geo >= 1.0.0-*",
       "Itinero.IO.Shape >= 1.0.0-*",
+      "Newtonsoft.Json >= 9.0.1",
       "System.IO.Compression >= 4.0.0"
     ],
     ".NETFramework,Version=v4.5": []

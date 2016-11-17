@@ -25,9 +25,12 @@ using Itinero;
 using Itinero.Data.Edges;
 using Itinero.IO.Shape;
 using Itinero.LocalGeo;
+using Itinero.Profiles;
+using Itinero.Geo;
 using System;
 using System.IO;
 using System.IO.Compression;
+using NetTopologySuite.Features;
 
 namespace Sample.Shape
 {
@@ -44,8 +47,7 @@ namespace Sample.Shape
             Download.DownloadAndExtractShape("http://files.itinero.tech/data/open-data/NWB/WGS84_2016-09-01.zip", "WGS84_2016-09-01.zip");
 
             // create a new router db and load the shapefile.
-            var vehicle = new Car(); // load data for the car profile.
-            Itinero.Profiles.Vehicle.Register(vehicle);
+            var vehicle = DynamicVehicle.LoadFromStream(File.OpenRead("car.lua"));
             var routerDb = new RouterDb(EdgeDataSerializer.MAX_DISTANCE);
             routerDb.LoadFromShape(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp"), "wegvakken.shp", "JTE_ID_BEG", "JTE_ID_END", vehicle);
 
@@ -59,6 +61,9 @@ namespace Sample.Shape
             var router = new Router(routerDb);
             var route = router.Calculate(vehicle.Fastest(), new Coordinate(51.57060821506861f, 5.46792984008789f), 
                 new Coordinate(51.58711643524425f, 5.4957228899002075f));
+
+            // generate instructions based on lua profile.
+            var instructions = route.GenerateInstructions();
         }
     }
 }

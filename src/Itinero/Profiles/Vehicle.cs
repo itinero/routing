@@ -214,7 +214,7 @@ namespace Itinero.Profiles
         {
             return 0;
         }
-        
+
         /// <summary>
         /// Deserializes a vehicle from the given stream.
         /// </summary>
@@ -224,11 +224,18 @@ namespace Itinero.Profiles
             switch (typeName)
             {
                 case "Itinero.Profiles.DynamicVehicle":
-                    return new DynamicVehicle(stream.ReadWithSizeString());
+                    var vehicle = new DynamicVehicle(stream.ReadWithSizeString());
+                    Vehicle.Register(vehicle);
+                    return vehicle;
             }
             if (Vehicle.CustomDeserializer != null)
             {
-                return Vehicle.CustomDeserializer(typeName, stream);
+                var vehicle = Vehicle.CustomDeserializer(typeName, stream);
+                if (vehicle != null)
+                {
+                    Vehicle.Register(vehicle);
+                }
+                return vehicle;
             }
             throw new Exception(string.Format("Cannot deserialize for type with name: {0}", typeName));
         }
