@@ -237,6 +237,10 @@ instruction_generators = {
 				function_name = "get_stop"
 			},
 			{
+				name = "roundabout",
+				function_name = "get_roundabout"
+			},
+			{
 				name = "turn",
 				function_name = "get_turn"
 			}
@@ -261,6 +265,51 @@ function get_stop (route_position, language_reference, instruction)
 		instruction.text = language_reference.get("Arrived at destination.");
 		instruction.shape = route_position.shape
 		return 1
+	end
+	return 0
+end
+
+function contains (attributes, key, value)
+	if attributes then
+		return localvalue == attributes[key];
+	end	
+end
+
+-- gets a roundabout instruction
+function get_roundabout (route_position, language_reference, instruction) 
+	if route_position.attributes.junction == "roundabout" and
+		(not route_position.is_last()) then
+		local attributes = route_position.next().attributes
+		if attributes.junction then
+		else
+			itinero.log("roundabout end detected")
+			local exit = 1
+			local count = 1
+			local previous = route_position.previous()
+			while previous and previous.attributes.junction == "roundabout" do
+				local branches = previous.branches
+				if branches then
+					branches = branches.get_traversable()
+					if branches.count > 0 then
+						exit = exit + 1
+					end
+				end
+				count = count + 1
+				previous = previous.previous()
+			end
+
+			instruction.text = itinero.format(language_reference.get("Take the {0}th exit at the next roundabout."), "" .. exit)
+			if exit == 1 then
+				instruction.text = itinero.format(language_reference.get("Take the first exit at the next roundabout."))
+			elseif exit == 2 then
+				instruction.text = itinero.format(language_reference.get("Take the second exit at the next roundabout."))
+			elseif exit == 3 then
+				instruction.text = itinero.format(language_reference.get("Take the third exit at the next roundabout."))
+			end
+			instruction.type = "roundabout"
+			instruction.shape = route_position.shape
+			return count
+		end
 	end
 	return 0
 end
