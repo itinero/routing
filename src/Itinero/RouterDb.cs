@@ -577,7 +577,9 @@ namespace Itinero
                 var size = BitConverter.ToInt32(lengthBytes, 0);
                 for(var i = 0; i < size; i++)
                 {
-                    supportedVehicleInstances.Add(Vehicle.Deserialize(stream));
+                    var vehicle = Vehicle.Deserialize(stream);
+                    supportedVehicleInstances.Add(vehicle);
+                    vehicle.Register();
                 }
             }
             
