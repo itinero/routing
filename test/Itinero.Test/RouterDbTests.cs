@@ -35,6 +35,19 @@ namespace Itinero.Test
     public class RouterDbTests
     {
         /// <summary>
+        /// Tests testing for a supportest profile.
+        /// </summary>
+        [Test]
+        public void TestSupportsProfile()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+
+            Assert.IsTrue(routerDb.SupportProfile("car"));
+            Assert.IsTrue(routerDb.SupportProfile("car.shortest"));
+        }
+
+        /// <summary>
         /// Tests saving and then loading test network1.
         /// </summary>
         [Test]

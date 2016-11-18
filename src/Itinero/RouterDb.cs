@@ -44,6 +44,7 @@ namespace Itinero
 
         private readonly Dictionary<string, ContractedDb> _contracted;
         private readonly Dictionary<string, Vehicle> _supportedVehicles;
+        private readonly Dictionary<string, Profile> _supportedProfiles;
         private readonly Dictionary<string, RestrictionsDb> _restrictionDbs;
         private readonly Dictionary<string, ShortcutsDb> _shortcutsDbs;
 
@@ -59,6 +60,7 @@ namespace Itinero
             _dbMeta = new AttributeCollection();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
+            _supportedProfiles = new Dictionary<string, Profile>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
             _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
@@ -78,6 +80,7 @@ namespace Itinero
             _dbMeta = new AttributeCollection();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
+            _supportedProfiles = new Dictionary<string, Profile>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
             _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
@@ -97,6 +100,7 @@ namespace Itinero
             _dbMeta = new AttributeCollection();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
+            _supportedProfiles = new Dictionary<string, Profile>();
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
             _shortcutsDbs = new Dictionary<string, ShortcutsDb>();
@@ -116,9 +120,14 @@ namespace Itinero
             _dbMeta = dbMeta;
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
+            _supportedProfiles = new Dictionary<string, Profile>();
             foreach (var vehicle in supportedVehicles)
             {
                 _supportedVehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
+                foreach (var profile in vehicle.GetProfiles())
+                {
+                    _supportedProfiles[profile.FullName.ToLowerInvariant()] = profile;
+                }
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
@@ -140,9 +149,14 @@ namespace Itinero
             _dbMeta = dbMeta;
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
+            _supportedProfiles = new Dictionary<string, Profile>();
             foreach (var vehicle in supportedVehicles)
             {
                 _supportedVehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
+                foreach (var profile in vehicle.GetProfiles())
+                {
+                    _supportedProfiles[profile.FullName.ToLowerInvariant()] = profile;
+                }
             }
             _contracted = new Dictionary<string, ContractedDb>();
             _restrictionDbs = new Dictionary<string, RestrictionsDb>();
@@ -189,7 +203,7 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets one if the supported vehicles.
+        /// Gets one of the supported vehicles.
         /// </summary>
         public Vehicle GetSupportedVehicle(string vehicleName)
         {
@@ -211,6 +225,26 @@ namespace Itinero
         public void AddSupportedVehicle(Profiles.Vehicle vehicle)
         {
             _supportedVehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
+            foreach(var profile in vehicle.GetProfiles())
+            {
+                _supportedProfiles[profile.FullName.ToLowerInvariant()] = profile;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the profile with the given name is supported.
+        /// </summary>
+        public bool SupportProfile(string profileName)
+        {
+            return _supportedProfiles.ContainsKey(profileName);
+        }
+
+        /// <summary>
+        /// Gets one of the supported vehicles.
+        /// </summary>
+        public Profile GetSupportedProfile(string profileName)
+        {
+            return _supportedProfiles[profileName.ToLowerInvariant()];
         }
 
         /// <summary>
