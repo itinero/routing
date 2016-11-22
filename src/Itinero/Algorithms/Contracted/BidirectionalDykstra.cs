@@ -30,7 +30,7 @@ namespace Itinero.Algorithms.Contracted
     public class BidirectionalDykstra<T> : AlgorithmBase
         where T : struct
     {
-        private readonly DirectedMetaGraph _graph;
+        private readonly DirectedDynamicGraph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly IEnumerable<EdgePath<T>> _targets;
         private readonly WeightHandler<T> _weightHandler;
@@ -38,7 +38,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets)
+        public BidirectionalDykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets)
         {
             weightHandler.CheckCanUse(graph);
 

@@ -27,29 +27,18 @@ namespace Itinero.Data.Contracted
     /// </summary>
     public class ContractedDb
     {
-        private readonly DirectedMetaGraph _nodeBasedGraph;
-        private readonly DirectedDynamicGraph _edgeBasedGraph;
-
-        /// <summary>
-        /// Creates a new node-based contracted db.
-        /// </summary>
-        public ContractedDb(DirectedMetaGraph nodeBasedGraph)
-        {
-            if (nodeBasedGraph == null) { throw new ArgumentNullException("nodeBasedGraph"); }
-
-            _nodeBasedGraph = nodeBasedGraph;
-            _edgeBasedGraph = null;
-        }
-
+        private readonly bool _edgeBased;
+        private readonly DirectedDynamicGraph _graph;
+        
         /// <summary>
         /// Creates a new edge-based contracted db.
         /// </summary>
-        public ContractedDb(DirectedDynamicGraph edgeBasedGraph)
+        public ContractedDb(DirectedDynamicGraph graph, bool edgeBased = false)
         {
-            if (edgeBasedGraph == null) { throw new ArgumentNullException("edgeBasedGraph"); }
+            if (graph == null) { throw new ArgumentNullException("graph"); }
 
-            _nodeBasedGraph = null;
-            _edgeBasedGraph = edgeBasedGraph;
+            _edgeBased = edgeBased;
+            _graph = graph;
         }
 
         /// <summary>
@@ -59,22 +48,22 @@ namespace Itinero.Data.Contracted
         {
             get
             {
-                return _nodeBasedGraph != null;
+                return !_edgeBased;
             }
         }
 
         /// <summary>
         /// Gets the node-based graph if any.
         /// </summary>
-        public DirectedMetaGraph NodeBasedGraph
+        public DirectedDynamicGraph NodeBasedGraph
         {
             get
             {
-                if (_nodeBasedGraph == null)
+                if (_edgeBased)
                 {
                     throw new InvalidOperationException();
                 }
-                return _nodeBasedGraph;
+                return _graph;
             }
         }
 
@@ -85,7 +74,7 @@ namespace Itinero.Data.Contracted
         {
             get
             {
-                return _edgeBasedGraph != null;
+                return _edgeBased;
             }
         }
 
@@ -96,13 +85,14 @@ namespace Itinero.Data.Contracted
         {
             get
             {
-                if (_edgeBasedGraph == null)
+                if (!_edgeBased)
                 {
                     throw new InvalidOperationException();
                 }
-                return _edgeBasedGraph;
+                return _graph;
             }
         }
+
         /// <summary>
         /// Serializes the given contraction data 
         /// </summary>
@@ -110,17 +100,20 @@ namespace Itinero.Data.Contracted
         {
             // write version # first:
             // 1: means regular non-edge contracted data.
+            //     WARNING: cannot be read anymore by this Itinero version a breaking change.
+            //     TODO:    convert the data on-the-fly to the new format.
             // 2: means regular edge contracted data.
+            // 3: means node-based dynamic contracted data.
 
-            if (_nodeBasedGraph != null)
+            if (!_edgeBased)
             {
-                stream.WriteByte(1);
-                return _nodeBasedGraph.Serialize(stream, toReadonly) + 1;
+                stream.WriteByte(3);
+                return _graph.Serialize(stream, toReadonly) + 1;
             }
             else
             {
                 stream.WriteByte(2);
-                return _edgeBasedGraph.Serialize(stream, toReadonly) + 1;
+                return _graph.Serialize(stream, toReadonly) + 1;
             }
         }
 
@@ -131,20 +124,27 @@ namespace Itinero.Data.Contracted
         {
             // read version # first:
             // 1: means regular non-edge contracted data.
+            //     WARNING: cannot be read anymore by this Itinero version a breaking change.
+            //     TODO:    convert the data on-the-fly to the new format.
             // 2: means regular edge contracted data.
+            // 3: means node-based dynamic contracted data.
 
             var version = stream.ReadByte();
             if (version == 1)
             {
-                return new ContractedDb(DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.NodeBasedProfile));
+                throw new Exception(string.Format("Cannot deserialize contracted graph, consider updating Intinero: Invalid version #: {0}.", version));
             }
             else if (version == 2)
             {
-                return new ContractedDb(DirectedDynamicGraph.Deserialize(stream, profile == null ? null : profile.EdgeBasedProfile));
+                return new ContractedDb(DirectedDynamicGraph.Deserialize(stream, profile == null ? null : profile.EdgeBasedProfile), true);
+            }
+            else if (version == 3)
+            {
+                return new ContractedDb(DirectedDynamicGraph.Deserialize(stream, profile == null ? null : profile.EdgeBasedProfile), false);
             }
             else
             {
-                throw new Exception(string.Format("Cannot deserialize contracted graph: Invalid version #: {0}.", version));
+                throw new Exception(string.Format("Cannot deserialize contracted graph, consider updating Intinero: Invalid version #: {0}.", version));
             }
         }
     }

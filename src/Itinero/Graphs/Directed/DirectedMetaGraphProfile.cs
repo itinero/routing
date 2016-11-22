@@ -10,7 +10,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// Gets or sets the directed graph profile.
         /// </summary>
-        public DirectedGraphProfile DirectedGraphProfile { get; set; }
+        public DirectedDynamicGraphProfile DirectedGraphProfile { get; set; }
 
         /// <summary>
         /// Gets or sets the vertex meta array profile.
@@ -27,7 +27,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public static DirectedMetaGraphProfile NoCache = new DirectedMetaGraphProfile()
         {
-            DirectedGraphProfile = DirectedGraphProfile.NoCache,
+            DirectedGraphProfile = DirectedDynamicGraphProfile.NoCache,
             EdgeMetaProfile = ArrayProfile.NoCache,
             VertexMetaProfile = ArrayProfile.NoCache
         };
@@ -37,7 +37,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public static DirectedMetaGraphProfile OneBuffer = new DirectedMetaGraphProfile()
         {
-            DirectedGraphProfile = DirectedGraphProfile.OneBuffer,
+            DirectedGraphProfile = DirectedDynamicGraphProfile.OneBuffer,
             EdgeMetaProfile = ArrayProfile.Aggressive8,
             VertexMetaProfile = ArrayProfile.OneBuffer
         };
@@ -47,7 +47,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public static DirectedMetaGraphProfile Aggressive40 = new DirectedMetaGraphProfile()
         {
-            DirectedGraphProfile = DirectedGraphProfile.Aggressive24,
+            DirectedGraphProfile = DirectedDynamicGraphProfile.Aggressive24,
             EdgeMetaProfile = ArrayProfile.Aggressive8,
             VertexMetaProfile = ArrayProfile.Aggressive8
         };

@@ -33,14 +33,14 @@ namespace Itinero.Data.Contracted
         /// <summary>
         /// Gets or sets the edge based profile.
         /// </summary>
-        public DirectedGraphProfile EdgeBasedProfile { get; set; }
+        public DirectedDynamicGraphProfile EdgeBasedProfile { get; set; }
         
         /// <summary>
         /// A profile that tells the graph to do no caching.
         /// </summary>
         public static ContractedDbProfile NoCache = new ContractedDbProfile()
         {
-            EdgeBasedProfile = DirectedGraphProfile.NoCache,
+            EdgeBasedProfile = DirectedDynamicGraphProfile.NoCache,
             NodeBasedProfile = DirectedMetaGraphProfile.NoCache
         };
 
@@ -49,7 +49,7 @@ namespace Itinero.Data.Contracted
         /// </summary>
         public static ContractedDbProfile OneBuffer = new ContractedDbProfile()
         {
-            EdgeBasedProfile = DirectedGraphProfile.OneBuffer,
+            EdgeBasedProfile = DirectedDynamicGraphProfile.OneBuffer,
             NodeBasedProfile = DirectedMetaGraphProfile.OneBuffer
         };
 
@@ -58,7 +58,7 @@ namespace Itinero.Data.Contracted
         /// </summary>
         public static ContractedDbProfile Aggressive24 = new ContractedDbProfile()
         {
-            EdgeBasedProfile = DirectedGraphProfile.Aggressive24,
+            EdgeBasedProfile = DirectedDynamicGraphProfile.Aggressive24,
             NodeBasedProfile = DirectedMetaGraphProfile.Aggressive40
         };
     }

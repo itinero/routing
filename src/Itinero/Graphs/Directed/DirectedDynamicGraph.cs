@@ -1031,7 +1031,7 @@ namespace Itinero.Graphs.Directed
         /// Deserializes a graph from the given stream.
         /// </summary>
         /// <returns></returns>
-        public static DirectedDynamicGraph Deserialize(System.IO.Stream stream, DirectedGraphProfile profile)
+        public static DirectedDynamicGraph Deserialize(System.IO.Stream stream, DirectedDynamicGraphProfile profile)
         {
             var initialPosition = stream.Position;
 

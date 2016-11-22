@@ -33,7 +33,7 @@ namespace Itinero.Algorithms.Contracted
         /// Gets the shortest edge between two vertices.
         /// </summary>
         /// <returns></returns>
-        public static MetaEdge GetShortestEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, Func<uint[], float?> getWeight)
+        public static MetaEdge GetShortestEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, Func<uint[], float?> getWeight)
         {
             var minWeight = float.MaxValue;
             var edges = graph.GetEdgeEnumerator(vertex1);
@@ -65,7 +65,7 @@ namespace Itinero.Algorithms.Contracted
         /// Gets the contracted id for the shortest edge between two vertices.
         /// </summary>
         /// <returns></returns>
-        public static uint? GetShortestEdgeContractedId(this DirectedMetaGraph.EdgeEnumerator edgeEnumerator, uint vertex1, uint vertex2, bool forward)
+        public static uint? GetShortestEdgeContractedId(this DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, uint vertex1, uint vertex2, bool forward)
         {
             var minWeight = float.MaxValue;
             edgeEnumerator.MoveTo(vertex1);
@@ -93,7 +93,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Expands a the shortest edge between the two given vertices.
         /// </summary>
-        public static void ExpandEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
+        public static void ExpandEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
             bool forward)
         {
             var edgeEnumerator = graph.GetEdgeEnumerator();
@@ -103,7 +103,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Expands a the shortest edge between the two given vertices.
         /// </summary>
-        public static void ExpandEdge(this DirectedMetaGraph.EdgeEnumerator edgeEnumerator, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
+        public static void ExpandEdge(this DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, uint vertex1, uint vertex2, List<uint> vertices, bool inverted,
             bool forward)
         {
             // check if expansion is needed.
@@ -269,7 +269,7 @@ namespace Itinero.Algorithms.Contracted
         /// Add or update edge.
         /// </summary>
         /// <returns></returns>
-        public static void AddOrUpdateEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, float weight,
+        public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
             bool? direction, uint contractedId, float distance, float time)
         {
             var current = ContractedEdgeDataSerializer.Serialize(weight, direction);
@@ -400,7 +400,7 @@ namespace Itinero.Algorithms.Contracted
         /// Tries adding or updating an edge and returns #added and #removed edges.
         /// </summary>
         /// <returns></returns>
-        public static void TryAddOrUpdateEdge(this DirectedMetaGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+        public static void TryAddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
             out int added, out int removed)
         {
             var hasExistingEdge = false;

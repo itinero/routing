@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Contracted.Witness
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+        public void Calculate(DirectedDynamicGraph graph, uint source, List<uint> targets, List<float> weights,
             ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip)
         {
             if(_hopLimit == 1)
@@ -242,7 +242,7 @@ namespace Itinero.Algorithms.Contracted.Witness
         /// <summary>
         /// Calculates witness paths with just one hop.
         /// </summary>
-        public void ExistsOneHop(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
+        public void ExistsOneHop(DirectedDynamicGraph graph, uint source, List<uint> targets, List<float> weights,
             ref bool[] forwardExists, ref bool[] backwardExists)
         {
             var targetsToCalculate = new HashSet<uint>();

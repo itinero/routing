@@ -23,7 +23,7 @@ namespace Itinero.Graphs.Directed
     /// <summary>
     /// A profile with settings for a memory-mapped graph.
     /// </summary>
-    public class DirectedGraphProfile
+    public class DirectedDynamicGraphProfile
     {
         /// <summary>
         /// Gets or sets the vertex array profile.
@@ -38,7 +38,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// A profile that tells the graph to do no caching.
         /// </summary>
-        public static DirectedGraphProfile NoCache = new DirectedGraphProfile()
+        public static DirectedDynamicGraphProfile NoCache = new DirectedDynamicGraphProfile()
         {
             VertexProfile = ArrayProfile.NoCache,
             EdgeProfile = ArrayProfile.NoCache
@@ -47,7 +47,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// A profile that tells the graph to prepare for sequential access.
         /// </summary>
-        public static DirectedGraphProfile OneBuffer = new DirectedGraphProfile()
+        public static DirectedDynamicGraphProfile OneBuffer = new DirectedDynamicGraphProfile()
         {
             VertexProfile = ArrayProfile.OneBuffer,
             EdgeProfile = ArrayProfile.Aggressive8
@@ -56,7 +56,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// An array profile that aggressively caches data with potenally 24Kb of cached data.
         /// </summary>
-        public static DirectedGraphProfile Aggressive24 = new DirectedGraphProfile()
+        public static DirectedDynamicGraphProfile Aggressive24 = new DirectedDynamicGraphProfile()
         {
             VertexProfile = ArrayProfile.Aggressive8,
             EdgeProfile = new ArrayProfile()

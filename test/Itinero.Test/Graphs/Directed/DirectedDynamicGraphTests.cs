@@ -377,7 +377,7 @@ namespace Itinero.Test.Graphs.Directed
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = DirectedDynamicGraph.Deserialize(stream, DirectedGraphProfile.Aggressive24);
+                var deserializedGraph = DirectedDynamicGraph.Deserialize(stream, DirectedDynamicGraphProfile.Aggressive24);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(2, deserializedGraph.VertexCount);
@@ -410,7 +410,7 @@ namespace Itinero.Test.Graphs.Directed
 
                 stream.Seek(0, System.IO.SeekOrigin.Begin);
 
-                var deserializedGraph = DirectedDynamicGraph.Deserialize(stream, DirectedGraphProfile.Aggressive24);
+                var deserializedGraph = DirectedDynamicGraph.Deserialize(stream, DirectedDynamicGraphProfile.Aggressive24);
                 Assert.AreEqual(size, stream.Position);
 
                 Assert.AreEqual(6, deserializedGraph.VertexCount);
