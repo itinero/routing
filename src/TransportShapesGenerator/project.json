@@ -1,0 +1,26 @@
+﻿{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "emitEntryPoint": true
+  },
+	"frameworks": {
+		"net4.5": {
+			"buildOptions": {
+				"define": [ "NET45" ],
+				"compile": {
+					"includeFiles": [
+						"../../SharedAssemblyVersion.cs"
+					]
+				}
+			},
+			"frameworkAssemblies": {
+				"System.Xml": ""
+			}
+		}
+	},
+	"dependencies": {
+		"Itinero": "1.0.0-*",
+		"Itinero.Geo": "1.0.0-*",
+		"Itinero.IO.Osm": "1.0.0-*"
+	}
+}
