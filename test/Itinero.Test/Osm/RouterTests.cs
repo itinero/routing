@@ -22,7 +22,6 @@ using Itinero.Osm.Vehicles;
 using NUnit.Framework;
 using OsmSharp;
 using OsmSharp.Tags;
-using System.IO;
 
 namespace Itinero.Test.Osm
 {
