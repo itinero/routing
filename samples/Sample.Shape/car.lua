@@ -14,11 +14,13 @@ meta_whitelist = {
 }
 
 -- default speed profiles
-speed_profile = {
-	["BVD"] = 50,
-	["AF"] = 70,
-	["OP"] = 70,
-	["HR"] = 120
+speed_profiles = {
+	["BVD"] = { speed = 50, oneway = nil },
+	["AF"] = { speed = 70, oneway = nil },
+	["OP"] = { speed = 70, oneway = nil },
+	["HR"] = { speed = 120, oneway = nil },
+	["MRB"] = { speed = 30, oneway = true},
+	["NRB"] = { speed = 30, oneway = true}
 }
 
 
@@ -46,14 +48,18 @@ function factor_and_speed (attributes, result)
 
 	-- get default speed profiles
 	local BST_CODE = attributes.BST_CODE -- code of road type.
-	local speed = speed_profile[BST_CODE]
+	local speed_profile = speed_profiles[BST_CODE]
+	local speed = 70
+	local direction = 0 -- bidirectional default
 	result.attributes_to_keep.BST_CODE = true -- keep this code.
-	if not speed then
-		speed = 70
+	if speed_profile then
+		speed = speed_profile.speed
+		if speed_profile.oneway then
+			direction = 1 -- this type of edge is oneway forward by default
+		end
 	end
 
 	local RIJRICHTNG = attributes.RIJRICHTNG -- oneway code.
-	local direction = 0 -- bidirectional default
 	if RIJRICHTNG then
 		result.attributes_to_keep.RIJRICHTNG = true -- keep the oneway stuff
 		if RIJRICHTNG == "H" then

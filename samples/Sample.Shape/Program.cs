@@ -59,7 +59,9 @@ namespace Sample.Shape
 
             // calculate a test route.
             var router = new Router(routerDb);
-            var route = router.Calculate(vehicle.Fastest(), new Coordinate(51.57060821506861f, 5.46792984008789f), 
+            var route = router.Calculate(vehicle.Fastest(), new Coordinate(52.954718f, 6.338811f),
+                new Coordinate(52.95359f, 6.337916f));
+            route = router.Calculate(vehicle.Fastest(), new Coordinate(51.57060821506861f, 5.46792984008789f),
                 new Coordinate(51.58711643524425f, 5.4957228899002075f));
 
             // generate instructions based on lua profile.
