@@ -156,6 +156,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var e2 = graph.AddEdge(1, 2, 100, null);
             var e3 = graph.AddEdge(2, 6, 100, null, 4, new uint[] { 3 }, new uint[] { 5 });
             var e4 = graph.AddEdge(6, 16, 100, null, 11, new uint[] { 7, 8, 9, 10 }, new uint[] { 12, 13, 14, 15 });
+            var e5 = graph.AddEdge(16, 17, 100, null);
+            var e6 = graph.AddEdge(17, 18, 100, null);
             var enumerator = graph.GetEdgeEnumerator();
 
             // build and test getting sequences from paths.
@@ -191,6 +193,27 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.AreEqual(13, s[1]);
             Assert.AreEqual(14, s[2]);
             Assert.AreEqual(15, s[3]);
+
+            path = new EdgePath<float>(17, 500, new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0))))));
+            s = path.GetSequence2(enumerator);
+            Assert.IsNotNull(s);
+            Assert.AreEqual(5, s.Length);
+            Assert.AreEqual(12, s[0]);
+            Assert.AreEqual(13, s[1]);
+            Assert.AreEqual(14, s[2]);
+            Assert.AreEqual(15, s[3]);
+            Assert.AreEqual(16, s[4]);
+
+            path = new EdgePath<float>(18, 600, new EdgePath<float>(17, 500, new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)))))));
+            s = path.GetSequence2(enumerator);
+            Assert.IsNotNull(s);
+            Assert.AreEqual(6, s.Length);
+            Assert.AreEqual(12, s[0]);
+            Assert.AreEqual(13, s[1]);
+            Assert.AreEqual(14, s[2]);
+            Assert.AreEqual(15, s[3]);
+            Assert.AreEqual(16, s[4]);
+            Assert.AreEqual(17, s[5]);
         }
     }
 }

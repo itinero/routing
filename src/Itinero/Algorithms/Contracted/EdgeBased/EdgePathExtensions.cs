@@ -163,7 +163,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (path.From.From == null)
                     {
                         if (sequence.Length > n)
-                        {
+                        { // TODO: this can be way more efficient by creating only one array.
                             sequence = sequence.SubArray(sequence.Length - n, n);
                         }
                         return sequence;
@@ -220,6 +220,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
                 else
                 { // not an original edge, just return the start sequence.
+                    if (s != null)
+                    {
+                        var s2 = enumerator.GetSequence2();
+                        var result = new uint[s.Count + s2.Length];
+                        for (var i = 0; i < s.Count; i++)
+                        {
+                            result[result.Length - 1 - i] = s[i];
+                        }
+                        for (var i = 0; i < s2.Length; i++)
+                        {
+                            result[i] = s2[i];
+                        }
+                        return result;
+                    }
                     return enumerator.GetSequence2();
                 }
             }

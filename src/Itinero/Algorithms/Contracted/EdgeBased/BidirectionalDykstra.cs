@@ -156,7 +156,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 if (_weightHandler.IsSmallerThan(totalCurrentWeight, _best.Item3))
                                 { // potentially a weight improvement.
                                     var allowed = true;
-                                    if (restrictions != null)
+                                    // check u-turn.
+                                    var sequence2Forward = backwardPath.Path.GetSequence2(edgeEnumerator);
+                                    var sequence2Current = current.GetSequence2(edgeEnumerator);
+                                    if (sequence2Current != null && sequence2Current.Length > 0 &&
+                                        sequence2Forward != null && sequence2Forward.Length > 0)
+                                    {
+                                        if (sequence2Current[sequence2Current.Length - 1] ==
+                                            sequence2Forward[sequence2Forward.Length - 1])
+                                        {
+                                            allowed = false;
+                                        }
+                                    }
+
+                                    // check restrictions.
+                                    if (restrictions != null && allowed)
                                     {
                                         allowed = false;
                                         var sequence = new List<uint>(
@@ -171,7 +185,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
                                     if (allowed)
                                     {
-                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(current, backwardPath.Path, 
+                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(current, backwardPath.Path,
                                             _weightHandler.Add(current.Weight, backwardPath.Path.Weight));
                                         this.HasSucceeded = true;
                                     }
@@ -230,8 +244,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 var total = _weightHandler.Add(current.Weight, forwardPath.Path.Weight);
                                 if (_weightHandler.IsSmallerThan(total, _best.Item3))
                                 { // potentially a weight improvement.
+
                                     var allowed = true;
-                                    if (restrictions != null)
+                                    // check u-turn.
+                                    var sequence2Forward = forwardPath.Path.GetSequence2(edgeEnumerator);
+                                    var sequence2Current = current.GetSequence2(edgeEnumerator);
+                                    if (sequence2Current != null && sequence2Current.Length > 0 &&
+                                        sequence2Forward != null && sequence2Forward.Length > 0)
+                                    {
+                                        if (sequence2Current[sequence2Current.Length - 1] ==
+                                            sequence2Forward[sequence2Forward.Length - 1])
+                                        {
+                                            allowed = false;
+                                        }
+                                    }
+
+                                    // check restrictions.
+                                    if (restrictions != null && allowed)
                                     {
                                         allowed = false;
                                         var sequence = new List<uint>(
