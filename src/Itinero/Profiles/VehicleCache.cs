@@ -20,7 +20,7 @@ using Itinero.Attributes;
 using Itinero.Profiles;
 using System.Collections.Generic;
 
-namespace Itinero.IO.Osm.Streams
+namespace Itinero.Profiles
 {
     /// <summary>
     /// An LRU cache for vehicle profiles.
@@ -30,7 +30,7 @@ namespace Itinero.IO.Osm.Streams
         private readonly Dictionary<uint, WhitelistAndFlags> _cache;
         private readonly Vehicle[] _vehicles;
         private readonly AttributesIndex _edgeProfiles;
-            
+
         /// <summary>
         /// Creates a new vehicle cache.
         /// </summary>
@@ -52,7 +52,7 @@ namespace Itinero.IO.Osm.Streams
                 return _vehicles;
             }
         }
-        
+
         /// <summary>
         /// Adds a new collection to cache if appropriate.
         /// </summary>
@@ -144,7 +144,7 @@ namespace Itinero.IO.Osm.Streams
 
             var id = _edgeProfiles.Add(filtered);
             WhitelistAndFlags whitelistAndFlags;
-            if(!_cache.TryGetValue(id, out whitelistAndFlags))
+            if (!_cache.TryGetValue(id, out whitelistAndFlags))
             {
                 whitelist = null;
                 canTraverse = null;

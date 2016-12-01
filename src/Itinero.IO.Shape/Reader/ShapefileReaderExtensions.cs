@@ -18,6 +18,7 @@
 
 using Itinero.Attributes;
 using NetTopologySuite.IO;
+using System.Collections.Generic;
 
 namespace Itinero.IO.Shape.Reader
 {

@@ -40,6 +40,7 @@ namespace Itinero.IO.Shape.Reader
         private readonly IList<ShapefileDataReader> _shapefileReaders;
         private readonly RouterDb _routerDb;
         private readonly Vehicle[] _vehicles;
+        private readonly VehicleCache _vehicleCache;
         private readonly string _sourceVertexColumn;
         private readonly string _targetVertexColumn;
 
@@ -53,6 +54,8 @@ namespace Itinero.IO.Shape.Reader
             _vehicles = vehicles;
             _sourceVertexColumn = sourceVertexColumn;
             _targetVertexColumn = targetVertexColumn;
+
+            _vehicleCache = new VehicleCache(vehicles);
         }
 
         private const long PointInterval = 10000;
@@ -213,24 +216,25 @@ namespace Itinero.IO.Shape.Reader
                         var profileWhiteList = new Whitelist();
                         attributes.Clear();
                         reader.AddToAttributeCollection(attributes);
-                        _vehicles.AddToWhiteList(attributes, profileWhiteList);
-                        foreach (var field in reader.DbaseHeader.Fields)
+                        _vehicleCache.AddToWhiteList(attributes, profileWhiteList);
+                        for (var i = 1; i < reader.FieldCount; i++)
                         {
+                            var name = reader.GetName(i);
+                            var value = reader.GetValue(i - 1);
                             var valueString = string.Empty;
-                            var value = reader[field.Name];
                             if (value != null)
-                            { // TODO: make sure this is culture-invariant!
+                            { 
                                 valueString = value.ToInvariantString();
                             }
 
-                            if (profileWhiteList.Contains(field.Name) ||
-                                _vehicles.IsOnProfileWhiteList(field.Name))
+                            if (profileWhiteList.Contains(name) ||
+                                _vehicles.IsOnProfileWhiteList(name))
                             {
-                                profile.AddOrReplace(field.Name, valueString);
+                                profile.AddOrReplace(name, valueString);
                             }
-                            else if(_vehicles.IsOnMetaWhiteList(field.Name))
+                            else if(_vehicles.IsOnMetaWhiteList(name))
                             {
-                                meta.AddOrReplace(field.Name, valueString);
+                                meta.AddOrReplace(name, valueString);
                             }
                         }
 
