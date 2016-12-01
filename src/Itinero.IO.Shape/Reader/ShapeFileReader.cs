@@ -55,6 +55,12 @@ namespace Itinero.IO.Shape.Reader
             _targetVertexColumn = targetVertexColumn;
         }
 
+        private const long PointInterval = 10000;
+        private const long LineStringInterval = 10000;
+        
+        private int _points;
+        private int _lineStrings;
+
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
@@ -68,6 +74,7 @@ namespace Itinero.IO.Shape.Reader
             var nodeToVertex = new Dictionary<long, uint>();
 
             // read all vertices.
+            var startTicks = DateTime.Now.Ticks;
             for (int readerIdx = 0; readerIdx < _shapefileReaders.Count; readerIdx++)
             {
                 var reader = _shapefileReaders[readerIdx];
@@ -97,6 +104,8 @@ namespace Itinero.IO.Shape.Reader
                 int current = 0;
                 while (reader.Read())
                 {
+                    _points += 2;
+
                     // get the geometry.
                     var lineString = reader.Geometry as LineString;
 
@@ -126,14 +135,17 @@ namespace Itinero.IO.Shape.Reader
                     current++;
                     if (progress != latestProgress)
                     {
+                        var pointSpan = new TimeSpan(DateTime.Now.Ticks - startTicks);
+                        var pointPerSecond = System.Math.Round((double)_points / pointSpan.TotalSeconds, 0);
                         Itinero.Logging.Logger.Log("ShapeFileReader", TraceEventType.Information,
-                            "Reading vertices from file {1}/{2}... {0}%", progress, readerIdx + 1, _shapefileReaders.Count);
+                            "Reading vertices from file {1}/{2}... {0}% @ {3}/s", progress, readerIdx + 1, _shapefileReaders.Count, pointPerSecond);
                         latestProgress = progress;
                     }
                 }
             }
 
             // read all edges.
+            startTicks = DateTime.Now.Ticks;
             var attributes = new AttributeCollection();
             for (int readerIdx = 0; readerIdx < _shapefileReaders.Count; readerIdx++)
             {
@@ -155,6 +167,8 @@ namespace Itinero.IO.Shape.Reader
                 reader.Reset();
                 while (reader.Read())
                 {
+                    _lineStrings++;
+
                     // get the geometry.
                     var lineString = reader.Geometry as LineString;
 
@@ -337,8 +351,10 @@ namespace Itinero.IO.Shape.Reader
                     current++;
                     if (progress != latestProgress)
                     {
+                        var span = new TimeSpan(DateTime.Now.Ticks - startTicks);
+                        var perSecond = System.Math.Round((double)_lineStrings / span.TotalSeconds, 0);
                         Itinero.Logging.Logger.Log("ShapeFileReader", TraceEventType.Information,
-                            "Reading edges {1}/{2}... {0}%", progress, readerIdx + 1, _shapefileReaders.Count);
+                            "Reading edges {1}/{2}... {0}% @ {3}/s", progress, readerIdx + 1, _shapefileReaders.Count, perSecond);
                         latestProgress = progress;
                     }
                 }
