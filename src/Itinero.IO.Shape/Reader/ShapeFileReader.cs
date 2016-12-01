@@ -27,6 +27,8 @@ using Itinero.Attributes;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data.Network;
 using Itinero.Profiles;
+using Itinero.Graphs.Geometric.Shapes;
+using System.Linq;
 
 namespace Itinero.IO.Shape.Reader
 {
@@ -320,12 +322,12 @@ namespace Itinero.IO.Shape.Reader
                             }
                             else
                             {
-                                _routerDb.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
+                                this.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
                                 {
                                     Distance = distance,
                                     MetaId = metaId,
                                     Profile = (ushort)profileId
-                                }, new Graphs.Geometric.Shapes.ShapeEnumerable(intermediates));
+                                }, intermediates);
                             }
                         }
                     }
@@ -347,6 +349,117 @@ namespace Itinero.IO.Shape.Reader
             _routerDb.Sort();
 
             this.HasSucceeded = true;
+        }
+        
+        /// <summary>
+        /// Adds a new edge.
+        /// </summary>
+        private void AddEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData edgeData, List<Coordinate> intermediates)
+        {
+            var edge = _routerDb.Network.GetEdgeEnumerator(vertex1).FirstOrDefault(x => x.To == vertex2);
+            if (edge == null)
+            { // everything is fine, no edge exists yet.
+                _routerDb.Network.AddEdge(vertex1, vertex2, edgeData, new Graphs.Geometric.Shapes.ShapeEnumerable(intermediates));
+            }
+            else
+            { // an edge exists already, split the current one or the one that exists already.
+                var meta = edgeData.MetaId;
+                var profile = edgeData.Profile;
+                var distance = edgeData.Distance;
+
+                if (edge.Data.Distance == edgeData.Distance &&
+                                edge.Data.Profile == edgeData.Profile &&
+                                edge.Data.MetaId == edgeData.MetaId)
+                {
+                    // do nothing, identical duplicate data.
+                }
+                else
+                { // try and use intermediate points if any.
+                  // try and use intermediate points.
+                    var splitMeta = edgeData.MetaId;
+                    var splitProfile = edgeData.Profile;
+                    var splitDistance = edgeData.Distance;
+                    if (intermediates.Count == 0 &&
+                        edge != null &&
+                        edge.Shape != null)
+                    { // no intermediates in current edge.
+                      // save old edge data.
+                        intermediates = new List<Coordinate>(edge.Shape);
+                        vertex1 = edge.From;
+                        vertex2 = edge.To;
+                        splitMeta = edge.Data.MetaId;
+                        splitProfile = edge.Data.Profile;
+                        splitDistance = edge.Data.Distance;
+
+                        // just add edge, and split the other one.
+                        _routerDb.Network.RemoveEdges(vertex1, vertex2); // make sure to overwrite and not add an extra edge.
+                        _routerDb.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
+                        {
+                            MetaId = meta,
+                            Distance = System.Math.Max(distance, 0.0f),
+                            Profile = (ushort)profile
+                        }, null);
+                    }
+
+                    if (intermediates.Count > 0)
+                    { // intermediates found, use the first intermediate as the core-node.
+                        var newCoreVertex = _routerDb.Network.VertexCount;
+                        _routerDb.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
+
+                        // calculate new distance and update old distance.
+                        var newDistance = Coordinate.DistanceEstimateInMeter(
+                            _routerDb.Network.GetVertex(vertex1), intermediates[0]);
+                        splitDistance -= newDistance;
+
+                        // add first part.
+                        _routerDb.Network.AddEdge(vertex1, newCoreVertex, new Data.Network.Edges.EdgeData()
+                        {
+                            MetaId = splitMeta,
+                            Distance = System.Math.Max(newDistance, 0.0f),
+                            Profile = (ushort)splitProfile
+                        }, null);
+
+                        // add second part.
+                        intermediates.RemoveAt(0);
+                        _routerDb.Network.AddEdge(newCoreVertex, vertex2, new Data.Network.Edges.EdgeData()
+                        {
+                            MetaId = splitMeta,
+                            Distance = System.Math.Max(splitDistance, 0.0f),
+                            Profile = (ushort)splitProfile
+                        }, intermediates);
+                    }
+                    else
+                    { // no intermediate or shapepoint found in either one. two identical edge overlayed with different profiles.
+                      // add two other vertices with identical positions as the ones given.
+                      // connect them with an edge of length '0'.
+                        var fromLocation = _routerDb.Network.GetVertex(vertex1);
+                        var newFromVertex = _routerDb.Network.VertexCount;
+                        _routerDb.Network.AddVertex(newFromVertex, fromLocation.Latitude, fromLocation.Longitude);
+                        _routerDb.Network.AddEdge(vertex1, newFromVertex, new Data.Network.Edges.EdgeData()
+                        {
+                            Distance = 0,
+                            MetaId = splitMeta,
+                            Profile = (ushort)splitProfile
+                        }, null);
+                        var toLocation = _routerDb.Network.GetVertex(vertex2);
+                        var newToVertex = _routerDb.Network.VertexCount;
+                        _routerDb.Network.AddVertex(newToVertex, toLocation.Latitude, toLocation.Longitude);
+                        _routerDb.Network.AddEdge(newToVertex, vertex1, new Data.Network.Edges.EdgeData()
+                        {
+                            Distance = 0,
+                            MetaId = splitMeta,
+                            Profile = (ushort)splitProfile
+                        }, null);
+
+                        _routerDb.Network.AddEdge(newFromVertex, newToVertex, new Data.Network.Edges.EdgeData()
+                        {
+                            Distance = splitDistance,
+                            MetaId = splitMeta,
+                            Profile = (ushort)splitProfile
+                        }, null);
+                    }
+                }
+            }
         }
     }
 }
