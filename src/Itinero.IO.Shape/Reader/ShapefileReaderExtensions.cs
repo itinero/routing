@@ -41,15 +41,17 @@ namespace Itinero.IO.Shape.Reader
         /// </summary>
         public static void AddToAttributeCollection(this ShapefileDataReader reader, IAttributeCollection collection)
         {
-            foreach (var field in reader.DbaseHeader.Fields)
+            var valueString = string.Empty;
+            for (var i = 1; i < reader.FieldCount; i++)
             {
-                var valueString = string.Empty;
-                var value = reader[field.Name];
+                var name = reader.GetName(i);
+                var value = reader.GetValue(i - 1);
+                valueString = string.Empty;
                 if (value != null)
                 {
                     valueString = value.ToInvariantString();
                 }
-                collection.AddOrReplace(field.Name, valueString);
+                collection.AddOrReplace(name, valueString);
             }
         }
     }
