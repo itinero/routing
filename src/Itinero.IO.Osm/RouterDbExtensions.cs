@@ -108,6 +108,10 @@ namespace Itinero.IO.Osm
             {
                 throw new ArgumentException("Can only load a new routing network into an empty router db.");
             }
+            if (vehicles == null || vehicles.Length == 0)
+            {
+                throw new ArgumentNullException("vehicles", "A least one vehicle is needed to load OSM data.");
+            }
 
             // load the data.
             var target = new Streams.RouterDbStreamTarget(db,
