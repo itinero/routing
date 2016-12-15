@@ -57,6 +57,14 @@ namespace Itinero
             // create the raw directed graph.
             ContractedDb contractedDb = null;
 
+            if (!forceEdgeBased)
+            { // check if there are complex restrictions in the routerdb forcing edge-based contraction.
+                if (db.HasComplexRestrictions(profile))
+                { // there are complex restrictions, use edge-based contraction, the only way to support these in a contracted graph.
+                    forceEdgeBased = true;
+                }
+            }
+
             lock (db)
             {
                 if (forceEdgeBased)
@@ -68,12 +76,12 @@ namespace Itinero
 
                     // contract the graph.
                     var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator<T>(contracted, weightHandler,
-                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, 2, 128));
+                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, 4, 64));
                     priorityCalculator.DifferenceFactor = 5;
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder<T>(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue), weightHandler, db.GetGetRestrictions(profile, null));
+                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue, 64), weightHandler, db.GetGetRestrictions(profile, null));
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted);
