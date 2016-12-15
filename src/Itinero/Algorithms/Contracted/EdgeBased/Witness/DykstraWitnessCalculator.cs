@@ -232,7 +232,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                                     {
                                         var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
                                         //var neighbourSequence = edgeEnumerator.GetSequence1();
-                                        if (sequence1Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
+                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
                                         { // a t-turn!
                                             continue;
                                         }
