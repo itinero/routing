@@ -207,6 +207,40 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
+        /// Gets the sequence at the source.
+        /// </summary>
+        /// <returns>The number of elements in the array that represent the sequence.</returns>
+        public static int GetSequence1(this DirectedDynamicGraph.EdgeEnumerator edge, ref uint[] sequence1)
+        {
+            if (edge.IsOriginal())
+            {
+                return 0;
+            }
+
+            var dynamicDataLength = edge.FillWithDynamicData(ref sequence1);
+            //var dynamicData = edge.DynamicData;
+            var dynamicData = sequence1;
+            if (dynamicDataLength < 1)
+            { // not even a contraced id but also not an original, something is wrong here!
+                throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
+            }
+            if (dynamicDataLength < 2)
+            { // only a contracted id, the contracted id the sequence.
+                return 1;
+            }
+            var size = dynamicData[1];
+            if (size == 0)
+            {
+                return 1;
+            }
+            for (var i = 0; i < size; i++)
+            {
+                sequence1[i] = sequence1[i + 2];
+            }
+            return (int)size;
+        }
+
+        /// <summary>
         /// Gets the sequence at the target.
         /// </summary>
         public static uint[] GetSequence2(this DynamicEdge edge)

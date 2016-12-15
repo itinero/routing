@@ -68,7 +68,7 @@ namespace Itinero
 
                     // contract the graph.
                     var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator<T>(contracted, weightHandler,
-                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue));
+                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, 2, 128));
                     priorityCalculator.DifferenceFactor = 5;
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;

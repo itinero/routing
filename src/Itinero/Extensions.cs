@@ -328,6 +328,23 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Creates a new array appending the given array but only the first 'count' elements.
+        /// </summary>
+        public static T[] Append<T>(this T[] array, T[] other, int count)
+        {
+            var result = new T[array.Length + other.Length];
+            for (var i = 0; i < array.Length; i++)
+            {
+                result[i] = array[i];
+            }
+            for (var i = 0; i < count; i++)
+            {
+                result[array.Length + i] = other[i];
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Reverse the elements in the given array.
         /// </summary>
         public static void Reverse<T>(this T[] array)

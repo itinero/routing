@@ -57,6 +57,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
         private int _hopLimit;
         private int _maxSettles;
+        private uint[] _sequence1 = new uint[16];
 
         /// <summary>
         /// Calculates witness paths.
@@ -97,6 +98,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                     }
                 }
             }
+            
             if (_weightHandler.GetMetric(forwardMaxWeight) == 0 && 
                 _weightHandler.GetMetric(backwardMaxWeight) == 0)
             { // no need to search!
@@ -199,7 +201,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                             var neighbour = edgeEnumerator.Neighbour;
                             
                             bool? neighbourDirection;
-                            var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
+                            var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator, out neighbourDirection);
                             var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
                             var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
 
@@ -228,12 +230,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                                     }
                                     else
                                     {
-                                        var neighbourSequence = edgeEnumerator.GetSequence1();
-                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbourSequence[0])
+                                        var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
+                                        //var neighbourSequence = edgeEnumerator.GetSequence1();
+                                        if (sequence1Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
                                         { // a t-turn!
                                             continue;
                                         }
-                                        sequenceAlongNeighbour = sequence.Append(neighbourSequence);
+                                        sequenceAlongNeighbour = sequence.Append(_sequence1, sequence1Length);
                                     }
                                 }
 
