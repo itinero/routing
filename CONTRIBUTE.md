@@ -8,7 +8,7 @@ So, you're thinking about contributing to Itinero. Awesome! We have a few basic 
 - Bug reports: Very important, if something doesn't work as expected please [report the issue](https://github.com/itinero/routing/issues). We built Itinero for some use cases but perhaps you have a new one or you stumbled onto a bug. We need to know!
 - Bug fixes: Even better, if you can fix something, please do!
 - Feature requests: Need something that's not there, add it to the [issues](https://github.com/itinero/routing/issues), maybe someone already implemented what you need. Also check our [roadmap](https://github.com/itinero/routing/wiki/Roadmap) before doing this.
-- Spread the word: A project like this grows and improves when usage increase and we have more eyes on the code. So spread the word by writing blog posts or tweet about this awesome library!
+- Spread the word: A project like this grows and improves when usage increases and we have more eyes on the code. So spread the word by writing blog posts or tweet about this awesome library!
 
 ### How to contribute?
 
