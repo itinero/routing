@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2015 Abelshausen Ben
+// Copyright (C) 2016 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -18,7 +18,7 @@
 
 using Itinero.Data.Contracted;
 using Itinero.Data.Network;
-using Itinero.Graphs.Directed;
+using Itinero.Data.Network.Restrictions;
 
 namespace Itinero
 {
@@ -38,12 +38,18 @@ namespace Itinero
         public ContractedDbProfile ContractedDbProfile { get; set; }
 
         /// <summary>
+        /// Gets or sets the restriction db profile.
+        /// </summary>
+        public RestrictionsDbProfile RestrictionDbProfile { get; set; }
+
+        /// <summary>
         /// A profile telling the router db to do no caching.
         /// </summary>
         public static RouterDbProfile NoCache = new RouterDbProfile()
         {
             ContractedDbProfile = ContractedDbProfile.NoCache,
-            RoutingNetworkProfile = RoutingNetworkProfile.NoCache
+            RoutingNetworkProfile = RoutingNetworkProfile.NoCache,
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache
         };
 
         /// <summary>
@@ -52,7 +58,8 @@ namespace Itinero
         public static RouterDbProfile MobileLowEnd = new RouterDbProfile()
         {
             ContractedDbProfile = ContractedDbProfile.Aggressive24,
-            RoutingNetworkProfile = RoutingNetworkProfile.NoCache
+            RoutingNetworkProfile = RoutingNetworkProfile.NoCache,
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache
         };
 
         /// <summary>
@@ -61,7 +68,8 @@ namespace Itinero
         public static RouterDbProfile MobileHighEnd = new RouterDbProfile()
         {
             ContractedDbProfile = ContractedDbProfile.Aggressive24,
-            RoutingNetworkProfile = RoutingNetworkProfile.Default
+            RoutingNetworkProfile = RoutingNetworkProfile.Default,
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache
         };
 
         /// <summary>
@@ -70,7 +78,8 @@ namespace Itinero
         public static RouterDbProfile Default = new RouterDbProfile()
         {
             ContractedDbProfile = ContractedDbProfile.Aggressive24,
-            RoutingNetworkProfile = RoutingNetworkProfile.Default
+            RoutingNetworkProfile = RoutingNetworkProfile.Default,
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache
         };
     }
 }

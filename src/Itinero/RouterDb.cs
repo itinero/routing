@@ -447,8 +447,9 @@ namespace Itinero
             // version1: OsmSharp.Routing state of layout.
             // version2: Added ShortcutsDbs.
             // version3: Add advanced profile serialization.
+            // version4: Added missing restriction dbs.
             long size = 1;
-            stream.WriteByte(3);
+            stream.WriteByte(4);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -482,6 +483,14 @@ namespace Itinero
             stream.WriteByte((byte)_contracted.Count);
             size += 1;
 
+            // serialize the # of restriction dbs.
+            if (_restrictionDbs.Count > byte.MaxValue)
+            {
+                throw new Exception("Cannot serialize a router db with more than 255 restriction dbs.");
+            }
+            stream.WriteByte((byte)_restrictionDbs.Count);
+            size += 1;
+
             // serialize edge profiles.
             size += _edgeProfiles.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
@@ -509,6 +518,14 @@ namespace Itinero
                 size += contracted.Value.Serialize(
                     new LimitedStream(stream), toReadonly);
             }
+
+            // serialize all restriction dbs.
+            foreach (var restrictionDb in _restrictionDbs)
+            {
+                size += stream.WriteWithSize(restrictionDb.Key);
+                size += restrictionDb.Value.Serialize(stream);
+            }
+
             return size;
         }
 
@@ -576,8 +593,9 @@ namespace Itinero
             // version1: OsmSharp.Routing state of layout.
             // version2: Added ShortcutsDbs.
             // version3: Add advanced profile serialization.
+            // version4: Added missing restriction dbs.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2 && version != 3)
+            if (version != 1 && version != 2 && version != 3 && version != 4)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
@@ -624,6 +642,13 @@ namespace Itinero
                 shorcutsCount = stream.ReadByte();
             }
             var contractedCount = stream.ReadByte();
+
+            var restrictionDbCount = 0;
+            if (version >= 4)
+            {
+                restrictionDbCount = stream.ReadByte();
+            }
+
             var profiles = AttributesIndex.Deserialize(new LimitedStream(stream), true);
             var meta = AttributesIndex.Deserialize(new LimitedStream(stream), true);
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
@@ -646,6 +671,15 @@ namespace Itinero
                 var contracted = ContractedDb.Deserialize(stream, profile == null ? null : profile.ContractedDbProfile);
                 routerDb._contracted[profileName] = contracted;
             }
+
+            // read all restriction dbs.
+            for (var i = 0; i < restrictionDbCount; i++)
+            {
+                var restrictionDbName = stream.ReadWithSizeString();
+                var restrictionDb = RestrictionsDb.Deserialize(stream, profile == null ? null : profile.RestrictionDbProfile);
+                routerDb._restrictionDbs[restrictionDbName] = restrictionDb;
+            }
+
             return routerDb;
         }
     }

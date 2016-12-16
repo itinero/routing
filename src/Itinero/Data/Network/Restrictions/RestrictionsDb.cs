@@ -17,8 +17,11 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Reminiscence.Arrays;
+using Reminiscence.IO;
+using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Itinero.Data.Network.Restrictions
 {
@@ -55,9 +58,16 @@ namespace Itinero.Data.Network.Restrictions
         /// <summary>
         /// Creates a new restrictions db.
         /// </summary>
-        private RestrictionsDb()
+        private RestrictionsDb(uint count, bool hasComplexRestrictions, ArrayBase<uint> hashes, ArrayBase<uint> index, ArrayBase<uint> restrictions)
         {
+            _count = (int)count;
+            _hasComplexRestrictions = hasComplexRestrictions;
+            _hashes = hashes;
+            _index = index;
+            _restrictions = restrictions;
 
+            _nextIndexPointer = (uint)index.Length;
+            _nextRestrictionPointer = (uint)_restrictions.Length;
         }
         
         private uint _nextIndexPointer = 0;
@@ -444,6 +454,115 @@ namespace Itinero.Data.Network.Restrictions
         {
             public uint Pointer { get; set; }
             public LinkedNode Next { get; set; }
+        }
+
+        /// <summary>
+        /// Serializes this restictions db to the given stream.
+        /// </summary>
+        public long Serialize(Stream stream)
+        {
+            long size = 1;
+            // write the version #
+            // 1: initial version.
+            stream.WriteByte(1);
+
+            // write hascomplexrestrictions.
+            stream.WriteByte(_hasComplexRestrictions ? (byte)1 : (byte)0);
+            size++;
+
+            // write sizes, all uints, [count, hashCount, indexSize, restrictionSize]
+            var bytes = BitConverter.GetBytes((uint)_count);
+            stream.Write(bytes, 0, 4);
+            size += 4;
+            bytes = BitConverter.GetBytes((uint)_hashes.Length);
+            stream.Write(bytes, 0, 4);
+            size += 4;
+            bytes = BitConverter.GetBytes(_nextIndexPointer);
+            stream.Write(bytes, 0, 4);
+            size += 4;
+            bytes = BitConverter.GetBytes(_nextRestrictionPointer);
+            stream.Write(bytes, 0, 4);
+            size += 4;
+
+            // write actual data, same order [hashes, index, restrictions]
+            size += _hashes.CopyTo(stream);
+            _index.Resize(_nextIndexPointer);
+            size += _index.CopyTo(stream);
+            _restrictions.Resize(_nextRestrictionPointer);
+            size += _restrictions.CopyTo(stream);
+
+            return size;
+        }
+
+        /// <summary>
+        /// Deserializes a restrictions db starting at the current position in the stream.
+        /// </summary>
+        public static RestrictionsDb Deserialize(Stream stream, RestrictionsDbProfile profile)
+        {
+            var version = stream.ReadByte();
+            if (version > 1)
+            {
+                throw new Exception(string.Format("Cannot deserialize restrictions db: Invalid version #: {0}, upgrade Itinero.", version));
+            }
+
+            // read hascomplexrestrictions.
+            var hasComplexRestrictionsByte = stream.ReadByte();
+            var hasComplexRestrictions = hasComplexRestrictionsByte == 1;
+
+            // read sizes.
+            var bytes = new byte[16];
+            stream.Read(bytes, 0, 16);
+            var count = BitConverter.ToUInt32(bytes, 0);
+            var hashSize = BitConverter.ToUInt32(bytes, 4);
+            var indexSize = BitConverter.ToUInt32(bytes, 8);
+            var restrictionSize = BitConverter.ToUInt32(bytes, 12);
+
+            ArrayBase<uint> hashes;
+            if (profile == null || profile.HashesProfile == null)
+            {
+                hashes = new MemoryArray<uint>(hashSize);
+                hashes.CopyFrom(stream);
+            }
+            else
+            {
+                var position = stream.Position;
+                var map = new MemoryMapStream(new CappedStream(stream, position,
+                    hashSize * 4));
+                hashes = new Array<uint>(map.CreateUInt32(hashSize), profile.HashesProfile);
+                stream.Seek(hashSize * 4, SeekOrigin.Current);
+            }
+
+            ArrayBase<uint> index;
+            if (profile == null || profile.IndexProfile == null)
+            {
+                index = new MemoryArray<uint>(indexSize);
+                index.CopyFrom(stream);
+            }
+            else
+            {
+                var position = stream.Position;
+                var map = new MemoryMapStream(new CappedStream(stream, position,
+                    indexSize * 4));
+                index = new Array<uint>(map.CreateUInt32(indexSize), profile.IndexProfile);
+                stream.Seek(indexSize * 4, SeekOrigin.Current);
+            }
+
+            ArrayBase<uint> restrictions;
+            if (profile == null || profile.RestrictionsProfile == null)
+            {
+                restrictions = new MemoryArray<uint>(restrictionSize);
+                restrictions.CopyFrom(stream);
+            }
+            else
+            {
+                var position = stream.Position;
+                var map = new MemoryMapStream(new CappedStream(stream, position,
+                    restrictionSize * 4));
+                restrictions = new Array<uint>(map.CreateUInt32(restrictionSize), profile.RestrictionsProfile);
+                stream.Seek(restrictionSize * 4, SeekOrigin.Current);
+            }
+
+            return new RestrictionsDb(count, hasComplexRestrictions, hashes, index, restrictions);
         }
     }
 }

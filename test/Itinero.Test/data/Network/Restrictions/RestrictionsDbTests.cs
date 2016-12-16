@@ -18,6 +18,7 @@
 
 using Itinero.Data.Network.Restrictions;
 using NUnit.Framework;
+using System.IO;
 
 namespace Itinero.Test.Data.Network.Restrictions
 {
@@ -431,6 +432,155 @@ namespace Itinero.Test.Data.Network.Restrictions
             Assert.AreEqual(3, enumerator[2]);
             Assert.AreEqual(4, enumerator[3]);
             Assert.AreEqual(5, enumerator[4]);
+            Assert.IsFalse(enumerator.MoveNext());
+        }
+
+        /// <summary>
+        /// Tests serializing restrictions.
+        /// </summary>
+        [Test]
+        public void TestSerializeDeserialize()
+        {
+            var db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(10, 11, 12);
+            db.Add(10, 111, 222);
+            db.Add(12, 2, 3);
+
+            using (var stream = new MemoryStream())
+            {
+                var size = db.Serialize(stream);
+                Assert.AreEqual(stream.Position, size);
+
+                stream.Seek(0, SeekOrigin.Begin);
+                db = RestrictionsDb.Deserialize(stream, null);
+            }
+
+            var enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(12));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(11, enumerator[1]);
+            Assert.AreEqual(12, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(12, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(3));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(12, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+
+            db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(1, 2, 3, 4);
+
+            using (var stream = new MemoryStream())
+            {
+                var size = db.Serialize(stream);
+                Assert.AreEqual(stream.Position, size);
+
+                stream.Seek(0, SeekOrigin.Begin);
+                db = RestrictionsDb.Deserialize(stream, null);
+            }
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(1));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
+            Assert.IsFalse(enumerator.MoveNext());
+        }
+
+        /// <summary>
+        /// Tests serializing restrictions.
+        /// </summary>
+        [Test]
+        public void TestSerializeDeserializeNoCacheProfile()
+        {
+            var db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(10, 11, 12);
+            db.Add(10, 111, 222);
+            db.Add(12, 2, 3);
+
+            var stream = new MemoryStream();
+            var size = db.Serialize(stream);
+            Assert.AreEqual(stream.Position, size);
+
+            stream.Seek(0, SeekOrigin.Begin);
+            db = RestrictionsDb.Deserialize(stream, RestrictionsDbProfile.NoCache);
+
+            var enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(12));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(10, enumerator[0]);
+            Assert.AreEqual(11, enumerator[1]);
+            Assert.AreEqual(12, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(12, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(3));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(12, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+
+            db = new RestrictionsDb(1024);
+            db.Add(1, 2, 3);
+            db.Add(1, 2, 3, 4);
+
+            stream.Dispose();
+            stream = new MemoryStream();
+            size = db.Serialize(stream);
+            Assert.AreEqual(stream.Position, size);
+
+            stream.Seek(0, SeekOrigin.Begin);
+            db = RestrictionsDb.Deserialize(stream, RestrictionsDbProfile.NoCache);
+
+            enumerator = db.GetEnumerator();
+            Assert.IsTrue(enumerator.MoveTo(1));
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(3, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.IsTrue(enumerator.MoveNext());
+            Assert.AreEqual(4, enumerator.Count);
+            Assert.AreEqual(1, enumerator[0]);
+            Assert.AreEqual(2, enumerator[1]);
+            Assert.AreEqual(3, enumerator[2]);
+            Assert.AreEqual(4, enumerator[3]);
             Assert.IsFalse(enumerator.MoveNext());
         }
     }
