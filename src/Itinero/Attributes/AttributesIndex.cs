@@ -16,7 +16,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Refactoring;
+using Itinero.Algorithms.Collections;
 using Reminiscence.Arrays;
 using Reminiscence.Indexes;
 using Reminiscence.IO;
@@ -69,7 +69,7 @@ namespace Itinero.Attributes
             if ((_mode & AttributesIndexMode.ReverseCollectionIndex) == AttributesIndexMode.ReverseCollectionIndex)
             {
                 _collectionReverseIndex = new System.Collections.Generic.Dictionary<int[], uint>(
-                    new Refactoring.DelegateEqualityComparer<int[]>(
+                    new DelegateEqualityComparer<int[]>(
                         (obj) =>
                         { // assumed the array is sorted.
                             var hash = obj.Length.GetHashCode();
@@ -276,7 +276,7 @@ namespace Itinero.Attributes
             }
             else
             { // add new collection.
-                var sortedSet = new Refactoring.SortedSet<long>();
+                var sortedSet = new SortedSet<long>();
                 foreach(var tag in tags)
                 {
                     sortedSet.Add((long)this.AddString(tag.Key, true) +

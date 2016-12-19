@@ -21,7 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Itinero.Refactoring
+namespace Itinero.Algorithms.Collections
 {
     /// <summary>
     /// Represents a strongly typed list of objects that will be sorted using the IComparable interface.
