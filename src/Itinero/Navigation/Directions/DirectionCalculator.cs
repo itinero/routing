@@ -185,15 +185,15 @@ namespace Itinero.Navigation.Directions
             }
             else if (angle >= 22.5 && angle < 90 - 22.5)
             { // north-east.
-                return DirectionEnum.NorthEast;
+                return DirectionEnum.NorthWest;
             }
             else if (angle >= 90 - 22.5 && angle < 90 + 22.5)
             { // east.
-                return DirectionEnum.East;
+                return DirectionEnum.West;
             }
             else if (angle >= 90 + 22.5 && angle < 180 - 22.5)
             { // south-east.
-                return DirectionEnum.SouthEast;
+                return DirectionEnum.SouthWest;
             }
             else if (angle >= 180 - 22.5 && angle < 180 + 22.5)
             { // south
@@ -201,15 +201,15 @@ namespace Itinero.Navigation.Directions
             }
             else if (angle >= 180 + 22.5 && angle < 270 - 22.5)
             { // south-west.
-                return DirectionEnum.SouthWest;
+                return DirectionEnum.SouthEast;
             }
             else if (angle >= 270 - 22.5 && angle < 270 + 22.5)
             { // south-west.
-                return DirectionEnum.West;
+                return DirectionEnum.East;
             }
             else if (angle >= 270 + 22.5 && angle < 360 - 22.5)
             { // south-west.
-                return DirectionEnum.NorthWest;
+                return DirectionEnum.NorthEast;
             }
             return DirectionEnum.North;
         }

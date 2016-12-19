@@ -52,19 +52,19 @@ namespace Itinero.Test.Navigation.Directions
         {
             Assert.AreEqual(DirectionEnum.North, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(1, 0)));
-            Assert.AreEqual(DirectionEnum.NorthWest, DirectionCalculator.Calculate(new Coordinate(0, 0),
+            Assert.AreEqual(DirectionEnum.NorthEast, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(1, 1)));
-            Assert.AreEqual(DirectionEnum.West, DirectionCalculator.Calculate(new Coordinate(0, 0),
+            Assert.AreEqual(DirectionEnum.East, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(0, 1)));
-            Assert.AreEqual(DirectionEnum.SouthWest, DirectionCalculator.Calculate(new Coordinate(0, 0),
+            Assert.AreEqual(DirectionEnum.SouthEast, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(-1, 1)));
             Assert.AreEqual(DirectionEnum.South, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(-1, 0)));
-            Assert.AreEqual(DirectionEnum.SouthEast, DirectionCalculator.Calculate(new Coordinate(0, 0),
+            Assert.AreEqual(DirectionEnum.SouthWest, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(-1, -1)));
-            Assert.AreEqual(DirectionEnum.East, DirectionCalculator.Calculate(new Coordinate(0, 0),
+            Assert.AreEqual(DirectionEnum.West, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(0, -1)));
-            Assert.AreEqual(DirectionEnum.NorthEast, DirectionCalculator.Calculate(new Coordinate(0, 0),
+            Assert.AreEqual(DirectionEnum.NorthWest, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(1, -1)));
         }
     }
