@@ -161,7 +161,7 @@ namespace Itinero.IO.Osm.Restrictions
         {
             if (_restrictedWayIds.Contains(way.Id.Value))
             {
-                _restrictedWays.Add(way.Id.Value, way);
+                _restrictedWays[way.Id.Value] = way;
             }
 
             if (way.Nodes != null &&
