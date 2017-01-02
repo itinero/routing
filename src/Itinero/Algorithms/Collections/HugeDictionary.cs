@@ -21,9 +21,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Itinero.IO.Osm.Streams
+namespace Itinero.Algorithms.Collections
 {
-
     /// <summary>
     /// A dictionary working around the pre .NET 4.5 memory limitations for one object.
     /// </summary>

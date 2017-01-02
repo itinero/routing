@@ -29,14 +29,14 @@ namespace Itinero.Algorithms.Collections
     public class SparseLongIndex : IEnumerable<long>
     {
         private readonly long _size = (long)(1024 * 1024) * (long)(1024 * 32); // Holds the total size.
-        private readonly int _blockSize = 1024 * 1024; // Holds the block size.
+        private readonly int _blockSize = 32; // Holds the block size.
 
         /// <summary>
         /// Creates a new longindex.
         /// </summary>
-        public SparseLongIndex()
+        public SparseLongIndex(int blockSize = 32)
         {
-
+            _blockSize = blockSize;
         }
 
         private long _count = 0; // Holds the number of flags.

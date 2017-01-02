@@ -34,7 +34,7 @@ namespace Itinero.Test.Functional
         /// </summary>
         public static void TestPerf(this Action action, string name)
         {
-            var info = new PerformanceInfoConsumer(name, 10000);
+            var info = new PerformanceInfoConsumer(name);
             info.Start();
             action();
             info.Stop();

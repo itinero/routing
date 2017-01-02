@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.Algorithms.Collections;
 using Itinero.LocalGeo;
 using Itinero.Data.Network;
 using OsmSharp.Streams;
@@ -43,9 +42,8 @@ namespace Itinero.IO.Osm.Streams
         private readonly RouterDb _db;
         private readonly Vehicle[] _vehicles;
         private readonly VehicleCache _vehicleCache;
-        private readonly bool _allNodesAreCore;
-        private readonly int _minimumStages = 1;
-        private readonly Func<NodeCoordinatesDictionary> _createNodeCoordinatesDictionary;
+        private readonly bool _allCore;
+        private readonly NodeIndex _nodeIndex;
         private readonly HashSet<string> _vehicleTypes;
 
         /// <summary>
@@ -56,32 +54,21 @@ namespace Itinero.IO.Osm.Streams
         {
             _db = db;
             _vehicles = vehicles;
-            _vehicleCache = new VehicleCache(vehicles);
+            _allCore = allCore;
 
+            _vehicleCache = new VehicleCache(vehicles);
             _vehicleTypes = new HashSet<string>();
-            foreach(var vehicle in _vehicles)
+            _nodeIndex = new NodeIndex();
+
+            foreach (var vehicle in _vehicles)
             {
                 foreach (var vehicleType in vehicle.VehicleTypes)
                 {
                     _vehicleTypes.Add(vehicleType);
                 }
             }
-
-            _allNodesAreCore = allCore;
-
-            _createNodeCoordinatesDictionary = () =>
-            {
-                return new NodeCoordinatesDictionary();
-            };
-            _stageCoordinates = _createNodeCoordinatesDictionary();
-            _allRoutingNodes = new SparseLongIndex();
-            _anyStageNodes = new SparseLongIndex();
-            _coreNodes = new SparseLongIndex();
-            _coreNodeIdMap = new CoreNodeIdMap();
-            _processedWays = new SparseLongIndex();
-            _minimumStages = minimumStages;
-
-            foreach (var vehicle in vehicles)
+            
+            foreach (var vehicle in _vehicles)
             {
                 db.AddSupportedVehicle(vehicle);
             }
@@ -96,18 +83,6 @@ namespace Itinero.IO.Osm.Streams
         }
 
         private bool _firstPass = true; // flag for first/second pass.
-        private SparseLongIndex _allRoutingNodes; // nodes that are in a routable way.
-        private SparseLongIndex _anyStageNodes; // nodes that are in a routable way that needs to be included in all stages.
-        private SparseLongIndex _processedWays; // ways that have been processed already.
-        private NodeCoordinatesDictionary _stageCoordinates; // coordinates of nodes that are part of a routable way in the current stage.
-        private SparseLongIndex _coreNodes; // node that are in more than one routable way.
-        private CoreNodeIdMap _coreNodeIdMap; // maps nodes in the core onto routing network id's.
-
-        private long _nodeCount = 0;
-        private float _minLatitude = float.MaxValue, _minLongitude = float.MaxValue,
-            _maxLatitude = float.MinValue, _maxLongitude = float.MinValue;
-        private List<Box> _stages = new List<Box>();
-        private int _stage = -1;
 
         /// <summary>
         /// Setups default add-on processors.
@@ -129,7 +104,7 @@ namespace Itinero.IO.Osm.Streams
                 this.Processors.Add(new RestrictionProcessor(_vehicleTypes, (node) =>
                 {
                     uint vertex;
-                    if (!_coreNodeIdMap.TryGetFirst(node, out vertex))
+                    if (!_nodeIndex.TryGetCoreNode(node, out vertex))
                     {
                         return uint.MaxValue;
                     }
@@ -168,19 +143,13 @@ namespace Itinero.IO.Osm.Streams
         public override bool OnBeforePull()
         {
             // execute the first pass.
-            this.DoPull();
+            this.DoPull(true, false, false);
 
-            // move to first stage and initial first pass.
-            _stage = 0;
+            // move to second pass.
             _firstPass = false;
-            while (_stage < _stages.Count)
-            { // execute next stage, reset source and pull data again.
-                this.Source.Reset();
-                this.DoPull();
-                _stage++;
-
-                _stageCoordinates = _createNodeCoordinatesDictionary();
-            }
+            _nodeIndex.SortAndConvertIndex();
+            this.Source.Reset();
+            this.DoPull();
 
             return false;
         }
@@ -251,33 +220,13 @@ namespace Itinero.IO.Osm.Streams
         {
             if (_firstPass)
             {
-                _nodeCount++;
-                var latitude = node.Latitude.Value;
-                if (latitude < _minLatitude)
-                {
-                    _minLatitude = latitude;
-                }
-                if (latitude > _maxLatitude)
-                {
-                    _maxLatitude = latitude;
-                }
-                var longitude = node.Longitude.Value;
-                if (longitude < _minLongitude)
-                {
-                    _minLongitude = longitude;
-                }
-                if (longitude > _maxLongitude)
-                {
-                    _maxLongitude = longitude;
-                }
-
-                if (this.Processors != null)
-                {
-                    foreach (var processor in this.Processors)
-                    {
-                        processor.FirstPass(node);
-                    }
-                }
+                //if (this.Processors != null)
+                //{
+                //    foreach (var processor in this.Processors)
+                //    {
+                //        processor.FirstPass(node);
+                //    }
+                //}
             }
             else
             {
@@ -289,17 +238,11 @@ namespace Itinero.IO.Osm.Streams
                     }
                 }
 
-                if (_stages[_stage].Overlaps(node.Latitude.Value, node.Longitude.Value) ||
-                    _anyStageNodes.Contains(node.Id.Value))
-                {
-                    if (_allRoutingNodes.Contains(node.Id.Value))
-                    { // node is a routing node, store it's coordinates.
-                        _stageCoordinates.Add(node.Id.Value, new Coordinate()
-                        {
-                            Latitude = (float)node.Latitude.Value,
-                            Longitude = (float)node.Longitude.Value
-                        });
-                    }
+                // check if the node is a routing node and if yes, store it's coordinate.
+                var index = _nodeIndex.TryGetIndex(node.Id.Value);
+                if (index != long.MaxValue)
+                { // node is a routing node, store it's coordinates.
+                    _nodeIndex.SetIndex(index, node.Latitude.Value, node.Longitude.Value);
                 }
             }
         }
@@ -323,78 +266,14 @@ namespace Itinero.IO.Osm.Streams
                     }
                 }
 
-                // check boundingbox and node count and descide on # stages.                    
-                var box = new Box(
-                    new Coordinate(_minLatitude, _minLongitude),
-                    new Coordinate(_maxLatitude, _maxLongitude));
-                var e = 0.00001f;
-                if (_stages.Count == 0)
-                {
-                    if ((_nodeCount > 500000000 ||
-                         _minimumStages > 1))
-                    { // more than half a billion nodes, split in different stages.
-                        var stages = System.Math.Max(System.Math.Ceiling((double)_nodeCount / 500000000), _minimumStages);
-
-                        if (stages >= 4)
-                        {
-                            stages = 4;
-                            _stages.Add(new Box(
-                                new Coordinate(_minLatitude, _minLongitude),
-                                new Coordinate(box.Center.Latitude, box.Center.Longitude)));
-                            _stages[0] = _stages[0].Resize(e);
-                            _stages.Add(new Box(
-                                new Coordinate(_minLatitude, box.Center.Longitude),
-                                new Coordinate(box.Center.Latitude, _maxLongitude)));
-                            _stages[1] = _stages[1].Resize(e);
-                            _stages.Add(new Box(
-                                new Coordinate(box.Center.Latitude, _minLongitude),
-                                new Coordinate(_maxLatitude, box.Center.Longitude)));
-                            _stages[2] = _stages[2].Resize(e);
-                            _stages.Add(new Box(
-                                new Coordinate(box.Center.Latitude, box.Center.Longitude),
-                                new Coordinate(_maxLatitude, _maxLongitude)));
-                            _stages[3] = _stages[3].Resize(e);
-                        }
-                        else if (stages >= 2)
-                        {
-                            stages = 2;
-                            _stages.Add(new Box(
-                                new Coordinate(_minLatitude, _minLongitude),
-                                new Coordinate(_maxLatitude, box.Center.Longitude)));
-                            _stages[0] = _stages[0].Resize(e);
-                            _stages.Add(new Box(
-                                new Coordinate(_minLatitude, box.Center.Longitude),
-                                new Coordinate(_maxLatitude, _maxLongitude)));
-                            _stages[1] = _stages[1].Resize(e);
-                        }
-                        else
-                        {
-                            stages = 1;
-                            _stages.Add(box);
-                            _stages[0] = _stages[0].Resize(e);
-                        }
-                    }
-                    else
-                    {
-                        _stages.Add(box);
-                        _stages[0] = _stages[0].Resize(e);
-                    }
-                }
-
                 if (_vehicleCache.AnyCanTraverse(way.Tags.ToAttributes()))
-                { // way has some use.
+                { // way has some use, add all of it's nodes to the index.
+                    _nodeIndex.AddId(way.Nodes[0]);
                     for (var i = 0; i < way.Nodes.Length; i++)
                     {
-                        var node = way.Nodes[i];
-                        if (_allRoutingNodes.Contains(node) ||
-                            _allNodesAreCore)
-                        { // node already part of another way, definetly part of core.
-                            _coreNodes.Add(node);
-                        }
-                        _allRoutingNodes.Add(node);
+                        _nodeIndex.AddId(way.Nodes[i]);
                     }
-                    _coreNodes.Add(way.Nodes[0]);
-                    _coreNodes.Add(way.Nodes[way.Nodes.Length - 1]);
+                    _nodeIndex.AddId(way.Nodes[way.Nodes.Length - 1]);
                 }
             }
             else
@@ -406,16 +285,11 @@ namespace Itinero.IO.Osm.Streams
                         processor.SecondPass(way);
                     }
                 }
-
+                
                 var wayAttributes = way.Tags.ToAttributes();
                 var profileWhiteList = new Whitelist();
                 if (_vehicleCache.AddToWhiteList(wayAttributes, profileWhiteList))
                 { // way has some use.
-                    if (_processedWays.Contains(way.Id.Value))
-                    { // way was already processed.
-                        return;
-                    }
-
                     // build profile and meta-data.
                     var profileTags = new AttributeCollection();
                     var metaTags = new AttributeCollection();
@@ -456,19 +330,15 @@ namespace Itinero.IO.Osm.Streams
 
                     // convert way into one or more edges.
                     var node = 0;
+                    var isCore = false;
                     while (node < way.Nodes.Length - 1)
                     {
                         // build edge to add.
                         var intermediates = new List<Coordinate>();
                         var distance = 0.0f;
                         Coordinate coordinate;
-                        if (!_stageCoordinates.TryGetValue(way.Nodes[node], out coordinate))
+                        if (!this.TryGetValue(way.Nodes[node], out coordinate, out isCore))
                         { // an incomplete way, node not in source.
-                            // add all the others to the any stage index.
-                            for (var i = 0; i < way.Nodes.Length; i++)
-                            {
-                                _anyStageNodes.Add(way.Nodes[i]);
-                            }
                             return;
                         }
                         var fromVertex = this.AddCoreNode(way.Nodes[node],
@@ -481,18 +351,13 @@ namespace Itinero.IO.Osm.Streams
                         var toNode = long.MaxValue;
                         while (true)
                         {
-                            if (!_stageCoordinates.TryGetValue(way.Nodes[node], out coordinate))
+                            if (!this.TryGetValue(way.Nodes[node], out coordinate, out isCore))
                             { // an incomplete way, node not in source.
-                                // add all the others to the any stage index.
-                                for (var i = 0; i < way.Nodes.Length; i++)
-                                {
-                                    _anyStageNodes.Add(way.Nodes[i]);
-                                }
                                 return;
                             }
                             distance += Coordinate.DistanceEstimateInMeter(
                                 previousCoordinate, coordinate);
-                            if (_coreNodes.Contains(way.Nodes[node]))
+                            if (isCore)
                             { // node is part of the core.
                                 toVertex = this.AddCoreNode(way.Nodes[node],
                                     coordinate.Latitude, coordinate.Longitude);
@@ -658,9 +523,31 @@ namespace Itinero.IO.Osm.Streams
                             }
                         }
                     }
-                    _processedWays.Add(way.Id.Value);
                 }
             }
+        }
+
+        private bool TryGetValue(long node, out Coordinate coordinate, out bool isCore)
+        {
+            uint vertex;
+            float latitude, longitude;
+            if (!_nodeIndex.TryGetValue(node, out latitude, out longitude, out isCore, out vertex))
+            { // an incomplete way, node not in source.
+                coordinate = new Coordinate();
+                isCore = false;
+                return false;
+            }
+            if (vertex != uint.MaxValue)
+            {
+                coordinate = _db.Network.GetVertex(vertex);
+                return true;
+            }
+            coordinate = new Coordinate()
+            {
+                Latitude = latitude,
+                Longitude = longitude
+            };
+            return true;
         }
 
         /// <summary>
@@ -670,7 +557,7 @@ namespace Itinero.IO.Osm.Streams
         private uint AddCoreNode(long node, float latitude, float longitude)
         {
             var vertex = uint.MaxValue;
-            if (_coreNodeIdMap.TryGetFirst(node, out vertex))
+            if (_nodeIndex.TryGetCoreNode(node, out vertex))
             { // node was already added.
                 return vertex;
             }
@@ -684,7 +571,7 @@ namespace Itinero.IO.Osm.Streams
         {
             var vertex = _db.Network.VertexCount;
             _db.Network.AddVertex(vertex, latitude, longitude);
-            _coreNodeIdMap.Add(node, vertex);
+            _nodeIndex.Set(node, vertex);
             return vertex;
         }
 
@@ -813,11 +700,11 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Gets the core node id map.
         /// </summary>
-        public CoreNodeIdMap CoreNodeIdMap
+        public NodeIndex NodeIndex
         {
             get
             {
-                return _coreNodeIdMap;
+                return _nodeIndex;
             }
         }
     }

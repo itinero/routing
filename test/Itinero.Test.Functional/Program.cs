@@ -40,6 +40,11 @@ using Itinero.Osm.Vehicles;
 using Itinero.Navigation;
 using Itinero.Navigation.Instructions;
 using System.Linq;
+using Itinero.IO.Osm.Streams;
+using Itinero.Algorithms.Collections;
+using Reminiscence.Arrays;
+using Reminiscence.IO;
+using NUnit.Framework;
 
 namespace Itinero.Test.Functional
 {
@@ -68,7 +73,8 @@ namespace Itinero.Test.Functional
 
             // TEST1: Tests building a router db for cars, contracting it and calculating routes.
             // test building a router db.
-            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, false, Itinero.Profiles.Vehicle.GetRegistered().ToArray()).TestPerf("Build Luxembourg router db for Car.");
+            var routerDb = Runner.GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
+                Vehicle.Car).TestPerf("Build Luxembourg router db for Car.");
             var router = new Router(routerDb);
 
             // build profile cache.
@@ -99,13 +105,22 @@ namespace Itinero.Test.Functional
             var linesJson = lines.ToFeatureCollection().ToGeoJson();
 
             // TEST6: calculate many to many routes.
-            //Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
+            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
             var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
+//#if DEBUG
             Console.ReadLine();
-#endif
+//#endif
+        }
+
+        private static byte[] temp = new byte[8];
+
+        private static long LongRandom(long min, long max, Random rand)
+        {
+            rand.NextBytes(temp);
+            long longRand = BitConverter.ToInt64(temp, 0);
+            return (Math.Abs(longRand % (max - min)) + min);
         }
 
         private static string ToJson(FeatureCollection featureCollection)

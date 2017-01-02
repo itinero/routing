@@ -29,7 +29,8 @@ namespace Itinero.Algorithms.Collections
     {
         private readonly int _blockSize; // Holds the blocksize, or the size of the 'sub arrays'.
         private readonly long _length; // Holds the length of this array.
-        private readonly BitArray32[] _data; // Holds the actual data blocks.
+        private readonly HugeDictionary<long, BitArray> _data; // holds the actual data blocks.
+        //private readonly BitArray32[] _data; // Holds the actual data blocks.
 
         /// <summary>
         /// Creates a new sparse bitarray.
@@ -41,7 +42,7 @@ namespace Itinero.Algorithms.Collections
 
             _length = size;
             _blockSize = blockSize;
-            _data = new BitArray32[_length / _blockSize];
+            _data = new HugeDictionary<long, BitArray>(); // BitArray32[_length / _blockSize];
         }
 
         /// <summary>
@@ -52,8 +53,8 @@ namespace Itinero.Algorithms.Collections
             get
             {
                 int blockId = (int)(idx / _blockSize);
-                var block = _data[blockId];
-                if (block != null)
+                BitArray block = null;
+                if (_data.TryGetValue(blockId, out block))
                 { // the block actually exists.
                     int blockIdx = (int)(idx % _blockSize);
                     return _data[blockId][blockIdx];
@@ -63,12 +64,12 @@ namespace Itinero.Algorithms.Collections
             set
             {
                 int blockId = (int)(idx / _blockSize);
-                var block = _data[blockId];
-                if (block == null)
-                { // block is not there.
+                BitArray block = null;
+                if (!_data.TryGetValue(blockId, out block))
+                {
                     if (value)
                     { // only add new block if true.
-                        block = new BitArray32(_blockSize);
+                        block = new BitArray(_blockSize);
                         int blockIdx = (int)(idx % _blockSize);
                         block[blockIdx] = true;
                         _data[blockId] = block;

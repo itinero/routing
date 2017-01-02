@@ -146,6 +146,7 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 var i = count;
+                var errors = 0;
                 while (i > 0)
                 {
                     i--;
@@ -161,7 +162,13 @@ namespace Itinero.Test.Functional.Tests
                     var f2 = router.Db.Network.GetVertex(v2);
 
                     var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
+                    if (route.IsError)
+                    {
+                        errors++;
+                    }
                 }
+
+                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
             };
         }
 
