@@ -3,7 +3,7 @@
   "version": 2,
   "targets": {
     ".NETFramework,Version=v4.0": {
-      "OsmSharp.Core/2.2.8-beta": {
+      "OsmSharp/5.0.5-rc1": {
         "type": "package",
         "dependencies": {
           "protobuf-net": "2.0.0.668"
@@ -51,7 +51,7 @@
       }
     },
     ".NETFramework,Version=v4.5": {
-      "OsmSharp.Core/2.2.8-beta": {
+      "OsmSharp/5.0.5-rc1": {
         "type": "package",
         "dependencies": {
           "protobuf-net": "2.0.0.668"
@@ -99,7 +99,7 @@
       }
     },
     ".NETPortable,Version=v4.0,Profile=Profile147": {
-      "OsmSharp.Core/2.2.8-beta": {
+      "OsmSharp/5.0.5-rc1": {
         "type": "package",
         "dependencies": {
           "protobuf-net": "2.0.0.668"
@@ -302,7 +302,7 @@
           "System.Xml.XDocument": "4.0.11"
         }
       },
-      "OsmSharp.Core/2.2.8-beta": {
+      "OsmSharp/5.0.5-rc1": {
         "type": "package",
         "dependencies": {
           "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
@@ -1687,13 +1687,13 @@
         "dotnet_library_license.txt"
       ]
     },
-    "OsmSharp.Core/2.2.8-beta": {
-      "sha512": "2rPlYm8GQkQzdIfMd8y/TU9s0zjeasWJNAWznYWjvQFD6TWpfpN0w5pBzZoxbUW3TaE14ycv1y874VM/YWM0NA==",
+    "OsmSharp/5.0.5-rc1": {
+      "sha512": "CkcfcHJ21qohp4CLuD/oqJ+RAq/MGFInx0HF62v7KdrCyE5+oJJJmh4Bpvadrufg066oKrVbrnGmJlonL2weRg==",
       "type": "package",
-      "path": "OsmSharp.Core/2.2.8-beta",
+      "path": "OsmSharp/5.0.5-rc1",
       "files": [
-        "OsmSharp.Core.2.2.8-beta.nupkg.sha512",
-        "OsmSharp.Core.nuspec",
+        "OsmSharp.5.0.5-rc1.nupkg.sha512",
+        "OsmSharp.nuspec",
         "lib/net40/OsmSharp.dll",
         "lib/net45/OsmSharp.dll",
         "lib/netstandard1.3/OsmSharp.dll",
@@ -4902,7 +4902,7 @@
   "projectFileDependencyGroups": {
     "": [
       "Itinero >= 1.0.0-*",
-      "OsmSharp.Core >= 2.2.8-beta"
+      "OsmSharp >= 5.0.5-rc1"
     ],
     ".NETFramework,Version=v4.0": [
       "System.Xml"

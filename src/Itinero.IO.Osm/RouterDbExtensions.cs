@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2017 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -17,7 +17,6 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms.Search.Hilbert;
-//using Itinero.IO.Osm.Normalizer;
 using Itinero.IO.Osm.Streams;
 using OsmSharp;
 using OsmSharp.Streams;
@@ -47,7 +46,7 @@ namespace Itinero.IO.Osm
         {
             if (!db.IsEmpty)
             {
-                throw new ArgumentException("Can only load a new routing network into an empty router db.");
+                throw new ArgumentException("Can only load a new routing network into an empty router db, add multiple streams at once to load multiple files.");
             }
 
             // load the data.
@@ -64,7 +63,7 @@ namespace Itinero.IO.Osm
         {
             if (!db.IsEmpty)
             {
-                throw new ArgumentException("Can only load a new routing network into an empty router db.");
+                throw new ArgumentException("Can only load a new routing network into an empty router db, add multiple streams at once to load multiple files.");
             }
 
             // load the data.
@@ -79,7 +78,23 @@ namespace Itinero.IO.Osm
         /// </summary>
         public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, params Itinero.Profiles.Vehicle[] vehicles)
         {
-            db.LoadOsmData(source, false, true, vehicles);
+            db.LoadOsmData(new OsmSharp.Streams.OsmEnumerableStreamSource(source), vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(new OsmStreamSource[] { source }, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(sources, false, true, vehicles);
         }
 
         /// <summary>
@@ -87,7 +102,23 @@ namespace Itinero.IO.Osm
         /// </summary>
         public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, params Itinero.Profiles.Vehicle[] vehicles)
         {
-            db.LoadOsmData(source, allCore, true, null, vehicles);
+            db.LoadOsmData(new OsmSharp.Streams.OsmEnumerableStreamSource(source), allCore, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore = false, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(new OsmStreamSource[] { source }, allCore, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, bool allCore = false, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(sources, allCore, true, null, vehicles);
         }
 
         /// <summary>
@@ -95,22 +126,70 @@ namespace Itinero.IO.Osm
         /// </summary>
         public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = true, params Itinero.Profiles.Vehicle[] vehicles)
         {
-            db.LoadOsmData(source, allCore, processRestrictions, null, vehicles);
+            db.LoadOsmData(new OsmSharp.Streams.OsmEnumerableStreamSource(source), allCore, processRestrictions, vehicles);
         }
 
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = true, 
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore = false, bool processRestrictions = true, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(new OsmStreamSource[] { source }, allCore, processRestrictions, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, bool allCore = false, bool processRestrictions = true, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(sources, allCore, processRestrictions, null, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, IEnumerable<OsmGeo> source, bool allCore = false, bool processRestrictions = true,
+            IEnumerable<ITwoPassProcessor> processors = null, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(new OsmSharp.Streams.OsmEnumerableStreamSource(source), allCore, processRestrictions, processors, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, bool allCore = false, bool processRestrictions = true,
+            IEnumerable<ITwoPassProcessor> processors = null, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(new OsmStreamSource[] { source }, allCore, processRestrictions, processors, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, bool allCore = false, bool processRestrictions = true, 
             IEnumerable<ITwoPassProcessor> processors = null, params Itinero.Profiles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
-                throw new ArgumentException("Can only load a new routing network into an empty router db.");
+                throw new ArgumentException("Can only load a new routing network into an empty router db, add multiple streams at once to load multiple files.");
             }
             if (vehicles == null || vehicles.Length == 0)
             {
                 throw new ArgumentNullException("vehicles", "A least one vehicle is needed to load OSM data.");
+            }
+            if (sources == null || sources.Length == 0)
+            {
+                throw new ArgumentNullException("sources", "A least one source is needed to load OSM data.");
+            }
+
+            // merge sources if needed.
+            var source = sources[0];
+            for (var i = 1; i < sources.Length; i++)
+            {
+                var merger = new OsmSharp.Streams.Filters.OsmStreamFilterMerge();
+                merger.RegisterSource(source);
+                merger.RegisterSource(sources[i]);
+                source = merger;
             }
 
             // load the data.
