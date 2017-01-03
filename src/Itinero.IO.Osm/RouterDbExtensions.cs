@@ -20,6 +20,7 @@ using Itinero.Algorithms.Search.Hilbert;
 using Itinero.IO.Osm.Streams;
 using OsmSharp;
 using OsmSharp.Streams;
+using OsmSharp.Streams.Filters;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -190,6 +191,13 @@ namespace Itinero.IO.Osm
                 merger.RegisterSource(source);
                 merger.RegisterSource(sources[i]);
                 source = merger;
+            }
+
+            if (sources.Length > 1 && !(source is OsmStreamFilterProgress))
+            { // just one source the the callee is choosing a progress filter but assumed the default for a merged stream.
+                var progress = new OsmStreamFilterProgress();
+                progress.RegisterSource(source);
+                source = progress;
             }
 
             // load the data.

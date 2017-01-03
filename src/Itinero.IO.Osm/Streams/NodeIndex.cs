@@ -32,7 +32,7 @@ namespace Itinero.IO.Osm.Streams
     {
         // keeps all coordinates in a form [id, lat * 10.000.000, lon * 10.000.000]
         // assumes coordinates are added from a sorted source: TODO: make sure that the source read by the routerdb is sorted.
-        // TODO: handle negative coordinates.
+        // TODO: handle negative id's.
         // TODO: fallback to disk when memory usage becomes too much.
         private readonly ArrayBase<int> _data;
         private readonly ArrayBase<int> _index;
@@ -65,6 +65,11 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void AddId(long id)
         {
+            if (id == 1956557244)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
+
             int int1, int2;
             long2doubleInt(id, out int1, out int2);
             
@@ -173,10 +178,15 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void Set(long id, uint vertex)
         {
+            if (id == 1956557244)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
+
             var idx = TryGetIndex(id);
 
             _data[(idx * 2) + 0] = unchecked((int)vertex);
-            _data[(idx * 2) + 1] = unchecked((int)uint.MaxValue);
+            _data[(idx * 2) + 1] = int.MinValue;
         }
 
         /// <summary>
@@ -213,7 +223,7 @@ namespace Itinero.IO.Osm.Streams
             }
 
             vertex = unchecked((uint)_data[(idx * 2) + 0]);
-            return _data[(idx * 2) + 1] == unchecked((int)uint.MaxValue);
+            return _data[(idx * 2) + 1] == int.MinValue;
         }
 
         /// <summary>
@@ -294,6 +304,11 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public bool TryGetValue(long id, out float latitude, out float longitude, out bool isCore, out uint vertex)
         {
+            if (id == 1956557244)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
+
             var idx = TryGetIndex(id);
             if (idx == long.MaxValue)
             { // no relevant data here.
@@ -303,7 +318,7 @@ namespace Itinero.IO.Osm.Streams
                 vertex = uint.MaxValue;
                 return false;
             }
-            else if (_data[(idx * 2) + 1] == unchecked((int)uint.MaxValue))
+            else if (_data[(idx * 2) + 1] == int.MinValue)
             { // this is a core-vertex, no coordinates here anymore.
                 latitude = float.MaxValue;
                 longitude = float.MaxValue;
@@ -368,23 +383,6 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public long TryGetIndex(long id)
         {
-            //if (_previousIndex != long.MaxValue)
-            //{
-            //    if (_previousIndex + 1 < _index.Length)
-            //    {
-            //        var tempId = GetId(_previousIndex + 1);
-            //        if (tempId == id)
-            //        {
-            //            _previousIndex++;
-            //            return _previousIndex;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        _previousIndex = 0;
-            //    }
-            //}
-
             // do a binary search.
             long bottom = 0;
             long top = _idx - 1;

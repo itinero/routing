@@ -240,6 +240,11 @@ namespace Itinero.IO.Osm.Streams
 
                 // check if the node is a routing node and if yes, store it's coordinate.
                 var index = _nodeIndex.TryGetIndex(node.Id.Value);
+                if (node.Id.Value == 1956557244)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Empty);
+                }
+
                 if (index != long.MaxValue)
                 { // node is a routing node, store it's coordinates.
                     _nodeIndex.SetIndex(index, node.Latitude.Value, node.Longitude.Value);
