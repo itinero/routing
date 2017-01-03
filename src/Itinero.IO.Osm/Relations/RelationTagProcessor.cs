@@ -101,14 +101,6 @@ namespace Itinero.IO.Osm.Relations
         }
 
         /// <summary>
-        /// Executes the first pass for nodes.
-        /// </summary>
-        public void FirstPass(Node node)
-        {
-
-        }
-
-        /// <summary>
         /// Executes the second pass for relations.
         /// </summary>
         public void SecondPass(Relation relation)

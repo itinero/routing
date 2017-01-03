@@ -55,15 +55,7 @@ namespace Itinero.IO.Osm.Restrictions
 
         private List<Relation> _invertedRestrictions; // a restriction db can only store negative restrictions, we need to convert positive into negative restrictions.
         private Dictionary<long, List<Relation>> _positiveRestrictions; // all positive restrictions indexed by the expected first 'to'-node.
-
-        /// <summary>
-        /// Processes the given node in the first pass.
-        /// </summary>
-        public void FirstPass(Node node)
-        {
-
-        }
-
+        
         /// <summary>
         /// Processes the given way in the first pass.
         /// </summary>
