@@ -65,11 +65,6 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void AddId(long id)
         {
-            if (id == 1956557244)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Empty);
-            }
-
             int int1, int2;
             long2doubleInt(id, out int1, out int2);
             
@@ -178,11 +173,6 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void Set(long id, uint vertex)
         {
-            if (id == 1956557244)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Empty);
-            }
-
             var idx = TryGetIndex(id);
 
             _data[(idx * 2) + 0] = unchecked((int)vertex);
@@ -304,11 +294,6 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public bool TryGetValue(long id, out float latitude, out float longitude, out bool isCore, out uint vertex)
         {
-            if (id == 1956557244)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Empty);
-            }
-
             var idx = TryGetIndex(id);
             if (idx == long.MaxValue)
             { // no relevant data here.
