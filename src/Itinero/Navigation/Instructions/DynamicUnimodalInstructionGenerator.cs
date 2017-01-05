@@ -125,22 +125,25 @@ namespace Itinero.Navigation.Instructions
         {
             return (RoutePosition position, ILanguageReference language, out Instruction instruction) =>
             {
-                var positionTable = BuildRoutePositionTable(position);
-                var languageReferenceTable = BuildLanguageReferenceTable(language);
-                var instructionTable = new Table(_script);
-
-                var result = _script.Call(function.Item2, positionTable, languageReferenceTable, instructionTable);
-                if (result == null ||
-                    result.Type != DataType.Number ||
-                    result.Number == 0)
+                lock (_script)
                 {
-                    instruction = null;
-                    return 0;
-                }
+                    var positionTable = BuildRoutePositionTable(position);
+                    var languageReferenceTable = BuildLanguageReferenceTable(language);
+                    var instructionTable = new Table(_script);
 
-                instruction = BuildInstructionFromTable(instructionTable);
-                instruction.Type = function.Item1;
-                return (int)result.Number;
+                    var result = _script.Call(function.Item2, positionTable, languageReferenceTable, instructionTable);
+                    if (result == null ||
+                        result.Type != DataType.Number ||
+                        result.Number == 0)
+                    {
+                        instruction = null;
+                        return 0;
+                    }
+
+                    instruction = BuildInstructionFromTable(instructionTable);
+                    instruction.Type = function.Item1;
+                    return (int)result.Number;
+                }
             };
         }
 

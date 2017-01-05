@@ -3,7 +3,7 @@
   "version": 2,
   "targets": {
     ".NETFramework,Version=v4.5": {
-      "OsmSharp/5.0.5-rc1": {
+      "OsmSharp/5.0.6": {
         "type": "package",
         "dependencies": {
           "protobuf-net": "2.0.0.668"
@@ -66,7 +66,7 @@
         "framework": ".NETFramework,Version=v4.5",
         "dependencies": {
           "Itinero": "1.0.0",
-          "OsmSharp": "5.0.5-rc1"
+          "OsmSharp": "5.0.6"
         },
         "frameworkAssemblies": [
           "System.Xml"
@@ -81,12 +81,12 @@
     }
   },
   "libraries": {
-    "OsmSharp/5.0.5-rc1": {
-      "sha512": "CkcfcHJ21qohp4CLuD/oqJ+RAq/MGFInx0HF62v7KdrCyE5+oJJJmh4Bpvadrufg066oKrVbrnGmJlonL2weRg==",
+    "OsmSharp/5.0.6": {
+      "sha512": "jGOuKEInoRgI1jsPnNCzDJCOzAqwmqUBsQhGf7oJZm3H+4R8rEUS3+mA4qUf2gb0qNs/Esb4jM1+c3bXWZajhA==",
       "type": "package",
-      "path": "OsmSharp/5.0.5-rc1",
+      "path": "OsmSharp/5.0.6",
       "files": [
-        "OsmSharp.5.0.5-rc1.nupkg.sha512",
+        "OsmSharp.5.0.6.nupkg.sha512",
         "OsmSharp.nuspec",
         "lib/net40/OsmSharp.dll",
         "lib/net45/OsmSharp.dll",

@@ -101,6 +101,9 @@ namespace Itinero.Test.Functional
             // TEST6: calculate many to many routes.
             var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
 
+            // TEST7: test concurrent instruction generation.
+            Runner.GetTestInstructionGenerationParallel(router, Vehicle.Car.Fastest(), 25).TestPerf("Testing parallel instruction generation.");
+
             _logger.Log(TraceEventType.Information, "Testing finished.");
 //#if DEBUG
             Console.ReadLine();

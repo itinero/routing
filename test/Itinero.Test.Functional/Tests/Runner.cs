@@ -205,6 +205,41 @@ namespace Itinero.Test.Functional.Tests
         }
 
         /// <summary>
+        /// Tests calculating a number of routes.
+        /// </summary>
+        public static Action GetTestInstructionGenerationParallel(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random();
+            return () =>
+            {
+                var errors = 0;
+                System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
+                {
+                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
+                    if (v1 == v2)
+                    {
+                        v2++;
+                    }
+
+                    var f1 = router.Db.Network.GetVertex(v1);
+                    var f2 = router.Db.Network.GetVertex(v2);
+
+                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
+                    if (route.IsError)
+                    {
+                        errors++;
+                    }
+                    else
+                    {
+                        var instructions = route.Value.GenerateInstructions();
+                    }
+                });
+                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
+            };
+        }
+
+        /// <summary>
         /// Tests calculating a collection of one to one routes.
         /// </summary>
         public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
