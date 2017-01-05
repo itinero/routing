@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2017 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -195,6 +195,10 @@ namespace Itinero.Algorithms.Default
                     { // update the visit list.
                         _heap.Push(new EdgePath<T>(neighbour, totalWeight, edge.IdDirected(), _current),
                             _weightHandler.GetMetric(totalWeight));
+                    }
+                    else
+                    { // the maxium was reached.
+                        this.MaxReached = true;
                     }
                 }
             }
