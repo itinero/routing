@@ -95,21 +95,24 @@ namespace Itinero.Algorithms.Routes
             _branches = new List<Route.Branch>();
 
             // add source.
-            this.AddSource();
+            lock (_routerDb)
+            {
+                this.AddSource();
 
-            if(_path.Count == 1)
-            { // there is only the source/target location.
-                this.HasSucceeded = true;
-            }
-            else
-            { // there are at least two points.
-                var i = 0;
-                for(i = 0; i < _path.Count - 2; i++)
-                {
-                    this.Add(_path[i], _path[i + 1], _path[i + 2]);
+                if (_path.Count == 1)
+                { // there is only the source/target location.
+                    this.HasSucceeded = true;
                 }
-                this.Add(_path[i], _path[i + 1]);
-                this.HasSucceeded = true;
+                else
+                { // there are at least two points.
+                    var i = 0;
+                    for (i = 0; i < _path.Count - 2; i++)
+                    {
+                        this.Add(_path[i], _path[i + 1], _path[i + 2]);
+                    }
+                    this.Add(_path[i], _path[i + 1]);
+                    this.HasSucceeded = true;
+                }
             }
 
             // set stops.

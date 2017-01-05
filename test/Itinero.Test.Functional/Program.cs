@@ -81,7 +81,8 @@ namespace Itinero.Test.Functional
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
 
             // TEST1: Test random routes.
-            Runner.GetTestRandomRoutes(router, Vehicle.Car.Fastest(), 100).TestPerf("Testing route calculation speed.");
+            Runner.GetTestRandomRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing route calculation speed.");
+            Runner.GetTestRandomRoutesParallel(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing route calculation speed.");
 
             // TEST2: Tests find islands.
             Runner.GetTestIslandDetection(routerDb).TestPerf("Testing island detection.", 10);
