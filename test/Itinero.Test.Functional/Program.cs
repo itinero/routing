@@ -77,14 +77,7 @@ namespace Itinero.Test.Functional
                 Vehicle.Car).TestPerf("Build Luxembourg router db for Car.");
             var router = new Router(routerDb);
 
-            // build profile cache.
-            var profileCache = new Profiles.ProfileFactorAndSpeedCache(routerDb);
-            profileCache.CalculateFor(Vehicle.BigTruck.Fastest());
-            profileCache.CalculateFor(Vehicle.Car.Fastest());
-            profileCache.CalculateFor(Vehicle.Bicycle.Fastest());
-            profileCache.CalculateFor(Vehicle.Pedestrian.Fastest());
-            router.ProfileFactorAndSpeedCache = profileCache;
-
+            // add contracted version of graph.
             Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), true).TestPerf("Add contracted graph for Car.Fastest() edge based");
 
             // TEST1: Test random routes.
@@ -105,7 +98,6 @@ namespace Itinero.Test.Functional
             var linesJson = lines.ToFeatureCollection().ToGeoJson();
 
             // TEST6: calculate many to many routes.
-            Runner.GetTestAddContracted(routerDb, Vehicle.Car.Fastest(), false).TestPerf("Add contracted graph for Car.Fastest() vertex based");
             var paths = Runner.GetTestManyToManyRoutes(router, Vehicle.Car.Fastest(), 250).TestPerf("Testing calculating manytomany routes.");
 
             _logger.Log(TraceEventType.Information, "Testing finished.");

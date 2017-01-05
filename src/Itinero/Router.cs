@@ -47,6 +47,7 @@ namespace Itinero
         {
             _db = db;
 
+            this.ProfileFactorAndSpeedCache = new ProfileFactorAndSpeedCache(db);
             this.VerifyAllStoppable = false;
         }
 

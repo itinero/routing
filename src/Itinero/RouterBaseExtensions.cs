@@ -25,6 +25,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Geometric;
 using Itinero.Data.Edges;
 using Itinero.Logging;
+using System.Text;
 
 namespace Itinero
 {
@@ -64,9 +65,19 @@ namespace Itinero
             }
             else
             { // use the regular function, and consult profiles continuously.
-                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
-                    profileInstance.Profile.FullName);
-                return profileInstance.GetGetFactor(router.Db);
+                if (router.ProfileFactorAndSpeedCache != null)
+                { // when there is a cache, built it on demand.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Information, "Profile {0} is not cached, building cache.",
+                        profileInstance.Profile.FullName);
+                    router.ProfileFactorAndSpeedCache.CalculateFor(profileInstance.Profile);
+                    return router.ProfileFactorAndSpeedCache.GetGetFactor(profileInstance);
+                }
+                else
+                { // no cache, caching disabled.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                        profileInstance.Profile.FullName);
+                    return profileInstance.GetGetFactor(router.Db);
+                }
             }
         }
         
@@ -81,12 +92,22 @@ namespace Itinero
             }
             else
             { // use the regular function, and consult the profile continuously.
-                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                if (router.ProfileFactorAndSpeedCache != null)
+                { // when there is a cache, built it on demand.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Information, "Profile {0} is not cached, building cache.",
+                        profileInstance.Profile.FullName);
+                    router.ProfileFactorAndSpeedCache.CalculateFor(profileInstance.Profile);
+                    return new DefaultWeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactor(profileInstance));
+                }
+                else
+                { // no cache, caching disabled.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
                     profileInstance.Profile.FullName);
-                return new DefaultWeightHandler((p) =>
-                {
-                    return profileInstance.Factor(router.Db.EdgeProfiles.Get(p));
-                });
+                    return new DefaultWeightHandler((p) =>
+                    {
+                        return profileInstance.Factor(router.Db.EdgeProfiles.Get(p));
+                    });
+                }
             }
         }
 
@@ -101,9 +122,19 @@ namespace Itinero
             }
             else
             { // use the regular function, and consult profiles continuously.
-                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                if (router.ProfileFactorAndSpeedCache != null)
+                { // when there is a cache, built it on demand.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Information, "Profile {0} is not cached, building cache.",
+                        profileInstance.Profile.FullName);
+                    router.ProfileFactorAndSpeedCache.CalculateFor(profileInstance.Profile);
+                    return new WeightHandler(router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profileInstance));
+                }
+                else
+                { // no cache, caching disabled.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
                     profileInstance.Profile.FullName);
-                return new WeightHandler(profileInstance.GetGetFactorAndSpeed(router.Db));
+                    return new WeightHandler(profileInstance.GetGetFactorAndSpeed(router.Db));
+                }
             }
         }
 
@@ -118,9 +149,19 @@ namespace Itinero
             }
             else
             { // use the regular function, and consult profiles continuously.
-                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
+                if (router.ProfileFactorAndSpeedCache != null)
+                { // when there is a cache, built it on demand.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Information, "Profile {0} is not cached, building cache.",
+                        profileInstance.Profile.FullName);
+                    router.ProfileFactorAndSpeedCache.CalculateFor(profileInstance.Profile);
+                    return router.ProfileFactorAndSpeedCache.GetGetFactorAndSpeed(profileInstance);
+                }
+                else
+                { // no cache, caching disabled.
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, "Profile {0} is not cached, this could slow down routing significantly, consider building a profile cache.",
                     profileInstance.Profile.FullName);
-                return profileInstance.GetGetFactorAndSpeed(router.Db);
+                    return profileInstance.GetGetFactorAndSpeed(router.Db);
+                }
             }
         }
 
@@ -136,38 +177,60 @@ namespace Itinero
             }
             else
             { // use the regular function, and consult profiles continuously.
-                Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning, 
-                    "Not all profiles are cached, this could slow down routing significantly, consider building a profile cache.");
-                return (edge) =>
-                { // check all profiles, they all need to be traversible.
-                  // get profile.
-                    float distance;
-                    ushort edgeProfileId;
-                    EdgeDataSerializer.Deserialize(edge.Data[0],
-                        out distance, out edgeProfileId);
-                    var edgeProfile = router.Db.EdgeProfiles.Get(edgeProfileId);
-                    for (var i = 0; i < profiles.Length; i++)
+                if (router.ProfileFactorAndSpeedCache != null)
+                { // when there is a cache, built it on demand.
+                    var profileNames = new StringBuilder();
+                    var profileArray = new Profile[profiles.Length];
+                    for(var i = 0; i < profiles.Length; i++)
                     {
-                        var factorAndSpeed = profiles[i].Profile.FactorAndSpeed(edgeProfile);
+                        if (i > 0)
+                        {
+                            profileNames.Append(',');
+                        }
+                        profileNames.Append(profiles[i].Profile.FullName);
+                        profileArray[i] = profiles[i].Profile;
+                    }
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Information, "Profile(s) {0} not cached, building cache.",
+                        profileNames.ToInvariantString());
+                    router.ProfileFactorAndSpeedCache.CalculateFor(profileArray);
+                    return router.ProfileFactorAndSpeedCache.GetIsAcceptable(router.VerifyAllStoppable,
+                        profiles);
+                }
+                else
+                {
+                    Itinero.Logging.Logger.Log("RouterBaseExtensions", TraceEventType.Warning,
+                        "Not all profiles are cached, this could slow down routing significantly, consider building a profile cache.");
+                    return (edge) =>
+                    { // check all profiles, they all need to be traversible.
+                      // get profile.
+                    float distance;
+                        ushort edgeProfileId;
+                        EdgeDataSerializer.Deserialize(edge.Data[0],
+                            out distance, out edgeProfileId);
+                        var edgeProfile = router.Db.EdgeProfiles.Get(edgeProfileId);
+                        for (var i = 0; i < profiles.Length; i++)
+                        {
+                            var factorAndSpeed = profiles[i].Profile.FactorAndSpeed(edgeProfile);
                         // get factor from profile.
                         if (factorAndSpeed.Value <= 0)
-                        { // cannot be traversed by this profile.
+                            { // cannot be traversed by this profile.
                             return false;
-                        }
-                        if (router.VerifyAllStoppable)
-                        { // verify stoppable.
+                            }
+                            if (router.VerifyAllStoppable)
+                            { // verify stoppable.
                             if (!factorAndSpeed.CanStopOn())
-                            { // this profile cannot stop on this edge.
+                                { // this profile cannot stop on this edge.
                                 return false;
+                                }
+                            }
+                            if (profiles[i].IsConstrained(factorAndSpeed.Constraints))
+                            { // this edge is constrained, this vehicle cannot travel here.
+                            return false;
                             }
                         }
-                        if (profiles[i].IsConstrained(factorAndSpeed.Constraints))
-                        { // this edge is constrained, this vehicle cannot travel here.
-                            return false;
-                        }
-                    }
-                    return true;
-                };
+                        return true;
+                    };
+                }
             }
         }
 
@@ -557,6 +620,44 @@ namespace Itinero
                 float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, coordinate, isBetter, searchDistanceInMeter).Value;
+        }
+
+        /// <summary>
+        /// Resolves a location but also checks if it's connected to the rest of the network.
+        /// </summary>
+        public static Result<RouterPoint> TryResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, float radiusInMeter = 1000,
+            float maxSearchDistance = Constants.SearchDistanceInMeter)
+        {
+            var resolver = new Algorithms.Search.ResolveAlgorithm(router.Db.Network.GeometricGraph, latitude, longitude, radiusInMeter, maxSearchDistance, (edge) =>
+            {
+                // create a temp resolved point in the middle of this edge.
+                var tempRouterPoint = new RouterPoint(0, 0, edge.Id, ushort.MaxValue / 2);
+                var connectivityResult = router.TryCheckConnectivity(profileInstance, tempRouterPoint, radiusInMeter / 2);
+                if (connectivityResult.IsError)
+                { // if there is an error checking connectivity, choose not report it, just don't choose this point.
+                    return false;
+                }
+                return connectivityResult.Value;
+            });
+            resolver.Run();
+
+            if (!resolver.HasSucceeded)
+            { // something went wrong.
+                return new Result<RouterPoint>(resolver.ErrorMessage, (message) =>
+                {
+                    return new Itinero.Exceptions.ResolveFailedException(message);
+                });
+            }
+            return new Result<RouterPoint>(resolver.Result);
+        }
+
+        /// <summary>
+        /// Resolves a location but also checks if it's connected to the rest of the network.
+        /// </summary>
+        public static RouterPoint ResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, float radiusInMeter = 1000,
+            float maxSearchDistance = Constants.SearchDistanceInMeter)
+        {
+            return router.TryResolveConnected(profileInstance, latitude, longitude, radiusInMeter, maxSearchDistance).Value;
         }
 
         /// <summary>
