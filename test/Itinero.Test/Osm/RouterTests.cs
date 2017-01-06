@@ -934,5 +934,59 @@ namespace Itinero.Test.Osm
             Assert.IsNotNull(route.Value.From.From);
             Assert.IsNull(route.Value.From.From.From);
         }
-    }
+
+		/// <summary>
+		/// An integration test that loads one way with access=no and bicycle=yes.
+		/// </summary>
+		[Test]
+		public void TestTrain()
+		{
+			// the input osm-data.
+			var osmGeos = new OsmGeo[]
+			{
+				new Node()
+				{
+					Id = 1,
+					Latitude = 51.04963322083945f,
+					Longitude = 3.719692826271057f
+				},
+				new Node()
+				{
+					Id = 2,
+					Latitude = 51.05062804602733f,
+					Longitude = 3.7198376655578613f
+				},
+				new Way()
+				{
+					Id = 1,
+					Nodes = new long[]
+					{
+						1, 2
+					},
+					Tags = new TagsCollection(
+						new Tag("railway", "rail")
+						)
+				}
+			};
+
+			// build router db.
+			var routerDb = new RouterDb();
+			routerDb.LoadOsmData(osmGeos, Vehicle.Train);
+			
+			// test some routes.
+			var router = new Router(routerDb);
+
+		
+			
+			var route = router.TryCalculate(Vehicle.Train.Fastest(),
+				new Coordinate(51.04963322083945f, 3.7196928262710570f),
+				new Coordinate(51.05062804602733f, 3.7198376655578613f));
+			Assert.IsFalse(route.IsError);
+			route = router.TryCalculate(Vehicle.Train.Fastest(),
+				new Coordinate(51.05062804602733f, 3.7198376655578613f),
+				new Coordinate(51.04963322083945f, 3.7196928262710570f));
+			Assert.IsFalse(route.IsError);
+		}
+		
+	}
 }

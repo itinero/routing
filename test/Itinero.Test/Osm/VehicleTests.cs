@@ -580,10 +580,22 @@ namespace Itinero.Test.Osm
             this.TestFactorAndSpeed(vehicle, 3, (1.0f / (120 / 3.6f)) / 10, 120, "highway", "motorway_link");
         }
 
-        /// <summary>
-        /// Tests the big truck.
-        /// </summary>
-        [Test]
+		/// <summary>
+		/// Tests the big truck.
+		/// </summary>
+		[Test]
+		public void TestTrain()
+		{
+			var vehicle = Itinero.Osm.Vehicles.Vehicle.Train.Fastest();
+
+			// invalid highway types.
+			this.TestFactorAndSpeed(vehicle, 0, null, 60, "railway", "rail");
+		}
+
+		/// <summary>
+		/// Tests the big truck.
+		/// </summary>
+		[Test]
         public void TestBigTruck()
         {
             var vehicle = Itinero.Osm.Vehicles.Vehicle.SmallTruck.Fastest();

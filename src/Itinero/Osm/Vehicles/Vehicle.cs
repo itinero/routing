@@ -64,10 +64,15 @@ namespace Itinero.Osm.Vehicles
         /// </summary>
         public static readonly Profiles.Vehicle BigTruck = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bigtruck.lua"));
 
-        /// <summary>
-        /// Default BigTruck
-        /// </summary>
-        public static readonly Profiles.Vehicle Bus = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bus.lua"));
+		/// <summary>
+		/// Default Train
+		/// </summary>
+		public static readonly Profiles.Vehicle Train = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.train.lua"));
+
+		/// <summary>
+		/// Default BigTruck
+		/// </summary>
+		public static readonly Profiles.Vehicle Bus = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bus.lua"));
 
         /// <summary>
         /// Registers all default vehicles.
@@ -82,7 +87,8 @@ namespace Itinero.Osm.Vehicles
             SmallTruck.Register();
             BigTruck.Register();
             Bus.Register();
-        }
+			Train.Register();
+		}
 
         private static Dictionary<string, bool?> _accessValues = null;
 
