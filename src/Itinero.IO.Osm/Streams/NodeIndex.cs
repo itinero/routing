@@ -368,6 +368,35 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public long TryGetIndex(long id)
         {
+            if (_previousIndex != long.MaxValue &&
+                _previousIndex + 1 < _idx)
+            {
+                var previousId = GetId(_previousIndex);
+                var offset = 1;
+                var nextId = GetId(_previousIndex + offset);
+                while(nextId == previousId &&
+                    _previousIndex + offset + 1 < _idx)
+                {
+                    offset++;
+                    nextId = GetId(_previousIndex + offset);
+                }
+
+                if (previousId < id && id < nextId)
+                {
+                    return long.MaxValue;
+                }
+
+                if (previousId == id)
+                {
+                    return _previousIndex;
+                }
+                if (nextId == id)
+                {
+                    _previousIndex += offset;
+                    return _previousIndex;
+                }
+            }
+
             // do a binary search.
             long bottom = 0;
             long top = _idx - 1;
