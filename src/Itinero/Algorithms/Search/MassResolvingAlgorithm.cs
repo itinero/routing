@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2017 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -16,64 +16,44 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
-using Itinero.LocalGeo;
 using Itinero.Data.Network;
+using Itinero.LocalGeo;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
-using Itinero.Algorithms.Weights;
 
-namespace Itinero.Algorithms
+namespace Itinero.Algorithms.Search
 {
     /// <summary>
-    /// An algorithm to calculate a weight-matrix for a set of locations.
+    /// A mass-resolving algorithm.
     /// </summary>
-    public class WeightMatrixAlgorithm<T> : AlgorithmBase, IWeightMatrixAlgorithm<T>
-        where T : struct
+    public sealed class MassResolvingAlgorithm : AlgorithmBase
     {
+        private readonly IProfileInstance[] _profiles;
         private readonly RouterBase _router;
-        private readonly Profile _profile;
         private readonly Coordinate[] _locations;
         private readonly Func<RoutingEdge, int, bool> _matchEdge;
-        private readonly WeightHandler<T> _weightHandler;
-
+        private readonly float _maxSearchDistance;
+        
         /// <summary>
-        /// Creates a new weight-matrix algorithm.
+        /// Creates a new mass-resolving algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations)
-            : this(router, profile, weightHandler, locations, null)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new weight-matrix algorithm.
-        /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations,
-            Func<RoutingEdge, int, bool> matchEdge)
+        public MassResolvingAlgorithm(RouterBase router, IProfileInstance[] profiles, Coordinate[] locations,
+            Func<RoutingEdge, int, bool> matchEdge = null, float maxSearchDistance = Constants.SearchDistanceInMeter)
         {
             _router = router;
-            _profile = profile;
+            _profiles = profiles;
             _locations = locations;
             _matchEdge = matchEdge;
-            _weightHandler = weightHandler;
-
-            this.SearchDistanceInMeter = Constants.SearchDistanceInMeter;
+            _maxSearchDistance = maxSearchDistance;
         }
 
         private Dictionary<int, LocationError> _errors; // all errors per original location idx.
         private List<int> _resolvedPointsIndices; // the original location per resolved point index.
         private List<RouterPoint> _resolvedPoints; // only the valid resolved points.
-        private T[][] _weights; // the weights between all valid resolved points.
-
 
         /// <summary>
-        /// Gets or sets the value for the search distance in meter to use in the resolve methods.
-        /// </summary>
-        public float SearchDistanceInMeter { get; set; }
-        
-        /// <summary>
-        /// Executes the algorithm.
+        /// Executes the actual algorithm.
         /// </summary>
         protected override void DoRun()
         {
@@ -83,20 +63,19 @@ namespace Itinero.Algorithms
 
             // resolve all locations.
             var resolvedPoints = new RouterPoint[_locations.Length];
-            var profiles = new Profile[] { _profile };
             for (var i = 0; i < _locations.Length; i++)
             {
                 Result<RouterPoint> resolveResult = null;
                 if (_matchEdge != null)
                 { // use an edge-matcher.
-                    resolveResult = _router.TryResolve(profiles, _locations[i], (edge) =>
+                    resolveResult = _router.TryResolve(_profiles, _locations[i], (edge) =>
                     {
                         return _matchEdge(edge, i);
-                    }, this.SearchDistanceInMeter);
+                    }, _maxSearchDistance);
                 }
                 else
                 { // don't use an edge-matcher.
-                    resolveResult = _router.TryResolve(profiles, _locations[i], this.SearchDistanceInMeter);
+                    resolveResult = _router.TryResolve(_profiles, _locations[i], _maxSearchDistance);
                 }
 
                 if (!resolveResult.IsError)
@@ -125,27 +104,6 @@ namespace Itinero.Algorithms
                 }
             }
 
-            // calculate matrix.
-            var nonNullResolvedArray = _resolvedPoints.ToArray();
-            var nonNullInvalids = new HashSet<int>();
-            _weights = _router.CalculateWeight(_profile, _weightHandler, nonNullResolvedArray, nonNullInvalids);
-
-            // take into account the non-null invalids now.
-            if (nonNullInvalids.Count > 0)
-            { // shrink lists and add errors.
-                foreach (var invalid in nonNullInvalids)
-                {
-                    _errors[_resolvedPointsIndices[invalid]] = new LocationError()
-                    {
-                        Code = LocationErrorCode.NotRoutable,
-                        Message = "Location could not routed to or from."
-                    };
-                }
-
-                _resolvedPoints = _resolvedPoints.ShrinkAndCopyList(nonNullInvalids);
-                _resolvedPointsIndices = _resolvedPointsIndices.ShrinkAndCopyList(nonNullInvalids);
-                _weights = _weights.SchrinkAndCopyMatrix(nonNullInvalids);
-            }
             this.HasSucceeded = true;
         }
 
@@ -159,19 +117,6 @@ namespace Itinero.Algorithms
                 this.CheckHasRunAndHasSucceeded();
 
                 return _resolvedPoints;
-            }
-        }
-
-        /// <summary>
-        /// Gets the weights between all valid router points.
-        /// </summary>
-        public T[][] Weights
-        {
-            get
-            {
-                this.CheckHasRunAndHasSucceeded();
-
-                return _weights;
             }
         }
 
@@ -210,42 +155,7 @@ namespace Itinero.Algorithms
             }
         }
     }
-
-    /// <summary>
-    /// An algorithm to calculate a weight-matrix for a set of locations.
-    /// </summary>
-    public sealed class WeightMatrixAlgorithm : WeightMatrixAlgorithm<float>
-    {
-        /// <summary>
-        /// Creates a new weight-matrix algorithm.
-        /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations)
-            : this(router, profile, locations, null)
-        {
-
-        }
-        
-        /// <summary>
-        /// Creates a new weight-matrix algorithm.
-        /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations,
-            Func<RoutingEdge, int, bool> matchEdge)
-            : base(router, profile, profile.DefaultWeightHandler(router), locations, matchEdge)
-        {
-
-        }
-
-        /// <summary>
-        /// Creates a new weight-matrix algorithm.
-        /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<float> weightHandler, Coordinate[] locations,
-            Func<RoutingEdge, int, bool> matchEdge)
-            : base(router, profile, weightHandler, locations, matchEdge)
-        {
-
-        }
-    }
-
+    
     /// <summary>
     /// A represention of an error that can occur for a location.
     /// </summary>
@@ -274,10 +184,6 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Cannot find a suitable road nearby.
         /// </summary>
-        NotResolved,
-        /// <summary>
-        /// Cannot find a route to this location.
-        /// </summary>
-        NotRoutable
+        NotResolved
     }
 }

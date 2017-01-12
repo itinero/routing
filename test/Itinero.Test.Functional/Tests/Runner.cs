@@ -83,46 +83,6 @@ namespace Itinero.Test.Functional.Tests
         }
 
         /// <summary>
-        /// Tests building a router db.
-        /// </summary>
-        public static Func<RouterDb> GetTestBuildRouterDb(string file, bool allcore, bool processRestrictions, params Vehicle[] vehicles)
-        {
-            return () =>
-              {
-                  OsmStreamSource source;
-                  using (var stream = File.OpenRead(file))
-                  {
-                      var routerdb = new RouterDb();
-                      if (file.ToLowerInvariant().EndsWith("osm.pbf"))
-                      {
-                          source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
-                      }
-                      else
-                      {
-                          source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
-                      }
-                      var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
-                      progress.RegisterSource(source);
-
-                      routerdb.LoadOsmData(progress, allcore, processRestrictions, vehicles);
-
-                      return routerdb;
-                  }
-              };
-        }
-
-        /// <summary>
-        /// Tests adding a contracted graph.
-        /// </summary>
-        public static Action GetTestAddContracted(RouterDb routerDb, Profiles.Profile profile, bool forceEdgeBased)
-        {
-            return () =>
-            {
-                routerDb.AddContracted(profile, forceEdgeBased);
-            };
-        }
-
-        /// <summary>
         /// Tests reading/writing router db.
         /// </summary>
         public static RouterDb TestReadAndWriterRouterDb(RouterDb routerDb, string file)
@@ -137,73 +97,6 @@ namespace Itinero.Test.Functional.Tests
                 return RouterDb.Deserialize(stream);
             }
         }
-
-        /// <summary>
-        /// Tests calculating a number of routes.
-        /// </summary>
-        public static Action GetTestRandomRoutes(Router router, Profiles.Profile profile, int count)
-        {
-            var random = new System.Random();
-            return () =>
-            {
-                var i = count;
-                var errors = 0;
-                while (i > 0)
-                {
-                    i--;
-
-                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
-                    if (v1 == v2)
-                    {
-                        v2++;
-                    }
-
-                    var f1 = router.Db.Network.GetVertex(v1);
-                    var f2 = router.Db.Network.GetVertex(v2);
-
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
-                    if (route.IsError)
-                    {
-                        errors++;
-                    }
-                }
-
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
-            };
-        }
-
-        /// <summary>
-        /// Tests calculating a number of routes.
-        /// </summary>
-        public static Action GetTestRandomRoutesParallel(Router router, Profiles.Profile profile, int count)
-        {
-            var random = new System.Random();
-            return () =>
-            {
-                var errors = 0;
-                System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
-                {
-                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
-                    if (v1 == v2)
-                    {
-                        v2++;
-                    }
-
-                    var f1 = router.Db.Network.GetVertex(v1);
-                    var f2 = router.Db.Network.GetVertex(v2);
-
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
-                    if (route.IsError)
-                    {
-                        errors++;
-                    }
-                });
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
-            };
-        }
-
         /// <summary>
         /// Tests calculating a number of routes.
         /// </summary>
@@ -237,36 +130,6 @@ namespace Itinero.Test.Functional.Tests
                 });
                 Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
             };
-        }
-
-        /// <summary>
-        /// Tests calculating a collection of one to one routes.
-        /// </summary>
-        public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
-        {
-            var random = new System.Random();
-            var vertices = new HashSet<uint>();
-            while (vertices.Count < size)
-            {
-                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
-                if (!vertices.Contains(v))
-                {
-                    vertices.Add(v);
-                }
-            }
-
-            var resolvedPoints = new RouterPoint[vertices.Count];
-            var i = 0;
-            foreach (var v in vertices)
-            {
-                resolvedPoints[i] = router.Resolve(profile, router.Db.Network.GetVertex(v), 500);
-                i++;
-            }
-
-            return () =>
-             {
-                 return router.TryCalculateRaw(profile, router.GetDefaultWeightHandler(profile), resolvedPoints, resolvedPoints, null).Value;
-             };
         }
 
         /// <summary>

@@ -99,7 +99,7 @@ namespace Itinero.Test.Functional
             Process p = Process.GetCurrentProcess();
             _memory = p.PrivateMemorySize64;
             _ticks = DateTime.Now.Ticks;
-            Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, "Started!");
+            Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Started!");
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace Itinero.Test.Functional
         /// </summary>
         public void Report(string message)
         {
-            Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, message);
+            Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":" + message);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Itinero.Test.Functional
         /// </summary>
         public void Report(string message, params object[] args)
         {
-            Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, message, args);
+            Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":" + message, args);
         }
 
         private int previousPercentage = 0;
@@ -128,7 +128,7 @@ namespace Itinero.Test.Functional
             var currentPercentage = (int)System.Math.Round((i / (double)max) * 10, 0);
             if (previousPercentage != currentPercentage)
             {
-                Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, message, currentPercentage * 10);
+                Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":" + message, currentPercentage * 10);
                 previousPercentage = currentPercentage;
             }
         }
@@ -156,13 +156,13 @@ namespace Itinero.Test.Functional
                     if (_memoryUsageLog.Count > 0)
                     { // there was memory usage logging.
                         double max = _memoryUsageLog.Max();
-                        Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, "Ended at at {0}, spent {1}s and {2}MB of memory diff with {3}MB max used.",
+                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Ended at at {0}, spent {1}s and {2}MB of memory diff with {3}MB max used.",
                                 new DateTime(_ticks.Value).ToShortTimeString(),
                                 seconds, memoryDiff, max);
                     }
                     else
                     { // no memory usage logged.
-                        Itinero.Logging.Logger.Log(_name, Itinero.Logging.TraceEventType.Information, "Ended at at {0}, spent {1}s and {2}MB of memory diff.",
+                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Ended at at {0}, spent {1}s and {2}MB of memory diff.",
                                 new DateTime(_ticks.Value).ToShortTimeString(),
                                 seconds, memoryDiff);
                     }

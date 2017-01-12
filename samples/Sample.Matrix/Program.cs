@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 using Itinero;
+using Itinero.Algorithms.Matrices;
 using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
 using System.Collections.Generic;
@@ -61,7 +62,7 @@ namespace Sample.Matrix
             locations.Insert(3, invalidLocation);
 
             // for advanced applications there is a helper class
-            var matrixCalculator = new Itinero.Algorithms.WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations.ToArray());
+            var matrixCalculator = new WeightMatrixAlgorithm(router, Vehicle.Car.Fastest(), locations.ToArray());
             matrixCalculator.Run();
 
             // there is some usefull output data here now.
@@ -70,8 +71,8 @@ namespace Sample.Matrix
             resolved = matrixCalculator.RouterPoints.ToArray(); // the resolved routerpoints, you can use these later without the need to resolve again.
 
             // when there are failed points, the weight matrix is smaller, use these functions to map locations from the original array to succeeded points.
-            var newIndex = matrixCalculator.IndexOf(4); // returns the index of the original location in the weight matrix.
-            var oldIndex = matrixCalculator.LocationIndexOf(5); // returns the index of the weight matrix point in the original locations array.
+            var newIndex = matrixCalculator.MassResolver.IndexOf(4); // returns the index of the original location in the weight matrix.
+            var oldIndex = matrixCalculator.MassResolver.LocationIndexOf(5); // returns the index of the weight matrix point in the original locations array.
         }
     }
 }
