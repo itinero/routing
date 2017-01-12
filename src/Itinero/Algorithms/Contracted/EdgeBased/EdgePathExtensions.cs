@@ -197,15 +197,26 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return Constants.EMPTY_SEQUENCE;
             }
 
-            List<uint> s = null;
+            return path.GetSequence2<T>(enumerator, n, new List<uint>());
+        }
+
+        /// <summary>
+        /// Gets sequence 2, the last vertices right before the end vertex with a maximum of n.
+        /// </summary>
+        public static uint[] GetSequence2<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator, int n,
+            List<uint> s)
+            where T : struct
+        {
+            if (path.From == null)
+            {
+                return Constants.EMPTY_SEQUENCE;
+            }
+
+            s.Clear();
             while (true)
             {
                 if (path.IsOriginal(enumerator))
                 { // current segment is original.
-                    if (s == null)
-                    {
-                        s = new List<uint>();
-                    }
                     s.Add(path.From.Vertex);
                     if (s.Count < n && path.From.From != null)
                     { // we need more vertices and there are some more available.
@@ -220,7 +231,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
                 else
                 { // not an original edge, just return the start sequence.
-                    if (s != null)
+                    if (s.Count > 0)
                     {
                         var s2 = enumerator.GetSequence2();
                         var result = new uint[s.Count + s2.Length];

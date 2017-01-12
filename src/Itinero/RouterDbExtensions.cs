@@ -234,39 +234,52 @@ namespace Itinero
         {
             var vehicleTypes = new List<string>(profile.VehicleTypes);
             vehicleTypes.Insert(0, string.Empty);
+
+            var restrictionDbs = new RestrictionsDb[vehicleTypes.Count];
+            for (var i = 0; i < vehicleTypes.Count; i++)
+            {
+                RestrictionsDb restrictionsDb;
+                if (db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
+                {
+                    restrictionDbs[i] = restrictionsDb;
+                }
+            }
+
             return (vertex) =>
             {
                 var restrictionList = new List<uint[]>();
-                for (var i = 0; i < vehicleTypes.Count; i++)
+                for (var i = 0; i < restrictionDbs.Length; i++)
                 {
-                    RestrictionsDb restrictionsDb;
-                    if (db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
+                    var restrictionsDb = restrictionDbs[i];
+                    if (restrictionsDb == null)
                     {
-                        var enumerator = restrictionsDb.GetEnumerator();
-                        if (enumerator.MoveTo(vertex))
+                        continue;
+                    }
+
+                    var enumerator = restrictionsDb.GetEnumerator();
+                    if (enumerator.MoveTo(vertex))
+                    {
+                        while (enumerator.MoveNext())
                         {
-                            while (enumerator.MoveNext())
+                            if (first.HasValue && first.Value)
                             {
-                                if (first.HasValue && first.Value)
-                                {
-                                    if (enumerator[0] == vertex)
-                                    {
-                                        restrictionList.Add(enumerator.ToArray());
-                                    }
-                                }
-                                else if (first.HasValue && !first.Value)
-                                {
-                                    if (enumerator[(int)enumerator.Count - 1] == vertex)
-                                    {
-                                        var array = enumerator.ToArray();
-                                        array.Reverse();
-                                        restrictionList.Add(array);
-                                    }
-                                }
-                                else
+                                if (enumerator[0] == vertex)
                                 {
                                     restrictionList.Add(enumerator.ToArray());
                                 }
+                            }
+                            else if (first.HasValue && !first.Value)
+                            {
+                                if (enumerator[(int)enumerator.Count - 1] == vertex)
+                                {
+                                    var array = enumerator.ToArray();
+                                    array.Reverse();
+                                    restrictionList.Add(array);
+                                }
+                            }
+                            else
+                            {
+                                restrictionList.Add(enumerator.ToArray());
                             }
                         }
                     }

@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2017 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -29,7 +29,7 @@ namespace Itinero.Graphs.Directed
     /// <summary>
     /// An directed graph.
     /// </summary>
-    public class DirectedDynamicGraph : IDisposable
+    public sealed class DirectedDynamicGraph : IDisposable
     {
         private const uint NO_EDGE = uint.MaxValue; // a dummy value indication that there is no edge.
         private const uint MAX_DYNAMIC_PAYLOAD = uint.MaxValue / 4; // the maximum payload for a dynamic data field and the last of the fixed fields. two bits are needed for bookkeeping.
@@ -678,7 +678,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// Represents the internal edge enumerator.
         /// </summary>
-        public class EdgeEnumerator : IEnumerable<DynamicEdge>, IEnumerator<DynamicEdge>
+        public sealed class EdgeEnumerator : IEnumerable<DynamicEdge>, IEnumerator<DynamicEdge>
         {
             private readonly DirectedDynamicGraph _graph;
             private uint _currentEdgePointer;
@@ -722,6 +722,16 @@ namespace Itinero.Graphs.Directed
             public uint Neighbour
             {
                 get { return _graph._edges[_currentEdgePointer]; }
+            }
+
+            /// <summary>
+            /// Gets all commonly used data fields in on go.
+            /// </summary>
+            public void GetData(out uint neighbour, out uint data0, out uint data1)
+            {
+                neighbour = _graph._edges[_currentEdgePointer];
+                data0 = DirectedDynamicGraph.RemoveFlags(_graph._edges[_currentEdgePointer + 0 + 1]);
+                data1 = DirectedDynamicGraph.RemoveFlags(_graph._edges[_currentEdgePointer + 1 + 1]);
             }
 
             /// <summary>

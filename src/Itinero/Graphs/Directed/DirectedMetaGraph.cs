@@ -27,7 +27,7 @@ namespace Itinero.Graphs.Directed
     /// <summary>
     /// A direct graph with extra meta-data per edge.
     /// </summary>
-    public class DirectedMetaGraph
+    public sealed class DirectedMetaGraph
     {
         private readonly DirectedGraph _graph;
         private readonly ArrayBase<uint> _edgeData;
@@ -268,7 +268,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// Represents the internal edge enumerator.
         /// </summary>
-        public class EdgeEnumerator : IEnumerable<MetaEdge>, IEnumerator<MetaEdge>
+        public sealed class EdgeEnumerator : IEnumerable<MetaEdge>, IEnumerator<MetaEdge>
         {
             private readonly DirectedMetaGraph _graph;
             private readonly DirectedGraph.EdgeEnumerator _enumerator;

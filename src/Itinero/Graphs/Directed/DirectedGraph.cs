@@ -1,5 +1,5 @@
 ﻿// Itinero - Routing for .NET
-// Copyright (C) 2016 Abelshausen Ben
+// Copyright (C) 2017 Abelshausen Ben
 // 
 // This file is part of Itinero.
 // 
@@ -28,7 +28,7 @@ namespace Itinero.Graphs.Directed
     /// <summary>
     /// An directed graph.
     /// </summary>
-    public class DirectedGraph : IDisposable
+    public sealed class DirectedGraph : IDisposable
     {
         private const int VERTEX_SIZE = 2; // holds the first edge index and the edge count.
         private const int FIRST_EDGE = 0;
@@ -141,16 +141,24 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// Increases the memory allocation.
         /// </summary>
-        private void IncreaseVertexSize()
+        private void IncreaseVertexSize(long minimumSize)
         {
-            this.IncreaseVertexSize(_vertices.Length + 10000);
+            var newSize = _vertices.Length;
+            while(newSize < minimumSize)
+            {
+                newSize += 10000;
+            }
+            if (newSize > _vertices.Length)
+            {
+                this.SetVertexSize(newSize);
+            }
         }
 
         /// <summary>
         /// Increases the memory allocation.
         /// </summary>
         /// <param name="size"></param>
-        private void IncreaseVertexSize(long size)
+        private void SetVertexSize(long size)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
 
@@ -184,8 +192,8 @@ namespace Itinero.Graphs.Directed
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
-            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
-            if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (((vertex1 * VERTEX_SIZE) + EDGE_COUNT) > _vertices.Length - 1) { this.IncreaseVertexSize(((vertex1 * VERTEX_SIZE) + EDGE_COUNT)); }
+            if (((vertex2 * VERTEX_SIZE) + EDGE_COUNT) > _vertices.Length - 1) { this.IncreaseVertexSize(((vertex2 * VERTEX_SIZE) + EDGE_COUNT)); }
             if (_edgeDataSize != 1) { throw new ArgumentOutOfRangeException("Dimension of data doesn't match."); }
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
@@ -289,8 +297,8 @@ namespace Itinero.Graphs.Directed
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
-            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
-            if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (((vertex1 * VERTEX_SIZE) + EDGE_COUNT) > _vertices.Length - 1) { this.IncreaseVertexSize(((vertex1 * VERTEX_SIZE) + EDGE_COUNT)); }
+            if (((vertex2 * VERTEX_SIZE) + EDGE_COUNT) > _vertices.Length - 1) { this.IncreaseVertexSize(((vertex2 * VERTEX_SIZE) + EDGE_COUNT)); }
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
@@ -409,8 +417,8 @@ namespace Itinero.Graphs.Directed
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
-            if (vertex1 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
-            if (vertex2 * VERTEX_SIZE > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            if (((vertex1 * VERTEX_SIZE) + EDGE_COUNT) > _vertices.Length - 1) { this.IncreaseVertexSize(((vertex1 * VERTEX_SIZE) + EDGE_COUNT)); }
+            if (((vertex2 * VERTEX_SIZE) + EDGE_COUNT) > _vertices.Length - 1) { this.IncreaseVertexSize(((vertex2 * VERTEX_SIZE) + EDGE_COUNT)); }
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
@@ -686,7 +694,7 @@ namespace Itinero.Graphs.Directed
         /// <summary>
         /// Represents the internal edge enumerator.
         /// </summary>
-        public class EdgeEnumerator : IEnumerable<Edge>, IEnumerator<Edge>
+        public sealed class EdgeEnumerator : IEnumerable<Edge>, IEnumerator<Edge>
         {
             private readonly DirectedGraph _graph;
             private uint _currentEdgePointer;

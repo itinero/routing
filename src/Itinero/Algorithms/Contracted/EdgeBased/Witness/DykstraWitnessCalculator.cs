@@ -72,6 +72,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
             }
 
             // creates the settled list.
+            var s = new List<uint>();
             var backwardSettled = new HashSet<EdgePath<T>>();
             var forwardSettled = new HashSet<EdgePath<T>>();
             var backwardTargets = new HashSet<uint>();
@@ -178,8 +179,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                         break;
                     }
 
-                    if (forwardSettled.Count >= _maxSettles &&
-                        backwardSettled.Count >= _maxSettles)
+                    if ((forwardTargets.Count == 0 || forwardSettled.Count >= _maxSettles) &&
+                        (backwardTargets.Count == 0 || backwardSettled.Count >= _maxSettles))
                     { // do not continue searching.
                         break;
                     }
@@ -191,14 +192,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
 
                         // check for a restriction and if need build the original sequence.
                         var restrictions = getRestrictions(current.Path.Vertex);
-                        var sequence = current.Path.GetSequence2(edgeEnumerator);
+                        var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
                         sequence = sequence.Append(current.Path.Vertex);
 
                         // move to the current vertex.
                         edgeEnumerator.MoveTo(current.Path.Vertex);
+                        //uint neighbour, data0, data1;
                         while (edgeEnumerator.MoveNext())
                         { // move next.
                             var neighbour = edgeEnumerator.Neighbour;
+                            //edgeEnumerator.GetData(out neighbour, out data0, out data1);
                             
                             bool? neighbourDirection;
                             var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator, out neighbourDirection);
