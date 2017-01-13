@@ -35,7 +35,7 @@ namespace Itinero.Algorithms.Matrices
         where T : struct
     {
         private readonly RouterBase _router;
-        private readonly Profile _profile;
+        private readonly IProfileInstance _profile;
         private readonly WeightHandler<T> _weightHandler;
         private readonly MassResolvingAlgorithm _massResolver;
 
@@ -46,7 +46,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations,
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] locations,
             T? max = null)
             : this(router, profile, weightHandler, new MassResolvingAlgorithm(
                 router, new IProfileInstance[] { profile }, locations), max)
@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, MassResolvingAlgorithm massResolver, T? max = null)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, MassResolvingAlgorithm massResolver, T? max = null)
         {
             _router = router;
             _profile = profile;
@@ -65,7 +65,7 @@ namespace Itinero.Algorithms.Matrices
             _massResolver = massResolver;
 
             ContractedDb contractedDb;
-            if (!router.Db.TryGetContracted(profile, out contractedDb))
+            if (!router.Db.TryGetContracted(profile.Profile, out contractedDb))
             {
                 throw new NotSupportedException(
                     "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");
@@ -435,6 +435,16 @@ namespace Itinero.Algorithms.Matrices
             return false;
         }
 
+        /// <summary>
+        /// Gets the profile.
+        /// </summary>
+        public IProfileInstance Profile
+        {
+            get
+            {
+                return _profile;
+            }
+        }
 
         /// <summary>
         /// Gets the mass resolver.
@@ -539,7 +549,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, MassResolvingAlgorithm massResolver, float max = float.MaxValue)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, MassResolvingAlgorithm massResolver, float max = float.MaxValue)
             : base(router, profile, profile.DefaultWeightHandler(router), massResolver, max)
         {
 
@@ -547,7 +557,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations, float max = float.MaxValue)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, float max = float.MaxValue)
             : base(router, profile, profile.DefaultWeightHandler(router), locations, max)
         {
 
