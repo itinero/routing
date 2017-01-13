@@ -46,9 +46,10 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, Coordinate[] locations,
+            T? max = null)
             : this(router, profile, weightHandler, new MassResolvingAlgorithm(
-                router, new IProfileInstance[] { profile }, locations))
+                router, new IProfileInstance[] { profile }, locations), max)
         {
 
         }
@@ -56,7 +57,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, MassResolvingAlgorithm massResolver)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, WeightHandler<T> weightHandler, MassResolvingAlgorithm massResolver, T? max = null)
         {
             _router = router;
             _profile = profile;
@@ -76,7 +77,14 @@ namespace Itinero.Algorithms.Matrices
             }
             _graph = contractedDb.EdgeBasedGraph;
             weightHandler.CheckCanUse(contractedDb);
-            _max = weightHandler.Infinite;
+            if (max.HasValue)
+            {
+                _max = max.Value;
+            }
+            else
+            {
+                _max = weightHandler.Infinite;
+            }
 
             _buckets = new Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>>();
         }
@@ -121,13 +129,12 @@ namespace Itinero.Algorithms.Matrices
                     this.ErrorMessage = string.Format("Source at {0} could not be resolved properly.", i);
                     return;
                 }
-                if (paths.Length != 2)
-                {
-                    this.ErrorMessage = "There should be exactly two paths leaving every location.";
-                    return;
-                }
+
                 _sourcePaths[i * 2 + 0] = paths[0];
-                _sourcePaths[i * 2 + 1] = paths[1];
+                if (paths.Length == 2)
+                {
+                    _sourcePaths[i * 2 + 1] = paths[1];
+                }
             }
 
             // convert targets into directed paths.
@@ -140,22 +147,23 @@ namespace Itinero.Algorithms.Matrices
                     this.ErrorMessage = string.Format("Target at {0} could not be resolved properly.", i);
                     return;
                 }
-                if (paths.Length != 2)
-                {
-                    this.ErrorMessage = "There should be exactly two paths leaving every location.";
-                    return;
-                }
 
                 // make sure paths are the opposive of the sources.
                 if (paths[0].Edge == _sourcePaths[i * 2 + 0].Edge)
                 { // switchs.
                     _targetPaths[i * 2 + 1] = paths[0];
-                    _targetPaths[i * 2 + 0] = paths[1];
+                    if (paths.Length == 2)
+                    {
+                        _targetPaths[i * 2 + 0] = paths[1];
+                    }
                 }
                 else
                 { // keep.
                     _targetPaths[i * 2 + 0] = paths[0];
-                    _targetPaths[i * 2 + 1] = paths[1];
+                    if (paths.Length == 2)
+                    {
+                        _targetPaths[i * 2 + 1] = paths[1];
+                    }
                 }
             }
 
@@ -164,10 +172,20 @@ namespace Itinero.Algorithms.Matrices
             for (var i = 0; i < _sourcePaths.Length; i++)
             {
                 var source = _sourcePaths[i];
+                if (source == null)
+                {
+                    continue;
+                }
+
                 _weights[i] = new T[_targetPaths.Length];
                 for (var j = 0; j < _targetPaths.Length; j++)
                 {
                     var target = _targetPaths[j];
+                    if (target == null)
+                    {
+                        continue;
+                    }
+
                     _weights[i][j] = _weightHandler.Infinite;
 
                     if (target.Edge == -source.Edge)
@@ -240,19 +258,32 @@ namespace Itinero.Algorithms.Matrices
             for (var s = 0; s < _weights.Length; s++)
             {
                 var invalids = 0;
-                for (var t = 0; t < _weights[s].Length; t++)
+                if (_weights[s] != null)
                 {
-                    if (t != s)
+                    for (var t = 0; t < _weights[s].Length; t++)
                     {
-                        if (_weightHandler.GetMetric(_weights[s][t]) == float.MaxValue)
+                        if (t != s)
                         {
-                            invalids++;
-                            invalidTargetCounts[t]++;
-                            if (invalidTargetCounts[t] > (_sourcePaths.Length - 1) / 2)
+                            if (_weightHandler.GetMetric(_weights[s][t]) == float.MaxValue)
                             {
-                                nonNullInvalids.Add(t);
+                                invalids++;
+                                invalidTargetCounts[t]++;
+                                if (invalidTargetCounts[t] > (_sourcePaths.Length - 1) / 2)
+                                {
+                                    nonNullInvalids.Add(t);
+                                }
                             }
                         }
+                    }
+                }
+                else
+                {
+                    invalids = _targetPaths.Length;
+
+                    _weights[s] = new T[_targetPaths.Length];
+                    for (var t = 0; t < _weights[s].Length; t++)
+                    {
+                        _weights[s][t] = _weightHandler.Infinite;
                     }
                 }
 
@@ -486,16 +517,16 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, MassResolvingAlgorithm massResolver)
-            : base(router, profile, profile.DefaultWeightHandler(router), massResolver)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, MassResolvingAlgorithm massResolver, float max = float.MaxValue)
+            : base(router, profile, profile.DefaultWeightHandler(router), massResolver, max)
         {
 
         }
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations)
-            : base(router, profile, profile.DefaultWeightHandler(router), locations)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, Profile profile, Coordinate[] locations, float max = float.MaxValue)
+            : base(router, profile, profile.DefaultWeightHandler(router), locations, max)
         {
 
         }

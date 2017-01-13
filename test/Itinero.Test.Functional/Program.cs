@@ -44,6 +44,10 @@ namespace Itinero.Test.Functional
             
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 
+#if DEBUG
+            _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
+#endif
+
             // download and extract test-data if not already there.
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();
@@ -54,7 +58,7 @@ namespace Itinero.Test.Functional
             // test resolving.
             ResolvingTests.Run(routerDb);
 
-            // test routing.
+            //// test routing.
             RoutingTests.Run(routerDb);
 
             // tests calculate weight matrices.
@@ -64,18 +68,7 @@ namespace Itinero.Test.Functional
             InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
             Console.ReadLine();
-#endif
-        }
-
-        private static byte[] temp = new byte[8];
-
-        private static long LongRandom(long min, long max, Random rand)
-        {
-            rand.NextBytes(temp);
-            long longRand = BitConverter.ToInt64(temp, 0);
-            return (Math.Abs(longRand % (max - min)) + min);
         }
 
         private static string ToJson(FeatureCollection featureCollection)

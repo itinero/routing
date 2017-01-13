@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 
@@ -35,8 +36,8 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 100).TestPerf("Testing weight matrix");
-            //GetTestDirectedWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 10).TestPerf("Testing directed weight matrix");
+            GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
+            GetTestDirectedWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 100).TestPerf("Testing directed weight matrix");
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, int count)
         {
-            var random = new System.Random();
+            var random = new System.Random(145171654);
             var vertices = new HashSet<uint>();
             var locations = new List<Coordinate>();
             while (locations.Count < count)
@@ -65,6 +66,7 @@ namespace Itinero.Test.Functional.Tests
             {
                 var matrix = new Itinero.Algorithms.Matrices.WeightMatrixAlgorithm(router, profile, massResolver);
                 matrix.Run();
+                Assert.IsTrue(matrix.HasSucceeded);
             };
         }
 
@@ -73,7 +75,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Action GetTestDirectedWeightMatrix(Router router, Profiles.Profile profile, int count)
         {
-            var random = new System.Random();
+            var random = new System.Random(145171654);
             var vertices = new HashSet<uint>();
             var locations = new List<Coordinate>();
             while (locations.Count < count)
@@ -94,6 +96,7 @@ namespace Itinero.Test.Functional.Tests
             {
                 var matrix = new Itinero.Algorithms.Matrices.DirectedWeightMatrixAlgorithm(router, profile, massResolver);
                 matrix.Run();
+                Assert.IsTrue(matrix.HasSucceeded);
             };
         }
     }
