@@ -4,7 +4,7 @@
 [![Visit our website](https://img.shields.io/badge/website-itinero.tech-020031.svg) ](http://www.itinero.tech/)
 [![GPL licensed](https://img.shields.io/badge/license-GPLv2-blue.svg)](https://github.com/itinero/routing/blob/develop/LICENSE.md)
 
-- Itinero: [![NuGet](https://img.shields.io/nuget-Itinero/v/Itinero.svg?style=flat)](http://www.nuget.org/profiles/Itinero)  
+- Itinero: [![NuGet](https://img.shields.io/nuget/v/Itinero.svg?style=flat)](http://www.nuget.org/profiles/Itinero)  
 - Itinero.Geo: [![NuGet](https://img.shields.io/nuget/v/Itinero.Geo.svg?style=flat)](http://www.nuget.org/profiles/Itinero.Geo)  
 - Itinero.IO.Osm: [![NuGet](https://img.shields.io/nuget/v/Itinero.IO.Osm.svg?style=flat)](http://www.nuget.org/profiles/Itinero.IO.Osm)
 - Itinero.IO.Shape: [![NuGet](https://img.shields.io/nuget/v/Itinero.IO.Shape.svg?style=flat)](http://www.nuget.org/profiles/Itinero.IO.Shape)
