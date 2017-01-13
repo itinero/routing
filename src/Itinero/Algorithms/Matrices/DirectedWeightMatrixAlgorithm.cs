@@ -436,6 +436,17 @@ namespace Itinero.Algorithms.Matrices
         }
 
         /// <summary>
+        /// Gets the router.
+        /// </summary>
+        public RouterBase Router
+        {
+            get
+            {
+                return _router;
+            }
+        }
+
+        /// <summary>
         /// Gets the profile.
         /// </summary>
         public IProfileInstance Profile
