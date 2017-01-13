@@ -474,6 +474,28 @@ namespace Itinero.Algorithms.Matrices
         }
 
         /// <summary>
+        /// Gets the source paths.
+        /// </summary>
+        public EdgePath<T>[] SourcePaths
+        {
+            get
+            {
+                return _sourcePaths;
+            }
+        }
+
+        /// <summary>
+        /// Gets the target paths.
+        /// </summary>
+        public EdgePath<T>[] TargetPaths
+        {
+            get
+            {
+                return _targetPaths;
+            }
+        }
+
+        /// <summary>
         /// Returns the index of the original router point in the list of routable routerpoint.
         /// </summary>
         /// <returns></returns>
