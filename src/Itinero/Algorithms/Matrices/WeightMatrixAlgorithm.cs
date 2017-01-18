@@ -27,7 +27,7 @@ namespace Itinero.Algorithms.Matrices
     /// <summary>
     /// An algorithm to calculate a weight-matrix for a set of locations.
     /// </summary>
-    public class WeightMatrixAlgorithm<T> : AlgorithmBase
+    public class WeightMatrixAlgorithm<T> : AlgorithmBase, IWeightMatrixAlgorithm<T>
         where T : struct
     {
         private readonly RouterBase _router;
