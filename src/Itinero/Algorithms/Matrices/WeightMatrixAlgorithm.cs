@@ -33,7 +33,7 @@ namespace Itinero.Algorithms.Matrices
         private readonly RouterBase _router;
         private readonly IProfileInstance _profile;
         private readonly WeightHandler<T> _weightHandler;
-        private readonly MassResolvingAlgorithm _massResolver;
+        private readonly IMassResolvingAlgorithm _massResolver;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
@@ -48,7 +48,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, MassResolvingAlgorithm massResolver)
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver)
         {
             _router = router;
             _profile = profile;
@@ -129,7 +129,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the mass resolver.
         /// </summary>
-        public MassResolvingAlgorithm MassResolver
+        public IMassResolvingAlgorithm MassResolver
         {
             get
             {
@@ -207,7 +207,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, MassResolvingAlgorithm massResolver)
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver)
             : base(router, profile, profile.DefaultWeightHandler(router), massResolver)
         {
 

@@ -37,7 +37,7 @@ namespace Itinero.Algorithms.Matrices
         private readonly RouterBase _router;
         private readonly IProfileInstance _profile;
         private readonly WeightHandler<T> _weightHandler;
-        private readonly MassResolvingAlgorithm _massResolver;
+        private readonly IMassResolvingAlgorithm _massResolver;
 
         private readonly Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>> _buckets;
         private readonly DirectedDynamicGraph _graph;
@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, MassResolvingAlgorithm massResolver, T? max = null)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver, T? max = null)
         {
             _router = router;
             _profile = profile;
@@ -460,7 +460,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the mass resolver.
         /// </summary>
-        public MassResolvingAlgorithm MassResolver
+        public IMassResolvingAlgorithm MassResolver
         {
             get
             {
@@ -560,7 +560,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, MassResolvingAlgorithm massResolver, float max = float.MaxValue)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver, float max = float.MaxValue)
             : base(router, profile, profile.DefaultWeightHandler(router), massResolver, max)
         {
 

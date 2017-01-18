@@ -27,7 +27,7 @@ namespace Itinero.Algorithms.Search
     /// <summary>
     /// A mass-resolving algorithm.
     /// </summary>
-    public sealed class MassResolvingAlgorithm : AlgorithmBase
+    public sealed class MassResolvingAlgorithm : AlgorithmBase, IMassResolvingAlgorithm
     {
         private readonly IProfileInstance[] _profiles;
         private readonly RouterBase _router;
