@@ -58,8 +58,8 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.AreEqual(Coordinate.DistanceEstimateInMeter(locations[1], locations[0]), matrix[1][0], 0.1);
             Assert.AreEqual(0, matrix[1][1]);
             Assert.AreEqual(2, matrixAlgorithm.RouterPoints.Count);
-            Assert.AreEqual(0, matrixAlgorithm.IndexOf(0));
-            Assert.AreEqual(1, matrixAlgorithm.IndexOf(1));
+            Assert.AreEqual(0, matrixAlgorithm.CorrectedIndexOf(0));
+            Assert.AreEqual(1, matrixAlgorithm.CorrectedIndexOf(1));
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.IsNotNull(matrix);
             Assert.AreEqual(0, matrix[0][0]);
             Assert.AreEqual(1, matrixAlgorithm.RouterPoints.Count);
-            Assert.AreEqual(0, matrixAlgorithm.IndexOf(0));
+            Assert.AreEqual(0, matrixAlgorithm.CorrectedIndexOf(0));
             Assert.AreEqual(0, matrixAlgorithm.OriginalIndexOf(0));
 
             // build test case.
@@ -112,9 +112,9 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.IsNotNull(matrix);
             Assert.AreEqual(0, matrix[0][0]);
             Assert.AreEqual(1, matrixAlgorithm.RouterPoints.Count);
-            Assert.AreEqual(0, matrixAlgorithm.IndexOf(0));
+            Assert.AreEqual(0, matrixAlgorithm.CorrectedIndexOf(0));
             Assert.AreEqual(0, matrixAlgorithm.OriginalIndexOf(0));
-            Assert.AreEqual(0, matrixAlgorithm.MassResolver.IndexOf(1));
+            Assert.AreEqual(0, matrixAlgorithm.MassResolver.ResolvedIndexOf(1));
             Assert.AreEqual(1, matrixAlgorithm.MassResolver.LocationIndexOf(0));
         }
 
@@ -146,7 +146,7 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.IsNotNull(matrix);
             Assert.AreEqual(0, matrix[0][0]);
             Assert.AreEqual(1, matrixAlgorithm.RouterPoints.Count);
-            Assert.AreEqual(0, matrixAlgorithm.IndexOf(0));
+            Assert.AreEqual(0, matrixAlgorithm.CorrectedIndexOf(0));
             Assert.AreEqual(0, matrixAlgorithm.OriginalIndexOf(0));
 
             // build test case.
@@ -171,7 +171,7 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.IsNotNull(matrix);
             Assert.AreEqual(0, matrix[0][0]);
             Assert.AreEqual(1, matrixAlgorithm.RouterPoints.Count);
-            Assert.AreEqual(0, matrixAlgorithm.IndexOf(1));
+            Assert.AreEqual(0, matrixAlgorithm.CorrectedIndexOf(1));
             Assert.AreEqual(1, matrixAlgorithm.OriginalIndexOf(0));
         }
     }

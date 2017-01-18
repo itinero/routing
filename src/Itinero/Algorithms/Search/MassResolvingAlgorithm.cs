@@ -49,7 +49,7 @@ namespace Itinero.Algorithms.Search
         }
 
         private Dictionary<int, LocationError> _errors; // all errors per original location idx.
-        private List<int> _resolvedPointsIndices; // the original location per resolved point index.
+        private List<int> _originalLocationIndexes; // the original location per resolved point index.
         private List<RouterPoint> _resolvedPoints; // only the valid resolved points.
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace Itinero.Algorithms.Search
         {
             _errors = new Dictionary<int, LocationError>(_locations.Length);
             _resolvedPoints = new List<RouterPoint>(_locations.Length);
-            _resolvedPointsIndices = new List<int>(_locations.Length);
+            _originalLocationIndexes = new List<int>(_locations.Length);
 
             // resolve all locations.
             var resolvedPoints = new RouterPoint[_locations.Length];
@@ -99,7 +99,7 @@ namespace Itinero.Algorithms.Search
                 { // resolve is ok.
                     resolvedPoints[i].Attributes.AddOrReplace("index", i.ToInvariantString());
 
-                    _resolvedPointsIndices.Add(i);
+                    _originalLocationIndexes.Add(i);
                     _resolvedPoints.Add(resolvedPoints[i]);
                 }
             }
@@ -121,25 +121,23 @@ namespace Itinero.Algorithms.Search
         }
 
         /// <summary>
-        /// Returns the index of the location in the resolved points list.
+        /// Returns the index of the resolved point, given the original index of in the locations array.
         /// </summary>
-        /// <returns></returns>
-        public int IndexOf(int locationIdx)
+        public int ResolvedIndexOf(int locationIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _resolvedPointsIndices.IndexOf(locationIdx);
+            return _originalLocationIndexes.IndexOf(locationIdx);
         }
 
         /// <summary>
-        /// Returns the index of the router point in the original locations array.
+        /// Returns the index of the location in the original locations array, given the resolved point index..
         /// </summary>
-        /// <returns></returns>
         public int LocationIndexOf(int routerPointIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _resolvedPointsIndices[routerPointIdx];
+            return _originalLocationIndexes[routerPointIdx];
         }
 
         /// <summary>

@@ -71,7 +71,7 @@ namespace Sample.Matrix
             resolved = matrixCalculator.RouterPoints.ToArray(); // the resolved routerpoints, you can use these later without the need to resolve again.
 
             // when there are failed points, the weight matrix is smaller, use these functions to map locations from the original array to succeeded points.
-            var newIndex = matrixCalculator.MassResolver.IndexOf(4); // returns the index of the original location in the weight matrix.
+            var newIndex = matrixCalculator.MassResolver.ResolvedIndexOf(4); // returns the index of the original location in the weight matrix.
             var oldIndex = matrixCalculator.MassResolver.LocationIndexOf(5); // returns the index of the weight matrix point in the original locations array.
         }
     }

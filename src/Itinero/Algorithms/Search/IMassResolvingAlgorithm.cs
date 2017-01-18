@@ -36,15 +36,13 @@ namespace Itinero.Algorithms.Search
         List<RouterPoint> RouterPoints { get; }
         
         /// <summary>
-        /// Returns the index of the location in the resolved points list.
+        /// Returns the index of the resolved point, given the original index of in the locations array.
         /// </summary>
-        /// <returns></returns>
-        int IndexOf(int locationIdx);
+        int ResolvedIndexOf(int locationIdx);
 
         /// <summary>
-        /// Returns the index of the router point in the original locations array.
+        /// Returns the index of the location in the original locations array, given the resolved point index..
         /// </summary>
-        /// <returns></returns>
-        int LocationIndexOf(int routerPointIdx);
+        int LocationIndexOf(int resolvedIdx);
     }
 }

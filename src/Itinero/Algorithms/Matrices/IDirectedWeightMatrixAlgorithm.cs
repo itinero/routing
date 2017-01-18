@@ -43,12 +43,6 @@ namespace Itinero.Algorithms.Matrices
         T[][] Weights { get; }
 
         /// <summary>
-        /// Returns the index of the original router point in the list of routable routerpoint.
-        /// </summary>
-        /// <returns></returns>
-        int IndexOf(int first);
-
-        /// <summary>
         /// Gets the router.
         /// </summary>
         RouterBase Router { get; }
@@ -59,10 +53,14 @@ namespace Itinero.Algorithms.Matrices
         List<RouterPoint> RouterPoints { get; }
 
         /// <summary>
-        /// Returns the index of the router point in the original router points list.
+        /// Returns the original index of the routerpoint, given the corrected index.
         /// </summary>
-        /// <returns></returns>
-        int OriginalIndexOf(int customer);
+        int OriginalIndexOf(int correctedIdx);
+
+        /// <summary>
+        /// Returns the corrected index of the routerpoint, given the original index.
+        /// </summary>
+        int CorrectedIndexOf(int originalIdx);
 
         /// <summary>
         /// Gets the target paths.

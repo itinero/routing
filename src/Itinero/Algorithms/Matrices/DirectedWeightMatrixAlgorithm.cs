@@ -90,8 +90,8 @@ namespace Itinero.Algorithms.Matrices
         }
 
         private Dictionary<int, RouterPointError> _errors; // all errors per routerpoint idx.
-        private List<int> _resolvedPointsIndices; // the original routerpoint per resolved point index.
-        private List<RouterPoint> _resolvedPoints; // only the valid resolved points.
+        private List<int> _correctedIndices; // has the exact size of the weight array, contains the original indexes.
+        private List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
 
         private T[][] _weights; // the weights between all valid resolved points.              
         private EdgePath<T>[] _sourcePaths;
@@ -109,21 +109,21 @@ namespace Itinero.Algorithms.Matrices
             }
 
             // create error and resolved point management data structures.
-            _resolvedPoints = _massResolver.RouterPoints;
-            _errors = new Dictionary<int, RouterPointError>(_resolvedPoints.Count);
-            _resolvedPointsIndices = new List<int>(_resolvedPoints.Count);
-            for (var i = 0; i < _resolvedPoints.Count; i++)
+            _correctedResolvedPoints = _massResolver.RouterPoints;
+            _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
+            _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
+            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
             {
-                _resolvedPointsIndices.Add(i);
+                _correctedIndices.Add(i);
             }
 
             // convert sources into directed paths.
-            _sourcePaths = new EdgePath<T>[_resolvedPoints.Count * 2];
-            for (var i = 0; i < _resolvedPoints.Count; i++)
+            _sourcePaths = new EdgePath<T>[_correctedResolvedPoints.Count * 2];
+            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
             {
-                _resolvedPointsIndices.Add(i);
+                _correctedIndices.Add(i);
 
-                var paths = _resolvedPoints[i].ToEdgePathsDirected(_router.Db, _weightHandler, true);
+                var paths = _correctedResolvedPoints[i].ToEdgePathsDirected(_router.Db, _weightHandler, true);
                 if (paths.Length == 0)
                 {
                     this.ErrorMessage = string.Format("Source at {0} could not be resolved properly.", i);
@@ -138,10 +138,10 @@ namespace Itinero.Algorithms.Matrices
             }
 
             // convert targets into directed paths.
-            _targetPaths = new EdgePath<T>[_resolvedPoints.Count * 2];
-            for (var i = 0; i < _resolvedPoints.Count; i++)
+            _targetPaths = new EdgePath<T>[_correctedResolvedPoints.Count * 2];
+            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
             {
-                var paths = _resolvedPoints[i].ToEdgePathsDirected(_router.Db, _weightHandler, false);
+                var paths = _correctedResolvedPoints[i].ToEdgePathsDirected(_router.Db, _weightHandler, false);
                 if (paths.Length == 0)
                 {
                     this.ErrorMessage = string.Format("Target at {0} could not be resolved properly.", i);
@@ -192,8 +192,8 @@ namespace Itinero.Algorithms.Matrices
                     {
                         var s = i / 2;
                         var t = j / 2;
-                        var sourcePoint = _resolvedPoints[s];
-                        var targetPoint = _resolvedPoints[t];
+                        var sourcePoint = _correctedResolvedPoints[s];
+                        var targetPoint = _correctedResolvedPoints[t];
 
                         EdgePath<T> newPath = null;
                         if (source.Edge > 0 &&
@@ -316,8 +316,8 @@ namespace Itinero.Algorithms.Matrices
                     }
                 }
 
-                _resolvedPoints = _resolvedPoints.ShrinkAndCopyList(originalInvalids);
-                _resolvedPointsIndices = _resolvedPointsIndices.ShrinkAndCopyList(originalInvalids);
+                _correctedResolvedPoints = _correctedResolvedPoints.ShrinkAndCopyList(originalInvalids);
+                _correctedIndices = _correctedIndices.ShrinkAndCopyList(originalInvalids);
 
                 // convert back to the path indexes.
                 nonNullInvalids = new HashSet<int>();
@@ -329,7 +329,7 @@ namespace Itinero.Algorithms.Matrices
 
                 foreach (var invalid in nonNullInvalids)
                 {
-                    _errors[_resolvedPointsIndices[invalid / 2]] = new RouterPointError()
+                    _errors[_correctedIndices[invalid / 2]] = new RouterPointError()
                     {
                         Code = RouterPointErrorCode.NotRoutable,
                         Message = "Location could not routed to or from."
@@ -490,7 +490,7 @@ namespace Itinero.Algorithms.Matrices
             {
                 this.CheckHasRunAndHasSucceeded();
 
-                return _resolvedPoints;
+                return _correctedResolvedPoints;
             }
         }
 
@@ -517,25 +517,23 @@ namespace Itinero.Algorithms.Matrices
         }
 
         /// <summary>
-        /// Returns the index of the original router point in the list of routable routerpoint.
+        /// Returns the original index of the routerpoint, given the corrected index.
         /// </summary>
-        /// <returns></returns>
-        public int IndexOf(int originalRouterPointIndex)
+        public int OriginalIndexOf(int correctedIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _resolvedPointsIndices.IndexOf(originalRouterPointIndex);
+            return _correctedIndices[correctedIdx];
         }
 
         /// <summary>
-        /// Returns the index of the router point in the original router points list.
+        /// Returns the corrected index of the routerpoint, given the original index.
         /// </summary>
-        /// <returns></returns>
-        public int OriginalIndexOf(int routerPointIdx)
+        public int CorrectedIndexOf(int originalIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _resolvedPointsIndices[routerPointIdx];
+            return _correctedIndices.IndexOf(originalIdx);
         }
 
         /// <summary>

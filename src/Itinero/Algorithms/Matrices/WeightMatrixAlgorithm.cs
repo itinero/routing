@@ -57,8 +57,8 @@ namespace Itinero.Algorithms.Matrices
         }
 
         private Dictionary<int, RouterPointError> _errors; // all errors per routerpoint idx.
-        private List<int> _resolvedPointsIndices; // the original routerpoint per resolved point index.
-        private List<RouterPoint> _resolvedPoints; // only the valid resolved points.
+        private List<int> _correctedIndices; // the original routerpoint per resolved point index.
+        private List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
         private T[][] _weights; // the weights between all valid resolved points.        
         
         /// <summary>
@@ -73,17 +73,17 @@ namespace Itinero.Algorithms.Matrices
             }
 
             // create error and resolved point management data structures.
-            _resolvedPoints = _massResolver.RouterPoints;
-            _errors = new Dictionary<int, RouterPointError>(_resolvedPoints.Count);
-            _resolvedPointsIndices = new List<int>(_resolvedPoints.Count);
-            for (var i = 0; i < _resolvedPoints.Count; i++)
+            _correctedResolvedPoints = _massResolver.RouterPoints;
+            _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
+            _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
+            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
             {
-                _resolvedPointsIndices.Add(i);
+                _correctedIndices.Add(i);
             }
             
             // calculate matrix.
             var nonNullInvalids = new HashSet<int>();
-            _weights = _router.CalculateWeight(_profile, _weightHandler, _resolvedPoints.ToArray(), nonNullInvalids);
+            _weights = _router.CalculateWeight(_profile, _weightHandler, _correctedResolvedPoints.ToArray(), nonNullInvalids);
 
             // take into account the non-null invalids now.
             if (nonNullInvalids.Count > 0)
@@ -97,8 +97,8 @@ namespace Itinero.Algorithms.Matrices
                     };
                 }
 
-                _resolvedPoints = _resolvedPoints.ShrinkAndCopyList(nonNullInvalids);
-                _resolvedPointsIndices = _resolvedPointsIndices.ShrinkAndCopyList(nonNullInvalids);
+                _correctedResolvedPoints = _correctedResolvedPoints.ShrinkAndCopyList(nonNullInvalids);
+                _correctedIndices = _correctedIndices.ShrinkAndCopyList(nonNullInvalids);
                 _weights = _weights.SchrinkAndCopyMatrix(nonNullInvalids);
             }
             this.HasSucceeded = true;
@@ -159,30 +159,28 @@ namespace Itinero.Algorithms.Matrices
             {
                 this.CheckHasRunAndHasSucceeded();
 
-                return _resolvedPoints;
+                return _correctedResolvedPoints;
             }
         }
 
         /// <summary>
-        /// Returns the index of the original router point in the list of routable routerpoint.
+        /// Returns the corrected index of the routerpoint, given the original index.
         /// </summary>
-        /// <returns></returns>
-        public int IndexOf(int originalRouterPointIndex)
+        public int CorrectedIndexOf(int originalIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _resolvedPointsIndices.IndexOf(originalRouterPointIndex);
+            return _correctedIndices.IndexOf(originalIdx);
         }
 
         /// <summary>
-        /// Returns the index of the router point in the original router points list.
+        /// Returns the original index of the routerpoint, given the corrected index.
         /// </summary>
-        /// <returns></returns>
         public int OriginalIndexOf(int routerPointIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _resolvedPointsIndices[routerPointIdx];
+            return _correctedIndices[routerPointIdx];
         }
 
         /// <summary>

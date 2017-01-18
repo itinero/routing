@@ -55,8 +55,8 @@ namespace Itinero.Test.Algorithms.Search
             Assert.IsTrue(resolver.HasSucceeded);
             Assert.AreEqual(0, resolver.Errors.Count);
             Assert.AreEqual(2, resolver.RouterPoints.Count);
-            Assert.AreEqual(0, resolver.IndexOf(0));
-            Assert.AreEqual(1, resolver.IndexOf(1));
+            Assert.AreEqual(0, resolver.ResolvedIndexOf(0));
+            Assert.AreEqual(1, resolver.ResolvedIndexOf(1));
 
             // build test case.
             router = new RouterMock(new AttributeCollection(new Itinero.Attributes.Attribute("highway", "primary")));
@@ -102,7 +102,7 @@ namespace Itinero.Test.Algorithms.Search
             Assert.AreEqual(1, resolver.Errors.Count);
             Assert.IsTrue(resolver.Errors.ContainsKey(1));
             Assert.AreEqual(1, resolver.RouterPoints.Count);
-            Assert.AreEqual(0, resolver.IndexOf(0));
+            Assert.AreEqual(0, resolver.ResolvedIndexOf(0));
             Assert.AreEqual(0, resolver.LocationIndexOf(0));
 
             // build test case.
@@ -119,7 +119,7 @@ namespace Itinero.Test.Algorithms.Search
             Assert.IsTrue(resolver.HasSucceeded);
             Assert.AreEqual(1, resolver.Errors.Count);
             Assert.IsTrue(resolver.Errors.ContainsKey(0));
-            Assert.AreEqual(0, resolver.IndexOf(1));
+            Assert.AreEqual(0, resolver.ResolvedIndexOf(1));
             Assert.AreEqual(1, resolver.LocationIndexOf(0));
         }
     }
