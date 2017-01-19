@@ -248,74 +248,45 @@ namespace Itinero.Algorithms.Matrices
             }
 
             // check for invalids.
-            var invalidTargetCounts = new int[_sourcePaths.Length];
-            var nonNullInvalids = new HashSet<int>();
-            for (var s = 0; s < _weights.Length; s++)
+            var originalInvalids = new HashSet<int>();
+            var invalidTargetCounts = new int[_weights.Length / 2];
+            for (var s = 0; s < _weights.Length / 2; s++)
             {
                 var invalids = 0;
-                if (_weights[s] != null)
+                for (var t = 0; t < _weights[s * 2].Length / 2; t++)
                 {
-                    for (var t = 0; t < _weights[s].Length; t++)
+                    if (t != s)
                     {
-                        if (t != s)
+                        if (_weightHandler.GetMetric(_weights[s * 2 + 0][t * 2 + 0]) == float.MaxValue &&
+                            _weightHandler.GetMetric(_weights[s * 2 + 0][t * 2 + 1]) == float.MaxValue &&
+                            _weightHandler.GetMetric(_weights[s * 2 + 1][t * 2 + 0]) == float.MaxValue &&
+                            _weightHandler.GetMetric(_weights[s * 2 + 1][t * 2 + 1]) == float.MaxValue)
                         {
-                            if (_weightHandler.GetMetric(_weights[s][t]) == float.MaxValue)
+                            invalids++;
+                            invalidTargetCounts[t]++;
+                            if (invalidTargetCounts[t] > ((_weights.Length / 2) - 1) / 2)
                             {
-                                invalids++;
-                                invalidTargetCounts[t]++;
-                                if (invalidTargetCounts[t] > (_sourcePaths.Length - 1) / 2)
-                                {
-                                    nonNullInvalids.Add(t);
-                                }
+                                originalInvalids.Add(t);
                             }
                         }
                     }
                 }
-                else
-                {
-                    invalids = _targetPaths.Length;
 
-                    _weights[s] = new T[_targetPaths.Length];
-                    for (var t = 0; t < _weights[s].Length; t++)
-                    {
-                        _weights[s][t] = _weightHandler.Infinite;
-                    }
-                }
-
-                if (invalids > (_sourcePaths.Length - 1) / 2)
+                if (invalids > ((_weights.Length / 2) - 1) / 2)
                 {
-                    nonNullInvalids.Add(s);
+                    originalInvalids.Add(s);
                 }
             }
 
             // take into account the non-null invalids now.
-            if (nonNullInvalids.Count > 0)
+            if (originalInvalids.Count > 0)
             { // shrink lists and add errors.
-                // convert to original indices.
-                var originalInvalids = new HashSet<int>();
-                foreach (var invalid in nonNullInvalids)
-                { // check if both are invalid for each router point.
-                    if (invalid % 2 == 0)
-                    {
-                        if (nonNullInvalids.Contains(invalid + 1))
-                        {
-                            originalInvalids.Add(invalid / 2);
-                        }
-                    }
-                    else
-                    {
-                        if (nonNullInvalids.Contains(invalid - 1))
-                        {
-                            originalInvalids.Add(invalid / 2);
-                        }
-                    }
-                }
 
                 _correctedResolvedPoints = _correctedResolvedPoints.ShrinkAndCopyList(originalInvalids);
                 _correctedIndices = _correctedIndices.ShrinkAndCopyList(originalInvalids);
 
                 // convert back to the path indexes.
-                nonNullInvalids = new HashSet<int>();
+                var nonNullInvalids = new HashSet<int>();
                 foreach (var invalid in originalInvalids)
                 {
                     nonNullInvalids.Add(invalid * 2);
@@ -332,6 +303,8 @@ namespace Itinero.Algorithms.Matrices
                 }
 
                 _weights = _weights.SchrinkAndCopyMatrix(nonNullInvalids);
+                _sourcePaths = _sourcePaths.ShrinkAndCopyArray(nonNullInvalids);
+                _targetPaths = _sourcePaths.ShrinkAndCopyArray(nonNullInvalids);
             }
 
             this.HasSucceeded = true;

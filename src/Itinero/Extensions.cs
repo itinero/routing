@@ -231,6 +231,14 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Shrinks and copies the given array, removes elements with indices in the toRemove set.
+        /// </summary>
+        public static T[] ShrinkAndCopyArray<T>(this T[] list, HashSet<int> toRemove)
+        {
+            return (new List<T>(list)).ShrinkAndCopyList(toRemove).ToArray();
+        }
+
+        /// <summary>
         /// Shrinks and copies the matrix and removes rows/columns with indices in the toRemove set.
         /// </summary>
         public static T[][] SchrinkAndCopyMatrix<T>(this T[][] matrix, HashSet<int> toRemove)
