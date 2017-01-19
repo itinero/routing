@@ -112,10 +112,6 @@ namespace Itinero.Algorithms.Matrices
             _correctedResolvedPoints = _massResolver.RouterPoints;
             _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
             _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
-            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
-            {
-                _correctedIndices.Add(i);
-            }
 
             // convert sources into directed paths.
             _sourcePaths = new EdgePath<T>[_correctedResolvedPoints.Count * 2];
@@ -181,12 +177,11 @@ namespace Itinero.Algorithms.Matrices
                 for (var j = 0; j < _targetPaths.Length; j++)
                 {
                     var target = _targetPaths[j];
+                    _weights[i][j] = _weightHandler.Infinite;
                     if (target == null)
                     {
                         continue;
                     }
-
-                    _weights[i][j] = _weightHandler.Infinite;
 
                     if (target.Edge == -source.Edge)
                     {
@@ -302,14 +297,14 @@ namespace Itinero.Algorithms.Matrices
                 { // check if both are invalid for each router point.
                     if (invalid % 2 == 0)
                     {
-                        if (originalInvalids.Contains(invalid + 1))
+                        if (nonNullInvalids.Contains(invalid + 1))
                         {
                             originalInvalids.Add(invalid / 2);
                         }
                     }
                     else
                     {
-                        if (originalInvalids.Contains(invalid - 1))
+                        if (nonNullInvalids.Contains(invalid - 1))
                         {
                             originalInvalids.Add(invalid / 2);
                         }
