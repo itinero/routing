@@ -291,11 +291,7 @@ namespace Itinero.Algorithms.Matrices
                 {
                     nonNullInvalids.Add(invalid * 2);
                     nonNullInvalids.Add(invalid * 2 + 1);
-                }
-
-                foreach (var invalid in nonNullInvalids)
-                {
-                    _errors[_correctedIndices[invalid / 2]] = new RouterPointError()
+                    _errors[invalid] = new RouterPointError()
                     {
                         Code = RouterPointErrorCode.NotRoutable,
                         Message = "Location could not routed to or from."
@@ -304,7 +300,7 @@ namespace Itinero.Algorithms.Matrices
 
                 _weights = _weights.SchrinkAndCopyMatrix(nonNullInvalids);
                 _sourcePaths = _sourcePaths.ShrinkAndCopyArray(nonNullInvalids);
-                _targetPaths = _sourcePaths.ShrinkAndCopyArray(nonNullInvalids);
+                _targetPaths = _targetPaths.ShrinkAndCopyArray(nonNullInvalids);
             }
 
             this.HasSucceeded = true;
