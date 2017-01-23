@@ -16,6 +16,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
+using Itinero.LocalGeo;
+using Itinero.Profiles;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Search
@@ -31,6 +33,11 @@ namespace Itinero.Algorithms.Search
         Dictionary<int, LocationError> Errors { get; }
 
         /// <summary>
+        /// Gets the original locations.
+        /// </summary>
+        Coordinate[] Locations { get; }
+
+        /// <summary>
         /// Gets the valid router points.
         /// </summary>
         List<RouterPoint> RouterPoints { get; }
@@ -44,5 +51,15 @@ namespace Itinero.Algorithms.Search
         /// Returns the index of the location in the original locations array, given the resolved point index..
         /// </summary>
         int LocationIndexOf(int resolvedIdx);
+
+        /// <summary>
+        /// Gets the router.
+        /// </summary>
+        RouterBase Router { get; }
+    
+        /// <summary>
+        /// Gets the profiles.
+        /// </summary>
+        IProfileInstance[] Profiles { get; }
     }
 }

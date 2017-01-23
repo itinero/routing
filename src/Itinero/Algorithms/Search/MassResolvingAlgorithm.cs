@@ -152,6 +152,39 @@ namespace Itinero.Algorithms.Search
                 return _errors;
             }
         }
+
+        /// <summary>
+        /// Gets the profiles.
+        /// </summary>
+        public IProfileInstance[] Profiles
+        {
+            get
+            {
+                return _profiles;
+            }
+        }
+
+        /// <summary>
+        /// Gets the router.
+        /// </summary>
+        public RouterBase Router
+        {
+            get
+            {
+                return _router;
+            }
+        }
+
+        /// <summary>
+        /// Gets the original locations.
+        /// </summary>
+        public Coordinate[] Locations
+        {
+            get
+            {
+                return _locations;
+            }
+        }
     }
     
     /// <summary>
