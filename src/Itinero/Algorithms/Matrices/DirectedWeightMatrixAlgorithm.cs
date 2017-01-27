@@ -168,17 +168,15 @@ namespace Itinero.Algorithms.Matrices
             for (var i = 0; i < _sourcePaths.Length; i++)
             {
                 var source = _sourcePaths[i];
-                if (source == null)
-                {
-                    continue;
-                }
-
                 _weights[i] = new T[_targetPaths.Length];
+
                 for (var j = 0; j < _targetPaths.Length; j++)
                 {
                     var target = _targetPaths[j];
                     _weights[i][j] = _weightHandler.Infinite;
-                    if (target == null)
+
+                    if (source == null || 
+                        target == null)
                     {
                         continue;
                     }
