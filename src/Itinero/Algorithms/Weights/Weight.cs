@@ -100,6 +100,16 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Represents a weight equal to zero.
+        /// </summary>
+        public static Weight Zero = new Weight()
+        {
+            Distance = 0,
+            Time = 0,
+            Value = 0
+        };
+
+        /// <summary>
         /// Represents the largest possible weight.
         /// </summary>
         public static Weight MaxValue = new Weight()
