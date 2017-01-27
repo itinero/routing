@@ -55,7 +55,33 @@ namespace Itinero.Algorithms.Weights
             }
             return this.Value;
         }
-        
+
+        /// <summary>
+        /// Implements the + operator.
+        /// </summary>
+        public static Weight operator+(Weight l, Weight r)
+        {
+            return new Weight()
+            {
+                Distance = l.Distance + r.Distance,
+                Time = l.Time + l.Time,
+                Value = l.Value + l.Value
+            };
+        }
+
+        /// <summary>
+        /// Implements the - operator.
+        /// </summary>
+        public static Weight operator -(Weight l, Weight r)
+        {
+            return new Weight()
+            {
+                Distance = l.Distance - r.Distance,
+                Time = l.Time - l.Time,
+                Value = l.Value - l.Value
+            };
+        }
+
         /// <summary>
         /// Gets a function that calculates the weight.
         /// </summary>
