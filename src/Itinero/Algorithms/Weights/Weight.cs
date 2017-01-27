@@ -64,8 +64,8 @@ namespace Itinero.Algorithms.Weights
             return new Weight()
             {
                 Distance = l.Distance + r.Distance,
-                Time = l.Time + l.Time,
-                Value = l.Value + l.Value
+                Time = l.Time + r.Time,
+                Value = l.Value + r.Value
             };
         }
 
@@ -77,8 +77,8 @@ namespace Itinero.Algorithms.Weights
             return new Weight()
             {
                 Distance = l.Distance - r.Distance,
-                Time = l.Time - l.Time,
-                Value = l.Value - l.Value
+                Time = l.Time - r.Time,
+                Value = l.Value - r.Value
             };
         }
 
