@@ -28,7 +28,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the index in the weight matrix, given the orginal location index.
         /// </summary>
-        public static int WeightIndex(this IWeightMatrixAlgorithm<float> algorithm, int locationIdx)
+        public static int WeightIndex<T>(this IWeightMatrixAlgorithm<T> algorithm, int locationIdx)
         {
             var resolvedIndex = algorithm.MassResolver.ResolvedIndexOf(locationIdx);
             if (resolvedIndex != -1)
@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the orginal location index for the given corrected routerpoint index.
         /// </summary>
-        public static int OriginalLocationIndex(this IWeightMatrixAlgorithm<float> algorithm, int correctedIdx)
+        public static int OriginalLocationIndex<T>(this IWeightMatrixAlgorithm<T> algorithm, int correctedIdx)
         {
             var resolvedIndex = algorithm.OriginalIndexOf(correctedIdx);
             if (resolvedIndex != -1)
@@ -54,7 +54,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the index in the weight matrix, given the orginal location index.
         /// </summary>
-        public static int WeightIndex(this IDirectedWeightMatrixAlgorithm<float> algorithm, int locationIdx)
+        public static int WeightIndex<T>(this IDirectedWeightMatrixAlgorithm<T> algorithm, int locationIdx)
         {
             var resolvedIndex = algorithm.MassResolver.ResolvedIndexOf(locationIdx);
             if (resolvedIndex != -1)
@@ -67,7 +67,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the orginal location index for the given corrected routerpoint index.
         /// </summary>
-        public static int OriginalLocationIndex(this IDirectedWeightMatrixAlgorithm<float> algorithm, int correctedIdx)
+        public static int OriginalLocationIndex<T>(this IDirectedWeightMatrixAlgorithm<T> algorithm, int correctedIdx)
         {
             var resolvedIndex = algorithm.OriginalIndexOf(correctedIdx);
             if (resolvedIndex != -1)
@@ -80,7 +80,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Returns true if the point at the given original location index is in error.
         /// </summary>
-        public static bool IsInError(this IWeightMatrixAlgorithm<float> algorithm, int locationIdx)
+        public static bool IsInError<T>(this IWeightMatrixAlgorithm<T> algorithm, int locationIdx)
         {
             LocationError le;
             RouterPointError rpe;
@@ -90,7 +90,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Tries to get an error for the given original location index.
         /// </summary>
-        public static bool TryGetError(this IWeightMatrixAlgorithm<float> algorithm, int locationIdx, out LocationError locationError,
+        public static bool TryGetError<T>(this IWeightMatrixAlgorithm<T> algorithm, int locationIdx, out LocationError locationError,
             out RouterPointError routerPointError)
         {
             locationError = null;
@@ -110,7 +110,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Returns true if the point at the given original location index is in error.
         /// </summary>
-        public static bool IsInError(this IDirectedWeightMatrixAlgorithm<float> algorithm, int locationIdx)
+        public static bool IsInError<T>(this IDirectedWeightMatrixAlgorithm<T> algorithm, int locationIdx)
         {
             LocationError le;
             RouterPointError rpe;
@@ -120,7 +120,7 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Tries to get an error for the given original location index.
         /// </summary>
-        public static bool TryGetError(this IDirectedWeightMatrixAlgorithm<float> algorithm, int locationIdx, out LocationError locationError,
+        public static bool TryGetError<T>(this IDirectedWeightMatrixAlgorithm<T> algorithm, int locationIdx, out LocationError locationError,
             out RouterPointError routerPointError)
         {
             locationError = null;
