@@ -40,6 +40,21 @@ namespace Itinero.Algorithms.Weights
         /// Get or sets the distance in meters.
         /// </summary>
         public float Distance { get; set; }
+
+        /// <summary>
+        /// Gets the weight for the given metric.
+        /// </summary>
+        public float GetForMetric(ProfileMetric metric)
+        {
+            switch(metric)
+            {
+                case ProfileMetric.TimeInSeconds:
+                    return this.Time;
+                case ProfileMetric.DistanceInMeters:
+                    return this.Distance;
+            }
+            return this.Value;
+        }
         
         /// <summary>
         /// Gets a function that calculates the weight.
