@@ -100,6 +100,26 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Represents the largest possible weight.
+        /// </summary>
+        public static Weight MaxValue = new Weight()
+        {
+            Distance = float.MaxValue,
+            Time = float.MaxValue,
+            Value = float.MaxValue
+        };
+
+        /// <summary>
+        /// Represents the smallest possible weight.
+        /// </summary>
+        public static Weight MinValue = new Weight()
+        {
+            Distance = float.MinValue,
+            Time = float.MinValue,
+            Value = float.MinValue
+        };
+
+        /// <summary>
         /// Returns a string describing this object.
         /// </summary>
         /// <returns></returns>
