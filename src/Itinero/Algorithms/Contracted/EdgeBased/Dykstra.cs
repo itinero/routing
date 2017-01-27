@@ -202,7 +202,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (!_visits.TryGetValue(_current.Vertex, out edgePath) ||
                         !edgePath.HasPath(routeToNeighbour))
                     { // this vertex has not been visited in this way before.
-                        if (_weightHandler.IsLargerThan(routeToNeighbour.Weight, _max))
+                        if (!_weightHandler.IsSmallerThanAny(routeToNeighbour.Weight, _max))
                         {
                             continue;
                         }

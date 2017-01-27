@@ -119,5 +119,9 @@ namespace Itinero.Test
                 return 1;
             }
         }
+        public override bool IsSmallerThanAny(float weight, float max)
+        {
+            return weight < max;
+        }
     }
 }

@@ -216,5 +216,13 @@ namespace Itinero.Algorithms.Weights
                 return ContractedEdgeDataSerializer.MetaSize;
             }
         }
+
+        /// <summary>
+        /// Returns true if the given weight is smaller than all of fields in max.-
+        /// </summary>
+        public sealed override bool IsSmallerThanAny(float weight, float max)
+        {
+            return weight < max;
+        }
     }
 }

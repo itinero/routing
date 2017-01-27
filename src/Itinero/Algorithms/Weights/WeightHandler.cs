@@ -137,6 +137,11 @@ namespace Itinero.Algorithms.Weights
         {
             get;
         }
+
+        /// <summary>
+        /// Returns true if the given weight is smaller than all of fields in max.-
+        /// </summary>
+        public abstract bool IsSmallerThanAny(T weight, T max);
     }
 
     /// <summary>
@@ -408,6 +413,16 @@ namespace Itinero.Algorithms.Weights
             {
                 return ContractedEdgeDataSerializer.MetaAugmentedSize;
             }
+        }
+
+        /// <summary>
+        /// Returns true if the given weight is smaller than all of fields in max.-
+        /// </summary>
+        public sealed override bool IsSmallerThanAny(Weight weight, Weight max)
+        {
+            return weight.Value < max.Value &&
+                weight.Time < max.Time &&
+                weight.Distance < max.Distance;
         }
     }
 }
