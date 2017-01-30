@@ -31,17 +31,17 @@ namespace Itinero.Algorithms.Matrices
     /// <summary>
     /// An algorithm to calculate a turn-aware weight matrix.
     /// </summary>
-    public class DirectedWeightMatrixAlgorithm<T> : AlgorithmBase, IDirectedWeightMatrixAlgorithm<T>
+    public abstract class DirectedWeightMatrixAlgorithm<T> : AlgorithmBase, IDirectedWeightMatrixAlgorithm<T>
         where T : struct
     {
-        private readonly RouterBase _router;
-        private readonly IProfileInstance _profile;
-        private readonly WeightHandler<T> _weightHandler;
-        private readonly IMassResolvingAlgorithm _massResolver;
+        protected readonly RouterBase _router;
+        protected readonly IProfileInstance _profile;
+        protected readonly WeightHandler<T> _weightHandler;
+        protected readonly IMassResolvingAlgorithm _massResolver;
 
-        private readonly Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>> _buckets;
-        private readonly DirectedDynamicGraph _graph;
-        private readonly T _max;
+        protected readonly Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>> _buckets;
+        protected readonly DirectedDynamicGraph _graph;
+        protected readonly T _max;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
@@ -89,13 +89,13 @@ namespace Itinero.Algorithms.Matrices
             _buckets = new Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>>();
         }
 
-        private Dictionary<int, RouterPointError> _errors; // all errors per routerpoint idx.
-        private List<int> _correctedIndices; // has the exact size of the weight array, contains the original indexes.
-        private List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
+        protected Dictionary<int, RouterPointError> _errors; // all errors per routerpoint idx.
+        protected List<int> _correctedIndices; // has the exact size of the weight array, contains the original indexes.
+        protected List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
 
-        private T[][] _weights; // the weights between all valid resolved points.              
-        private EdgePath<T>[] _sourcePaths;
-        private EdgePath<T>[] _targetPaths;
+        protected T[][] _weights; // the weights between all valid resolved points.              
+        protected EdgePath<T>[] _sourcePaths;
+        protected EdgePath<T>[] _targetPaths;
 
         /// <summary>
         /// Executes the algorithm.
@@ -308,7 +308,7 @@ namespace Itinero.Algorithms.Matrices
         /// Called when a forward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool ForwardVertexFound(int i, uint vertex, LinkedEdgePath<T> visit)
+        protected bool ForwardVertexFound(int i, uint vertex, LinkedEdgePath<T> visit)
         {
             Dictionary<int, LinkedEdgePath<T>> bucket;
             if (!_buckets.TryGetValue(vertex, out bucket))
@@ -324,7 +324,7 @@ namespace Itinero.Algorithms.Matrices
         /// Called when a backward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool BackwardVertexFound(int i, uint vertex, LinkedEdgePath<T> backwardVisit)
+        protected virtual bool BackwardVertexFound(int i, uint vertex, LinkedEdgePath<T> backwardVisit)
         {
             Dictionary<int, LinkedEdgePath<T>> bucket;
             if (_buckets.TryGetValue(vertex, out bucket))
@@ -532,6 +532,79 @@ namespace Itinero.Algorithms.Matrices
             : base(router, profile, profile.DefaultWeightHandler(router), locations, max)
         {
 
+        }
+
+        protected sealed override bool BackwardVertexFound(int i, uint vertex, LinkedEdgePath<float> backwardVisit)
+        {
+            Dictionary<int, LinkedEdgePath<float>> bucket;
+            if (_buckets.TryGetValue(vertex, out bucket))
+            {
+                var edgeEnumerator = _graph.GetEdgeEnumerator();
+
+                var originalBackwardVisit = backwardVisit;
+                foreach (var pair in bucket)
+                {
+                    var best = _weights[pair.Key][i];
+
+                    var forwardVisit = pair.Value;
+                    while (forwardVisit != null)
+                    {
+                        var forwardCurrent = forwardVisit.Path;
+                        if (forwardCurrent.Weight > best)
+                        {
+                            forwardVisit = forwardVisit.Next;
+                            continue;
+                        }
+                        backwardVisit = originalBackwardVisit;
+                        while (backwardVisit != null)
+                        {
+                            var backwardCurrent = backwardVisit.Path;
+                            var totalCurrentWeight = forwardCurrent.Weight + backwardCurrent.Weight; // _weightHandler.Add(forwardCurrent.Weight, backwardCurrent.Weight);
+                            if (totalCurrentWeight < best) // _weightHandler.IsSmallerThan(totalCurrentWeight, best))
+                            { // potentially a weight improvement.
+                                var allowed = true;
+
+                                // check u-turn.
+                                var sequence2Forward = backwardCurrent.GetSequence2(edgeEnumerator);
+                                var sequence2Current = forwardCurrent.GetSequence2(edgeEnumerator);
+                                if (sequence2Current != null && sequence2Current.Length > 0 &&
+                                    sequence2Forward != null && sequence2Forward.Length > 0)
+                                {
+                                    if (sequence2Current[sequence2Current.Length - 1] ==
+                                        sequence2Forward[sequence2Forward.Length - 1])
+                                    {
+                                        allowed = false;
+                                    }
+                                }
+
+                                //// check restrictions.
+                                //if (restrictions != null && allowed)
+                                //{
+                                //    allowed = false;
+                                //    var sequence = new List<uint>(
+                                //        forwardCurrent.GetSequence2(edgeEnumerator));
+                                //    sequence.Reverse();
+                                //    sequence.Add(current.Vertex);
+                                //    var s1 = backwardPath.Path.GetSequence2(edgeEnumerator);
+                                //    sequence.AddRange(s1);
+
+                                //    allowed = restrictions.IsSequenceAllowed(sequence);
+                                //}
+
+                                if (allowed)
+                                {
+                                    best = totalCurrentWeight;
+                                }
+                            }
+                            backwardVisit = backwardVisit.Next;
+                        }
+                        forwardVisit = forwardVisit.Next;
+                    }
+
+                    _weights[pair.Key][i] = best;
+                }
+            }
+            return false;
         }
     }
 }

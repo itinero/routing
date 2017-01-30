@@ -25,11 +25,11 @@ using Itinero.Test.Functional.Tests;
 
 namespace Itinero.Test.Functional
 {
-    class Program
+    public class Program
     {
         private static Logger _logger;
 
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             // enable logging.
             OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
@@ -55,17 +55,17 @@ namespace Itinero.Test.Functional
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+            //// test resolving.
+            //ResolvingTests.Run(routerDb);
 
-            //// test routing.
-            RoutingTests.Run(routerDb);
+            ////// test routing.
+            //RoutingTests.Run(routerDb);
 
             // tests calculate weight matrices.
             WeightMatrixTests.Run(routerDb);
 
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+            //// test instruction generation.
+            //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
             Console.ReadLine();
