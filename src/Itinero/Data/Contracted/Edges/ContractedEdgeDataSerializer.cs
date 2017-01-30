@@ -232,7 +232,7 @@ namespace Itinero.Data.Contracted.Edges
         /// </summary>
         public static uint SerializeDistance(float distance)
         {
-            return (uint)distance * 10;
+            return (uint)(distance * 10);
         }
 
         /// <summary>
@@ -243,7 +243,7 @@ namespace Itinero.Data.Contracted.Edges
         { // precision of 0.1m and 1 second.
             return new uint[] {
                 Serialize(weight, direction),
-                SerializeDistance(distance * 10),
+                SerializeDistance(distance),
                 SerializeTime(time)
             };
         }
@@ -256,7 +256,7 @@ namespace Itinero.Data.Contracted.Edges
         { // precision of 0.1m and 1 second.
             return new uint[] {
                 contractedId,
-                (uint)distance * 10,
+                SerializeDistance(distance),
                 (uint)time
             };
         }
