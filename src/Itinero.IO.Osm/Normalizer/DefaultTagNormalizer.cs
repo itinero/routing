@@ -33,6 +33,11 @@ namespace Itinero.IO.Osm.Normalizer
         /// </summary>
         public static bool Normalize(IAttributeCollection tags, IAttributeCollection profileTags, VehicleCache vehicleCache)
         {
+            if (tags == null || profileTags == null || vehicleCache == null)
+            {
+                return false;
+            }
+
             var normalizedTags = new HashSet<string>(new string[] { "highway", "maxspeed", "oneway", "oneway:bicycle",
                 "cycleway", "junction", "access" });
             foreach(var vehicle in vehicleCache.Vehicles)

@@ -255,6 +255,7 @@ namespace Itinero.IO.Osm.Streams
             if (way == null) { return; }
             if (way.Nodes == null) { return; }
             if (way.Nodes.Length == 0) { return; }
+            if (way.Tags == null || way.Tags.Count == 0) { return; }
 
             if (_firstPass)
             { // just keep.
