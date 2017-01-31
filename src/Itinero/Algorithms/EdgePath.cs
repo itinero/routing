@@ -138,6 +138,11 @@ namespace Itinero.Algorithms
         public EdgePath<T> Path { get; set; }
 
         /// <summary>
+        /// Holds the minimum weight.
+        /// </summary>
+        public T MinWeight { get; set; }
+
+        /// <summary>
         /// Gets the next path.
         /// </summary>
         public LinkedEdgePath<T> Next { get; set; }

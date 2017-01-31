@@ -367,20 +367,6 @@ namespace Itinero.Algorithms.Matrices
                                     }
                                 }
 
-                                //// check restrictions.
-                                //if (restrictions != null && allowed)
-                                //{
-                                //    allowed = false;
-                                //    var sequence = new List<uint>(
-                                //        forwardCurrent.GetSequence2(edgeEnumerator));
-                                //    sequence.Reverse();
-                                //    sequence.Add(current.Vertex);
-                                //    var s1 = backwardPath.Path.GetSequence2(edgeEnumerator);
-                                //    sequence.AddRange(s1);
-
-                                //    allowed = restrictions.IsSequenceAllowed(sequence);
-                                //}
-
                                 if (allowed)
                                 {
                                     best = totalCurrentWeight;
@@ -547,6 +533,10 @@ namespace Itinero.Algorithms.Matrices
                     var best = _weights[pair.Key][i];
 
                     var forwardVisit = pair.Value;
+                    if (forwardVisit.MinWeight + originalBackwardVisit.MinWeight > best)
+                    {
+                        continue;
+                    }
                     while (forwardVisit != null)
                     {
                         var forwardCurrent = forwardVisit.Path;
@@ -576,20 +566,6 @@ namespace Itinero.Algorithms.Matrices
                                         allowed = false;
                                     }
                                 }
-
-                                //// check restrictions.
-                                //if (restrictions != null && allowed)
-                                //{
-                                //    allowed = false;
-                                //    var sequence = new List<uint>(
-                                //        forwardCurrent.GetSequence2(edgeEnumerator));
-                                //    sequence.Reverse();
-                                //    sequence.Add(current.Vertex);
-                                //    var s1 = backwardPath.Path.GetSequence2(edgeEnumerator);
-                                //    sequence.AddRange(s1);
-
-                                //    allowed = restrictions.IsSequenceAllowed(sequence);
-                                //}
 
                                 if (allowed)
                                 {

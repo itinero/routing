@@ -114,7 +114,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 { // this vertex has not been visited before.
                     _visits.Add(_current.Vertex, new LinkedEdgePath<T>()
                     {
-                        Path = _current
+                        Path = _current,
+                        MinWeight = _current.Weight
                     });
                     break;
                 }
@@ -125,6 +126,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         _visits[_current.Vertex] = new LinkedEdgePath<T>()
                         {
                             Path = _current,
+                            MinWeight = edgePath.MinWeight,
                             Next = edgePath
                         };
                         break;
