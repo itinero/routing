@@ -144,7 +144,7 @@ namespace Itinero.LocalGeo
             return new Coordinate(this.Latitude + (meter / latDistance) * 0.1f,
                 this.Longitude + (meter / lonDistance) * 0.1f);
         }
-
+        
         /// <summary>
         /// Returns a description of this object.
         /// </summary>

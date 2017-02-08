@@ -203,5 +203,18 @@ namespace Itinero.LocalGeo
             }
             return projected;
         }
+
+        /// <summary>
+        /// Returns the distance from the point to this line.
+        /// </summary>
+        public float? DistanceInMeter(Coordinate coordinate)
+        {
+            var projected = this.ProjectOn(coordinate);
+            if (projected.HasValue)
+            {
+                return Coordinate.DistanceEstimateInMeter(coordinate, projected.Value);
+            }
+            return null;
+        }
     }
 }
