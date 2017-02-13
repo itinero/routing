@@ -31,7 +31,7 @@ namespace Itinero.Algorithms.Matrices
     /// <summary>
     /// An algorithm to calculate a turn-aware weight matrix.
     /// </summary>
-    public abstract class DirectedWeightMatrixAlgorithm<T> : AlgorithmBase, IDirectedWeightMatrixAlgorithm<T>
+    public class DirectedWeightMatrixAlgorithm<T> : AlgorithmBase, IDirectedWeightMatrixAlgorithm<T>
         where T : struct
     {
         protected readonly RouterBase _router;
