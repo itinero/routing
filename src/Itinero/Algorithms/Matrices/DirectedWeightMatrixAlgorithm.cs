@@ -583,4 +583,95 @@ namespace Itinero.Algorithms.Matrices
             return false;
         }
     }
+
+    /// <summary>
+    /// An algorithm to calculate an augmented weight-matrix for a set of locations.
+    /// </summary>
+    public sealed class DirectedAugmentedWeightMatrixAlgorithm : DirectedWeightMatrixAlgorithm<Weight>
+    {
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver, Weight max)
+            : base(router, profile, profile.AugmentedWeightHandler(router), massResolver, max)
+        {
+
+        }
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, Weight max)
+            : base(router, profile, profile.AugmentedWeightHandler(router), locations, max)
+        {
+
+        }
+        
+        /// <summary>
+        /// Called when a backward vertex was found.
+        /// </summary>
+        /// <returns></returns>
+        protected override bool BackwardVertexFound(int i, uint vertex, LinkedEdgePath<Weight> backwardVisit)
+        {
+            Dictionary<int, LinkedEdgePath<Weight>> bucket;
+            if (_buckets.TryGetValue(vertex, out bucket))
+            {
+                var edgeEnumerator = _graph.GetEdgeEnumerator();
+
+                var originalBackwardVisit = backwardVisit;
+                foreach (var pair in bucket)
+                {
+                    var best = _weights[pair.Key][i];
+
+                    var forwardVisit = pair.Value;
+                    while (forwardVisit != null)
+                    {
+                        var forwardCurrent = forwardVisit.Path;
+                        if (forwardCurrent.Weight.Value > best.Value)
+                        {
+                            forwardVisit = forwardVisit.Next;
+                            continue;
+                        }
+                        backwardVisit = originalBackwardVisit;
+                        while (backwardVisit != null)
+                        {
+                            var backwardCurrent = backwardVisit.Path;
+                            var totalCurrentWeight = new Weight()
+                            {
+                                Distance = forwardCurrent.Weight.Distance + backwardCurrent.Weight.Distance,
+                                Time = forwardCurrent.Weight.Time + backwardCurrent.Weight.Time,
+                                Value = forwardCurrent.Weight.Value + backwardCurrent.Weight.Value
+                            };
+                            if (totalCurrentWeight.Value < best.Value)
+                            { // potentially a weight improvement.
+                                var allowed = true;
+
+                                // check u-turn.
+                                var sequence2Forward = backwardCurrent.GetSequence2(edgeEnumerator);
+                                var sequence2Current = forwardCurrent.GetSequence2(edgeEnumerator);
+                                if (sequence2Current != null && sequence2Current.Length > 0 &&
+                                    sequence2Forward != null && sequence2Forward.Length > 0)
+                                {
+                                    if (sequence2Current[sequence2Current.Length - 1] ==
+                                        sequence2Forward[sequence2Forward.Length - 1])
+                                    {
+                                        allowed = false;
+                                    }
+                                }
+
+                                if (allowed)
+                                {
+                                    best = totalCurrentWeight;
+                                }
+                            }
+                            backwardVisit = backwardVisit.Next;
+                        }
+                        forwardVisit = forwardVisit.Next;
+                    }
+
+                    _weights[pair.Key][i] = best;
+                }
+            }
+            return false;
+        }
+    }
 }
