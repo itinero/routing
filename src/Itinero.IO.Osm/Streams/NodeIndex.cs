@@ -28,7 +28,7 @@ namespace Itinero.IO.Osm.Streams
     /// <summary>
     /// A cache for node coordinates.
     /// </summary>
-    public class NodeIndex
+    public sealed class NodeIndex
     {
         // keeps all coordinates in a form [id, lat * 10.000.000, lon * 10.000.000]
         // assumes coordinates are added from a sorted source: TODO: make sure that the source read by the routerdb is sorted.
@@ -138,35 +138,18 @@ namespace Itinero.IO.Osm.Streams
             _idx = _index.Length;
         }
 
-        ///// <summary>
-        ///// Sets the coordinate for the given node.
-        ///// </summary>
-        //public void Set(long id, float latitude, float longitude)
-        //{
-        //    var idx = this.TryGetIndex(id);
-        //    if (idx == long.MaxValue)
-        //    {
-        //        throw new Exception(string.Format("Node {0} not in index!", id));
-        //    }
-
-        //    int lat = (int)(latitude * 10000000);
-        //    int lon = (int)(longitude * 10000000);
-
-        //    if ((idx * 2) + 1 >= _data.Length)
-        //    {
-        //        _data.Resize((idx * 2) + 1 + 1024);
-        //    }
-        //    _data[(idx * 2) + 0] = lat;
-        //    _data[(idx * 2) + 1] = lon;
-        //}
-
-        ///// <summary>
-        ///// Sets the coordinate for the given node.
-        ///// </summary>
-        //public void Set(long id, Coordinate coordinate)
-        //{
-        //    this.Set(id, coordinate.Latitude, coordinate.Longitude);
-        //}
+        /// <summary>
+        /// Gets the node id at the given index.
+        /// </summary>
+        public long this[long idx]
+        {
+            get
+            {
+                var int1 = _index[idx * 2 + 0];
+                var int2 = _index[idx * 2 + 1];
+                return doubleInt2long(int1, int2);
+            }
+        }
 
         /// <summary>
         /// Sets a vertex id for the given vertex.

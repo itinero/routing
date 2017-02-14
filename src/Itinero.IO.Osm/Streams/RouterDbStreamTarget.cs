@@ -40,7 +40,6 @@ namespace Itinero.IO.Osm.Streams
     public class RouterDbStreamTarget : OsmStreamTarget
     {
         private readonly RouterDb _db;
-        private readonly Vehicle[] _vehicles;
         private readonly VehicleCache _vehicleCache;
         private readonly bool _allCore;
         private readonly NodeIndex _nodeIndex;
@@ -51,16 +50,26 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
             int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
+            : this(db, new VehicleCache(vehicles), allCore, minimumStages, processors, processRestrictions)
+        {
+
+        }
+
+
+        /// <summary>
+        /// Creates a new router db stream target.
+        /// </summary>
+        public RouterDbStreamTarget(RouterDb db, VehicleCache vehicleCache, bool allCore = false,
+            int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
         {
             _db = db;
-            _vehicles = vehicles;
             _allCore = allCore;
 
-            _vehicleCache = new VehicleCache(vehicles);
+            _vehicleCache = vehicleCache;
             _vehicleTypes = new HashSet<string>();
             _nodeIndex = new NodeIndex();
 
-            foreach (var vehicle in _vehicles)
+            foreach (var vehicle in _vehicleCache.Vehicles)
             {
                 foreach (var vehicleType in vehicle.VehicleTypes)
                 {
@@ -68,7 +77,7 @@ namespace Itinero.IO.Osm.Streams
                 }
             }
             
-            foreach (var vehicle in _vehicles)
+            foreach (var vehicle in _vehicleCache.Vehicles)
             {
                 db.AddSupportedVehicle(vehicle);
             }
@@ -90,7 +99,7 @@ namespace Itinero.IO.Osm.Streams
         private void InitializeDefaultProcessors(bool processRestrictions)
         {
             // add all vehicle relation processors.
-            foreach(var vehicle in _vehicles)
+            foreach(var vehicle in _vehicleCache.Vehicles)
             {
                 if (vehicle is Itinero.Profiles.DynamicVehicle)
                 {
@@ -160,6 +169,17 @@ namespace Itinero.IO.Osm.Streams
         public List<ITwoPassProcessor> Processors { get; set; }
 
         /// <summary>
+        /// Gets the vehicle cache.
+        /// </summary>
+        public VehicleCache VehicleCache
+        {
+            get
+            {
+                return _vehicleCache;
+            }
+        }
+
+        /// <summary>
         /// Registers the source.
         /// </summary>
         public virtual void RegisterSource(OsmStreamSource source, bool filterNonRoutingTags)
@@ -187,7 +207,7 @@ namespace Itinero.IO.Osm.Streams
                         }
                         foreach (var tag in tags)
                         {
-                            if (_vehicles.IsOnMetaWhiteList(tag.Key))
+                            if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key))
                             {
                                 osmGeo.Tags.Add(tag.Key, tag.Value);
                             }
@@ -297,11 +317,11 @@ namespace Itinero.IO.Osm.Streams
                     foreach (var tag in way.Tags)
                     {
                         if (profileWhiteList.Contains(tag.Key) ||
-                            _vehicles.IsOnProfileWhiteList(tag.Key))
+                            _vehicleCache.Vehicles.IsOnProfileWhiteList(tag.Key))
                         {
                             profileTags.Add(tag);
                         }
-                        if (_vehicles.IsOnMetaWhiteList(tag.Key))
+                        if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key))
                         {
                             metaTags.Add(tag);
                         }
