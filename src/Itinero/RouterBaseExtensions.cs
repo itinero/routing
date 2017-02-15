@@ -625,14 +625,14 @@ namespace Itinero
         /// <summary>
         /// Resolves a location but also checks if it's connected to the rest of the network.
         /// </summary>
-        public static Result<RouterPoint> TryResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, float radiusInMeter = 1000,
-            float maxSearchDistance = Constants.SearchDistanceInMeter)
+        public static Result<RouterPoint> TryResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, 
+            float radiusInMeter = 1000, float maxSearchDistance = Constants.SearchDistanceInMeter, bool? forward = null)
         {
             var resolver = new Algorithms.Search.ResolveAlgorithm(router.Db.Network.GeometricGraph, latitude, longitude, radiusInMeter, maxSearchDistance, (edge) =>
             {
                 // create a temp resolved point in the middle of this edge.
                 var tempRouterPoint = new RouterPoint(0, 0, edge.Id, ushort.MaxValue / 2);
-                var connectivityResult = router.TryCheckConnectivity(profileInstance, tempRouterPoint, radiusInMeter / 2);
+                var connectivityResult = router.TryCheckConnectivity(profileInstance, tempRouterPoint, radiusInMeter / 2, forward);
                 if (connectivityResult.IsError)
                 { // if there is an error checking connectivity, choose not report it, just don't choose this point.
                     return false;

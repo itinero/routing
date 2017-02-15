@@ -107,7 +107,7 @@ namespace Itinero.Test
             return new Result<T[][]>(weights);
         }
 
-        public override Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeters)
+        public override Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeters, bool? forward = null)
         {
             throw new System.NotImplementedException();
         }

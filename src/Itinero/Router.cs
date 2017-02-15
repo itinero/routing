@@ -132,7 +132,7 @@ namespace Itinero
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeters)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeters, bool? forward = null)
         {
             try
             {
@@ -147,15 +147,34 @@ namespace Itinero
                 // get the weight handler.
                 var weightHandler = this.GetDefaultWeightHandler(profileInstance);
 
-                // build and run dykstra search.
-                var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                    point.ToEdgePaths(_db, weightHandler, true), radiusInMeters, false);
-                dykstra.Run();
-                if (!dykstra.HasSucceeded)
-                { // something went wrong.
-                    return new Result<bool>(false);
+                var checkForward = forward == null || forward.Value;
+                var checkBackward = forward == null || !forward.Value;
+
+                if (checkForward)
+                { // build and run forward dykstra search.
+                    var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                        point.ToEdgePaths(_db, weightHandler, true), radiusInMeters, false);
+                    dykstra.Run();
+                    if (!dykstra.HasSucceeded ||
+                        !dykstra.MaxReached)
+                    { // something went wrong or max not reached.
+                        return new Result<bool>(false);
+                    }
                 }
-                return new Result<bool>(dykstra.MaxReached);
+
+                
+                if (checkBackward)
+                { // build and run backward dykstra search.
+                    var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
+                        point.ToEdgePaths(_db, weightHandler, false), radiusInMeters, true);
+                    dykstra.Run();
+                    if (!dykstra.HasSucceeded ||
+                        !dykstra.MaxReached)
+                    { // something went wrong or max not reached.
+                        return new Result<bool>(false);
+                    }
+                }
+                return new Result<bool>(true);
             }
             catch (Exception ex)
             {
