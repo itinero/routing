@@ -719,9 +719,6 @@ namespace Itinero
                             jsonWriter.WriteOpen();
                             jsonWriter.WriteProperty("type", "Feature", true, false);
                             jsonWriter.WriteProperty("name", "ShapeMeta", true, false);
-                            jsonWriter.WritePropertyName("properties");
-                            jsonWriter.WriteOpen();
-                            jsonWriter.WriteClose();
                             jsonWriter.WritePropertyName("geometry", false);
 
                             jsonWriter.WriteOpen();
