@@ -118,6 +118,13 @@ function factor_and_speed (attributes, result)
 	 result.canstop = true
 	 result.attributes_to_keep = {}
 
+	 -- set highway to ferry when ferry.
+	 local route = attributes.route;
+	 if route == "ferry" then
+		highway = "ferry"
+		result.attributes_to_keep.route = highway
+	 end
+
 	 -- get default speed profiles
 	 local highway_speed = speed_profile[highway]
 	 if highway_speed then
