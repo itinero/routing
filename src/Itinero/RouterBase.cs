@@ -58,8 +58,9 @@ namespace Itinero
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
+        /// <param name="radius">The radius metric, that can be a distance, time or custom metric.</param>
         /// <returns></returns>
-        public abstract Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeters, bool? forward = null);
+        public abstract Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radius, bool? forward = null);
 
         /// <summary>
         /// Calculates a route between the two locations.

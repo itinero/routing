@@ -131,8 +131,9 @@ namespace Itinero
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
+        /// <param name="radius">The radius metric, that can be a distance, time or custom metric.</param>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeters, bool? forward = null)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radius, bool? forward = null)
         {
             try
             {
@@ -153,7 +154,7 @@ namespace Itinero
                 if (checkForward)
                 { // build and run forward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, true), radiusInMeters, false);
+                        point.ToEdgePaths(_db, weightHandler, true), radius, false);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
@@ -166,7 +167,7 @@ namespace Itinero
                 if (checkBackward)
                 { // build and run backward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, false), radiusInMeters, true);
+                        point.ToEdgePaths(_db, weightHandler, false), radius, true);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
