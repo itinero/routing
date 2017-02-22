@@ -20,7 +20,6 @@ using Itinero.Algorithms.Sorting;
 using Itinero.LocalGeo;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
-using System;
 using System.Collections.Generic;
 
 namespace Itinero.IO.Osm.Streams

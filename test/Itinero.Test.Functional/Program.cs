@@ -22,6 +22,8 @@ using System;
 using System.IO;
 using Itinero.Logging;
 using Itinero.Test.Functional.Tests;
+using Itinero.IO.Osm;
+using Itinero.LocalGeo;
 
 namespace Itinero.Test.Functional
 {
@@ -47,7 +49,6 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-
             // download and extract test-data if not already there.
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();
@@ -55,17 +56,18 @@ namespace Itinero.Test.Functional
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
 
-            //// test resolving.
-            //ResolvingTests.Run(routerDb);
+            // test resolving.
+            ResolvingTests.Run(routerDb);
 
-            ////// test routing.
-            //RoutingTests.Run(routerDb);
+            // test routing.
+            RoutingTests.Run(routerDb);
+            RoutingTests.RunFictional();
 
             // tests calculate weight matrices.
             WeightMatrixTests.Run(routerDb);
 
-            //// test instruction generation.
-            //InstructionTests.Run(routerDb);
+            // test instruction generation.
+            InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
             Console.ReadLine();

@@ -17,8 +17,12 @@
 // along with Itinero. If not, see <http://www.gnu.org/licenses/>.
 
 using Itinero.Algorithms;
+using Itinero.IO.Osm;
+using Itinero.LocalGeo;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Itinero.Test.Functional.Tests
@@ -41,6 +45,21 @@ namespace Itinero.Test.Functional.Tests
 
             // tests many-to-many route calculation.
             GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 50).TestPerf("Testing calculating manytomany routes");
+        }
+
+        /// <summary>
+        /// Runs a very simple test with a fictional network with negative id's.
+        /// </summary>
+        public static void RunFictional()
+        {
+            var stream = new OsmSharp.Streams.XmlOsmStreamSource(File.OpenRead("./Tests/fictional.osm"));
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(stream, Itinero.Osm.Vehicles.Vehicle.Car);
+
+            var router = new Router(routerDb);
+            Assert.IsNotNull(router.Calculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(),
+                new Coordinate(51.25758522843f, 4.43582452680f),
+                new Coordinate(51.25669892931f, 4.44101728345f)));
         }
 
         /// <summary>
