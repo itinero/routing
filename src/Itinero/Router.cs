@@ -131,9 +131,9 @@ namespace Itinero
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
-        /// <param name="radius">The radius metric, that can be a distance, time or custom metric.</param>
+        /// <param name="radiusInMeter">The radius metric, that's always a distance in meters.</param>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radius, bool? forward = null)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward = null)
         {
             try
             {
@@ -146,7 +146,17 @@ namespace Itinero
                 }
 
                 // get the weight handler.
-                var weightHandler = this.GetDefaultWeightHandler(profileInstance);
+                var getGetFactor = this.GetDefaultGetFactor(profileInstance);
+                Func<ushort, Factor> getShortestFactor = (p) =>
+                { // only keep directional information, get factor to 1 for distance metrics only.
+                    var factor = getGetFactor(p);
+                    return new Factor()
+                    { 
+                        Direction = factor.Direction,
+                        Value = 1
+                    };
+                };
+                var weightHandler = new DefaultWeightHandler(getShortestFactor);
 
                 var checkForward = forward == null || forward.Value;
                 var checkBackward = forward == null || !forward.Value;
@@ -154,7 +164,7 @@ namespace Itinero
                 if (checkForward)
                 { // build and run forward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, true), radius, false);
+                        point.ToEdgePaths(_db, weightHandler, true), radiusInMeter, false);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
@@ -167,7 +177,7 @@ namespace Itinero
                 if (checkBackward)
                 { // build and run backward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, false), radius, true);
+                        point.ToEdgePaths(_db, weightHandler, false), radiusInMeter, true);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
