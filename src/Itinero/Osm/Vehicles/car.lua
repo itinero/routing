@@ -58,7 +58,9 @@ profile_whitelist = {
 	"route"
 }
 meta_whitelist = {
-	"name"
+	"name",
+	"bridge",
+	"tunnel"
 }
 
 -- profile definitions linking a function to a profile

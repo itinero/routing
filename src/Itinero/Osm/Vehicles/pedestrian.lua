@@ -49,7 +49,9 @@ profile_whitelist = {
 }
 
 meta_whitelist = {
-	"name"
+	"name",
+	"bridge",
+	"tunnel"
 }
 
 profiles = {
