@@ -131,9 +131,9 @@ namespace Itinero
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
-        /// <param name="radius">The radius metric, that can be a distance, time or custom metric.</param>
+        /// <param name="radiusInMeter">The radius metric, that's always a distance in meters.</param>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radius, bool? forward = null)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward = null)
         {
             try
             {
@@ -146,7 +146,25 @@ namespace Itinero
                 }
 
                 // get the weight handler.
-                var weightHandler = this.GetDefaultWeightHandler(profileInstance);
+                var getGetFactor = this.GetDefaultGetFactor(profileInstance);
+                Func<ushort, Factor> getShortestFactor = (p) =>
+                { // only keep directional information, get factor to 1 for distance metrics only.
+                    var factor = getGetFactor(p);
+                    if (factor.Value == 0)
+                    {
+                        return new Factor()
+                        {
+                            Direction = factor.Direction,
+                            Value = 0
+                        };
+                    }
+                    return new Factor()
+                    { 
+                        Direction = factor.Direction,
+                        Value = 1
+                    };
+                };
+                var weightHandler = new DefaultWeightHandler(getShortestFactor);
 
                 var checkForward = forward == null || forward.Value;
                 var checkBackward = forward == null || !forward.Value;
@@ -154,7 +172,7 @@ namespace Itinero
                 if (checkForward)
                 { // build and run forward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, true), radius, false);
+                        point.ToEdgePaths(_db, weightHandler, true), radiusInMeter, false);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
@@ -167,7 +185,7 @@ namespace Itinero
                 if (checkBackward)
                 { // build and run backward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, false), radius, true);
+                        point.ToEdgePaths(_db, weightHandler, false), radiusInMeter, true);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
@@ -209,7 +227,6 @@ namespace Itinero
                     }
                 }
 
-                EdgePath<T> path;
                 ContractedDb contracted;
 
                 bool useContracted = false;
@@ -224,10 +241,18 @@ namespace Itinero
                     }
                 }
 
+                EdgePath<T> path = null;
+                if (source.EdgeId == target.EdgeId)
+                { // check for a path on the same edge.
+                    var edgePath = source.EdgePathTo(_db, weightHandler, target);
+                    if (edgePath != null)
+                    {
+                        path = edgePath;
+                    }
+                }
+
                 if (useContracted)
                 {  // use the contracted graph.
-                    path = null;
-
                     List<uint> vertexPath = null;
 
                     if (!contracted.HasEdgeBasedGraph)
@@ -237,12 +262,18 @@ namespace Itinero
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
                         {
-                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            if (path == null)
                             {
-                                return new RouteNotFoundException(message);
-                            });
+                                return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
                         }
-                        vertexPath = bidirectionalSearch.GetPath();
+                        else
+                        {
+                            vertexPath = bidirectionalSearch.GetPath();
+                        }
                     }
                     else
                     { // use edge-based routing.
@@ -251,19 +282,35 @@ namespace Itinero
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
                         {
-                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            if (path == null)
                             {
-                                return new RouteNotFoundException(message);
-                            });
+                                return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
                         }
-                        vertexPath = bidirectionalSearch.GetPath();
+                        else
+                        {
+                            vertexPath = bidirectionalSearch.GetPath();
+                        }
                     }
 
                     // expand vertex path using the regular graph.
-                    path = _db.BuildEdgePath(weightHandler, source, target, vertexPath);
+                    if (vertexPath != null)
+                    {
+                        var localPath = _db.BuildEdgePath(weightHandler, source, target, vertexPath);
+                        if (path == null || 
+                            weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
+                        {
+                            path = localPath;
+                        }
+                    }
                 }
                 else
                 { // use the regular graph.
+                    EdgePath<T> localPath = null;
+
                     if (_db.HasComplexRestrictions(profileInstance.Profile))
                     {
                         var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
@@ -275,12 +322,18 @@ namespace Itinero
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
                         {
-                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            if (path == null)
                             {
-                                return new RouteNotFoundException(message);
-                            });
+                                return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
                         }
-                        path = bidirectionalSearch.GetPath();
+                        else
+                        {
+                            localPath = bidirectionalSearch.GetPath();
+                        }
                     }
                     else
                     {
@@ -293,22 +346,28 @@ namespace Itinero
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
                         {
-                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            if (path == null)
                             {
-                                return new RouteNotFoundException(message);
-                            });
+                                return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
                         }
-                        path = bidirectionalSearch.GetPath();
+                        else
+                        {
+                            localPath = bidirectionalSearch.GetPath();
+                        }
                     }
-                }
 
-                if (source.EdgeId == target.EdgeId)
-                { // check for a shorter path on the same edge.
-                    var edgePath = source.EdgePathTo(_db, weightHandler, target);
-                    if (edgePath != null &&
-                       weightHandler.IsSmallerThan(edgePath.Weight, path.Weight))
+                    // choose best path.
+                    if (localPath != null)
                     {
-                        path = edgePath;
+                        if (path == null ||
+                            weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
+                        {
+                            path = localPath;
+                        }
                     }
                 }
                 return new Result<EdgePath<T>>(path);

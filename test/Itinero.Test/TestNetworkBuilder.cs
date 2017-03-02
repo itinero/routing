@@ -32,7 +32,7 @@ namespace Itinero.Test
     /// </summary>
     public static class TestNetworkBuilder
     {
-        private static float Tolerance = 20; // 10 meter.
+        private const float Tolerance = 20; // 10 meter.
 
         /// <summary>
         /// Loads a test network.
@@ -48,7 +48,7 @@ namespace Itinero.Test
         /// <summary>
         /// Loads a test network from geojson.
         /// </summary>
-        public static void LoadTestNetwork(this RouterDb db, string geoJson)
+        public static void LoadTestNetwork(this RouterDb db, string geoJson, float tolerance = 20)
         {
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);
@@ -104,14 +104,14 @@ namespace Itinero.Test
 
                     var vertex1 = db.SearchVertexFor(
                         (float)line.Coordinates[0].Y,
-                        (float)line.Coordinates[0].X);
+                        (float)line.Coordinates[0].X, tolerance);
                     var distance = 0.0;
                     var shape = new List<Coordinate>();
                     for (var i = 1; i < line.Coordinates.Length; i++)
                     {
                         var vertex2 = db.SearchVertexFor(
                             (float)line.Coordinates[i].Y,
-                            (float)line.Coordinates[i].X);
+                            (float)line.Coordinates[i].X, tolerance);
                         distance += Coordinate.DistanceEstimateInMeter(
                             (float)line.Coordinates[i - 1].Y, (float)line.Coordinates[i - 1].X,
                             (float)line.Coordinates[i].Y, (float)line.Coordinates[i].X);
@@ -142,12 +142,12 @@ namespace Itinero.Test
                     var sequence = new List<uint>();
                     sequence.Add(db.SearchVertexFor(
                         (float)line.Coordinates[0].Y,
-                        (float)line.Coordinates[0].X));
+                        (float)line.Coordinates[0].X, tolerance));
                     for (var i = 1; i < line.Coordinates.Length; i++)
                     {
                         sequence.Add(db.SearchVertexFor(
                             (float)line.Coordinates[i].Y,
-                            (float)line.Coordinates[i].X));
+                            (float)line.Coordinates[i].X, tolerance));
                     }
 
                     var vehicleType = string.Empty;
@@ -170,7 +170,8 @@ namespace Itinero.Test
         /// <summary>
         /// Searches a vertex for the given location.
         /// </summary>
-        public static uint SearchVertexFor(this RouterDb db, float latitude, float longitude)
+        public static uint SearchVertexFor(this RouterDb db, float latitude, float longitude,
+            float tolerance = TestNetworkBuilder.Tolerance)
         {
             for (uint vertex = 0; vertex < db.Network.VertexCount; vertex++)
             {
@@ -179,7 +180,7 @@ namespace Itinero.Test
                 {
                     var dist = Coordinate.DistanceEstimateInMeter(latitude, longitude,
                         lat, lon);
-                    if (dist < Tolerance)
+                    if (dist < tolerance)
                     {
                         return vertex;
                     }

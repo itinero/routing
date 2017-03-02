@@ -21,6 +21,7 @@ using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
 using Itinero.Test.Algorithms.Search;
 using Itinero.Test.Profiles;
+using Itinero;
 
 namespace Itinero.Test
 {
@@ -438,6 +439,58 @@ namespace Itinero.Test
             Assert.AreEqual(vertices[1].Longitude, route.Shape[3].Longitude);
             Assert.AreEqual(vertices[0].Latitude, route.Shape[4].Latitude);
             Assert.AreEqual(vertices[0].Longitude, route.Shape[4].Longitude);
+        }
+
+        /// <summary>
+        /// Tests resolving with connectivity checks.
+        /// </summary>
+        [Test]
+        public void TestResolveConnectedNetwork8()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network8.geojson"));
+            routerDb.Network.Sort();
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);            
+            var router = new Router(routerDb);
+
+            // define 3 location that resolve on an unconnected part of the network.
+            var location5 = new Coordinate(52.3531703566375f, 6.6664910316467285f);
+            var location6 = new Coordinate(52.3542941977726f, 6.6631704568862915f);
+            var location7 = new Coordinate(52.3554049048100f, 6.6648924350738520f);
+            
+            var point = router.TryResolve(car, location5);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.Location()) < 20);
+            point = router.TryResolveConnected(car, location5, 100, 100);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.Location()) > 20 &&
+                Coordinate.DistanceEstimateInMeter(location5, point.Value.Location()) < 60);
+
+            point = router.TryResolve(car, location6);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) < 20);
+            point = router.TryResolveConnected(car, location6, 100, 100);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) < 20);
+            point = router.TryResolveConnected(car, location6, 200, 100);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) > 20 &&
+                Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) < 60);
+
+            point = router.TryResolve(car, location7);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) < 20);
+            point = router.TryResolveConnected(car, location7, 100, 100);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) < 20);
+            point = router.TryResolveConnected(car, location7, 200, 100);
+            Assert.IsFalse(point.IsError);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) > 20 &&
+                Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) < 60);
+
         }
     }
 }

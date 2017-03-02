@@ -107,9 +107,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(edge.Weight, forwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
-                { // this vertex is a better match.
-                    _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, edge, totalWeight);
-                    this.HasSucceeded = true;
+                { // this is a better match.
+                    if (forwardVisit.Vertex == edge.From.Vertex)
+                    { // paths match.
+                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, edge, totalWeight);
+                        this.HasSucceeded = true;
+                    }
                 }
             }
             return false;
