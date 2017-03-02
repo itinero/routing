@@ -52,7 +52,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static void RunFictional()
         {
-            var stream = new OsmSharp.Streams.XmlOsmStreamSource(File.OpenRead("./Tests/fictional.osm"));
+            var stream = new OsmSharp.Streams.XmlOsmStreamSource(File.OpenRead(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Tests/fictional.osm")));
             var routerDb = new RouterDb();
             routerDb.LoadOsmData(stream, Itinero.Osm.Vehicles.Vehicle.Car);
 
