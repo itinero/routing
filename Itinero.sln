@@ -1,37 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26206.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4B330D21-2EE5-4C34-B716-0DB1FBC58E29}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C142786B-F60E-4B6B-B9F2-1D25C3A3D7B5}"
 	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
 		SharedAssemblyVersion.cs = SharedAssemblyVersion.cs
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero", "src\Itinero\Itinero.xproj", "{97D8404B-8C3C-4A15-BB44-F54C15C0DE67}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.IO.Osm", "src\Itinero.IO.Osm\Itinero.IO.Osm.xproj", "{232998A3-367A-46FE-B99D-2ECA7232D41C}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.Geo", "src\Itinero.Geo\Itinero.Geo.xproj", "{596D3128-D18F-49F0-A7AD-2D94362819B8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7E594B3F-4CA9-4198-B90D-DD16972D0481}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.Test", "test\Itinero.Test\Itinero.Test.xproj", "{29ECC1BD-65CC-49DB-8721-EE109562EB07}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.Test.Functional", "test\Itinero.Test.Functional\Itinero.Test.Functional.xproj", "{E0F21CB3-0206-44D2-9CC4-25370597F777}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{77BC0AC3-41A6-4672-A3AB-9C27710756BE}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Sample.Matrix", "samples\Sample.Matrix\Sample.Matrix.xproj", "{414D079B-1194-495E-AFDD-0595284D8F35}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Itinero.IO.Shape", "src\Itinero.IO.Shape\Itinero.IO.Shape.xproj", "{79003AC2-B9AF-4F51-AA95-C061771A9689}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Sample.Shape", "samples\Sample.Shape\Sample.Shape.xproj", "{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Sample.Basic", "samples\Sample.Basic\Sample.Basic.xproj", "{8555929B-77C6-4A5E-899A-9E31189A166B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuspec", "nuspec", "{8BEE6496-C8C3-4815-8481-530E6706717B}"
 	ProjectSection(SolutionItems) = preProject
@@ -40,6 +21,24 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuspec", "nuspec", "{8BEE64
 		nuspec\Itinero.IO.Shape.nuspec = nuspec\Itinero.IO.Shape.nuspec
 		nuspec\Itinero.nuspec = nuspec\Itinero.nuspec
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero", "src\Itinero\Itinero.csproj", "{97D8404B-8C3C-4A15-BB44-F54C15C0DE67}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.IO.Osm", "src\Itinero.IO.Osm\Itinero.IO.Osm.csproj", "{232998A3-367A-46FE-B99D-2ECA7232D41C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Geo", "src\Itinero.Geo\Itinero.Geo.csproj", "{596D3128-D18F-49F0-A7AD-2D94362819B8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Test", "test\Itinero.Test\Itinero.Test.csproj", "{29ECC1BD-65CC-49DB-8721-EE109562EB07}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Test.Functional", "test\Itinero.Test.Functional\Itinero.Test.Functional.csproj", "{E0F21CB3-0206-44D2-9CC4-25370597F777}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Matrix", "samples\Sample.Matrix\Sample.Matrix.csproj", "{414D079B-1194-495E-AFDD-0595284D8F35}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.IO.Shape", "src\Itinero.IO.Shape\Itinero.IO.Shape.csproj", "{79003AC2-B9AF-4F51-AA95-C061771A9689}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Shape", "samples\Sample.Shape\Sample.Shape.csproj", "{D5ECDEE9-57D6-4321-A3EB-B4C6BC486C06}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Basic", "samples\Sample.Basic\Sample.Basic.csproj", "{8555929B-77C6-4A5E-899A-9E31189A166B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
