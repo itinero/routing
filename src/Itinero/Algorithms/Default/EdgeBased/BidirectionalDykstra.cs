@@ -58,7 +58,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _sourceSearch.Visit = (path) =>
             {
                 _maxForward = path.Weight;
-                return false;
+                return this.ReachedForward(path);
             };
             _targetSearch.Visit = (path) =>
             {
@@ -91,26 +91,54 @@ namespace Itinero.Algorithms.Default.EdgeBased
         }
 
         /// <summary>
+        /// Called when a vertex was reached during a forward search.
+        /// </summary>
+        /// <returns></returns>
+        private bool ReachedForward(EdgePath<T> forwardVisit)
+        {
+            // check backward search for the same vertex.
+            EdgePath<T> backwardVisit;
+            if (_targetSearch.TryGetVisit(-forwardVisit.Edge, out backwardVisit))
+            { // there is a status for this edge in the target search.
+                var localWeight = _weightHandler.Zero;
+                if (forwardVisit.From != null)
+                {
+                    localWeight = forwardVisit.From.Weight;
+                }
+                var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
+                if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
+                { // this is a better match.
+                    if (forwardVisit.Vertex == backwardVisit.From.Vertex)
+                    { // paths match.
+                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
+                        this.HasSucceeded = true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Called when a vertex was reached during a backward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedBackward(EdgePath<T> edge)
+        private bool ReachedBackward(EdgePath<T> backwardVisit)
         {
             // check forward search for the same vertex.
             EdgePath<T> forwardVisit;
-            if (_sourceSearch.TryGetVisit(-edge.Edge, out forwardVisit))
+            if (_sourceSearch.TryGetVisit(-backwardVisit.Edge, out forwardVisit))
             { // there is a status for this edge in the source search.
                 var localWeight = _weightHandler.Zero;
-                if (edge.From != null)
+                if (backwardVisit.From != null)
                 {
-                    localWeight = edge.From.Weight;
+                    localWeight = backwardVisit.From.Weight;
                 }
-                var totalWeight = _weightHandler.Subtract(_weightHandler.Add(edge.Weight, forwardVisit.Weight), localWeight);
+                var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this is a better match.
-                    if (forwardVisit.Vertex == edge.From.Vertex)
+                    if (forwardVisit.Vertex == backwardVisit.From.Vertex)
                     { // paths match.
-                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, edge, totalWeight);
+                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
                         this.HasSucceeded = true;
                     }
                 }

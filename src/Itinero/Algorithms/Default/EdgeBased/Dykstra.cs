@@ -160,8 +160,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
             }
 
-            if (_current != null &&
-                !_visits.ContainsKey(_current.Edge))
+            if (_current != null)
             { // we visit this one, set visit.
                 if (_current.Edge != Constants.NO_EDGE)
                 {
