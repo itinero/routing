@@ -150,6 +150,14 @@ namespace Itinero
                 Func<ushort, Factor> getShortestFactor = (p) =>
                 { // only keep directional information, get factor to 1 for distance metrics only.
                     var factor = getGetFactor(p);
+                    if (factor.Value == 0)
+                    {
+                        return new Factor()
+                        {
+                            Direction = factor.Direction,
+                            Value = 0
+                        };
+                    }
                     return new Factor()
                     { 
                         Direction = factor.Direction,

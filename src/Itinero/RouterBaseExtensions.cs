@@ -638,8 +638,15 @@ namespace Itinero
         public static Result<RouterPoint> TryResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, 
             float radiusInMeter = 2000, float maxSearchDistance = Constants.SearchDistanceInMeter, bool? forward = null)
         {
+            var isAcceptable = router.GetIsAcceptable(profileInstance);
             var resolver = new Algorithms.Search.ResolveAlgorithm(router.Db.Network.GeometricGraph, latitude, longitude, radiusInMeter, maxSearchDistance, (edge) =>
             {
+                // check if the edge is acceptable for the profile.
+                if (!isAcceptable(edge))
+                {
+                    return false;
+                }
+
                 // create a temp resolved point in the middle of this edge.
                 var tempRouterPoint = new RouterPoint(0, 0, edge.Id, ushort.MaxValue / 2);
                 var connectivityResult = router.TryCheckConnectivity(profileInstance, tempRouterPoint, radiusInMeter, forward);
