@@ -14,7 +14,7 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            GetTestInstructionGenerationParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 100).TestPerf("Routing instructions parallel");
+            GetTestInstructionGenerationParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 25).TestPerf("Routing instructions parallel");
         }
         
         /// <summary>
