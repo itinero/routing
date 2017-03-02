@@ -157,6 +157,17 @@ namespace Itinero.IO.Osm.Streams
         public void Set(long id, uint vertex)
         {
             var idx = TryGetIndex(id);
+
+            if ((idx * 2) + 1 >= _data.Length)
+            {
+                var start = _data.Length;
+                _data.Resize((idx * 2) + 1 + 1024);
+                for (var i = start; i < ((idx * 2) + 1 + 1024); i++)
+                {
+                    _data[i] = int.MaxValue;
+                }
+            }
+
             _data[(idx * 2) + 0] = unchecked((int)vertex);
             _data[(idx * 2) + 1] = int.MinValue;
         }

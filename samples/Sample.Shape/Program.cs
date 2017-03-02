@@ -47,12 +47,13 @@ namespace Sample.Shape
             Download.DownloadAndExtractShape("http://files.itinero.tech/data/open-data/NWB/WGS84_2016-09-01.zip", "WGS84_2016-09-01.zip");
 
             // create a new router db and load the shapefile.
-            var vehicle = DynamicVehicle.LoadFromStream(File.OpenRead("car.lua"));
+            var vehicle = DynamicVehicle.LoadFromStream(File.OpenRead(
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "car.lua")));
             var routerDb = new RouterDb(EdgeDataSerializer.MAX_DISTANCE);
             routerDb.LoadFromShape(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp"), "wegvakken.shp", "JTE_ID_BEG", "JTE_ID_END", vehicle);
 
-            // build a contracted version of the routing graph.
-            routerDb.AddContracted(vehicle.Fastest());
+            // OPTIONAL: build a contracted version of the routing graph.
+            // routerDb.AddContracted(vehicle.Fastest());
 
             // write the router db to disk for later use.
             routerDb.Serialize(File.OpenWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "nwb.routerdb")));

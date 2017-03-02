@@ -37,7 +37,14 @@ namespace Itinero.Test.IO.Osm.Streams
             index.AddId(-128510752);
             index.Set(-128510752, 11);
 
-
+            float latitude, longitude;
+            bool isCore;
+            uint vertex;
+            index.TryGetValue(-128510752, out latitude, out longitude, out isCore, out vertex);
+            Assert.AreEqual(float.MaxValue, latitude);
+            Assert.AreEqual(float.MaxValue, longitude);
+            Assert.AreEqual(false, isCore);
+            Assert.AreEqual(11, vertex);
         }
     }
 }
