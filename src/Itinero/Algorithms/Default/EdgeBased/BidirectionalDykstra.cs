@@ -103,7 +103,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 var localWeight = _weightHandler.Zero;
                 if (forwardVisit.From != null)
                 {
-                    localWeight = forwardVisit.From.Weight;
+                    localWeight = _weightHandler.Subtract(forwardVisit.Weight, forwardVisit.From.Weight);
                 }
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
@@ -131,7 +131,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 var localWeight = _weightHandler.Zero;
                 if (backwardVisit.From != null)
                 {
-                    localWeight = backwardVisit.From.Weight;
+                    localWeight = _weightHandler.Subtract(backwardVisit.Weight, backwardVisit.From.Weight);
                 }
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
