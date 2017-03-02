@@ -120,16 +120,4 @@ function factor_and_speed (attributes, result)
 			result.speed = speed * 0.75
 		end
 	end
-	local maxweight = 0
-	local maxwidth = 0
-	if attributes.maxweight then
-		maxweight = itinero.parseweight (attributes.maxweight)
-	end
-	if attributes.maxwidth then
-		maxwidth = itinero.parseweight (attributes.maxwidth)
-	end
-
-	if maxwidth != 0 and maxweight != 0 then
-		result.constraints = { maxweight, maxwidth }
-	end
 end

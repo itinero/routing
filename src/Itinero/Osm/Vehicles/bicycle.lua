@@ -49,8 +49,6 @@ profile_whitelist = {
 	"vehicle",
 	"access",
 	"maxspeed",
-	"maxweight",
-	"maxwidth",
 	"roundabout",
 	"cycleway", 
 	"cyclenetwork",

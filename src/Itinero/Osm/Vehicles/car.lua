@@ -54,8 +54,6 @@ profile_whitelist = {
 	"vehicle",
 	"access",
 	"maxspeed",
-	"maxweight",
-	"maxwidth",
 	"junction",
 	"route"
 }
@@ -140,7 +138,7 @@ function factor_and_speed (attributes, result)
 	 -- get default speed profiles
 	 local highway_speed = speed_profile[highway]
 	 if highway_speed then
-        result.speed = highway_speed
+        result.speed = highway_speed * 0.75
         result.direction = 0
 		result.canstop = true
 		result.attributes_to_keep.highway = highway
@@ -167,21 +165,6 @@ function factor_and_speed (attributes, result)
 			result.speed = speed * 0.75
 			result.attributes_to_keep.maxspeed = true
 		end
-	end
-
-	-- get maxweight and maxwidth constraints if any
-	local maxweight = 0
-	local maxwidth = 0
-	if attributes.maxweight then
-		maxweight = itinero.parseweight (attributes.maxweight)
-	end
-	if attributes.maxwidth then
-		maxwidth = itinero.parseweight (attributes.maxwidth)
-	end
-	if maxwidth != 0 or maxweight != 0 then
-		result.constraints = { maxweight, maxwidth }
-		result.attributes_to_keep.maxweight = true
-		result.attributes_to_keep.maxwidth = true
 	end
 
 	-- get directional information

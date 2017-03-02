@@ -53,8 +53,6 @@ profile_whitelist = {
 	"vehicle",
 	"access",
 	"maxspeed",
-	"maxweight",
-	"maxwidth",
 	"junction"
 }
 meta_whitelist = {
