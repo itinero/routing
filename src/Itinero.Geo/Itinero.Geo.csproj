@@ -38,7 +38,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-    <Compile Include="..\..\SharedAssemblyVersion.cs" />
+    <Compile Include="..\..\SharedAssemblyVersion.cs" Link="SharedAssemblyVersion.cs" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
