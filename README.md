@@ -2,7 +2,7 @@
 
 ![Build status](http://build.osmsharp.com/app/rest/builds/buildType:(id:Itinero_RoutingDevelop)/statusIcon)
 [![Visit our website](https://img.shields.io/badge/website-itinero.tech-020031.svg) ](http://www.itinero.tech/)
-[![GPL licensed](https://img.shields.io/badge/license-GPLv2-blue.svg)](https://github.com/itinero/routing/blob/develop/LICENSE.md)
+[![GPL licensed](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/itinero/routing/blob/develop/LICENSE.md)
 
 - Itinero: [![NuGet](https://img.shields.io/nuget/v/Itinero.svg?style=flat)](http://www.nuget.org/profiles/Itinero)  
 - Itinero.Geo: [![NuGet](https://img.shields.io/nuget/v/Itinero.Geo.svg?style=flat)](http://www.nuget.org/profiles/Itinero.Geo)  
