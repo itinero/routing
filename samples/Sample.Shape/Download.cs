@@ -41,6 +41,7 @@ namespace Sample.Shape
             if (!File.Exists(filename))
             {
                 var client = new HttpClient();
+                client.Timeout = new TimeSpan(0, 10, 0);
                 using (var stream = await client.GetStreamAsync(url))
                 using (var outputStream = File.OpenWrite(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename)))
                 {
