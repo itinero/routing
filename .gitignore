@@ -36,5 +36,6 @@ packages/*
 !packages/repositories.config
 .vs/*
 
+TestResult*.xml
 *.routerdb
 *.osm.pbf
