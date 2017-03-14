@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\test\Itinero.Test\Itinero.Test.csproj" />
+    <ProjectReference Include="..\Itinero.Test\Itinero.Test.csproj" />
   </ItemGroup>
 
 </Project>
