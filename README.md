@@ -4,10 +4,10 @@
 [![Visit our website](https://img.shields.io/badge/website-itinero.tech-020031.svg) ](http://www.itinero.tech/)
 [![GPL licensed](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/itinero/routing/blob/develop/LICENSE.md)
 
-- Itinero: [![NuGet](https://img.shields.io/nuget/v/Itinero.svg?style=flat)](http://www.nuget.org/profiles/Itinero)  
-- Itinero.Geo: [![NuGet](https://img.shields.io/nuget/v/Itinero.Geo.svg?style=flat)](http://www.nuget.org/profiles/Itinero.Geo)  
-- Itinero.IO.Osm: [![NuGet](https://img.shields.io/nuget/v/Itinero.IO.Osm.svg?style=flat)](http://www.nuget.org/profiles/Itinero.IO.Osm)
-- Itinero.IO.Shape: [![NuGet](https://img.shields.io/nuget/v/Itinero.IO.Shape.svg?style=flat)](http://www.nuget.org/profiles/Itinero.IO.Shape)
+- Itinero: [![NuGet](https://img.shields.io/nuget/v/Itinero.svg?style=flat)](https://www.nuget.org/packages/Itinero/)  
+- Itinero.Geo: [![NuGet](https://img.shields.io/nuget/v/Itinero.Geo.svg?style=flat)](https://www.nuget.org/packages/Itinero.Geo/)  
+- Itinero.IO.Osm: [![NuGet](https://img.shields.io/nuget/v/Itinero.IO.Osm.svg?style=flat)](https://www.nuget.org/packages/Itinero.IO.Osm/)
+- Itinero.IO.Shape: [![NuGet](https://img.shields.io/nuget/v/Itinero.IO.Shape.svg?style=flat)](https://www.nuget.org/packages/Itinero.IO.Shape/)
 
 
 **Itinero** is a routing project for .NET/Mono to calculate routes in a road network. By default the routing network is based on OpenStreetMap (OSM) but it's possible to load any road network. The most important features:
