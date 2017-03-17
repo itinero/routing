@@ -11,7 +11,11 @@ dotnet build ./src/Itinero.IO.Osm -f netstandard1.6
 # dotnet build ./test/Itinero.Test.Runner -f netstandard1.3
 
 # Build samples.
-dotnet build ./samples/Sample.Basic
-dotnet build ./samples/Sample.Matrix
+dotnet build ./samples/Sample.Basic -r ubuntu.16.04-x64
+dotnet build ./samples/Sample.Basic -r win10-x64
+dotnet build ./samples/Sample.Basic -r osx.10.11-x64
+dotnet build ./samples/Sample.Matrix -r ubuntu.16.04-x64
+dotnet build ./samples/Sample.Matrix -r win10-x64
+dotnet build ./samples/Sample.Matrix -r osx.10.11-x64
 # Waiting for NTS .NET core release for IO.Shape
 # dotnet build ./samples/Sample.Shape -f netstandard1.3
