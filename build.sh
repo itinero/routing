@@ -10,7 +10,8 @@ dotnet build ./src/Itinero.IO.Osm -f netstandard1.6
 # dotnet build ./test/Itinero.Test.Functional -f netstandard1.3
 # dotnet build ./test/Itinero.Test.Runner -f netstandard1.3
 
-# Waiting to port to .NET core.
-# dotnet build ./samples/Sample.Basic -f netstandard1.3
-# dotnet build ./samples/Sample.Matrix -f netstandard1.3
+# Build samples.
+dotnet build ./samples/Sample.Basic
+dotnet build ./samples/Sample.Matrix
+# Waiting for NTS .NET core release for IO.Shape
 # dotnet build ./samples/Sample.Shape -f netstandard1.3
