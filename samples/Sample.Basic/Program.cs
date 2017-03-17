@@ -32,7 +32,7 @@ namespace Sample.Basic
     class Program
     {
         static void Main(string[] args)
-        {            
+        {
             // enable logging.
             OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
