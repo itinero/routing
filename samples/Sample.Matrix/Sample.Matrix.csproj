@@ -9,4 +9,8 @@
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <RuntimeIdentifiers>win10-x64;osx.10.11-x64;ubuntu.16.04-x64</RuntimeIdentifiers>
+  </PropertyGroup>
+
 </Project>
