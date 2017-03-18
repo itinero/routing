@@ -32,6 +32,9 @@ using Itinero.Graphs;
 using Itinero.Data.Network;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
+using System.Text;
+using System.IO;
+using Itinero.IO.Json;
 
 namespace Itinero
 {
@@ -553,6 +556,174 @@ namespace Itinero
                 }
                 return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
             }
+        }
+
+        /// <summary>
+        /// Gets all features around the given vertex as geojson.
+        /// </summary>
+        public static string GetGeoJsonAround(this RouterDb db, uint vertex, float distanceInMeter = 250,
+            bool includeEdges = true, bool includeVertices = true)
+        {
+            var coordinate = db.Network.GetVertex(vertex);
+
+            return db.GetGeoJsonAround(coordinate.Latitude, coordinate.Longitude, distanceInMeter,
+                includeEdges, includeVertices);
+        }
+
+        /// <summary>
+        /// Gets all features around the given location as geojson.
+        /// </summary>
+        public static string GetGeoJsonAround(this RouterDb db, float latitude, float longitude, float distanceInMeter = 250, 
+            bool includeEdges = true, bool includeVertices = true)
+        {
+            var coordinate = new Coordinate(latitude, longitude);
+            var north = coordinate.OffsetWithDirection(distanceInMeter, Navigation.Directions.DirectionEnum.North);
+            var south = coordinate.OffsetWithDirection(distanceInMeter, Navigation.Directions.DirectionEnum.South);
+            var east = coordinate.OffsetWithDirection(distanceInMeter, Navigation.Directions.DirectionEnum.East);
+            var west = coordinate.OffsetWithDirection(distanceInMeter, Navigation.Directions.DirectionEnum.West);
+
+            return db.GetGeoJsonIn(south.Latitude, west.Longitude, north.Latitude, east.Longitude,
+                includeEdges, includeVertices);
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box and builds a geojson string.
+        /// </summary>
+        public static string GetGeoJsonIn(this RouterDb db, float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
+        {
+            var stringWriter = new StringWriter();
+            db.WriteGeoJson(stringWriter, minLatitude, minLongitude, maxLatitude, maxLongitude, includeEdges, includeVertices);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box and writes them as a geojson string.
+        /// </summary>
+        public static void WriteGeoJson(this RouterDb db, Stream stream, float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
+        {
+            db.WriteGeoJson(new StreamWriter(stream), minLatitude, minLongitude, maxLatitude, maxLongitude, includeEdges, includeVertices);
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box and writes them as a geojson string.
+        /// </summary>
+        public static void WriteGeoJson(this RouterDb db, TextWriter writer, float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
+        {
+            if (db == null) { throw new ArgumentNullException("db"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            var vertices = HilbertExtensions.Search(db.Network.GeometricGraph, minLatitude, minLongitude,
+                maxLatitude, maxLongitude);
+            var edges = new HashSet<long>();
+
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+            foreach (var vertex in vertices)
+            {
+                if (includeVertices)
+                {
+                    db.WriteVertex(jsonWriter, vertex);
+                }
+
+                if (includeEdges)
+                {
+                    edgeEnumerator.MoveTo(vertex);
+                    edgeEnumerator.Reset();
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        if (edges.Contains(edgeEnumerator.Id))
+                        {
+                            continue;
+                        }
+                        edges.Add(edgeEnumerator.Id);
+
+                        db.WriteEdge(jsonWriter, edgeEnumerator);
+                    }
+                }
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+        }
+
+        /// <summary>
+        /// Writes a point-geometry for the given vertex.
+        /// </summary>
+        private static void WriteVertex(this RouterDb db, JsonWriter jsonWriter, uint vertex)
+        {
+            var coordinate = db.Network.GetVertex(vertex);
+            
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Feature", true, false);
+            jsonWriter.WritePropertyName("geometry", false);
+
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Point", true, false);
+            jsonWriter.WritePropertyName("coordinates", false);
+            jsonWriter.WriteArrayOpen();
+            jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+            jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            jsonWriter.WritePropertyName("properties");
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("id", vertex.ToInvariantString());
+            jsonWriter.WriteClose();
+
+            jsonWriter.WriteClose();
+        }
+
+        /// <summary>
+        /// Writes a linestring-geometry for the edge currently in the enumerator.
+        /// </summary>
+        private static void WriteEdge(this RouterDb db, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator)
+        {
+            var edgeAttributes = new Itinero.Attributes.AttributeCollection(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
+            edgeAttributes.AddOrReplace(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
+
+            var shape = db.Network.GetShape(edgeEnumerator.Current);
+            
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Feature", true, false);
+            jsonWriter.WritePropertyName("geometry", false);
+
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "LineString", true, false);
+            jsonWriter.WritePropertyName("coordinates", false);
+            jsonWriter.WriteArrayOpen();
+
+            foreach (var coordinate in shape)
+            {
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            jsonWriter.WritePropertyName("properties");
+            jsonWriter.WriteOpen();
+            if (edgeAttributes != null)
+            {
+                foreach (var attribute in edgeAttributes)
+                {
+                    jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                }
+            }
+            jsonWriter.WriteClose();
+
+            jsonWriter.WriteClose();
         }
     }
 }

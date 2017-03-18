@@ -25,6 +25,7 @@ using System.Linq;
 using Itinero.Data.Network.Restrictions;
 using Itinero.Data.Contracted;
 using System.Collections.Generic;
+using Itinero.Algorithms.Search.Hilbert;
 
 namespace Itinero.Test
 {
@@ -538,6 +539,28 @@ namespace Itinero.Test
             routerDb.AddRestrictions("vehicle", restrictions);
 
             Assert.IsTrue(routerDb.TryGetRestrictions("vehicle", out restrictions));
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network6.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork6()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network6.geojson"));
+            routerDb.Sort();
+
+            var json = routerDb.GetGeoJsonAround(1, 10, false, true);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.791842,51.26816]},\"properties\":{\"id\":1}}]}",
+                json);
+
+            json = routerDb.GetGeoJsonAround(4, 10, true, true);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.787357,51.26565]]},\"properties\":{\"highway\":\"residential\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.796669,51.2657]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\"}}]}",
+                json);
         }
     }
 }
