@@ -179,8 +179,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
                         break;
                     }
 
-                    if ((forwardTargets.Count == 0 || forwardSettled.Count >= _maxSettles) &&
-                        (backwardTargets.Count == 0 || backwardSettled.Count >= _maxSettles))
+                    if (forwardSettled.Count >= _maxSettles &&
+                        backwardSettled.Count >= _maxSettles)
                     { // do not continue searching.
                         break;
                     }
