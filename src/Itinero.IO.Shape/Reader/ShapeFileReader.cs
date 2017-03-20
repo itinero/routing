@@ -240,7 +240,7 @@ namespace Itinero.IO.Shape.Reader
 
                         // add edge.
                         var profileId = _routerDb.EdgeProfiles.Add(profile);
-                        if (profileId > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                        if (profileId >= Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
                         {
                             throw new Exception("Maximum supported profiles exeeded, make sure only routing attributes are included in the profiles.");
                         }
