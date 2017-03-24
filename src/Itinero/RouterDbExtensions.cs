@@ -721,6 +721,9 @@ namespace Itinero
                     jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                 }
             }
+            jsonWriter.WriteProperty("edgeid", edgeEnumerator.Id.ToInvariantString());
+            jsonWriter.WriteProperty("vertex1", edgeEnumerator.From.ToInvariantString());
+            jsonWriter.WriteProperty("vertex2", edgeEnumerator.To.ToInvariantString());
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
