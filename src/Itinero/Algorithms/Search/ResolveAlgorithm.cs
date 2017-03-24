@@ -205,7 +205,7 @@ namespace Itinero.Algorithms.Search
             }
 
             var offset = (ushort)((projectedDistanceFromFirst / totalLength) * ushort.MaxValue);
-            _result = new RouterPoint(projectedLatitude, projectedLongitude, edgeId, offset);
+            _result = new RouterPoint(_latitude, _longitude, edgeId, offset);
 
             this.HasSucceeded = true;
         }

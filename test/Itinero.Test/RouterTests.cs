@@ -92,38 +92,38 @@ namespace Itinero.Test
 
             var point = router.TryResolve(car, location1);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved1, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved1, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             point = router.TryResolve(car, location2);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved2, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved2, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             point = router.TryResolve(car, location3);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved3, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved3, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             point = router.TryResolve(car, location4);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved4, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved4, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             router.ProfileFactorAndSpeedCache = new Itinero.Profiles.ProfileFactorAndSpeedCache(router.Db);
             router.ProfileFactorAndSpeedCache.CalculateFor(car);
 
             point = router.TryResolve(car, location1);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved1, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved1, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             point = router.TryResolve(car, location2);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved2, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved2, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             point = router.TryResolve(car, location3);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved3, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved3, point.Value.LocationOnNetwork(routerDb)) < 10);
 
             point = router.TryResolve(car, location4);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved4, point.Value.Location()) < 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(resolved4, point.Value.LocationOnNetwork(routerDb)) < 10);
         }
 
         /// <summary>
@@ -463,34 +463,33 @@ namespace Itinero.Test
             
             var point = router.TryResolve(car, location5);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.Location()) < 20);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.LocationOnNetwork(routerDb)) < 20);
             point = router.TryResolveConnected(car, location5, 100, 100);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.Location()) > 20 &&
-                Coordinate.DistanceEstimateInMeter(location5, point.Value.Location()) < 60);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.LocationOnNetwork(routerDb)) > 20 &&
+                Coordinate.DistanceEstimateInMeter(location5, point.Value.LocationOnNetwork(routerDb)) < 60);
 
             point = router.TryResolve(car, location6);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) < 20);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.LocationOnNetwork(routerDb)) < 20);
             point = router.TryResolveConnected(car, location6, 100, 100);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) < 20);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.LocationOnNetwork(routerDb)) < 20);
             point = router.TryResolveConnected(car, location6, 200, 100);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) > 20 &&
-                Coordinate.DistanceEstimateInMeter(location6, point.Value.Location()) < 60);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location6, point.Value.LocationOnNetwork(routerDb)) > 20 &&
+                Coordinate.DistanceEstimateInMeter(location6, point.Value.LocationOnNetwork(routerDb)) < 60);
 
             point = router.TryResolve(car, location7);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) < 20);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.LocationOnNetwork(routerDb)) < 20);
             point = router.TryResolveConnected(car, location7, 100, 100);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) < 20);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.LocationOnNetwork(routerDb)) < 20);
             point = router.TryResolveConnected(car, location7, 200, 100);
             Assert.IsFalse(point.IsError);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) > 20 &&
-                Coordinate.DistanceEstimateInMeter(location7, point.Value.Location()) < 60);
-
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.LocationOnNetwork(routerDb)) > 20 &&
+                Coordinate.DistanceEstimateInMeter(location7, point.Value.LocationOnNetwork(routerDb)) < 60);
         }
     }
 }

@@ -559,7 +559,7 @@ namespace Itinero.Test
                 json);
 
             json = routerDb.GetGeoJsonAround(4, 10, true, true);
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.787357,51.26565]]},\"properties\":{\"highway\":\"residential\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\"}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.796669,51.2657]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\"}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.787357,51.26565]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":0,\"vertex1\":4,\"vertex2\":7}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.796669,51.2657]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":4,\"vertex2\":5}}]}",
                 json);
         }
     }

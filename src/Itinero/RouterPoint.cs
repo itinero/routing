@@ -29,6 +29,10 @@ namespace Itinero
         /// <summary>
         /// Creates a new router point.
         /// </summary>
+        /// <param name="edgeId">The edge id.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="latitude">The latitude of the original location.</param>
+        /// <param name="longitude">The longitude of the original location.</param>
         public RouterPoint(float latitude, float longitude, uint edgeId, ushort offset)
         {
             this.Latitude = latitude;
@@ -41,6 +45,11 @@ namespace Itinero
         /// <summary>
         /// Creates a new router point.
         /// </summary>
+        /// <param name="edgeId">The edge id.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="latitude">The latitude of the original location.</param>
+        /// <param name="longitude">The longitude of the original location.</param>
+        /// <param name="attributes">Meta-data about this point.</param>
         public RouterPoint(float latitude, float longitude, uint edgeId, ushort offset,
             params Attribute[] attributes)
         {
@@ -70,7 +79,7 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets the latitude.
+        /// Gets the latitude of the original location.
         /// </summary>
         public float Latitude
         {
@@ -79,7 +88,7 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets the longitude.
+        /// Gets the longitude of the original location.
         /// </summary>
         public float Longitude
         {
@@ -88,7 +97,7 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets/sets the tags.
+        /// Gets/sets meta-data about this point..
         /// </summary>
         public IAttributeCollection Attributes
         {
