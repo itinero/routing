@@ -442,6 +442,11 @@ namespace Itinero.IO.Osm.Streams
 
         private long GetId(long index)
         {
+            if (_index.Length == 0)
+            {
+                return long.MaxValue;
+            }
+
             var overflow = 0;
             for (var i = 0; i < _overflows.Count; i++)
             {
