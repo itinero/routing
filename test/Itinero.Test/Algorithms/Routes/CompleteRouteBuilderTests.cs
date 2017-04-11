@@ -45,11 +45,11 @@ namespace Itinero.Test.Algorithms.Routes
             var routerDb = new RouterDb();
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, 1, 1);
-            routerDb.Network.AddEdge(0, 1, new EdgeData(), null);
+            var edgeId = routerDb.Network.AddEdge(0, 1, new EdgeData(), null);
 
             // build route.
-            var source = new RouterPoint(0, 0, 1, 0, new Attribute("type", "source"));
-            var target = new RouterPoint(0, 0, 1, 0, new Attribute("type", "target"));
+            var source = new RouterPoint(0, 0, edgeId, 0, new Attribute("type", "source"));
+            var target = new RouterPoint(0, 0, edgeId, 0, new Attribute("type", "target"));
             var profile = VehicleMock.Car().Fastest();
             var routeBuilder = new CompleteRouteBuilder(routerDb, profile,
                 source, target, new List<uint>(new uint[] { Constants.NO_VERTEX }));
@@ -725,10 +725,11 @@ namespace Itinero.Test.Algorithms.Routes
             route = routeBuilder.Route;
             Assert.IsNotNull(route);
 
+            var e = 0.0001f;
             Assert.IsNotNull(route.Shape);
             Assert.AreEqual(12, route.Shape.Length);
-            Assert.AreEqual(0.4f, route.Shape[0].Latitude);
-            Assert.AreEqual(0.4f, route.Shape[0].Longitude);
+            Assert.AreEqual(0.4f, route.Shape[0].Latitude, e);
+            Assert.AreEqual(0.4f, route.Shape[0].Longitude, e);
             Assert.AreEqual(.5f, route.Shape[1].Latitude);
             Assert.AreEqual(.5f, route.Shape[1].Longitude);
             Assert.AreEqual(.75f, route.Shape[2].Latitude);
@@ -836,7 +837,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(0f, route.Shape[10].Latitude);
             Assert.AreEqual(1.5f, route.Shape[10].Longitude);
             Assert.AreEqual(0f, route.Shape[11].Latitude);
-            Assert.AreEqual(1.6f, route.Shape[11].Longitude);
+            Assert.AreEqual(1.6f, route.Shape[11].Longitude, e);
 
             Assert.IsNotNull(route.ShapeMeta);
             Assert.AreEqual(4, route.ShapeMeta.Length);
