@@ -165,7 +165,7 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         private void AddSource()
         {
-            _shape.Add(_source.Location());
+            _shape.Add(_source.LocationOnNetwork(_routerDb));
             _shapeMeta.Add(new Route.Meta()
             {
                 Attributes = new AttributeCollection(
@@ -213,7 +213,7 @@ namespace Itinero.Algorithms.Routes
                 shape = _source.ShapePointsTo(_routerDb, _target);
                 distance = _source.DistanceTo(_routerDb, _target);
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
-                targetLocation = _target.Location();
+                targetLocation = _target.LocationOnNetwork(_routerDb);
                 shape.Add(targetLocation.Value);
             }
             else if(from == Constants.NO_VERTEX)
@@ -233,7 +233,7 @@ namespace Itinero.Algorithms.Routes
                     edge.GetOther(from));
                 shape = fromOnEdge.ShapePointsTo(_routerDb, _target);
                 distance = fromOnEdge.DistanceTo(_routerDb, _target);
-                targetLocation = _target.Location();
+                targetLocation = _target.LocationOnNetwork(_routerDb);
                 shape.Add(targetLocation.Value);
             }
             else
@@ -325,7 +325,7 @@ namespace Itinero.Algorithms.Routes
                 shape = _source.ShapePointsTo(_routerDb, _target);
                 distance = _source.DistanceTo(_routerDb, _target);
                 edge = _routerDb.Network.GetEdge(_source.EdgeId);
-                targetLocation = _target.Location();
+                targetLocation = _target.LocationOnNetwork(_routerDb);
                 shape.Add(targetLocation.Value);
             }
             else if (from == Constants.NO_VERTEX)
@@ -345,7 +345,7 @@ namespace Itinero.Algorithms.Routes
                     edge.GetOther(from));
                 shape = fromOnEdge.ShapePointsTo(_routerDb, _target);
                 distance = fromOnEdge.DistanceTo(_routerDb, _target);
-                targetLocation = _target.Location();
+                targetLocation = _target.LocationOnNetwork(_routerDb);
                 shape.Add(targetLocation.Value);
             }
             else
