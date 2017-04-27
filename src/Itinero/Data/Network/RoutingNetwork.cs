@@ -38,7 +38,6 @@ namespace Itinero.Data.Network
         private readonly GeometricGraph _graph;
         private readonly ArrayBase<uint> _edgeData;
         private readonly int _edgeDataSize = 2;
-        private const int BLOCK_SIZE = 1000;
 
         /// <summary>
         /// Creates a new routing network.
@@ -137,19 +136,6 @@ namespace Itinero.Data.Network
         }
 
         /// <summary>
-        /// Increase edge data size to fit at least the given edge.
-        /// </summary>
-        private void IncreaseSizeEdgeData(uint edgeId)
-        {
-            var size = _edgeData.Length;
-            while(edgeId >= size)
-            {
-                size += BLOCK_SIZE;
-            }
-            _edgeData.Resize(size);
-        }
-
-        /// <summary>
         /// Adds a new vertex.
         /// </summary>
         public void AddVertex(uint vertex, float latitude, float longitude)
@@ -194,10 +180,7 @@ namespace Itinero.Data.Network
             var edgeId = _graph.AddEdge(vertex1, vertex2,
                 Data.Edges.EdgeDataSerializer.Serialize(
                     data.Distance, data.Profile), shape);
-            if(edgeId >= _edgeData.Length)
-            {
-                this.IncreaseSizeEdgeData(edgeId);
-            }
+            _edgeData.EnsureMinimumSize(edgeId + 1);
             _edgeData[edgeId] = data.MetaId;
             return edgeId;
         }

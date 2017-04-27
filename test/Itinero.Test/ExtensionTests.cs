@@ -17,8 +17,8 @@
  */
 
 using NUnit.Framework;
-using OsmSharp.IO;
 using Itinero.Test.Mocks;
+using Reminiscence.Arrays;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -86,6 +86,52 @@ namespace Itinero.Test
 
             position = (long)int.MaxValue * 32;
             Assert.AreEqual(position, stream.SeekBegin(position));
+        }
+
+        /// <summary>
+        /// Tests <see cref="Extensions.EnsureMinimumSize{T}"/>.
+        /// </summary>
+        [Test]
+        public void TestEnsureMinimumSize()
+        {
+            const long InitialLength = 16;
+            Guid initVal = Guid.NewGuid();
+            Guid fillVal = Guid.NewGuid();
+
+            var array = new MemoryArray<Guid>(0);
+
+            // resizing should work if it starts at 0.
+            array.EnsureMinimumSize(InitialLength, initVal);
+            Assert.LessOrEqual(InitialLength, array.Length, "EnsureMinimumSize should be able to resize up from 0 to at least a big enough size.");
+            Assert.AreEqual(initVal, array[0], "EnsureMinimumSize with a 'fill' parameter should fill the new slots with the given value.");
+            Assert.AreEqual(initVal, array[array.Length - 1], "EnsureMinimumSize with a 'fill' parameter should fill the new slots with the given value.");
+
+            // now that we've gone up from 0, set the size directly.
+            array.Resize(InitialLength);
+
+            // resizing smaller should do nothing.
+            array.EnsureMinimumSize(array.Length - 5, fillVal);
+            array.EnsureMinimumSize(array.Length - 5);
+            Assert.AreEqual(InitialLength, array.Length, "EnsureMinimumSize should leave the array alone when the array is bigger than needed.");
+
+            // resizing equal should do nothing.
+            array.EnsureMinimumSize(InitialLength, fillVal);
+            array.EnsureMinimumSize(InitialLength);
+            Assert.AreEqual(InitialLength, array.Length, "EnsureMinimumSize should leave the array alone when the array is exactly as big as needed.");
+
+            // first resize goes straight up to 1024.
+            array.EnsureMinimumSize(InitialLength + 1, fillVal);
+            Assert.AreEqual(1024, array.Length, "EnsureMinimumSize should have a floor of 1024 elements when resizing.");
+            Assert.AreEqual(initVal, array[0], "EnsureMinimumSize should not change any data that's already in the array when resizing.");
+            Assert.AreEqual(initVal, array[InitialLength - 1], "EnsureMinimumSize should not change any data that's already in the array when resizing.");
+            Assert.AreEqual(fillVal, array[InitialLength], "EnsureMinimumSize with a 'fill' parameter should fill the new slots with the given value.");
+            Assert.AreEqual(fillVal, array[array.Length - 1], "EnsureMinimumSize with a 'fill' parameter should fill the new slots with the given value.");
+
+            // resizes above the current size should double whatever it was.
+            array.Resize(1050);
+            array.EnsureMinimumSize(1051);
+            Assert.AreEqual(2100, array.Length, "EnsureMinimumSize should double current size, even if it wasn't a power of two before.");
+            Assert.AreEqual(Guid.Empty, array[array.Length - 1], "EnsureMinimumSize without a 'fill' parameter should fill with default.");
         }
     }
 }

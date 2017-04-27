@@ -35,7 +35,7 @@ namespace Itinero.Graphs
         private const int NODEB = 1;
         private const int NEXTNODEA = 2;
         private const int NEXTNODEB = 3;
-        private const int BLOCKSIZE = 1000;
+        private const int DEFAULT_SIZE_ESTIMATE = 1024;
 
         private readonly int _edgeSize = -1;
         private readonly int _edgeDataSize = -1;
@@ -46,7 +46,7 @@ namespace Itinero.Graphs
         /// Creates a new graph.
         /// </summary>
         public Graph(int edgeDataSize)
-            : this(edgeDataSize, BLOCKSIZE)
+            : this(edgeDataSize, DEFAULT_SIZE_ESTIMATE)
         {
 
         }
@@ -152,66 +152,17 @@ namespace Itinero.Graphs
         private uint? _maxVertex = null;
 
         /// <summary>
-        /// Increases the size of the vertex-array.
-        /// </summary>
-        private void IncreaseVertexSize()
-        {
-            this.IncreaseVertexSize(_vertices.Length + BLOCKSIZE);
-        }
-
-        /// <summary>
-        /// Increases the size of the vertex-array.
-        /// </summary>
-        private void IncreaseVertexSize(long min)
-        {
-            var newSize = (long)(System.Math.Floor((double)min / BLOCKSIZE) + 1) * (long)BLOCKSIZE;
-            if (newSize < _vertices.Length)
-            { // no need to increase, already big enough.
-                return;
-            }
-            var oldLength = _vertices.Length;
-            _vertices.Resize(newSize);
-            for (long idx = oldLength; idx < newSize; idx++)
-            {
-                _vertices[idx] = Constants.NO_VERTEX;
-            }
-        }
-
-        /// <summary>
-        /// Increases the memory allocation.
-        /// </summary>
-        private void IncreaseEdgeSize()
-        {
-            this.IncreaseEdgeSize(_edges.Length + 10000);
-        }
-
-        /// <summary>
-        /// Increases the memory allocation.
-        /// </summary>
-        private void IncreaseEdgeSize(long size)
-        {
-            var oldLength = _edges.Length;
-            _edges.Resize(size);
-            for (long idx = oldLength; idx < size; idx++)
-            {
-                _edges[idx] = Constants.NO_EDGE;
-            }
-        }
-
-        /// <summary>
         /// Adds a new vertex.
         /// </summary>
         public void AddVertex(uint vertex)
         {
-            if (vertex > _vertices.Length - 1)
-            { // increase space.
-                this.IncreaseVertexSize(vertex);
-            }
             if (_maxVertex == null || _maxVertex.Value < vertex)
             { // update max vertex.
                 _maxVertex = vertex;
             }
 
+            // increase space if needed.
+            _vertices.EnsureMinimumSize(vertex + 1, Constants.NO_VERTEX);
             if (_vertices[vertex] == Constants.NO_VERTEX)
             { // only overwrite if this vertex is not there yet.
                 _vertices[vertex] = Constants.NO_EDGE;
@@ -332,10 +283,9 @@ namespace Itinero.Graphs
 
                 // create a new edge.
                 edgeId = _nextEdgeId;
-                if (_nextEdgeId + NEXTNODEB >= _edges.Length)
-                { // there is a need to increase edges array.
-                    this.IncreaseEdgeSize();
-                }
+
+                // there may be a need to increase edges array.
+                _edges.EnsureMinimumSize(_nextEdgeId + NEXTNODEB + 1, Constants.NO_EDGE);
                 _edges[_nextEdgeId + NODEA] = vertex1;
                 _edges[_nextEdgeId + NODEB] = vertex2;
                 _edges[_nextEdgeId + NEXTNODEA] = Constants.NO_EDGE;
@@ -358,10 +308,8 @@ namespace Itinero.Graphs
                 edgeId = _nextEdgeId;
                 _vertices[vertex1] = _nextEdgeId;
 
-                if (_nextEdgeId + NEXTNODEB >= _edges.Length)
-                { // there is a need to increase edges array.
-                    this.IncreaseEdgeSize();
-                }
+                // there may be a need to increase edges array.
+                _edges.EnsureMinimumSize(_nextEdgeId + NEXTNODEB + 1, Constants.NO_EDGE);
                 _edges[_nextEdgeId + NODEA] = vertex1;
                 _edges[_nextEdgeId + NODEB] = vertex2;
                 _edges[_nextEdgeId + NEXTNODEA] = Constants.NO_EDGE;

@@ -20,7 +20,6 @@ using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Itinero.Graphs.Geometric.Shapes
@@ -181,10 +180,9 @@ namespace Itinero.Graphs.Geometric.Shapes
             if (pointer < 0 || shape.Count < size)
             { // add the coordinates at the end.
                 SetPointerAndSize(id, _nextPointer, shape.Count);
-                while (_nextPointer + (2 * (shape.Count + 1)) >= _coordinates.Length)
-                { // increase the size of the coordinates.
-                    _coordinates.Resize(_coordinates.Length + 1024);
-                }
+
+                // increase the size of the coordinates if needed.
+                _coordinates.EnsureMinimumSize(_nextPointer + (2 * shape.Count));
 
                 for (var i = 0; i < shape.Count; i++)
                 {

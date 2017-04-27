@@ -105,11 +105,7 @@ namespace Itinero.Data.Shortcuts
         {
             var stopsMetaId = _stopsMeta.Add(meta);
 
-            if (_stopsPointer + 2 >= _stops.Length)
-            {
-                _stops.Resize(_stops.Length + 100);
-            }
-
+            _stops.EnsureMinimumSize(_stopsPointer + 2);
             _stops[_stopsPointer + 0] = vertex;
             _stops[_stopsPointer + 1] = stopsMetaId;
 
@@ -137,13 +133,9 @@ namespace Itinero.Data.Shortcuts
         public uint Add(uint[] vertices, IAttributeCollection meta)
         {
             var shortcutMetaId = _shortcutsMeta.Add(meta);
-
-            while (_shortcutsPointer + vertices.Length + 1 >= _shortcuts.Length)
-            {
-                _shortcuts.Resize(_shortcuts.Length + 100);
-            }
-
             var size = (uint)vertices.Length + 2;
+
+            _shortcuts.EnsureMinimumSize(_shortcutsPointer + vertices.Length + 2);
             _shortcuts[_shortcutsPointer + 0] = size;
             _shortcuts[_shortcutsPointer + 1] = shortcutMetaId;
             for (uint i = 0; i < vertices.Length; i++)

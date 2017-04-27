@@ -336,10 +336,7 @@ namespace Itinero.Attributes
             id = (uint)_collectionIndex.Add(collection);
             if (_index != null)
             { // use next id.
-                if (_nextId >= _index.Length)
-                {
-                    _index.Resize(_index.Length + 1024);
-                }
+                _index.EnsureMinimumSize(_nextId + 1);
                 _index[_nextId] = id;
                 id = _nextId;
                 _nextId++;

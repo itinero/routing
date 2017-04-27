@@ -34,7 +34,7 @@ namespace Itinero.Data.Network.Restrictions
         private readonly ArrayBase<uint> _hashes; // holds pointers to a set of pointers in the index.
         private readonly ArrayBase<uint> _index; // holds pointers per hash to the actual restrictions.
         private readonly ArrayBase<uint> _restrictions; // holds the actual restrictions with a prefixed count.
-        private const int BLOCKSIZE = 1000;
+        private const int DEFAULT_ARRAY_SIZE = 1024;
         private const int DEFAULT_HASHCOUNT = 1024 * 1024;
         private const uint NO_DATA = uint.MaxValue;
 
@@ -51,8 +51,8 @@ namespace Itinero.Data.Network.Restrictions
             {
                 _hashes[i] = NO_DATA;
             }
-            _restrictions = new MemoryArray<uint>(BLOCKSIZE);
-            _index = new MemoryArray<uint>(BLOCKSIZE);
+            _restrictions = new MemoryArray<uint>(DEFAULT_ARRAY_SIZE);
+            _index = new MemoryArray<uint>(DEFAULT_ARRAY_SIZE);
         }
         
         /// <summary>
@@ -87,10 +87,7 @@ namespace Itinero.Data.Network.Restrictions
                 _hasComplexRestrictions = true;
             }
 
-            while (_nextRestrictionPointer + (uint)restriction.Length + 1 >= _restrictions.Length)
-            {
-                _restrictions.Resize(_restrictions.Length + BLOCKSIZE);
-            }
+            _restrictions.EnsureMinimumSize(_nextRestrictionPointer + (uint)restriction.Length + 1);
 
             // add the data.
             _restrictions[_nextRestrictionPointer] = (uint)restriction.Length;
@@ -208,10 +205,7 @@ namespace Itinero.Data.Network.Restrictions
             if (hashPointer == NO_DATA)
             { // add at the end.
                 _hashes[hash] = _nextIndexPointer;
-                while(_index.Length <= _nextIndexPointer + 1)
-                {
-                    _index.Resize(_index.Length + BLOCKSIZE);
-                }
+                _index.EnsureMinimumSize(_nextIndexPointer + 2);
                 _index[_nextIndexPointer] = 1;
                 _index[_nextIndexPointer + 1] = pointer;
                 _nextIndexPointer += 2;
@@ -233,10 +227,7 @@ namespace Itinero.Data.Network.Restrictions
                 if ((size & (size - 1)) == 0)
                 { // a power of two, copy to the end.
                     var newSpace = size * 2;
-                    while (_index.Length <= _nextIndexPointer + newSpace + 1)
-                    {
-                        _index.Resize(_index.Length + BLOCKSIZE);
-                    }
+                    _index.EnsureMinimumSize(_nextIndexPointer + newSpace + 2);
                     _index[_nextIndexPointer] = size;
                     for(var i = 0; i < size; i++)
                     {
