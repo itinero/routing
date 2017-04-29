@@ -23,7 +23,6 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
-using Itinero.Algorithms;
 
 namespace Itinero.Graphs.Geometric
 {
@@ -198,21 +197,8 @@ namespace Itinero.Graphs.Geometric
         {
             _graph.AddVertex(vertex);
 
-            if (vertex * 2 + 1 >= _coordinates.Length)
-            { // increase coordinates length.
-                var newBlocks = 1;
-                while (vertex * 2 + 1 >= _coordinates.Length + (newBlocks * BLOCKSIZE * 2))
-                { // increase more.
-                    newBlocks++;
-                }
-
-                var oldLength = _coordinates.Length;
-                _coordinates.Resize(_coordinates.Length + (newBlocks * BLOCKSIZE * 2));
-                for (var i = oldLength; i < _coordinates.Length; i++)
-                {
-                    _coordinates[i] = NO_COORDINATE;
-                }
-            }
+            // increase coordinates length, if needed.
+            _coordinates.EnsureMinimumSize(vertex * 2 + 2, NO_COORDINATE);
             _coordinates[vertex * 2] = latitude;
             _coordinates[vertex * 2 + 1] = longitude;
         }
@@ -225,16 +211,8 @@ namespace Itinero.Graphs.Geometric
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
 
-            if (edgeId >= _shapes.Length)
-            { // increase coordinates length.
-                var newBlocks = 1;
-                while(edgeId >= _shapes.Length + (BLOCKSIZE * newBlocks))
-                {
-                    newBlocks++;
-                }
-                _shapes.Resize(_shapes.Length + (newBlocks * BLOCKSIZE));
-            }
-
+            // increase coordinates length, if needed.
+            _shapes.EnsureMinimumSize(edgeId + 1);
             _shapes[edgeId] = shape;
             return edgeId;
         }

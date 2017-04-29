@@ -32,7 +32,6 @@ namespace Itinero.Graphs.Directed
         private readonly DirectedGraph _graph;
         private readonly ArrayBase<uint> _edgeData;
         private readonly int _edgeDataSize = int.MaxValue;
-        private const int BLOCK_SIZE = 1000;
 
         /// <summary>
         /// Creates a new graph.
@@ -95,27 +94,11 @@ namespace Itinero.Graphs.Directed
         {
             var oldEdgePointer = oldId * _edgeDataSize;
             var newEdgePointer = newId * _edgeDataSize;
-            if(newEdgePointer + _edgeDataSize > _edgeData.Length)
-            {
-                this.IncreaseSizeEdgeData((uint)(newEdgePointer + _edgeDataSize));
-            }
+            _edgeData.EnsureMinimumSize(newEdgePointer + _edgeDataSize + 1);
             for (var i = 0; i < _edgeDataSize; i++)
             {
                 _edgeData[newEdgePointer + i] = _edgeData[oldEdgePointer + i];
             }
-        }
-
-        /// <summary>
-        /// Increase edge data size to fit at least the given edge.
-        /// </summary>
-        private void IncreaseSizeEdgeData(uint edgePointer)
-        {
-            var size = _edgeData.Length;
-            while (edgePointer >= size)
-            {
-                size += BLOCK_SIZE;
-            }
-            _edgeData.Resize(size);
         }
 
         /// <summary>
@@ -127,11 +110,8 @@ namespace Itinero.Graphs.Directed
             if (_edgeDataSize != 1) { throw new ArgumentOutOfRangeException("Dimension of meta-data doesn't match."); }
 
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
-            if (edgeId >= _edgeData.Length)
-            {
-                this.IncreaseSizeEdgeData(edgeId);
-            }
             var edgePointer = edgeId * _edgeDataSize;
+            _edgeData.EnsureMinimumSize(edgePointer + 1);
             _edgeData[edgePointer + 0] = metaData;
             return edgeId;
         }
@@ -143,11 +123,8 @@ namespace Itinero.Graphs.Directed
         public uint AddEdge(uint vertex1, uint vertex2, uint[] data, params uint[] metaData)
         {
             var edgeId = _graph.AddEdge(vertex1, vertex2, data);
-            while ((edgeId + 1) * _edgeDataSize >= _edgeData.Length)
-            {
-                this.IncreaseSizeEdgeData((uint)((edgeId + 1) * _edgeDataSize));
-            }
             var edgePointer = edgeId * _edgeDataSize;
+            _edgeData.EnsureMinimumSize(edgePointer + _edgeDataSize + 1);
             for (var i = 0; i < _edgeDataSize; i++)
             {
                 _edgeData[edgePointer + i] = metaData[i];

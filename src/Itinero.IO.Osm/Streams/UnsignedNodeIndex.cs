@@ -67,11 +67,8 @@ namespace Itinero.IO.Osm.Streams
         {
             int int1, int2;
             long2doubleInt(id, out int1, out int2);
-            
-            if (_idx + 2 >= _index.Length)
-            {
-                _index.Resize(_index.Length + (1024 * 1024));
-            }
+
+            _index.EnsureMinimumSize(_idx + 2);
             _index[_idx + 0] = int1;
             _index[_idx + 1] = int2;
             _idx += 2;
@@ -158,16 +155,7 @@ namespace Itinero.IO.Osm.Streams
         {
             var idx = TryGetIndex(id);
 
-            if ((idx * 2) + 1 >= _data.Length)
-            {
-                var start = _data.Length;
-                _data.Resize((idx * 2) + 1 + 1024);
-                for (var i = start; i < ((idx * 2) + 1 + 1024); i++)
-                {
-                    _data[i] = int.MaxValue;
-                }
-            }
-
+            _data.EnsureMinimumSize((idx * 2) + 2, int.MaxValue);
             _data[(idx * 2) + 0] = unchecked((int)vertex);
             _data[(idx * 2) + 1] = int.MinValue;
         }
@@ -179,16 +167,8 @@ namespace Itinero.IO.Osm.Streams
         {
             int lat = (int)(latitude * 10000000);
             int lon = (int)(longitude * 10000000);
-            
-            if ((idx * 2) + 1 >= _data.Length)
-            {
-                var start = _data.Length;
-                _data.Resize((idx * 2) + 1 + 1024);
-                for(var i = start; i < ((idx * 2) + 1 + 1024); i++)
-                {
-                    _data[i] = int.MaxValue;
-                }
-            }
+
+            _data.EnsureMinimumSize((idx * 2) + 2, int.MaxValue);
             _data[(idx * 2) + 0] = lat;
             _data[(idx * 2) + 1] = lon;
         }
@@ -481,7 +461,7 @@ namespace Itinero.IO.Osm.Streams
             longitude = (float)(lon / 10000000.0);
             return true;
         }
-        
+
         /// <summary>
         /// Returns the number of elements.
         /// </summary>

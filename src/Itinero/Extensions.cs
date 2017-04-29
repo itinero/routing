@@ -16,11 +16,12 @@
  *  limitations under the License.
  */
 
-using System.Collections.Generic;
-using System.IO;
 using Itinero.Attributes;
-using System.Globalization;
+using Reminiscence.Arrays;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Text;
 
 namespace Itinero
@@ -371,6 +372,76 @@ namespace Itinero
                 reversed[array.Length - 1 - i] = array[i];
             }
             return reversed;
+        }
+
+        /// <summary>
+        /// Ensures that this <see cref="ArrayBase{T}"/> has room for at least
+        /// the given number of elements, resizing if not.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of element stored in this array.
+        /// </typeparam>
+        /// <param name="array">
+        /// This array.
+        /// </param>
+        /// <param name="minimumSize">
+        /// The minimum number of elements that this array must fit.
+        /// </param>
+        public static void EnsureMinimumSize<T>(this ArrayBase<T> array, long minimumSize)
+        {
+            if (array.Length < minimumSize)
+            {
+                IncreaseMinimumSize(array, minimumSize, fillEnd: false, fillValueIfNeeded: default(T));
+            }
+        }
+
+        /// <summary>
+        /// Ensures that this <see cref="ArrayBase{T}"/> has room for at least
+        /// the given number of elements, resizing and filling the empty space
+        /// with the given value if not.
+        /// </summary>
+        /// <typeparam name="T">
+        /// The type of element stored in this array.
+        /// </typeparam>
+        /// <param name="array">
+        /// This array.
+        /// </param>
+        /// <param name="minimumSize">
+        /// The minimum number of elements that this array must fit.
+        /// </param>
+        /// <param name="fillValue">
+        /// The value to use to fill in the empty spaces if we have to resize.
+        /// </param>
+        public static void EnsureMinimumSize<T>(this ArrayBase<T> array, long minimumSize, T fillValue)
+        {
+            if (array.Length < minimumSize)
+            {
+                IncreaseMinimumSize(array, minimumSize, fillEnd: true, fillValueIfNeeded: fillValue);
+            }
+        }
+
+        private static void IncreaseMinimumSize<T>(ArrayBase<T> array, long minimumSize, bool fillEnd, T fillValueIfNeeded)
+        {
+            long oldSize = array.Length;
+
+            // fast-forward, perhaps, through the first several resizes.
+            // Math.Max also ensures that we can resize from 0.
+            long size = Math.Max(1024, oldSize * 2);
+            while (size < minimumSize)
+            {
+                size *= 2;
+            }
+
+            array.Resize(size);
+            if (!fillEnd)
+            {
+                return;
+            }
+
+            for (long i = oldSize; i < size; i++)
+            {
+                array[i] = fillValueIfNeeded;
+            }
         }
     }
 

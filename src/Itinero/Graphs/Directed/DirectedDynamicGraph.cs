@@ -117,48 +117,6 @@ namespace Itinero.Graphs.Directed
         }
 
         /// <summary>
-        /// Increases the size of the vector-array.
-        /// </summary>
-        private void IncreaseVertexSize()
-        {
-            this.IncreaseVertexSize(_vertices.Length + 10000);
-        }
-
-        /// <summary>
-        /// Increases the size of the vector-array.
-        /// </summary>
-        private void IncreaseVertexSize(long size)
-        {
-            if (_readonly) { throw new Exception("Graph is readonly."); }
-
-            var oldLength = _vertices.Length;
-            _vertices.Resize(size);
-            for(var i = oldLength; i < _vertices.Length; i++)
-            {
-                _vertices[i] = NO_EDGE;
-            }
-        }
-
-        /// <summary>
-        /// Increases the size of the vector-data array.
-        /// </summary>
-        private void IncreaseEdgeSize()
-        {
-            this.IncreaseEdgeSize(_edges.Length + 10000);
-        }
-
-        /// <summary>
-        /// Increases the memory allocation.
-        /// </summary>
-        private void IncreaseEdgeSize(long size)
-        {
-            if (_readonly) { throw new Exception("Graph is readonly."); }
-
-            var oldLength = _edges.Length;
-            _edges.Resize(size);
-        }
-
-        /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
         public uint AddEdge(uint vertex1, uint vertex2, uint data)
@@ -166,8 +124,7 @@ namespace Itinero.Graphs.Directed
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             if (data > MAX_DYNAMIC_PAYLOAD) { throw new ArgumentOutOfRangeException("data", "Data payload too big."); }
-            while (vertex1 > _vertices.Length - 1) { this.IncreaseVertexSize(); }
-            while (vertex2 > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) + 1, NO_EDGE);
 
             var vertexPointer = vertex1;
             var edgePointer = _vertices[vertexPointer];
@@ -178,12 +135,8 @@ namespace Itinero.Graphs.Directed
                 _vertices[vertexPointer] = _nextEdgePointer;
                 edgeId = _nextEdgePointer;
 
-                if (_nextEdgePointer + 1 >= _edges.Length)
-                { // make sure we can add another edge.
-                    this.IncreaseEdgeSize();
-                }
-
-                edgeId = _nextEdgePointer;
+                // make sure we can add another edge.
+                _edges.EnsureMinimumSize(_nextEdgePointer + 2);
                 _edges[_nextEdgePointer] = vertex2;
                 _edges[_nextEdgePointer + 1] = DirectedDynamicGraph.AddLastEdgeAndLastFieldFlag(data);
                 _nextEdgePointer += 2;
@@ -211,19 +164,13 @@ namespace Itinero.Graphs.Directed
                     var newTotalSpace = NextPowerOfTwoOrPowerOfTwo(requiredSpace);
                     if (startPointer + totalSpace == _nextEdgePointer)
                     { // at the end, just make sure the edges array is big enough.
-                        while (newTotalSpace + startPointer >= _edges.Length)
-                        {
-                            this.IncreaseEdgeSize();
-                        }
+                        _edges.EnsureMinimumSize(newTotalSpace + startPointer + 1);
                         _nextEdgePointer += (newTotalSpace - totalSpace);
                     }
                     else
                     { // move everything to the end, there isn't enough free space here.
                         // make sure the edges array is big enough.
-                        while (newTotalSpace + _nextEdgePointer >= _edges.Length)
-                        {
-                            this.IncreaseEdgeSize();
-                        }
+                        _edges.EnsureMinimumSize(newTotalSpace + _nextEdgePointer + 1);
 
                         // move existing data to the end and update pointer.
                         _vertices[vertexPointer] = _nextEdgePointer;
@@ -261,8 +208,7 @@ namespace Itinero.Graphs.Directed
             {
                 if (data[i] > MAX_DYNAMIC_PAYLOAD) { throw new ArgumentOutOfRangeException("data", "One of the entries in the data payload is too big."); }
             }
-            while (vertex1 > _vertices.Length - 1) { this.IncreaseVertexSize(); }
-            while (vertex2 > _vertices.Length - 1) { this.IncreaseVertexSize(); }
+            _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) + 1, NO_EDGE);
 
             var vertexPointer = vertex1;
             var edgePointer = _vertices[vertexPointer];
@@ -273,10 +219,8 @@ namespace Itinero.Graphs.Directed
                 _vertices[vertexPointer] = _nextEdgePointer;
                 edgeId = _nextEdgePointer;
 
-                if (_nextEdgePointer + data.Length >= _edges.Length)
-                { // make sure we can add another edge.
-                    this.IncreaseEdgeSize();
-                }
+                // make sure we can add another edge.
+                _edges.EnsureMinimumSize(_nextEdgePointer + data.Length + 1);
 
                 _edges[_nextEdgePointer] = vertex2;
                 for (var i = 0; i < data.Length - 1; i++)
@@ -309,19 +253,13 @@ namespace Itinero.Graphs.Directed
                     var newTotalSpace = NextPowerOfTwoOrPowerOfTwo(requiredSpace);
                     if (startPointer + totalSpace == _nextEdgePointer)
                     { // at the end, just make sure the edges array is big enough.
-                        while (newTotalSpace + startPointer >= _edges.Length)
-                        {
-                            this.IncreaseEdgeSize();
-                        }
+                        _edges.EnsureMinimumSize(newTotalSpace + startPointer + 1);
                         _nextEdgePointer += (newTotalSpace - totalSpace);
                     }
                     else
                     { // move everything to the end, there isn't enough free space here.
                         // make sure the edges array is big enough.
-                        while (newTotalSpace + _nextEdgePointer >= _edges.Length)
-                        {
-                            this.IncreaseEdgeSize();
-                        }
+                        _edges.EnsureMinimumSize(newTotalSpace + _nextEdgePointer + 1);
 
                         // move existing data to the end and update pointer.
                         _vertices[vertexPointer] = _nextEdgePointer;
