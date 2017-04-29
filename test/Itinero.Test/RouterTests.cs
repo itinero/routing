@@ -528,5 +528,55 @@ namespace Itinero.Test
             var routeResult = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), edge1 + 1, edge4 + 1, null);
             Assert.AreEqual(true, routeResult.IsError);
         }
+
+        /// <summary>
+        /// Tests an error causing a route with identical source and target edge to be of zero length.
+        /// </summary>
+        [Test]
+        public void TestRegressionEdgeBasedRoute2()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "Itinero.Test.test_data.networks.network9.geojson"));
+            routerDb.Network.Sort();
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            //routerDb.AddContracted(car, true);
+            var router = new Router(routerDb);
+
+            // build the edges array.
+            var edges = new uint[]
+            {
+                router.Resolve(car, new Coordinate(52.35286546406f, 6.66554092450f)).EdgeId,
+                router.Resolve(car, new Coordinate(52.35476168070f, 6.66636669078f)).EdgeId,
+                router.Resolve(car, new Coordinate(52.35502840541f, 6.66461193744f)).EdgeId,
+                router.Resolve(car, new Coordinate(52.35361232125f, 6.66458017720f)).EdgeId,
+            };
+
+            var path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), edges[0] + 1, edges[0] + 1, null);
+            Assert.IsFalse(path.IsError);
+            Assert.IsNotNull(path.Value.From.From);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), -(edges[0] + 1), -(edges[0] + 1), null);
+            Assert.IsFalse(path.IsError);
+            Assert.IsNotNull(path.Value.From.From);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), edges[1] + 1, edges[1] + 1, null);
+            Assert.IsFalse(path.IsError);
+            Assert.IsNotNull(path.Value.From.From);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), -(edges[1] + 1), -(edges[1] + 1), null);
+            Assert.IsFalse(path.IsError);
+            Assert.IsNotNull(path.Value.From.From);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), edges[2] + 1, edges[2] + 1, null);
+            Assert.IsFalse(path.IsError);
+            Assert.IsNotNull(path.Value.From.From);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), -(edges[2] + 1), -(edges[2] + 1), null);
+            Assert.IsFalse(path.IsError);
+            Assert.IsNotNull(path.Value.From.From);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), edges[3] + 1, edges[3] + 1, null);
+            Assert.IsTrue(path.IsError);
+            path = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), -(edges[3] + 1), -(edges[3] + 1), null);
+            Assert.IsTrue(path.IsError);
+
+        }
     }
 }

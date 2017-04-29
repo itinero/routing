@@ -100,11 +100,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
             EdgePath<T> backwardVisit;
             if (_targetSearch.TryGetVisit(-forwardVisit.Edge, out backwardVisit))
             { // there is a status for this edge in the target search.
-                var localWeight = _weightHandler.Zero;
-                if (forwardVisit.From != null)
-                {
-                    localWeight = _weightHandler.Subtract(forwardVisit.Weight, forwardVisit.From.Weight);
+                if (backwardVisit.From.From == null &&
+                    forwardVisit.From.From == null)
+                { // one edge that matches, exclude this type of results, we should continue the search.
+                    return false;
                 }
+
+                var localWeight = _weightHandler.Zero;
+                localWeight = _weightHandler.Subtract(forwardVisit.Weight, forwardVisit.From.Weight);
+
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this is a better match.
@@ -128,11 +132,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
             EdgePath<T> forwardVisit;
             if (_sourceSearch.TryGetVisit(-backwardVisit.Edge, out forwardVisit))
             { // there is a status for this edge in the source search.
-                var localWeight = _weightHandler.Zero;
-                if (backwardVisit.From != null)
-                {
-                    localWeight = _weightHandler.Subtract(backwardVisit.Weight, backwardVisit.From.Weight);
+                if (backwardVisit.From.From == null &&
+                    forwardVisit.From.From == null)
+                { // one edge that matches, exclude this type of results, we should continue the search.
+                    return false;
                 }
+
+                var localWeight = _weightHandler.Zero;
+                localWeight = _weightHandler.Subtract(backwardVisit.Weight, backwardVisit.From.Weight);
+
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this is a better match.

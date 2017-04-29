@@ -407,15 +407,6 @@ namespace Itinero
                 var sourcePath = _db.GetPathForEdge(weightHandler, sourceDirectedEdge, true);
                 var targetPath = _db.GetPathForEdge(weightHandler, targetDirectedEdge, false);
 
-                if (sourceDirectedEdge == targetDirectedEdge)
-                { // when edges match, path is always the edge itself.
-                    var edgePath = sourcePath;
-                    if (edgePath != null)
-                    {
-                        return new Result<EdgePath<T>>(edgePath);
-                    }
-                }
-
                 EdgePath<T> path;
                 ContractedDb contracted;
 
