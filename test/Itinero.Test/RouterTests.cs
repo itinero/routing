@@ -22,6 +22,7 @@ using Itinero.LocalGeo;
 using Itinero.Test.Algorithms.Search;
 using Itinero.Test.Profiles;
 using Itinero;
+using Itinero.Algorithms.Weights;
 
 namespace Itinero.Test
 {
@@ -490,6 +491,42 @@ namespace Itinero.Test
             Assert.IsFalse(point.IsError);
             Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location7, point.Value.LocationOnNetwork(routerDb)) > 20 &&
                 Coordinate.DistanceEstimateInMeter(location7, point.Value.LocationOnNetwork(routerDb)) < 60);
+        }
+
+        /// <summary>
+        /// Tests an error causing a U-turn in the resulting route at the end of a dead-end.
+        /// </summary>
+        [Test]
+        public void TestRegressionEdgeBasedRoute1()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network9.geojson"));
+
+            routerDb.Network.Sort();
+
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            var router = new Router(routerDb);
+
+            var location1 = new Coordinate(52.35286546406f, 6.66554092450f);
+            var edge1 = router.Resolve(car, location1).EdgeId;
+            var location4 = new Coordinate(52.35361232125f, 6.66458017720f);
+            var edge4 = router.Resolve(car, location4).EdgeId;
+
+            var networkEdge1 = routerDb.Network.GetEdge(edge1);
+            var edge1VertexFrom = routerDb.Network.GetVertex(networkEdge1.From);
+            var edge1VertexTo = routerDb.Network.GetVertex(networkEdge1.To);
+            var networkEdge4 = routerDb.Network.GetEdge(edge4);
+            var edge4VertexFrom = routerDb.Network.GetVertex(networkEdge4.From);
+            var edge4VertexTo = routerDb.Network.GetVertex(networkEdge4.To);
+
+            // There should be no route found here, we are searching in the dead-end direction of a dead-end street, by 
+            // design no route should be returned.
+            // [edge1 -> edge4]
+            var routeResult = router.TryCalculateRaw(car, car.DefaultWeightHandler(router), edge1 + 1, edge4 + 1, null);
+            Assert.AreEqual(true, routeResult.IsError);
         }
     }
 }

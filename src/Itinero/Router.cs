@@ -469,42 +469,21 @@ namespace Itinero
                 }
                 else
                 { // use the regular graph.
-                    if (_db.HasComplexRestrictions(profileInstance.Profile))
-                    {
-                        var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                            _db.GetGetRestrictions(profileInstance.Profile, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
-                        var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
-                            _db.GetGetRestrictions(profileInstance.Profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
+                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
+                        _db.GetGetRestrictions(profileInstance.Profile, true), new EdgePath<T>[] { sourcePath }, maxSearch, false);
+                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
+                        _db.GetGetRestrictions(profileInstance.Profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
 
-                        var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
-                        bidirectionalSearch.Run();
-                        if (!bidirectionalSearch.HasSucceeded)
-                        {
-                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
-                            {
-                                return new RouteNotFoundException(message);
-                            });
-                        }
-                        path = bidirectionalSearch.GetPath();
-                    }
-                    else
+                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
+                    bidirectionalSearch.Run();
+                    if (!bidirectionalSearch.HasSucceeded)
                     {
-                        var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
-                            new EdgePath<T>[] { sourcePath }, maxSearch, false);
-                        var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
-                            new EdgePath<T>[] { targetPath }, maxSearch, true);
-
-                        var bidirectionalSearch = new BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
-                        bidirectionalSearch.Run();
-                        if (!bidirectionalSearch.HasSucceeded)
+                        return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                         {
-                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
-                            {
-                                return new RouteNotFoundException(message);
-                            });
-                        }
-                        path = bidirectionalSearch.GetPath();
+                            return new RouteNotFoundException(message);
+                        });
                     }
+                    path = bidirectionalSearch.GetPath();
                 }
 
                 return new Result<EdgePath<T>>(path);
