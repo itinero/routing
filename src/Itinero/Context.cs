@@ -12,6 +12,6 @@
         /// <summary>
         /// The <see cref="IArrayFactory"/> used to create large arrays.
         /// </summary>
-        public static IArrayFactory ArrayFactory = new DefaultArrayFactory();
+        public static IArrayFactory ArrayFactory { get; set; } = new DefaultArrayFactory();
     }
 }
