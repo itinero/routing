@@ -77,8 +77,8 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public DirectedGraph(int edgeDataSize, long sizeEstimate, Action<uint, uint> switchEdge)
             : this(edgeDataSize, sizeEstimate,
-            new MemoryArray<uint>(sizeEstimate),
-            new MemoryArray<uint>(sizeEstimate * 3 * edgeDataSize + MINIMUM_EDGE_SIZE), switchEdge)
+            Context.ArrayFactory.CreateMemoryBackedArray<uint>(sizeEstimate),
+            Context.ArrayFactory.CreateMemoryBackedArray<uint>(sizeEstimate * 3 * edgeDataSize + MINIMUM_EDGE_SIZE), switchEdge)
         {
 
         }
@@ -548,7 +548,7 @@ namespace Itinero.Graphs.Directed
             this.Trim();
 
             // build a list of all vertices sorted by their first position.
-            var sortedVertices = new MemoryArray<uint>(_vertices.Length / VERTEX_SIZE);
+            var sortedVertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_vertices.Length / VERTEX_SIZE);
             for (uint i = 0; i < sortedVertices.Length; i++)
             {
                 sortedVertices[i] = i;
@@ -904,10 +904,10 @@ namespace Itinero.Graphs.Directed
             ArrayBase<uint> edges;
             if (profile == null)
             { // just create arrays and read the data.
-                vertices = new MemoryArray<uint>(vertexLength * vertexSize);
+                vertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(vertexLength * vertexSize);
                 vertices.CopyFrom(stream);
                 size += vertexLength * vertexSize * 4;
-                edges = new MemoryArray<uint>(edgeLength * edgeSize);
+                edges = Context.ArrayFactory.CreateMemoryBackedArray<uint>(edgeLength * edgeSize);
                 edges.CopyFrom(stream);
                 size += edgeLength * edgeSize * 4;
             }

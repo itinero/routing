@@ -57,7 +57,7 @@ namespace Itinero.Attributes
 
             if ((_mode & AttributesIndexMode.IncreaseOne) == AttributesIndexMode.IncreaseOne)
             {
-                _index = new MemoryArray<uint>(1024);
+                _index = Context.ArrayFactory.CreateMemoryBackedArray<uint>(1024);
                 _nextId = 0;
             }
 
@@ -574,7 +574,7 @@ namespace Itinero.Attributes
                 var indexLengthBytes = new byte[8];
                 stream.Read(indexLengthBytes, 0, 8);
                 var indexLength = BitConverter.ToInt64(indexLengthBytes, 0);
-                var index = new MemoryArray<uint>(indexLength);
+                var index = Context.ArrayFactory.CreateMemoryBackedArray<uint>(indexLength);
                 index.CopyFrom(stream);
                 return new AttributesIndex(stringIndex, tagsIndex, index);
             }

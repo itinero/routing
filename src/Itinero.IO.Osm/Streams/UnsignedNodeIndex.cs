@@ -43,8 +43,8 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public UnsignedNodeIndex()
         {
-            _index = new MemoryArray<int>(1024 * 1024);
-            _data = new MemoryArray<int>(0);
+            _index = Context.ArrayFactory.CreateMemoryBackedArray<int>(1024 * 1024);
+            _data = Context.ArrayFactory.CreateMemoryBackedArray<int>(0);
             _overflows = new List<long>();
         }
 

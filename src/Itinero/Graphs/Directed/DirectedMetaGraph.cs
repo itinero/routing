@@ -52,7 +52,7 @@ namespace Itinero.Graphs.Directed
             {
                 this.SwitchEdge(x, y);
             });
-            _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
+            _edgeData = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_edgeDataSize * _graph.EdgeCount);
         }
 
         /// <summary>
@@ -461,7 +461,7 @@ namespace Itinero.Graphs.Directed
             ArrayBase<uint> edges;
             if (profile == null)
             { // just create arrays and read the data.
-                edges = new MemoryArray<uint>(edgeLength * edgeSize);
+                edges = Context.ArrayFactory.CreateMemoryBackedArray<uint>(edgeLength * edgeSize);
                 edges.CopyFrom(stream);
                 size += edgeLength * edgeSize * 4;
             }

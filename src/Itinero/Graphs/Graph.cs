@@ -56,8 +56,8 @@ namespace Itinero.Graphs
         /// </summary>
         public Graph(int edgeDataSize, long sizeEstimate)
             : this(edgeDataSize, sizeEstimate, 
-            new MemoryArray<uint>(sizeEstimate),
-            new MemoryArray<uint>(sizeEstimate * 3 * (MINIMUM_EDGE_SIZE + edgeDataSize)))
+            Context.ArrayFactory.CreateMemoryBackedArray<uint>(sizeEstimate),
+            Context.ArrayFactory.CreateMemoryBackedArray<uint>(sizeEstimate * 3 * (MINIMUM_EDGE_SIZE + edgeDataSize)))
         {
 
         }
@@ -1112,10 +1112,10 @@ namespace Itinero.Graphs
             ArrayBase<uint> edges;
             if (profile == null)
             { // just create arrays and read the data.
-                vertices = new MemoryArray<uint>(vertexLength * vertexSize);
+                vertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(vertexLength * vertexSize);
                 vertices.CopyFrom(stream);
                 size += vertexLength * vertexSize * 4;
-                edges = new MemoryArray<uint>(edgeLength * edgeSize);
+                edges = Context.ArrayFactory.CreateMemoryBackedArray<uint>(edgeLength * edgeSize);
                 edges.CopyFrom(stream);
                 size += edgeLength * edgeSize * 4;
             }

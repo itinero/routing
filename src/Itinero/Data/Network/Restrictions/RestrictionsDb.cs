@@ -46,13 +46,13 @@ namespace Itinero.Data.Network.Restrictions
         public RestrictionsDb(int hashes = DEFAULT_HASHCOUNT)
         {
             _hasComplexRestrictions = false;
-            _hashes = new MemoryArray<uint>(hashes * 2);
+            _hashes = Context.ArrayFactory.CreateMemoryBackedArray<uint>(hashes * 2);
             for (var i = 0; i < _hashes.Length; i++)
             {
                 _hashes[i] = NO_DATA;
             }
-            _restrictions = new MemoryArray<uint>(DEFAULT_ARRAY_SIZE);
-            _index = new MemoryArray<uint>(DEFAULT_ARRAY_SIZE);
+            _restrictions = Context.ArrayFactory.CreateMemoryBackedArray<uint>(DEFAULT_ARRAY_SIZE);
+            _index = Context.ArrayFactory.CreateMemoryBackedArray<uint>(DEFAULT_ARRAY_SIZE);
         }
         
         /// <summary>
@@ -511,7 +511,7 @@ namespace Itinero.Data.Network.Restrictions
             ArrayBase<uint> hashes;
             if (profile == null || profile.HashesProfile == null)
             {
-                hashes = new MemoryArray<uint>(hashSize);
+                hashes = Context.ArrayFactory.CreateMemoryBackedArray<uint>(hashSize);
                 hashes.CopyFrom(stream);
             }
             else
@@ -526,7 +526,7 @@ namespace Itinero.Data.Network.Restrictions
             ArrayBase<uint> index;
             if (profile == null || profile.IndexProfile == null)
             {
-                index = new MemoryArray<uint>(indexSize);
+                index = Context.ArrayFactory.CreateMemoryBackedArray<uint>(indexSize);
                 index.CopyFrom(stream);
             }
             else
@@ -541,7 +541,7 @@ namespace Itinero.Data.Network.Restrictions
             ArrayBase<uint> restrictions;
             if (profile == null || profile.RestrictionsProfile == null)
             {
-                restrictions = new MemoryArray<uint>(restrictionSize);
+                restrictions = Context.ArrayFactory.CreateMemoryBackedArray<uint>(restrictionSize);
                 restrictions.CopyFrom(stream);
             }
             else
