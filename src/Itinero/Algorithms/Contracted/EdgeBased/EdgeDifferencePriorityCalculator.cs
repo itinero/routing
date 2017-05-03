@@ -112,10 +112,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
                 var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
 
+                // define source.
+                var source = default(OriginalEdge);
+                if (edge1.IsOriginal())
+                { // is an original edge, create equivalent path.
+                    source = new OriginalEdge(edge1.Neighbour, vertex);
+                }
+                else
+                { // is not an original edge, should always have a sequence.
+                    var s1 = edge1.GetSequence1();
+                    source = new OriginalEdge(edge1.Neighbour, s1[s1.Length - 1]);
+                }
+
                 // figure out what witness paths to calculate.
                 var forwardWitnesses = new EdgePath<T>[j];
                 var backwardWitnesses = new EdgePath<T>[j];
-                var targets = new List<uint>(j);
+                var targets = new List<OriginalEdge>(j);
                 var targetWeights = new List<T>(j);
                 for (var k = 0; k < j; k++)
                 {
@@ -134,7 +146,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     {
                         backwardWitnesses[k] = new EdgePath<T>();
                     }
-                    targets.Add(edge2.Neighbour);
+
+                    if (edge2.IsOriginal())
+                    { // is an original edge just create a path.
+                        targets.Add(new OriginalEdge(vertex, edge2.Neighbour));
+                    }
+                    else
+                    { // not an original edge, should always have a sequence.
+                        var s2 = edge2.GetSequence2();
+                        targets.Add(new OriginalEdge(s2[s2.Length - 1], edge2.Neighbour));
+                    }
+
                     if (hasRestrictions)
                     { // weight can potentially be bigger.                        
                         targetWeights.Add(_weightHandler.Infinite);
@@ -146,7 +168,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 // calculate all witness paths.
-                _witnessCalculator.Calculate(_graph, getRestrictions, edge1.Neighbour, targets, targetWeights,
+                _witnessCalculator.Calculate(_graph, getRestrictions, source, targets, targetWeights,
                     ref forwardWitnesses, ref backwardWitnesses, Constants.NO_VERTEX);
 
                 // add contracted edges if needed.

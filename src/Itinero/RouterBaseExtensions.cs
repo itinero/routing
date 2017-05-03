@@ -26,6 +26,7 @@ using Itinero.Graphs.Geometric;
 using Itinero.Data.Edges;
 using Itinero.Logging;
 using System.Text;
+using Itinero.Algorithms;
 
 namespace Itinero
 {
@@ -822,6 +823,63 @@ namespace Itinero
                 });
             }
             return weights;
+        }
+
+        /// <summary>
+        /// Calculcates a route from source to target but in the given dirctions.
+        /// </summary>
+        public static Route Calculate(this RouterBase router, IProfileInstance profile,
+            RouterPoint source, RouterPoint target, bool sourceForward, bool targetForward, RoutingSettings<float> settings = null)
+        {
+            return router.TryCalculate(profile, source, target, sourceForward, targetForward, settings).Value;
+        }
+
+        /// <summary>
+        /// Calculcates a route from source to target but in the given dirctions.
+        /// </summary>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
+            RouterPoint source, RouterPoint target, bool sourceForward, bool targetForward, RoutingSettings<float> settings = null)
+        {
+            var weightHandler = router.GetDefaultWeightHandler(profile);
+            EdgePath<float> path = null;
+
+            if (sourceForward == targetForward &&
+                source.EdgeId == target.EdgeId)
+            { // check for a path on the same edge, this will always be the shortest route in an edge-based route.
+                if (sourceForward)
+                {
+                    path = source.EdgePathTo(router.Db, weightHandler, target);
+                }
+                else
+                {
+                    path = target.EdgePathTo(router.Db, weightHandler, source);
+                }
+            }
+
+            if (path == null)
+            {
+                long sourceDirectedEdge = source.EdgeId + 1;
+                if (!sourceForward)
+                {
+                    sourceDirectedEdge = -sourceDirectedEdge;
+                }
+                long targetDirectedEdge = target.EdgeId + 1;
+                if (!targetForward)
+                {
+                    targetDirectedEdge = -targetDirectedEdge;
+                }
+                var rawResult = router.TryCalculateRaw(profile, weightHandler, sourceDirectedEdge, targetDirectedEdge, settings);
+                if (rawResult.IsError)
+                {
+                    return rawResult.ConvertError<Route>();
+                }
+                path = rawResult.Value;
+
+                path.StripSource();
+                path.StripTarget();
+            }
+
+            return router.BuildRoute(profile, weightHandler, source, target, path);
         }
     }
 }

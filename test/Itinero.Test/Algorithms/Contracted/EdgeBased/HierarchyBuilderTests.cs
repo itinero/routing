@@ -16,13 +16,13 @@
  *  limitations under the License.
  */
 
-using NUnit.Framework;
 using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Algorithms.Contracted.EdgeBased.Witness;
+using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
+using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using Itinero.Data.Contracted.Edges;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -292,24 +292,24 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // check edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 2);
-            Assert.IsNull(edge);
-            edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 0);
             Assert.IsNotNull(edge);
+            edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 0);
+            Assert.IsNull(edge);
 
             edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
-            Assert.IsNull(edge);
-            edge = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 0);
             Assert.IsNotNull(edge);
+            edge = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 0);
+            Assert.IsNull(edge);
 
             edge = graph.GetEdgeEnumerator(2).FirstOrDefault(x => x.Neighbour == 1);
-            Assert.IsNull(edge);
-            edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 2);
             Assert.IsNotNull(edge);
+            edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 2);
+            Assert.IsNull(edge);
 
             edge = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 1);
-            Assert.IsNull(edge);
-            edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNotNull(edge);
+            edge = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
+            Assert.IsNull(edge);
         }
 
         /// <summary>

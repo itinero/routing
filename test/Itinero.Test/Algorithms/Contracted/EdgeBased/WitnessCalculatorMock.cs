@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using Itinero.Algorithms.Contracted.EdgeBased.Witness;
 using Itinero.Algorithms;
+using Itinero.Algorithms.Contracted.EdgeBased;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -29,19 +30,19 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
     /// </summary>
     class WitnessCalculatorMock : IWitnessCalculator<float>
     {
-        private readonly Func<uint, uint, Tuple<EdgePath<float>, EdgePath<float>>> _witnesses; // source, target, forward, result.
+        private readonly Func<OriginalEdge, OriginalEdge, Tuple<EdgePath<float>, EdgePath<float>>> _witnesses; // source, target, forward, result.
 
         public WitnessCalculatorMock()
         {
 
         }
 
-        public WitnessCalculatorMock(Func<uint, uint, Tuple<EdgePath<float>, EdgePath<float>>> witnesses)
+        public WitnessCalculatorMock(Func<OriginalEdge, OriginalEdge, Tuple<EdgePath<float>, EdgePath<float>>> witnesses)
         {
             _witnesses = witnesses;
         }
 
-        public void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, uint source, List<uint> targets, List<float> weights, 
+        public void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, OriginalEdge source, List<OriginalEdge> targets, List<float> weights, 
             ref EdgePath<float>[] forwardWitness, ref EdgePath<float>[] backwardWitness, uint vertexToSkip)
         {
             for(var i = 0; i < forwardWitness.Length; i++)
