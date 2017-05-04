@@ -442,10 +442,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {
                     var edge2 = edges[k];
 
-                    //if (edge1.Neighbour == edge2.Neighbour)
-                    //{ // do not try to add a shortcut between identical vertices.
-                    //    continue;
-                    //}
+                    if (edge1.Neighbour == edge2.Neighbour)
+                    { // do not try to add a shortcut between identical vertices.
+                        System.Diagnostics.Debug.WriteLine(string.Empty);
+                    }
 
                     //if (s1forward[k] != null && s1backward[k] != null &&
                     //    System.Math.Abs(_weightHandler.GetMetric(forwardWitnesses[k].Weight) - _weightHandler.GetMetric(backwardWitnesses[k].Weight)) < E)
@@ -463,7 +463,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     //}
                     //else
                     //{ // add two edge per direction.
-                        if (s1forward[k] != null)
+                    if (s1forward[k] != null)
                         { // add forward edge.
                             _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, true,
                                 forwardWitnesses[k].Weight, s1forward[k], s2forward[k]);
@@ -497,7 +497,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var i = 0;
             while (i < edges.Count)
             {
-                _graph.RemoveEdge(edges[i].Neighbour, vertex);
+                var s1 = edges[i].GetSequence1();
+                s1.Reverse();
+                var s2 = edges[i].GetSequence2();
+                s2.Reverse();
+                bool? direction;
+                _weightHandler.GetEdgeWeight(edges[i], out direction);
+                if (direction != null)
+                {
+                    direction = !direction.Value;
+                }
+                enumerator.RemoveEdge(edges[i].Neighbour, vertex, s2, s1, _weightHandler, direction);
 
                 if (_contractedFlags[edges[i].Neighbour])
                 { // neighbour was already contracted, remove 'downward' edge and exclude it.

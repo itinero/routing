@@ -1390,10 +1390,67 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         /// <summary>
+        /// Removes the edge (vertex1->vertex2) with identical sequences.
+        /// </summary>
+        public static void RemoveEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2,
+            Weights.WeightHandler<T> weightHandler, bool? direction)
+            where T : struct
+        {
+            if (!TryRemoveEdge(enumerator, vertex1, vertex2, sequence1, sequence2, weightHandler, direction))
+            {
+                throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
+            }
+        }
+
+        /// <summary>
+        /// Removes the edge (vertex1->vertex2) with identical sequences.
+        /// </summary>
+        public static bool TryRemoveEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2,
+            Weights.WeightHandler<T> weightHandler, bool? direction)
+            where T : struct
+        {
+            enumerator.MoveTo(vertex1);
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Neighbour != vertex2)
+                {
+                    continue;
+                }
+
+                bool? xDirection;
+                var xWeight = weightHandler.GetEdgeWeight(enumerator, out xDirection);
+                if (xDirection != null &&
+                    xDirection.Value != direction)
+                {
+                    continue;
+                }
+
+                if (direction != null &&
+                    direction.Value != xDirection)
+                {
+                    continue;
+                }
+
+                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence1, enumerator.GetSequence1()))
+                {
+                    continue;
+                }
+                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence2, enumerator.GetSequence2()))
+                {
+                    continue;
+                }
+
+                enumerator.Graph.RemoveEdgeById(vertex1, enumerator.Id);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Moves this enumerator to an edge (vertex1->vertex2) that has an end sequence that matches the given sequence.
         /// </summary>
-        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2, Weights.WeightHandler<T> weightHandler, 
-            bool direction, out T weight)
+        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2, 
+            Weights.WeightHandler<T> weightHandler, bool direction, out T weight)
             where T : struct
         {
             enumerator.MoveTo(vertex1);

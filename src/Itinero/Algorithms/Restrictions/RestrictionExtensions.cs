@@ -28,6 +28,22 @@ namespace Itinero.Algorithms.Restrictions
         /// <summary>
         /// Compares two non-null sequences and checks if they have identical elements.
         /// </summary>
+        public static bool IsSequenceIdenticalOrNull(uint[] s1, uint[] s2)
+        {
+            if (s1 == null)
+            {
+                return s2 == null;
+            }
+            if (s2 == null)
+            {
+                return s1 == null;
+            }
+            return s1.IsSequenceIdentical(s2);
+        }
+
+        /// <summary>
+        /// Compares two non-null sequences and checks if they have identical elements.
+        /// </summary>
         public static bool IsSequenceIdentical(this uint[] s1, uint[] s2)
         {
             if (s1.Length != s2.Length)

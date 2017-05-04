@@ -639,6 +639,17 @@ namespace Itinero.Graphs.Directed
             }
 
             /// <summary>
+            /// Gets the graph.
+            /// </summary>
+            public DirectedDynamicGraph Graph
+            {
+                get
+                {
+                    return _graph;
+                }
+            }
+
+            /// <summary>
             /// Move to the next edge.
             /// </summary>
             /// <returns></returns>
