@@ -511,10 +511,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             vertices.Add(fromSource.Vertex);
             while (fromSource.From != null)
             {
-                if (fromSource.From.Vertex != Constants.NO_VERTEX)
-                { // this should be the end of the path.
-                    _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
-                }
+                //if (fromSource.From.Vertex != Constants.NO_VERTEX)
+                //{ // this should be the end of the path.
+                //    _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
+                //}
                 vertices.Add(fromSource.From.Vertex);
                 fromSource = fromSource.From;
             }
@@ -523,10 +523,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // and add vertices to target.
             while (toTarget.From != null)
             {
-                if (toTarget.From.Vertex != Constants.NO_VERTEX)
-                { // this should be the end of the path.
-                    _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
-                }
+                //if (toTarget.From.Vertex != Constants.NO_VERTEX)
+                //{ // this should be the end of the path.
+                //    _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
+                //}
                 vertices.Add(toTarget.From.Vertex);
                 toTarget = toTarget.From;
             }
