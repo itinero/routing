@@ -346,8 +346,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
                 else
                 { // is not an original edge, should always have a sequence.
-                    var s1 = edge1.GetSequence1();
-                    source = new OriginalEdge(edge1.Neighbour, s1[s1.Length - 1]);
+                    var s2 = edge1.GetSequence2();
+                    source = new OriginalEdge(edge1.Neighbour, s2[s2.Length - 1]);
                 }
 
                 // figure out what witness paths to calculate.
@@ -442,10 +442,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {
                     var edge2 = edges[k];
 
-                    if (edge1.Neighbour == edge2.Neighbour)
-                    { // do not try to add a shortcut between identical vertices.
-                        continue;
-                    }
+                    //if (edge1.Neighbour == edge2.Neighbour)
+                    //{ // do not try to add a shortcut between identical vertices.
+                    //    continue;
+                    //}
 
                     //if (s1forward[k] != null && s1backward[k] != null &&
                     //    System.Math.Abs(_weightHandler.GetMetric(forwardWitnesses[k].Weight) - _weightHandler.GetMetric(backwardWitnesses[k].Weight)) < E)
