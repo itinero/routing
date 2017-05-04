@@ -122,7 +122,7 @@ namespace Itinero.Graphs.Directed
         public uint AddEdge(uint vertex1, uint vertex2, uint data)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
-            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            //if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             if (data > MAX_DYNAMIC_PAYLOAD) { throw new ArgumentOutOfRangeException("data", "Data payload too big."); }
             _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) + 1, NO_EDGE);
 
@@ -202,7 +202,7 @@ namespace Itinero.Graphs.Directed
         public uint AddEdge(uint vertex1, uint vertex2, params uint[] data)
         {
             if (_readonly) { throw new Exception("Graph is readonly."); }
-            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            //if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             if (data == null || data.Length == 0) { throw new ArgumentException("Data payload must contain at least one entry."); }
             for (var i = 0; i < data.Length; i++)
             {

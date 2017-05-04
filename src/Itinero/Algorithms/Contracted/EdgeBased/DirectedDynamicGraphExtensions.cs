@@ -548,12 +548,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
             bool? direction, uint contractedId, uint[] s1, uint[] s2)
         {
-            if ((vertex1 == 2692 && vertex2 == 2730)  ||
-                (vertex1 == 2730 && vertex2 == 2692))
-            {
-                Itinero.Logging.Logger.Log("", Logging.TraceEventType.Information, "");
-            }
-
             var forward = false;
             var forwardWeight = float.MaxValue;
             var forwardContractedId = uint.MaxValue;
@@ -582,68 +576,68 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 backwardS2 = s2;
             }
 
-            var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
-            while (edgeEnumerator.MoveNext())
-            {
-                if (edgeEnumerator.Neighbour == vertex2)
-                {
-                    float localWeight;
-                    bool? localDirection;
-                    uint localContractedId = Constants.NO_VERTEX;
-                    var localS1 = Constants.EMPTY_SEQUENCE;
-                    var localS2 = Constants.EMPTY_SEQUENCE;
-                    ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
-                        out localWeight, out localDirection);
-                    if (!edgeEnumerator.IsOriginal())
-                    {
-                        localContractedId = edgeEnumerator.GetContracted().Value;
-                        localS1 = edgeEnumerator.GetSequence1();
-                        localS2 = edgeEnumerator.GetSequence2();
-                    }
-                    if (localDirection == null || localDirection.Value)
-                    {
-                        if (localWeight < forwardWeight)
-                        {
-                            forwardWeight = localWeight;
-                            forward = true;
-                            forwardContractedId = localContractedId;
-                            forwardS1 = localS1;
-                            forwardS2 = localS2;
-                        }
-                    }
-                    if (localDirection == null || !localDirection.Value)
-                    {
-                        if (localWeight < backwardWeight)
-                        {
-                            backwardWeight = localWeight;
-                            backward = true;
-                            backwardContractedId = localContractedId;
-                            backwardS1 = localS1;
-                            backwardS2 = localS2;
-                        }
-                    }
-                }
-            }
+            //var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+            //while (edgeEnumerator.MoveNext())
+            //{
+            //    if (edgeEnumerator.Neighbour == vertex2)
+            //    {
+            //        float localWeight;
+            //        bool? localDirection;
+            //        uint localContractedId = Constants.NO_VERTEX;
+            //        var localS1 = Constants.EMPTY_SEQUENCE;
+            //        var localS2 = Constants.EMPTY_SEQUENCE;
+            //        ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
+            //            out localWeight, out localDirection);
+            //        if (!edgeEnumerator.IsOriginal())
+            //        {
+            //            localContractedId = edgeEnumerator.GetContracted().Value;
+            //            localS1 = edgeEnumerator.GetSequence1();
+            //            localS2 = edgeEnumerator.GetSequence2();
+            //        }
+            //        if (localDirection == null || localDirection.Value)
+            //        {
+            //            if (localWeight < forwardWeight)
+            //            {
+            //                forwardWeight = localWeight;
+            //                forward = true;
+            //                forwardContractedId = localContractedId;
+            //                forwardS1 = localS1;
+            //                forwardS2 = localS2;
+            //            }
+            //        }
+            //        if (localDirection == null || !localDirection.Value)
+            //        {
+            //            if (localWeight < backwardWeight)
+            //            {
+            //                backwardWeight = localWeight;
+            //                backward = true;
+            //                backwardContractedId = localContractedId;
+            //                backwardS1 = localS1;
+            //                backwardS2 = localS2;
+            //            }
+            //        }
+            //    }
+            //}
 
-            graph.RemoveEdge(vertex1, vertex2);
+            //graph.RemoveEdge(vertex1, vertex2);
 
-            if (forward && backward &&
-                forwardWeight == backwardWeight &&
-                forwardContractedId == backwardContractedId && 
-                forwardS1.IsSequenceIdentical(backwardS1) &&
-                forwardS2.IsSequenceIdentical(backwardS2))
-            { // add one bidirectional edge.
-                if (forwardContractedId == Constants.NO_VERTEX)
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null);
-                }
-                else
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
-                }
-            }
-            else
-            { // add two unidirectional edges if needed.
+            //if (forward && backward &&
+            //    forwardWeight == backwardWeight &&
+            //    forwardContractedId == backwardContractedId && 
+            //    forwardS1.IsSequenceIdentical(backwardS1) &&
+            //    forwardS2.IsSequenceIdentical(backwardS2))
+            //{ // add one bidirectional edge.
+            //    if (forwardContractedId == Constants.NO_VERTEX)
+            //    {
+            //        graph.AddEdge(vertex1, vertex2, forwardWeight, null);
+            //    }
+            //    else
+            //    {
+            //        graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
+            //    }
+            //}
+            //else
+            //{ // add two unidirectional edges if needed.
                 if (forward)
                 { // there is a forward edge.
                     if (forwardContractedId == Constants.NO_VERTEX)
@@ -666,7 +660,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardS1, backwardS2);
                     }
                 }
-            }
+            //}
         }
         
         /// <summary>
