@@ -621,23 +621,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             //graph.RemoveEdge(vertex1, vertex2);
 
-            //if (forward && backward &&
-            //    forwardWeight == backwardWeight &&
-            //    forwardContractedId == backwardContractedId && 
-            //    forwardS1.IsSequenceIdentical(backwardS1) &&
-            //    forwardS2.IsSequenceIdentical(backwardS2))
-            //{ // add one bidirectional edge.
-            //    if (forwardContractedId == Constants.NO_VERTEX)
-            //    {
-            //        graph.AddEdge(vertex1, vertex2, forwardWeight, null);
-            //    }
-            //    else
-            //    {
-            //        graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
-            //    }
-            //}
-            //else
-            //{ // add two unidirectional edges if needed.
+            if (forward && backward &&
+                forwardWeight == backwardWeight &&
+                forwardContractedId == backwardContractedId &&
+                forwardS1.IsSequenceIdentical(backwardS1) &&
+                forwardS2.IsSequenceIdentical(backwardS2))
+            { // add one bidirectional edge.
+                if (forwardContractedId == Constants.NO_VERTEX)
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null);
+                }
+                else
+                {
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
+                }
+            }
+            else
+            { // add two unidirectional edges if needed.
                 if (forward)
                 { // there is a forward edge.
                     if (forwardContractedId == Constants.NO_VERTEX)
@@ -660,7 +660,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardS1, backwardS2);
                     }
                 }
-            //}
+            }
         }
         
         /// <summary>

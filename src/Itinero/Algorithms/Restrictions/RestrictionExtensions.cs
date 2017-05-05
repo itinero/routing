@@ -61,6 +61,41 @@ namespace Itinero.Algorithms.Restrictions
         }
 
         /// <summary>
+        /// Compares two non-null sequences and checks if they have identical elements.
+        /// </summary>
+        public static bool IsSequenceIdenticalReverseOrNull(uint[] s1, uint[] s2)
+        {
+            if (s1 == null)
+            {
+                return s2 == null;
+            }
+            if (s2 == null)
+            {
+                return s1 == null;
+            }
+            return s1.IsSequenceIdenticalReverse(s2);
+        }
+
+        /// <summary>
+        /// Compares two non-null sequences and checks if they have identical elements assuming one of them is reversed.
+        /// </summary>
+        public static bool IsSequenceIdenticalReverse(this uint[] s1, uint[] s2)
+        {
+            if (s1.Length != s2.Length)
+            {
+                return false;
+            }
+            for (var i = 0; i < s1.Length; i++)
+            {
+                if (s1[i] != s2[s1.Length - i - 1])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Returns true if the given seqence is allowed for the given restriction.
         /// </summary>
         public static bool IsSequenceAllowed(this uint[] restriction, uint[] sequence)

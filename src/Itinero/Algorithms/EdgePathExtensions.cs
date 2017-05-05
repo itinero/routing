@@ -80,7 +80,24 @@ namespace Itinero.Algorithms
             }
             return false;
         }
-        
+
+        /// <summary>
+        /// Returns true if this path contains the given vertex.
+        /// </summary>
+        public static bool HasVertexExceptLast<T>(this EdgePath<T> path, uint vertex)
+        {
+            while (path != null)
+            {
+                if (path.Vertex == vertex &&
+                    path.From != null)
+                {
+                    return true;
+                }
+                path = path.From;
+            }
+            return false;
+        }
+
         /// <summary>
         /// Adds the vertices in this path to the given list.
         /// </summary>

@@ -320,6 +320,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var enumerator = _graph.GetEdgeEnumerator(vertex);
             var edges = new List<DynamicEdge>(enumerator);
 
+            // remove neighbour edges with the vertex being contracted.
+            edges.RemoveAll(x => x.Neighbour == vertex);
+
             // check if this vertex has a potential restrictions.
             var hasRestrictions = _restrictionFlags[vertex];
 
@@ -411,7 +414,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         edge2Sequence2 = new uint[] { vertex };
                     }
 
-                    if (forwardWitnesses[k].HasVertex(vertex))
+                    if (forwardWitnesses[k].From != null &&
+                        forwardWitnesses[k].From.HasVertexExceptLast(vertex))
                     { // get forward sequences.
                         s1forward[k] = forwardWitnesses[k].GetSequence1(enumerator, 1);
                         s2forward[k] = forwardWitnesses[k].GetSequence2(enumerator, 1);
@@ -423,7 +427,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             s2forward[k] = null;
                         }
                     }
-                    if (backwardWitnesses[k].HasVertex(vertex))
+                    if (backwardWitnesses[k].From != null &&
+                        backwardWitnesses[k].From.HasVertexExceptLast(vertex))
                     { // get backward sequences.
                         s1backward[k] = backwardWitnesses[k].GetSequence1(enumerator, 1);
                         s2backward[k] = backwardWitnesses[k].GetSequence2(enumerator, 1);
@@ -442,54 +447,42 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {
                     var edge2 = edges[k];
 
-                    if (edge1.Neighbour == edge2.Neighbour)
-                    { // do not try to add a shortcut between identical vertices.
-                        System.Diagnostics.Debug.WriteLine(string.Empty);
-                    }
-
-                    //if (s1forward[k] != null && s1backward[k] != null &&
-                    //    System.Math.Abs(_weightHandler.GetMetric(forwardWitnesses[k].Weight) - _weightHandler.GetMetric(backwardWitnesses[k].Weight)) < E)
-                    //{ // paths in both direction are possible and with the same weight, add just one edge in each direction.
-                    //    s1backward[k].Reverse();
-                    //    s2backward[k].Reverse();
-                    //    _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, null,
-                    //        forwardWitnesses[k].Weight, s1forward[k], s2forward[k]);
-                    //    //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                    //    //    forwardWitnesses[k].Weight, null, vertex, s1forward[k], s2forward[k]);
-                    //    _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, null,
-                    //        backwardWitnesses[k].Weight, s2backward[k], s1backward[k]);
-                    //    //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                    //    //    backwardWitnesses[k].Weight, null, vertex, s2backward[k], s1backward[k]);
+                    //if (edge1.Neighbour == edge2.Neighbour)
+                    //{ // do not try to add a shortcut between identical vertices.
+                    //    System.Diagnostics.Debug.WriteLine(string.Empty);
                     //}
-                    //else
-                    //{ // add two edge per direction.
-                    if (s1forward[k] != null)
+
+                    if (s1forward[k] != null && s1backward[k] != null &&
+                        RestrictionExtensions.IsSequenceIdenticalReverseOrNull(s1forward[k], s1backward[k]) &&
+                        RestrictionExtensions.IsSequenceIdenticalReverseOrNull(s2forward[k], s2backward[k]) &&
+                        System.Math.Abs(_weightHandler.GetMetric(forwardWitnesses[k].Weight) - _weightHandler.GetMetric(backwardWitnesses[k].Weight)) < E)
+                    { // paths in both direction are possible and with the same weight, add just one edge in each direction.
+                        _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, null,
+                            forwardWitnesses[k].Weight, s1forward[k], s2forward[k]);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, null,
+                            backwardWitnesses[k].Weight, s2forward[k], s1forward[k]);
+                    }
+                    else
+                    { // add two edge per direction.
+                        if (s1forward[k] != null)
                         { // add forward edge.
                             _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, true,
                                 forwardWitnesses[k].Weight, s1forward[k], s2forward[k]);
-                            //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            //    forwardWitnesses[k].Weight, true, vertex, s1forward[k], s2forward[k]);
                             s1forward[k].Reverse();
                             s2forward[k].Reverse();
                             _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, false,
                                 forwardWitnesses[k].Weight, s2forward[k], s1forward[k]);
-                            //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            //    forwardWitnesses[k].Weight, false, vertex, s2forward[k], s1forward[k]);
                         }
                         if (s1backward[k] != null)
                         { // add forward edge.
                             _weightHandler.AddOrUpdateEdge(_graph, edge1.Neighbour, edge2.Neighbour, vertex, false,
                                 backwardWitnesses[k].Weight, s1backward[k], s2backward[k]);
-                            //_graph.AddOrUpdateEdge(edge1.Neighbour, edge2.Neighbour,
-                            //    backwardWitnesses[k].Weight, false, vertex, s2backward[k], s1backward[k]);
                             s1backward[k].Reverse();
                             s2backward[k].Reverse();
                             _weightHandler.AddOrUpdateEdge(_graph, edge2.Neighbour, edge1.Neighbour, vertex, true,
                                 backwardWitnesses[k].Weight, s2backward[k], s1backward[k]);
-                            //_graph.AddOrUpdateEdge(edge2.Neighbour, edge1.Neighbour,
-                            //    backwardWitnesses[k].Weight, true, vertex, s1backward[k], s2backward[k]);
                         }
-                    //}
+                    }
                 }
             }
 

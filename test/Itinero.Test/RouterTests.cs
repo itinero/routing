@@ -619,7 +619,7 @@ namespace Itinero.Test
 
             // 1->5: forward, forward.
             route = router.Calculate(car, resolved3, resolved5, false, false);
-            //route = router.Calculate(car, resolved3, resolved5, false, true);
+            route = router.Calculate(car, resolved3, resolved5, false, true);
             route = router.Calculate(car, resolved3, resolved5, true, false);
             route = router.Calculate(car, resolved3, resolved5, true, true);
         }
