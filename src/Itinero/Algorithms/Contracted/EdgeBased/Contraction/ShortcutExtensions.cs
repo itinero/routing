@@ -16,22 +16,20 @@
  *  limitations under the License.
  */
 
-using Itinero.Graphs.Directed;
-using System;
-using System.Collections.Generic;
-
-namespace Itinero.Algorithms.Contracted.EdgeBased.Witness
+namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 {
     /// <summary>
-    /// Calculator to calculate witness paths.
+    /// Contains extension methods related to the shortcuts data structures.
     /// </summary>
-    public interface IWitnessCalculator<T>
-        where T : struct
+    public static class ShortcutExtensions
     {
         /// <summary>
-        /// Calculates witnesses.
+        /// Removes witnessed shortcuts.
         /// </summary>
-        void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, OriginalEdge source, List<OriginalEdge> targets, List<T> weights,
-            ref EdgePath<T>[] forwardWitness, ref EdgePath<T>[] backwardWitness, uint vertexToSkip);
+        public static void RemoveWitnessed<T>(this Shortcuts<T> shortcuts, DykstraWitnessCalculator<T> witnessCalculator)
+            where T : struct
+        {
+            witnessCalculator.Calculate(shortcuts);
+        }
     }
 }

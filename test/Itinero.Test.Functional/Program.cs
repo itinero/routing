@@ -55,26 +55,26 @@ namespace Itinero.Test.Functional
 
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
+            //var router = new Router(routerDb);
 
-            var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
-                router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
-                router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));
+            //var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
+            //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
+            //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+            //// test resolving.
+            //ResolvingTests.Run(routerDb);
 
-            // test routing.
-            RoutingTests.Run(routerDb);
-            RoutingTests.RunFictional();
+            //// test routing.
+            //RoutingTests.Run(routerDb);
+            //RoutingTests.RunFictional();
 
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
+            //// tests calculate weight matrices.
+            //WeightMatrixTests.Run(routerDb);
 
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+            //// test instruction generation.
+            //InstructionTests.Run(routerDb);
 
-            _logger.Log(TraceEventType.Information, "Testing finished.");
+            //_logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG
             Console.ReadLine();
 #endif

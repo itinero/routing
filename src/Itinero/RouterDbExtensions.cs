@@ -48,7 +48,61 @@ namespace Itinero
         /// </summary>
         public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
         {
-            db.AddContracted<float>(profile, profile.DefaultWeightHandlerCached(db), forceEdgeBased);
+            var weightHandler = profile.DefaultWeightHandlerCached(db);
+
+            // create the raw directed graph.
+            ContractedDb contractedDb = null;
+
+            if (!forceEdgeBased)
+            { // check if there are complex restrictions in the routerdb forcing edge-based contraction.
+                if (db.HasComplexRestrictions(profile))
+                { // there are complex restrictions, use edge-based contraction, the only way to support these in a contracted graph.
+                    forceEdgeBased = true;
+                }
+            }
+
+            lock (db)
+            {
+                if (forceEdgeBased)
+                { // edge-based is needed when complex restrictions found.
+                    var contracted = new DirectedDynamicGraph(weightHandler.DynamicSize);
+                    var directedGraphBuilder = new Itinero.Algorithms.Contracted.EdgeBased.DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted,
+                        weightHandler);
+                    directedGraphBuilder.Run();
+                    
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.Contraction.HierarchyBuilder(contracted, db.GetGetRestrictions(profile, null));
+                    hierarchyBuilder.DifferenceFactor = 5;
+                    hierarchyBuilder.DepthFactor = 5;
+                    hierarchyBuilder.ContractedFactor = 8;
+                    hierarchyBuilder.Run();
+
+                    contractedDb = new ContractedDb(contracted);
+                }
+                else
+                { // vertex-based is ok when no complex restrictions found.
+                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
+                    var directedGraphBuilder = new DirectedGraphBuilder(db.Network.GeometricGraph.Graph, contracted, weightHandler);
+                    directedGraphBuilder.Run();
+
+                    // contract the graph.
+                    var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
+                        new DykstraWitnessCalculator(int.MaxValue));
+                    priorityCalculator.DifferenceFactor = 5;
+                    priorityCalculator.DepthFactor = 5;
+                    priorityCalculator.ContractedFactor = 8;
+                    var hierarchyBuilder = new HierarchyBuilder<float>(contracted, priorityCalculator,
+                            new DykstraWitnessCalculator(int.MaxValue), weightHandler);
+                    hierarchyBuilder.Run();
+
+                    contractedDb = new ContractedDb(contracted);
+                }
+            }
+
+            // add the graph.
+            lock (db)
+            {
+                db.AddContracted(profile, contractedDb);
+            }
         }
 
         /// <summary>
@@ -78,13 +132,11 @@ namespace Itinero
                     directedGraphBuilder.Run();
 
                     // contract the graph.
-                    var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator<T>(contracted, weightHandler,
-                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, 4, 64));
-                    priorityCalculator.DifferenceFactor = 5;
-                    priorityCalculator.DepthFactor = 5;
-                    priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder<T>(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue, 64), weightHandler, db.GetGetRestrictions(profile, null));
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.Contraction.HierarchyBuilder<T>(contracted,
+                        weightHandler, db.GetGetRestrictions(profile, null));
+                    hierarchyBuilder.DifferenceFactor = 5;
+                    hierarchyBuilder.DepthFactor = 5;
+                    hierarchyBuilder.ContractedFactor = 8;
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted);

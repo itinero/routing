@@ -279,7 +279,7 @@ namespace Itinero.Algorithms.Weights
         /// </summary>
         public override void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, Weight weight, uint[] s1, uint[] s2)
         {
-            graph.AddOrUpdateEdge(vertex1, vertex2, weight.Value, direction, contractedId, weight.Distance, weight.Time, s1, s2);
+            graph.AddOrUpdateEdge(vertex1, vertex2, weight.Value, weight.Distance, weight.Time, direction, contractedId, s1, s2);
         }
 
         /// <summary>

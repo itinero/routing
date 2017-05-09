@@ -18,7 +18,7 @@
 
 using Itinero.Graphs.Directed;
 
-namespace Itinero.Algorithms.Contracted.EdgeBased
+namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 {
     /// <summary>
     /// Represents an original edge consisting of vertex1 -> vertex2.
