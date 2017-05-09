@@ -45,7 +45,7 @@ namespace Itinero.Data.Network
         public RoutingNetwork(float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = new GeometricGraph(1);
-            _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
+            _edgeData = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_edgeDataSize * _graph.EdgeCount);
             _maxEdgeDistance = maxEdgeDistance;
         }
         
@@ -57,7 +57,7 @@ namespace Itinero.Data.Network
             float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = new GeometricGraph(map, 1);
-            _edgeData = new MemoryArray<uint>(_edgeDataSize * _graph.EdgeCount);
+            _edgeData = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_edgeDataSize * _graph.EdgeCount);
             _maxEdgeDistance = maxEdgeDistance;
         }
 
@@ -87,7 +87,7 @@ namespace Itinero.Data.Network
             float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = graph;
-            _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
+            _edgeData = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_edgeDataSize * graph.EdgeCount);
             _maxEdgeDistance = maxEdgeDistance;
         }
 
@@ -98,7 +98,7 @@ namespace Itinero.Data.Network
             float maxEdgeDistance = Constants.DefaultMaxEdgeDistance)
         {
             _graph = graph;
-            _edgeData = new MemoryArray<uint>(_edgeDataSize * graph.EdgeCount);
+            _edgeData = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_edgeDataSize * graph.EdgeCount);
             _maxEdgeDistance = maxEdgeDistance;
         }
 
@@ -559,7 +559,7 @@ namespace Itinero.Data.Network
             ArrayBase<uint> edgeData;
             if (profile == null)
             { // just create arrays and read the data.
-                edgeData = new MemoryArray<uint>(edgeLength * edgeSize);
+                edgeData = Context.ArrayFactory.CreateMemoryBackedArray<uint>(edgeLength * edgeSize);
                 edgeData.CopyFrom(stream);
                 size += edgeLength * edgeSize * 4;
             }

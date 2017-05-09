@@ -50,9 +50,9 @@ namespace Itinero.Data.Shortcuts
             _profile = profile;
 
             _stopsMeta = new AttributesIndex(AttributesIndexMode.ReverseAll);
-            _stops = new MemoryArray<uint>(100);
+            _stops = Context.ArrayFactory.CreateMemoryBackedArray<uint>(100);
             _shortcutsMeta = new AttributesIndex(AttributesIndexMode.ReverseAll);
-            _shortcuts = new MemoryArray<uint>(100);
+            _shortcuts = Context.ArrayFactory.CreateMemoryBackedArray<uint>(100);
         }
 
         /// <summary>
@@ -254,12 +254,12 @@ namespace Itinero.Data.Shortcuts
 
             // read stops meta and data.
             var stopsMeta = AttributesIndex.Deserialize(new LimitedStream(stream), true);
-            var stops = new MemoryArray<uint>(stopsPointer);
+            var stops = Context.ArrayFactory.CreateMemoryBackedArray<uint>(stopsPointer);
             stops.CopyFrom(stream);
 
             // read shortcuts meta and data.
             var shortcutsMeta = AttributesIndex.Deserialize(new LimitedStream(stream), true);
-            var shortcuts = new MemoryArray<uint>(shortcutsPointer);
+            var shortcuts = Context.ArrayFactory.CreateMemoryBackedArray<uint>(shortcutsPointer);
             shortcuts.CopyFrom(stream);
 
             return new ShortcutsDb(profile, metaDb, stopsMeta, stops, shortcutsMeta, shortcuts);
