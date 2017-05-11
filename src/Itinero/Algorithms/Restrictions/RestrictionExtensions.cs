@@ -25,6 +25,9 @@ namespace Itinero.Algorithms.Restrictions
     /// </summary>
     public static class RestrictionExtensions
     {
+        // TODO: attempt to do this without all the arrays, 99% of the time there is a short 3-vertex sequence.
+        // TODO: replace the current restrictions by a more efficiënt data structure.
+
         /// <summary>
         /// Compares two non-null sequences and checks if they have identical elements.
         /// </summary>
@@ -103,6 +106,15 @@ namespace Itinero.Algorithms.Restrictions
             int start;
             // restriction restricts the sequence only if the entire restriction is part of the sequance.
             return !sequence.Contains(restriction, out start); 
+        }
+
+        /// <summary>
+        /// Returns true if the given restrictions collection is empty.
+        /// </summary>
+        public static bool IsEmpty(this IEnumerable<uint[]> restrictions)
+        {
+            var enumerator = restrictions.GetEnumerator();
+            return !enumerator.MoveNext();
         }
 
         /// <summary>

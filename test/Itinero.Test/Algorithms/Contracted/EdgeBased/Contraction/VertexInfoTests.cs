@@ -69,7 +69,136 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
 
             // build shortctus.
-            info.BuildShortcuts(new DefaultWeightHandler(null));
+            info.BuildShortcuts(new DefaultWeightHandler(null), new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue));
+        }
+
+        /// <summary>
+        /// Tests calculating priority.
+        /// </summary>
+        [Test]
+        public void TestPriority()
+        {
+            var info = new VertexInfo<float>();
+
+            // build graph.
+            var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
+            var witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+
+            // test 0
+            info.Clear();
+            info.Vertex = 0;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 1.
+            info.Clear();
+            info.Vertex = 1;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(0, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 2.
+            info.Clear();
+            info.Vertex = 2;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+            
+            // build graph.
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
+            graph.AddEdge(0, 2, 100, null, 3, new uint[] { 1 }, new uint[] { 1 });
+            graph.AddEdge(2, 0, 100, null, 3, new uint[] { 1 }, new uint[] { 1 });
+            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+
+            // test 0
+            info.Clear();
+            info.Vertex = 0;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(0, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 1.
+            info.Clear();
+            info.Vertex = 1;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(-2, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 2.
+            info.Clear();
+            info.Vertex = 2;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(0, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+            
+            // build graph.
+            graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
+            graph.AddEdge(0, 1, 100, null);
+            graph.AddEdge(1, 0, 100, null);
+            graph.AddEdge(1, 2, 100, null);
+            graph.AddEdge(2, 1, 100, null);
+            graph.AddEdge(1, 3, 100, null);
+            graph.AddEdge(3, 1, 100, null);
+            graph.Compress();
+            witnessCalculator = new DykstraWitnessCalculator(graph, (i) =>
+            {
+                if (i == 0 || i == 1 || i == 2)
+                {
+                    return new uint[][]
+                    {
+                            new uint[] { 0, 1, 2 }
+                    };
+                }
+                return null;
+            }, int.MaxValue);
+
+            // test 0
+            info.Clear();
+            info.Vertex = 0;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 1.
+            info.Clear();
+            info.Vertex = 1;
+            info.HasRestrictions = true;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(3, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 2.
+            info.Clear();
+            info.Vertex = 2;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
+
+            // test 2.
+            info.Clear();
+            info.Vertex = 2;
+            info.AddRelevantEdges(graph.GetEdgeEnumerator());
+            info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
+            witnessCalculator.Calculate(info.Shortcuts);
+            Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
         }
     }
 }

@@ -87,22 +87,22 @@ namespace Itinero.Test
             return distance;
         }
 
-        public override float GetEdgeWeight(DynamicEdge edge, out bool? direction)
+        public override WeightAndDir<float> GetEdgeWeight(DynamicEdge edge)
         {
             throw new NotImplementedException();
         }
 
-        public override float GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        public override WeightAndDir<float> GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge)
         {
             throw new NotImplementedException();
         }
 
-        public override float GetEdgeWeight(MetaEdge edge, out bool? direction)
+        public override WeightAndDir<float> GetEdgeWeight(MetaEdge edge)
         {
             throw new NotImplementedException();
         }
 
-        public override float GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction)
+        public override WeightAndDir<float> GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge)
         {
             throw new NotImplementedException();
         }

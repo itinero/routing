@@ -59,5 +59,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 this.Backward = weight;
             }
         }
+
+        /// <summary>
+        /// Updates the weights.
+        /// </summary>
+        public void Update(WeightHandler<T> weightHandler, T weightForward, T weightBackward)
+        {
+            if (weightHandler.GetMetric(this.Forward) == 0 ||
+                weightHandler.IsLargerThan(this.Forward, weightForward))
+            {
+                this.Forward = weightForward;
+            }
+            if (weightHandler.GetMetric(this.Backward) == 0 ||
+                weightHandler.IsLargerThan(this.Backward, weightBackward))
+            {
+                this.Backward = weightBackward;
+            }
+        }
     }
 }

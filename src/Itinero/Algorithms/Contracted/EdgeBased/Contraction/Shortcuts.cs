@@ -118,6 +118,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 {
                     Array.Resize(ref _data._sources, _data._sources.Length * 2);
                     Array.Resize(ref _data._targetsCount, _data._targetsCount.Length * 2);
+                    Array.Resize(ref _data._targets, _data._targets.Length * 2);
                 }
                 _source = _data._sourceCount - 1;
                 _target = -1;
@@ -177,6 +178,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 }
                 _target = _data._targetsCount[_source] - 1;
                 _data._targets[_source][_target] = witness;
+            }
+
+            /// <summary>
+            /// Resets this enumerator until the last source.
+            /// </summary>
+            public void ResetTarget()
+            {
+                _target = -1;
             }
             
             /// <summary>

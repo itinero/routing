@@ -74,6 +74,9 @@ namespace Itinero
                     hierarchyBuilder.DifferenceFactor = 5;
                     hierarchyBuilder.DepthFactor = 5;
                     hierarchyBuilder.ContractedFactor = 8;
+                    //hierarchyBuilder.DifferenceFactor = 2;
+                    //hierarchyBuilder.DepthFactor = 0;
+                    //hierarchyBuilder.ContractedFactor = 1;
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted);

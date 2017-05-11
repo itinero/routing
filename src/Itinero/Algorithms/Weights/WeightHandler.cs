@@ -78,26 +78,66 @@ namespace Itinero.Algorithms.Weights
         /// Adds or updates an edge.
         /// </summary>
         public abstract void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, T weight, uint[] s1, uint[] s2);
-        
-        /// <summary>
-        /// Gets the weight from a meta-edge.
-        /// </summary>
-        public abstract T GetEdgeWeight(MetaEdge edge, out bool? direction);
 
         /// <summary>
         /// Gets the weight from a meta-edge.
         /// </summary>
-        public abstract T GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction);
+        public T GetEdgeWeight(MetaEdge edge, out bool? direction)
+        {
+            var weightAndDir = this.GetEdgeWeight(edge);
+            direction = weightAndDir.Direction.AsNullableBool();
+            return weightAndDir.Weight;
+        }
 
         /// <summary>
         /// Gets the weight from a meta-edge.
         /// </summary>
-        public abstract T GetEdgeWeight(DynamicEdge edge, out bool? direction);
+        public abstract WeightAndDir<T> GetEdgeWeight(MetaEdge edge);
 
         /// <summary>
         /// Gets the weight from a meta-edge.
         /// </summary>
-        public abstract T GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction);
+        public T GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction)
+        {
+            var weightAndDir = this.GetEdgeWeight(edge);
+            direction = weightAndDir.Direction.AsNullableBool();
+            return weightAndDir.Weight;
+        }
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public abstract WeightAndDir<T> GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge);
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public T GetEdgeWeight(DynamicEdge edge, out bool? direction)
+        {
+            var weightAndDir = this.GetEdgeWeight(edge);
+            direction = weightAndDir.Direction.AsNullableBool();
+            return weightAndDir.Weight;
+        }
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public abstract WeightAndDir<T> GetEdgeWeight(DynamicEdge edge);
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public T GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        {
+            var weightAndDir = this.GetEdgeWeight(edge);
+            direction = weightAndDir.Direction.AsNullableBool();
+            return weightAndDir.Weight;
+        }
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
+        public abstract WeightAndDir<T> GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge);
 
         /// <summary>
         /// Returns the weight that represents 'zero'.
@@ -306,78 +346,94 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override Weight GetEdgeWeight(MetaEdge edge, out bool? direction)
+        public sealed override WeightAndDir<Weight> GetEdgeWeight(MetaEdge edge)
         {
-            float weight;
             float time;
             float distance;
             uint contractedId;
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
-                out weight, out direction);
+            var baseWeight = Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
             Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeMetaAgumented(edge.MetaData,
                 out contractedId, out distance, out time);
-            return new Weight()
+            return new WeightAndDir<Weight>()
             {
-                Distance = distance,
-                Time = time,
-                Value = weight
+                Weight = new Weight()
+                {
+                    Distance = distance,
+                    Time = time,
+                    Value = baseWeight.Weight
+                },
+                Direction = baseWeight.Direction
             };
         }
 
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override Weight GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction)
+        public sealed override WeightAndDir<Weight> GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge)
         {
-            float weight;
             float time;
             float distance;
             uint contractedId;
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0,
-                out weight, out direction);
+            var baseWeight = Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0);
             Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeMetaAgumented(edge.MetaData,
                 out contractedId, out distance, out time);
-            return new Weight()
+            return new WeightAndDir<Weight>()
             {
-                Distance = distance,
-                Time = time,
-                Value = weight
+                Weight = new Weight()
+                {
+                    Distance = distance,
+                    Time = time,
+                    Value = baseWeight.Weight
+                },
+                Direction = baseWeight.Direction
             };
         }
 
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override Weight GetEdgeWeight(DynamicEdge edge, out bool? direction)
+        public sealed override WeightAndDir<Weight> GetEdgeWeight(DynamicEdge edge)
         {
+            bool? direction;
             float weight;
             float time;
             float distance;
             Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeDynamic(edge.Data,
                 out weight, out direction, out distance, out time);
-            return new Weight()
+            return new WeightAndDir<Weight>()
             {
-                Distance = distance,
-                Time = time,
-                Value = weight
+                Weight = new Weight()
+                {
+                    Distance = distance,
+                    Time = time,
+                    Value = weight
+                },
+                Direction = new Dir(direction == null || direction.Value,
+                    direction == null || !direction.Value)
             };
         }
 
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override Weight GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        public sealed override WeightAndDir<Weight> GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge)
         {
+            bool? direction;
             float weight;
             float time;
             float distance;
             Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeDynamic(edge.Data,
                 out weight, out direction, out distance, out time);
-            return new Weight()
+            return new WeightAndDir<Weight>()
             {
-                Distance = distance,
-                Time = time,
-                Value = weight
+                Weight = new Weight()
+                {
+                    Distance = distance,
+                    Time = time,
+                    Value = weight
+                },
+                Direction = new Dir(direction == null || direction.Value,
+                    direction == null || !direction.Value)
             };
         }
 

@@ -146,45 +146,33 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override float GetEdgeWeight(MetaEdge edge, out bool? direction)
+        public sealed override WeightAndDir<float> GetEdgeWeight(MetaEdge edge)
         {
-            float weight;
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
-                out weight, out direction);
-            return weight;
+            return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
         }
 
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override float GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction)
+        public sealed override WeightAndDir<float> GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge)
         {
-            float weight;
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0,
-                out weight, out direction);
-            return weight;
+            return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0);
         }
 
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override float GetEdgeWeight(DynamicEdge edge, out bool? direction)
+        public sealed override WeightAndDir<float> GetEdgeWeight(DynamicEdge edge)
         {
-            float weight;
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0],
-                out weight, out direction);
-            return weight;
+            return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
         }
 
         /// <summary>
         /// Gets the weight from the given edge and sets the direction.
         /// </summary>
-        public sealed override float GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        public sealed override WeightAndDir<float> GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge)
         {
-            float weight;
-            Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0,
-                out weight, out direction);
-            return weight;
+            return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data0);
         }
 
         /// <summary>

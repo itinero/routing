@@ -18,7 +18,6 @@
 
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
-using System;
 using System.Diagnostics;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
@@ -53,7 +52,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Builds the potential shortcuts.
         /// </summary>
-        public static void BuildShortcuts<T>(this VertexInfo<T> vertexinfo, WeightHandler<T> weightHandler)
+        public static void BuildShortcuts<T>(this VertexInfo<T> vertexinfo, WeightHandler<T> weightHandler, DykstraWitnessCalculator<T> witnessCalculator)
             where T : struct
         {
             var shortcuts = vertexinfo.Shortcuts.GetAccessor();
@@ -64,11 +63,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             for (var j = 1; j < vertexinfo.Count; j++)
             {
                 var edge1 = vertexinfo[j];
-
-                bool? edge1Direction;
-                var edge1Weight = weightHandler.GetEdgeWeight(edge1, out edge1Direction);
-                var edge1CanMoveForward = edge1Direction == null || edge1Direction.Value;
-                var edge1CanMoveBackward = edge1Direction == null || !edge1Direction.Value;
+                var edge1Weight = weightHandler.GetEdgeWeight(edge1);
 
                 // define source.
                 var source = default(OriginalEdge);
@@ -89,14 +84,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 for (var k = 0; k < j; k++)
                 {
                     var edge2 = vertexinfo[k];
+                    var edge2Weight = weightHandler.GetEdgeWeight(edge2);
 
-                    bool? edge2Direction;
-                    var edge2Weight = weightHandler.GetEdgeWeight(edge2, out edge2Direction);
-                    var edge2CanMoveForward = edge2Direction == null || edge2Direction.Value;
-                    var edge2CanMoveBackward = edge2Direction == null || !edge2Direction.Value;
-
-                    if (!(edge1CanMoveBackward && edge2CanMoveForward) &&
-                        !(edge1CanMoveForward && edge2CanMoveBackward))
+                    if (!(edge1Weight.Direction.B && edge2Weight.Direction.F) &&
+                        !(edge1Weight.Direction.F && edge2Weight.Direction.B))
                     { // impossible route, do nothing.
                         continue;
                     }
@@ -120,13 +111,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                     if (!hasRestrictions)
                     { // no restrictions, max is just edge1 -> edge2.
-                        witness.Update(weightHandler, edge1CanMoveForward && edge2CanMoveBackward,
-                            edge1CanMoveBackward && edge2CanMoveForward,
-                                weightHandler.Add(edge1Weight, edge2Weight));
+                        witness.Update(weightHandler, edge1Weight.Direction.B && edge2Weight.Direction.F,
+                            edge1Weight.Direction.F && edge2Weight.Direction.B, 
+                                weightHandler.Add(edge1Weight.Weight, edge2Weight.Weight));
                     }
                     else
-                    { // TODO: some advanced mumbo-jumbo to calculate loops.
-                        throw new NotImplementedException("Restriction handling!");
+                    { 
+                        T weightForward, weightBackward;
+                        var sourceDirection = edge1Weight.Direction.Clone();
+                        sourceDirection.Reverse();
+                        witnessCalculator.CalculateTurn(vertex, edge1, edge2,
+                            out weightForward, out weightBackward);
+                        if (weightHandler.GetMetric(weightForward) == float.MaxValue)
+                        { // no path was found, path is impossible.
+                            weightForward = weightHandler.Zero;
+                        }
+                        if (weightHandler.GetMetric(weightBackward) == float.MaxValue)
+                        { // no path was found, path is impossible.
+                            weightBackward = weightHandler.Zero;
+                        }
+
+                        witness.Update(weightHandler, weightForward, weightBackward);
                     }
 
                     // add witness.
@@ -144,6 +149,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var vertex = vertexInfo.Vertex;
 
             var removed = 0;
+            // TODO: experiment with counting added edges as only one, 0.5 in each direction.
             var added = 0;
 
             var accessor = vertexInfo.Shortcuts.GetAccessor();
@@ -159,21 +165,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     if (forwardMetric > 0 && backwardMetric > 0 &&
                         System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)
                     { // forward and backward and identical weights.
-                        added++;
+                        added += 2;
                     }
                     else
                     {
                         if (forwardMetric > 0)
                         {
-                            added++;
+                            added += 2;
                         }
                         if (backwardMetric > 0)
                         {
-                            added++;
+                            added += 2;
                         }
                     }
                 }
             }
+
+            removed = vertexInfo.Count;
             
             return differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
                 (contractedFactor * vertexInfo.ContractedNeighbours);

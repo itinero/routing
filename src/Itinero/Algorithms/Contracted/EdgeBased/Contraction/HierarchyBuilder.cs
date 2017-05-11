@@ -44,8 +44,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly Dictionary<long, int> _depth;
         private int _priorityMaxSettles = 256;
         private int _priorityMaxHops = 4;
-        private int _maxSettles = 1024;
-        private int _maxHops = int.MaxValue;
+        private int _maxSettles = 256;
+        private int _maxHops = 4;
 
         /// <summary>
         /// Creates a new hierarchy builder.
@@ -56,7 +56,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             weightHandler.CheckCanUse(graph);
 
             _graph = graph;
-            _witnessCalculator = new DykstraWitnessCalculator<T>(graph, getRestrictions, weightHandler, this._maxHops);
+            _witnessCalculator = new DykstraWitnessCalculator<T>(graph, getRestrictions, weightHandler, this._maxHops, _maxSettles);
             _getRestrictions = getRestrictions;
             _weightHandler = weightHandler;
 
@@ -175,6 +175,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         }
 
         /// <summary>
+        /// Requeue the given vertex.
+        /// </summary>
+        /// <param name="v"></param>
+        private void Requeue(uint v)
+        {
+            // update vertex info.
+            this.UpdateVertexInfo(v);
+
+            // calculate priority.
+            var priority = _vertexInfo.Priority(_weightHandler, this.DifferenceFactor, this.ContractedFactor, this.DepthFactor);
+
+            // queue vertex.
+            _queue.Push(v, priority);
+        }
+
+        /// <summary>
         /// Updates the vertex info object with the given vertex.
         /// </summary>
         private void UpdateVertexInfo(uint v)
@@ -192,7 +208,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
             // calculate shortcuts and witnesses.
             _vertexInfo.AddRelevantEdges(_graph.GetEdgeEnumerator());
-            _vertexInfo.BuildShortcuts(_weightHandler);
+            _vertexInfo.BuildShortcuts(_weightHandler, _witnessCalculator);
             _vertexInfo.Shortcuts.RemoveWitnessed(_witnessCalculator);
         }
 
@@ -410,6 +426,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 {
                     _contractionCount[neighbour] = count++;
                 }
+
+                //this.Requeue(neighbour);
             }
 
             int vertexDepth = 0;
