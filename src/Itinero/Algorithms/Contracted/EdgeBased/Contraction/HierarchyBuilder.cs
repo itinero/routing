@@ -42,9 +42,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly WeightHandler<T> _weightHandler;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
-        //private int _priorityMaxSettles = 256;
-        //private int _priorityMaxHops = 4;
-        public static int MaxSettles = 2048;
+        public static int MaxSettles = 65536;
         public static int MaxHops = 8;
         
         /// <summary>
