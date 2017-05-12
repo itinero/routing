@@ -44,10 +44,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly Dictionary<long, int> _depth;
         //private int _priorityMaxSettles = 256;
         //private int _priorityMaxHops = 4;
-        public static int MaxSettles = int.MaxValue;
-        public static int MaxHops = int.MaxValue;
-
-
+        public static int MaxSettles = 2048;
+        public static int MaxHops = 8;
+        
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
