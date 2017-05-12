@@ -77,8 +77,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     source = new OriginalEdge(edge1.Neighbour, s2[s2.Length - 1]);
                 }
 
-                // adds the source.
-                shortcuts.AddSource(source);
+                // add source.
+                shortcuts.AddSourceIfNeeded(source);
 
                 // figure out what witness paths to calculate.
                 for (var k = 0; k < j; k++)
@@ -135,7 +135,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     }
 
                     // add witness.
-                    shortcuts.Add(witness);
+                    shortcuts.AddOrUpdate(witness, weightHandler);
                 }
             }
         }
@@ -157,7 +157,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             {
                 while(accessor.MoveNextTarget())
                 {
-                    var shortcut = accessor.Current;
+                    var shortcut = accessor.Target;
 
                     var forwardMetric = weightHandler.GetMetric(shortcut.Forward);
                     var backwardMetric = weightHandler.GetMetric(shortcut.Backward);

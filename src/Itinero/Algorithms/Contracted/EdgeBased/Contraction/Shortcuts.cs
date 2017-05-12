@@ -62,7 +62,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// A shortcut enumerator.
         /// </summary>
-        public struct Accessor
+        public sealed class Accessor
         {
             private readonly Shortcuts<T> _data;
 
@@ -94,6 +94,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 get
                 {
                     return _data._sources[_source];
+                }
+            }
+
+            /// <summary>
+            /// Returns true if there is a source selected.
+            /// </summary>
+            public bool HasSource
+            {
+                get
+                {
+                    return _source >= 0 &&
+                        _source < _data._sourceCount;
                 }
             }
 
@@ -150,7 +162,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             /// <summary>
             /// Gets the shortcut.
             /// </summary>
-            public Shortcut<T> Current
+            public Shortcut<T> Target
             {
                 get
                 {
@@ -159,6 +171,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 set
                 {
                     _data._targets[_source][_target] = value;
+                }
+            }
+
+            /// <summary>
+            /// Returns true if there is a target selected.
+            /// </summary>
+            public bool HasTarget
+            {
+                get
+                {
+                    if (!this.HasSource)
+                    {
+                        return false;
+                    }
+                    return _target >= 0 &&
+                        _target < _data._targetsCount[_source];
                 }
             }
 

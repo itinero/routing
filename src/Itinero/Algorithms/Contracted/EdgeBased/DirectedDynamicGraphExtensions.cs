@@ -985,7 +985,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             if (!TryRemoveEdge(enumerator, vertex1, vertex2, sequence1, sequence2, weightHandler, direction))
             {
-                //throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
+                throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
             }
         }
 

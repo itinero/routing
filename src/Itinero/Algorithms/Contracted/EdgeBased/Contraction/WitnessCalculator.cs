@@ -360,7 +360,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             T forwardMaxWeight = _weightHandler.Zero, backwardMaxWeight = _weightHandler.Zero;
             while (sourceAccessor.MoveNextTarget())
             {
-                var witness = sourceAccessor.Current;
+                var witness = sourceAccessor.Target;
 
                 if (_weightHandler.GetMetric(witness.Forward) > 0)
                 {
@@ -453,14 +453,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             sourceAccessor.ResetTarget();
                             while (sourceAccessor.MoveNextTarget())
                             {
-                                var witness = sourceAccessor.Current;
+                                var witness = sourceAccessor.Target;
 
                                 if (witness.Edge.Equals(currentOriginal))
                                 {
                                     if (_weightHandler.IsSmallerThan(current.Path.Weight, witness.Forward))
                                     { // a better witness is found, update the path.
                                         witness.Forward = _weightHandler.Zero;
-                                        sourceAccessor.Current = witness;
+                                        sourceAccessor.Target = witness;
                                         forwardTargets.Remove(currentOriginal);
                                     }
                                     else
@@ -479,13 +479,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             sourceAccessor.ResetTarget();
                             while (sourceAccessor.MoveNextTarget())
                             {
-                                var witness = sourceAccessor.Current;
+                                var witness = sourceAccessor.Target;
                                 if (witness.Edge.Equals(currentOriginal))
                                 {
                                     if (_weightHandler.IsSmallerThan(current.Path.Weight, witness.Backward))
                                     { // a better witness is found, update the path.
                                         witness.Backward = _weightHandler.Zero;
-                                        sourceAccessor.Current = witness;
+                                        sourceAccessor.Target = witness;
                                         backwardTargets.Remove(currentOriginal);
                                     }
                                     else
@@ -722,7 +722,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             float forwardMaxWeight = 0, backwardMaxWeight = 0;
             while (sourceAccessor.MoveNextTarget())
             {
-                var witness = sourceAccessor.Current;
+                var witness = sourceAccessor.Target;
 
                 if (witness.Forward > 0)
                 {
@@ -815,14 +815,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             sourceAccessor.ResetTarget();
                             while (sourceAccessor.MoveNextTarget())
                             {
-                                var witness = sourceAccessor.Current;
+                                var witness = sourceAccessor.Target;
 
                                 if (witness.Edge.Equals(currentOriginal))
                                 {
                                     if (current.Path.Weight < witness.Forward)
                                     { // a better witness is found, update the path.
                                         witness.Forward = 0;
-                                        sourceAccessor.Current = witness;
+                                        sourceAccessor.Target = witness;
                                         forwardTargets.Remove(currentOriginal);
                                     }
                                     else
@@ -841,13 +841,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             sourceAccessor.ResetTarget();
                             while (sourceAccessor.MoveNextTarget())
                             {
-                                var witness = sourceAccessor.Current;
+                                var witness = sourceAccessor.Target;
                                 if (witness.Edge.Equals(currentOriginal))
                                 {
                                     if (current.Path.Weight < witness.Backward)
                                     { // a better witness is found, update the path.
                                         witness.Backward = 0;
-                                        sourceAccessor.Current = witness;
+                                        sourceAccessor.Target = witness;
                                         backwardTargets.Remove(currentOriginal);
                                     }
                                     else

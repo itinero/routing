@@ -326,7 +326,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var source = accessor.Source;
                 while(accessor.MoveNextTarget())
                 {
-                    var shortcut = accessor.Current;
+                    var shortcut = accessor.Target;
 
                     var forwardMetric = _weightHandler.GetMetric(shortcut.Forward);
                     var backwardMetric = _weightHandler.GetMetric(shortcut.Backward);
@@ -359,7 +359,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     }
                 }
             }
-
 
             _contractedFlags[vertex] = true;
             this.NotifyContracted(vertex);
