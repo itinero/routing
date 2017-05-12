@@ -42,21 +42,31 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly WeightHandler<T> _weightHandler;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
-        private int _priorityMaxSettles = 256;
-        private int _priorityMaxHops = 4;
-        private int _maxSettles = 256;
-        private int _maxHops = 4;
+        //private int _priorityMaxSettles = 256;
+        //private int _priorityMaxHops = 4;
+        public static int MaxSettles = int.MaxValue;
+        public static int MaxHops = int.MaxValue;
+
 
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
         public HierarchyBuilder(DirectedDynamicGraph graph,
             WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions)
+            : this(graph, weightHandler, getRestrictions, new DykstraWitnessCalculator<T>(graph, getRestrictions, weightHandler, MaxHops, MaxSettles))
+        {
+
+        }
+        /// <summary>
+        /// Creates a new hierarchy builder.
+        /// </summary>
+        public HierarchyBuilder(DirectedDynamicGraph graph,
+            WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions, DykstraWitnessCalculator<T> witnessCalculator)
         {
             weightHandler.CheckCanUse(graph);
 
             _graph = graph;
-            _witnessCalculator = new DykstraWitnessCalculator<T>(graph, getRestrictions, weightHandler, this._maxHops, _maxSettles);
+            _witnessCalculator = witnessCalculator;
             _getRestrictions = getRestrictions;
             _weightHandler = weightHandler;
 
@@ -111,7 +121,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                 // calculate and log progress.
                 var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
-                if (progress < 99)
+                if (progress < 90)
                 {
                     progress = (float)(System.Math.Floor(((double)current / (double)total) * 100) / 1.0);
                 }
@@ -461,7 +471,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// </summary>
         public HierarchyBuilder(DirectedDynamicGraph graph,
             Func<uint, IEnumerable<uint[]>> getRestrictions)
-            : base(graph, new DefaultWeightHandler(null), getRestrictions)
+            : base(graph, new DefaultWeightHandler(null), getRestrictions, new DykstraWitnessCalculator(graph, getRestrictions, MaxHops, MaxSettles))
         {
 
         }

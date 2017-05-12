@@ -71,9 +71,9 @@ namespace Itinero
                     directedGraphBuilder.Run();
                     
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.Contraction.HierarchyBuilder(contracted, db.GetGetRestrictions(profile, null));
-                    hierarchyBuilder.DifferenceFactor = 5;
-                    hierarchyBuilder.DepthFactor = 5;
-                    hierarchyBuilder.ContractedFactor = 8;
+                    hierarchyBuilder.DifferenceFactor = 10;
+                    hierarchyBuilder.DepthFactor = 1;
+                    hierarchyBuilder.ContractedFactor = 1;
                     //hierarchyBuilder.DifferenceFactor = 2;
                     //hierarchyBuilder.DepthFactor = 0;
                     //hierarchyBuilder.ContractedFactor = 1;

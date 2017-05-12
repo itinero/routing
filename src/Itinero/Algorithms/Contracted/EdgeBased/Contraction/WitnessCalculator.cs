@@ -81,6 +81,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// </summary>
         public virtual void CalculateTurn(uint vertex, DynamicEdge source, DynamicEdge target, out T weightForward, out T weightBackward)
         {
+            var hopLimit = 8;
+            var maxSettles = 1024;
+
             var forwardMinWeight = new Dictionary<EdgePath<T>, T>();
             var backwardMinWeight = new Dictionary<EdgePath<T>, T>();
             var forwardFound = false;
@@ -173,7 +176,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             while (_heap.Count > 0)
             { // pop the first customer.
                 var current = _heap.Pop();
-                if (current.Hops + 1 >= _hopLimit)
+                if (current.Hops + 1 >= hopLimit)
                 {
                     continue;
                 }
@@ -185,8 +188,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     continue;
                 }
 
-                if (forwardSettled.Count >= _maxSettles &&
-                    backwardSettled.Count >= _maxSettles)
+                if (forwardSettled.Count >= maxSettles &&
+                    backwardSettled.Count >= maxSettles)
                 { // do not continue searching.
                     break;
                 }
@@ -350,10 +353,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
             // creates the settled list.
             var s = new List<uint>();
-            var backwardSettled = new HashSet<EdgePath<T>>();
-            var forwardSettled = new HashSet<EdgePath<T>>();
-            var backwardTargets = new HashSet<uint>();
-            var forwardTargets = new HashSet<uint>();
+            var backwardSettled = new HashSet<OriginalEdge>();
+            var forwardSettled = new HashSet<OriginalEdge>();
+            var backwardTargets = new HashSet<OriginalEdge>();
+            var forwardTargets = new HashSet<OriginalEdge>();
             T forwardMaxWeight = _weightHandler.Zero, backwardMaxWeight = _weightHandler.Zero;
             while (sourceAccessor.MoveNextTarget())
             {
@@ -361,7 +364,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                 if (_weightHandler.GetMetric(witness.Forward) > 0)
                 {
-                    forwardTargets.Add(witness.Edge.Vertex2);
+                    forwardTargets.Add(witness.Edge);
                     if (_weightHandler.IsLargerThan(witness.Forward, forwardMaxWeight))
                     {
                         forwardMaxWeight = witness.Forward;
@@ -369,7 +372,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 }
                 if (_weightHandler.GetMetric(witness.Backward) > 0)
                 {
-                    backwardTargets.Add(witness.Edge.Vertex2);
+                    backwardTargets.Add(witness.Edge);
                     if (_weightHandler.IsLargerThan(witness.Backward, backwardMaxWeight))
                     {
                         backwardMaxWeight = witness.Backward;
@@ -384,8 +387,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             }
 
             // creates the priorty queue.
-            var forwardMinWeight = new Dictionary<EdgePath<T>, T>();
-            var backwardMinWeight = new Dictionary<EdgePath<T>, T>();
             _heap.Clear();
 
             // add all neighbour edges of the source vertex that start with the source path.
@@ -394,12 +395,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             while (edgeEnumerator.MoveNext())
             { // move next.
                 var neighbour = edgeEnumerator.Neighbour;
+                OriginalEdge neighbourOriginal;
                 if (edgeEnumerator.IsOriginal())
                 {
                     if (neighbour != source.Vertex2)
                     { // not an edge that matches the source.
                         continue;
                     }
+                    neighbourOriginal = new OriginalEdge(source.Vertex1, source.Vertex2);
                 }
                 else
                 {
@@ -408,20 +411,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     { // not an edge that matches the source.
                         continue;
                     }
+                    var s2 = edgeEnumerator.GetSequence2();
+                    neighbourOriginal = new OriginalEdge(s2[0], neighbour);
                 }
-
-                bool? neighbourDirection;
-                var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator, out neighbourDirection);
-                var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
-                var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
-
-                var neighbourPath = new EdgePath<T>(neighbour, neighbourWeight, edgeEnumerator.IdDirected(),
+                
+                var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
+                var neighbourPath = new EdgePath<T>(neighbour, neighbourWeight.Weight, edgeEnumerator.IdDirected(),
                     new EdgePath<T>(source.Vertex1));
 
-                var doNeighbourForward = neighbourCanMoveForward && _weightHandler.IsSmallerThanOrEqual(neighbourWeight, forwardMaxWeight) &&
-                    !forwardSettled.Contains(neighbourPath);
-                var doNeighbourBackward = neighbourCanMoveBackward && _weightHandler.IsSmallerThanOrEqual(neighbourWeight, backwardMaxWeight) &&
-                    !backwardSettled.Contains(neighbourPath);
+                var doNeighbourForward = neighbourWeight.Direction.F && _weightHandler.IsSmallerThanOrEqual(neighbourWeight.Weight, forwardMaxWeight) &&
+                    !forwardSettled.Contains(neighbourOriginal);
+                var doNeighbourBackward = neighbourWeight.Direction.B && _weightHandler.IsSmallerThanOrEqual(neighbourWeight.Weight, backwardMaxWeight) &&
+                    !backwardSettled.Contains(neighbourOriginal);
 
                 _heap.Push(new SettledEdge(neighbourPath, 0, doNeighbourForward, doNeighbourBackward), _weightHandler.GetMetric(neighbourPath.Weight));
             }
@@ -432,8 +433,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var current = _heap.Pop();
                 if (current.Hops + 1 < _hopLimit)
                 {
-                    var forwardWasSettled = forwardSettled.Contains(current.Path);
-                    var backwardWasSettled = backwardSettled.Contains(current.Path);
+                    var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
+                    var currentOriginal = new OriginalEdge(sequence[sequence.Length - 1], current.Path.Vertex);
+                    sequence = sequence.Append(current.Path.Vertex);
+
+                    var forwardWasSettled = forwardSettled.Contains(currentOriginal);
+                    var backwardWasSettled = backwardSettled.Contains(currentOriginal);
                     if (forwardWasSettled && backwardWasSettled)
                     { // both are already settled.
                         continue;
@@ -442,44 +447,51 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     // check if one of the targets was matched.
                     if (current.Forward)
                     { // this is a forward settle.
-                        forwardSettled.Add(current.Path);
-                        forwardMinWeight.Remove(current.Path);
-                        if (forwardTargets.Contains(current.Path.Vertex))
+                        forwardSettled.Add(currentOriginal);
+                        if (forwardTargets.Contains(currentOriginal))
                         {
-                            var originalEdge = current.Path.ToOriginalEdge(edgeEnumerator, true);
                             sourceAccessor.ResetTarget();
                             while (sourceAccessor.MoveNextTarget())
                             {
                                 var witness = sourceAccessor.Current;
 
-                                if (witness.Edge.Equals(originalEdge) &&
-                                    _weightHandler.IsSmallerThan(current.Path.Weight, witness.Forward))
-                                { // a better witness is found, update the path.
-                                    witness.Forward = _weightHandler.Zero;
-                                    sourceAccessor.Current = witness;
-                                    forwardTargets.Remove(originalEdge.Vertex2);
+                                if (witness.Edge.Equals(currentOriginal))
+                                {
+                                    if (_weightHandler.IsSmallerThan(current.Path.Weight, witness.Forward))
+                                    { // a better witness is found, update the path.
+                                        witness.Forward = _weightHandler.Zero;
+                                        sourceAccessor.Current = witness;
+                                        forwardTargets.Remove(currentOriginal);
+                                    }
+                                    else
+                                    { // a better path will never be found.
+                                        forwardTargets.Remove(currentOriginal);
+                                    }
                                 }
                             }
                         }
                     }
                     if (current.Backward)
                     { // this is a backward settle.
-                        backwardSettled.Add(current.Path);
-                        backwardMinWeight.Remove(current.Path);
-                        if (backwardTargets.Contains(current.Path.Vertex))
+                        backwardSettled.Add(currentOriginal);
+                        if (backwardTargets.Contains(currentOriginal))
                         {
-                            var originalEdge = current.Path.ToOriginalEdge(edgeEnumerator, true);
                             sourceAccessor.ResetTarget();
                             while (sourceAccessor.MoveNextTarget())
                             {
                                 var witness = sourceAccessor.Current;
-
-                                if (witness.Edge.Equals(originalEdge) &&
-                                    _weightHandler.IsSmallerThan(current.Path.Weight, witness.Backward))
-                                { // a better witness is found, update the path.
-                                    witness.Backward = _weightHandler.Zero;
-                                    sourceAccessor.Current = witness;
-                                    backwardTargets.Remove(originalEdge.Vertex2);
+                                if (witness.Edge.Equals(currentOriginal))
+                                {
+                                    if (_weightHandler.IsSmallerThan(current.Path.Weight, witness.Backward))
+                                    { // a better witness is found, update the path.
+                                        witness.Backward = _weightHandler.Zero;
+                                        sourceAccessor.Current = witness;
+                                        backwardTargets.Remove(currentOriginal);
+                                    }
+                                    else
+                                    { // a shorter path will never be found.
+                                        backwardTargets.Remove(currentOriginal);
+                                    }
                                 }
                             }
                         }
@@ -504,8 +516,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                         // check for a restriction and if need build the original sequence.
                         var restrictions = _getRestrictions(current.Path.Vertex);
-                        var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
-                        sequence = sequence.Append(current.Path.Vertex);
 
                         // move to the current vertex.
                         edgeEnumerator.MoveTo(current.Path.Vertex);
@@ -520,17 +530,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
                             var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
 
+                            OriginalEdge neighbourOriginal;
+                            if (edgeEnumerator.IsOriginal())
+                            {
+                                neighbourOriginal = new OriginalEdge(source.Vertex1, source.Vertex2);
+                            }
+                            else
+                            {
+                                var s2 = edgeEnumerator.GetSequence2();
+                                neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                            }
+
                             var totalNeighbourWeight = _weightHandler.Add(current.Path.Weight, neighbourWeight);
                             var neighbourPath = new EdgePath<T>(neighbour, totalNeighbourWeight, edgeEnumerator.IdDirected(),
                                 current.Path);
 
                             var doNeighbourForward = doForward && neighbourCanMoveForward && _weightHandler.IsSmallerThanOrEqual(totalNeighbourWeight, forwardMaxWeight) &&
-                                !forwardSettled.Contains(neighbourPath);
+                                !forwardSettled.Contains(neighbourOriginal);
                             var doNeighbourBackward = doBackward && neighbourCanMoveBackward && _weightHandler.IsSmallerThanOrEqual(totalNeighbourWeight, backwardMaxWeight) &&
-                                !backwardSettled.Contains(neighbourPath);
+                                !backwardSettled.Contains(neighbourOriginal);
                             if (doNeighbourBackward || doNeighbourForward)
                             {
-                                T existingWeight;
                                 uint[] sequenceAlongNeighbour = null;
 
                                 if ((doNeighbourBackward || doNeighbourForward) && sequence.Length > 0)
@@ -559,21 +579,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 {
                                     if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
                                     { // restrictions ok.
-                                        if (forwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
-                                        {
-                                            if (_weightHandler.IsSmallerThanOrEqual(existingWeight, totalNeighbourWeight))
-                                            {
-                                                doNeighbourForward = false;
-                                            }
-                                            else
-                                            {
-                                                forwardMinWeight[neighbourPath] = totalNeighbourWeight;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            forwardMinWeight[neighbourPath] = totalNeighbourWeight;
-                                        }
+
                                     }
                                     else
                                     {
@@ -588,21 +594,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                     }
                                     if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
                                     { // restrictions ok.
-                                        if (backwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
-                                        {
-                                            if (_weightHandler.IsSmallerThanOrEqual(existingWeight, totalNeighbourWeight))
-                                            {
-                                                doNeighbourBackward = false;
-                                            }
-                                            else
-                                            {
-                                                backwardMinWeight[neighbourPath] = totalNeighbourWeight;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            backwardMinWeight[neighbourPath] = totalNeighbourWeight;
-                                        }
+
                                     }
                                     else
                                     {
@@ -713,303 +705,272 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
         }
 
-        ///// <summary>
-        ///// Calculates witness paths.
-        ///// </summary>
-        ///// <param name="graph">The graph being contracted.</param>
-        ///// <param name="getRestrictions">Function to get restrictions.</param>
-        ///// <param name="source">A path containing one edge as source.</param>
-        ///// <param name="targets">A list of paths that represent the targets, each path contains exactly one edge.</param>
-        //public override void Calculate(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, OriginalEdge source, 
-        //    List<OriginalEdge> targets, List<float> weights, ref EdgePath<float>[] forwardWitness, ref EdgePath<float>[] backwardWitness, uint vertexToSkip)
-        //{
-        //    // creates the settled list.
-        //    var s = new List<uint>();
-        //    var backwardSettled = new HashSet<EdgePath<float>>();
-        //    var forwardSettled = new HashSet<EdgePath<float>>();
-        //    var backwardTargets = new HashSet<uint>();
-        //    var forwardTargets = new HashSet<uint>();
-        //    float forwardMaxWeight = 0, backwardMaxWeight = 0;
-        //    for (int idx = 0; idx < weights.Count; idx++)
-        //    {
-        //        if (forwardWitness[idx] == null)
-        //        {
-        //            forwardWitness[idx] = new EdgePath<float>();
-        //            forwardTargets.Add(targets[idx].Vertex2);
-        //            //if (_weightHandler.IsSmallerThan(forwardMaxWeight, weights[idx]))
-        //            if (forwardMaxWeight < weights[idx])
-        //            {
-        //                forwardMaxWeight = weights[idx];
-        //            }
-        //        }
-        //        if (backwardWitness[idx] == null)
-        //        {
-        //            backwardWitness[idx] = new EdgePath<float>();
-        //            backwardTargets.Add(targets[idx].Vertex2);
-        //            //if (_weightHandler.IsSmallerThan(backwardMaxWeight, weights[idx]))
-        //            if (backwardMaxWeight < weights[idx])
-        //            {
-        //                backwardMaxWeight = weights[idx];
-        //            }
-        //        }
-        //    }
+        /// <summary>
+        /// Calculates witness paths.
+        /// </summary>
+        /// <param name="source">The witness accessor in the position of the source to calculate for.</param>
+        protected override void Calculate(Shortcuts<float>.Accessor sourceAccessor)
+        {
+            var source = sourceAccessor.Source;
 
-        //    if (forwardMaxWeight == 0 &&
-        //        backwardMaxWeight == 0)
-        //    { // no need to search!
-        //        return;
-        //    }
+            // creates the settled list.
+            var s = new List<uint>();
+            var backwardSettled = new HashSet<OriginalEdge>();
+            var forwardSettled = new HashSet<OriginalEdge>();
+            var backwardTargets = new HashSet<OriginalEdge>();
+            var forwardTargets = new HashSet<OriginalEdge>();
+            float forwardMaxWeight = 0, backwardMaxWeight = 0;
+            while (sourceAccessor.MoveNextTarget())
+            {
+                var witness = sourceAccessor.Current;
 
-        //    // creates the priorty queue.
-        //    var forwardMinWeight = new Dictionary<EdgePath<float>, float>();
-        //    var backwardMinWeight = new Dictionary<EdgePath<float>, float>();
-        //    _heap.Clear();
+                if (witness.Forward > 0)
+                {
+                    forwardTargets.Add(witness.Edge);
+                    if (witness.Forward > forwardMaxWeight)
+                    {
+                        forwardMaxWeight = witness.Forward;
+                    }
+                }
+                if (witness.Backward > 0)
+                {
+                    backwardTargets.Add(witness.Edge);
+                    if (witness.Backward > backwardMaxWeight)
+                    {
+                        backwardMaxWeight = witness.Backward;
+                    }
+                }
+            }
 
-        //    // add all neighbour edges of the source vertex that start with the source path.
-        //    var edgeEnumerator = graph.GetEdgeEnumerator();
-        //    edgeEnumerator.MoveTo(source.Vertex1);
-        //    while (edgeEnumerator.MoveNext())
-        //    { // move next.
-        //        var neighbour = edgeEnumerator.Neighbour;
-        //        if (edgeEnumerator.IsOriginal())
-        //        {
-        //            if (neighbour != source.Vertex2)
-        //            { // not an edge that matches the source.
-        //                continue;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            var s1 = edgeEnumerator.GetSequence1();
-        //            if (s1[0] != source.Vertex2)
-        //            { // not an edge that matches the source.
-        //                continue;
-        //            }
-        //        }
-                
-        //        float neighbourWeight;
-        //        bool? neighbourDirection;
-        //        Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
-        //            out neighbourWeight, out neighbourDirection);
+            if (forwardMaxWeight == 0 &&
+                backwardMaxWeight == 0)
+            { // no need to search!
+                return;
+            }
 
-        //        var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
-        //        var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
+            // creates the priorty queue.
+            _heap.Clear();
 
-        //        var neighbourPath = new EdgePath<float>(neighbour, neighbourWeight, edgeEnumerator.IdDirected(),
-        //            new EdgePath<float>(source.Vertex1));
+            // add all neighbour edges of the source vertex that start with the source path.
+            var edgeEnumerator = _graph.GetEdgeEnumerator();
+            edgeEnumerator.MoveTo(source.Vertex1);
+            while (edgeEnumerator.MoveNext())
+            { // move next.
+                var neighbour = edgeEnumerator.Neighbour;
+                OriginalEdge neighbourOriginal;
+                if (edgeEnumerator.IsOriginal())
+                {
+                    if (neighbour != source.Vertex2)
+                    { // not an edge that matches the source.
+                        continue;
+                    }
+                    neighbourOriginal = new OriginalEdge(source.Vertex1, source.Vertex2);
+                }
+                else
+                {
+                    var s1 = edgeEnumerator.GetSequence1();
+                    if (s1[0] != source.Vertex2)
+                    { // not an edge that matches the source.
+                        continue;
+                    }
+                    var s2 = edgeEnumerator.GetSequence2();
+                    neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                }
 
-        //        //var doNeighbourForward = neighbourCanMoveForward && _weightHandler.IsSmallerThanOrEqual(neighbourWeight, forwardMaxWeight) &&
-        //        //    !forwardSettled.Contains(neighbourPath);
-        //        var doNeighbourForward = neighbourCanMoveForward && neighbourWeight <= forwardMaxWeight &&
-        //            !forwardSettled.Contains(neighbourPath);
-        //        //var doNeighbourBackward = neighbourCanMoveBackward && _weightHandler.IsSmallerThanOrEqual(neighbourWeight, backwardMaxWeight) &&
-        //        //    !backwardSettled.Contains(neighbourPath);
-        //        var doNeighbourBackward = neighbourCanMoveBackward && neighbourWeight <= backwardMaxWeight &&
-        //            !backwardSettled.Contains(neighbourPath);
+                var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
+                var neighbourPath = new EdgePath<float>(neighbour, neighbourWeight.Weight, edgeEnumerator.IdDirected(),
+                    new EdgePath<float>(source.Vertex1));
 
-        //        _heap.Push(new SettledEdge(neighbourPath, 0, doNeighbourForward, doNeighbourBackward), neighbourPath.Weight);
-        //    }
+                var doNeighbourForward = neighbourWeight.Direction.F && neighbourWeight.Weight <= forwardMaxWeight &&
+                    !forwardSettled.Contains(neighbourOriginal);
+                var doNeighbourBackward = neighbourWeight.Direction.B && neighbourWeight.Weight <= backwardMaxWeight &&
+                    !backwardSettled.Contains(neighbourOriginal);
 
-        //    // keep looping until the queue is empty or the target is found!
-        //    while (_heap.Count > 0)
-        //    { // pop the first customer.
-        //        var current = _heap.Pop();
-        //        if (current.Hops + 1 < this.HopLimit)
-        //        {
-        //            if (current.Path.Vertex == vertexToSkip)
-        //            { // this is the vertex being contracted.
-        //                continue;
-        //            }
-        //            var forwardWasSettled = forwardSettled.Contains(current.Path);
-        //            var backwardWasSettled = backwardSettled.Contains(current.Path);
-        //            if (forwardWasSettled && backwardWasSettled)
-        //            { // both are already settled.
-        //                continue;
-        //            }
+                _heap.Push(new SettledEdge(neighbourPath, 0, doNeighbourForward, doNeighbourBackward), neighbourPath.Weight);
+            }
 
-        //            // check if one of the targets was matched.
-        //            if (current.Forward)
-        //            { // this is a forward settle.
-        //                forwardSettled.Add(current.Path);
-        //                forwardMinWeight.Remove(current.Path);
-        //                if (forwardTargets.Contains(current.Path.Vertex))
-        //                {
-        //                    var originalEdge = current.Path.ToOriginalEdge(edgeEnumerator, true);
-        //                    for (var i = 0; i < targets.Count; i++)
-        //                    {
-        //                        if (targets[i].Equals(originalEdge) &&
-        //                            current.Path.Weight <= weights[i])
-        //                        { // TODO: check if this is a proper stop condition.
-        //                            if (forwardWitness[i] == null || forwardWitness[i].Vertex == Constants.NO_VERTEX ||
-        //                                current.Path.Weight < forwardWitness[i].Weight)
-        //                            {
-        //                                forwardWitness[i] = current.Path;
-        //                                forwardTargets.Remove(originalEdge.Vertex2);
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //            if (current.Backward)
-        //            { // this is a backward settle.
-        //                backwardSettled.Add(current.Path);
-        //                backwardMinWeight.Remove(current.Path);
-        //                if (backwardTargets.Contains(current.Path.Vertex))
-        //                {
-        //                    var originalEdge = current.Path.ToOriginalEdge(edgeEnumerator, true);
-        //                    for (var i = 0; i < targets.Count; i++)
-        //                    {
-        //                        if (targets[i].Equals(originalEdge) &&
-        //                            current.Path.Weight <= weights[i])
-        //                        { // TODO: check if this is a proper stop condition.
-        //                            if (backwardWitness[i] == null || backwardWitness[i].Vertex == Constants.NO_VERTEX ||
-        //                                current.Path.Weight < backwardWitness[i].Weight)
-        //                            {
-        //                                backwardWitness[i] = current.Path;
-        //                                backwardTargets.Remove(originalEdge.Vertex2);
-        //                            }
-        //                        }
-        //                    }
-        //                }
-        //            }
+            // keep looping until the queue is empty or the target is found!
+            while (_heap.Count > 0)
+            { // pop the first customer.
+                var current = _heap.Pop();
+                if (current.Hops + 1 < _hopLimit)
+                {
+                    var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
+                    var currentOriginal = new OriginalEdge(sequence[sequence.Length - 1], current.Path.Vertex);
+                    sequence = sequence.Append(current.Path.Vertex);
 
-        //            if (forwardTargets.Count == 0 &&
-        //                backwardTargets.Count == 0)
-        //            { // there is nothing left to check.
-        //                break;
-        //            }
+                    var forwardWasSettled = forwardSettled.Contains(currentOriginal);
+                    var backwardWasSettled = backwardSettled.Contains(currentOriginal);
+                    if (forwardWasSettled && backwardWasSettled)
+                    { // both are already settled.
+                        continue;
+                    }
 
-        //            if (forwardSettled.Count >= this.MaxSettles &&
-        //                backwardSettled.Count >= this.MaxSettles)
-        //            { // do not continue searching.
-        //                break;
-        //            }
+                    // check if one of the targets was matched.
+                    if (current.Forward)
+                    { // this is a forward settle.
+                        forwardSettled.Add(currentOriginal);
+                        if (forwardTargets.Contains(currentOriginal))
+                        {
+                            sourceAccessor.ResetTarget();
+                            while (sourceAccessor.MoveNextTarget())
+                            {
+                                var witness = sourceAccessor.Current;
 
-        //            var doForward = current.Forward && forwardTargets.Count > 0 && !forwardWasSettled;
-        //            var doBackward = current.Backward && backwardTargets.Count > 0 && !backwardWasSettled;
-        //            if (doForward || doBackward)
-        //            { // get the neighbours.
+                                if (witness.Edge.Equals(currentOriginal))
+                                {
+                                    if (current.Path.Weight < witness.Forward)
+                                    { // a better witness is found, update the path.
+                                        witness.Forward = 0;
+                                        sourceAccessor.Current = witness;
+                                        forwardTargets.Remove(currentOriginal);
+                                    }
+                                    else
+                                    { // a better path will never be found.
+                                        forwardTargets.Remove(currentOriginal);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (current.Backward)
+                    { // this is a backward settle.
+                        backwardSettled.Add(currentOriginal);
+                        if (backwardTargets.Contains(currentOriginal))
+                        {
+                            sourceAccessor.ResetTarget();
+                            while (sourceAccessor.MoveNextTarget())
+                            {
+                                var witness = sourceAccessor.Current;
+                                if (witness.Edge.Equals(currentOriginal))
+                                {
+                                    if (current.Path.Weight < witness.Backward)
+                                    { // a better witness is found, update the path.
+                                        witness.Backward = 0;
+                                        sourceAccessor.Current = witness;
+                                        backwardTargets.Remove(currentOriginal);
+                                    }
+                                    else
+                                    { // a shorter path will never be found.
+                                        backwardTargets.Remove(currentOriginal);
+                                    }
+                                }
+                            }
+                        }
+                    }
 
-        //                // check for a restriction and if need build the original sequence.
-        //                var restrictions = getRestrictions(current.Path.Vertex);
-        //                var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
-        //                sequence = sequence.Append(current.Path.Vertex);
+                    if (forwardTargets.Count == 0 &&
+                        backwardTargets.Count == 0)
+                    { // there is nothing left to check.
+                        break;
+                    }
 
-        //                // move to the current vertex.
-        //                edgeEnumerator.MoveTo(current.Path.Vertex);
-        //                //uint neighbour, data0, data1;
-        //                while (edgeEnumerator.MoveNext())
-        //                { // move next.
-        //                    var neighbour = edgeEnumerator.Neighbour;
+                    if (forwardSettled.Count >= _maxSettles &&
+                        backwardSettled.Count >= _maxSettles)
+                    { // do not continue searching.
+                        break;
+                    }
 
-        //                    bool? neighbourDirection;
-        //                    float neighbourWeight;
-        //                    Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0,
-        //                        out neighbourWeight, out neighbourDirection);
+                    var doForward = current.Forward && forwardTargets.Count > 0 && !forwardWasSettled;
+                    var doBackward = current.Backward && backwardTargets.Count > 0 && !backwardWasSettled;
+                    if (doForward || doBackward)
+                    { // get the neighbours.
 
-        //                    var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
-        //                    var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
+                        // check for a restriction and if need build the original sequence.
+                        var restrictions = _getRestrictions(current.Path.Vertex);
 
-        //                    var totalNeighbourWeight = current.Path.Weight + neighbourWeight;
-        //                    var neighbourPath = new EdgePath<float>(neighbour, totalNeighbourWeight, edgeEnumerator.IdDirected(),
-        //                        current.Path);
+                        // move to the current vertex.
+                        edgeEnumerator.MoveTo(current.Path.Vertex);
+                        //uint neighbour, data0, data1;
+                        while (edgeEnumerator.MoveNext())
+                        { // move next.
+                            var neighbour = edgeEnumerator.Neighbour;
+                            //edgeEnumerator.GetData(out neighbour, out data0, out data1);
+                            
+                            var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
 
-        //                    var doNeighbourForward = doForward && neighbourCanMoveForward && totalNeighbourWeight <= forwardMaxWeight &&
-        //                        !forwardSettled.Contains(neighbourPath);
-        //                    var doNeighbourBackward = doBackward && neighbourCanMoveBackward && totalNeighbourWeight <= backwardMaxWeight &&
-        //                        !backwardSettled.Contains(neighbourPath);
-        //                    if (doNeighbourBackward || doNeighbourForward)
-        //                    {
-        //                        float existingWeight;
-        //                        uint[] sequenceAlongNeighbour = null;
+                            OriginalEdge neighbourOriginal;
+                            if (edgeEnumerator.IsOriginal())
+                            {
+                                neighbourOriginal = new OriginalEdge(current.Path.Vertex, neighbour);
+                            }
+                            else
+                            {
+                                var s2 = edgeEnumerator.GetSequence2();
+                                neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                            }
 
-        //                        if ((doNeighbourBackward || doNeighbourForward) && sequence.Length > 0)
-        //                        {
-        //                            if (edgeEnumerator.IsOriginal())
-        //                            {
-        //                                if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbour)
-        //                                { // a t-turn!
-        //                                    continue;
-        //                                }
-        //                                sequenceAlongNeighbour = sequence.Append(neighbour);
-        //                            }
-        //                            else
-        //                            {
-        //                                var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
-        //                                //var neighbourSequence = edgeEnumerator.GetSequence1();
-        //                                if (sequence.Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
-        //                                { // a t-turn!
-        //                                    continue;
-        //                                }
-        //                                sequenceAlongNeighbour = sequence.Append(_sequence1, sequence1Length);
-        //                            }
-        //                        }
+                            var totalNeighbourWeight = current.Path.Weight + neighbourWeight.Weight;
+                            var neighbourPath = new EdgePath<float>(neighbour, totalNeighbourWeight, edgeEnumerator.IdDirected(),
+                                current.Path);
 
-        //                        if (doNeighbourForward)
-        //                        {
-        //                            if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-        //                            { // restrictions ok.
-        //                                if (forwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
-        //                                {
-        //                                    if (existingWeight <= totalNeighbourWeight)
-        //                                    {
-        //                                        doNeighbourForward = false;
-        //                                    }
-        //                                    else
-        //                                    {
-        //                                        forwardMinWeight[neighbourPath] = totalNeighbourWeight;
-        //                                    }
-        //                                }
-        //                                else
-        //                                {
-        //                                    forwardMinWeight[neighbourPath] = totalNeighbourWeight;
-        //                                }
-        //                            }
-        //                            else
-        //                            {
-        //                                doNeighbourForward = false;
-        //                            }
-        //                        }
-        //                        if (doNeighbourBackward)
-        //                        {
-        //                            if (sequenceAlongNeighbour != null)
-        //                            {
-        //                                sequenceAlongNeighbour.Reverse();
-        //                            }
-        //                            if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-        //                            { // restrictions ok.
-        //                                if (backwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
-        //                                {
-        //                                    if (existingWeight <= totalNeighbourWeight)
-        //                                    {
-        //                                        doNeighbourBackward = false;
-        //                                    }
-        //                                    else
-        //                                    {
-        //                                        backwardMinWeight[neighbourPath] = totalNeighbourWeight;
-        //                                    }
-        //                                }
-        //                                else
-        //                                {
-        //                                    backwardMinWeight[neighbourPath] = totalNeighbourWeight;
-        //                                }
-        //                            }
-        //                            else
-        //                            {
-        //                                doNeighbourBackward = false;
-        //                            }
-        //                        }
+                            var doNeighbourForward = doForward && neighbourWeight.Direction.F && totalNeighbourWeight <= forwardMaxWeight &&
+                                !forwardSettled.Contains(neighbourOriginal);
+                            var doNeighbourBackward = doBackward && neighbourWeight.Direction.B && totalNeighbourWeight <= backwardMaxWeight &&
+                                !backwardSettled.Contains(neighbourOriginal);
+                            if (doNeighbourBackward || doNeighbourForward)
+                            {
+                                uint[] sequenceAlongNeighbour = null;
 
-        //                        if (doNeighbourBackward || doNeighbourForward)
-        //                        { // add to heap.
-        //                            var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
-        //                            _heap.Push(newSettle, neighbourPath.Weight);
-        //                        }
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
+                                if ((doNeighbourBackward || doNeighbourForward) && sequence.Length > 0)
+                                {
+                                    if (edgeEnumerator.IsOriginal())
+                                    {
+                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbour)
+                                        { // a t-turn!
+                                            continue;
+                                        }
+                                        sequenceAlongNeighbour = sequence.Append(neighbour);
+                                    }
+                                    else
+                                    {
+                                        var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
+                                        //var neighbourSequence = edgeEnumerator.GetSequence1();
+                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
+                                        { // a t-turn!
+                                            continue;
+                                        }
+                                        sequenceAlongNeighbour = sequence.Append(_sequence1, sequence1Length);
+                                    }
+                                }
+
+                                if (doNeighbourForward)
+                                {
+                                    if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
+                                    { // restrictions ok.
+
+                                    }
+                                    else
+                                    {
+                                        doNeighbourForward = false;
+                                    }
+                                }
+                                if (doNeighbourBackward)
+                                {
+                                    if (sequenceAlongNeighbour != null)
+                                    {
+                                        sequenceAlongNeighbour.Reverse();
+                                    }
+                                    if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
+                                    { // restrictions ok.
+
+                                    }
+                                    else
+                                    {
+                                        doNeighbourBackward = false;
+                                    }
+                                }
+
+                                if (doNeighbourBackward || doNeighbourForward)
+                                { // add to heap.
+                                    var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
+                                    _heap.Push(newSettle, neighbourPath.Weight);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

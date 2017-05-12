@@ -174,7 +174,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 }
                 if (_data._targets[_source].Length <= _data._targetsCount[_source])
                 {
-                    Array.Resize(ref _data._targets, _data._targets.Length * 2);
+                    Array.Resize(ref _data._targets[_source], _data._targets[_source].Length * 2);
                 }
                 _target = _data._targetsCount[_source] - 1;
                 _data._targets[_source][_target] = witness;

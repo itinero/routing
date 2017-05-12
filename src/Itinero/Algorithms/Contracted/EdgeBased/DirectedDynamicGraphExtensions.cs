@@ -576,44 +576,54 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 backwardS2 = s2;
             }
 
+            var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+            while (edgeEnumerator.MoveNext())
+            {
+                if (edgeEnumerator.Neighbour == vertex2 && !edgeEnumerator.IsOriginal())
+                {
+                    var localS1 = edgeEnumerator.GetSequence1();
+                    var localS2 = edgeEnumerator.GetSequence2();
+                    var localWeight = ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0);
+
+                    if (localWeight.Direction.F &&
+                        forwardS1.SequenceEqual(localS1) &&
+                        forwardS2.SequenceEqual(localS2) &&
+                        localWeight.Weight < forwardWeight)
+                    { // a better identical edge found here.
+                        forwardWeight = localWeight.Weight;
+                        forwardContractedId = edgeEnumerator.GetContracted().Value;
+                    }
+
+                    if (localWeight.Direction.B &&
+                        backwardS1.SequenceEqual(localS1) &&
+                        backwardS2.SequenceEqual(localS2) &&
+                        localWeight.Weight < backwardWeight)
+                    {
+                        backwardWeight = localWeight.Weight;
+                        backwardContractedId = edgeEnumerator.GetContracted().Value;
+                    }
+                }
+            }
+
+            edgeEnumerator.TryRemoveAllEdges(vertex1, vertex2, s1, s2);
+
             if (forward && backward &&
-                forwardWeight == backwardWeight &&
+                System.Math.Abs(forwardWeight - backwardWeight) < EdgeBased.Contraction.HierarchyBuilder<float>.E &&
                 forwardContractedId == backwardContractedId &&
                 forwardS1.IsSequenceIdentical(backwardS1) &&
                 forwardS2.IsSequenceIdentical(backwardS2))
             { // add one bidirectional edge.
-                if (forwardContractedId == Constants.NO_VERTEX)
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null);
-                }
-                else
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
-                }
+                graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
             }
             else
             { // add two unidirectional edges if needed.
                 if (forward)
                 { // there is a forward edge.
-                    if (forwardContractedId == Constants.NO_VERTEX)
-                    {
-                        graph.AddEdge(vertex1, vertex2, forwardWeight, true);
-                    }
-                    else
-                    {
-                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, forwardS1, forwardS2);
-                    }
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, forwardS1, forwardS2);
                 }
                 if (backward)
                 { // there is a backward edge.
-                    if (backwardContractedId == Constants.NO_VERTEX)
-                    {
-                        graph.AddEdge(vertex1, vertex2, backwardWeight, false);
-                    }
-                    else
-                    {
-                        graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardS1, backwardS2);
-                    }
+                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardS1, backwardS2);
                 }
             }
         }
@@ -975,7 +985,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             if (!TryRemoveEdge(enumerator, vertex1, vertex2, sequence1, sequence2, weightHandler, direction))
             {
-                throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
+                //throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
             }
         }
 
@@ -1018,6 +1028,35 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 enumerator.Graph.RemoveEdgeById(vertex1, enumerator.Id);
+                return true;
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Removes all the edges (vertex1->vertex2) with identical sequences.
+        /// </summary>
+        public static bool TryRemoveAllEdges(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2)
+        {
+            enumerator.MoveTo(vertex1);
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Neighbour != vertex2)
+                {
+                    continue;
+                }
+
+                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence1, enumerator.GetSequence1()))
+                {
+                    continue;
+                }
+                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence2, enumerator.GetSequence2()))
+                {
+                    continue;
+                }
+
+                enumerator.Graph.RemoveEdgeById(vertex1, enumerator.Id);
+                enumerator.MoveTo(vertex1); // remove others if there are more.
                 return true;
             }
             return false;
