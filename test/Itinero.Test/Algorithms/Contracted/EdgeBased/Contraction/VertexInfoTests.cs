@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 0;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 1.
@@ -101,7 +101,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 1;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(0, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 2.
@@ -109,7 +109,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 2;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
             
             // build graph.
@@ -127,7 +127,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 0;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(0, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 1.
@@ -135,7 +135,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 1;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(-2, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 2.
@@ -143,7 +143,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 2;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(0, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
             
             // build graph.
@@ -172,7 +172,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 0;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 1.
@@ -181,7 +181,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.HasRestrictions = true;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(3, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 2.
@@ -189,7 +189,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 2;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
 
             // test 2.
@@ -197,7 +197,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.Vertex = 2;
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
             info.BuildShortcuts(new DefaultWeightHandler(null), witnessCalculator);
-            witnessCalculator.Calculate(info.Shortcuts);
+            witnessCalculator.Calculate(info.Vertex, info.Shortcuts);
             Assert.AreEqual(-1, info.Priority(new DefaultWeightHandler(null), 1, 0, 0));
         }
     }

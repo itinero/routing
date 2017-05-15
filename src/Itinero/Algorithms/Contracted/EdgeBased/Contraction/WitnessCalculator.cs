@@ -67,12 +67,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Calculates 
         /// </summary>
-        public virtual void Calculate(Shortcuts<T> witnesses)
+        public virtual void Calculate(uint vertex, Shortcuts<T> witnesses)
         {
             var accessor = witnesses.GetAccessor();
             while(accessor.MoveNextSource())
             {
-                this.Calculate(accessor);
+                this.Calculate(vertex, accessor);
             }
         }
 
@@ -347,7 +347,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// Calculates witness paths.
         /// </summary>
         /// <param name="source">The witness accessor in the position of the source to calculate for.</param>
-        protected virtual void Calculate(Shortcuts<T>.Accessor sourceAccessor)
+        protected virtual void Calculate(uint vertex,  Shortcuts<T>.Accessor sourceAccessor)
         {
             var source = sourceAccessor.Source;
 
@@ -413,6 +413,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     }
                     var s2 = edgeEnumerator.GetSequence2();
                     neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                }
+
+                if (neighbour == vertex)
+                {
+                    continue;
                 }
                 
                 var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
@@ -523,7 +528,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                         while (edgeEnumerator.MoveNext())
                         { // move next.
                             var neighbour = edgeEnumerator.Neighbour;
-                            //edgeEnumerator.GetData(out neighbour, out data0, out data1);
+                            if (neighbour == vertex)
+                            {
+                                continue;
+                            }
 
                             bool? neighbourDirection;
                             var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator, out neighbourDirection);
@@ -709,7 +717,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// Calculates witness paths.
         /// </summary>
         /// <param name="source">The witness accessor in the position of the source to calculate for.</param>
-        protected override void Calculate(Shortcuts<float>.Accessor sourceAccessor)
+        protected override void Calculate(uint vertex, Shortcuts<float>.Accessor sourceAccessor)
         {
             var source = sourceAccessor.Source;
 
@@ -757,6 +765,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             while (edgeEnumerator.MoveNext())
             { // move next.
                 var neighbour = edgeEnumerator.Neighbour;
+                if (neighbour == vertex)
+                {
+                    continue;
+                }
+
                 OriginalEdge neighbourOriginal;
                 if (edgeEnumerator.IsOriginal())
                 {
@@ -798,6 +811,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
                     var currentOriginal = new OriginalEdge(sequence[sequence.Length - 1], current.Path.Vertex);
                     sequence = sequence.Append(current.Path.Vertex);
+
+                    if (sequence.Length > 2)
+                    {
+                        System.Diagnostics.Debug.WriteLine(string.Empty);
+                    }
 
                     var forwardWasSettled = forwardSettled.Contains(currentOriginal);
                     var backwardWasSettled = backwardSettled.Contains(currentOriginal);
@@ -885,8 +903,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                         while (edgeEnumerator.MoveNext())
                         { // move next.
                             var neighbour = edgeEnumerator.Neighbour;
-                            //edgeEnumerator.GetData(out neighbour, out data0, out data1);
-                            
+                            if (neighbour == vertex)
+                            {
+                                continue;
+                            }
+
                             var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
 
                             OriginalEdge neighbourOriginal;

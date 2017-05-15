@@ -623,5 +623,53 @@ namespace Itinero.Test
             route = router.Calculate(car, resolved3, resolved5, true, false);
             route = router.Calculate(car, resolved3, resolved5, true, true);
         }
+
+        /// <summary>
+        /// Tests calculating a directed route.
+        /// </summary>
+        [Test]
+        public void TestDirectedTryCalculateNetwork5()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                        "Itinero.Test.test_data.networks.network5.geojson"));
+
+            routerDb.Network.Sort();
+
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            var router = new Router(routerDb);
+
+            var json = routerDb.GetGeoJsonAround(52.35286546406f, 6.66554092450f, 5000);
+
+            var location1 = new Coordinate(52.35286546406f, 6.66554092450f);
+            var resolved1 = router.Resolve(car, location1);
+            var location2 = new Coordinate(52.35476168070f, 6.66636669078f);
+            var resolved2 = router.Resolve(car, location2);
+            var location3 = new Coordinate(52.35502840541f, 6.66461193744f);
+            var resolved3 = router.Resolve(car, location3);
+            var location4 = new Coordinate(52.35361232125f, 6.66458017720f);
+            var resolved4 = router.Resolve(car, location4);
+            var location5 = new Coordinate(52.35535575907f, 6.665294766426f);
+            var resolved5 = router.Resolve(car, location5);
+            var location6 = new Coordinate(52.35345869178f, 6.6661906242371f);
+            var resolved6 = router.Resolve(car, location6);
+
+            // 1->5: forward, forward.
+            var route = router.Calculate(car, resolved3, resolved5, false, false);
+            route = router.Calculate(car, resolved3, resolved5, false, true);
+            route = router.Calculate(car, resolved3, resolved5, true, false);
+            route = router.Calculate(car, resolved3, resolved5, true, true);
+
+            // contract and try again.
+            routerDb.AddContracted(car, true);
+
+            // 1->5: forward, forward.
+            route = router.Calculate(car, resolved3, resolved5, false, false);
+            route = router.Calculate(car, resolved3, resolved5, false, true);
+            route = router.Calculate(car, resolved3, resolved5, true, false);
+            route = router.Calculate(car, resolved3, resolved5, true, true);
+        }
     }
 }

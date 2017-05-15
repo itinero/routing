@@ -24,13 +24,14 @@ using Itinero.Logging;
 using Itinero.Test.Functional.Tests;
 using Itinero.IO.Osm;
 using Itinero.LocalGeo;
+using Itinero.Data.Contracted;
 
 namespace Itinero.Test.Functional
 {
     public class Program
     {
         private static Logger _logger;
-
+        
         public static void Main(string[] args)
         {
             // enable logging.
@@ -55,11 +56,41 @@ namespace Itinero.Test.Functional
 
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
-            //var router = new Router(routerDb);
+            var router = new Router(routerDb);
+
+            //var networkJson = routerDb.GetGeoJsonIn(51.23311753378148f, 4.803428649902344f, 51.27544765983238f, 4.883165359497069f);
+
+            //var f1 = router.Db.Network.GetVertex(2758);
+            ////var f2 = router.Db.Network.GetVertex(550);
+
+            ////var route1 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(577)).Value.ToGeoJson();
+            //var route2 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(579)).Value.ToGeoJson();
+            //var route3 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(567)).Value.ToGeoJson();
+            ////var route4 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(539)).Value.ToGeoJson();
+            ////var route5 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(530)).Value.ToGeoJson();
+            ////var route6 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(531)).Value.ToGeoJson();
+            ////var route7 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(550)).Value.ToGeoJson();
+            ////var route8 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(517)).Value.ToGeoJson();
+            ////var route9 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(529)).Value.ToGeoJson();
+
+            //ContractedDb contracted;
+            //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
+            //var graph = contracted.EdgeBasedGraph;
+
+
+            //var vertexJson = graph.GetSearchSpaceAsGeoJson(routerDb, 979, true);
+            //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 979);
+            //edgeJson = graph.GetEdgesAsGeoJson(routerDb, 978);
+            //vertexJson = graph.GetSearchSpaceAsGeoJson(routerDb, 579, false);
 
             //var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
             //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
             //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));
+            //var routeJson = route.ToGeoJson();
+            //route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
+            //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.51941724047908f, 5.971823036670685f),
+            //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.51588234658069f, 5.973671078681946f));
+            //routeJson = route.ToGeoJson();
 
             //// test resolving.
             //ResolvingTests.Run(routerDb);
@@ -74,7 +105,7 @@ namespace Itinero.Test.Functional
             //// test instruction generation.
             //InstructionTests.Run(routerDb);
 
-            //_logger.Log(TraceEventType.Information, "Testing finished.");
+            _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG
             Console.ReadLine();
 #endif

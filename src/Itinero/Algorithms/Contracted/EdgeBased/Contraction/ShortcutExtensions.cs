@@ -28,10 +28,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Removes witnessed shortcuts.
         /// </summary>
-        public static void RemoveWitnessed<T>(this Shortcuts<T> shortcuts, DykstraWitnessCalculator<T> witnessCalculator)
+        public static void RemoveWitnessed<T>(this Shortcuts<T> shortcuts, uint vertex, DykstraWitnessCalculator<T> witnessCalculator)
             where T : struct
         {
-            witnessCalculator.Calculate(shortcuts);
+            witnessCalculator.Calculate(vertex, shortcuts);
         }
 
         /// <summary>

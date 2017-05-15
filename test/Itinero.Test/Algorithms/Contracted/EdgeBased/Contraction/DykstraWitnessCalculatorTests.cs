@@ -121,16 +121,16 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
                 Edge = new OriginalEdge(1, 2),
                 Forward = 1000
             });
-            witnessCalculator.Calculate(shortcuts);
+            witnessCalculator.Calculate(100, shortcuts);
             accessor.Reset();
             Assert.IsTrue(accessor.MoveNextSource());
             Assert.AreEqual(0, accessor.Source.Vertex1);
             Assert.AreEqual(1, accessor.Source.Vertex2);
             Assert.IsTrue(accessor.MoveNextTarget());
-            Assert.AreEqual(1, accessor.Current.Edge.Vertex1);
-            Assert.AreEqual(2, accessor.Current.Edge.Vertex2);
-            Assert.AreEqual(0, accessor.Current.Forward);
-            Assert.AreEqual(0, accessor.Current.Backward);
+            Assert.AreEqual(1, accessor.Target.Edge.Vertex1);
+            Assert.AreEqual(2, accessor.Target.Edge.Vertex2);
+            Assert.AreEqual(0, accessor.Target.Forward);
+            Assert.AreEqual(0, accessor.Target.Backward);
             
             // build graph.
             graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
@@ -147,16 +147,16 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
                 Edge = new OriginalEdge(3, 4),
                 Forward = 1000
             });
-            witnessCalculator.Calculate(shortcuts);
+            witnessCalculator.Calculate(100, shortcuts);
             accessor.Reset();
             Assert.IsTrue(accessor.MoveNextSource());
             Assert.AreEqual(0, accessor.Source.Vertex1);
             Assert.AreEqual(1, accessor.Source.Vertex2);
             Assert.IsTrue(accessor.MoveNextTarget());
-            Assert.AreEqual(3, accessor.Current.Edge.Vertex1);
-            Assert.AreEqual(4, accessor.Current.Edge.Vertex2);
-            Assert.AreEqual(0, accessor.Current.Forward);
-            Assert.AreEqual(0, accessor.Current.Backward);
+            Assert.AreEqual(3, accessor.Target.Edge.Vertex1);
+            Assert.AreEqual(4, accessor.Target.Edge.Vertex2);
+            Assert.AreEqual(0, accessor.Target.Forward);
+            Assert.AreEqual(0, accessor.Target.Backward);
 
             // build graph.
             graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
@@ -181,16 +181,16 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             //    Edge = new OriginalEdge(3, 4),
             //    Forward = 1000
             //});
-            witnessCalculator.Calculate(shortcuts);
+            witnessCalculator.Calculate(100, shortcuts);
             accessor.Reset();
             Assert.IsTrue(accessor.MoveNextSource());
             Assert.AreEqual(0, accessor.Source.Vertex1);
             Assert.AreEqual(1, accessor.Source.Vertex2);
             Assert.IsTrue(accessor.MoveNextTarget());
-            Assert.AreEqual(7, accessor.Current.Edge.Vertex1);
-            Assert.AreEqual(8, accessor.Current.Edge.Vertex2);
-            Assert.AreEqual(0, accessor.Current.Forward);
-            Assert.AreEqual(1000, accessor.Current.Backward);
+            Assert.AreEqual(7, accessor.Target.Edge.Vertex1);
+            Assert.AreEqual(8, accessor.Target.Edge.Vertex2);
+            Assert.AreEqual(0, accessor.Target.Forward);
+            Assert.AreEqual(1000, accessor.Target.Backward);
 
             // build graph.
             graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
@@ -218,21 +218,21 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
                 Edge = new OriginalEdge(3, 4),
                 Forward = 1000
             });
-            witnessCalculator.Calculate(shortcuts);
+            witnessCalculator.Calculate(100, shortcuts);
             accessor.Reset();
             Assert.IsTrue(accessor.MoveNextSource());
             Assert.AreEqual(0, accessor.Source.Vertex1);
             Assert.AreEqual(1, accessor.Source.Vertex2);
             Assert.IsTrue(accessor.MoveNextTarget());
-            Assert.AreEqual(7, accessor.Current.Edge.Vertex1);
-            Assert.AreEqual(8, accessor.Current.Edge.Vertex2);
-            Assert.AreEqual(1000, accessor.Current.Forward);
-            Assert.AreEqual(1000, accessor.Current.Backward);
+            Assert.AreEqual(7, accessor.Target.Edge.Vertex1);
+            Assert.AreEqual(8, accessor.Target.Edge.Vertex2);
+            Assert.AreEqual(1000, accessor.Target.Forward);
+            Assert.AreEqual(1000, accessor.Target.Backward);
             Assert.IsTrue(accessor.MoveNextTarget());
-            Assert.AreEqual(3, accessor.Current.Edge.Vertex1);
-            Assert.AreEqual(4, accessor.Current.Edge.Vertex2);
-            Assert.AreEqual(1000, accessor.Current.Forward);
-            Assert.AreEqual(0, accessor.Current.Backward);
+            Assert.AreEqual(3, accessor.Target.Edge.Vertex1);
+            Assert.AreEqual(4, accessor.Target.Edge.Vertex2);
+            Assert.AreEqual(1000, accessor.Target.Forward);
+            Assert.AreEqual(0, accessor.Target.Backward);
         }
     }
 }

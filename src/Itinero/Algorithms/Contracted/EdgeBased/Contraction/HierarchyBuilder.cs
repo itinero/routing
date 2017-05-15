@@ -216,7 +216,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             // calculate shortcuts and witnesses.
             _vertexInfo.AddRelevantEdges(_graph.GetEdgeEnumerator());
             _vertexInfo.BuildShortcuts(_weightHandler, _witnessCalculator);
-            _vertexInfo.Shortcuts.RemoveWitnessed(_witnessCalculator);
+            _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
         }
 
         private int _k = 20; // The amount of queue 'misses' to recalculated.
@@ -294,7 +294,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         {
             var vertex = _vertexInfo.Vertex;
             var enumerator = _graph.GetEdgeEnumerator();
-
+            
             // remove 'downward' edge to vertex.
             var i = 0;
             while (i < _vertexInfo.Count)

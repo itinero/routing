@@ -712,7 +712,7 @@ namespace Itinero
         /// <summary>
         /// Writes a point-geometry for the given vertex.
         /// </summary>
-        private static void WriteVertex(this RouterDb db, JsonWriter jsonWriter, uint vertex)
+        internal static void WriteVertex(this RouterDb db, JsonWriter jsonWriter, uint vertex)
         {
             var coordinate = db.Network.GetVertex(vertex);
             
