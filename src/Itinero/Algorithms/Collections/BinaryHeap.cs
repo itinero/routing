@@ -120,6 +120,82 @@ namespace Itinero.Algorithms.PriorityQueues
         /// <summary>
         /// Returns the object with the smallest weight and removes it.
         /// </summary>
+        public T Pop(out float priority)
+        {
+            if (_count > 0)
+            {
+                var item = _heap[1]; // get the first item.
+                priority = _priorities[1];
+
+                _count--; // reduce the element count.
+                _latestIndex--; // reduce the latest index.
+
+                int swapitem = 1, parent = 1;
+                float swapItemPriority = 0;
+                float parentPriority = _priorities[_latestIndex];
+                T parentItem = _heap[_latestIndex];
+                _heap[1] = parentItem; // place the last element on top.
+                _priorities[1] = parentPriority; // place the last element on top.
+                do
+                {
+                    parent = swapitem;
+                    if ((2 * parent + 1) <= _latestIndex)
+                    {
+                        swapItemPriority = _priorities[2 * parent];
+                        float potentialSwapItem = _priorities[2 * parent + 1];
+                        if (parentPriority >= swapItemPriority)
+                        {
+                            swapitem = 2 * parent;
+                            if (_priorities[swapitem] >= potentialSwapItem)
+                            {
+                                swapItemPriority = potentialSwapItem;
+                                swapitem = 2 * parent + 1;
+                            }
+                        }
+                        else if (parentPriority >= potentialSwapItem)
+                        {
+                            swapItemPriority = potentialSwapItem;
+                            swapitem = 2 * parent + 1;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else if ((2 * parent) <= _latestIndex)
+                    {
+                        // Only one child exists
+                        swapItemPriority = _priorities[2 * parent];
+                        if (parentPriority >= swapItemPriority)
+                        {
+                            swapitem = 2 * parent;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                    _priorities[parent] = swapItemPriority;
+                    _priorities[swapitem] = parentPriority;
+                    _heap[parent] = _heap[swapitem];
+                    _heap[swapitem] = parentItem;
+
+                } while (true);
+
+                return item;
+            }
+            priority = float.MaxValue;
+            return default(T);
+        }
+
+        /// <summary>
+        /// Returns the object with the smallest weight and removes it.
+        /// </summary>
         public T Pop()
         {
             if (_count > 0)
