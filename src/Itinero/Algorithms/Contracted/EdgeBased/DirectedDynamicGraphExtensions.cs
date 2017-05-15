@@ -551,29 +551,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             var forward = false;
             var forwardWeight = float.MaxValue;
             var forwardContractedId = uint.MaxValue;
-            var forwardS1 = Constants.EMPTY_SEQUENCE;
-            var forwardS2 = Constants.EMPTY_SEQUENCE;
             var backward = false;
             var backwardWeight = float.MaxValue;
             var backwardContractedId = uint.MaxValue;
-            var backwardS1 = Constants.EMPTY_SEQUENCE;
-            var backwardS2 = Constants.EMPTY_SEQUENCE;
 
             if (direction == null || direction.Value)
             {
                 forward = true;
                 forwardWeight = weight;
                 forwardContractedId = contractedId;
-                forwardS1 = s1;
-                forwardS2 = s2;
             }
             if (direction == null || !direction.Value)
             {
                 backward = true;
                 backwardWeight = weight;
                 backwardContractedId = contractedId;
-                backwardS1 = s1;
-                backwardS2 = s2;
             }
 
             var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
@@ -585,22 +577,44 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var localS2 = edgeEnumerator.GetSequence2();
                     var localWeight = ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0);
 
-                    if (localWeight.Direction.F &&
-                        forwardS1.SequenceEqual(localS1) &&
-                        forwardS2.SequenceEqual(localS2) &&
-                        localWeight.Weight < forwardWeight)
-                    { // a better identical edge found here.
-                        forwardWeight = localWeight.Weight;
-                        forwardContractedId = edgeEnumerator.GetContracted().Value;
-                    }
-
-                    if (localWeight.Direction.B &&
-                        backwardS1.SequenceEqual(localS1) &&
-                        backwardS2.SequenceEqual(localS2) &&
-                        localWeight.Weight < backwardWeight)
+                    if (s1.SequenceEqual(localS1) &&
+                        s2.SequenceEqual(localS2))
                     {
-                        backwardWeight = localWeight.Weight;
-                        backwardContractedId = edgeEnumerator.GetContracted().Value;
+                        if (localWeight.Direction.F)
+                        { // a better identical edge found here.
+                            if (forward)
+                            { // there is already a forward weight, only replace if better.
+                                if (localWeight.Weight < forwardWeight)
+                                {
+                                    forwardWeight = localWeight.Weight;
+                                    forwardContractedId = edgeEnumerator.GetContracted().Value;
+                                }
+                            }
+                            else
+                            { // there is no forward weight, but we need to keep it.
+                                forward = true;
+                                forwardWeight = localWeight.Weight;
+                                forwardContractedId = edgeEnumerator.GetContracted().Value;
+                            }
+                        }
+
+                        if (localWeight.Direction.B)
+                        {
+                            if (backward)
+                            { // there is already a backward weight, only replace if better. &&
+                                if (localWeight.Weight < backwardWeight)
+                                {
+                                    backwardWeight = localWeight.Weight;
+                                    backwardContractedId = edgeEnumerator.GetContracted().Value;
+                                }
+                            }
+                            else
+                            { // there is no backward weight, but we need to keep it.
+                                backward = true;
+                                backwardWeight = localWeight.Weight;
+                                backwardContractedId = edgeEnumerator.GetContracted().Value;
+                            }
+                        }
                     }
                 }
             }
@@ -609,21 +623,19 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
 
             if (forward && backward &&
                 System.Math.Abs(forwardWeight - backwardWeight) < EdgeBased.Contraction.HierarchyBuilder<float>.E &&
-                forwardContractedId == backwardContractedId &&
-                forwardS1.IsSequenceIdentical(backwardS1) &&
-                forwardS2.IsSequenceIdentical(backwardS2))
+                forwardContractedId == backwardContractedId)
             { // add one bidirectional edge.
-                graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardS1, forwardS2);
+                graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, s1, s2);
             }
             else
             { // add two unidirectional edges if needed.
                 if (forward)
                 { // there is a forward edge.
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, forwardS1, forwardS2);
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, s1, s2);
                 }
                 if (backward)
                 { // there is a backward edge.
-                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardS1, backwardS2);
+                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, s1, s2);
                 }
             }
         }
@@ -985,7 +997,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             if (!TryRemoveEdge(enumerator, vertex1, vertex2, sequence1, sequence2, weightHandler, direction))
             {
-                throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
+                //throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
             }
         }
 
@@ -1038,6 +1050,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         public static bool TryRemoveAllEdges(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2)
         {
+            var removed = false;
             enumerator.MoveTo(vertex1);
             while (enumerator.MoveNext())
             {
@@ -1056,10 +1069,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 enumerator.Graph.RemoveEdgeById(vertex1, enumerator.Id);
+                removed = true;
                 enumerator.MoveTo(vertex1); // remove others if there are more.
-                return true;
             }
-            return false;
+            return removed;
         }
 
         /// <summary>
@@ -1102,12 +1115,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 {
                     continue;
                 }
+                var sequenceMatch = true;
                 for (var i = 0; i < System.Math.Min(sequence2.Length, xSequence2.Length); i++)
                 {
                     if (sequence2[i] != xSequence2[i])
                     {
-                        continue;
+                        sequenceMatch = false;
+                        break;
                     }
+                }
+                if (!sequenceMatch)
+                {
+                    continue;
                 }
                 weight = xWeight;
                 return true;
