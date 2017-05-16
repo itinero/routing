@@ -21,6 +21,8 @@ using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Graphs.Directed;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Contracted.EdgeBased.Contraction;
+using Itinero.Algorithms;
+using Itinero.Algorithms.Restrictions;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
 {
@@ -48,23 +50,29 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
 
             // calculate turn weights (should be 0).
             float weightForward, weightBackward;
-            var witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+            var witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue);
             witnessCalculator.CalculateTurn(1, edge1, edge2, out weightForward, out weightBackward);
             Assert.AreEqual(200, weightForward);
             Assert.AreEqual(200, weightBackward);
 
             // calculate turn weights with a restriction in one direction.
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[][] {
-                new uint[] { 0, 1, 2 }
-            }, int.MaxValue);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) =>
+            {
+                c.Clear();
+                c.Add(0, 1, 2);
+                return true;
+            }), int.MaxValue);
             witnessCalculator.CalculateTurn(1, edge1, edge2, out weightForward, out weightBackward);
             Assert.AreEqual(float.MaxValue, weightForward);
             Assert.AreEqual(200, weightBackward);
 
             // calculate turn weights with a restriction in one direction.
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[][] {
-                new uint[] { 2, 1, 0 }
-            }, int.MaxValue);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) =>
+            {
+                c.Clear();
+                c.Add(2, 1, 0);
+                return true;
+            }), int.MaxValue);
             witnessCalculator.CalculateTurn(1, edge1, edge2, out weightForward, out weightBackward);
             Assert.AreEqual(200, weightForward);
             Assert.AreEqual(float.MaxValue, weightBackward);
@@ -75,25 +83,31 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
             graph.AddEdge(2, 1, 100, null);
-            graph.AddEdge(1, 1, 100, null, 3, new uint[] { 3 }, new uint[] { 4 });
-            graph.AddEdge(1, 1, 100, null, 3, new uint[] { 4 }, new uint[] { 3 });
+            graph.AddEdge(1, 1, 100, null, 3, 3, 4);
+            graph.AddEdge(1, 1, 100, null, 3, 4, 3);
 
             edge1 = graph.GetEdges(1).Find(x => x.Neighbour == 0);
             edge2 = graph.GetEdges(1).Find(x => x.Neighbour == 2);
 
             // calculate turn weights with a restriction in one direction.
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[][] {
-                new uint[] { 2, 1, 0 }
-            }, int.MaxValue);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) =>
+            {
+                c.Clear();
+                c.Add(2, 1, 0);
+                return true;
+            }), int.MaxValue);
             witnessCalculator.CalculateTurn(1, edge1, edge2, out weightForward, out weightBackward);
             Assert.AreEqual(200, weightForward);
             Assert.AreEqual(300, weightBackward);
 
             // calculate turn weights with a restriction in one direction.
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[][] {
-                new uint[] { 0, 1, 2 },
-                new uint[] { 2, 1, 0 }
-            }, int.MaxValue);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) =>
+            {
+                c.Clear();
+                c.Add(0, 1, 2);
+                c.Add(2, 1, 0);
+                return true;
+            }), int.MaxValue);
             witnessCalculator.CalculateTurn(1, edge1, edge2, out weightForward, out weightBackward);
             Assert.AreEqual(300, weightForward);
             Assert.AreEqual(300, weightBackward);
@@ -109,7 +123,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             var graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 2, 100, null);
-            var witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+            var witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue);
 
             // build shortcuts and test witness calculation.
             var shortcuts = new Shortcuts<float>();
@@ -134,8 +148,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             
             // build graph.
             graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(0, 4, 100, null, 2, new uint[] { 1 }, new uint[] { 3 });
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+            graph.AddEdge(0, 4, 100, null, 2, 1, 3);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue);
 
             // build shortcuts and test witness calculation.
             shortcuts = new Shortcuts<float>();
@@ -160,10 +174,10 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
 
             // build graph.
             graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
-            graph.AddEdge(0, 4, 100, null, 2, new uint[] { 1 }, new uint[] { 3 });
-            graph.AddEdge(4, 8, 100, true, 6, new uint[] { 5 }, new uint[] { 7 });
+            graph.AddEdge(0, 4, 100, null, 2, 1, 3);
+            graph.AddEdge(4, 8, 100, true, 6, 5, 7);
             //graph.AddEdge(4, 8, 100, false, 6, new uint[] { 5 }, new uint[] { 7 });
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue);
 
             // build shortcuts and test witness calculation.
             shortcuts = new Shortcuts<float>();
@@ -196,11 +210,14 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             graph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             graph.AddEdge(0, 1, 100, null);
             graph.AddEdge(1, 2, 100, null);
-            graph.AddEdge(2, 4, 100, null, 3, new uint[] { 3 }, new uint[] { 3 });
-            graph.AddEdge(4, 8, 100, true, 6, new uint[] { 5 }, new uint[] { 7 });
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[][]{
-                new uint[] { 1, 2, 3 }
-            }, int.MaxValue);
+            graph.AddEdge(2, 4, 100, null, 3, 3, 3);
+            graph.AddEdge(4, 8, 100, true, 6, 5, 7);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) =>
+            {
+                c.Clear();
+                c.Add(1, 2, 3);
+                return true;
+            }), int.MaxValue);
 
             // build shortcuts and test witness calculation.
             shortcuts = new Shortcuts<float>();

@@ -656,8 +656,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.AddEdge(0, 4, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
             graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
             graph.AddEdge(2, 3, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
-            graph.AddEdge(3, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 2, null, null);
-            graph.AddEdge(4, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 0, null, null);
+            graph.AddEdge(3, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 2, 2, 2);
+            graph.AddEdge(4, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 0, 0, 0);
             graph.AddEdge(4, 3, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null);
             routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
 

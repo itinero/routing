@@ -102,7 +102,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do forward searches into buckets.
             for(var i = 0; i < _sources.Length; i++)
             {
-                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetGetRestrictions(_profile, null), false, _max);
+                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i].ToEdgePaths(_routerDb, _weightHandler, true), _routerDb.GetRestrictions(_profile), false, _max);
                 forward.WasFound += (path) =>
                     {
                         return this.ForwardVertexFound(i, path.Vertex, path.Weight);
@@ -113,7 +113,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // do backward searches into buckets.
             for (var i = 0; i < _targets.Length; i++)
             {
-                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetGetRestrictions(_profile, null), true, _max);
+                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i].ToEdgePaths(_routerDb, _weightHandler, false), _routerDb.GetRestrictions(_profile), true, _max);
                 backward.WasFound += (path) =>
                     {
                         return this.BackwardVertexFound(i, path.Vertex, path.Weight);

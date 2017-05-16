@@ -35,13 +35,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         protected readonly BinaryHeap<SettledEdge> _heap;
         protected readonly WeightHandler<T> _weightHandler;
         protected readonly DirectedDynamicGraph _graph;
-        protected readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        protected readonly RestrictionCollection _restrictions;
 
         /// <summary>
         /// Creates a new witness calculator.
         /// </summary>
-        public DykstraWitnessCalculator(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, WeightHandler<T> weightHandler, int hopLimit)
-            : this (graph, getRestrictions, weightHandler, hopLimit, int.MaxValue)
+        public DykstraWitnessCalculator(DirectedDynamicGraph graph, RestrictionCollection restrictions, WeightHandler<T> weightHandler, int hopLimit)
+            : this (graph, restrictions, weightHandler, hopLimit, int.MaxValue)
         {
 
         }
@@ -49,12 +49,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Creates a new witness calculator.
         /// </summary>
-        public DykstraWitnessCalculator(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, WeightHandler<T> weightHandler, int hopLimit, int maxSettles)
+        public DykstraWitnessCalculator(DirectedDynamicGraph graph, RestrictionCollection restrictions, WeightHandler<T> weightHandler, int hopLimit, int maxSettles)
         {
             _hopLimit = hopLimit;
             _weightHandler = weightHandler;
             _graph = graph;
-            _getRestrictions = getRestrictions;
+            _restrictions = restrictions;
 
             _heap = new BinaryHeap<SettledEdge>();
             _maxSettles = maxSettles;
@@ -101,8 +101,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var targetDirection = targetWeight.Direction;
 
             // first calculate weights without extra edges.
-            var restrictions = _getRestrictions(vertex);
-            if (restrictions == null || restrictions.IsEmpty())
+            if (!_restrictions.Update(vertex))
             { // no restrictions, we can immidiately return a weight.
                 if (sourceDirection.F && targetDirection.F)
                 { // route possible, source->target.
@@ -115,32 +114,30 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 return;
             }
             // restriction, check sequence.
-            var sequence = new uint[3];
+            var turn = new Turn();
             if (source.IsOriginal())
             { // is an original edge
-                sequence[0] = source.Neighbour;
-                sequence[1] = vertex;
+                turn.Vertex1 = source.Neighbour;
+                turn.Vertex2 = vertex;
             }
             else
             { // is not an original edge, should always have a sequence.
-                var s1 = source.GetSequence1();
-                sequence[0] = s1[0];
-                sequence[1] = vertex;
+                turn.Vertex1 = source.GetSequence1();
+                turn.Vertex2 = vertex;
             }
 
             if (target.IsOriginal())
             { // is an original edge
-                sequence[2] = target.Neighbour;
+                turn.Vertex3 = target.Neighbour;
             }
             else
             { // is not an original edge, should always have a sequence.
-                var s1 = target.GetSequence1();
-                sequence[2] = s1[0];
+                turn.Vertex3 = target.GetSequence1();
             }
 
             if (sourceDirection.F && targetDirection.F)
             { // *a* forward route is possible.
-                if (restrictions.IsSequenceAllowed(sequence))
+                if (!turn.IsRestrictedBy(_restrictions))
                 { // simple forward route is possible, restriction doesn't apply.
                     weightForward = _weightHandler.Add(sourceWeight.Weight, targetWeight.Weight);
                     forwardFound = true;
@@ -150,10 +147,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             { // forward route is impossible.
                 forwardFound = true;
             }
-            sequence.Reverse();
+            turn.Reverse();
             if (sourceDirection.F && targetDirection.F)
             { // *a* backward route is possible.
-                if (restrictions.IsSequenceAllowed(sequence))
+                if (!turn.IsRestrictedBy(_restrictions))
                 { // backward route is possible, restriction doesn't apply.
                     weightBackward = _weightHandler.Add(sourceWeight.Weight, targetWeight.Weight);
                     backwardFound = true;
@@ -168,7 +165,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var s = new List<uint>();
             var forwardSettled = new HashSet<EdgePath<T>>();
             _heap.Clear();
-            _heap.Push(new SettledEdge(new EdgePath<T>(vertex, sourceWeight.Weight, new EdgePath<T>(sequence[2])), 0,
+            _heap.Push(new SettledEdge(new EdgePath<T>(vertex, sourceWeight.Weight, new EdgePath<T>(turn.Vertex3)), 0,
                 sourceDirection.F, sourceDirection.B), 0);
             var edgeEnumerator = _graph.GetEdgeEnumerator();
 
@@ -228,13 +225,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var doBackward = current.Backward && !backwardFound && !backwardWasSettled;
                 if (doForward || doBackward)
                 { // get the neighbours.
-                    // check for a restriction and if need build the original sequence.
-                    restrictions = _getRestrictions(current.Path.Vertex);
-                    sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
-                    sequence = sequence.Append(current.Path.Vertex);
+                    _restrictions.Update(current.Path.Vertex);
+                    var currentS2 = current.Path.GetSequence2(edgeEnumerator);
+                    var currentOriginal = new OriginalEdge(currentS2, current.Path.Vertex);
 
                     // move to the current vertex.
                     edgeEnumerator.MoveTo(current.Path.Vertex);
+
                     //uint neighbour, data0, data1;
                     while (edgeEnumerator.MoveNext())
                     { // move next.
@@ -253,44 +250,28 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                         if (doNeighbourBackward || doNeighbourForward)
                         {
                             T existingWeight;
-                            uint[] sequenceAlongNeighbour = null;
-
-                            if ((doNeighbourBackward || doNeighbourForward) && sequence.Length > 0)
+                            var neighbourTurn = new Turn(currentOriginal, neighbour);
+                            if (!edgeEnumerator.IsOriginal())
                             {
-                                if (edgeEnumerator.IsOriginal())
-                                {
-                                    if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbour)
-                                    { // a t-turn!
-                                        continue;
-                                    }
-                                    sequenceAlongNeighbour = sequence.Append(neighbour);
-                                }
-                                else
-                                {
-                                    var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
-                                    //var neighbourSequence = edgeEnumerator.GetSequence1();
-                                    if (sequence.Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
-                                    { // a t-turn!
-                                        continue;
-                                    }
-                                    sequenceAlongNeighbour = sequence.Append(_sequence1, sequence1Length);
-                                }
+                                neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
+                            }
+
+                            if (neighbourTurn.IsUTurn)
+                            {
+                                continue;
                             }
 
                             if (doNeighbourForward)
                             {
-                                if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-                                { // restrictions ok.
-                                    if (forwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
+                                if (neighbourTurn.IsRestrictedBy(_restrictions))
+                                { // restricted.
+                                    doNeighbourForward = false;
+                                }
+                                else if (forwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
+                                {
+                                    if (_weightHandler.IsSmallerThanOrEqual(existingWeight, totalNeighbourWeight))
                                     {
-                                        if (_weightHandler.IsSmallerThanOrEqual(existingWeight, totalNeighbourWeight))
-                                        {
-                                            doNeighbourForward = false;
-                                        }
-                                        else
-                                        {
-                                            forwardMinWeight[neighbourPath] = totalNeighbourWeight;
-                                        }
+                                        doNeighbourForward = false;
                                     }
                                     else
                                     {
@@ -299,27 +280,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 }
                                 else
                                 {
-                                    doNeighbourForward = false;
+                                    forwardMinWeight[neighbourPath] = totalNeighbourWeight;
                                 }
                             }
                             if (doNeighbourBackward)
                             {
-                                if (sequenceAlongNeighbour != null)
+                                neighbourTurn.Reverse();
+                                if (neighbourTurn.IsRestrictedBy(_restrictions))
                                 {
-                                    sequenceAlongNeighbour.Reverse();
+                                    doNeighbourBackward = false;
                                 }
-                                if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-                                { // restrictions ok.
-                                    if (backwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
+                                else if (backwardMinWeight.TryGetValue(neighbourPath, out existingWeight))
+                                {
+                                    if (_weightHandler.IsSmallerThanOrEqual(existingWeight, totalNeighbourWeight))
                                     {
-                                        if (_weightHandler.IsSmallerThanOrEqual(existingWeight, totalNeighbourWeight))
-                                        {
-                                            doNeighbourBackward = false;
-                                        }
-                                        else
-                                        {
-                                            backwardMinWeight[neighbourPath] = totalNeighbourWeight;
-                                        }
+                                        doNeighbourBackward = false;
                                     }
                                     else
                                     {
@@ -328,7 +303,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 }
                                 else
                                 {
-                                    doNeighbourBackward = false;
+                                    backwardMinWeight[neighbourPath] = totalNeighbourWeight;
                                 }
                             }
 
@@ -407,12 +382,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 else
                 {
                     var s1 = edgeEnumerator.GetSequence1();
-                    if (s1[0] != source.Vertex2)
+                    if (s1 != source.Vertex2)
                     { // not an edge that matches the source.
                         continue;
                     }
                     var s2 = edgeEnumerator.GetSequence2();
-                    neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                    neighbourOriginal = new OriginalEdge(s2, neighbour);
                 }
 
                 if (neighbour == vertex)
@@ -438,9 +413,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var current = _heap.Pop();
                 if (current.Hops + 1 < _hopLimit)
                 {
-                    var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
-                    var currentOriginal = new OriginalEdge(sequence[sequence.Length - 1], current.Path.Vertex);
-                    sequence = sequence.Append(current.Path.Vertex);
+                    var sequence = current.Path.GetSequence2(edgeEnumerator);
+                    var currentOriginal = new OriginalEdge(sequence, current.Path.Vertex);
 
                     var forwardWasSettled = forwardSettled.Contains(currentOriginal);
                     var backwardWasSettled = backwardSettled.Contains(currentOriginal);
@@ -520,7 +494,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     { // get the neighbours.
 
                         // check for a restriction and if need build the original sequence.
-                        var restrictions = _getRestrictions(current.Path.Vertex);
+                        _restrictions.Update(current.Path.Vertex);
 
                         // move to the current vertex.
                         edgeEnumerator.MoveTo(current.Path.Vertex);
@@ -533,23 +507,22 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 continue;
                             }
 
-                            bool? neighbourDirection;
-                            var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator, out neighbourDirection);
-                            var neighbourCanMoveForward = neighbourDirection == null || neighbourDirection.Value;
-                            var neighbourCanMoveBackward = neighbourDirection == null || !neighbourDirection.Value;
+                            var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
+                            var neighbourCanMoveForward = neighbourWeight.Direction.F;
+                            var neighbourCanMoveBackward = neighbourWeight.Direction.B;
 
-                            OriginalEdge neighbourOriginal;
-                            if (edgeEnumerator.IsOriginal())
-                            {
-                                neighbourOriginal = new OriginalEdge(source.Vertex1, source.Vertex2);
+                            var neighbourTurn = new Turn(currentOriginal, neighbour);
+                            if (!edgeEnumerator.IsOriginal())
+                            { // TODO: do this in one check, both IsOriginal and GetSequence do some of the same stuff, no need!
+                                neighbourTurn.Vertex3 = edgeEnumerator.GetSequence2();
                             }
-                            else
+                            var neighbourOriginal = new OriginalEdge(neighbourTurn.Vertex2, neighbourTurn.Vertex3);
+                            if (neighbourTurn.IsUTurn)
                             {
-                                var s2 = edgeEnumerator.GetSequence2();
-                                neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                                continue;
                             }
 
-                            var totalNeighbourWeight = _weightHandler.Add(current.Path.Weight, neighbourWeight);
+                            var totalNeighbourWeight = _weightHandler.Add(current.Path.Weight, neighbourWeight.Weight);
                             var neighbourPath = new EdgePath<T>(neighbour, totalNeighbourWeight, edgeEnumerator.IdDirected(),
                                 current.Path);
 
@@ -557,64 +530,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 !forwardSettled.Contains(neighbourOriginal);
                             var doNeighbourBackward = doBackward && neighbourCanMoveBackward && _weightHandler.IsSmallerThanOrEqual(totalNeighbourWeight, backwardMaxWeight) &&
                                 !backwardSettled.Contains(neighbourOriginal);
-                            if (doNeighbourBackward || doNeighbourForward)
+
+                            if (doNeighbourForward)
                             {
-                                uint[] sequenceAlongNeighbour = null;
-
-                                if ((doNeighbourBackward || doNeighbourForward) && sequence.Length > 0)
+                                if (neighbourTurn.IsRestrictedBy(_restrictions))
                                 {
-                                    if (edgeEnumerator.IsOriginal())
-                                    {
-                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbour)
-                                        { // a t-turn!
-                                            continue;
-                                        }
-                                        sequenceAlongNeighbour = sequence.Append(neighbour);
-                                    }
-                                    else
-                                    {
-                                        var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
-                                        //var neighbourSequence = edgeEnumerator.GetSequence1();
-                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
-                                        { // a t-turn!
-                                            continue;
-                                        }
-                                        sequenceAlongNeighbour = sequence.Append(_sequence1, sequence1Length);
-                                    }
+                                    doNeighbourForward = false;
                                 }
-
-                                if (doNeighbourForward)
+                            }
+                            if (doNeighbourBackward)
+                            {
+                                neighbourTurn.Reverse();
+                                if (neighbourTurn.IsRestrictedBy(_restrictions))
                                 {
-                                    if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-                                    { // restrictions ok.
-
-                                    }
-                                    else
-                                    {
-                                        doNeighbourForward = false;
-                                    }
+                                    doNeighbourBackward = false;
                                 }
-                                if (doNeighbourBackward)
-                                {
-                                    if (sequenceAlongNeighbour != null)
-                                    {
-                                        sequenceAlongNeighbour.Reverse();
-                                    }
-                                    if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-                                    { // restrictions ok.
+                            }
 
-                                    }
-                                    else
-                                    {
-                                        doNeighbourBackward = false;
-                                    }
-                                }
-
-                                if (doNeighbourBackward || doNeighbourForward)
-                                { // add to heap.
-                                    var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
-                                    _heap.Push(newSettle, _weightHandler.GetMetric(neighbourPath.Weight));
-                                }
+                            if (doNeighbourBackward || doNeighbourForward)
+                            { // add to heap.
+                                var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
+                                _heap.Push(newSettle, _weightHandler.GetMetric(neighbourPath.Weight));
                             }
                         }
                     }
@@ -698,8 +634,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Creates a new witness calculator.
         /// </summary>
-        public DykstraWitnessCalculator(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, int hopLimit)
-            : base (graph, getRestrictions, new DefaultWeightHandler(null), hopLimit, int.MaxValue)
+        public DykstraWitnessCalculator(DirectedDynamicGraph graph, RestrictionCollection restrictions, int hopLimit)
+            : base (graph, restrictions, new DefaultWeightHandler(null), hopLimit, int.MaxValue)
         {
 
         }
@@ -707,8 +643,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Creates a new witness calculator.
         /// </summary>
-        public DykstraWitnessCalculator(DirectedDynamicGraph graph, Func<uint, IEnumerable<uint[]>> getRestrictions, int hopLimit, int maxSettles)
-            : base (graph, getRestrictions, new DefaultWeightHandler(null), hopLimit, maxSettles)
+        public DykstraWitnessCalculator(DirectedDynamicGraph graph, RestrictionCollection restrictions, int hopLimit, int maxSettles)
+            : base (graph, restrictions, new DefaultWeightHandler(null), hopLimit, maxSettles)
         {
 
         }
@@ -782,12 +718,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 else
                 {
                     var s1 = edgeEnumerator.GetSequence1();
-                    if (s1[0] != source.Vertex2)
+                    if (s1 != source.Vertex2)
                     { // not an edge that matches the source.
                         continue;
                     }
                     var s2 = edgeEnumerator.GetSequence2();
-                    neighbourOriginal = new OriginalEdge(s2[0], neighbour);
+                    neighbourOriginal = new OriginalEdge(s2, neighbour);
                 }
 
                 var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
@@ -808,15 +744,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var current = _heap.Pop();
                 if (current.Hops + 1 < _hopLimit)
                 {
-                    var sequence = current.Path.GetSequence2(edgeEnumerator, int.MaxValue, s);
-                    var currentOriginal = new OriginalEdge(sequence[sequence.Length - 1], current.Path.Vertex);
-                    sequence = sequence.Append(current.Path.Vertex);
-
-                    if (sequence.Length > 2)
-                    {
-                        System.Diagnostics.Debug.WriteLine(string.Empty);
-                    }
-
+                    var sequence = current.Path.GetSequence2(edgeEnumerator);
+                    var currentOriginal = new OriginalEdge(sequence, current.Path.Vertex);
+                    
                     var forwardWasSettled = forwardSettled.Contains(currentOriginal);
                     var backwardWasSettled = backwardSettled.Contains(currentOriginal);
                     if (forwardWasSettled && backwardWasSettled)
@@ -895,7 +825,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     { // get the neighbours.
 
                         // check for a restriction and if need build the original sequence.
-                        var restrictions = _getRestrictions(current.Path.Vertex);
+                        _restrictions.Update(current.Path.Vertex);
 
                         // move to the current vertex.
                         edgeEnumerator.MoveTo(current.Path.Vertex);
@@ -908,19 +838,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 continue;
                             }
 
+                            var neighbourTurn = new Turn(currentOriginal, neighbour);
+                            if (!edgeEnumerator.IsOriginal())
+                            {
+                                neighbourTurn.Vertex3 = edgeEnumerator.GetSequence2();
+                            }
+                            if (neighbourTurn.IsUTurn)
+                            {
+                                continue;
+                            }
+
                             var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
-
-                            OriginalEdge neighbourOriginal;
-                            if (edgeEnumerator.IsOriginal())
-                            {
-                                neighbourOriginal = new OriginalEdge(current.Path.Vertex, neighbour);
-                            }
-                            else
-                            {
-                                var s2 = edgeEnumerator.GetSequence2();
-                                neighbourOriginal = new OriginalEdge(s2[0], neighbour);
-                            }
-
+                            var neighbourOriginal = new OriginalEdge(neighbourTurn.Vertex2, neighbourTurn.Vertex3);
                             var totalNeighbourWeight = current.Path.Weight + neighbourWeight.Weight;
                             var neighbourPath = new EdgePath<float>(neighbour, totalNeighbourWeight, edgeEnumerator.IdDirected(),
                                 current.Path);
@@ -929,64 +858,26 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 !forwardSettled.Contains(neighbourOriginal);
                             var doNeighbourBackward = doBackward && neighbourWeight.Direction.B && totalNeighbourWeight <= backwardMaxWeight &&
                                 !backwardSettled.Contains(neighbourOriginal);
-                            if (doNeighbourBackward || doNeighbourForward)
+                            if (doNeighbourForward)
                             {
-                                uint[] sequenceAlongNeighbour = null;
-
-                                if ((doNeighbourBackward || doNeighbourForward) && sequence.Length > 0)
+                                if (neighbourTurn.IsRestrictedBy(_restrictions))
                                 {
-                                    if (edgeEnumerator.IsOriginal())
-                                    {
-                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == neighbour)
-                                        { // a t-turn!
-                                            continue;
-                                        }
-                                        sequenceAlongNeighbour = sequence.Append(neighbour);
-                                    }
-                                    else
-                                    {
-                                        var sequence1Length = edgeEnumerator.GetSequence1(ref _sequence1);
-                                        //var neighbourSequence = edgeEnumerator.GetSequence1();
-                                        if (sequence.Length > 1 && sequence[sequence.Length - 2] == _sequence1[0])
-                                        { // a t-turn!
-                                            continue;
-                                        }
-                                        sequenceAlongNeighbour = sequence.Append(_sequence1, sequence1Length);
-                                    }
+                                    doNeighbourForward = false;
                                 }
-
-                                if (doNeighbourForward)
+                            }
+                            if (doNeighbourBackward)
+                            {
+                                neighbourTurn.Reverse();
+                                if (neighbourTurn.IsRestrictedBy(_restrictions))
                                 {
-                                    if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-                                    { // restrictions ok.
-
-                                    }
-                                    else
-                                    {
-                                        doNeighbourForward = false;
-                                    }
+                                    doNeighbourBackward = false;
                                 }
-                                if (doNeighbourBackward)
-                                {
-                                    if (sequenceAlongNeighbour != null)
-                                    {
-                                        sequenceAlongNeighbour.Reverse();
-                                    }
-                                    if (sequence.Length == 0 || restrictions.IsSequenceAllowed(sequenceAlongNeighbour))
-                                    { // restrictions ok.
+                            }
 
-                                    }
-                                    else
-                                    {
-                                        doNeighbourBackward = false;
-                                    }
-                                }
-
-                                if (doNeighbourBackward || doNeighbourForward)
-                                { // add to heap.
-                                    var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
-                                    _heap.Push(newSettle, neighbourPath.Weight);
-                                }
+                            if (doNeighbourBackward || doNeighbourForward)
+                            { // add to heap.
+                                var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
+                                _heap.Push(newSettle, neighbourPath.Weight);
                             }
                         }
                     }

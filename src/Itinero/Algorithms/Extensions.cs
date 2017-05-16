@@ -24,7 +24,46 @@ namespace Itinero.Algorithms
     /// Contains generic extension methods.
     /// </summary>
     public static class Extensions
-    { 
+    {
+        /// <summary>
+        /// Returns true if this array contains the given sequence.
+        /// </summary>
+        public static bool Contains(this uint[] array, Turn sequence, out int start)
+        {
+            var s = 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                if (sequence.Length - s > array.Length - i)
+                {
+                    start = -1;
+                    return false;
+                }
+                if (sequence[s] == array[i])
+                {
+                    var t = i + 1;
+                    s++;
+                    while (s != sequence.Length)
+                    {
+                        if (sequence[s] != array[t])
+                        {
+                            break;
+                        }
+                        s++;
+                        t++;
+                    }
+                    if (s == sequence.Length)
+                    {
+                        start = t - sequence.Length;
+                        return true;
+                    }
+                }
+                s = 0;
+            }
+            start = -1;
+            return false;
+        }
+
+
         /// <summary>
         /// Returns true if this array contains the given sequence.
         /// </summary>

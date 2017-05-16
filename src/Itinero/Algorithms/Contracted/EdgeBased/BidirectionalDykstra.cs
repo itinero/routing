@@ -35,14 +35,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly DirectedDynamicGraph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly IEnumerable<EdgePath<T>> _targets;
-        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private readonly RestrictionCollection _restrictions;
         private readonly WeightHandler<T> _weightHandler;
  
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
         public BidirectionalDykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets,
-            Func<uint, IEnumerable<uint[]>> getRestrictions)
+            RestrictionCollection restrictions)
         {
             weightHandler.CheckCanUse(graph);
 
@@ -56,7 +56,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 x.StripEdges();
                 return x;
             });
-            _getRestrictions = getRestrictions;
+            _restrictions = restrictions;
         }
 
         private Tuple<EdgePath<T>, EdgePath<T>, T> _best;
@@ -144,7 +144,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (current != null)
                     {
                         // get relevant restrictions.
-                        var restrictions = _getRestrictions(current.Vertex);
+                        _restrictions.Update(current.Vertex);
 
                         // check if there is a backward path that matches this vertex.
                         LinkedEdgePath backwardPath = null;
@@ -155,47 +155,31 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 var totalCurrentWeight = _weightHandler.Add(current.Weight, backwardPath.Path.Weight);
                                 if (_weightHandler.IsSmallerThan(totalCurrentWeight, _best.Item3))
                                 { // potentially a weight improvement.
-                                    var allowed = true;
                                     // check u-turn.
                                     var sequence2Forward = backwardPath.Path.GetSequence2(edgeEnumerator);
                                     var sequence2Current = current.GetSequence2(edgeEnumerator);
-                                    if (sequence2Current != null && sequence2Current.Length > 0 &&
-                                        sequence2Forward != null && sequence2Forward.Length > 0)
+                                    var finalTurn = new Turn()
                                     {
-                                        if (sequence2Current[sequence2Current.Length - 1] ==
-                                            sequence2Forward[sequence2Forward.Length - 1])
-                                        {
-                                            allowed = false;
-                                        }
+                                        Vertex1 = sequence2Forward,
+                                        Vertex2 = current.Vertex,
+                                        Vertex3 = sequence2Current
+                                    };
+                                    if (finalTurn.IsUTurn ||
+                                        finalTurn.IsRestrictedBy(_restrictions))
+                                    {
+                                        continue;
                                     }
 
-                                    // check restrictions.
-                                    if (restrictions != null && allowed)
-                                    {
-                                        allowed = false;
-                                        var sequence = new List<uint>(
-                                            current.GetSequence2(edgeEnumerator));
-                                        sequence.Reverse();
-                                        sequence.Add(current.Vertex);
-                                        var s1 = backwardPath.Path.GetSequence2(edgeEnumerator);
-                                        sequence.AddRange(s1);
-
-                                        allowed = restrictions.IsSequenceAllowed(sequence);
-                                    }
-
-                                    if (allowed)
-                                    {
-                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(current, backwardPath.Path,
-                                            _weightHandler.Add(current.Weight, backwardPath.Path.Weight));
-                                        this.HasSucceeded = true;
-                                    }
+                                    _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(current, backwardPath.Path,
+                                        _weightHandler.Add(current.Weight, backwardPath.Path.Weight));
+                                    this.HasSucceeded = true;
                                 }
                                 backwardPath = backwardPath.Next;
                             }
                         }
 
                         // continue the search.
-                        this.SearchForward(edgeEnumerator, current, restrictions);
+                        this.SearchForward(edgeEnumerator, current);
                     }
                 }
 
@@ -233,7 +217,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     if (current != null)
                     {
                         // get relevant restrictions.
-                        var restrictions = _getRestrictions(current.Vertex);
+                        _restrictions.Update(current.Vertex);
 
                         // check if there is a backward path that matches this vertex.
                         LinkedEdgePath forwardPath = null;
@@ -244,38 +228,19 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 var total = _weightHandler.Add(current.Weight, forwardPath.Path.Weight);
                                 if (_weightHandler.IsSmallerThan(total, _best.Item3))
                                 { // potentially a weight improvement.
-
-                                    var allowed = true;
                                     // check u-turn.
                                     var sequence2Forward = forwardPath.Path.GetSequence2(edgeEnumerator);
                                     var sequence2Current = current.GetSequence2(edgeEnumerator);
-                                    if (sequence2Current != null && sequence2Current.Length > 0 &&
-                                        sequence2Forward != null && sequence2Forward.Length > 0)
+                                    var finalTurn = new Turn()
                                     {
-                                        if (sequence2Current[sequence2Current.Length - 1] ==
-                                            sequence2Forward[sequence2Forward.Length - 1])
-                                        {
-                                            allowed = false;
-                                        }
-                                    }
-
-                                    // check restrictions.
-                                    if (restrictions != null && allowed)
+                                        Vertex1 = sequence2Forward,
+                                        Vertex2 = current.Vertex,
+                                        Vertex3 = sequence2Current
+                                    };
+                                    if (!finalTurn.IsUTurn &&
+                                        !finalTurn.IsRestrictedBy(_restrictions))
                                     {
-                                        allowed = false;
-                                        var sequence = new List<uint>(
-                                            forwardPath.Path.GetSequence2(edgeEnumerator));
-                                        sequence.Add(current.Vertex);
-                                        var s1 = current.GetSequence2(edgeEnumerator);
-                                        s1.Reverse();
-                                        sequence.AddRange(s1);
-
-                                        allowed = restrictions.IsSequenceAllowed(sequence);
-                                    }
-
-                                    if (allowed)
-                                    {
-                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardPath.Path, current, 
+                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardPath.Path, current,
                                             _weightHandler.Add(current.Weight, forwardPath.Path.Weight));
                                         this.HasSucceeded = true;
                                     }
@@ -285,7 +250,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         }
 
                         // continue the search.
-                        this.SearchBackward(edgeEnumerator, current, restrictions);
+                        this.SearchBackward(edgeEnumerator, current);
                     }
                 }
 
@@ -308,13 +273,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current, IEnumerable<uint[]> restrictions)
+        private void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
         {
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
-                var currentSequence = current.GetSequence2(edgeEnumerator);
-                currentSequence = currentSequence.Append(current.Vertex);
+                var currentS2 = current.GetSequence2(edgeEnumerator);
+                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
 
                 // get neighbours.
                 edgeEnumerator.MoveTo(current.Vertex);
@@ -322,48 +287,27 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 // add the neighbours to the queue.
                 while (edgeEnumerator.MoveNext())
                 {
-                    bool? neighbourDirection;
-                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
 
-                    if (neighbourDirection == null || neighbourDirection.Value)
+                    if (neighbourWeight.Direction.F)
                     { // the edge is forward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        var neighbourSequence = Constants.EMPTY_SEQUENCE;
-                        if (edgeEnumerator.IsOriginal())
-                        { // original edge.
-                            if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourNeighbour)
-                            { // this is a u-turn.
-                                continue;
-                            }
-                            if (restrictions != null)
-                            {
-                                neighbourSequence = currentSequence.Append(neighbourNeighbour);
-                            }
-                        }
-                        else
+                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
+                        if (!edgeEnumerator.IsOriginal())
                         { // not an original edge, use the sequence.
-                            neighbourSequence = edgeEnumerator.GetSequence1();
-                            if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourSequence[0])
-                            { // this is a u-turn.
-                                continue;
-                            }
-                            if (restrictions != null)
-                            {
-                                neighbourSequence = currentSequence.Append(neighbourSequence);
-                            }
+                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
                         }
 
-                        if (restrictions != null)
-                        { // check restrictions.
-                            if (!restrictions.IsSequenceAllowed(neighbourSequence))
-                            {
-                                continue;
-                            }
+                        // check u-turns and restrictions.
+                        if (neighbourTurn.IsUTurn ||
+                            neighbourTurn.IsRestrictedBy(_restrictions))
+                        {
+                            continue;
                         }
 
                         // build route to neighbour and check if it has been visited already.
                         var routeToNeighbour = new EdgePath<T>(
-                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight), edgeEnumerator.IdDirected(), current);
+                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight.Weight), edgeEnumerator.IdDirected(), current);
                         LinkedEdgePath edgePath = null;
                         if (!_forwardVisits.TryGetValue(current.Vertex, out edgePath) ||
                             !edgePath.HasPath(routeToNeighbour))
@@ -379,13 +323,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search backward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current, IEnumerable<uint[]> restrictions)
+        private void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
         {
             if (current != null)
             { // there is a next vertex found.
                 // get the edge enumerator.
-                var currentSequence = current.GetSequence2(edgeEnumerator);
-                currentSequence = currentSequence.Append(current.Vertex);
+                var currentS2 = current.GetSequence2(edgeEnumerator);
+                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
 
                 // get neighbours.
                 edgeEnumerator.MoveTo(current.Vertex);
@@ -393,49 +337,26 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 // add the neighbours to the queue.
                 while (edgeEnumerator.MoveNext())
                 {
-                    bool? neighbourDirection;
-                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current, out neighbourDirection);
-
-                    if (neighbourDirection == null || !neighbourDirection.Value)
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
+                    if (neighbourWeight.Direction.B)
                     { // the edge is forward, and is to higher or was not contracted at all.
                         var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        var neighbourSequence = Constants.EMPTY_SEQUENCE;
-                        if (edgeEnumerator.IsOriginal())
-                        { // original edge.
-                            if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourNeighbour)
-                            { // this is a u-turn.
-                                continue;
-                            }
-                            if (restrictions != null)
-                            {
-                                neighbourSequence = currentSequence.Append(neighbourNeighbour);
-                            }
-                        }
-                        else
+                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
+                        if (!edgeEnumerator.IsOriginal())
                         { // not an original edge, use the sequence.
-                            neighbourSequence = edgeEnumerator.GetSequence1();
-                            if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourSequence[0])
-                            { // this is a u-turn.
-                                continue;
-                            }
-                            if (restrictions != null)
-                            {
-                                neighbourSequence = currentSequence.Append(neighbourSequence);
-                            }
+                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
                         }
 
-                        if (restrictions != null)
-                        { // check restrictions.
-                            neighbourSequence.Reverse();
-                            if (!restrictions.IsSequenceAllowed(neighbourSequence))
-                            {
-                                continue;
-                            }
+                        neighbourTurn.Reverse(); // this is a backward search!
+                        if (neighbourTurn.IsUTurn ||
+                            neighbourTurn.IsRestrictedBy(_restrictions))
+                        { // don't do u-turns!
+                            continue;
                         }
                         
                         // build route to neighbour and check if it has been visited already.
                         var routeToNeighbour = new EdgePath<T>(
-                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight), edgeEnumerator.IdDirected(), current);
+                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight.Weight), edgeEnumerator.IdDirected(), current);
                         LinkedEdgePath edgePath = null;
                         if (!_backwardVisits.TryGetValue(current.Vertex, out edgePath) ||
                             !edgePath.HasPath(routeToNeighbour))
@@ -578,8 +499,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Creates a new contracted bidirectional router.
         /// </summary>
         public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets,
-            Func<uint, IEnumerable<uint[]>> getRestrictions)
-            : base(graph, new DefaultWeightHandler(null), sources, targets, getRestrictions)
+            RestrictionCollection restrictions)
+            : base(graph, new DefaultWeightHandler(null), sources, targets, restrictions)
         {
 
         }

@@ -34,7 +34,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     {
         private readonly DirectedDynamicGraph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
-        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private readonly RestrictionCollection _restrictions;
         private readonly bool _backward;
         private readonly WeightHandler<T> _weightHandler;
         private readonly T _max;
@@ -43,12 +43,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Creates a new routing algorithm instance.
         /// </summary>
         public Dykstra(DirectedDynamicGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources,
-            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward, T max)
+            RestrictionCollection restrictions, bool backward, T max)
         {
             weightHandler.CheckCanUse(graph);
 
             _graph = graph;
-            _getRestrictions = getRestrictions;
+            _restrictions = restrictions;
             _sources = sources.Select(x => {
                 x.StripEdges();
                 return x;
@@ -144,13 +144,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             {
                 this.WasFound(_current);
             }
-            
+
             // get relevant restrictions.
-            var restrictions = _getRestrictions(_current.Vertex);
+            _restrictions.Update(_current.Vertex);
 
             // get the edge enumerator.
-            var currentSequence = _current.GetSequence2(_edgeEnumerator);
-            currentSequence = currentSequence.Append(_current.Vertex);
+            var currentS2 = _current.GetSequence2(_edgeEnumerator);
+            var currentOriginal = new OriginalEdge(currentS2, _current.Vertex);
 
             // get neighbours.
             _edgeEnumerator.MoveTo(_current.Vertex);
@@ -164,37 +164,21 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 if (neighbourDirection == null || (neighbourDirection.Value != _backward))
                 { // the edge is forward, and is to higher or was not contracted at all.
                     var neighbourNeighbour = _edgeEnumerator.Neighbour;
-                    var neighbourSequence = Constants.EMPTY_SEQUENCE;
-                    if (_edgeEnumerator.IsOriginal())
-                    { // original edge.
-                        if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourNeighbour)
-                        { // this is a u-turn.
-                            continue;
-                        }
-                        if (restrictions != null)
-                        {
-                            neighbourSequence = currentSequence.Append(neighbourNeighbour);
-                        }
-                    }
-                    else
+                    var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
+                    if (!_edgeEnumerator.IsOriginal())
                     { // not an original edge, use the sequence.
-                        neighbourSequence = _edgeEnumerator.GetSequence1();
-                        if (currentSequence.Length > 1 && currentSequence[currentSequence.Length - 2] == neighbourSequence[0])
-                        { // this is a u-turn.
-                            continue;
-                        }
-                        if (restrictions != null)
-                        {
-                            neighbourSequence = currentSequence.Append(neighbourSequence);
-                        }
+                        neighbourTurn.Vertex3 = _edgeEnumerator.GetSequence1();
+                    }
+                    if (_backward)
+                    {
+                        neighbourTurn.Reverse();
                     }
 
-                    if (restrictions != null)
-                    { // check restrictions.
-                        if (!restrictions.IsSequenceAllowed(neighbourSequence))
-                        {
-                            continue;
-                        }
+                    // check u-turn and restrictions.
+                    if (neighbourTurn.IsUTurn ||
+                        neighbourTurn.IsRestrictedBy(_restrictions))
+                    {
+                        continue;
                     }
 
                     // build route to neighbour and check if it has been visited already.
@@ -293,8 +277,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Creates a new routing algorithm instance.
         /// </summary>
         public Dykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources,
-            Func<uint, IEnumerable<uint[]>> getRestrictions, bool backward, float max = float.MaxValue)
-            : base(graph, new DefaultWeightHandler(null), sources, getRestrictions, backward, max)
+            RestrictionCollection restrictions, bool backward, float max = float.MaxValue)
+            : base(graph, new DefaultWeightHandler(null), sources, restrictions, backward, max)
         {
 
         }

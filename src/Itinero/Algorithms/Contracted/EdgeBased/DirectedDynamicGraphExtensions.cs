@@ -145,11 +145,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Gets the sequence at the source.
         /// </summary>
-        public static uint[] GetSequence1(this DynamicEdge edge)
+        public static uint GetSequence1(this DynamicEdge edge)
         {
             if (edge.IsOriginal())
             {
-                return EMPTY;
+                return Constants.NO_VERTEX;
             }
 
             var dynamicData = edge.DynamicData;
@@ -159,29 +159,24 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             if (dynamicData.Length < 2)
             { // only a contracted id, the contracted is is the sequence.
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
             var size = dynamicData[1];
             if (size == 0)
             {
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
-            var sequence = new uint[size];
-            for (var i = 0; i < size; i++)
-            {
-                sequence[i] = dynamicData[i + 2];
-            }
-            return sequence;
+            return dynamicData[2];
         }
 
         /// <summary>
         /// Gets the sequence at the source.
         /// </summary>
-        public static uint[] GetSequence1(this DirectedDynamicGraph.EdgeEnumerator edge)
+        public static uint GetSequence1(this DirectedDynamicGraph.EdgeEnumerator edge)
         {
             if (edge.IsOriginal())
             {
-                return EMPTY;
+                return Constants.NO_VERTEX;
             }
 
             var dynamicData = edge.DynamicData;
@@ -191,63 +186,24 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             if (dynamicData.Length < 2)
             { // only a contracted id, the contracted is is the sequence.
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
             var size = dynamicData[1];
             if (size == 0)
             {
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
-            var sequence = new uint[size];
-            for (var i = 0; i < size; i++)
-            {
-                sequence[i] = dynamicData[i + 2];
-            }
-            return sequence;
+            return dynamicData[2];
         }
-
-        /// <summary>
-        /// Gets the sequence at the source.
-        /// </summary>
-        /// <returns>The number of elements in the array that represent the sequence.</returns>
-        public static int GetSequence1(this DirectedDynamicGraph.EdgeEnumerator edge, ref uint[] sequence1)
-        {
-            if (edge.IsOriginal())
-            {
-                return 0;
-            }
-
-            var dynamicDataLength = edge.FillWithDynamicData(ref sequence1);
-            //var dynamicData = edge.DynamicData;
-            var dynamicData = sequence1;
-            if (dynamicDataLength < 1)
-            { // not even a contraced id but also not an original, something is wrong here!
-                throw new ArgumentException("The given edge is not a shortcut part of a contracted edge-based graph.");
-            }
-            if (dynamicDataLength < 2)
-            { // only a contracted id, the contracted id the sequence.
-                return 1;
-            }
-            var size = dynamicData[1];
-            if (size == 0)
-            {
-                return 1;
-            }
-            for (var i = 0; i < size; i++)
-            {
-                sequence1[i] = sequence1[i + 2];
-            }
-            return (int)size;
-        }
-
+        
         /// <summary>
         /// Gets the sequence at the target.
         /// </summary>
-        public static uint[] GetSequence2(this DynamicEdge edge)
+        public static uint GetSequence2(this DynamicEdge edge)
         {
             if (edge.IsOriginal())
             { // sequence is the source 
-                return EMPTY;
+                return Constants.NO_VERTEX;
             }
 
             var dynamicData = edge.DynamicData;
@@ -257,29 +213,24 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             if (dynamicData.Length < 2)
             { // only a contracted id, the contracted is is the sequence.
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
             var size = dynamicData[1];
             if (dynamicData.Length - size - 2 == 0)
             {
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
-            var sequence = new uint[dynamicData.Length - 2 - size];
-            for (var i = 0; i < sequence.Length; i++)
-            {
-                sequence[i] = dynamicData[size + 2];
-            }
-            return sequence;
+            return dynamicData[dynamicData.Length - 1];
         }
 
         /// <summary>
         /// Gets the sequence at the target.
         /// </summary>
-        public static uint[] GetSequence2(this DirectedDynamicGraph.EdgeEnumerator edge)
+        public static uint GetSequence2(this DirectedDynamicGraph.EdgeEnumerator edge)
         {
             if (edge.IsOriginal())
             { // sequence is the source 
-                return EMPTY;
+                return Constants.NO_VERTEX;
             }
 
             var dynamicData = edge.DynamicData;
@@ -289,19 +240,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             }
             if (dynamicData.Length < 2)
             { // only a contracted id, the contracted is the sequence.
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
             var size = dynamicData[1];
             if (dynamicData.Length - size - 2 == 0)
             {
-                return new uint[] { dynamicData[0] };
+                return dynamicData[0];
             }
-            var sequence = new uint[dynamicData.Length - 2 - size];
-            for (var i = 0; i < sequence.Length; i++)
-            {
-                sequence[i] = dynamicData[size + 2 + i];
-            }
-            return sequence;
+            return dynamicData[dynamicData.Length - 1];
         }
 
         /// <summary>
@@ -423,53 +369,51 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
         /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
         public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId, 
-            uint[] sequence1, uint[] sequence2)
+            uint sequence1, uint sequence2)
         {
-            if (sequence1 != null && sequence1.Length == 1 &&
-                sequence1[0] == contractedId)
+            if (sequence1 == contractedId)
             {
-                sequence1 = null;
+                sequence1 = Constants.NO_VERTEX;
             }
-            if (sequence2 != null && sequence2.Length == 1 &&
-                sequence2[0] == contractedId)
+            if (sequence2 == contractedId)
             {
-                sequence2 = null;
+                sequence2 = Constants.NO_VERTEX;
             }
 
             var dataSize = 2; // Fixed weight + contracted id.
-            if (sequence1 != null && sequence1.Length != 0)
+            if (sequence1 != Constants.NO_VERTEX)
             {
                 dataSize += 1; // size field.
-                dataSize += sequence1.Length;
+                dataSize += 1;
             }
-            if (sequence2 != null && sequence2.Length != 0)
+            if (sequence2 != Constants.NO_VERTEX)
             {
-                if (sequence1 == null || sequence1.Length == 0)
+                if (sequence1 == Constants.NO_VERTEX)
                 {
                     dataSize += 1; // size field if sequence 1 null.
                 }
-                dataSize += sequence2.Length;
+                dataSize += 1;
             }
             var data = new uint[dataSize];
             data[0] = ContractedEdgeDataSerializer.Serialize(weight, direction);
             data[1] = contractedId;
-            if (sequence1 != null && sequence1.Length != 0)
+            if (sequence1 != Constants.NO_VERTEX)
             {
-                data[2] = (uint)sequence1.Length;
-                sequence1.CopyTo(data, 3);
+                data[2] = (uint)1;
+                data[3] = sequence1;
             }
-            if (sequence2 != null && sequence2.Length != 0)
+            if (sequence2 != Constants.NO_VERTEX)
             {
                 var sequence2Start = 3;
-                if (sequence1 == null || sequence1.Length == 0)
+                if (sequence1 == Constants.NO_VERTEX)
                 {
                     data[2] = 0;
                 }
                 else
                 {
-                    sequence2Start += sequence1.Length;
+                    sequence2Start += 1;
                 }
-                sequence2.CopyTo(data, sequence2Start);
+                data[sequence2Start] = sequence2;
             }
             return graph.AddEdge(vertex1, vertex2, data);
         }
@@ -488,55 +432,53 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
         /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
         public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
-            float distance, float time, uint[] sequence1, uint[] sequence2)
+            float distance, float time, uint sequence1, uint sequence2)
         {
-            if (sequence1 != null && sequence1.Length == 1 &&
-                sequence1[0] == contractedId)
+            if (sequence1 == contractedId)
             {
-                sequence1 = null;
+                sequence1 = Constants.NO_VERTEX;
             }
-            if (sequence2 != null && sequence2.Length == 1 &&
-                sequence2[0] == contractedId)
+            if (sequence2 == contractedId)
             {
-                sequence2 = null;
+                sequence2 = Constants.NO_VERTEX;
             }
 
             var dataSize = 4; // fixed weight + contracted id + distance/time.
-            if (sequence1 != null && sequence1.Length != 0)
+            if (sequence1 != Constants.NO_VERTEX)
             {
                 dataSize += 1; // size field.
-                dataSize += sequence1.Length;
+                dataSize += 1;
             }
-            if (sequence2 != null && sequence2.Length != 0)
+            if (sequence2 != Constants.NO_VERTEX)
             {
-                if (sequence1 == null || sequence1.Length == 0)
+                if (sequence1 == Constants.NO_VERTEX)
                 {
                     dataSize += 1; // size field if sequence 1 null.
                 }
-                dataSize += sequence2.Length;
+                dataSize += 1;
             }
             var data = new uint[dataSize];
             data[0] = ContractedEdgeDataSerializer.Serialize(weight, direction);
             data[1] = ContractedEdgeDataSerializer.SerializeDistance(distance);
             data[2] = ContractedEdgeDataSerializer.SerializeTime(time);
             data[3] = contractedId;
-            if (sequence1 != null && sequence1.Length != 0)
+            if (sequence1 != Constants.NO_VERTEX)
             {
-                data[4] = (uint)sequence1.Length;
-                sequence1.CopyTo(data, 5);
+                data[4] = (uint)1;
+                data[5] = sequence1;
             }
-            if (sequence2 != null && sequence2.Length != 0)
+            if (sequence2 != Constants.NO_VERTEX)
             {
                 var sequence2Start = 5;
-                if (sequence1 == null || sequence1.Length == 0)
+                if (sequence1 == Constants.NO_VERTEX)
                 {
                     data[4] = 0;
                 }
                 else
                 {
-                    sequence2Start += sequence1.Length;
+                    sequence2Start += 1;
                 }
-                sequence2.CopyTo(data, sequence2Start);
+                data[sequence2Start] = sequence2;
             }
             return graph.AddEdge(vertex1, vertex2, data);
         }
@@ -546,7 +488,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         /// <returns></returns>
         public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight,
-            bool? direction, uint contractedId, uint[] s1, uint[] s2)
+            bool? direction, uint contractedId, uint s1, uint s2)
         {
             var forward = false;
             var forwardWeight = float.MaxValue;
@@ -577,8 +519,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     var localS2 = edgeEnumerator.GetSequence2();
                     var localWeight = ContractedEdgeDataSerializer.Deserialize(edgeEnumerator.Data0);
 
-                    if (s1.SequenceEqual(localS1) &&
-                        s2.SequenceEqual(localS2))
+                    if (s1 == localS1 &&
+                        s2 == localS2)
                     {
                         if (localWeight.Direction.F)
                         { // a better identical edge found here.
@@ -645,145 +587,178 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         /// <returns></returns>
         public static void AddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, float distance, float time,
-            bool? direction, uint contractedId, uint[] s1, uint[] s2)
+            bool? direction, uint contractedId, uint s1, uint s2)
         {
             var forward = false;
             var forwardWeight = float.MaxValue;
-            var forwardDistance = float.MaxValue;
+            var forwardContractedId = uint.MaxValue;
             var forwardTime = float.MaxValue;
-            var forwardContractedId = uint.MaxValue;
-            var forwardS1 = Constants.EMPTY_SEQUENCE;
-            var forwardS2 = Constants.EMPTY_SEQUENCE;
+            var forwardDistance = float.MaxValue;
             var backward = false;
             var backwardWeight = float.MaxValue;
-            var backwardDistance = float.MaxValue;
+            var backwardContractedId = uint.MaxValue;
             var backwardTime = float.MaxValue;
-            var backwardContractedId = uint.MaxValue;
-            var backwardS1 = Constants.EMPTY_SEQUENCE;
-            var backwardS2 = Constants.EMPTY_SEQUENCE;
+            var backwardDistance = float.MaxValue;
 
             if (direction == null || direction.Value)
             {
                 forward = true;
                 forwardWeight = weight;
-                forwardDistance = distance;
                 forwardTime = time;
+                forwardDistance = distance;
                 forwardContractedId = contractedId;
-                forwardS1 = s1;
-                forwardS2 = s2;
             }
             if (direction == null || !direction.Value)
             {
                 backward = true;
                 backwardWeight = weight;
-                backwardDistance = distance;
                 backwardTime = time;
+                backwardDistance = distance;
                 backwardContractedId = contractedId;
-                backwardS1 = s1;
-                backwardS2 = s2;
             }
 
+            var edgeEnumerator = graph.GetEdgeEnumerator(vertex1);
+            while (edgeEnumerator.MoveNext())
+            {
+                if (edgeEnumerator.Neighbour == vertex2 && !edgeEnumerator.IsOriginal())
+                {
+                    var localS1 = edgeEnumerator.GetSequence1();
+                    var localS2 = edgeEnumerator.GetSequence2();
+                    float localWeight, localDistance, localTime;
+                    bool? localDirection;
+                    ContractedEdgeDataSerializer.DeserializeDynamic(edgeEnumerator.Data, out localWeight, out localDirection, out localDistance, 
+                        out localTime);
+
+                    if (s1 == localS1 &&
+                        s2 == localS2)
+                    {
+                        if (localDirection == null || localDirection.Value)
+                        { // a better identical edge found here.
+                            if (forward)
+                            { // there is already a forward weight, only replace if better.
+                                if (localWeight < forwardWeight)
+                                {
+                                    forwardWeight = localWeight;
+                                    forwardDistance = localDistance;
+                                    forwardTime = localTime;
+                                    forwardContractedId = edgeEnumerator.GetContracted().Value;
+                                }
+                            }
+                            else
+                            { // there is no forward weight, but we need to keep it.
+                                forward = true;
+                                forwardWeight = localWeight;
+                                forwardDistance = localDistance;
+                                forwardTime = localTime;
+                                forwardContractedId = edgeEnumerator.GetContracted().Value;
+                            }
+                        }
+
+                        if (localDirection == null || !localDirection.Value)
+                        {
+                            if (backward)
+                            { // there is already a backward weight, only replace if better. &&
+                                if (localWeight < backwardWeight)
+                                {
+                                    backwardWeight = localWeight;
+                                    backwardTime = localTime;
+                                    backwardDistance = localDistance;
+                                    backwardContractedId = edgeEnumerator.GetContracted().Value;
+                                }
+                            }
+                            else
+                            { // there is no backward weight, but we need to keep it.
+                                backward = true;
+                                backwardWeight = localWeight;
+                                backwardTime = localTime;
+                                backwardDistance = localDistance;
+                                backwardContractedId = edgeEnumerator.GetContracted().Value;
+                            }
+                        }
+                    }
+                }
+            }
+
+            edgeEnumerator.TryRemoveAllEdges(vertex1, vertex2, s1, s2);
+
             if (forward && backward &&
-                forwardWeight == backwardWeight &&
-                forwardContractedId == backwardContractedId &&
-                forwardDistance == backwardDistance &&
-                forwardTime == backwardTime &&
-                forwardS1.IsSequenceIdentical(backwardS1) &&
-                forwardS2.IsSequenceIdentical(backwardS2))
+                System.Math.Abs(forwardWeight - backwardWeight) < EdgeBased.Contraction.HierarchyBuilder<float>.E &&
+                System.Math.Abs(forwardDistance - backwardDistance) < EdgeBased.Contraction.HierarchyBuilder<float>.E &&
+                System.Math.Abs(forwardTime - backwardTime) < EdgeBased.Contraction.HierarchyBuilder<float>.E &&
+                forwardContractedId == backwardContractedId)
             { // add one bidirectional edge.
-                if (forwardContractedId == Constants.NO_VERTEX)
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardDistance, forwardTime);
-                }
-                else
-                {
-                    graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardDistance, forwardTime, forwardS1, forwardS2);
-                }
+                graph.AddEdge(vertex1, vertex2, forwardWeight, null, forwardContractedId, forwardDistance, forwardTime, s1, s2);
             }
             else
             { // add two unidirectional edges if needed.
                 if (forward)
                 { // there is a forward edge.
-                    if (forwardContractedId == Constants.NO_VERTEX)
-                    {
-                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardDistance, forwardTime);
-                    }
-                    else
-                    {
-                        graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, forwardDistance, forwardTime, forwardS1, forwardS2);
-                    }
+                    graph.AddEdge(vertex1, vertex2, forwardWeight, true, forwardContractedId, s1, s2);
                 }
                 if (backward)
                 { // there is a backward edge.
-                    if (backwardContractedId == Constants.NO_VERTEX)
-                    {
-                        graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardDistance, backwardTime);
-                    }
-                    else
-                    {
-                        graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, backwardDistance, backwardTime, backwardS1, backwardS2);
-                    }
+                    graph.AddEdge(vertex1, vertex2, backwardWeight, false, backwardContractedId, s1, s2);
                 }
             }
         }
 
-        /// <summary>
-        /// Add or update edge.
-        /// </summary>
-        /// <returns></returns>
-        public static void TryAddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
-            uint[] s1, uint[] s2, out int added)
-        {
-            var forward = false;
-            var forwardWeight = float.MaxValue;
-            var forwardContractedId = uint.MaxValue;
-            var forwardS1 = Constants.EMPTY_SEQUENCE;
-            var forwardS2 = Constants.EMPTY_SEQUENCE;
-            var backward = false;
-            var backwardWeight = float.MaxValue;
-            var backwardContractedId = uint.MaxValue;
-            var backwardS1 = Constants.EMPTY_SEQUENCE;
-            var backwardS2 = Constants.EMPTY_SEQUENCE;
+        ///// <summary>
+        ///// Add or update edge.
+        ///// </summary>
+        ///// <returns></returns>
+        //public static void TryAddOrUpdateEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint contractedId,
+        //    uint[] s1, uint[] s2, out int added)
+        //{
+        //    var forward = false;
+        //    var forwardWeight = float.MaxValue;
+        //    var forwardContractedId = uint.MaxValue;
+        //    var forwardS1 = Constants.EMPTY_SEQUENCE;
+        //    var forwardS2 = Constants.EMPTY_SEQUENCE;
+        //    var backward = false;
+        //    var backwardWeight = float.MaxValue;
+        //    var backwardContractedId = uint.MaxValue;
+        //    var backwardS1 = Constants.EMPTY_SEQUENCE;
+        //    var backwardS2 = Constants.EMPTY_SEQUENCE;
 
-            if (direction == null || direction.Value)
-            {
-                forward = true;
-                forwardWeight = weight;
-                forwardContractedId = contractedId;
-                forwardS1 = s1;
-                forwardS2 = s2;
-            }
-            if (direction == null || !direction.Value)
-            {
-                backward = true;
-                backwardWeight = weight;
-                backwardContractedId = contractedId;
-                backwardS1 = s1;
-                backwardS2 = s2;
-            }
+        //    if (direction == null || direction.Value)
+        //    {
+        //        forward = true;
+        //        forwardWeight = weight;
+        //        forwardContractedId = contractedId;
+        //        forwardS1 = s1;
+        //        forwardS2 = s2;
+        //    }
+        //    if (direction == null || !direction.Value)
+        //    {
+        //        backward = true;
+        //        backwardWeight = weight;
+        //        backwardContractedId = contractedId;
+        //        backwardS1 = s1;
+        //        backwardS2 = s2;
+        //    }
 
-            added = 0;
+        //    added = 0;
 
-            if (forward && backward &&
-                forwardWeight == backwardWeight &&
-                forwardContractedId == backwardContractedId &&
-                forwardS1.IsSequenceIdentical(backwardS1) &&
-                forwardS2.IsSequenceIdentical(backwardS2))
-            { // add one bidirectional edge.
-                added++;
-            }
-            else
-            { // add two unidirectional edges if needed.
-                if (forward)
-                { // there is a forward edge.
-                    added++;
-                }
-                if (backward)
-                { // there is a backward edge.
-                    added++;
-                }
-            }
-        }
+        //    if (forward && backward &&
+        //        forwardWeight == backwardWeight &&
+        //        forwardContractedId == backwardContractedId &&
+        //        forwardS1.IsSequenceIdentical(backwardS1) &&
+        //        forwardS2.IsSequenceIdentical(backwardS2))
+        //    { // add one bidirectional edge.
+        //        added++;
+        //    }
+        //    else
+        //    { // add two unidirectional edges if needed.
+        //        if (forward)
+        //        { // there is a forward edge.
+        //            added++;
+        //        }
+        //        if (backward)
+        //        { // there is a backward edge.
+        //            added++;
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Adds a contracted edge including sequences.
@@ -796,29 +771,14 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <param name="weight">The weight.</param>
         /// <param name="sequence1">The relevant sequence starting but not including vertex1; vertex1->(0->1...).</param>
         /// <param name="sequence2">The relevant sequence starting but not including vertex2; (0->1...)->vertex2.</param>
-        public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint? contractedId, uint[] sequence1, uint[] sequence2)
+        public static uint AddEdge(this DirectedDynamicGraph graph, uint vertex1, uint vertex2, float weight, bool? direction, uint? contractedId, uint sequence1, uint sequence2)
         {
             if (!contractedId.HasValue)
             {
-                if ((sequence1 != null && sequence1.Length > 0) ||
-                    (sequence2 != null && sequence2.Length > 0))
-                {
-                    throw new ArgumentException("Cannot add an edge without a contracted id but with start or end sequence.");
-                }
                 return graph.AddEdge(vertex1, vertex2, weight, direction);
             }
             else
             {
-                if (sequence1 != null && sequence1.Length == 1 &&
-                    sequence1[0] == contractedId.Value)
-                {
-                    sequence1 = null;
-                }
-                if (sequence2 != null && sequence2.Length == 1 &&
-                    sequence2[0] == contractedId.Value)
-                {
-                    sequence2 = null;
-                }
                 return graph.AddEdge(vertex1, vertex2, weight, direction, contractedId.Value, sequence1, sequence2);
             }
         }
@@ -991,20 +951,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Removes the edge (vertex1->vertex2) with identical sequences.
         /// </summary>
-        public static void RemoveEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2,
+        public static void RemoveEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint sequence1, uint sequence2,
             Weights.WeightHandler<T> weightHandler, bool? direction)
             where T : struct
         {
             if (!TryRemoveEdge(enumerator, vertex1, vertex2, sequence1, sequence2, weightHandler, direction))
             {
-                //throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
+                throw new Exception("Edge {0}->{1} could not be removed because no matching edge was found!");
             }
         }
 
         /// <summary>
         /// Removes the edge (vertex1->vertex2) with identical sequences.
         /// </summary>
-        public static bool TryRemoveEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2,
+        public static bool TryRemoveEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint sequence1, uint sequence2,
             Weights.WeightHandler<T> weightHandler, bool? direction)
             where T : struct
         {
@@ -1030,11 +990,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     continue;
                 }
 
-                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence1, enumerator.GetSequence1()))
+                if (sequence1 != enumerator.GetSequence1())
                 {
                     continue;
                 }
-                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence2, enumerator.GetSequence2()))
+                if (sequence2 != enumerator.GetSequence2())
                 {
                     continue;
                 }
@@ -1048,7 +1008,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Removes all the edges (vertex1->vertex2) with identical sequences.
         /// </summary>
-        public static bool TryRemoveAllEdges(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence1, uint[] sequence2)
+        public static bool TryRemoveAllEdges(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint sequence1, uint sequence2)
         {
             var removed = false;
             enumerator.MoveTo(vertex1);
@@ -1059,11 +1019,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     continue;
                 }
 
-                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence1, enumerator.GetSequence1()))
+                if (sequence1 != enumerator.GetSequence1())
                 {
                     continue;
                 }
-                if (!RestrictionExtensions.IsSequenceIdenticalOrNull(sequence2, enumerator.GetSequence2()))
+                if (sequence2 != enumerator.GetSequence2())
                 {
                     continue;
                 }
@@ -1078,7 +1038,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Moves this enumerator to an edge (vertex1->vertex2) that has an end sequence that matches the given sequence.
         /// </summary>
-        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint[] sequence2, 
+        public static bool MoveToEdge<T>(this DirectedDynamicGraph.EdgeEnumerator enumerator, uint vertex1, uint vertex2, uint sequence2, 
             Weights.WeightHandler<T> weightHandler, bool direction, out T weight)
             where T : struct
         {
@@ -1105,26 +1065,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 }
 
                 var xSequence2 = enumerator.GetSequence2();
-                if (xSequence2 == null || xSequence2.Length == 0)
-                {
-                    weight = xWeight;
-                    return sequence2 == null || sequence2.Length == 0 ||
-                        sequence2[0] == vertex1;
-                }
-                if (sequence2 == null || sequence2.Length == 0)
-                {
-                    continue;
-                }
-                var sequenceMatch = true;
-                for (var i = 0; i < System.Math.Min(sequence2.Length, xSequence2.Length); i++)
-                {
-                    if (sequence2[i] != xSequence2[i])
-                    {
-                        sequenceMatch = false;
-                        break;
-                    }
-                }
-                if (!sequenceMatch)
+                if (xSequence2 != sequence2)
                 {
                     continue;
                 }

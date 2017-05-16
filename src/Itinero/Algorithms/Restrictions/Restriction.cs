@@ -19,32 +19,53 @@
 namespace Itinero.Algorithms.Restrictions
 {
     /// <summary>
-    /// Contains extension methods for restrictions.
+    /// Represents a restriction.
     /// </summary>
-    public static class RestrictionExtensions
+    public struct Restriction
     {
         /// <summary>
-        /// Adds a new restriction.
+        /// Creates a restriction of size 1.
         /// </summary>
-        public static void Add(this RestrictionCollection restrictions, uint vertex1)
+        public Restriction(uint vertex)
         {
-            restrictions.Add(new Restriction(vertex1));
+            this.Vertex1 = vertex;
+            this.Vertex2 = Constants.NO_VERTEX;
+            this.Vertex3 = Constants.NO_VERTEX;
         }
 
         /// <summary>
-        /// Adds a new restriction.
+        /// Creates a restriction of size 2.
         /// </summary>
-        public static void Add(this RestrictionCollection restrictions, uint vertex1, uint vertex2)
+        public Restriction(uint vertex1, uint vertex2)
         {
-            restrictions.Add(new Restriction(vertex1, vertex2));
+            this.Vertex1 = vertex1;
+            this.Vertex2 = vertex2;
+            this.Vertex3 = Constants.NO_VERTEX;
         }
 
         /// <summary>
-        /// Adds a new restriction.
+        /// Creates a restriction of size 3.
         /// </summary>
-        public static void Add(this RestrictionCollection restrictions, uint vertex1, uint vertex2, uint vertex3)
+        public Restriction(uint vertex1, uint vertex2, uint vertex3)
         {
-            restrictions.Add(new Restriction(vertex1, vertex2, vertex3));
+            this.Vertex1 = vertex1;
+            this.Vertex2 = vertex2;
+            this.Vertex3 = vertex3;
         }
+
+        /// <summary>
+        /// First vertex.
+        /// </summary>
+        public uint Vertex1 { get; set; }
+
+        /// <summary>
+        /// Second vertex.
+        /// </summary>
+        public uint Vertex2 { get; set; }
+
+        /// <summary>
+        /// Third vertex.
+        /// </summary>
+        public uint Vertex3 { get; set; }
     }
 }

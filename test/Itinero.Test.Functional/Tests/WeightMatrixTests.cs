@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
 using NUnit.Framework;
@@ -94,7 +95,7 @@ namespace Itinero.Test.Functional.Tests
 
             return () =>
             {
-                var matrix = new Itinero.Algorithms.Matrices.DirectedWeightMatrixAlgorithm(router, profile, massResolver);
+                var matrix = new Itinero.Algorithms.Matrices.DirectedWeightMatrixAlgorithm(router, profile, new RestrictionCollection((col, v) => false), massResolver);
                 matrix.Run();
                 Assert.IsTrue(matrix.HasSucceeded);
             };

@@ -72,7 +72,7 @@ namespace Itinero.Test
             throw new NotImplementedException();
         }
 
-        public override void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight, uint[] s1, uint[] s2)
+        public override void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight, uint s1, uint s2)
         {
             throw new NotImplementedException();
         }

@@ -16,9 +16,10 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Graphs.Directed;
 
-namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
+namespace Itinero.Algorithms
 {
     /// <summary>
     /// Represents an original edge consisting of vertex1 -> vertex2.
@@ -120,9 +121,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var s2 = path.GetSequence2(enumerator);
             if (forward)
             {
-                return new OriginalEdge(s2[s2.Length - 1], path.Vertex);
+                return new OriginalEdge(s2, path.Vertex);
             }
-            return new OriginalEdge(path.Vertex, s2[s2.Length - 1]);
+            return new OriginalEdge(path.Vertex, s2);
         }
     }
 }

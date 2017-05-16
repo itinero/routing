@@ -58,7 +58,7 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            //var networkJson = routerDb.GetGeoJsonIn(51.23311753378148f, 4.803428649902344f, 51.27544765983238f, 4.883165359497069f);
+            //var networkJson = routerDb.GetGeoJson();
 
             //var f1 = router.Db.Network.GetVertex(2758);
             ////var f2 = router.Db.Network.GetVertex(550);
@@ -77,10 +77,9 @@ namespace Itinero.Test.Functional
             //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
             //var graph = contracted.EdgeBasedGraph;
 
-
-            //var vertexJson = graph.GetSearchSpaceAsGeoJson(routerDb, 979, true);
-            //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 979);
-            //edgeJson = graph.GetEdgesAsGeoJson(routerDb, 978);
+            ////var vertexJson = graph.GetSearchSpaceAsGeoJson(routerDb, 979, true);
+            //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 2758);
+            //edgeJson = graph.GetEdgesAsGeoJson(routerDb, 975);
             //vertexJson = graph.GetSearchSpaceAsGeoJson(routerDb, 579, false);
 
             //var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),

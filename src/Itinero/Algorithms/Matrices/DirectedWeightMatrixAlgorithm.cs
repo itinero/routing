@@ -17,6 +17,7 @@
  */
 
 using Itinero.Algorithms.Contracted.EdgeBased;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Search;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted;
@@ -38,6 +39,7 @@ namespace Itinero.Algorithms.Matrices
         protected readonly IProfileInstance _profile;
         protected readonly WeightHandler<T> _weightHandler;
         protected readonly IMassResolvingAlgorithm _massResolver;
+        protected readonly RestrictionCollection _restrictions;
 
         protected readonly Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>> _buckets;
         protected readonly DirectedDynamicGraph _graph;
@@ -46,9 +48,9 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] locations,
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RestrictionCollection restrictions, Coordinate[] locations,
             T? max = null)
-            : this(router, profile, weightHandler, new MassResolvingAlgorithm(
+            : this(router, profile, weightHandler, restrictions, new MassResolvingAlgorithm(
                 router, new IProfileInstance[] { profile }, locations), max)
         {
 
@@ -57,12 +59,13 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver, T? max = null)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RestrictionCollection restrictions, IMassResolvingAlgorithm massResolver, T? max = null)
         {
             _router = router;
             _profile = profile;
             _weightHandler = weightHandler;
             _massResolver = massResolver;
+            _restrictions = restrictions;
 
             ContractedDb contractedDb;
             if (!router.Db.TryGetContracted(profile.Profile, out contractedDb))
@@ -217,7 +220,7 @@ namespace Itinero.Algorithms.Matrices
                 var path = _sourcePaths[i];
                 if (path != null)
                 {
-                    var forward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, (v) => null, false, _max);
+                    var forward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, _restrictions, false, _max);
                     forward.WasFound += (foundPath) =>
                     {
                         LinkedEdgePath<T> visits;
@@ -234,7 +237,7 @@ namespace Itinero.Algorithms.Matrices
                 var path = _targetPaths[i];
                 if (path != null)
                 {
-                    var backward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, (v) => null, true, _max);
+                    var backward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, _restrictions, true, _max);
                     backward.WasFound += (foundPath) =>
                     {
                         LinkedEdgePath<T> visits;
@@ -345,29 +348,19 @@ namespace Itinero.Algorithms.Matrices
                             forwardVisit = forwardVisit.Next;
                             continue;
                         }
+                        var forwardS2 = forwardVisit.Path.GetSequence2(edgeEnumerator);
+                        var forwardOriginal = new OriginalEdge(forwardS2, forwardVisit.Path.Vertex);
                         backwardVisit = originalBackwardVisit;
                         while (backwardVisit != null)
                         {
                             var backwardCurrent = backwardVisit.Path;
+                            var turn = new Turn(forwardOriginal, backwardCurrent.GetSequence2(edgeEnumerator));
                             var totalCurrentWeight = _weightHandler.Add(forwardCurrent.Weight, backwardCurrent.Weight);
                             if (_weightHandler.IsSmallerThan(totalCurrentWeight, best))
                             { // potentially a weight improvement.
-                                var allowed = true;
-
-                                // check u-turn.
-                                var sequence2Forward = backwardCurrent.GetSequence2(edgeEnumerator);
-                                var sequence2Current = forwardCurrent.GetSequence2(edgeEnumerator);
-                                if (sequence2Current != null && sequence2Current.Length > 0 &&
-                                    sequence2Forward != null && sequence2Forward.Length > 0)
-                                {
-                                    if (sequence2Current[sequence2Current.Length - 1] ==
-                                        sequence2Forward[sequence2Forward.Length - 1])
-                                    {
-                                        allowed = false;
-                                    }
-                                }
-
-                                if (allowed)
+                                _restrictions.Update(forwardCurrent.Vertex);
+                                if (!turn.IsUTurn &&
+                                    !turn.IsRestrictedBy(_restrictions))
                                 {
                                     best = totalCurrentWeight;
                                 }
@@ -506,16 +499,16 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver, float max = float.MaxValue)
-            : base(router, profile, profile.DefaultWeightHandler(router), massResolver, max)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, RestrictionCollection restrictions, IMassResolvingAlgorithm massResolver, float max = float.MaxValue)
+            : base(router, profile, profile.DefaultWeightHandler(router), restrictions, massResolver, max)
         {
 
         }
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, float max = float.MaxValue)
-            : base(router, profile, profile.DefaultWeightHandler(router), locations, max)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, RestrictionCollection restrictions, Coordinate[] locations, float max = float.MaxValue)
+            : base(router, profile, profile.DefaultWeightHandler(router), restrictions, locations, max)
         {
 
         }
@@ -545,29 +538,19 @@ namespace Itinero.Algorithms.Matrices
                             forwardVisit = forwardVisit.Next;
                             continue;
                         }
+                        var forwardS2 = forwardCurrent.GetSequence2(edgeEnumerator);
+                        var forwardOriginal = new OriginalEdge(forwardS2, forwardCurrent.Vertex);
                         backwardVisit = originalBackwardVisit;
                         while (backwardVisit != null)
                         {
                             var backwardCurrent = backwardVisit.Path;
-                            var totalCurrentWeight = forwardCurrent.Weight + backwardCurrent.Weight; // _weightHandler.Add(forwardCurrent.Weight, backwardCurrent.Weight);
-                            if (totalCurrentWeight < best) // _weightHandler.IsSmallerThan(totalCurrentWeight, best))
+                            var turn = new Turn(forwardOriginal, backwardCurrent.GetSequence2(edgeEnumerator));
+                            var totalCurrentWeight = forwardCurrent.Weight + backwardCurrent.Weight;
+                            if (totalCurrentWeight < best)
                             { // potentially a weight improvement.
-                                var allowed = true;
-
-                                // check u-turn.
-                                var sequence2Forward = backwardCurrent.GetSequence2(edgeEnumerator);
-                                var sequence2Current = forwardCurrent.GetSequence2(edgeEnumerator);
-                                if (sequence2Current != null && sequence2Current.Length > 0 &&
-                                    sequence2Forward != null && sequence2Forward.Length > 0)
-                                {
-                                    if (sequence2Current[sequence2Current.Length - 1] ==
-                                        sequence2Forward[sequence2Forward.Length - 1])
-                                    {
-                                        allowed = false;
-                                    }
-                                }
-
-                                if (allowed)
+                                _restrictions.Update(forwardCurrent.Vertex);
+                                if (!turn.IsUTurn &&
+                                    !turn.IsRestrictedBy(_restrictions))
                                 {
                                     best = totalCurrentWeight;
                                 }
@@ -592,16 +575,16 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver, Weight max)
-            : base(router, profile, profile.AugmentedWeightHandler(router), massResolver, max)
+        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, RestrictionCollection restrictions, IMassResolvingAlgorithm massResolver, Weight max)
+            : base(router, profile, profile.AugmentedWeightHandler(router), restrictions, massResolver, max)
         {
 
         }
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, Weight max)
-            : base(router, profile, profile.AugmentedWeightHandler(router), locations, max)
+        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, RestrictionCollection restrictions, Coordinate[] locations, Weight max)
+            : base(router, profile, profile.AugmentedWeightHandler(router), restrictions, locations, max)
         {
 
         }
@@ -631,10 +614,13 @@ namespace Itinero.Algorithms.Matrices
                             forwardVisit = forwardVisit.Next;
                             continue;
                         }
+                        var forwardS2 = forwardCurrent.GetSequence2(edgeEnumerator);
+                        var forwardOriginal = new OriginalEdge(forwardS2, forwardCurrent.Vertex);
                         backwardVisit = originalBackwardVisit;
                         while (backwardVisit != null)
                         {
                             var backwardCurrent = backwardVisit.Path;
+                            var turn = new Turn(forwardOriginal, backwardCurrent.GetSequence2(edgeEnumerator));
                             var totalCurrentWeight = new Weight()
                             {
                                 Distance = forwardCurrent.Weight.Distance + backwardCurrent.Weight.Distance,
@@ -643,22 +629,10 @@ namespace Itinero.Algorithms.Matrices
                             };
                             if (totalCurrentWeight.Value < best.Value)
                             { // potentially a weight improvement.
-                                var allowed = true;
-
-                                // check u-turn.
-                                var sequence2Forward = backwardCurrent.GetSequence2(edgeEnumerator);
-                                var sequence2Current = forwardCurrent.GetSequence2(edgeEnumerator);
-                                if (sequence2Current != null && sequence2Current.Length > 0 &&
-                                    sequence2Forward != null && sequence2Forward.Length > 0)
-                                {
-                                    if (sequence2Current[sequence2Current.Length - 1] ==
-                                        sequence2Forward[sequence2Forward.Length - 1])
-                                    {
-                                        allowed = false;
-                                    }
-                                }
-
-                                if (allowed)
+                                // TODO: when u-turn there is no need to query restrictions.
+                                _restrictions.Update(turn.Vertex2);
+                                if (!turn.IsUTurn &&
+                                    !turn.IsRestrictedBy(_restrictions))
                                 {
                                     best = totalCurrentWeight;
                                 }

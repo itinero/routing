@@ -22,6 +22,7 @@ using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Graphs.Directed;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Data.Network;
+using Itinero.Algorithms.Restrictions;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -42,8 +43,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.AddEdge(0, 1, 100, null);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(0) },
-                (v) => null, false);
+            var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(0) }, 
+                new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -66,8 +67,8 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.AddEdge(1, 0, 100, null);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(1) },
-                (v) => null, false);
+            algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph, new EdgePath<float>[] { new EdgePath<float>(1) }, 
+                new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -97,8 +98,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -119,8 +119,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -152,8 +151,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -178,8 +176,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -215,8 +212,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -233,8 +229,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -262,8 +257,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -283,8 +277,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(2) },
-                    (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(2) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -315,8 +308,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -353,8 +345,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -371,8 +362,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(1) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(1) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -388,8 +378,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(2) },
-                    (v) => null, false);
+                new EdgePath<float>[] { new EdgePath<float>(2) }, new RestrictionCollection((c, v) => false), false);
             algorithm.Run();
 
             // check results.
@@ -405,8 +394,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(0) },
-                    (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(0) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -422,8 +410,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(1) },
-                        (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(1) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -442,8 +429,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(graph,
-                new EdgePath<float>[] { new EdgePath<float>(2) },
-                    (v) => null, true);
+                new EdgePath<float>[] { new EdgePath<float>(2) }, new RestrictionCollection((c, v) => false), true);
             algorithm.Run();
 
             // check results.
@@ -510,7 +496,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             
             var dykstra = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra(contractedDb.EdgeBasedGraph,
                 new EdgePath<float>[] { new EdgePath<float>(0, 100 * Profiles.VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, -1, new EdgePath<float>(1)) }, 
-                    (i) => null, false);
+                new RestrictionCollection((c, v) => false), false);
             dykstra.Run();
 
             EdgePath<float> path;

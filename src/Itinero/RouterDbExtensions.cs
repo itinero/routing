@@ -35,6 +35,7 @@ using Itinero.LocalGeo;
 using System.Text;
 using System.IO;
 using Itinero.IO.Json;
+using Itinero.Algorithms.Restrictions;
 
 namespace Itinero
 {
@@ -70,7 +71,7 @@ namespace Itinero
                         weightHandler);
                     directedGraphBuilder.Run();
                     
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.Contraction.HierarchyBuilder(contracted, db.GetGetRestrictions(profile, null));
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.Contraction.HierarchyBuilder(contracted, db.GetRestrictions(profile));
                     hierarchyBuilder.DifferenceFactor = 10;
                     hierarchyBuilder.DepthFactor = 1;
                     hierarchyBuilder.ContractedFactor = 0;
@@ -136,7 +137,7 @@ namespace Itinero
 
                     // contract the graph.
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.Contraction.HierarchyBuilder<T>(contracted,
-                        weightHandler, db.GetGetRestrictions(profile, null));
+                        weightHandler, db.GetRestrictions(profile));
                     hierarchyBuilder.DifferenceFactor = 5;
                     hierarchyBuilder.DepthFactor = 5;
                     hierarchyBuilder.ContractedFactor = 8;
@@ -344,6 +345,68 @@ namespace Itinero
                 }
                 return restrictionList;
             };
+        }
+
+        /// <summary>
+        /// Gets the restriction collection for the given profile.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        /// <param name="profile">The vehicle profile.</param>
+        public static RestrictionCollection GetRestrictions(this RouterDb db, Profiles.Profile profile)
+        {
+            var vehicleTypes = new List<string>(profile.VehicleTypes);
+            vehicleTypes.Insert(0, string.Empty);
+
+            var restrictionDbs = new RestrictionsDb[vehicleTypes.Count];
+            for (var i = 0; i < vehicleTypes.Count; i++)
+            {
+                RestrictionsDb restrictionsDb;
+                if (db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
+                {
+                    restrictionDbs[i] = restrictionsDb;
+                }
+            }
+
+            return new RestrictionCollection((collection, vertex) =>
+            {
+                var f = false;
+                collection.Clear();
+                for (var i = 0; i < restrictionDbs.Length; i++)
+                {
+                    var restrictionsDb = restrictionDbs[i];
+                    if (restrictionsDb == null)
+                    {
+                        continue;
+                    }
+
+                    var enumerator = restrictionsDb.GetEnumerator();
+                    if (enumerator.MoveTo(vertex))
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                            var c = enumerator.Count;
+                            switch(c)
+                            {
+                                case 0:
+                                    break;
+                                case 1:
+                                    f = true;
+                                    collection.Add(enumerator[0]);
+                                    break;
+                                case 2:
+                                    f = true;
+                                    collection.Add(enumerator[0], enumerator[1]);
+                                    break;
+                                default:
+                                    f = true;
+                                    collection.Add(enumerator[0], enumerator[1], enumerator[2]);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                return f;
+            });
         }
 
         /// <summary>
@@ -644,6 +707,16 @@ namespace Itinero
         /// <summary>
         /// Gets all features inside the given bounding box and builds a geojson string.
         /// </summary>
+        public static string GetGeoJson(this RouterDb db, bool includeEdges = true, bool includeVertices = true)
+        {
+            var stringWriter = new StringWriter();
+            db.WriteGeoJson(stringWriter, includeEdges, includeVertices);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box and builds a geojson string.
+        /// </summary>
         public static string GetGeoJsonIn(this RouterDb db, float minLatitude, float minLongitude,
             float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
         {
@@ -682,6 +755,51 @@ namespace Itinero
 
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
             foreach (var vertex in vertices)
+            {
+                if (includeVertices)
+                {
+                    db.WriteVertex(jsonWriter, vertex);
+                }
+
+                if (includeEdges)
+                {
+                    edgeEnumerator.MoveTo(vertex);
+                    edgeEnumerator.Reset();
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        if (edges.Contains(edgeEnumerator.Id))
+                        {
+                            continue;
+                        }
+                        edges.Add(edgeEnumerator.Id);
+
+                        db.WriteEdge(jsonWriter, edgeEnumerator);
+                    }
+                }
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+        }
+        
+        /// <summary>
+        /// Gets all features inside the given bounding box and writes them as a geojson string.
+        /// </summary>
+        public static void WriteGeoJson(this RouterDb db, TextWriter writer, bool includeEdges = true, bool includeVertices = true)
+        {
+            if (db == null) { throw new ArgumentNullException("db"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+            
+            var edges = new HashSet<long>();
+
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+            for (uint vertex = 0; vertex < db.Network.VertexCount; vertex++)
             {
                 if (includeVertices)
                 {

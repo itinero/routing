@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Algorithms.Contracted.EdgeBased.Contraction;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
@@ -45,7 +46,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) => Enumerable.Empty<uint[]>());
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, v) => false));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -70,7 +71,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) => Enumerable.Empty<uint[]>());
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, v) => false));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -101,7 +102,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) => Enumerable.Empty<uint[]>());
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, v) => false));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -140,7 +141,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) => Enumerable.Empty<uint[]>());
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, v) => false));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.Run();
@@ -203,7 +204,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) => Enumerable.Empty<uint[]>());
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, v) => false));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.DifferenceFactor = 1;
@@ -239,27 +240,23 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             Assert.IsNotNull(edges41);
             var s1 = edges41.GetSequence1();
             var s2 = edges41.GetSequence2();
-            Assert.AreEqual(1, s1.Length);
-            Assert.AreEqual(0, s1[0]);
-            Assert.AreEqual(1, s2.Length);
-            Assert.AreEqual(0, s2[0]);
+            Assert.AreEqual(0, s1);
+            Assert.AreEqual(0, s2);
             var edges14 = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 4);
             Assert.IsNull(edges14);
 
             var edges312 = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 1 && x.GetContracted() == 2);
             Assert.IsNotNull(edges312);
             s1 = edges312.GetSequence1();
-            Assert.AreEqual(2, s1[0]);
+            Assert.AreEqual(2, s1);
             s2 = edges312.GetSequence2();
-            Assert.AreEqual(2, s2[0]);
+            Assert.AreEqual(2, s2);
             var edges314 = graph.GetEdgeEnumerator(3).FirstOrDefault(x => x.Neighbour == 1 && x.GetContracted() == 4);
             Assert.IsNotNull(edges314);
             s1 = edges314.GetSequence1();
             s2 = edges314.GetSequence2();
-            Assert.AreEqual(1, s1.Length);
-            Assert.AreEqual(4, s1[0]);
-            Assert.AreEqual(1, s2.Length);
-            Assert.AreEqual(0, s2[0]);
+            Assert.AreEqual(4, s1);
+            Assert.AreEqual(0, s2);
             var edges13 = graph.GetEdgeEnumerator(1).FirstOrDefault(x => x.Neighbour == 3);
             Assert.IsNull(edges13);
         }
@@ -283,7 +280,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) => Enumerable.Empty<uint[]>());
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, v) => false));
             hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.Run();
@@ -327,17 +324,16 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) =>
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, i) =>
+            {
+                c.Clear();
+                if (i == 0 || i == 1 || i == 2)
                 {
-                    if (i == 0 || i == 1 || i == 2)
-                    {
-                        return new uint[][]
-                        {
-                            new uint[] { 0, 1, 2 }
-                        };
-                    }
-                    return null;
-                });
+                    c.Add(0, 1, 2);
+                    return true;
+                }
+                return false;
+            }));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.DifferenceFactor = 1;
@@ -370,22 +366,21 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, (i) =>
+            var hierarchyBuilder = new HierarchyBuilder(graph, new RestrictionCollection((c, i) =>
+            {
+                c.Clear();
+                if (i == 0 || i == 1 || i == 4)
                 {
-                    if (i == 0 || i == 1 || i == 4)
-                    {
-                        return new uint[][]
-                        {
-                            new uint[] { 0, 1, 4 }
-                        };
-                    }
-                    return null;
-                });
+                    c.Add(0, 1, 4);
+                    return true;
+                }
+                return false;
+            }));
             hierarchyBuilder.Run();
 
             // contraction 1.
-            Assert.IsNotNull(graph.GetEdges(1).Find(x => x.Neighbour == 1 && x.GetSequence1()[0] == 3 && x.GetSequence2()[0] == 2));
-            Assert.IsNotNull(graph.GetEdges(1).Find(x => x.Neighbour == 1 && x.GetSequence1()[0] == 2 && x.GetSequence2()[0] == 3));
+            Assert.IsNotNull(graph.GetEdges(1).Find(x => x.Neighbour == 1 && x.GetSequence1() == 3 && x.GetSequence2() == 2));
+            Assert.IsNotNull(graph.GetEdges(1).Find(x => x.Neighbour == 1 && x.GetSequence1() == 2 && x.GetSequence2() == 3));
             // contraction 3.
             Assert.IsNotNull(graph.GetEdges(3).Find(x => x.Neighbour == 1 && x.IsOriginal()));
             Assert.IsNotNull(graph.GetEdges(3).Find(x => x.Neighbour == 1 && x.GetContracted() == 2));

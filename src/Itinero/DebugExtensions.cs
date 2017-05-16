@@ -1,5 +1,5 @@
-﻿using Itinero.Algorithms.Contracted.EdgeBased;
-using Itinero.Algorithms.Contracted.EdgeBased.Contraction;
+﻿using Itinero.Algorithms;
+using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
@@ -26,7 +26,7 @@ namespace Itinero
             var originalSources = new HashSet<OriginalEdge>();
             var originalTargets = new HashSet<OriginalEdge>();
             var vertices = new HashSet<uint>();
-            var contractedEdges = new HashSet<Tuple<OriginalEdge, OriginalEdge>>();
+            var contractedEdges = new HashSet<Tuple<OriginalEdge, OriginalEdge, uint>>();
             vertices.Add(vertex);
 
             var writer = new StringWriter();
@@ -47,14 +47,18 @@ namespace Itinero
                 {
                     var s1 = edgeEnumerator.GetSequence1();
                     var s2 = edgeEnumerator.GetSequence2();
+                    var contracted = edgeEnumerator.GetContracted();
 
-                    var source = new OriginalEdge(vertex, s1[0]);
-                    var target = new OriginalEdge(s2[0], edgeEnumerator.Neighbour);
+                    var source = new OriginalEdge(vertex, s1);
+                    var target = new OriginalEdge(s2, edgeEnumerator.Neighbour);
+
+                    originalSources.Add(source);
+                    originalTargets.Add(target);
 
                     vertices.Add(source.Vertex2);
                     vertices.Add(target.Vertex1);
 
-                    contractedEdges.Add(new Tuple<OriginalEdge, OriginalEdge>(source, target));
+                    contractedEdges.Add(new Tuple<OriginalEdge, OriginalEdge, uint>(source, target, contracted.Value));
                 }
                 vertices.Add(edgeEnumerator.Neighbour);
             }
@@ -172,10 +176,11 @@ namespace Itinero
                 jsonWriter.WritePropertyName("properties");
                 jsonWriter.WriteOpen();
                 jsonWriter.WriteProperty("type", "contracted", true);
-                jsonWriter.WriteProperty("source_vertex1", contracted.Item1.Vertex1.ToInvariantString());
-                jsonWriter.WriteProperty("source_vertex2", contracted.Item1.Vertex2.ToInvariantString());
-                jsonWriter.WriteProperty("target_vertex1", contracted.Item2.Vertex1.ToInvariantString());
-                jsonWriter.WriteProperty("target_vertex2", contracted.Item2.Vertex2.ToInvariantString());
+                jsonWriter.WriteProperty("path", contracted.Item1.Vertex1.ToInvariantString() + "->" + 
+                    contracted.Item1.Vertex2.ToInvariantString() + " ... " +
+                    contracted.Item2.Vertex1.ToInvariantString() + "->" + 
+                    contracted.Item2.Vertex2.ToInvariantString(), true);
+                jsonWriter.WriteProperty("contracted", contracted.Item3.ToInvariantString());
                 jsonWriter.WriteClose();
 
                 jsonWriter.WriteClose();
@@ -237,8 +242,8 @@ namespace Itinero
                         {
                             var s1 = edgeEnumerator.GetSequence1();
                             var s2 = edgeEnumerator.GetSequence2();
-                            neighbour = new OriginalEdge(s2[0], edgeEnumerator.Neighbour);
-                            startEdge = new OriginalEdge(current.Item1.Vertex2, s1[0]);
+                            neighbour = new OriginalEdge(s2, edgeEnumerator.Neighbour);
+                            startEdge = new OriginalEdge(current.Item1.Vertex2, s1);
                         }
                         heap.Push(new Tuple<OriginalEdge, OriginalEdge>(startEdge, neighbour), currentWeight + weight.Weight);
                     }

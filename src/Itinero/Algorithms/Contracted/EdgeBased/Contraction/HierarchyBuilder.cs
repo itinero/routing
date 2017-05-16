@@ -37,20 +37,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly DirectedDynamicGraph _graph;
         private readonly DykstraWitnessCalculator<T> _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
-        private readonly Func<uint, IEnumerable<uint[]>> _getRestrictions;
+        private readonly RestrictionCollection _restrictions;
         public const float E = 0.1f;
         private readonly WeightHandler<T> _weightHandler;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
-        public static int MaxSettles = 65536;
-        public static int MaxHops = 8;
+        public static int MaxSettles = 1024;
+        public static int MaxHops = 4;
         
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
         public HierarchyBuilder(DirectedDynamicGraph graph,
-            WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions)
-            : this(graph, weightHandler, getRestrictions, new DykstraWitnessCalculator<T>(graph, getRestrictions, weightHandler, MaxHops, MaxSettles))
+            WeightHandler<T> weightHandler, RestrictionCollection restrictions)
+            : this(graph, weightHandler, restrictions, new DykstraWitnessCalculator<T>(graph, restrictions, weightHandler, MaxHops, MaxSettles))
         {
 
         }
@@ -58,13 +58,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// Creates a new hierarchy builder.
         /// </summary>
         public HierarchyBuilder(DirectedDynamicGraph graph,
-            WeightHandler<T> weightHandler, Func<uint, IEnumerable<uint[]>> getRestrictions, DykstraWitnessCalculator<T> witnessCalculator)
+            WeightHandler<T> weightHandler, RestrictionCollection restrictions, DykstraWitnessCalculator<T> witnessCalculator)
         {
             weightHandler.CheckCanUse(graph);
 
             _graph = graph;
             _witnessCalculator = witnessCalculator;
-            _getRestrictions = getRestrictions;
+            _restrictions = restrictions;
             _weightHandler = weightHandler;
 
             this.DifferenceFactor = 1;
@@ -94,8 +94,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             // build restrictions flags.
             for(uint i= 0; i < _graph.VertexCount; i++)
             {
-                var restrictions = _getRestrictions(i);
-                if (restrictions != null && restrictions.Any())
+                if (_restrictions.Update(i))
                 {
                     _restrictionFlags[i] = true;
                 }
@@ -302,9 +301,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var edge = _vertexInfo[i];
 
                 var s1 = edge.GetSequence1();
-                s1.Reverse();
                 var s2 = edge.GetSequence2();
-                s2.Reverse();
                 bool? direction;
                 _weightHandler.GetEdgeWeight(edge, out direction);
                 if (direction != null)
@@ -333,25 +330,25 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                         System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)
                     { // forward and backward and identical weights.
                         _weightHandler.AddOrUpdateEdge(_graph, source.Vertex1, shortcut.Edge.Vertex2, vertex, null, shortcut.Forward,
-                            new uint[] { source.Vertex2 }, new uint[] { shortcut.Edge.Vertex1 });
+                            source.Vertex2, shortcut.Edge.Vertex1);
                         _weightHandler.AddOrUpdateEdge(_graph, shortcut.Edge.Vertex2, source.Vertex1, vertex, null, shortcut.Forward,
-                            new uint[] { shortcut.Edge.Vertex1 }, new uint[] { source.Vertex2 });
+                            shortcut.Edge.Vertex1, source.Vertex2);
                     }
                     else
                     {
                         if (forwardMetric > 0)
                         {
                             _weightHandler.AddOrUpdateEdge(_graph, source.Vertex1, shortcut.Edge.Vertex2, vertex, true, shortcut.Forward,
-                                new uint[] { source.Vertex2 }, new uint[] { shortcut.Edge.Vertex1 });
+                                source.Vertex2, shortcut.Edge.Vertex1);
                             _weightHandler.AddOrUpdateEdge(_graph, shortcut.Edge.Vertex2, source.Vertex1, vertex, false, shortcut.Forward,
-                                new uint[] { shortcut.Edge.Vertex1 }, new uint[] { source.Vertex2 });
+                                shortcut.Edge.Vertex1, source.Vertex2);
                         }
                         if (backwardMetric > 0)
                         {
                             _weightHandler.AddOrUpdateEdge(_graph, source.Vertex1, shortcut.Edge.Vertex2, vertex, false, shortcut.Backward,
-                                new uint[] { source.Vertex2 }, new uint[] { shortcut.Edge.Vertex1 });
+                                source.Vertex2, shortcut.Edge.Vertex1);
                             _weightHandler.AddOrUpdateEdge(_graph, shortcut.Edge.Vertex2, source.Vertex1, vertex, true, shortcut.Backward,
-                                new uint[] { shortcut.Edge.Vertex1 }, new uint[] { source.Vertex2 });
+                                shortcut.Edge.Vertex1, source.Vertex2);
                         }
                     }
                 }
@@ -465,9 +462,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedDynamicGraph graph,
-            Func<uint, IEnumerable<uint[]>> getRestrictions)
-            : base(graph, new DefaultWeightHandler(null), getRestrictions, new DykstraWitnessCalculator(graph, getRestrictions, MaxHops, MaxSettles))
+        public HierarchyBuilder(DirectedDynamicGraph graph, RestrictionCollection restrictions)
+            : base(graph, new DefaultWeightHandler(null), restrictions, new DykstraWitnessCalculator(graph, restrictions, MaxHops, MaxSettles))
         {
 
         }

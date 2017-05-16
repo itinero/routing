@@ -278,7 +278,7 @@ namespace Itinero
                     else
                     { // use edge-based routing.
                         var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
-                            source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profileInstance.Profile, null));
+                            source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetRestrictions(profileInstance.Profile));
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
                         {
@@ -441,7 +441,7 @@ namespace Itinero
                     else
                     { // use edge-based routing.
                         var bidirectionalSearch = new Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
-                            new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profileInstance.Profile, null));
+                            new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetRestrictions(profileInstance.Profile));
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
                         {

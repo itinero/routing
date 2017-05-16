@@ -74,7 +74,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 else
                 { // is not an original edge, should always have a sequence.
                     var s2 = edge1.GetSequence2();
-                    source = new OriginalEdge(edge1.Neighbour, s2[s2.Length - 1]);
+                    source = new OriginalEdge(edge1.Neighbour, s2);
                 }
 
                 // add source.
@@ -100,7 +100,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     else
                     { // not an original edge, should always have a sequence.
                         var s2 = edge2.GetSequence2();
-                        target = new OriginalEdge(s2[s2.Length - 1], edge2.Neighbour);
+                        target = new OriginalEdge(s2, edge2.Neighbour);
                     }
 
                     // create the witness.

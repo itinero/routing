@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Algorithms.Contracted.EdgeBased.Contraction;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
@@ -69,7 +70,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             info.AddRelevantEdges(graph.GetEdgeEnumerator());
 
             // build shortctus.
-            info.BuildShortcuts(new DefaultWeightHandler(null), new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue));
+            info.BuildShortcuts(new DefaultWeightHandler(null), new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue));
         }
 
         /// <summary>
@@ -86,7 +87,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
             graph.AddEdge(2, 1, 100, null);
-            var witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+            var witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue);
 
             // test 0
             info.Clear();
@@ -118,9 +119,9 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             graph.AddEdge(1, 0, 100, null);
             graph.AddEdge(1, 2, 100, null);
             graph.AddEdge(2, 1, 100, null);
-            graph.AddEdge(0, 2, 100, null, 3, new uint[] { 1 }, new uint[] { 1 });
-            graph.AddEdge(2, 0, 100, null, 3, new uint[] { 1 }, new uint[] { 1 });
-            witnessCalculator = new DykstraWitnessCalculator(graph, (v) => new uint[0][], int.MaxValue);
+            graph.AddEdge(0, 2, 100, null, 3, 1, 1);
+            graph.AddEdge(2, 0, 100, null, 3, 1, 1);
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, v) => false), int.MaxValue);
 
             // test 0
             info.Clear();
@@ -155,17 +156,16 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased.Contraction
             graph.AddEdge(1, 3, 100, null);
             graph.AddEdge(3, 1, 100, null);
             graph.Compress();
-            witnessCalculator = new DykstraWitnessCalculator(graph, (i) =>
+            witnessCalculator = new DykstraWitnessCalculator(graph, new RestrictionCollection((c, i) =>
             {
+                c.Clear();
                 if (i == 0 || i == 1 || i == 2)
                 {
-                    return new uint[][]
-                    {
-                            new uint[] { 0, 1, 2 }
-                    };
+                    c.Add(0, 1, 2);
+                    return true;
                 }
-                return null;
-            }, int.MaxValue);
+                return false;
+            }), int.MaxValue);
 
             // test 0
             info.Clear();

@@ -77,7 +77,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Adds or updates an edge.
         /// </summary>
-        public abstract void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, T weight, uint[] s1, uint[] s2);
+        public abstract void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, T weight, uint s1, uint s2);
 
         /// <summary>
         /// Gets the weight from a meta-edge.
@@ -317,7 +317,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Adds or updates and edge.
         /// </summary>
-        public override void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, Weight weight, uint[] s1, uint[] s2)
+        public override void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, Weight weight, uint s1, uint s2)
         {
             graph.AddOrUpdateEdge(vertex1, vertex2, weight.Value, weight.Distance, weight.Time, direction, contractedId, s1, s2);
         }
