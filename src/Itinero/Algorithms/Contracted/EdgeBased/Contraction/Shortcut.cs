@@ -46,17 +46,20 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// </summary>
         public void Update(WeightHandler<T> weightHandler, bool forward, bool backward, T weight)
         {
-            if (forward && (
-                weightHandler.GetMetric(this.Forward) == 0 || 
-                weightHandler.IsLargerThan(this.Forward, weight)))
+            if (weightHandler.GetMetric(weight) > 0)
             {
-                this.Forward = weight;
-            }
-            if (backward && (
-                weightHandler.GetMetric(this.Backward) == 0 || 
-                weightHandler.IsLargerThan(this.Backward, weight)))
-            {
-                this.Backward = weight;
+                if (forward && (
+                    weightHandler.GetMetric(this.Forward) == 0 ||
+                    weightHandler.IsLargerThan(this.Forward, weight)))
+                {
+                    this.Forward = weight;
+                }
+                if (backward && (
+                    weightHandler.GetMetric(this.Backward) == 0 ||
+                    weightHandler.IsLargerThan(this.Backward, weight)))
+                {
+                    this.Backward = weight;
+                }
             }
         }
 
@@ -65,16 +68,32 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// </summary>
         public void Update(WeightHandler<T> weightHandler, T weightForward, T weightBackward)
         {
-            if (weightHandler.GetMetric(this.Forward) == 0 ||
-                weightHandler.IsLargerThan(this.Forward, weightForward))
+            if (weightHandler.GetMetric(weightForward) > 0)
             {
-                this.Forward = weightForward;
+                if (weightHandler.GetMetric(this.Forward) == 0 ||
+                    weightHandler.IsLargerThan(this.Forward, weightForward))
+                {
+                    this.Forward = weightForward;
+                }
             }
-            if (weightHandler.GetMetric(this.Backward) == 0 ||
+            if (weightHandler.GetMetric(weightBackward) > 0)
+            {
+                if (weightHandler.GetMetric(this.Backward) == 0 ||
                 weightHandler.IsLargerThan(this.Backward, weightBackward))
-            {
-                this.Backward = weightBackward;
+                {
+                    this.Backward = weightBackward;
+                }
             }
+        }
+
+        /// <summary>
+        /// Gets a description of this schortcut.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0} {1}F {2}B", this.Edge.ToInvariantString(),
+                this.Forward.ToInvariantString(), this.Backward.ToInvariantString());
         }
     }
 }

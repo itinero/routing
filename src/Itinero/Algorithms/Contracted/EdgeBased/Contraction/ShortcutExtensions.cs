@@ -61,6 +61,29 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         }
 
         /// <summary>
+        /// Returns true if the given edge is a source.
+        /// </summary>
+        public static bool HasSource<T>(this Shortcuts<T>.Accessor shortcuts, OriginalEdge edge)
+            where T : struct
+        {
+            // check for existing source.
+            if (!shortcuts.HasSource ||
+                !shortcuts.Source.Equals(edge))
+            { // current is not the same source, search for one.
+                shortcuts.Reset();
+                while (shortcuts.MoveNextSource())
+                {
+                    if (shortcuts.Source.Equals(edge))
+                    {
+                        break;
+                    }
+                }
+                return shortcuts.HasSource;
+            }
+            return true;
+        }
+
+        /// <summary>
         /// Adds the given shortcut or updates the one in place.
         /// </summary>
         /// <typeparam name="T"></typeparam>

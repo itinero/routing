@@ -23,6 +23,7 @@ using System;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using System.Diagnostics;
+using Itinero.Algorithms.Collections;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 {
@@ -32,10 +33,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
     public class DykstraWitnessCalculator<T>
         where T : struct
     {
-        protected readonly BinaryHeap<SettledEdge> _heap;
+        protected readonly BinaryHeap<uint> _heap;
+        protected readonly BinaryHeap<SettledPath> _pathHeap;
         protected readonly WeightHandler<T> _weightHandler;
         protected readonly DirectedDynamicGraph _graph;
         protected readonly RestrictionCollection _restrictions;
+        protected readonly PathTree _tree;
 
         /// <summary>
         /// Creates a new witness calculator.
@@ -56,7 +59,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             _graph = graph;
             _restrictions = restrictions;
 
-            _heap = new BinaryHeap<SettledEdge>();
+            _heap = new BinaryHeap<uint>();
+            _pathHeap = new BinaryHeap<SettledPath>();
+            _tree = new PathTree();
             _maxSettles = maxSettles;
         }
 
@@ -164,15 +169,15 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var backwardSettled = new HashSet<EdgePath<T>>();
             var s = new List<uint>();
             var forwardSettled = new HashSet<EdgePath<T>>();
-            _heap.Clear();
-            _heap.Push(new SettledEdge(new EdgePath<T>(vertex, sourceWeight.Weight, new EdgePath<T>(turn.Vertex3)), 0,
+            _pathHeap.Clear();
+            _pathHeap.Push(new SettledPath(new EdgePath<T>(vertex, sourceWeight.Weight, new EdgePath<T>(turn.Vertex3)), 0,
                 sourceDirection.F, sourceDirection.B), 0);
             var edgeEnumerator = _graph.GetEdgeEnumerator();
 
             // keep looping until the queue is empty or the target is found!
-            while (_heap.Count > 0)
+            while (_pathHeap.Count > 0)
             { // pop the first customer.
-                var current = _heap.Pop();
+                var current = _pathHeap.Pop();
                 if (current.Hops + 1 >= hopLimit)
                 {
                     continue;
@@ -309,8 +314,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                             if (doNeighbourBackward || doNeighbourForward)
                             { // add to heap.
-                                var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
-                                _heap.Push(newSettle, _weightHandler.GetMetric(neighbourPath.Weight));
+                                var newSettle = new SettledPath(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
+                                _pathHeap.Push(newSettle, _weightHandler.GetMetric(neighbourPath.Weight));
                             }
                         }
                     }
@@ -362,7 +367,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             }
 
             // creates the priorty queue.
-            _heap.Clear();
+            _pathHeap.Clear();
 
             // add all neighbour edges of the source vertex that start with the source path.
             var edgeEnumerator = _graph.GetEdgeEnumerator();
@@ -404,13 +409,13 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 var doNeighbourBackward = neighbourWeight.Direction.B && _weightHandler.IsSmallerThanOrEqual(neighbourWeight.Weight, backwardMaxWeight) &&
                     !backwardSettled.Contains(neighbourOriginal);
 
-                _heap.Push(new SettledEdge(neighbourPath, 0, doNeighbourForward, doNeighbourBackward), _weightHandler.GetMetric(neighbourPath.Weight));
+                _pathHeap.Push(new SettledPath(neighbourPath, 0, doNeighbourForward, doNeighbourBackward), _weightHandler.GetMetric(neighbourPath.Weight));
             }
 
             // keep looping until the queue is empty or the target is found!
-            while (_heap.Count > 0)
+            while (_pathHeap.Count > 0)
             { // pop the first customer.
-                var current = _heap.Pop();
+                var current = _pathHeap.Pop();
                 if (current.Hops + 1 < _hopLimit)
                 {
                     var sequence = current.Path.GetSequence2(edgeEnumerator);
@@ -549,8 +554,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                             if (doNeighbourBackward || doNeighbourForward)
                             { // add to heap.
-                                var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
-                                _heap.Push(newSettle, _weightHandler.GetMetric(neighbourPath.Weight));
+                                var newSettle = new SettledPath(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
+                                _pathHeap.Push(newSettle, _weightHandler.GetMetric(neighbourPath.Weight));
                             }
                         }
                     }
@@ -589,16 +594,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         }
 
         /// <summary>
-        /// Represents a settled edge.
+        /// Represents a settled edge path.
         /// </summary>
-        protected class SettledEdge
+        protected class SettledPath
         {
             /// <summary>
             /// Creates a new settled edge.
             /// </summary>
-            public SettledEdge(EdgePath<T> edge, uint hops, bool forward, bool backward)
+            public SettledPath(EdgePath<T> path, uint hops, bool forward, bool backward)
             {
-                this.Path = edge;
+                this.Path = path;
                 this.Hops = hops;
                 this.Forward = forward;
                 this.Backward = backward;
@@ -656,9 +661,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         protected override void Calculate(uint vertex, Shortcuts<float>.Accessor sourceAccessor)
         {
             var source = sourceAccessor.Source;
+            _tree.Clear();
 
             // creates the settled list.
-            var s = new List<uint>();
             var backwardSettled = new HashSet<OriginalEdge>();
             var forwardSettled = new HashSet<OriginalEdge>();
             var backwardTargets = new HashSet<OriginalEdge>();
@@ -727,26 +732,25 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                 }
 
                 var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
-                var neighbourPath = new EdgePath<float>(neighbour, neighbourWeight.Weight, edgeEnumerator.IdDirected(),
-                    new EdgePath<float>(source.Vertex1));
+                var neighbourPath = _tree.AddSettledEdge(neighbourOriginal, neighbourWeight, 0, uint.MaxValue);
 
                 var doNeighbourForward = neighbourWeight.Direction.F && neighbourWeight.Weight <= forwardMaxWeight &&
                     !forwardSettled.Contains(neighbourOriginal);
                 var doNeighbourBackward = neighbourWeight.Direction.B && neighbourWeight.Weight <= backwardMaxWeight &&
                     !backwardSettled.Contains(neighbourOriginal);
 
-                _heap.Push(new SettledEdge(neighbourPath, 0, doNeighbourForward, doNeighbourBackward), neighbourPath.Weight);
+                _heap.Push(neighbourPath, neighbourWeight.Weight);
             }
 
             // keep looping until the queue is empty or the target is found!
             while (_heap.Count > 0)
             { // pop the first customer.
                 var current = _heap.Pop();
-                if (current.Hops + 1 < _hopLimit)
+                WeightAndDir<float> currentWeight;
+                uint currentHops;
+                var currentOriginal = _tree.GetSettledEdge(current, out currentWeight, out currentHops);
+                if (currentHops + 1 < _hopLimit)
                 {
-                    var sequence = current.Path.GetSequence2(edgeEnumerator);
-                    var currentOriginal = new OriginalEdge(sequence, current.Path.Vertex);
-                    
                     var forwardWasSettled = forwardSettled.Contains(currentOriginal);
                     var backwardWasSettled = backwardSettled.Contains(currentOriginal);
                     if (forwardWasSettled && backwardWasSettled)
@@ -755,7 +759,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     }
 
                     // check if one of the targets was matched.
-                    if (current.Forward)
+                    if (currentWeight.Direction.F)
                     { // this is a forward settle.
                         forwardSettled.Add(currentOriginal);
                         if (forwardTargets.Contains(currentOriginal))
@@ -767,7 +771,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                                 if (witness.Edge.Equals(currentOriginal))
                                 {
-                                    if (current.Path.Weight < witness.Forward)
+                                    if (currentWeight.Weight < witness.Forward)
                                     { // a better witness is found, update the path.
                                         witness.Forward = 0;
                                         sourceAccessor.Target = witness;
@@ -781,7 +785,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             }
                         }
                     }
-                    if (current.Backward)
+                    if (currentWeight.Direction.B)
                     { // this is a backward settle.
                         backwardSettled.Add(currentOriginal);
                         if (backwardTargets.Contains(currentOriginal))
@@ -792,7 +796,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                                 var witness = sourceAccessor.Target;
                                 if (witness.Edge.Equals(currentOriginal))
                                 {
-                                    if (current.Path.Weight < witness.Backward)
+                                    if (currentWeight.Weight < witness.Backward)
                                     { // a better witness is found, update the path.
                                         witness.Backward = 0;
                                         sourceAccessor.Target = witness;
@@ -819,16 +823,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                         break;
                     }
 
-                    var doForward = current.Forward && forwardTargets.Count > 0 && !forwardWasSettled;
-                    var doBackward = current.Backward && backwardTargets.Count > 0 && !backwardWasSettled;
+                    var doForward = currentWeight.Direction.F && forwardTargets.Count > 0 && !forwardWasSettled;
+                    var doBackward = currentWeight.Direction.B && backwardTargets.Count > 0 && !backwardWasSettled;
                     if (doForward || doBackward)
                     { // get the neighbours.
 
                         // check for a restriction and if need build the original sequence.
-                        _restrictions.Update(current.Path.Vertex);
+                        _restrictions.Update(currentOriginal.Vertex2);
 
                         // move to the current vertex.
-                        edgeEnumerator.MoveTo(current.Path.Vertex);
+                        edgeEnumerator.MoveTo(currentOriginal.Vertex2);
                         //uint neighbour, data0, data1;
                         while (edgeEnumerator.MoveNext())
                         { // move next.
@@ -839,9 +843,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             }
 
                             var neighbourTurn = new Turn(currentOriginal, neighbour);
+                            var neighbourOriginal = new OriginalEdge(currentOriginal.Vertex2, neighbour);
                             if (!edgeEnumerator.IsOriginal())
                             {
-                                neighbourTurn.Vertex3 = edgeEnumerator.GetSequence2();
+                                neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
+                                neighbourOriginal.Vertex1 = edgeEnumerator.GetSequence2();
                             }
                             if (neighbourTurn.IsUTurn)
                             {
@@ -849,11 +855,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                             }
 
                             var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
-                            var neighbourOriginal = new OriginalEdge(neighbourTurn.Vertex2, neighbourTurn.Vertex3);
-                            var totalNeighbourWeight = current.Path.Weight + neighbourWeight.Weight;
-                            var neighbourPath = new EdgePath<float>(neighbour, totalNeighbourWeight, edgeEnumerator.IdDirected(),
-                                current.Path);
-
+                            var totalNeighbourWeight = currentWeight.Weight + neighbourWeight.Weight;
                             var doNeighbourForward = doForward && neighbourWeight.Direction.F && totalNeighbourWeight <= forwardMaxWeight &&
                                 !forwardSettled.Contains(neighbourOriginal);
                             var doNeighbourBackward = doBackward && neighbourWeight.Direction.B && totalNeighbourWeight <= backwardMaxWeight &&
@@ -876,8 +878,12 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                             if (doNeighbourBackward || doNeighbourForward)
                             { // add to heap.
-                                var newSettle = new SettledEdge(neighbourPath, current.Hops + 1, doNeighbourForward, doNeighbourBackward);
-                                _heap.Push(newSettle, neighbourPath.Weight);
+                                var neighbourPath = _tree.AddSettledEdge(neighbourOriginal, new WeightAndDir<float>()
+                                {
+                                    Weight = totalNeighbourWeight,
+                                    Direction = new Dir(doNeighbourForward, doNeighbourBackward)
+                                }, currentHops + 1, current);
+                                _heap.Push(neighbourPath, totalNeighbourWeight);
                             }
                         }
                     }

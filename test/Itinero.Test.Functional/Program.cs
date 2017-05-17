@@ -60,8 +60,16 @@ namespace Itinero.Test.Functional
 
             //var networkJson = routerDb.GetGeoJson();
 
+            //ContractedDb contracted;
+            //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
+            //var graph = contracted.EdgeBasedGraph;
+
+            //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 2758);
+            //var contractedJson = graph.GetContractedEdgesAsGeoJson(routerDb, 2758);
+            ////edgeJson = graph.GetEdgesAsGeoJson(routerDb, 975);
+
             //var f1 = router.Db.Network.GetVertex(2758);
-            ////var f2 = router.Db.Network.GetVertex(550);
+            //var f2 = router.Db.Network.GetVertex(550);
 
             ////var route1 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(577)).Value.ToGeoJson();
             //var route2 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(579)).Value.ToGeoJson();
@@ -73,9 +81,6 @@ namespace Itinero.Test.Functional
             ////var route8 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(517)).Value.ToGeoJson();
             ////var route9 = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), router.Db.Network.GetVertex(2758), router.Db.Network.GetVertex(529)).Value.ToGeoJson();
 
-            //ContractedDb contracted;
-            //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
-            //var graph = contracted.EdgeBasedGraph;
 
             ////var vertexJson = graph.GetSearchSpaceAsGeoJson(routerDb, 979, true);
             //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 2758);
@@ -105,9 +110,9 @@ namespace Itinero.Test.Functional
             //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
+//#if DEBUG
             Console.ReadLine();
-#endif
+//#endif
         }
 
         private static string ToJson(FeatureCollection featureCollection)

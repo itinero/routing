@@ -42,8 +42,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly WeightHandler<T> _weightHandler;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
-        public static int MaxSettles = 1024;
-        public static int MaxHops = 4;
+        public static int MaxSettles = 65536;
+        public static int MaxHops = 8;
         
         /// <summary>
         /// Creates a new hierarchy builder.
@@ -201,6 +201,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// </summary>
         private void UpdateVertexInfo(uint v)
         {
+            if (v == 2758)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
+
             // update vertex info.
             _vertexInfo.Clear();
             _vertexInfo.Vertex = v;
@@ -293,6 +298,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         {
             var vertex = _vertexInfo.Vertex;
             var enumerator = _graph.GetEdgeEnumerator();
+
+            if (vertex == 2758)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
             
             // remove 'downward' edge to vertex.
             var i = 0;

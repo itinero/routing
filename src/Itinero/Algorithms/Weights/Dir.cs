@@ -27,7 +27,7 @@ namespace Itinero.Algorithms.Weights
         // 1: true, false.
         // 2: false, true.
         // 3: true, true
-        private byte _val;
+        internal byte _val;
 
         /// <summary>
         /// Creates a new direction.

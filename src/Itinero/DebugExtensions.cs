@@ -18,6 +18,102 @@ namespace Itinero
     public static class DebugExtensions
     {
         /// <summary>
+        /// Gets or sets a global routerdb.
+        /// </summary>
+        public static RouterDb RouterDb { get; set; }
+
+        /// <summary>
+        /// Gets the edges added as shortcuts because of the contraction of the given vertex.
+        /// </summary>
+        public static string GetContractedEdgesAsGeoJson(this DirectedDynamicGraph graph, RouterDb routerDb, uint vertex)
+        {
+            var writer = new StringWriter();
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            var contractedEdges = new HashSet<Tuple<OriginalEdge, OriginalEdge>>();
+            var edgeEnumerator = graph.GetEdgeEnumerator();
+            for(uint v = 0; v < graph.VertexCount; v++)
+            {
+                edgeEnumerator.MoveTo(v);
+                while (edgeEnumerator.MoveNext())
+                {
+                    if (!edgeEnumerator.IsOriginal())
+                    {
+                        var contracted = edgeEnumerator.GetContracted();
+                        if (contracted == vertex)
+                        {
+                            var s1 = edgeEnumerator.GetSequence1();
+                            var s2 = edgeEnumerator.GetSequence2();
+
+                            var source = new OriginalEdge(v, s1);
+                            var target = new OriginalEdge(s2, edgeEnumerator.Neighbour);
+                            
+                            contractedEdges.Add(new Tuple<OriginalEdge, OriginalEdge>(source, target));
+                        }
+                    }
+                }
+            }
+
+            routerDb.WriteVertex(jsonWriter, vertex);
+
+            foreach (var contracted in contractedEdges)
+            {
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Feature", true, false);
+                jsonWriter.WritePropertyName("geometry", false);
+
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "LineString", true, false);
+                jsonWriter.WritePropertyName("coordinates", false);
+                jsonWriter.WriteArrayOpen();
+
+                var coordinate = routerDb.Network.GetVertex(contracted.Item1.Vertex1);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                coordinate = routerDb.Network.GetVertex(contracted.Item1.Vertex2);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                coordinate = routerDb.Network.GetVertex(contracted.Item2.Vertex1);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                coordinate = routerDb.Network.GetVertex(contracted.Item2.Vertex2);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteClose();
+
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "contracted", true);
+                jsonWriter.WriteProperty("path", contracted.Item1.Vertex1.ToInvariantString() + "->" +
+                    contracted.Item1.Vertex2.ToInvariantString() + " ... " +
+                    contracted.Item2.Vertex1.ToInvariantString() + "->" +
+                    contracted.Item2.Vertex2.ToInvariantString(), true);
+                jsonWriter.WriteClose();
+
+                jsonWriter.WriteClose();
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            return writer.ToInvariantString();
+        }
+
+        /// <summary>
         /// Gets the edges of the given vertex and returns a geojson description of them.
         /// </summary>
         public static string GetEdgesAsGeoJson(this DirectedDynamicGraph graph, RouterDb routerDb, uint vertex)
