@@ -27,11 +27,11 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Gets or sets the weight.
         /// </summary>
-        public T Weight { get; set; }
+        public T Weight;
 
         /// <summary>
         /// Get or sets the direction flags.
         /// </summary>
-        public Dir Direction { get; set; }
+        public Dir Direction;
     }
 }

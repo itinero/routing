@@ -1,5 +1,7 @@
 ﻿using Itinero.Algorithms;
+using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.EdgeBased;
+using Itinero.Algorithms.Contracted.EdgeBased.Contraction;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
@@ -10,7 +12,7 @@ using System.IO;
 using System.Text;
 
 namespace Itinero
-{
+{ 
 #if DEBUG
     /// <summary>
     /// Contains some helper debug extensions.
@@ -23,10 +25,64 @@ namespace Itinero
         public static RouterDb RouterDb { get; set; }
 
         /// <summary>
+        /// Outputs a path string.
+        /// </summary>
+        public static string ToPathString(this PathTree tree, uint pointer)
+        {
+            var stringBuilder = new StringBuilder();
+
+            uint previous, hops;
+            OriginalEdge edge1;
+            OriginalEdge edge2;
+            WeightAndDir<float> weightAndDir;
+            while (pointer != uint.MaxValue)
+            {
+                tree.GetSettledEdge(pointer, out edge1, out edge2, out weightAndDir, out hops, out previous);
+                var hasPrevious = stringBuilder.Length > 0;
+                var edgeString = string.Format("{0}{1}{2}({3})", edge1.ToInvariantString(), weightAndDir.Direction.ToInvariantString(),
+                    edge2.ToInvariantString(), weightAndDir.Weight);
+                if (hasPrevious)
+                {
+                    stringBuilder.Insert(0, " -> ");
+                }
+                stringBuilder.Insert(0, edgeString);
+
+                pointer = previous;
+            }
+
+            return stringBuilder.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Writes out all shortcuts in the given shortcuts collection.
+        /// </summary>
+        public static string ToShortcutString<T>(this Shortcuts<T> shortcuts)
+            where T : struct
+        {
+            var stringBuilder = new StringBuilder();
+            var accessor = shortcuts.GetAccessor();
+            while (accessor.MoveNextSource())
+            {
+                while (accessor.MoveNextTarget())
+                {
+                    if (stringBuilder.Length > 0)
+                    {
+                        stringBuilder.Append(Environment.NewLine);
+                    }
+                    stringBuilder.Append(accessor.Source.ToInvariantString());
+                    stringBuilder.Append(" ---- ");
+                    stringBuilder.Append(accessor.Target.ToInvariantString());
+                }
+            }
+            return stringBuilder.ToInvariantString();
+        }
+
+        /// <summary>
         /// Gets the edges added as shortcuts because of the contraction of the given vertex.
         /// </summary>
         public static string GetContractedEdgesAsGeoJson(this DirectedDynamicGraph graph, RouterDb routerDb, uint vertex)
         {
+            var weightHandler = new DefaultWeightHandler(null);
             var writer = new StringWriter();
             var jsonWriter = new JsonWriter(writer);
             jsonWriter.WriteOpen();
@@ -34,7 +90,7 @@ namespace Itinero
             jsonWriter.WritePropertyName("features", false);
             jsonWriter.WriteArrayOpen();
 
-            var contractedEdges = new HashSet<Tuple<OriginalEdge, OriginalEdge>>();
+            var contractedEdges = new HashSet<Tuple<OriginalEdge, OriginalEdge, WeightAndDir<float>>>();
             var edgeEnumerator = graph.GetEdgeEnumerator();
             for(uint v = 0; v < graph.VertexCount; v++)
             {
@@ -51,8 +107,9 @@ namespace Itinero
 
                             var source = new OriginalEdge(v, s1);
                             var target = new OriginalEdge(s2, edgeEnumerator.Neighbour);
-                            
-                            contractedEdges.Add(new Tuple<OriginalEdge, OriginalEdge>(source, target));
+                            var weight = weightHandler.GetEdgeWeight(edgeEnumerator);
+
+                            contractedEdges.Add(new Tuple<OriginalEdge, OriginalEdge, WeightAndDir<float>>(source, target, weight));
                         }
                     }
                 }
@@ -102,6 +159,9 @@ namespace Itinero
                     contracted.Item1.Vertex2.ToInvariantString() + " ... " +
                     contracted.Item2.Vertex1.ToInvariantString() + "->" +
                     contracted.Item2.Vertex2.ToInvariantString(), true);
+                jsonWriter.WriteProperty("f", contracted.Item3.Direction.F.ToInvariantString(), true);
+                jsonWriter.WriteProperty("b", contracted.Item3.Direction.B.ToInvariantString(), true);
+                jsonWriter.WriteProperty("weight", contracted.Item3.Weight.ToInvariantString());
                 jsonWriter.WriteClose();
 
                 jsonWriter.WriteClose();

@@ -76,9 +76,20 @@ namespace Itinero.Graphs.Directed
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} -> {1}",
-                this.Data.ToInvariantString(),
-                this.Neighbour);
+            var weight = Itinero.Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(this.Data[0]);
+            if (Itinero.Algorithms.Contracted.EdgeBased.DirectedDynamicGraphExtensions.IsOriginal(this))
+            {
+                return string.Format("{0}{1} ({2})", weight.Direction.ToInvariantString(), this.Neighbour, weight.Weight.ToInvariantString());
+            }
+            else
+            {
+                var contractedId = Itinero.Algorithms.Contracted.EdgeBased.DirectedDynamicGraphExtensions.GetContracted(this);
+                var s1 = Itinero.Algorithms.Contracted.EdgeBased.DirectedDynamicGraphExtensions.GetSequence1(this);
+                var s2 = Itinero.Algorithms.Contracted.EdgeBased.DirectedDynamicGraphExtensions.GetSequence2(this);
+
+                return string.Format("[{0}]{1}[{2}]{3} ({4})", s1.ToInvariantString(), weight.Direction.ToInvariantString(), s2.ToInvariantString(),
+                    this.Neighbour, weight.Weight.ToInvariantString());
+            }
         }
     }
 }

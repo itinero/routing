@@ -117,7 +117,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                 // calculate and log progress.
                 var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
-                if (progress < 90)
+                if (progress < 99)
                 {
                     progress = (float)(System.Math.Floor(((double)current / (double)total) * 100) / 1.0);
                 }
@@ -201,11 +201,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// </summary>
         private void UpdateVertexInfo(uint v)
         {
-            if (v == 2758)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Empty);
-            }
-
             // update vertex info.
             _vertexInfo.Clear();
             _vertexInfo.Vertex = v;
@@ -299,11 +294,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var vertex = _vertexInfo.Vertex;
             var enumerator = _graph.GetEdgeEnumerator();
 
-            if (vertex == 2758)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Empty);
-            }
-            
+#if DEBUG
+            Itinero.Logging.Logger.Log("HierarchyBuilder.Contract", TraceEventType.Information, "Contracting {0}...", vertex);
+#endif
+
             // remove 'downward' edge to vertex.
             var i = 0;
             while (i < _vertexInfo.Count)
@@ -334,7 +328,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                     var forwardMetric = _weightHandler.GetMetric(shortcut.Forward);
                     var backwardMetric = _weightHandler.GetMetric(shortcut.Backward);
-
+                    
                     // TODO: come up with an allocation-free version of addorupdateedge.
                     if (forwardMetric > 0 && backwardMetric > 0 &&
                         System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)

@@ -29,29 +29,50 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         /// <summary>
         /// Adds a new settled edge.
         /// </summary>
-        public static uint AddSettledEdge(this PathTree tree, OriginalEdge edge, WeightAndDir<float> weightAndDir, uint hops, uint fromPointer)
+        public static uint AddSettledEdge(this PathTree tree, OriginalEdge edge1, OriginalEdge edge2, WeightAndDir<float> weightAndDir, uint hops, uint fromPointer)
         {
             var hopsAndDirection = hops * 4 + weightAndDir.Direction._val;
-            return tree.Add(edge, (uint)(weightAndDir.Weight * 10), hopsAndDirection, fromPointer);
+            return tree.Add(edge1.Vertex1, edge2.Vertex2, edge2.Vertex1, edge2.Vertex2, (uint)(weightAndDir.Weight * 10),
+                hopsAndDirection, fromPointer);
         }
 
         /// <summary>
         /// Gets a settled edge.
         /// </summary>
-        public static OriginalEdge GetSettledEdge(this PathTree tree, uint pointer, out WeightAndDir<float> weightAndDir, out uint hops)
+        public static void GetSettledEdge(this PathTree tree, uint pointer, out OriginalEdge edge1, out OriginalEdge edge2,
+            out WeightAndDir<float> weightAndDir, out uint hops, out uint previous)
         {
-            uint data0, data1;
-            var edge = tree.Get(pointer, out data0, out data1);
+            uint data0, data1, data2, data3, data4, data5, data6;
+            tree.Get(pointer, out data0, out data1, out data2, out data3, out data4, out data5, out data6);
+            edge1 = new OriginalEdge(data0, data1);
+            edge2 = new OriginalEdge(data2, data3);
+            previous = data6;
             weightAndDir = new WeightAndDir<float>()
             {
-                Weight = data0 / 10.0f,
+                Weight = data4 / 10.0f,
                 Direction = new Dir()
                 {
-                    _val = (byte)(data1 & 3)
+                    _val = (byte)(data5 & 3)
                 }
             };
-            hops = data1 / 4;
-            return edge;
+            hops = data5 / 4;
+        }
+        
+        /// <summary>
+        /// Gets a settled edge weight.
+        /// </summary>
+        public static WeightAndDir<float> GetSettledEdgeWeight(this PathTree tree, uint pointer)
+        {
+            uint data0, data1, data2, data3, data4, data5;
+            tree.Get(pointer, out data0, out data1, out data2, out data3, out data4, out data5);
+            return new WeightAndDir<float> ()
+            {
+                Weight = data4 / 10.0f,
+                Direction = new Dir()
+                {
+                    _val = (byte)(data5 & 3)
+                }
+            };
         }
     }
 }

@@ -58,11 +58,11 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            //var networkJson = routerDb.GetGeoJson();
+            var networkJson = routerDb.GetGeoJson();
 
-            //ContractedDb contracted;
-            //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
-            //var graph = contracted.EdgeBasedGraph;
+            ContractedDb contracted;
+            routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
+            var graph = contracted.EdgeBasedGraph;
 
             //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 2758);
             //var contractedJson = graph.GetContractedEdgesAsGeoJson(routerDb, 2758);
