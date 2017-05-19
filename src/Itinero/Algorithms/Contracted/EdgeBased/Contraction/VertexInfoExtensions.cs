@@ -132,28 +132,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     }
 
                     // add witness.
-                    if (shortcuts.HasSource(source))
-                    { // source already there, just add the target.
-                        shortcuts.AddOrUpdate(witness, weightHandler);
-                    }
-                    else
-                    { // source not there yet, check if the target is there already.
-                        var reversedTarget = new OriginalEdge(witness.Edge.Vertex2, witness.Edge.Vertex1);
-                        if (shortcuts.HasSource(reversedTarget))
-                        { // target is there, add the reverse.
-                            shortcuts.AddOrUpdate(new Shortcut<T>()
-                            {
-                                Backward = witness.Forward,
-                                Forward = witness.Backward,
-                                Edge = new OriginalEdge(source.Vertex2, source.Vertex1)
-                            }, weightHandler);
-                        }
-                        else
-                        { // both are new, add source->target as normal.
-                            shortcuts.AddSource(source);
-                            shortcuts.AddOrUpdate(witness, weightHandler);
-                        }
-                    }
+                    shortcuts.AddOrUpdate(source, witness, weightHandler);
                 }
             }
         }

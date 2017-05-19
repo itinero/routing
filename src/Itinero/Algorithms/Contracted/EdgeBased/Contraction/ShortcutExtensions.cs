@@ -61,9 +61,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         }
 
         /// <summary>
-        /// Returns true if the given edge is a source.
+        /// Returns true if the given edge is a source and moves the accessor to that source.
         /// </summary>
-        public static bool HasSource<T>(this Shortcuts<T>.Accessor shortcuts, OriginalEdge edge)
+        public static bool MoveToSource<T>(this Shortcuts<T>.Accessor shortcuts, OriginalEdge edge)
             where T : struct
         {
             // check for existing source.
@@ -82,34 +82,73 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             }
             return true;
         }
+        
+        /// <summary>
+        /// Returns true if the given edge is a target under the current source and moves the accessor tho that target.
+        /// </summary>
+        public static bool MoveToTarget<T>(this Shortcuts<T>.Accessor shortcuts, OriginalEdge edge)
+            where T : struct
+        {
+            // check for existing source.
+            if (!shortcuts.HasTarget ||
+                !shortcuts.Target.Equals(edge))
+            { // current is not the same source, search for one.
+                shortcuts.ResetTarget();
+                while (shortcuts.MoveNextTarget())
+                {
+                    if (shortcuts.Target.Edge.Equals(edge))
+                    {
+                        break;
+                    }
+                }
+                return shortcuts.HasTarget;
+            }
+            return true;
+        }
 
         /// <summary>
         /// Adds the given shortcut or updates the one in place.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public static void AddOrUpdate<T>(this Shortcuts<T>.Accessor shortcuts, Shortcut<T> shortcut, WeightHandler<T> weightHandler)
+        public static void AddOrUpdate<T>(this Shortcuts<T>.Accessor shortcuts, OriginalEdge source, Shortcut<T> shortcut, WeightHandler<T> weightHandler)
             where T : struct
         {
-            if (!shortcuts.HasTarget || 
-                !shortcuts.Target.Edge.Equals(shortcut.Edge))
+            // find shortcut source->target.
+            if (shortcuts.MoveToSource(source) &&
+                shortcuts.MoveToTarget(shortcut.Edge))
+            { // shortcut was found, update it.
+                var existing = shortcuts.Target;
+                existing.Update(weightHandler, shortcut.Forward, shortcut.Backward);
+                shortcuts.Target = existing;
+            }
+            else if(shortcuts.MoveToSource(shortcut.Edge.Reverse()) &&
+                    shortcuts.MoveToTarget(source.Reverse()))
+            { // reverse shortcut was found, update it.
+                var existing = shortcuts.Target;
+                existing.Update(weightHandler, shortcut.Backward, shortcut.Forward);
+                shortcuts.Target = existing;
+            }
+            else
             {
-                shortcuts.ResetTarget();
-                while (shortcuts.MoveNextTarget())
-                {
-                    if (shortcuts.Target.Edge.Equals(shortcut.Edge))
-                    {
-                        break;
-                    }
-                }
-                if (!shortcuts.HasTarget)
+                if (shortcuts.MoveToSource(source))
                 {
                     shortcuts.Add(shortcut);
-                    return;
+                }
+                else if(shortcuts.MoveToSource(shortcut.Edge.Reverse()))
+                {
+                    shortcuts.Add(new Shortcut<T>()
+                    {
+                        Backward = shortcut.Forward,
+                        Edge = source.Reverse(),
+                        Forward = shortcut.Backward
+                    });
+                }
+                else
+                {
+                    shortcuts.AddSource(source);
+                    shortcuts.Add(shortcut);
                 }
             }
-
-            var target = shortcuts.Target;
-            target.Update(weightHandler, shortcut.Forward, shortcut.Backward);
         }
     }
 }
