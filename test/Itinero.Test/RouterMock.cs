@@ -62,6 +62,11 @@ namespace Itinero.Test
             throw new System.NotImplementedException();
         }
 
+        public override Result<EdgePath<float>> TryCalculateRaw(IProfileInstance profileInstance, WeightHandler<float> weightHandler, RouterPoint source, RouterPoint target, RoutingSettings<float> settings)
+        {
+            throw new NotImplementedException();
+        }
+
         public override Result<EdgePath<T>> TryCalculateRaw<T>(Itinero.Profiles.IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, RoutingSettings<T> settings)
         {
             return new Result<EdgePath<T>>(new EdgePath<T>());

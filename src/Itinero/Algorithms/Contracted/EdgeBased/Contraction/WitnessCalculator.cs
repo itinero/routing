@@ -676,61 +676,72 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             {
                 var witness = sourceAccessor.Target;
 
-                //edgeEnumerator.MoveTo(witness.Edge.Vertex2);
-                //bool hasTargets = false;
-                //while (edgeEnumerator.MoveNext())
-                //{
-                //    var neighbour = edgeEnumerator.Neighbour;
-                //    OriginalEdge neighbourOriginal;
-                //    if (edgeEnumerator.IsOriginal())
-                //    {
-                //        if (neighbour == witness.Edge.Vertex1)
-                //        { // matches the actual target.
-                //            continue;
-                //        }
-                //        neighbourOriginal = new OriginalEdge(witness.Edge.Vertex2, neighbour);
-                //    }
-                //    else
-                //    {
-                //        var s1 = edgeEnumerator.GetSequence1();
-                //        if (s1 == witness.Edge.Vertex1 ||
-                //            s1 == vertex)
-                //        { // not an edge that matches the source.
-                //            continue;
-                //        }
-                //        neighbourOriginal = new OriginalEdge(witness.Edge.Vertex2, s1);
-                //    }
+                edgeEnumerator.MoveTo(witness.Edge.Vertex2);
+                bool hasForwardTargets = false;
+                bool hasBackwardTargets = false;
+                while (edgeEnumerator.MoveNext())
+                {
+                    var neighbour = edgeEnumerator.Neighbour;
+                    OriginalEdge neighbourOriginal;
+                    if (edgeEnumerator.IsOriginal())
+                    {
+                        if (neighbour == witness.Edge.Vertex1)
+                        { // matches the actual target.
+                            continue;
+                        }
+                        neighbourOriginal = new OriginalEdge(witness.Edge.Vertex2, neighbour);
+                    }
+                    else
+                    {
+                        var s1 = edgeEnumerator.GetSequence1();
+                        if (s1 == witness.Edge.Vertex1 ||
+                            s1 == vertex)
+                        { // matches the actual target.
+                            continue;
+                        }
+                        neighbourOriginal = new OriginalEdge(witness.Edge.Vertex2, s1);
+                    }
 
-                //    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
 
-                //    if (witness.Forward > 0 &&
-                //        neighbourWeight.Direction.F)
-                //    {
-                //        forwardTargets.Add(neighbourOriginal);
-                //        hasTargets = true;
-                //        if (witness.Forward > forwardMaxWeight)
-                //        {
-                //            forwardMaxWeight = witness.Forward;
-                //        }
-                //    }
-                //    if (witness.Backward > 0 &&
-                //        neighbourWeight.Direction.B)
-                //    {
-                //        backwardTargets.Add(neighbourOriginal);
-                //        hasTargets = true;
-                //        if (witness.Backward > backwardMaxWeight)
-                //        {
-                //            backwardMaxWeight = witness.Backward;
-                //        }
-                //    }
-                //}
+                    if (witness.Forward > 0 &&
+                        neighbourWeight.Direction.F)
+                    {
+                        //forwardTargets.Add(neighbourOriginal);
+                        hasForwardTargets = true;
+                        //if (witness.Forward > forwardMaxWeight)
+                        //{
+                        //    forwardMaxWeight = witness.Forward;
+                        //}
+                    }
+                    if (witness.Backward > 0 &&
+                        neighbourWeight.Direction.B)
+                    {
+                        //backwardTargets.Add(neighbourOriginal);
+                        hasBackwardTargets = true;
+                        //if (witness.Backward > backwardMaxWeight)
+                        //{
+                        //    backwardMaxWeight = witness.Backward;
+                        //}
+                    }
+                }
 
-                //if (!hasTargets)
-                //{
-                //    witness.Backward = 0;
-                //    witness.Forward = 0;
-                //    sourceAccessor.Target = witness;
-                //}
+                if (!hasForwardTargets && !hasBackwardTargets)
+                {
+                    witness.Backward = 0;
+                    witness.Forward = 0;
+                    sourceAccessor.Target = witness;
+                }
+                else if (!hasBackwardTargets)
+                {
+                    witness.Backward = 0;
+                    sourceAccessor.Target = witness;
+                }
+                else if (!hasForwardTargets)
+                {
+                    witness.Forward = 0;
+                    sourceAccessor.Target = witness;
+                }
 
                 if (witness.Forward > 0)
                 {
@@ -767,47 +778,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
             // queue all neighbour edges of the source vertex that don't start with the source path.
             edgeEnumerator.MoveTo(source.Vertex1);
+            bool hasNonSourceNeighbours = false;
             while (edgeEnumerator.MoveNext())
             { // move next.
-              //var neighbour = edgeEnumerator.Neighbour;
-              //OriginalEdge neighbourOriginal;
-              //if (edgeEnumerator.IsOriginal())
-              //{
-              //    if (neighbour == source.Vertex2)
-              //    { // not an edge that matches the source.
-              //        continue;
-              //    }
-              //    neighbourOriginal = new OriginalEdge(neighbour, source.Vertex1);
-              //}
-              //else
-              //{
-              //    var s1 = edgeEnumerator.GetSequence1();
-              //    if (s1 == source.Vertex2 ||
-              //        s1 == vertex)
-              //    { // not an edge that matches the source.
-              //        continue;
-              //    }
-              //    neighbourOriginal = new OriginalEdge(s1, source.Vertex1);
-              //}
-
-                //var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
-                //neighbourWeight.Direction.Reverse(); // reverse direction.
-                //neighbourWeight.Weight = 0; // assign no weight here, we need weight between source -> target.
-                //var neighbourPath = _tree.AddSettledEdge(neighbourOriginal, neighbourOriginal, 
-                //    neighbourWeight, 0, uint.MaxValue);
-
                 //_heap.Push(neighbourPath, neighbourWeight.Weight);
                 var neighbour = edgeEnumerator.Neighbour;
-                if (neighbour == vertex)
-                {
-                    continue;
-                }
-
                 OriginalEdge neighbourOriginal;
                 if (edgeEnumerator.IsOriginal())
                 {
                     if (neighbour != source.Vertex2)
                     { // not an edge that matches the source.
+                        hasNonSourceNeighbours = true;
                         continue;
                     }
                     neighbourOriginal = new OriginalEdge(source.Vertex1, source.Vertex2);
@@ -817,10 +798,16 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     var s1 = edgeEnumerator.GetSequence1();
                     if (s1 != source.Vertex2)
                     { // not an edge that matches the source.
+                        hasNonSourceNeighbours = true;
                         continue;
                     }
                     var s2 = edgeEnumerator.GetSequence2();
                     neighbourOriginal = new OriginalEdge(s2, neighbour);
+                }
+
+                if (neighbour == vertex)
+                {
+                    continue;
                 }
 
                 var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
@@ -832,6 +819,18 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     !backwardSettled.Contains(neighbourOriginal);
 
                 _heap.Push(neighbourPath, neighbourWeight.Weight);
+            }
+
+            if (!hasNonSourceNeighbours)
+            {
+                while (sourceAccessor.MoveNextTarget())
+                {
+                    var witness = sourceAccessor.Target;
+                    witness.Forward = 0;
+                    witness.Backward = 0;
+                    sourceAccessor.Target = witness;
+                }
+                return;
             }
 
             // keep looping until the queue is empty or the target is found!

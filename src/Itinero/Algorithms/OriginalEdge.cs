@@ -89,6 +89,15 @@ namespace Itinero.Algorithms
         }
 
         /// <summary>
+        /// Reverses this edge.
+        /// </summary>
+        /// <returns></returns>
+        public OriginalEdge Reverse()
+        {
+            return new OriginalEdge(this.Vertex2, this.Vertex1);
+        }
+
+        /// <summary>
         /// Returns a description.
         /// </summary>
         /// <returns></returns>

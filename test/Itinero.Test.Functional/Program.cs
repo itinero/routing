@@ -31,7 +31,7 @@ namespace Itinero.Test.Functional
     public class Program
     {
         private static Logger _logger;
-        
+
         public static void Main(string[] args)
         {
             // enable logging.
@@ -44,7 +44,7 @@ namespace Itinero.Test.Functional
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
             _logger = new Logger("Default");
-            
+
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 
 #if DEBUG
@@ -58,11 +58,11 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            var networkJson = routerDb.GetGeoJson();
+            //var networkJson = routerDb.GetGeoJson();
 
-            ContractedDb contracted;
-            routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
-            var graph = contracted.EdgeBasedGraph;
+            //ContractedDb contracted;
+            //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);
+            //var graph = contracted.EdgeBasedGraph;
 
             //var edgeJson = graph.GetEdgesAsGeoJson(routerDb, 2758);
             //var contractedJson = graph.GetContractedEdgesAsGeoJson(routerDb, 2758);
@@ -96,11 +96,11 @@ namespace Itinero.Test.Functional
             //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.51588234658069f, 5.973671078681946f));
             //routeJson = route.ToGeoJson();
 
-            //// test resolving.
-            //ResolvingTests.Run(routerDb);
+            ////// test resolving.
+            ////ResolvingTests.Run(routerDb);
 
-            //// test routing.
-            //RoutingTests.Run(routerDb);
+            ////// test routing.
+            RoutingTests.Run(routerDb);
             //RoutingTests.RunFictional();
 
             //// tests calculate weight matrices.
@@ -110,9 +110,9 @@ namespace Itinero.Test.Functional
             //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-//#if DEBUG
+            //#if DEBUG
             Console.ReadLine();
-//#endif
+            //#endif
         }
 
         private static string ToJson(FeatureCollection featureCollection)

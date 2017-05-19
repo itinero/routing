@@ -38,7 +38,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         private readonly DykstraWitnessCalculator<T> _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
         private readonly RestrictionCollection _restrictions;
-        public const float E = 0.1f;
+        public const float E = .1f;
         private readonly WeightHandler<T> _weightHandler;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
@@ -54,6 +54,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
         {
 
         }
+
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
@@ -114,13 +115,23 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
                 // ... and select next.
                 next = this.SelectNext();
-
+                
                 // calculate and log progress.
                 var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
                 if (progress < 99)
                 {
                     progress = (float)(System.Math.Floor(((double)current / (double)total) * 100) / 1.0);
                 }
+                else
+                { // test stopping contraction at a given point.
+                    //return;
+                }
+
+                if (progress > 95)
+                {
+                    return;
+                }
+
                 if (progress != latestProgress)
                 {
                     latestProgress = progress;
@@ -329,7 +340,6 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     var forwardMetric = _weightHandler.GetMetric(shortcut.Forward);
                     var backwardMetric = _weightHandler.GetMetric(shortcut.Backward);
                     
-                    // TODO: come up with an allocation-free version of addorupdateedge.
                     if (forwardMetric > 0 && backwardMetric > 0 &&
                         System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)
                     { // forward and backward and identical weights.

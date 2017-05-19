@@ -41,10 +41,10 @@ namespace Itinero.Test.Functional.Tests
 
             // just test some random routes.
             GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 250).TestPerf("Testing random routes");
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 250).TestPerf("Testing random routes in parallel");
+            //GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 250).TestPerf("Testing random routes in parallel");
 
-            // tests many-to-many route calculation.
-            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 50).TestPerf("Testing calculating manytomany routes");
+            //// tests many-to-many route calculation.
+            //GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 50).TestPerf("Testing calculating manytomany routes");
         }
 
         /// <summary>
@@ -91,6 +91,12 @@ namespace Itinero.Test.Functional.Tests
                     {
                         errors++;
                     }
+#if DEBUG
+                    else
+                    {
+                        var geoJson = route.Value.ToGeoJson();
+                    }
+#endif
                 }
 
                 Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
