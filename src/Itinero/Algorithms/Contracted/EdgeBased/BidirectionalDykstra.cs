@@ -35,8 +35,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private readonly DirectedDynamicGraph _graph;
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly IEnumerable<EdgePath<T>> _targets;
-        private readonly RestrictionCollection _restrictions;
-        private readonly WeightHandler<T> _weightHandler;
+        protected readonly RestrictionCollection _restrictions;
+        protected readonly WeightHandler<T> _weightHandler;
  
         /// <summary>
         /// Creates a new contracted bidirectional router.
@@ -60,10 +60,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         }
 
         private Tuple<EdgePath<T>, EdgePath<T>, T> _best;
-        private Dictionary<uint, LinkedEdgePath> _forwardVisits;
-        private Dictionary<uint, LinkedEdgePath> _backwardVisits;
-        private BinaryHeap<EdgePath<T>> _forwardQueue;
-        private BinaryHeap<EdgePath<T>> _backwardQueue;
+        protected Dictionary<uint, LinkedEdgePath> _forwardVisits;
+        protected Dictionary<uint, LinkedEdgePath> _backwardVisits;
+        protected BinaryHeap<EdgePath<T>> _forwardQueue;
+        protected BinaryHeap<EdgePath<T>> _backwardQueue;
 
         /// <summary>
         /// Executes the actual run.
@@ -167,6 +167,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                     if (finalTurn.IsUTurn ||
                                         finalTurn.IsRestrictedBy(_restrictions))
                                     {
+                                        backwardPath = backwardPath.Next;
                                         continue;
                                     }
 
@@ -273,7 +274,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
+        protected virtual void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
         {
             if (current != null)
             { // there is a next vertex found.
@@ -323,7 +324,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search backward from one vertex.
         /// </summary>
         /// <returns></returns>
-        private void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
+        protected virtual void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
         {
             if (current != null)
             { // there is a next vertex found.
@@ -454,7 +455,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             return vertices;
         }
         
-        private class LinkedEdgePath
+        protected class LinkedEdgePath
         {
             public EdgePath<T> Path { get; set; }
             public LinkedEdgePath Next { get; set; }
@@ -503,6 +504,105 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             : base(graph, new DefaultWeightHandler(null), sources, targets, restrictions)
         {
 
+        }
+
+        /// <summary>
+        /// Search forward from one vertex.
+        /// </summary>
+        /// <returns></returns>
+        protected override void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<float> current)
+        {
+            if (current != null)
+            { // there is a next vertex found.
+                // get the edge enumerator.
+                var currentS2 = current.GetSequence2(edgeEnumerator);
+                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
+
+                // get neighbours.
+                edgeEnumerator.MoveTo(current.Vertex);
+
+                // add the neighbours to the queue.
+                while (edgeEnumerator.MoveNext())
+                {
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
+
+                    if (neighbourWeight.Direction.F)
+                    { // the edge is forward, and is to higher or was not contracted at all.
+                        var neighbourNeighbour = edgeEnumerator.Neighbour;
+                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
+                        if (!edgeEnumerator.IsOriginal())
+                        { // not an original edge, use the sequence.
+                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
+                        }
+
+                        // check u-turns and restrictions.
+                        if (neighbourTurn.IsUTurn ||
+                            neighbourTurn.IsRestrictedBy(_restrictions))
+                        {
+                            continue;
+                        }
+
+                        // build route to neighbour and check if it has been visited already.
+                        var routeToNeighbour = new EdgePath<float>(
+                            neighbourNeighbour, current.Weight + neighbourWeight.Weight, edgeEnumerator.IdDirected(), current);
+                        LinkedEdgePath edgePath = null;
+                        if (!_forwardVisits.TryGetValue(current.Vertex, out edgePath) ||
+                            !edgePath.HasPath(routeToNeighbour))
+                        { // this vertex has not been visited in this way before.
+                            _forwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
+                        }
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Search backward from one vertex.
+        /// </summary>
+        /// <returns></returns>
+        protected override void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<float> current)
+        {
+            if (current != null)
+            { // there is a next vertex found.
+                // get the edge enumerator.
+                var currentS2 = current.GetSequence2(edgeEnumerator);
+                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
+
+                // get neighbours.
+                edgeEnumerator.MoveTo(current.Vertex);
+
+                // add the neighbours to the queue.
+                while (edgeEnumerator.MoveNext())
+                {
+                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
+                    if (neighbourWeight.Direction.B)
+                    { // the edge is forward, and is to higher or was not contracted at all.
+                        var neighbourNeighbour = edgeEnumerator.Neighbour;
+                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
+                        if (!edgeEnumerator.IsOriginal())
+                        { // not an original edge, use the sequence.
+                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
+                        }
+
+                        neighbourTurn.Reverse(); // this is a backward search!
+                        if (neighbourTurn.IsUTurn ||
+                            neighbourTurn.IsRestrictedBy(_restrictions))
+                        { // don't do u-turns!
+                            continue;
+                        }
+
+                        // build route to neighbour and check if it has been visited already.
+                        var routeToNeighbour = new EdgePath<float>(
+                            neighbourNeighbour, current.Weight + neighbourWeight.Weight, edgeEnumerator.IdDirected(), current);
+                        LinkedEdgePath edgePath = null;
+                        if (!_backwardVisits.TryGetValue(current.Vertex, out edgePath) ||
+                            !edgePath.HasPath(routeToNeighbour))
+                        { // this vertex has not been visited in this way before.
+                            _backwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
+                        }
+                    }
+                }
+            }
         }
     }
 }

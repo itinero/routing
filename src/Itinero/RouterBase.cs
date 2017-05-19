@@ -70,6 +70,13 @@ namespace Itinero
             RoutingSettings<T> settings = null) where T : struct;
 
         /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public abstract Result<EdgePath<float>> TryCalculateRaw(IProfileInstance profileInstance, WeightHandler<float> weightHandler, RouterPoint source, RouterPoint target,
+            RoutingSettings<float> settings);
+
+        /// <summary>
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>

@@ -700,7 +700,7 @@ namespace Itinero
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target)
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
-            var path = router.TryCalculateRaw(profile, weightHandler, source, target);
+            var path = router.TryCalculateRaw(profile, weightHandler, source, target, null);
             if (path.IsError)
             {
                 return path.ConvertError<Route>();

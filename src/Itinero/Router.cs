@@ -205,6 +205,183 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
+        public sealed override Result<EdgePath<float>> TryCalculateRaw(IProfileInstance profileInstance, WeightHandler<float> weightHandler, RouterPoint source, RouterPoint target,
+            RoutingSettings<float> settings)
+        {
+            try
+            {
+                if (!_db.Supports(profileInstance.Profile))
+                {
+                    return new Result<EdgePath<float>>("Routing profile is not supported.", (message) =>
+                    {
+                        return new Exception(message);
+                    });
+                }
+
+                var maxSearch = weightHandler.Infinite;
+                if (settings != null)
+                {
+                    if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
+                    {
+                        maxSearch = weightHandler.Infinite;
+                    }
+                }
+
+                ContractedDb contracted;
+
+                bool useContracted = false;
+                if (_db.TryGetContracted(profileInstance.Profile, out contracted))
+                { // contracted calculation.
+                    useContracted = true;
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
+                    { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
+                        Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                            "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
+                        useContracted = false;
+                    }
+                }
+
+                EdgePath<float> path = null;
+                if (source.EdgeId == target.EdgeId)
+                { // check for a path on the same edge.
+                    var edgePath = source.EdgePathTo(_db, weightHandler, target);
+                    if (edgePath != null)
+                    {
+                        path = edgePath;
+                    }
+                }
+
+                if (useContracted)
+                {  // use the contracted graph.
+                    List<uint> vertexPath = null;
+
+                    if (!contracted.HasEdgeBasedGraph)
+                    { // use node-based routing.
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<float>(contracted.NodeBasedGraph, weightHandler,
+                            source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
+                        bidirectionalSearch.Run();
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            if (path == null)
+                            {
+                                return new Result<EdgePath<float>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
+                        }
+                        else
+                        {
+                            vertexPath = bidirectionalSearch.GetPath();
+                        }
+                    }
+                    else
+                    { // use edge-based routing.
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra(contracted.EdgeBasedGraph,
+                            source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetRestrictions(profileInstance.Profile));
+                        bidirectionalSearch.Run();
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            if (path == null)
+                            {
+                                return new Result<EdgePath<float>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
+                        }
+                        else
+                        {
+                            vertexPath = bidirectionalSearch.GetPath();
+                        }
+                    }
+
+                    // expand vertex path using the regular graph.
+                    if (vertexPath != null)
+                    {
+                        var localPath = _db.BuildEdgePath(weightHandler, source, target, vertexPath);
+                        if (path == null ||
+                            weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
+                        {
+                            path = localPath;
+                        }
+                    }
+                }
+                else
+                { // use the regular graph.
+                    EdgePath<float> localPath = null;
+
+                    if (_db.HasComplexRestrictions(profileInstance.Profile))
+                    {
+                        var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<float>(_db.Network.GeometricGraph.Graph, weightHandler,
+                            _db.GetGetRestrictions(profileInstance.Profile, true), source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
+                        var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<float>(_db.Network.GeometricGraph.Graph, weightHandler,
+                            _db.GetGetRestrictions(profileInstance.Profile, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
+
+                        var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<float>(sourceSearch, targetSearch, weightHandler);
+                        bidirectionalSearch.Run();
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            if (path == null)
+                            {
+                                return new Result<EdgePath<float>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
+                        }
+                        else
+                        {
+                            localPath = bidirectionalSearch.GetPath();
+                        }
+                    }
+                    else
+                    {
+                        var sourceSearch = new Dykstra<float>(_db.Network.GeometricGraph.Graph, null, weightHandler,
+                            source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
+                        var targetSearch = new Dykstra<float>(_db.Network.GeometricGraph.Graph, null, weightHandler,
+                            target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
+
+                        var bidirectionalSearch = new BidirectionalDykstra<float>(sourceSearch, targetSearch, weightHandler);
+                        bidirectionalSearch.Run();
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            if (path == null)
+                            {
+                                return new Result<EdgePath<float>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
+                        }
+                        else
+                        {
+                            localPath = bidirectionalSearch.GetPath();
+                        }
+                    }
+
+                    // choose best path.
+                    if (localPath != null)
+                    {
+                        if (path == null ||
+                            weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
+                        {
+                            path = localPath;
+                        }
+                    }
+                }
+                return new Result<EdgePath<float>>(path);
+            }
+            catch (Exception ex)
+            {
+                return new Result<EdgePath<float>>(ex.Message, (m) => ex);
+            }
+        }
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
             RoutingSettings<T> settings)
         {
