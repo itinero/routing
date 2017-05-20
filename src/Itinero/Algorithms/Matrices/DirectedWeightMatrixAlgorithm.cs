@@ -148,7 +148,7 @@ namespace Itinero.Algorithms.Matrices
                 }
 
                 // make sure paths are the opposive of the sources.
-                if (paths[0].Edge == _sourcePaths[i * 2 + 0].Edge)
+                if (paths[0].Edge.Raw == _sourcePaths[i * 2 + 0].Edge.Raw)
                 { // switchs.
                     _targetPaths[i * 2 + 1] = paths[0];
                     if (paths.Length == 2)
@@ -184,7 +184,7 @@ namespace Itinero.Algorithms.Matrices
                         continue;
                     }
 
-                    if (target.Edge == -source.Edge)
+                    if (target.Edge == source.Edge.Reverse)
                     {
                         var s = i / 2;
                         var t = j / 2;
@@ -192,12 +192,12 @@ namespace Itinero.Algorithms.Matrices
                         var targetPoint = _correctedResolvedPoints[t];
 
                         EdgePath<T> newPath = null;
-                        if (source.Edge > 0 &&
+                        if (source.Edge.Forward &&
                             sourcePoint.Offset <= targetPoint.Offset)
                         {
                             newPath = sourcePoint.EdgePathTo(_router.Db, _weightHandler, targetPoint);
                         }
-                        else if (source.Edge < 0 &&
+                        else if (!source.Edge.Forward &&
                             sourcePoint.Offset >= targetPoint.Offset)
                         {
                             newPath = sourcePoint.EdgePathTo(_router.Db, _weightHandler, targetPoint);

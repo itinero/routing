@@ -355,7 +355,7 @@ namespace Itinero.Test.Algorithms
                 var w1 = path.From.Weight;
                 var w2 = path.Weight;
                 var e = path.Edge;
-                var edge = graph.GetEdge(e);
+                var edge = graph.GetEdge(e.EdgeId);
                 float l;
                 ushort p;
                 Itinero.Data.Edges.EdgeDataSerializer.Deserialize(edge.Data[0], out l, out p);

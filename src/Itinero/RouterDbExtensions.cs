@@ -444,7 +444,7 @@ namespace Itinero
                 }
                 T weight;
                 var best = edgeEnumerator.FindBestEdge(weightHandler, path.Vertex, vertexPath[i], out weight);
-                if (best == Constants.NO_EDGE)
+                if (best == DirectedEdgeId.NO_EDGE)
                 {
                     throw new Exception(string.Format("Cannot build vertex path, edge {0} -> {1} not found.", path.Vertex, vertexPath[i]));
                 }
@@ -664,13 +664,13 @@ namespace Itinero
                 {
                     return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
                 }
-                return new EdgePath<T>(edge.From, weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
+                return new EdgePath<T>(edge.From, weight, edge.IdDirected().Reverse, new EdgePath<T>(edge.To));
             }
             else
             {
                 if (edgeForward)
                 {
-                    return new EdgePath<T>(edge.From, weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
+                    return new EdgePath<T>(edge.From, weight, edge.IdDirected().Reverse, new EdgePath<T>(edge.To));
                 }
                 return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
             }

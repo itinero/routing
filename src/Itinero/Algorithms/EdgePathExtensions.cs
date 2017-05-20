@@ -39,7 +39,7 @@ namespace Itinero.Algorithms
             while(reversePath.From != null)
             {
                 var localWeight = reversePath.Weight - reversePath.From.Weight;
-                path = new EdgePath<float>(reversePath.From.Vertex, path.Weight + localWeight, -reversePath.Edge, path);
+                path = new EdgePath<float>(reversePath.From.Vertex, path.Weight + localWeight, reversePath.Edge.Reverse, path);
                 reversePath = reversePath.From;
             }
             return path;
@@ -59,7 +59,7 @@ namespace Itinero.Algorithms
             while (reversePath.From != null)
             {
                 var localWeight = weightHandler.Subtract(reversePath.Weight, reversePath.From.Weight);
-                path = new EdgePath<T>(reversePath.From.Vertex, weightHandler.Add(path.Weight, localWeight), -reversePath.Edge, path);
+                path = new EdgePath<T>(reversePath.From.Vertex, weightHandler.Add(path.Weight, localWeight), reversePath.Edge.Reverse, path);
                 reversePath = reversePath.From;
             }
             return path;
@@ -155,9 +155,9 @@ namespace Itinero.Algorithms
         {
             while(path != null)
             {
-                if (path.Edge != Constants.NO_EDGE)
+                if (!path.Edge.IsNoEdge)
                 {
-                    path.Edge = Constants.NO_EDGE;
+                    path.Edge = DirectedEdgeId.NO_EDGE;
                 }
                 path = path.From;
             }

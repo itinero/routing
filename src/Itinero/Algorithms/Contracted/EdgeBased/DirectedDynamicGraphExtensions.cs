@@ -56,22 +56,17 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// - 0 -> 1 forward, -1 backward.
         /// - all other id's are offset by 1 and postive when forward, negative when backward.
         /// </remarks>
-        public static long IdDirected(this DynamicEdge edge)
+        public static DirectedEdgeId IdDirected(this DynamicEdge edge)
         {
-            return (edge.Id + 1);
+            return new DirectedEdgeId(edge.Id, true);
         }
 
         /// <summary>
-        /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
-        /// </summary>
-        /// <remarks>
-        /// The relationship between a regular edge id and a directed edge id:
-        /// - 0 -> 1 forward, -1 backward.
-        /// - all other id's are offset by 1 and postive when forward, negative when backward.
-        /// </remarks>
-        public static long IdDirected(this DirectedDynamicGraph.EdgeEnumerator enumerator)
+        /// Returns a directed version of the edge-id.
+        /// </summary
+        public static DirectedEdgeId IdDirected(this DirectedDynamicGraph.EdgeEnumerator enumerator)
         {
-            return (enumerator.Id + 1);
+            return new DirectedEdgeId(enumerator.Id, true);
         }
 
         /// <summary>
@@ -1115,7 +1110,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             bool? direction;
                             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                 out weight, out direction);
-                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected().Reverse, path);
                         }
                     }
                     return path;
@@ -1141,7 +1136,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 bool? direction;
                                 ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                     out weight, out direction);
-                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected().Reverse, path);
                             }
                         }
                     }
@@ -1169,7 +1164,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                             bool? direction;
                             ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                 out weight, out direction);
-                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                            path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected().Reverse, path);
                         }
                     }
                     return path;
@@ -1195,7 +1190,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                                 bool? direction;
                                 ContractedEdgeDataSerializer.Deserialize(enumerator.Data[0],
                                     out weight, out direction);
-                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, -enumerator.IdDirected(), path);
+                                path = new EdgePath<float>(originalPath[i], weight + path.Weight, enumerator.IdDirected().Reverse, path);
                             }
                         }
                     }

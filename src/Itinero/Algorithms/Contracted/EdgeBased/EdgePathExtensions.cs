@@ -62,11 +62,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         private static EdgePath<T> ExpandLast<T>(this EdgePath<T> edgePath, DirectedDynamicGraph.EdgeEnumerator enumerator, WeightHandler<T> weightHandler, bool direction)
             where T : struct
         {
-            if (edgePath.Edge != Constants.NO_EDGE &&
+            if (edgePath.Edge != DirectedEdgeId.NO_EDGE &&
                 edgePath.From != null &&
                 edgePath.From.Vertex != Constants.NO_VERTEX)
             {
-                enumerator.MoveToEdge((uint)edgePath.Edge);
+                enumerator.MoveToEdge(edgePath.Edge.EdgeId);
                 var contractedId = enumerator.GetContracted();
                 if (contractedId.HasValue)
                 { // there is a contracted vertex here!
@@ -96,7 +96,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         throw new Exception(string.Format("Edge between {0} -> {1} with sequence {2} could not be found.",
                             contractedId.Value, edgePath.From.Vertex, sequence1.ToInvariantString()));
                     }
-                    var edge1 = enumerator.Id;
+                    var edge1 = enumerator.IdDirected();
 
                     // move to the second edge (contracted -> to vertex) and keep details.
                     T weight2;
@@ -105,7 +105,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         throw new Exception(string.Format("Edge between {0} -> {1} with sequence {2} could not be found.",
                             contractedId.Value, edgePath.Vertex, sequence2.ToInvariantString()));
                     }
-                    var edge2 = enumerator.Id;
+                    var edge2 = enumerator.IdDirected();
 
                     var contractedPath = new EdgePath<T>(contractedId.Value, weightHandler.Add(edgePath.From.Weight, weight1), edge1, edgePath.From);
                     contractedPath = contractedPath.ExpandLast(enumerator, weightHandler, direction);
@@ -176,11 +176,11 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             { // when there is no previous vertex this is not an edge.
                 throw new ArgumentException("The path is not an edge, cannot decide about originality.");
             }
-            if (path.Edge == Constants.NO_EDGE)
+            if (path.Edge == DirectedEdgeId.NO_EDGE)
             { // when there is no edge info, edge has to be original otherwise the info can never be recovered.
                 return true;
             }
-            enumerator.MoveToEdge((uint)path.Edge);
+            enumerator.MoveToEdge(path.Edge.EdgeId);
             if (enumerator.IsOriginal())
             { // ok, edge is original.
                 return true;

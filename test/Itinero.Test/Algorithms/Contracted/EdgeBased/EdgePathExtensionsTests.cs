@@ -49,11 +49,11 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // build and test getting sequences from paths.
             Assert.AreEqual(Constants.NO_VERTEX, (new EdgePath<float>(0)).GetSequence2(enumerator));
             Assert.AreEqual(0, (new EdgePath<float>(1, 100, new EdgePath<float>(0))).GetSequence2(enumerator));
-            Assert.AreEqual(1, (new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)))).GetSequence2(enumerator));
-            Assert.AreEqual(5, (new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0))))).GetSequence2(enumerator));
-            Assert.AreEqual(15, (new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)))))).GetSequence2(enumerator));
-            Assert.AreEqual(16, (new EdgePath<float>(17, 500, new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0))))))).GetSequence2(enumerator));
-            Assert.AreEqual(17, (new EdgePath<float>(18, 600, new EdgePath<float>(17, 500, new EdgePath<float>(16, 400, e4 + 1, new EdgePath<float>(6, 300, e3 + 1, new EdgePath<float>(2, 200, e2 + 1, new EdgePath<float>(1, 100, new EdgePath<float>(0)))))))).GetSequence2(enumerator));
+            Assert.AreEqual(1, (new EdgePath<float>(2, 200, new DirectedEdgeId(e2, true), new EdgePath<float>(1, 100, new EdgePath<float>(0)))).GetSequence2(enumerator));
+            Assert.AreEqual(5, (new EdgePath<float>(6, 300, new DirectedEdgeId(e3, true), new EdgePath<float>(2, 200, new DirectedEdgeId(e2, true), new EdgePath<float>(1, 100, new EdgePath<float>(0))))).GetSequence2(enumerator));
+            Assert.AreEqual(15, (new EdgePath<float>(16, 400, new DirectedEdgeId(e4, true), new EdgePath<float>(6, 300, new DirectedEdgeId(e3, true), new EdgePath<float>(2, 200, new DirectedEdgeId(e2, true), new EdgePath<float>(1, 100, new EdgePath<float>(0)))))).GetSequence2(enumerator));
+            Assert.AreEqual(16, (new EdgePath<float>(17, 500, new EdgePath<float>(16, 400, new DirectedEdgeId(e4, true), new EdgePath<float>(6, 300, new DirectedEdgeId(e3, true), new EdgePath<float>(2, 200, new DirectedEdgeId(e2, true), new EdgePath<float>(1, 100, new EdgePath<float>(0))))))).GetSequence2(enumerator));
+            Assert.AreEqual(17, (new EdgePath<float>(18, 600, new EdgePath<float>(17, 500, new EdgePath<float>(16, 400, new DirectedEdgeId(e4, true), new EdgePath<float>(6, 300, new DirectedEdgeId(e3, true), new EdgePath<float>(2, 200, new DirectedEdgeId(e2, true), new EdgePath<float>(1, 100, new EdgePath<float>(0)))))))).GetSequence2(enumerator));
         }
     }
 }

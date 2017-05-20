@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             {
                 var e = path.Edge;
                 var weight2 = path.Weight;
-                if (e == Constants.NO_EDGE)
+                if (e.IsNoEdge)
                 {
                     return false;
                 }
@@ -67,28 +67,12 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
                 if (path.From != null)
                 {
                     weight1 = path.From.Weight;
-                    if (path.From.Edge > 0)
-                    {
-                        previousEdgeId = (uint)path.From.Edge - 1;
-                    }
-                    else
-                    {
-                        previousEdgeId = (uint)((-path.From.Edge) - 1);
-                    }
+                    previousEdgeId = path.From.Edge.EdgeId;
                 }
                 
-                uint edgeId;
-                if (e > 0)
-                {
-                    edgeId = (uint)e - 1;
-                }
-                else
-                {
-                    edgeId = (uint)((-e) - 1);
-                }
-                var edge = _graph.GetEdge(edgeId);
+                var edge = _graph.GetEdge(e.EdgeId);
                 var shape = _graph.GetShape(edge);
-                if (e < 0)
+                if (!e.Forward)
                 {
                     shape.Reverse();
                 }
@@ -103,7 +87,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
 
                 var treeEdge = new TreeEdge()
                 {
-                    EdgeId = edgeId,
+                    EdgeId = e.EdgeId,
                     PreviousEdgeId = previousEdgeId,
                     Shape = shapeArray,
                     Weight1 = weight1,

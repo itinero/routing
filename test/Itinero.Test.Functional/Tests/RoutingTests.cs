@@ -92,13 +92,13 @@ namespace Itinero.Test.Functional.Tests
                     {
                         errors++;
                     }
-                    Console.WriteLine("Done!");
 #if DEBUG
                     else
                     {
                         var geoJson = route.Value.ToGeoJson();
                     }
 #endif
+                    Console.WriteLine("Done!");
                 }
 
                 Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);

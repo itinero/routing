@@ -20,6 +20,7 @@ using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
+using Itinero.Algorithms;
 
 namespace Itinero.Data.Network
 {
@@ -229,13 +230,9 @@ namespace Itinero.Data.Network
         /// - 0 -> 1 forward, -1 backward.
         /// - all other id's are offset by 1 and postive when forward, negative when backward.
         /// </remarks>
-        public static long IdDirected(this RoutingEdge edge)
+        public static DirectedEdgeId IdDirected(this RoutingEdge edge)
         {
-            if (edge.DataInverted)
-            {
-                return -(edge.Id + 1);
-            }
-            return (edge.Id + 1);
+            return new DirectedEdgeId(edge.Id, !edge.DataInverted);
         }
 
         /// <summary>

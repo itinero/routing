@@ -43,7 +43,7 @@ namespace Itinero.Test.Functional.Tests
 
             //DebugExtensions.RouterDb = routerDb;
 
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
+            //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
             
             return routerDb;
         }

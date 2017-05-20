@@ -312,7 +312,7 @@ namespace Itinero.Algorithms.Contracted
                 {
                     if (fromSource.From.Vertex != Constants.NO_VERTEX)
                     { // this should be the end of the path.
-                        if (fromSource.Edge == Constants.NO_EDGE)
+                        if (fromSource.Edge == DirectedEdgeId.NO_EDGE)
                         { // only expand when there is no edge id.
                             _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
                         }
@@ -327,7 +327,7 @@ namespace Itinero.Algorithms.Contracted
                 {
                     if (toTarget.From.Vertex != Constants.NO_VERTEX)
                     { // this should be the end of the path.
-                        if (toTarget.Edge == Constants.NO_EDGE)
+                        if (toTarget.Edge == DirectedEdgeId.NO_EDGE)
                         { // only expand when there is no edge id.
                             _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
                         }

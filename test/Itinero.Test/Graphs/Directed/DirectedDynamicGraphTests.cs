@@ -805,7 +805,7 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(2, path.Vertex);
             Assert.IsNotNull(path.From);
             Assert.AreEqual(103, path.Weight);
-            Assert.AreEqual(-graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            Assert.AreEqual(graph.GetOriginal(2, 1).IdDirected().Reverse, path.Edge);
             path = path.From;
             Assert.IsNotNull(path);
             Assert.AreEqual(1, path.Vertex);
@@ -817,7 +817,7 @@ namespace Itinero.Test.Graphs.Directed
             Assert.AreEqual(2, path.Vertex);
             Assert.IsNotNull(path.From);
             Assert.AreEqual(103, path.Weight);
-            Assert.AreEqual(-graph.GetOriginal(2, 1).IdDirected(), path.Edge);
+            Assert.AreEqual(graph.GetOriginal(2, 1).IdDirected().Reverse, path.Edge);
             path = path.From;
             Assert.IsNotNull(path);
             Assert.AreEqual(1, path.Vertex);

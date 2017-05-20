@@ -74,7 +74,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             {
                 return new EdgePath<float>(edge2.Vertex2);
             }
-            var path = new EdgePath<float>(edge2.Vertex2, weight, edge, null);
+            var path = new EdgePath<float>(edge2.Vertex2, weight, new DirectedEdgeId(edge, true), null);
             var first = path;
             while(true)
             {
@@ -84,7 +84,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                     path.From = new EdgePath<float>(edge2.Vertex2);
                     return first;
                 }
-                path.From = new EdgePath<float>(edge2.Vertex2, weight, edge, null);
+                path.From = new EdgePath<float>(edge2.Vertex2, weight, new DirectedEdgeId(edge, true), null);
                 path = path.From;
             }
         }

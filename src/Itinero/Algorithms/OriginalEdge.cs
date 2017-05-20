@@ -118,7 +118,7 @@ namespace Itinero.Algorithms
         public static OriginalEdge ToOriginalEdge<T>(this EdgePath<T> path, DirectedDynamicGraph.EdgeEnumerator enumerator, bool forward)
             where T : struct
         {
-            if (path.Edge == Constants.NO_EDGE)
+            if (path.Edge == DirectedEdgeId.NO_EDGE)
             { // when no edge is given, assume edge is original.
                 if (forward)
                 {

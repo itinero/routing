@@ -62,12 +62,12 @@ namespace Itinero
                 else if (offset == 1)
                 { // the second path it just the second vertex.
                     return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To)),
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To)),
                         new EdgePath<T>(edge.To)
                     };
                 }
                 return new EdgePath<T>[] {
-                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>()),
+                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>()),
                     new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
                 };
             }
@@ -102,11 +102,11 @@ namespace Itinero
                 { // return both, we are at the to-vertex.
                     return new EdgePath<T>[] {
                         new EdgePath<T>(edge.To),
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To))
                     };
                 }
                 return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>())
                     };
             }
             else
@@ -140,11 +140,11 @@ namespace Itinero
                 { // return both, we are at the to-vertex.
                     return new EdgePath<T>[] {
                         new EdgePath<T>(edge.To),
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To))
                     };
                 }
                 return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>())
                     };
             }
         }
@@ -498,9 +498,9 @@ namespace Itinero
             { // ok, directions match.
                 if (forward)
                 {
-                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                    return new EdgePath<T>(target.VertexId(db), weight, new DirectedEdgeId(point.EdgeId, true), new EdgePath<T>(point.VertexId(db)));
                 }
-                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                return new EdgePath<T>(target.VertexId(db), weight, new DirectedEdgeId(point.EdgeId, false), new EdgePath<T>(point.VertexId(db)));
             }
             return null;
         }
@@ -587,19 +587,19 @@ namespace Itinero
                 if (offset == 0)
                 { // the first part is just the first vertex.
                     return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Zero, -edge.IdDirected(), new EdgePath<T>(edge.To)),
+                        new EdgePath<T>(edge.From, weightHandler.Zero, edge.IdDirected().Reverse, new EdgePath<T>(edge.To)),
                         new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>(edge.From))
                     };
                 }
                 else if (offset == 1)
                 { // the second path it just the second vertex.
                     return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To)),
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To)),
                         new EdgePath<T>(edge.To, weightHandler.Zero, edge.IdDirected(), new EdgePath<T>(edge.From))
                     };
                 }
                 return new EdgePath<T>[] {
-                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To)),
+                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To)),
                     new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>(edge.From))
                 };
             }
@@ -620,11 +620,11 @@ namespace Itinero
                 if (offset == 0)
                 { // just return the from vertex.
                     return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Zero, -edge.IdDirected(), new EdgePath<T>(edge.To))
+                        new EdgePath<T>(edge.From, weightHandler.Zero, edge.IdDirected().Reverse, new EdgePath<T>(edge.To))
                     };
                 }
                 return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To))
                     };
             }
             else
@@ -648,7 +648,7 @@ namespace Itinero
                     };
                 }
                 return new EdgePath<T>[] {
-                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
+                        new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), edge.IdDirected().Reverse, new EdgePath<T>(edge.To))
                     };
             }
         }

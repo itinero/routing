@@ -55,7 +55,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         }
 
         private Graph.EdgeEnumerator _edgeEnumerator;
-        private Dictionary<long, EdgePath<T>> _visits;
+        private Dictionary<DirectedEdgeId, EdgePath<T>> _visits;
         private EdgePath<T> _current;
         private BinaryHeap<EdgePath<T>> _heap;
         private Dictionary<uint, Factor> _factors;
@@ -85,7 +85,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _factors = new Dictionary<uint, Factor>();
 
             // intialize dykstra data structures.
-            _visits = new Dictionary<long, EdgePath<T>>();
+            _visits = new Dictionary<DirectedEdgeId, EdgePath<T>>();
             _heap = new BinaryHeap<EdgePath<T>>(1000);
             _edgeRestrictions = new Dictionary<EdgePath<T>, LinkedRestriction>();
 
@@ -96,7 +96,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             foreach (var source in _sources)
             {
                 var queue = true;
-                if (_getRestriction != null && source.Edge != Constants.NO_EDGE)
+                if (_getRestriction != null && source.Edge != DirectedEdgeId.NO_EDGE)
                 {
                     var sourceVertex = _edgeEnumerator.GetSourceVertex(source.Edge);
                     var sourceVertexRestrictions = _getRestriction(sourceVertex);
@@ -162,7 +162,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
 
             if (_current != null)
             { // we visit this one, set visit.
-                if (_current.Edge != Constants.NO_EDGE)
+                if (_current.Edge != DirectedEdgeId.NO_EDGE)
                 {
                     _visits[_current.Edge] = _current;
 
@@ -223,7 +223,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 var directedEdgeId = _edgeEnumerator.IdDirected();
                 var neighbour = edge.To;
 
-                if (directedEdgeId == -_current.Edge)
+                if (directedEdgeId.Raw == _current.Edge.Reverse.Raw)
                 { // don't go back.
                     continue;
                 }
@@ -311,7 +311,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Returns true if the given edge was visited and sets the visit output parameters with the actual visit data.
         /// </summary>
-        public bool TryGetVisit(long edge, out EdgePath<T> visit)
+        public bool TryGetVisit(DirectedEdgeId edge, out EdgePath<T> visit)
         {
             return _visits.TryGetValue(edge, out visit);
         }

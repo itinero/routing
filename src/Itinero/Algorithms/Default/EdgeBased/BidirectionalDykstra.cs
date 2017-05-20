@@ -98,7 +98,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         {
             // check backward search for the same vertex.
             EdgePath<T> backwardVisit;
-            if (_targetSearch.TryGetVisit(-forwardVisit.Edge, out backwardVisit))
+            if (_targetSearch.TryGetVisit(forwardVisit.Edge.Reverse, out backwardVisit))
             { // there is a status for this edge in the target search.
                 if (backwardVisit.From.From == null &&
                     forwardVisit.From.From == null)
@@ -130,7 +130,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         {
             // check forward search for the same vertex.
             EdgePath<T> forwardVisit;
-            if (_sourceSearch.TryGetVisit(-backwardVisit.Edge, out forwardVisit))
+            if (_sourceSearch.TryGetVisit(backwardVisit.Edge.Reverse, out forwardVisit))
             { // there is a status for this edge in the source search.
                 if (backwardVisit.From.From == null &&
                     forwardVisit.From.From == null)
@@ -179,7 +179,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Gets the best edge.
         /// </summary>
-        public long BestEdge
+        public DirectedEdgeId BestEdge
         {
             get
             {

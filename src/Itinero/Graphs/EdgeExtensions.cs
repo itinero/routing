@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms;
 using Itinero.Profiles;
 using System;
 
@@ -34,13 +35,9 @@ namespace Itinero.Graphs
         /// - 0 -> 1 forward, -1 backward.
         /// - all other id's are offset by 1 and postive when forward, negative when backward.
         /// </remarks>
-        public static long IdDirected(this Graph.EdgeEnumerator enumerator)
+        public static DirectedEdgeId IdDirected(this Graph.EdgeEnumerator enumerator)
         {
-            if (enumerator.DataInverted)
-            {
-                return -(enumerator.Id + 1);
-            }
-            return (enumerator.Id + 1);
+            return new DirectedEdgeId(enumerator.Id, !enumerator.DataInverted);
         }
 
         /// <summary>
@@ -82,11 +79,11 @@ namespace Itinero.Graphs
         /// <summary>
         /// Gets the target vertex.
         /// </summary>
-        public static uint GetTargetVertex(this Graph.EdgeEnumerator enumerator, long directedEdgeId)
+        public static uint GetTargetVertex(this Graph.EdgeEnumerator enumerator, DirectedEdgeId directedEdgeId)
         {
-            enumerator.MoveToEdge(directedEdgeId);
+            enumerator.MoveToEdge(directedEdgeId.EdgeId);
 
-            if (directedEdgeId > 0)
+            if (directedEdgeId.Forward)
             {
                 if (!enumerator.DataInverted)
                 {
@@ -113,11 +110,11 @@ namespace Itinero.Graphs
         /// <summary>
         /// Gets the source vertex.
         /// </summary>
-        public static uint GetSourceVertex(this Graph.EdgeEnumerator enumerator, long directedEdgeId)
+        public static uint GetSourceVertex(this Graph.EdgeEnumerator enumerator, DirectedEdgeId directedEdgeId)
         {
-            enumerator.MoveToEdge(directedEdgeId);
+            enumerator.MoveToEdge(directedEdgeId.EdgeId);
 
-            if (directedEdgeId > 0)
+            if (directedEdgeId.Forward)
             {
                 if (!enumerator.DataInverted)
                 {

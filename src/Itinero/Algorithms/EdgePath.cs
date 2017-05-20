@@ -32,7 +32,7 @@ namespace Itinero.Algorithms
         public EdgePath(uint vertex = Constants.NO_VERTEX)
         {
             this.Vertex = vertex;
-            this.Edge = Constants.NO_EDGE;
+            this.Edge = DirectedEdgeId.NO_EDGE;
             this.Weight = default(T);
             this.From = null;
         }
@@ -43,7 +43,7 @@ namespace Itinero.Algorithms
         public EdgePath(uint vertex, T weight, EdgePath<T> from)
         {
             this.Vertex = vertex;
-            this.Edge = Constants.NO_EDGE;
+            this.Edge = DirectedEdgeId.NO_EDGE;
             this.Weight = weight;
             this.From = from;
         }
@@ -51,7 +51,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Creates a path to the given vertex with the given weight along the given edge.
         /// </summary>
-        public EdgePath(uint vertex, T weight, long edge, EdgePath<T> from)
+        public EdgePath(uint vertex, T weight, DirectedEdgeId edge, EdgePath<T> from)
         {
             this.Vertex = vertex;
             this.Edge = edge;
@@ -62,7 +62,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Gets the edge right before the vertex.
         /// </summary>
-        public long Edge { get; set; }
+        public DirectedEdgeId Edge { get; set; }
 
         /// <summary>
         /// Gets the vertex.
@@ -111,7 +111,7 @@ namespace Itinero.Algorithms
             {
                 return false;
             }
-            return other.Edge == this.Edge &&
+            return other.Edge.Raw == this.Edge.Raw &&
                 other.Vertex == this.Vertex;
         }
 
@@ -173,7 +173,7 @@ namespace Itinero.Algorithms
             var current = this;
             while (current != null)
             {
-                if (current.Path.Edge == path.Edge)
+                if (current.Path.Edge.Raw == path.Edge.Raw)
                 {
                     return true;
                 }

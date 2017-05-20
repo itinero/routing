@@ -56,22 +56,13 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             {
                 var e = path.Edge;
                 var endWeight = path.Weight;
-                if (e == Constants.NO_EDGE)
+                if (e.IsNoEdge)
                 {
                     return false;
                 }
 
                 // Calculate weight at start vertex.
-                uint edgeId;
-                if (e > 0)
-                {
-                    edgeId = (uint)e - 1;
-                }
-                else
-                {
-                    edgeId = (uint)((-e) - 1);
-                }
-                var edge = _graph.GetEdge(edgeId);
+                var edge = _graph.GetEdge(e.EdgeId);
                 var shape = _graph.GetShape(edge);
 
                 var endCoordinate = shape[shape.Count - 1];

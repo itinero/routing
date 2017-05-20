@@ -64,7 +64,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
             {
                 var e = path.Edge;
                 var endWeight = path.Weight;
-                if (e == Constants.NO_EDGE ||
+                if (e.Raw == DirectedEdgeId.NO_EDGE.Raw ||
                     path.From == null)
                 {
                     return false;
@@ -72,16 +72,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
                 var startWeight = path.From.Weight;
 
                 // Calculate weight at start vertex.
-                uint edgeId;
-                if (e > 0)
-                {
-                    edgeId = (uint)e - 1;
-                }
-                else
-                {
-                    edgeId = (uint)((-e) - 1);
-                }
-                var edge = _graph.GetEdge(edgeId);
+                var edge = _graph.GetEdge(e.EdgeId);
                 var shape = _graph.GetShape(edge);
 
                 this.AddEdgeVisit(tiles, startWeight, endWeight, shape);

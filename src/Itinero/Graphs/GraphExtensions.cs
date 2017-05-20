@@ -51,18 +51,12 @@ namespace Itinero.Graphs
         /// <summary>
         /// Finds the best edge between the two given vertices.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="graph"></param>
-        /// <param name="weightHandler"></param>
-        /// <param name="vertex1"></param>
-        /// <param name="vertex2"></param>
-        /// <returns></returns>
-        public static long FindBestEdge<T>(this Graph.EdgeEnumerator edgeEnumerator, WeightHandler<T> weightHandler, uint vertex1, uint vertex2, out T bestWeight)
+        public static DirectedEdgeId FindBestEdge<T>(this Graph.EdgeEnumerator edgeEnumerator, WeightHandler<T> weightHandler, uint vertex1, uint vertex2, out T bestWeight)
             where T : struct
         {
             edgeEnumerator.MoveTo(vertex1);
             bestWeight = weightHandler.Infinite;
-            long bestEdge = Constants.NO_EDGE;
+            var bestEdge = DirectedEdgeId.NO_EDGE;
             Factor factor;
             while (edgeEnumerator.MoveNext())
             {

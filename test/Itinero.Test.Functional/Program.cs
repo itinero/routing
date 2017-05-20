@@ -25,6 +25,10 @@ using Itinero.Test.Functional.Tests;
 using Itinero.IO.Osm;
 using Itinero.LocalGeo;
 using Itinero.Data.Contracted;
+using Itinero.Algorithms.Dual;
+using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Contracted;
+using Itinero.Algorithms.Contracted.Witness;
 
 namespace Itinero.Test.Functional
 {
@@ -57,6 +61,23 @@ namespace Itinero.Test.Functional
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
+            var profile = routerDb.GetSupportedProfile("car");
+            var restrictions = routerDb.GetRestrictions(profile);
+            var target = new Graphs.Directed.DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                    ContractedEdgeDataSerializer.MetaSize);
+            var dualGraphBuilder = new DualGraphBuilder(routerDb.Network.GeometricGraph.Graph,
+                target,
+                router.GetDefaultWeightHandler(profile), 
+                routerDb.GetRestrictions(profile));
+            dualGraphBuilder.Run();
+
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(target,
+                new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.DifferenceFactor = 5;
+            priorityCalculator.DepthFactor = 5;
+            priorityCalculator.ContractedFactor = 8;
+            var hierarchyBuilder = new HierarchyBuilder(target, priorityCalculator, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.Run();
 
             //var networkJson = routerDb.GetGeoJson();
 

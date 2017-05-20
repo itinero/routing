@@ -51,24 +51,24 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             }, null,
             new EdgePath<float>[]
             {
-                new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
-                new EdgePath<float>(1, 50, -1, new EdgePath<float>())
+                new EdgePath<float>(0, 50, new DirectedEdgeId(1, true), new EdgePath<float>()),
+                new EdgePath<float>(1, 50, new DirectedEdgeId(1, false), new EdgePath<float>())
             }, float.MaxValue, false);
             dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
             EdgePath<float> visit;
-            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, false), out visit));
             Assert.AreEqual(-1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, true), out visit));
             Assert.AreEqual(1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(2, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(2, true), out visit));
             Assert.AreEqual(2, visit.Edge);
             Assert.AreEqual(150, visit.Weight);
-            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
         }
 
         /// <summary>
@@ -93,28 +93,28 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             }, null, 
             new EdgePath<float>[]
             {
-                new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
-                new EdgePath<float>(1, 50, -1, new EdgePath<float>())
+                new EdgePath<float>(0, 50, new DirectedEdgeId(1, true), new EdgePath<float>()),
+                new EdgePath<float>(1, 50, new DirectedEdgeId(1, false), new EdgePath<float>())
             }, float.MaxValue, false);
             dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
             EdgePath<float> visit;
-            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, false), out visit));
             Assert.AreEqual(-1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, true), out visit));
             Assert.AreEqual(1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(2, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(2, true), out visit));
             Assert.AreEqual(2, visit.Edge);
             Assert.AreEqual(150, visit.Weight);
-            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
-            Assert.IsTrue(dykstra.TryGetVisit(3, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(3, true), out visit));
             Assert.AreEqual(3, visit.Edge);
             Assert.AreEqual(250, visit.Weight);
-            Assert.IsFalse(dykstra.TryGetVisit(-3, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(3, false), out visit));
         }
 
         /// <summary>
@@ -138,30 +138,30 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             }, null, 
             new EdgePath<float>[]
             {
-                new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
-                new EdgePath<float>(1, 50, -1, new EdgePath<float>())
+                new EdgePath<float>(0, 50, new DirectedEdgeId(1, true), new EdgePath<float>()),
+                new EdgePath<float>(1, 50, new DirectedEdgeId(1, false), new EdgePath<float>())
             }, float.MaxValue, false);
             dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
             EdgePath<float> visit;
-            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, false), out visit));
             Assert.AreEqual(-1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, true), out visit));
             Assert.AreEqual(1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(2, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(2, true), out visit));
             Assert.AreEqual(2, visit.Edge);
             Assert.AreEqual(150, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(-2, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
             Assert.AreEqual(-2, visit.Edge);
             Assert.AreEqual(250, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(3, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(3, true), out visit));
             Assert.AreEqual(3, visit.Edge);
             Assert.AreEqual(250, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(-3, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(3, false), out visit));
             Assert.AreEqual(-3, visit.Edge);
             Assert.AreEqual(150, visit.Weight);
         }
@@ -193,22 +193,22 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             },
             new EdgePath<float>[]
             {
-                new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
-                new EdgePath<float>(1, 50, -1, new EdgePath<float>())
+                new EdgePath<float>(0, 50, new DirectedEdgeId(1, true), new EdgePath<float>()),
+                new EdgePath<float>(1, 50, new DirectedEdgeId(1, false), new EdgePath<float>())
             }, float.MaxValue, false);
             dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
             EdgePath<float> visit;
-            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, false), out visit));
             Assert.AreEqual(-1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, true), out visit));
             Assert.AreEqual(1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsFalse(dykstra.TryGetVisit(2, out visit));
-            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, true), out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
         }
 
         /// <summary>
@@ -249,26 +249,26 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             },
             new EdgePath<float>[]
             {
-                new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
-                new EdgePath<float>(1, 50, -1, new EdgePath<float>())
+                new EdgePath<float>(0, 50, new DirectedEdgeId(1, true), new EdgePath<float>()),
+                new EdgePath<float>(1, 50, new DirectedEdgeId(1, false), new EdgePath<float>())
             }, float.MaxValue, false);
             dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
             EdgePath<float> visit;
-            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, false), out visit));
             Assert.AreEqual(-1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(1, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, true), out visit));
             Assert.AreEqual(1, visit.Edge);
             Assert.AreEqual(50, visit.Weight);
-            Assert.IsTrue(dykstra.TryGetVisit(2, out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(2, true), out visit));
             Assert.AreEqual(2, visit.Edge);
             Assert.AreEqual(150, visit.Weight);
-            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
-            Assert.IsFalse(dykstra.TryGetVisit(3, out visit));
-            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(3, true), out visit));
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
         }
 
         /// <summary>
@@ -316,24 +316,24 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             },
             new EdgePath<float>[]
             {
-                new EdgePath<float>(1, 50, 1, new EdgePath<float>()),
-                new EdgePath<float>(0, 50, -1, new EdgePath<float>())
+                new EdgePath<float>(1, 50, new DirectedEdgeId(1, true), new EdgePath<float>()),
+                new EdgePath<float>(0, 50, new DirectedEdgeId(1, false), new EdgePath<float>())
             }, float.MaxValue, false);
             dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
             EdgePath<float> visit;
-            Assert.IsTrue(dykstra.TryGetVisit(-1, out visit) && visit.Weight == 50);
-            Assert.IsTrue(dykstra.TryGetVisit(1, out visit) && visit.Weight == 50);
-            Assert.IsFalse(dykstra.TryGetVisit(-2, out visit));
-            Assert.IsTrue(dykstra.TryGetVisit(2, out visit) && visit.Weight == 450);
-            Assert.IsTrue(dykstra.TryGetVisit(-3, out visit) && visit.Weight == 350);
-            Assert.IsTrue(dykstra.TryGetVisit(3, out visit) && visit.Weight == 150);
-            Assert.IsTrue(dykstra.TryGetVisit(-4, out visit) && visit.Weight == 250);
-            Assert.IsTrue(dykstra.TryGetVisit(4, out visit) && visit.Weight == 250);
-            Assert.IsTrue(dykstra.TryGetVisit(-5, out visit) && visit.Weight == 150);
-            Assert.IsTrue(dykstra.TryGetVisit(4, out visit) && visit.Weight == 250);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, false), out visit) && visit.Weight == 50);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(1, true), out visit) && visit.Weight == 50);
+            Assert.IsFalse(dykstra.TryGetVisit(new DirectedEdgeId(2, false), out visit));
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(2, true), out visit) && visit.Weight == 450);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(3, false), out visit) && visit.Weight == 350);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(3, true), out visit) && visit.Weight == 150);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(4, false), out visit) && visit.Weight == 250);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(4, true), out visit) && visit.Weight == 250);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(5, false), out visit) && visit.Weight == 150);
+            Assert.IsTrue(dykstra.TryGetVisit(new DirectedEdgeId(4, true), out visit) && visit.Weight == 250);
         }
     }
 }

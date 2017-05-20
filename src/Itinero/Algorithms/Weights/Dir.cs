@@ -16,6 +16,8 @@
  *  limitations under the License.
  */
 
+using Itinero.Profiles;
+
 namespace Itinero.Algorithms.Weights
 {
     /// <summary>
@@ -44,7 +46,7 @@ namespace Itinero.Algorithms.Weights
                 _val = (byte)(_val | 2);
             }
         }
-
+        
         /// <summary>
         /// Returns the forward flag.
         /// </summary>
@@ -132,6 +134,42 @@ namespace Itinero.Algorithms.Weights
             {
                 _val = this._val
             };
+        }
+
+        /// <summary>
+        /// Returns a direction from a given factor.
+        /// </summary>
+        public static Dir FromFactor(Factor factor, bool inverted)
+        {
+            if (factor.Direction == 0)
+            {
+                return new Dir(true, true);
+            }
+            else
+            {
+                Dir dir;
+                if (factor.Direction == 1)
+                {
+                    dir = new Dir(true, false);
+                }
+                else
+                {
+                    dir = new Dir(false, true);
+                }
+                if (inverted)
+                {
+                    dir.Reverse();
+                }
+                return dir;
+            }
+        }
+
+        /// <summary>
+        /// Combines two directions leaving only the possible directions flags.
+        /// </summary>
+        public static Dir Combine(Dir dir1, Dir dir2)
+        {
+            return new Dir(dir1.F && dir2.F, dir1.B && dir2.B);
         }
 
         /// <summary>
