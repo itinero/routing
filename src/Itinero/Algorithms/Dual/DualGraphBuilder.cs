@@ -77,9 +77,9 @@ namespace Itinero.Algorithms.Dual
                     // look at the neighbours of this edge.
                     enumerator2.MoveTo(enumerator1.To);
                     _restrictions.Update(enumerator1.To);
-                    var turn = new Turn(new OriginalEdge(v, enumerator1.To), Constants.NO_VERTEX);
                     while (enumerator2.MoveNext())
                     {
+                        var turn = new Turn(new OriginalEdge(v, enumerator1.To), Constants.NO_VERTEX);
                         EdgeDataSerializer.Deserialize(enumerator2.Data0,
                             out distance, out edgeProfile);
                         var weight2 = _weightHandler.Calculate(edgeProfile, distance, out factor);
@@ -118,6 +118,9 @@ namespace Itinero.Algorithms.Dual
                         var edge2 = enumerator2.IdDirected();
                         
                         _weightHandler.AddEdge(_target, edge1.Raw, edge2.Raw, Constants.NO_VERTEX, direction.AsNullableBool(), 
+                            weight1);
+                        direction.Reverse();
+                        _weightHandler.AddEdge(_target, edge2.Raw, edge1.Raw, Constants.NO_VERTEX, direction.AsNullableBool(),
                             weight1);
                     }
                 }

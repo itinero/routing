@@ -75,13 +75,13 @@ namespace Itinero.Test.Functional
                 routerDb.GetRestrictions(profile));
             dualGraphBuilder.Run();
 
-            //var priorityCalculator = new EdgeDifferencePriorityCalculator(target,
-            //    new DykstraWitnessCalculator(int.MaxValue));
-            //priorityCalculator.DifferenceFactor = 5;
-            //priorityCalculator.DepthFactor = 5;
-            //priorityCalculator.ContractedFactor = 8;
-            //var hierarchyBuilder = new HierarchyBuilder(target, priorityCalculator, new DykstraWitnessCalculator(int.MaxValue));
-            //hierarchyBuilder.Run();
+            var priorityCalculator = new EdgeDifferencePriorityCalculator(target,
+                new DykstraWitnessCalculator(int.MaxValue));
+            priorityCalculator.DifferenceFactor = 5;
+            priorityCalculator.DepthFactor = 5;
+            priorityCalculator.ContractedFactor = 8;
+            var hierarchyBuilder = new HierarchyBuilder(target, priorityCalculator, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.Run();
 
             var random = new System.Random();
             var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
