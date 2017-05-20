@@ -138,5 +138,20 @@ namespace Itinero.Algorithms
         {
             return this.Raw.GetHashCode();
         }
+
+        /// <summary>
+        /// Gets a description of this id.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (this.Forward)
+            {
+                return string.Format("{0}({F})",
+                    this.EdgeId);
+            }
+            return string.Format("{0}({B})",
+                this.EdgeId);
+        }
     }
 }

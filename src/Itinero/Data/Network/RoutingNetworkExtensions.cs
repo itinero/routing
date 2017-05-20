@@ -238,20 +238,9 @@ namespace Itinero.Data.Network
         /// <summary>
         /// Moves to the given directed edge-id.
         /// </summary>
-        public static void MoveToEdge(this RoutingNetwork.EdgeEnumerator enumerator, long directedEdgeId)
+        public static void MoveToEdge(this RoutingNetwork.EdgeEnumerator enumerator, DirectedEdgeId directedEdgeId)
         {
-            if (directedEdgeId == 0) { throw new ArgumentOutOfRangeException("directedEdgeId"); }
-
-            uint edgeId;
-            if (directedEdgeId > 0)
-            {
-                edgeId = (uint)directedEdgeId - 1;
-            }
-            else
-            {
-                edgeId = (uint)((-directedEdgeId) - 1);
-            }
-            enumerator.MoveToEdge(edgeId);
+            enumerator.MoveToEdge(directedEdgeId.EdgeId);
         }
 
         /// <summary>
