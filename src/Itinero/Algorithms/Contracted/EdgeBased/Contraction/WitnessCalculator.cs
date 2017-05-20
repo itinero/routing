@@ -654,6 +654,189 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
 
         }
 
+        ///// <summary>
+        ///// Calculates all witness paths.
+        ///// </summary>
+        ///// <param name="vertex"></param>
+        ///// <param name="witnesses"></param>
+        //public override void Calculate(uint vertex, Shortcuts<float> shortcuts)
+        //{
+        //    var edgeEnumerator = _graph.GetEdgeEnumerator();
+        //    var done = new HashSet<uint>();
+        //    var accessor = shortcuts.GetAccessor();
+        //    while (true)
+        //    {
+        //        accessor.Reset();
+        //        while (accessor.MoveNextSource())
+        //        {
+        //            if (!done.Contains(accessor.Source.Vertex1))
+        //            {
+        //                break;
+        //            }
+        //        }
+
+        //        if (!accessor.HasSource)
+        //        {
+        //            break;
+        //        }
+
+        //        done.Add(accessor.Source.Vertex1);
+
+        //        var backwardSettled = new HashSet<OriginalEdge>();
+        //        var forwardSettled = new HashSet<OriginalEdge>();
+        //        var backwardTargets = new HashSet<OriginalEdge>();
+        //        var forwardTargets = new HashSet<OriginalEdge>();
+        //        var forwardMaxWeight = 0f;
+        //        var backwardMaxWeight = 0f;
+
+        //        // start queing sources.
+        //        _heap.Clear();
+
+        //        edgeEnumerator.MoveTo(accessor.Source.Vertex1);
+        //        while (accessor.HasSource)
+        //        {
+        //            var source = accessor.Source;
+
+        //            // queue all neighbour edges of the source vertex that don't start with the source path.
+        //            edgeEnumerator.Reset();
+        //            while (edgeEnumerator.MoveNext())
+        //            { // move next.
+        //                var neighbour = edgeEnumerator.Neighbour;
+        //                OriginalEdge neighbourOriginal;
+        //                if (edgeEnumerator.IsOriginal())
+        //                {
+        //                    if (neighbour != source.Vertex2)
+        //                    { // not an edge that matches the source.
+        //                        continue;
+        //                    }
+        //                    neighbourOriginal = new OriginalEdge(source.Vertex1, source.Vertex2);
+        //                }
+        //                else
+        //                {
+        //                    var s1 = edgeEnumerator.GetSequence1();
+        //                    if (s1 != source.Vertex2)
+        //                    { // not an edge that matches the source.
+        //                        continue;
+        //                    }
+        //                    var s2 = edgeEnumerator.GetSequence2();
+        //                    neighbourOriginal = new OriginalEdge(s2, neighbour);
+        //                }
+
+        //                if (neighbour == vertex)
+        //                {
+        //                    continue;
+        //                }
+
+        //                var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
+        //                var neighbourPath = _tree.AddSettledEdge(neighbourOriginal, neighbourOriginal, neighbourWeight, 0, uint.MaxValue);
+                        
+        //                _heap.Push(neighbourPath, neighbourWeight.Weight);
+        //            }
+
+        //            // queue targets associated with this source.
+        //            while (accessor.MoveNextTarget())
+        //            {
+        //                var witness = accessor.Target;
+
+        //                edgeEnumerator.MoveTo(witness.Edge.Vertex2);
+        //                bool hasForwardTargets = false;
+        //                bool hasBackwardTargets = false;
+        //                while (edgeEnumerator.MoveNext())
+        //                {
+        //                    var neighbour = edgeEnumerator.Neighbour;
+        //                    OriginalEdge neighbourOriginal;
+        //                    if (edgeEnumerator.IsOriginal())
+        //                    {
+        //                        if (neighbour == witness.Edge.Vertex1)
+        //                        { // matches the actual target.
+        //                            continue;
+        //                        }
+        //                        neighbourOriginal = new OriginalEdge(witness.Edge.Vertex2, neighbour);
+        //                    }
+        //                    else
+        //                    {
+        //                        var s1 = edgeEnumerator.GetSequence1();
+        //                        if (s1 == witness.Edge.Vertex1 ||
+        //                            s1 == vertex)
+        //                        { // matches the actual target.
+        //                            continue;
+        //                        }
+        //                        neighbourOriginal = new OriginalEdge(witness.Edge.Vertex2, s1);
+        //                    }
+
+        //                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator);
+
+        //                    if (witness.Forward > 0 &&
+        //                        neighbourWeight.Direction.F)
+        //                    {
+        //                        //forwardTargets.Add(neighbourOriginal);
+        //                        hasForwardTargets = true;
+        //                        //if (witness.Forward > forwardMaxWeight)
+        //                        //{
+        //                        //    forwardMaxWeight = witness.Forward;
+        //                        //}
+        //                    }
+        //                    if (witness.Backward > 0 &&
+        //                        neighbourWeight.Direction.B)
+        //                    {
+        //                        //backwardTargets.Add(neighbourOriginal);
+        //                        hasBackwardTargets = true;
+        //                        //if (witness.Backward > backwardMaxWeight)
+        //                        //{
+        //                        //    backwardMaxWeight = witness.Backward;
+        //                        //}
+        //                    }
+        //                }
+
+        //                if (!hasForwardTargets && !hasBackwardTargets)
+        //                {
+        //                    witness.Backward = 0;
+        //                    witness.Forward = 0;
+        //                    accessor.Target = witness;
+        //                }
+        //                else if (!hasBackwardTargets)
+        //                {
+        //                    witness.Backward = 0;
+        //                    accessor.Target = witness;
+        //                }
+        //                else if (!hasForwardTargets)
+        //                {
+        //                    witness.Forward = 0;
+        //                    accessor.Target = witness;
+        //                }
+
+        //                if (witness.Forward > 0)
+        //                {
+        //                    forwardTargets.Add(witness.Edge);
+        //                    if (witness.Forward > forwardMaxWeight)
+        //                    {
+        //                        forwardMaxWeight = witness.Forward;
+        //                    }
+        //                }
+        //                if (witness.Backward > 0)
+        //                {
+        //                    backwardTargets.Add(witness.Edge);
+        //                    if (witness.Backward > backwardMaxWeight)
+        //                    {
+        //                        backwardMaxWeight = witness.Backward;
+        //                    }
+        //                }
+        //            }
+
+        //            accessor.MoveNextSource();
+        //            while(accessor.HasSource &&
+        //                accessor.Source.Vertex1 != source.Vertex1)
+        //            {
+        //                accessor.MoveNextSource();
+        //            }
+        //        }
+
+        //        // all sources and targets queued now for all sources starting with the same vertex.
+
+        //        // TODO: start searching here!
+        //    }
+        //}
+
         /// <summary>
         /// Calculates witness paths.
         /// </summary>

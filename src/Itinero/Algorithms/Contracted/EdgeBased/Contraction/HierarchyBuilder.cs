@@ -127,7 +127,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     //return;
                 }
 
-                if (progress > 95)
+                if (progress > 90)
                 {
                     return;
                 }
