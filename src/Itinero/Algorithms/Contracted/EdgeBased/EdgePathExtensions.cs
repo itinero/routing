@@ -66,7 +66,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 edgePath.From != null &&
                 edgePath.From.Vertex != Constants.NO_VERTEX)
             {
-                enumerator.MoveToEdge(edgePath.Edge);
+                enumerator.MoveToEdge((uint)edgePath.Edge);
                 var contractedId = enumerator.GetContracted();
                 if (contractedId.HasValue)
                 { // there is a contracted vertex here!
@@ -96,7 +96,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         throw new Exception(string.Format("Edge between {0} -> {1} with sequence {2} could not be found.",
                             contractedId.Value, edgePath.From.Vertex, sequence1.ToInvariantString()));
                     }
-                    var edge1 = enumerator.IdDirected();
+                    var edge1 = enumerator.Id;
 
                     // move to the second edge (contracted -> to vertex) and keep details.
                     T weight2;
@@ -105,7 +105,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                         throw new Exception(string.Format("Edge between {0} -> {1} with sequence {2} could not be found.",
                             contractedId.Value, edgePath.Vertex, sequence2.ToInvariantString()));
                     }
-                    var edge2 = enumerator.IdDirected();
+                    var edge2 = enumerator.Id;
 
                     var contractedPath = new EdgePath<T>(contractedId.Value, weightHandler.Add(edgePath.From.Weight, weight1), edge1, edgePath.From);
                     contractedPath = contractedPath.ExpandLast(enumerator, weightHandler, direction);
@@ -180,7 +180,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             { // when there is no edge info, edge has to be original otherwise the info can never be recovered.
                 return true;
             }
-            enumerator.MoveToEdge(path.Edge);
+            enumerator.MoveToEdge((uint)path.Edge);
             if (enumerator.IsOriginal())
             { // ok, edge is original.
                 return true;

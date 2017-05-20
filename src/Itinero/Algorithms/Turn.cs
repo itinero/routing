@@ -143,5 +143,14 @@ namespace Itinero.Algorithms
                 return this.Vertex1 == this.Vertex3;
             }
         }
+
+        /// <summary>
+        /// Returns a description of this turn.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0}->{1}->{2}", this.Vertex1, this.Vertex2, this.Vertex3);
+        }
     }
 }

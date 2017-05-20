@@ -86,11 +86,13 @@ namespace Itinero.Test.Functional.Tests
                     var f1 = router.Db.Network.GetVertex(v1);
                     var f2 = router.Db.Network.GetVertex(v2);
 
+                    Console.Write("Calculating route {0}/{1}...", i, count);
                     var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
                     if (route.IsError)
                     {
                         errors++;
                     }
+                    Console.WriteLine("Done!");
 #if DEBUG
                     else
                     {

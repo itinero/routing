@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
@@ -32,9 +33,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
     public class BidirectionalDykstra<T> : AlgorithmBase
         where T : struct
     {
-        private readonly DirectedDynamicGraph _graph;
-        private readonly IEnumerable<EdgePath<T>> _sources;
-        private readonly IEnumerable<EdgePath<T>> _targets;
+        protected readonly DirectedDynamicGraph _graph;
+        protected readonly IEnumerable<EdgePath<T>> _sources;
+        protected readonly IEnumerable<EdgePath<T>> _targets;
         protected readonly RestrictionCollection _restrictions;
         protected readonly WeightHandler<T> _weightHandler;
  
@@ -57,13 +58,50 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 return x;
             });
             _restrictions = restrictions;
+
+            _forwardTree = new PathTree();
+            _backwardTree = new PathTree();
+            _forwardVisits = new Dictionary<OriginalEdge, uint>();
+            _backwardVisits = new Dictionary<OriginalEdge, uint>();
         }
 
-        private Tuple<EdgePath<T>, EdgePath<T>, T> _best;
-        protected Dictionary<uint, LinkedEdgePath> _forwardVisits;
-        protected Dictionary<uint, LinkedEdgePath> _backwardVisits;
-        protected BinaryHeap<EdgePath<T>> _forwardQueue;
-        protected BinaryHeap<EdgePath<T>> _backwardQueue;
+        protected Tuple<uint, uint, float> _best;
+        protected readonly PathTree _forwardTree;
+        protected readonly PathTree _backwardTree;
+
+        protected Dictionary<OriginalEdge, uint> _forwardVisits;
+        protected Dictionary<OriginalEdge, uint> _backwardVisits;
+        protected BinaryHeap<uint> _forwardQueue;
+        protected BinaryHeap<uint> _backwardQueue;
+
+        protected override void DoRun()
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// Returns the path.
+        /// </summary>
+        public virtual List<uint> GetPath()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    /// <summary>
+    /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
+    /// </summary>
+    public class BidirectionalDykstra : BidirectionalDykstra<float>
+    {
+        /// <summary>
+        /// Creates a new contracted bidirectional router.
+        /// </summary>
+        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets,
+            RestrictionCollection restrictions)
+            : base(graph, new DefaultWeightHandler(null), sources, targets, restrictions)
+        {
+
+        }
 
         /// <summary>
         /// Executes the actual run.
@@ -72,28 +110,34 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         {
             var edgeEnumerator = _graph.GetEdgeEnumerator();
 
-            // keep settled vertices.
-            _forwardVisits = new Dictionary<uint, LinkedEdgePath>();
-            _backwardVisits = new Dictionary<uint, LinkedEdgePath>();
-
             // initialize the queues.
-            _forwardQueue = new BinaryHeap<EdgePath<T>>();
-            _backwardQueue = new BinaryHeap<EdgePath<T>>();
+            _forwardQueue = new BinaryHeap<uint>();
+            _backwardQueue = new BinaryHeap<uint>();
 
             // queue sources.
             foreach (var source in _sources)
             {
-                _forwardQueue.Push(source, _weightHandler.GetMetric(source.Weight));
+                var originalSource = new OriginalEdge(source.From.Vertex, source.Vertex);
+                var sourceWeight = _weightHandler.GetMetric(source.Weight);
+                var sourcePointer = _forwardTree.AddSettledEdge(originalSource, originalSource, sourceWeight, Constants.NO_EDGE,
+                    uint.MaxValue);
+
+                _forwardQueue.Push(sourcePointer, sourceWeight);
             }
 
             // queue targets.
             foreach (var target in _targets)
             {
-                _backwardQueue.Push(target, _weightHandler.GetMetric(target.Weight));
+                var original = new OriginalEdge(target.From.Vertex, target.Vertex);
+                var weight = _weightHandler.GetMetric(target.Weight);
+                var pointer = _backwardTree.AddSettledEdge(original, original, weight, Constants.NO_EDGE,
+                    uint.MaxValue);
+
+                _backwardQueue.Push(pointer, weight);
             }
 
             // update best with current visits.
-            _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(new EdgePath<T>(), new EdgePath<T>(), _weightHandler.Infinite);
+            _best = new Tuple<uint, uint, float>(uint.MaxValue, uint.MaxValue, float.MaxValue);
 
             // calculate stopping conditions.
             var queueBackwardWeight = _backwardQueue.PeekWeight();
@@ -104,8 +148,8 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 { // stop the search; both queues are empty.
                     break;
                 }
-                if (_weightHandler.GetMetric(_best.Item3) < queueForwardWeight &&
-                    _weightHandler.GetMetric(_best.Item3) < queueBackwardWeight)
+                if (_best.Item3 < queueForwardWeight &&
+                    _best.Item3 < queueBackwardWeight)
                 { // stop the search: it now became impossible to find a better route by further searching.
                     break;
                 }
@@ -114,144 +158,53 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
                 if (_forwardQueue.Count > 0)
                 { // first check for better path.
                     // get the current queued with the smallest weight that hasn't been visited yet.
-                    var current = _forwardQueue.Pop();
-                    while (current != null)
+                    uint current = uint.MaxValue, previous = uint.MaxValue, edge;
+                    OriginalEdge edge1 = new OriginalEdge(), edge2 = new OriginalEdge();
+                    var weight = float.MaxValue;
+                    while (_forwardQueue.Count > 0)
                     { // keep trying.
-                        LinkedEdgePath edgePath = null;
-                        if (!_forwardVisits.TryGetValue(current.Vertex, out edgePath))
-                        { // this vertex has not been visited before.
-                            _forwardVisits.Add(current.Vertex, new LinkedEdgePath()
-                            {
-                                Path = current
-                            });
+                        current = _forwardQueue.Pop();
+                        _forwardTree.GetSettledEdge(current, out edge1, out edge2, out weight, out edge, out previous);
+
+                        if (!_forwardVisits.ContainsKey(edge2))
+                        { // has not been visited before!
+                            _forwardVisits.Add(edge2, current);
                             break;
                         }
-                        else
-                        { // vertex has been visited before, check if edge has.
-                            if (!edgePath.HasPath(current))
-                            { // current edge has not been used to get to this vertex.
-                                _forwardVisits[current.Vertex] = new LinkedEdgePath()
-                                {
-                                    Path = current,
-                                    Next = edgePath
-                                };
-                                break;
-                            }
-                        }
-                        current = _forwardQueue.Pop();
+                        current = uint.MaxValue;
                     }
-                    
-                    if (current != null)
+
+                    if (current != uint.MaxValue)
                     {
-                        // get relevant restrictions.
-                        _restrictions.Update(current.Vertex);
-
-                        // check if there is a backward path that matches this vertex.
-                        LinkedEdgePath backwardPath = null;
-                        if (_backwardVisits.TryGetValue(current.Vertex, out backwardPath))
-                        { // check for a new best.
-                            while (backwardPath != null)
-                            {
-                                var totalCurrentWeight = _weightHandler.Add(current.Weight, backwardPath.Path.Weight);
-                                if (_weightHandler.IsSmallerThan(totalCurrentWeight, _best.Item3))
-                                { // potentially a weight improvement.
-                                    // check u-turn.
-                                    var sequence2Forward = backwardPath.Path.GetSequence2(edgeEnumerator);
-                                    var sequence2Current = current.GetSequence2(edgeEnumerator);
-                                    var finalTurn = new Turn()
-                                    {
-                                        Vertex1 = sequence2Forward,
-                                        Vertex2 = current.Vertex,
-                                        Vertex3 = sequence2Current
-                                    };
-                                    if (finalTurn.IsUTurn ||
-                                        finalTurn.IsRestrictedBy(_restrictions))
-                                    {
-                                        backwardPath = backwardPath.Next;
-                                        continue;
-                                    }
-
-                                    _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(current, backwardPath.Path,
-                                        _weightHandler.Add(current.Weight, backwardPath.Path.Weight));
-                                    this.HasSucceeded = true;
-                                }
-                                backwardPath = backwardPath.Next;
-                            }
-                        }
-
-                        // continue the search.
-                        this.SearchForward(edgeEnumerator, current);
+                        // do the forward search.
+                        this.SearchForward(edgeEnumerator, current, edge2, weight);
                     }
                 }
 
                 // do a backward search.
                 if (_backwardQueue.Count > 0)
-                {// first check for better path.
-                    // get the current vertex with the smallest weight.
-                    var current = _backwardQueue.Pop();
-                    while (current != null)
+                { // first check for better path.
+                    // get the current queued with the smallest weight that hasn't been visited yet.
+                    uint current = uint.MaxValue, previous = uint.MaxValue, edge;
+                    OriginalEdge edge1 = new OriginalEdge(), edge2 = new OriginalEdge();
+                    var weight = float.MaxValue;
+                    while (_backwardQueue.Count > 0)
                     { // keep trying.
-                        LinkedEdgePath edgePath = null;
-                        if (!_backwardVisits.TryGetValue(current.Vertex, out edgePath))
-                        { // this vertex has not been visited before.
-                            _backwardVisits.Add(current.Vertex, new LinkedEdgePath()
-                            {
-                                Path = current
-                            });
+                        current = _backwardQueue.Pop();
+                        _backwardTree.GetSettledEdge(current, out edge1, out edge2, out weight, out edge, out previous);
+
+                        if (!_backwardVisits.ContainsKey(edge2))
+                        { // has not been visited before!
+                            _backwardVisits.Add(edge2, current);
                             break;
                         }
-                        else
-                        { // vertex has been visited before, check if edge has.
-                            if (!edgePath.HasPath(current))
-                            { // current edge has not been used to get to this vertex.
-                                _backwardVisits[current.Vertex] = new LinkedEdgePath()
-                                {
-                                    Path = current,
-                                    Next = edgePath
-                                };
-                                break;
-                            }
-                        }
-                        current = _backwardQueue.Pop();
+                        current = uint.MaxValue;
                     }
 
-                    if (current != null)
+                    if (current != uint.MaxValue)
                     {
-                        // get relevant restrictions.
-                        _restrictions.Update(current.Vertex);
-
-                        // check if there is a backward path that matches this vertex.
-                        LinkedEdgePath forwardPath = null;
-                        if (_forwardVisits.TryGetValue(current.Vertex, out forwardPath))
-                        { // check for a new best.
-                            while (forwardPath != null)
-                            {
-                                var total = _weightHandler.Add(current.Weight, forwardPath.Path.Weight);
-                                if (_weightHandler.IsSmallerThan(total, _best.Item3))
-                                { // potentially a weight improvement.
-                                    // check u-turn.
-                                    var sequence2Forward = forwardPath.Path.GetSequence2(edgeEnumerator);
-                                    var sequence2Current = current.GetSequence2(edgeEnumerator);
-                                    var finalTurn = new Turn()
-                                    {
-                                        Vertex1 = sequence2Forward,
-                                        Vertex2 = current.Vertex,
-                                        Vertex3 = sequence2Current
-                                    };
-                                    if (!finalTurn.IsUTurn &&
-                                        !finalTurn.IsRestrictedBy(_restrictions))
-                                    {
-                                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardPath.Path, current,
-                                            _weightHandler.Add(current.Weight, forwardPath.Path.Weight));
-                                        this.HasSucceeded = true;
-                                    }
-                                }
-                                forwardPath = forwardPath.Next;
-                            }
-                        }
-
-                        // continue the search.
-                        this.SearchBackward(edgeEnumerator, current);
+                        // do the backward search.
+                        this.SearchBackward(edgeEnumerator, current, edge2, weight);
                     }
                 }
 
@@ -274,169 +227,142 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// Search forward from one vertex.
         /// </summary>
         /// <returns></returns>
-        protected virtual void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
+        protected virtual void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, uint current,
+            OriginalEdge edge2, float weight)
         {
-            if (current != null)
-            { // there is a next vertex found.
-                // get the edge enumerator.
-                var currentS2 = current.GetSequence2(edgeEnumerator);
-                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
+            // update restrictions.
+            _restrictions.Update(edge2.Vertex2);
 
-                // get neighbours.
-                edgeEnumerator.MoveTo(current.Vertex);
+            // get neighbours.
+            edgeEnumerator.MoveTo(edge2.Vertex2);
 
-                // add the neighbours to the queue.
-                while (edgeEnumerator.MoveNext())
-                {
-                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
+            // add the neighbours to the queue.
+            while (edgeEnumerator.MoveNext())
+            {
+                var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
+                if (neighbourWeight.Direction.F)
+                { // the edge is forward, and is to higher or was not contracted at all.
+                    var neighbourNeighbour = edgeEnumerator.Neighbour;
+                    var neighbourTurn = new Turn(edge2, neighbourNeighbour);
+                    var neighbourEdge2 = new OriginalEdge(edge2.Vertex2, neighbourNeighbour);
+                    if (!edgeEnumerator.IsOriginal())
+                    { // not an original edge, use the sequence.
+                        neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
+                        neighbourEdge2.Vertex1 = edgeEnumerator.GetSequence2();
+                    }
 
-                    if (neighbourWeight.Direction.F)
-                    { // the edge is forward, and is to higher or was not contracted at all.
-                        var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
-                        if (!edgeEnumerator.IsOriginal())
-                        { // not an original edge, use the sequence.
-                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
-                        }
+                    // check u-turns and restrictions.
+                    if (neighbourTurn.IsUTurn ||
+                        neighbourTurn.IsRestrictedBy(_restrictions))
+                    {
+                        continue;
+                    }
 
-                        // check u-turns and restrictions.
-                        if (neighbourTurn.IsUTurn ||
-                            neighbourTurn.IsRestrictedBy(_restrictions))
-                        {
-                            continue;
-                        }
-
-                        // build route to neighbour and check if it has been visited already.
-                        var routeToNeighbour = new EdgePath<T>(
-                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight.Weight), edgeEnumerator.IdDirected(), current);
-                        LinkedEdgePath edgePath = null;
-                        if (!_forwardVisits.TryGetValue(current.Vertex, out edgePath) ||
-                            !edgePath.HasPath(routeToNeighbour))
-                        { // this vertex has not been visited in this way before.
-                            _forwardQueue.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
+                    // check the backward settles for a match.
+                    var neighbourEdge1 = new OriginalEdge(edge2.Vertex2, neighbourTurn.Vertex3);
+                    uint backwardPointer;
+                    if (_backwardVisits.TryGetValue(neighbourEdge1.Reverse(), out backwardPointer))
+                    { // there is a backward match for the outgoing edge.
+                        float backwardWeight;
+                        OriginalEdge backwardEdge1, backwardEdge2;
+                        _backwardTree.GetSettledEdge(backwardPointer, out backwardEdge1, out backwardEdge2, out backwardWeight);
+                        var totalWeight = weight + backwardWeight;
+                        if (totalWeight < _weightHandler.GetMetric(_best.Item3))
+                        { // all ok here, turn was already checked.
+                            _best = new Tuple<uint, uint, float>(current, backwardPointer, totalWeight);
+                            this.HasSucceeded = true;
                         }
                     }
+
+                    // queue forward neighbour.
+                    var newWeight = weight + neighbourWeight.Weight;
+                    var pointer = _forwardTree.AddSettledEdge(neighbourEdge1, neighbourEdge2, newWeight, edgeEnumerator.Id,
+                        current);
+                    _forwardQueue.Push(pointer, newWeight);
                 }
             }
         }
-        
+
         /// <summary>
         /// Search backward from one vertex.
         /// </summary>
         /// <returns></returns>
-        protected virtual void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<T> current)
+        protected virtual void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, uint current,
+            OriginalEdge edge2, float weight)
         {
-            if (current != null)
-            { // there is a next vertex found.
-                // get the edge enumerator.
-                var currentS2 = current.GetSequence2(edgeEnumerator);
-                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
+            // update restrictions.
+            _restrictions.Update(edge2.Vertex2);
 
-                // get neighbours.
-                edgeEnumerator.MoveTo(current.Vertex);
+            // get neighbours.
+            edgeEnumerator.MoveTo(edge2.Vertex2);
 
-                // add the neighbours to the queue.
-                while (edgeEnumerator.MoveNext())
-                {
-                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
-                    if (neighbourWeight.Direction.B)
-                    { // the edge is forward, and is to higher or was not contracted at all.
-                        var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
-                        if (!edgeEnumerator.IsOriginal())
-                        { // not an original edge, use the sequence.
-                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
-                        }
+            // add the neighbours to the queue.
+            while (edgeEnumerator.MoveNext())
+            {
+                var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
+                if (neighbourWeight.Direction.B)
+                { // the edge is forward, and is to higher or was not contracted at all.
+                    var neighbourNeighbour = edgeEnumerator.Neighbour;
+                    var s1 = neighbourNeighbour;
+                    var s2 = edge2.Vertex2;
+                    if (!edgeEnumerator.IsOriginal())
+                    { // not an original edge, use the sequence.
+                        s1 = edgeEnumerator.GetSequence1();
+                        s2 = edgeEnumerator.GetSequence2();
+                    }
+                    var neighbourTurn = new Turn(edge2, s1);
+                    neighbourTurn.Reverse(); // this is a backward search.
+                    var neighbourEdge1 = new OriginalEdge(edge2.Vertex2, s1);
+                    var neighbourEdge2 = new OriginalEdge(s2, neighbourNeighbour);
 
-                        neighbourTurn.Reverse(); // this is a backward search!
-                        if (neighbourTurn.IsUTurn ||
-                            neighbourTurn.IsRestrictedBy(_restrictions))
-                        { // don't do u-turns!
-                            continue;
-                        }
-                        
-                        // build route to neighbour and check if it has been visited already.
-                        var routeToNeighbour = new EdgePath<T>(
-                            neighbourNeighbour, _weightHandler.Add(current.Weight, neighbourWeight.Weight), edgeEnumerator.IdDirected(), current);
-                        LinkedEdgePath edgePath = null;
-                        if (!_backwardVisits.TryGetValue(current.Vertex, out edgePath) ||
-                            !edgePath.HasPath(routeToNeighbour))
-                        { // this vertex has not been visited in this way before.
-                            _backwardQueue.Push(routeToNeighbour, _weightHandler.GetMetric(routeToNeighbour.Weight));
+                    // check u-turns and restrictions.
+                    if (neighbourTurn.IsUTurn ||
+                        neighbourTurn.IsRestrictedBy(_restrictions))
+                    {
+                        continue;
+                    }
+
+                    // check the forward settles for a match.
+                    uint forwardPointer;
+                    if (_forwardVisits.TryGetValue(neighbourEdge1.Reverse(), out forwardPointer))
+                    { // there is a backward match for the outgoing edge.
+                        float forwardWeight;
+                        OriginalEdge forwardEdge1, forwardEdge2;
+                        _forwardTree.GetSettledEdge(forwardPointer, out forwardEdge1, out forwardEdge2, out forwardWeight);
+                        var totalWeight = weight + forwardWeight;
+                        if (totalWeight < _best.Item3)
+                        { // all ok here, turn was already checked.
+                            _best = new Tuple<uint, uint, float>(forwardPointer, current, totalWeight);
+                            this.HasSucceeded = true;
                         }
                     }
+
+                    // queue forward neighbour.
+                    var newWeight = weight + neighbourWeight.Weight;
+                    var pointer = _backwardTree.AddSettledEdge(neighbourEdge1, neighbourEdge2, newWeight, edgeEnumerator.Id,
+                        current);
+                    _backwardQueue.Push(pointer, newWeight);
                 }
             }
         }
         
         /// <summary>
-        /// Returns the vertex on the best path.
-        /// </summary>
-        public uint Best
-        {
-            get
-            {
-                this.CheckHasRunAndHasSucceeded();
-
-                return _best.Item1.Vertex;
-            }
-        }
-
-        /// <summary>
-        /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
-        /// </summary>
-        /// <returns></returns>
-        public bool TryGetForwardVisit(uint vertex, out EdgePath<T> visit)
-        {
-            this.CheckHasRunAndHasSucceeded();
-
-            LinkedEdgePath path;
-            if (_forwardVisits.TryGetValue(vertex, out path))
-            {
-                visit = path.Best(_weightHandler);
-                return true;
-            }
-            visit = null;
-            return false;
-        }
-
-        /// <summary>
-        /// Returns true if the given vertex was visited and sets the visit output parameters with the actual visit data.
-        /// </summary>
-        /// <returns></returns>
-        public bool TryGetBackwardVisit(uint vertex, out EdgePath<T> visit)
-        {
-            this.CheckHasRunAndHasSucceeded();
-
-            LinkedEdgePath path;
-            if (_backwardVisits.TryGetValue(vertex, out path))
-            {
-                visit = path.Best(_weightHandler);
-                return true;
-            }
-            visit = null;
-            return false;
-        }
-
-        /// <summary>
         /// Returns the path.
         /// </summary>
-        public List<uint> GetPath()
+        public override List<uint> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
 
             var vertices = new List<uint>();
-            var fromSource = _best.Item1.Expand(_graph, _weightHandler, true);
-            var toTarget = _best.Item2.Expand(_graph, _weightHandler, false);
+            var bestItem1 = _forwardTree.GetEdgePath(_best.Item1);
+            var bestItem2 = _backwardTree.GetEdgePath(_best.Item2);
+            var fromSource = bestItem1.Expand(_graph, _weightHandler, true);
+            var toTarget = bestItem2.Expand(_graph, _weightHandler, false);
 
             // add vertices from source.
             vertices.Add(fromSource.Vertex);
             while (fromSource.From != null)
             {
-                //if (fromSource.From.Vertex != Constants.NO_VERTEX)
-                //{ // this should be the end of the path.
-                //    _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
-                //}
                 vertices.Add(fromSource.From.Vertex);
                 fromSource = fromSource.From;
             }
@@ -445,164 +371,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
             // and add vertices to target.
             while (toTarget.From != null)
             {
-                //if (toTarget.From.Vertex != Constants.NO_VERTEX)
-                //{ // this should be the end of the path.
-                //    _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
-                //}
                 vertices.Add(toTarget.From.Vertex);
                 toTarget = toTarget.From;
             }
             return vertices;
-        }
-        
-        protected class LinkedEdgePath
-        {
-            public EdgePath<T> Path { get; set; }
-            public LinkedEdgePath Next { get; set; }
-
-            public EdgePath<T> Best(WeightHandler<T> weightHandler)
-            {
-                var best = this.Path;
-                var current = this.Next;
-                while (current != null)
-                {
-                    if (weightHandler.IsSmallerThan(current.Path.Weight, best.Weight))
-                    {
-                        best = current.Path;
-                    }
-                    current = current.Next;
-                }
-                return best;
-            }
-
-            public bool HasPath(EdgePath<T> path)
-            {
-                var current = this;
-                while (current != null)
-                {
-                    if (current.Path.Edge == path.Edge)
-                    {
-                        return true;
-                    }
-                    current = current.Next;
-                }
-                return false;
-            }
-        }
-    }
-
-    /// <summary>
-    /// An algorithm to calculate a point-to-point route based on a contraction hierarchy.
-    /// </summary>
-    public class BidirectionalDykstra : BidirectionalDykstra<float>
-    {
-        /// <summary>
-        /// Creates a new contracted bidirectional router.
-        /// </summary>
-        public BidirectionalDykstra(DirectedDynamicGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets,
-            RestrictionCollection restrictions)
-            : base(graph, new DefaultWeightHandler(null), sources, targets, restrictions)
-        {
-
-        }
-
-        /// <summary>
-        /// Search forward from one vertex.
-        /// </summary>
-        /// <returns></returns>
-        protected override void SearchForward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<float> current)
-        {
-            if (current != null)
-            { // there is a next vertex found.
-                // get the edge enumerator.
-                var currentS2 = current.GetSequence2(edgeEnumerator);
-                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
-
-                // get neighbours.
-                edgeEnumerator.MoveTo(current.Vertex);
-
-                // add the neighbours to the queue.
-                while (edgeEnumerator.MoveNext())
-                {
-                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
-
-                    if (neighbourWeight.Direction.F)
-                    { // the edge is forward, and is to higher or was not contracted at all.
-                        var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
-                        if (!edgeEnumerator.IsOriginal())
-                        { // not an original edge, use the sequence.
-                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
-                        }
-
-                        // check u-turns and restrictions.
-                        if (neighbourTurn.IsUTurn ||
-                            neighbourTurn.IsRestrictedBy(_restrictions))
-                        {
-                            continue;
-                        }
-
-                        // build route to neighbour and check if it has been visited already.
-                        var routeToNeighbour = new EdgePath<float>(
-                            neighbourNeighbour, current.Weight + neighbourWeight.Weight, edgeEnumerator.IdDirected(), current);
-                        LinkedEdgePath edgePath = null;
-                        if (!_forwardVisits.TryGetValue(current.Vertex, out edgePath) ||
-                            !edgePath.HasPath(routeToNeighbour))
-                        { // this vertex has not been visited in this way before.
-                            _forwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
-                        }
-                    }
-                }
-            }
-        }
-        
-        /// <summary>
-        /// Search backward from one vertex.
-        /// </summary>
-        /// <returns></returns>
-        protected override void SearchBackward(DirectedDynamicGraph.EdgeEnumerator edgeEnumerator, EdgePath<float> current)
-        {
-            if (current != null)
-            { // there is a next vertex found.
-                // get the edge enumerator.
-                var currentS2 = current.GetSequence2(edgeEnumerator);
-                var currentOriginal = new OriginalEdge(currentS2, current.Vertex);
-
-                // get neighbours.
-                edgeEnumerator.MoveTo(current.Vertex);
-
-                // add the neighbours to the queue.
-                while (edgeEnumerator.MoveNext())
-                {
-                    var neighbourWeight = _weightHandler.GetEdgeWeight(edgeEnumerator.Current);
-                    if (neighbourWeight.Direction.B)
-                    { // the edge is forward, and is to higher or was not contracted at all.
-                        var neighbourNeighbour = edgeEnumerator.Neighbour;
-                        var neighbourTurn = new Turn(currentOriginal, neighbourNeighbour);
-                        if (!edgeEnumerator.IsOriginal())
-                        { // not an original edge, use the sequence.
-                            neighbourTurn.Vertex3 = edgeEnumerator.GetSequence1();
-                        }
-
-                        neighbourTurn.Reverse(); // this is a backward search!
-                        if (neighbourTurn.IsUTurn ||
-                            neighbourTurn.IsRestrictedBy(_restrictions))
-                        { // don't do u-turns!
-                            continue;
-                        }
-
-                        // build route to neighbour and check if it has been visited already.
-                        var routeToNeighbour = new EdgePath<float>(
-                            neighbourNeighbour, current.Weight + neighbourWeight.Weight, edgeEnumerator.IdDirected(), current);
-                        LinkedEdgePath edgePath = null;
-                        if (!_backwardVisits.TryGetValue(current.Vertex, out edgePath) ||
-                            !edgePath.HasPath(routeToNeighbour))
-                        { // this vertex has not been visited in this way before.
-                            _backwardQueue.Push(routeToNeighbour, routeToNeighbour.Weight);
-                        }
-                    }
-                }
-            }
         }
     }
 }

@@ -127,10 +127,10 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
                     //return;
                 }
 
-                if (progress > 90)
-                {
-                    return;
-                }
+                //if (progress > 95)
+                //{
+                //    return;
+                //}
 
                 if (progress != latestProgress)
                 {
@@ -305,9 +305,9 @@ namespace Itinero.Algorithms.Contracted.EdgeBased.Contraction
             var vertex = _vertexInfo.Vertex;
             var enumerator = _graph.GetEdgeEnumerator();
 
-#if DEBUG
-            Itinero.Logging.Logger.Log("HierarchyBuilder.Contract", TraceEventType.Information, "Contracting {0}...", vertex);
-#endif
+//#if DEBUG
+//            Itinero.Logging.Logger.Log("HierarchyBuilder.Contract", TraceEventType.Information, "Contracting {0}...", vertex);
+//#endif
 
             // remove 'downward' edge to vertex.
             var i = 0;

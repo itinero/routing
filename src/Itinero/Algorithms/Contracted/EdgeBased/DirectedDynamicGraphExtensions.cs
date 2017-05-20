@@ -174,6 +174,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// </summary>
         public static uint GetSequence1(this DirectedDynamicGraph.EdgeEnumerator edge)
         {
+            // TODO: create a get sequence1and2
             if (edge.IsOriginal())
             {
                 return Constants.NO_VERTEX;
