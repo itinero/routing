@@ -63,6 +63,9 @@ namespace Itinero.Test.Functional
 
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
+
+            var networkJson = routerDb.GetGeoJson();
+
             var router = new Router(routerDb);
             var profile = routerDb.GetSupportedProfile("car");
             var restrictions = routerDb.GetRestrictions(profile);
@@ -83,28 +86,14 @@ namespace Itinero.Test.Functional
             var hierarchyBuilder = new HierarchyBuilder(target, priorityCalculator, new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
-            var random = new System.Random();
-            var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-            var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
-            if (v1 == v2)
-            {
-                v2++;
-            }
-
-            var f1 = router.Db.Network.GetVertex(v1);
-            var f2 = router.Db.Network.GetVertex(v2);
-
-            var resolved1 = router.Resolve(profile, f1);
-            var resolved2 = router.Resolve(profile, f2);
+            var resolved1 = router.Resolve(profile, new Coordinate(51.26782f, 4.78718f));
 
             var edgeId11 = new DirectedEdgeId(resolved1.EdgeId, true);
             var edgeId12 = new DirectedEdgeId(resolved1.EdgeId, false);
-            var edgeId21 = new DirectedEdgeId(resolved2.EdgeId, true);
-            var edgeId22 = new DirectedEdgeId(resolved2.EdgeId, false);
 
             var dykstra = new Itinero.Algorithms.Contracted.BidirectionalDykstra(
-                target, new EdgePath<float>[] { new EdgePath<float>(edgeId11.Raw), new EdgePath<float>(edgeId12.Raw) },
-                new EdgePath<float>[] { new EdgePath<float>(edgeId21.Raw), new EdgePath<float>(edgeId22.Raw) });
+                target, new EdgePath<float>[] { new EdgePath<float>(edgeId11.Raw) },
+                new EdgePath<float>[] { new EdgePath<float>(edgeId12.Raw) });
             dykstra.Run();
 
             var path = dykstra.GetPath();
@@ -134,8 +123,6 @@ namespace Itinero.Test.Functional
             var localPath = routerDb.BuildEdgePath(weightHandler, sourceResolved, targetResolved, vertexPath);
             var route = router.BuildRoute(profile, weightHandler, sourceResolved, targetResolved,
                 localPath);
-
-            //var networkJson = routerDb.GetGeoJson();
 
             //ContractedDb contracted;
             //routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted);

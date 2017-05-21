@@ -117,10 +117,10 @@ namespace Itinero.Algorithms.Dual
                         // ok, we need to add this edge, it's a non-restricted turn, not a u-turn and edges are in correct direction.
                         var edge2 = enumerator2.IdDirected();
                         
-                        _weightHandler.AddEdge(_target, edge1.Raw, edge2.Raw, Constants.NO_VERTEX, direction.AsNullableBool(), 
+                        _weightHandler.AddEdge(_target, edge1.Raw, edge2.Raw, Constants.NO_VERTEX, true, 
                             weight1);
-                        direction.Reverse();
-                        _weightHandler.AddEdge(_target, edge2.Raw, edge1.Raw, Constants.NO_VERTEX, direction.AsNullableBool(),
+                        //direction.Reverse();
+                        _weightHandler.AddEdge(_target, edge2.Raw, edge1.Raw, Constants.NO_VERTEX, false,
                             weight1);
                     }
                 }

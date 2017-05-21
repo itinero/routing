@@ -32,16 +32,16 @@ namespace Itinero.Algorithms.Contracted
     public class HierarchyBuilder<T> : AlgorithmBase
         where T : struct
     {
-        private readonly DirectedMetaGraph _graph;
-        private readonly IPriorityCalculator _priorityCalculator;
-        private readonly IWitnessCalculator _witnessCalculator;
-        private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
-        private readonly WeightHandler<T> _weightHandler;
+        protected readonly DirectedMetaGraph _graph;
+        protected readonly IPriorityCalculator _priorityCalculator;
+        protected readonly DykstraWitnessCalculator _witnessCalculator;
+        protected readonly static Logger _logger = Logger.Create("HierarchyBuilder");
+        protected readonly WeightHandler<T> _weightHandler;
 
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
+        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, DykstraWitnessCalculator witnessCalculator,
             WeightHandler<T> weightHandler)
         {
             weightHandler.CheckCanUse(graph);
@@ -396,7 +396,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
+        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, DykstraWitnessCalculator witnessCalculator)
             : base(graph, priorityCalculator, witnessCalculator, new DefaultWeightHandler(null)) // the get factor function is never called.
         {
 

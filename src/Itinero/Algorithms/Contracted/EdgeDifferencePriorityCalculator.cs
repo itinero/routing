@@ -31,12 +31,12 @@ namespace Itinero.Algorithms.Contracted
         private readonly DirectedMetaGraph _graph;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
-        private readonly IWitnessCalculator _witnessCalculator;
+        private readonly DykstraWitnessCalculator _witnessCalculator;
 
         /// <summary>
         /// Creates a new priority calculator.
         /// </summary>
-        public EdgeDifferencePriorityCalculator(DirectedMetaGraph graph, IWitnessCalculator witnessCalculator)
+        public EdgeDifferencePriorityCalculator(DirectedMetaGraph graph, DykstraWitnessCalculator witnessCalculator)
         {
             _graph = graph;
             _witnessCalculator = witnessCalculator;

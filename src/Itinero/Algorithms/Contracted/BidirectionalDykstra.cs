@@ -113,8 +113,11 @@ namespace Itinero.Algorithms.Contracted
                             var total = _weightHandler.Add(current.Weight, toBest.Weight);
                             if (_weightHandler.IsSmallerThan(total, _best.Item2))
                             { // a better path was found.
-                                _best = new Tuple<uint, T>(current.Vertex, total);
-                                this.HasSucceeded = true;
+                                if (toBest.From != null || current.From != null)
+                                {
+                                    _best = new Tuple<uint, T>(current.Vertex, total);
+                                    this.HasSucceeded = true;
+                                }
                             }
                         }
 
@@ -140,8 +143,11 @@ namespace Itinero.Algorithms.Contracted
                             var total = _weightHandler.Add(current.Weight, toBest.Weight);
                             if (_weightHandler.IsSmallerThan(total, _best.Item2))
                             { // a better path was found.
-                                _best = new Tuple<uint, T>(current.Vertex, total);
-                                this.HasSucceeded = true;
+                                if (toBest.From != null || current.From != null)
+                                {
+                                    _best = new Tuple<uint, T>(current.Vertex, total);
+                                    this.HasSucceeded = true;
+                                }
                             }
                         }
 

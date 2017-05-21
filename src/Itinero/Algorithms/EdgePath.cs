@@ -90,7 +90,7 @@ namespace Itinero.Algorithms
             {
                 if (next.From != null)
                 {
-                    builder.Insert(0, string.Format("->{2}->{0}[{1}]", next.Vertex, next.Weight, next.Edge));
+                    builder.Insert(0, string.Format("->{2}->{0}[{1}]", next.Vertex, next.Weight, next.Edge.ToInvariantString()));
                 }
                 else
                 {

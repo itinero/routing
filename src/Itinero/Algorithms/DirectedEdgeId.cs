@@ -147,10 +147,10 @@ namespace Itinero.Algorithms
         {
             if (this.Forward)
             {
-                return string.Format("{0}({F})",
+                return string.Format("{0}(F)",
                     this.EdgeId);
             }
-            return string.Format("{0}({B})",
+            return string.Format("{0}(B)",
                 this.EdgeId);
         }
     }

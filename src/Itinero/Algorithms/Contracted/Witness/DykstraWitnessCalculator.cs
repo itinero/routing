@@ -27,7 +27,7 @@ namespace Itinero.Algorithms.Contracted.Witness
     /// <summary>
     /// A witness calculator based on dykstra's algorithm.
     /// </summary>
-    public class DykstraWitnessCalculator : IWitnessCalculator
+    public sealed class DykstraWitnessCalculator
     {
         private readonly BinaryHeap<SettledVertex> _heap;
 
