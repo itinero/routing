@@ -106,7 +106,7 @@ namespace Itinero
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
                     hierarchyBuilder.Run();
 
-                    contractedDb = new ContractedDb(contracted);
+                    contractedDb = new ContractedDb(contracted, false);
                 }
             }
 

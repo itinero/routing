@@ -29,16 +29,18 @@ namespace Itinero.Data.Contracted
     {
         private readonly DirectedMetaGraph _nodeBasedGraph;
         private readonly DirectedDynamicGraph _edgeBasedGraph;
+        private readonly bool _nodeBasedIsEdgeBased = false;
 
         /// <summary>
         /// Creates a new node-based contracted db.
         /// </summary>
-        public ContractedDb(DirectedMetaGraph nodeBasedGraph)
+        public ContractedDb(DirectedMetaGraph nodeBasedGraph, bool isEdgeBased)
         {
             if (nodeBasedGraph == null) { throw new ArgumentNullException("nodeBasedGraph"); }
 
             _nodeBasedGraph = nodeBasedGraph;
             _edgeBasedGraph = null;
+            _nodeBasedIsEdgeBased = isEdgeBased;
         }
 
         /// <summary>
@@ -90,6 +92,17 @@ namespace Itinero.Data.Contracted
         }
 
         /// <summary>
+        /// Returns true if the node-based graph is actually edge-based.
+        /// </summary>
+        public bool NodeBasedIsEdgedBased
+        {
+            get
+            {
+                return _nodeBasedIsEdgeBased;
+            }
+        }
+
+        /// <summary>
         /// Gets the edge-based graph if any.
         /// </summary>
         public DirectedDynamicGraph EdgeBasedGraph
@@ -111,11 +124,20 @@ namespace Itinero.Data.Contracted
             // write version # first:
             // 1: means regular non-edge contracted data.
             // 2: means regular edge contracted data.
+            // 3: means a node-based graph that is edge-based.
 
             if (_nodeBasedGraph != null)
             {
-                stream.WriteByte(1);
-                return _nodeBasedGraph.Serialize(stream, toReadonly) + 1;
+                if (!_nodeBasedIsEdgeBased)
+                {
+                    stream.WriteByte(1);
+                    return _nodeBasedGraph.Serialize(stream, toReadonly) + 1;
+                }
+                else
+                {
+                    stream.WriteByte(3);
+                    return _nodeBasedGraph.Serialize(stream, toReadonly) + 1;
+                }
             }
             else
             {
@@ -136,11 +158,15 @@ namespace Itinero.Data.Contracted
             var version = stream.ReadByte();
             if (version == 1)
             {
-                return new ContractedDb(DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.NodeBasedProfile));
+                return new ContractedDb(DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.NodeBasedProfile), false);
             }
             else if (version == 2)
             {
                 return new ContractedDb(DirectedDynamicGraph.Deserialize(stream, profile == null ? null : profile.EdgeBasedProfile));
+            }
+            else if(version == 3)
+            {
+                return new ContractedDb(DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.NodeBasedProfile), true);
             }
             else
             {

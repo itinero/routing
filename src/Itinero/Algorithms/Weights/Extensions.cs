@@ -141,7 +141,7 @@ namespace Itinero.Algorithms.Weights
         public static void CheckCanUse<T>(this WeightHandler<T> weightHandler, DirectedMetaGraph graph)
             where T : struct
         {
-            weightHandler.CheckCanUse(new ContractedDb(graph));
+            weightHandler.CheckCanUse(new ContractedDb(graph, false));
         }
 
         /// <summary>

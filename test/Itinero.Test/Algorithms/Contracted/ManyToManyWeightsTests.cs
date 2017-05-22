@@ -223,7 +223,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
@@ -290,7 +290,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
             graph.AddEdge(1, 2, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
@@ -357,7 +357,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(1, 0, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
@@ -431,7 +431,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100, true, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), oneway,
@@ -504,7 +504,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(0, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, true, Constants.NO_VERTEX);
             graph.AddEdge(1, 2, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, true, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), oneway,
@@ -577,7 +577,7 @@ namespace Itinero.Test.Algorithms.Contracted
                 ContractedEdgeDataSerializer.MetaSize);
             graph.AddEdge(1, 0, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, false, Constants.NO_VERTEX);
             graph.AddEdge(2, 1, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, false, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), oneway,
@@ -668,7 +668,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(3, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 2);
             graph.AddEdge(4, 1, 200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, 0);
             graph.AddEdge(4, 3, 100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, null, Constants.NO_VERTEX);
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph));
+            routerDb.AddContracted(VehicleMock.Car().Fastest(), new ContractedDb(graph, false));
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
