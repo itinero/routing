@@ -35,6 +35,7 @@ using Itinero.LocalGeo;
 using System.Text;
 using System.IO;
 using Itinero.IO.Json;
+using Itinero.Algorithms.Restrictions;
 
 namespace Itinero
 {
@@ -289,6 +290,68 @@ namespace Itinero
                 }
                 return restrictionList;
             };
+        }
+
+        /// <summary>
+        /// Gets the restriction collection for the given profile.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        /// <param name="profile">The vehicle profile.</param>
+        public static RestrictionCollection GetRestrictions(this RouterDb db, Profiles.Profile profile)
+        {
+            var vehicleTypes = new List<string>(profile.VehicleTypes);
+            vehicleTypes.Insert(0, string.Empty);
+
+            var restrictionDbs = new RestrictionsDb[vehicleTypes.Count];
+            for (var i = 0; i < vehicleTypes.Count; i++)
+            {
+                RestrictionsDb restrictionsDb;
+                if (db.TryGetRestrictions(vehicleTypes[i], out restrictionsDb))
+                {
+                    restrictionDbs[i] = restrictionsDb;
+                }
+            }
+
+            return new RestrictionCollection((collection, vertex) =>
+            {
+                var f = false;
+                collection.Clear();
+                for (var i = 0; i < restrictionDbs.Length; i++)
+                {
+                    var restrictionsDb = restrictionDbs[i];
+                    if (restrictionsDb == null)
+                    {
+                        continue;
+                    }
+
+                    var enumerator = restrictionsDb.GetEnumerator();
+                    if (enumerator.MoveTo(vertex))
+                    {
+                        while (enumerator.MoveNext())
+                        {
+                            var c = enumerator.Count;
+                            switch (c)
+                            {
+                                case 0:
+                                    break;
+                                case 1:
+                                    f = true;
+                                    collection.Add(enumerator[0]);
+                                    break;
+                                case 2:
+                                    f = true;
+                                    collection.Add(enumerator[0], enumerator[1]);
+                                    break;
+                                default:
+                                    f = true;
+                                    collection.Add(enumerator[0], enumerator[1], enumerator[2]);
+                                    break;
+                            }
+                        }
+                    }
+                }
+                return f;
+            });
         }
 
         /// <summary>

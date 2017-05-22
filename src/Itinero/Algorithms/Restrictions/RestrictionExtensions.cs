@@ -26,6 +26,30 @@ namespace Itinero.Algorithms.Restrictions
     public static class RestrictionExtensions
     {
         /// <summary>
+        /// Adds a new restriction.
+        /// </summary>
+        public static void Add(this RestrictionCollection restrictions, uint vertex1)
+        {
+            restrictions.Add(new Restriction(vertex1));
+        }
+
+        /// <summary>
+        /// Adds a new restriction.
+        /// </summary>
+        public static void Add(this RestrictionCollection restrictions, uint vertex1, uint vertex2)
+        {
+            restrictions.Add(new Restriction(vertex1, vertex2));
+        }
+
+        /// <summary>
+        /// Adds a new restriction.
+        /// </summary>
+        public static void Add(this RestrictionCollection restrictions, uint vertex1, uint vertex2, uint vertex3)
+        {
+            restrictions.Add(new Restriction(vertex1, vertex2, vertex3));
+        }
+
+        /// <summary>
         /// Compares two non-null sequences and checks if they have identical elements.
         /// </summary>
         public static bool IsSequenceIdentical(this uint[] s1, uint[] s2)
