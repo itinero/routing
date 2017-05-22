@@ -39,7 +39,7 @@ namespace Itinero.Test.Functional.Tests
             var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
                 Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
 
-            //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
             
             return routerDb;
         }

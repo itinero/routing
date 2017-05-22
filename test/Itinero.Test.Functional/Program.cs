@@ -58,21 +58,6 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            var source = routerDb.Network.GeometricGraph.Graph;
-            var target = new DirectedMetaGraph(Itinero.Data.Contracted.Edges.ContractedEdgeDataSerializer.Size,
-                Itinero.Data.Contracted.Edges.ContractedEdgeDataSerializer.MetaSize);
-            var profile = routerDb.GetSupportedProfile("car");
-            var weightHandler = router.GetDefaultWeightHandler(profile);
-            var restrictions = routerDb.GetRestrictions(profile);
-
-            var func = new Action(() =>
-            {
-                var dualBuilder = new Itinero.Algorithms.Dual.DualGraphBuilder<float>(source, target,
-                    weightHandler, restrictions);
-                dualBuilder.Run();
-            });
-            func.TestPerf("Building dual graph");
-
             //var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
             //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
             //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));

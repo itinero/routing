@@ -81,7 +81,17 @@ namespace Itinero
                         weightHandler, restrictions);
                     dualGraphBuilder.Run();
 
+                    // contract the graph.
+                    var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
+                        new DykstraWitnessCalculator(int.MaxValue));
+                    priorityCalculator.DifferenceFactor = 5;
+                    priorityCalculator.DepthFactor = 5;
+                    priorityCalculator.ContractedFactor = 8;
+                    var hierarchyBuilder = new HierarchyBuilder<T>(contracted, priorityCalculator,
+                            new DykstraWitnessCalculator(int.MaxValue), weightHandler);
+                    hierarchyBuilder.Run();
 
+                    contractedDb = new ContractedDb(contracted, true);
                 }
                 else
                 { // vertex-based is ok when no complex restrictions found.
