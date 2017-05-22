@@ -17,6 +17,7 @@
  */
 
 using Itinero.Graphs.Directed;
+using Itinero.Algorithms.Weights;
 using System;
 
 namespace Itinero.Data.Contracted.Edges
@@ -319,5 +320,36 @@ namespace Itinero.Data.Contracted.Edges
         {
             return metaData[0];
         }
+        
+        /// <summary>
+        /// Parses the edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static WeightAndDir<float> Deserialize(uint data0)
+        {
+            var direction = new Dir();
+
+            var dirFlags = (data0 & 3);
+            if (dirFlags == 1)
+            {
+                direction.F = true;
+            }
+            else if (dirFlags == 2)
+            {
+                direction.B = true;
+            }
+            else
+            {
+                direction.F = true;
+                direction.B = true;
+            }
+
+            return new WeightAndDir<float>()
+            {
+                Direction = direction,
+                Weight = ((data0 - dirFlags) / 4.0f) / (float)PRECISION_FACTOR
+            };
+        }
+
     }
 }
