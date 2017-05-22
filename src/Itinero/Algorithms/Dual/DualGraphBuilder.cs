@@ -29,18 +29,19 @@ namespace Itinero.Algorithms.Dual
     /// <summary>
     /// An algorithm to build a dual graph, turning edges into vertices.
     /// </summary>
-    public class DualGraphBuilder : AlgorithmBase
+    public class DualGraphBuilder<T> : AlgorithmBase
+        where T : struct
     {
         private readonly Graphs.Graph _source;
         private readonly DirectedMetaGraph _target;
-        private readonly DefaultWeightHandler _weightHandler;
+        private readonly WeightHandler<T> _weightHandler;
         private readonly RestrictionCollection _restrictions;
 
         /// <summary>
         /// Creates a new dual graph builder.
         /// </summary>
         public DualGraphBuilder(Graphs.Graph source, DirectedMetaGraph target,
-            DefaultWeightHandler weightHandler, RestrictionCollection restrictions)
+            WeightHandler<T> weightHandler, RestrictionCollection restrictions)
         {
             _source = source;
             _target = target;
@@ -53,7 +54,6 @@ namespace Itinero.Algorithms.Dual
         /// </summary>
         protected override void DoRun()
         {
-            Factor factor;
             float distance;
             ushort edgeProfile;
 
@@ -66,12 +66,12 @@ namespace Itinero.Algorithms.Dual
                 {
                     EdgeDataSerializer.Deserialize(enumerator1.Data0,
                         out distance, out edgeProfile);
-                    var weight1 = _weightHandler.Calculate(edgeProfile, distance, out factor);
-                    if (factor.Value == 0)
+                    var weight1 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance);
+                    if (_weightHandler.GetMetric(weight1.Weight) == 0)
                     { // not accessible.
                         continue;
                     }
-                    var direction1 = Dir.FromFactor(factor, enumerator1.DataInverted);
+                    var direction1 = weight1.Direction;
                     var edge1 = enumerator1.DirectedEdgeId();
 
                     // look at the neighbours of this edge.
@@ -82,13 +82,13 @@ namespace Itinero.Algorithms.Dual
                         var turn = new Turn(new OriginalEdge(v, enumerator1.To), Constants.NO_VERTEX);
                         EdgeDataSerializer.Deserialize(enumerator2.Data0,
                             out distance, out edgeProfile);
-                        var weight2 = _weightHandler.Calculate(edgeProfile, distance, out factor);
-                        if (factor.Value == 0)
+                        var weight2 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance);
+                        if (_weightHandler.GetMetric(weight2.Weight) == 0)
                         { // not accessible.
                             continue;
                         }
 
-                        var direction2 = Dir.FromFactor(factor, enumerator2.DataInverted);
+                        var direction2 = weight2.Direction;
                         turn.Vertex3 = enumerator2.To;
                         if (turn.IsUTurn)
                         { // is a u-turn, leave this out!
@@ -118,10 +118,10 @@ namespace Itinero.Algorithms.Dual
                         var edge2 = enumerator2.DirectedEdgeId();
 
                         _weightHandler.AddEdge(_target, edge1.Raw, edge2.Raw, Constants.NO_VERTEX, true,
-                            weight1);
+                            weight1.Weight);
                         //direction.Reverse();
                         _weightHandler.AddEdge(_target, edge2.Raw, edge1.Raw, Constants.NO_VERTEX, false,
-                            weight1);
+                            weight1.Weight);
                     }
                 }
             }

@@ -87,12 +87,22 @@ namespace Itinero.Test
             return distance;
         }
 
+        public override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance)
+        {
+            throw new NotImplementedException();
+        }
+
         public override float GetEdgeWeight(DynamicEdge edge, out bool? direction)
         {
             throw new NotImplementedException();
         }
 
         public override float GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override WeightAndDir<float> GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge)
         {
             throw new NotImplementedException();
         }

@@ -91,6 +91,30 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public sealed override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance)
+        {
+            var factor = _getFactor(edgeProfile);
+            var weight = new WeightAndDir<float>();
+            if (factor.Direction == 0)
+            {
+                weight.Direction = new Dir(true, true);
+            }
+            else if (factor.Direction == 1)
+            {
+                weight.Direction = new Dir(true, false);
+            }
+            else
+            {
+                weight.Direction = new Dir(false, true);
+            }
+
+            weight.Weight = distance * factor.Value;
+            return weight;
+        }
+
+        /// <summary>
         /// Adds weight to given weight based on the given distance and profile.
         /// </summary>
         public sealed override float Add(float weight, ushort edgeProfile, float distance, out Factor factor)

@@ -67,7 +67,7 @@ namespace Itinero.Test.Functional
 
             var func = new Action(() =>
             {
-                var dualBuilder = new Itinero.Algorithms.Dual.DualGraphBuilder(source, target,
+                var dualBuilder = new Itinero.Algorithms.Dual.DualGraphBuilder<float>(source, target,
                     weightHandler, restrictions);
                 dualBuilder.Run();
             });

@@ -44,6 +44,11 @@ namespace Itinero.Algorithms.Weights
         public abstract T Calculate(ushort edgeProfile, float distance, out Factor factor);
 
         /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance);
+
+        /// <summary>
         /// Adds the two weights.
         /// </summary>
         public abstract T Add(T weight1, T weight2);
@@ -241,6 +246,35 @@ namespace Itinero.Algorithms.Weights
                 Time = (distance * factorAndSpeed.SpeedFactor),
                 Value = (distance * factorAndSpeed.Value)
             };
+        }
+        
+        /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public sealed override WeightAndDir<Weight> CalculateWeightAndDir(ushort edgeProfile, float distance)
+        {
+            var factor = _getFactorAndSpeed(edgeProfile);
+            var weight = new WeightAndDir<Weight>();
+            if (factor.Direction == 0)
+            {
+                weight.Direction = new Dir(true, true);
+            }
+            else if (factor.Direction == 1)
+            {
+                weight.Direction = new Dir(true, false);
+            }
+            else
+            {
+                weight.Direction = new Dir(false, true);
+            }
+
+            weight.Weight = new Weight()
+            {
+                Distance = distance,
+                Time = (distance * factor.SpeedFactor),
+                Value = (distance * factor.Value)
+            };
+            return weight;
         }
 
         /// <summary>

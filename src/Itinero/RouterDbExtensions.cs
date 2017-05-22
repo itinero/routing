@@ -36,6 +36,7 @@ using System.Text;
 using System.IO;
 using Itinero.IO.Json;
 using Itinero.Algorithms.Restrictions;
+using Itinero.Algorithms.Dual;
 
 namespace Itinero
 {
@@ -73,22 +74,14 @@ namespace Itinero
             {
                 if (forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.
-                    var contracted = new DirectedDynamicGraph(weightHandler.DynamicSize);
-                    var directedGraphBuilder = new Itinero.Algorithms.Contracted.EdgeBased.DirectedGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted,
-                        weightHandler);
-                    directedGraphBuilder.Run();
+                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                        weightHandler.MetaSize);
+                    var restrictions = db.GetRestrictions(profile);
+                    var dualGraphBuilder = new DualGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted,
+                        weightHandler, restrictions);
+                    dualGraphBuilder.Run();
 
-                    // contract the graph.
-                    var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator<T>(contracted, weightHandler,
-                        new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, 4, 64));
-                    priorityCalculator.DifferenceFactor = 5;
-                    priorityCalculator.DepthFactor = 5;
-                    priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder<T>(contracted, priorityCalculator,
-                            new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue, 64), weightHandler, db.GetGetRestrictions(profile, null));
-                    hierarchyBuilder.Run();
 
-                    contractedDb = new ContractedDb(contracted);
                 }
                 else
                 { // vertex-based is ok when no complex restrictions found.
