@@ -17,6 +17,7 @@
  */
 
 using Itinero.Profiles;
+using Itinero.Algorithms;
 using System;
 
 namespace Itinero.Graphs
@@ -26,6 +27,19 @@ namespace Itinero.Graphs
     /// </summary>
     public static class EdgeExtensions
     {
+        /// <summary>
+        /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
+        /// </summary>
+        /// <remarks>
+        /// The relationship between a regular edge id and a directed edge id:
+        /// - 0 -> 1 forward, -1 backward.
+        /// - all other id's are offset by 1 and postive when forward, negative when backward.
+        /// </remarks>
+        public static DirectedEdgeId DirectedEdgeId(this Graph.EdgeEnumerator enumerator)
+        {
+            return new DirectedEdgeId(enumerator.Id, !enumerator.DataInverted);
+        }
+
         /// <summary>
         /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
         /// </summary>
