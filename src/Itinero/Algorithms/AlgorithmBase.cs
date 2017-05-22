@@ -55,7 +55,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Checks if HasRun is true and throw an exception if not.
         /// </summary>
-        protected void CheckHasRun()
+        public void CheckHasRun()
         {
             if (!this.HasRun)
             {
@@ -66,7 +66,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Checks if HasRun and HasSucceeded is true and throws exception if not.
         /// </summary>
-        protected void CheckHasRunAndHasSucceeded()
+        public void CheckHasRunAndHasSucceeded()
         {
             this.CheckHasRun();
 

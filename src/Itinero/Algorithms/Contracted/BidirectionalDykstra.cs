@@ -257,6 +257,17 @@ namespace Itinero.Algorithms.Contracted
         }
 
         /// <summary>
+        /// Gets the graph.
+        /// </summary>
+        public DirectedMetaGraph Graph
+        {
+            get
+            {
+                return _graph;
+            }
+        }
+
+        /// <summary>
         /// Returns the vertex on the best path.
         /// </summary>
         public uint Best
@@ -290,56 +301,6 @@ namespace Itinero.Algorithms.Contracted
 
             return _backwardVisits.TryGetValue(vertex, out visit);
         }
-        
-        /// <summary>
-        /// Returns the path.
-        /// </summary>
-        /// <returns></returns>
-        public List<uint> GetPath()
-        {
-            this.CheckHasRunAndHasSucceeded();
-
-            EdgePath<T> fromSource;
-            EdgePath<T> toTarget;
-            if (_forwardVisits.TryGetValue(_best.Item1, out fromSource) &&
-                _backwardVisits.TryGetValue(_best.Item1, out toTarget))
-            {
-                var vertices = new List<uint>();
-
-                // add vertices from source.
-                vertices.Add(fromSource.Vertex);
-                while (fromSource.From != null)
-                {
-                    if (fromSource.From.Vertex != Constants.NO_VERTEX)
-                    { // this should be the end of the path.
-                        if (fromSource.Edge == Constants.NO_EDGE)
-                        { // only expand when there is no edge id.
-                            _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
-                        }
-                    }
-                    vertices.Add(fromSource.From.Vertex);
-                    fromSource = fromSource.From;
-                }
-                vertices.Reverse();
-
-                // and add vertices to target.
-                while (toTarget.From != null)
-                {
-                    if (toTarget.From.Vertex != Constants.NO_VERTEX)
-                    { // this should be the end of the path.
-                        if (toTarget.Edge == Constants.NO_EDGE)
-                        { // only expand when there is no edge id.
-                            _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
-                        }
-                    }
-                    vertices.Add(toTarget.From.Vertex);
-                    toTarget = toTarget.From;
-                }
-
-                return vertices;
-            }
-            throw new InvalidOperationException("No path could be found to/from source/target.");
-        }
     }
 
     /// <summary>
@@ -355,5 +316,5 @@ namespace Itinero.Algorithms.Contracted
         {
 
         }
-    }        
+    }
 }

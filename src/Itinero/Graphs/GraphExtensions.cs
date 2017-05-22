@@ -85,6 +85,31 @@ namespace Itinero.Graphs
                     }
                 }
             }
+            if (bestEdge == Constants.NO_EDGE)
+            {
+                edgeEnumerator.Reset();
+                while (edgeEnumerator.MoveNext())
+                {
+                    if (edgeEnumerator.To == vertex2)
+                    {
+                        float distance;
+                        ushort edgeProfile;
+                        EdgeDataSerializer.Deserialize(edgeEnumerator.Data0, out distance, out edgeProfile);
+                        var weight = weightHandler.Calculate(edgeProfile, distance, out factor);
+
+                        //if (factor.Value > 0 && (factor.Direction == 0 ||
+                        //    ((factor.Direction == 1) && !edgeEnumerator.DataInverted) ||
+                        //    ((factor.Direction == 2) && edgeEnumerator.DataInverted)))
+                        //{ // it's ok; the edge can be traversed by the given vehicle.
+                            if (weightHandler.IsSmallerThan(weight, bestWeight))
+                            {
+                                bestWeight = weight;
+                                bestEdge = edgeEnumerator.IdDirected();
+                            }
+                        //}
+                    }
+                }
+            }
             return bestEdge;
         }
 

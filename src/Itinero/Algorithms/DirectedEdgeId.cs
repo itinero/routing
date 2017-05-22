@@ -31,6 +31,28 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Creates a new directed id.
         /// </summary>
+        public DirectedEdgeId(long directedEdgeId)
+        {
+            uint edgeId = Constants.NO_EDGE;
+            if (directedEdgeId > 0)
+            {
+                edgeId = (uint)(directedEdgeId - 1);
+            }
+            else
+            {
+                edgeId = (uint)(-directedEdgeId - 1);
+            }
+
+            Raw = edgeId * 2;
+            if (directedEdgeId > 0)
+            {
+                Raw++;
+            }
+        }
+
+        /// <summary>
+        /// Creates a new directed id.
+        /// </summary>
         public DirectedEdgeId(uint edgeId, bool forward)
         {
             Raw = edgeId * 2;
@@ -80,6 +102,19 @@ namespace Itinero.Algorithms
             {
                 return new DirectedEdgeId(this.EdgeId, !this.Forward);
             }
+        }
+
+        /// <summary>
+        /// Reverse the raw id.
+        /// </summary>
+        public static uint ReverseRaw(uint id)
+        {
+            var a = new DirectedEdgeId()
+            {
+                Raw = id
+            };
+            a = a.Reverse;
+            return a.Raw;
         }
 
         /// <summary>

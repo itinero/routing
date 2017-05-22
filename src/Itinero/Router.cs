@@ -233,7 +233,8 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) && 
+                        (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                             "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -255,27 +256,7 @@ namespace Itinero
                 {  // use the contracted graph.
                     List<uint> vertexPath = null;
 
-                    if (!contracted.HasEdgeBasedGraph)
-                    { // use node-based routing.
-                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
-                            source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
-                        bidirectionalSearch.Run();
-                        if (!bidirectionalSearch.HasSucceeded)
-                        {
-                            if (path == null)
-                            {
-                                return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
-                                {
-                                    return new RouteNotFoundException(message);
-                                });
-                            }
-                        }
-                        else
-                        {
-                            vertexPath = bidirectionalSearch.GetPath();
-                        }
-                    }
-                    else
+                    if (contracted.HasEdgeBasedGraph)
                     { // use edge-based routing.
                         var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
                             source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profileInstance.Profile, null));
@@ -293,6 +274,76 @@ namespace Itinero
                         else
                         {
                             vertexPath = bidirectionalSearch.GetPath();
+                        }
+                    }
+                    else if (contracted.NodeBasedIsEdgedBased)
+                    {// use vertex-based graph for edge-based routing.
+                        var sourceDirectedId1 = new DirectedEdgeId(source.EdgeId, true);
+                        var sourceDirectedId2 = new DirectedEdgeId(source.EdgeId, false);
+                        var targetDirectedId1 = new DirectedEdgeId(target.EdgeId, true);
+                        var targetDirectedId2 = new DirectedEdgeId(target.EdgeId, false);
+
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
+                            new EdgePath<T>[] { new EdgePath<T>(sourceDirectedId1.Raw), new EdgePath<T>(sourceDirectedId2.Raw) },
+                            new EdgePath<T>[] { new EdgePath<T>(targetDirectedId1.Raw), new EdgePath<T>(targetDirectedId2.Raw) });
+                        bidirectionalSearch.Run();
+
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+
+                        var directedEdgePath = Algorithms.Dual.BidirectionalDykstraExtensions.GetDualPath(bidirectionalSearch);
+
+                        // convert directed edge-path to an original vertex path.
+                        var enumerator = _db.Network.GetEdgeEnumerator();
+                        vertexPath = new List<uint>();
+                        var edge = new List<OriginalEdge>();
+                        for (var i = 0; i < directedEdgePath.Count; i++)
+                        {
+                            var e = new DirectedEdgeId()
+                            {
+                                Raw = directedEdgePath[i]
+                            };
+
+                            enumerator.MoveToEdge(e.EdgeId);
+                            var original = new OriginalEdge(enumerator.From, enumerator.To);
+                            if (!e.Forward)
+                            {
+                                original = original.Reverse();
+                            }
+                            edge.Add(original);
+                            if(vertexPath.Count == 0)
+                            {
+                                vertexPath.Add(original.Vertex1);
+                            }
+                            vertexPath.Add(original.Vertex2);
+                        }
+
+                        vertexPath[0] = Constants.NO_VERTEX;
+                        vertexPath[vertexPath.Count - 1] = Constants.NO_VERTEX;
+                    }
+                    else
+                    {  // use node-based routing.
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
+                            source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
+                        bidirectionalSearch.Run();
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            if (path == null)
+                            {
+                                return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                                {
+                                    return new RouteNotFoundException(message);
+                                });
+                            }
+                        }
+                        else
+                        {
+                            vertexPath = Algorithms.Contracted.BidirectionalDykstraExtensions.GetPath(bidirectionalSearch);
                         }
                     }
 
@@ -423,13 +474,14 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) && 
+                        (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                             "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
                         useContracted = false;
                     }
-                    if (!contracted.HasEdgeBasedGraph)
+                    if (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased)
                     {
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                             "There is a vertex-based contracted graph but it cannot be used to calculate routes with a start and end edge in a specific direction.");
@@ -443,11 +495,7 @@ namespace Itinero
 
                     List<uint> vertexPath = null;
 
-                    if (!contracted.HasEdgeBasedGraph)
-                    { // use node-based routing.
-                        throw new Exception("Cannot use vertex-based contracted graph for edge-based calculations.");
-                    }
-                    else
+                    if (contracted.HasEdgeBasedGraph)
                     { // use edge-based routing.
                         var bidirectionalSearch = new Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
                             new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profileInstance.Profile, null));
@@ -460,6 +508,50 @@ namespace Itinero
                             });
                         }
                         vertexPath = bidirectionalSearch.GetPath();
+                    }
+                    else if (contracted.HasNodeBasedGraph &&
+                        contracted.NodeBasedIsEdgedBased)
+                    { // use vertex-based graph for edge-based routing.
+                        var sourceDirectedId = new DirectedEdgeId(sourceDirectedEdge);
+                        var targetDirectedId = new DirectedEdgeId(targetDirectedEdge);
+
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
+                            new EdgePath<T>[] { new EdgePath<T>(sourceDirectedId.Raw) },
+                            new EdgePath<T>[] { new EdgePath<T>(targetDirectedId.Raw) });
+                        bidirectionalSearch.Run();
+
+                        if (!bidirectionalSearch.HasSucceeded)
+                        {
+                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+
+                        var directedEdgePath = Algorithms.Dual.BidirectionalDykstraExtensions.GetDualPath(bidirectionalSearch);
+
+                        // convert directed edge-path to an original vertex path.
+                        var enumerator = _db.Network.GetEdgeEnumerator();
+                        vertexPath = new List<uint>();
+                        for (var i = 0; i < directedEdgePath.Count; i++)
+                        {
+                            var e = new DirectedEdgeId()
+                            {
+                                Raw = directedEdgePath[i]
+                            };
+
+                            enumerator.MoveToEdge(e.EdgeId);
+                            var original = new OriginalEdge(enumerator.From, enumerator.To);
+                            if (!e.Forward)
+                            {
+                                original = original.Reverse();
+                            }
+                            vertexPath.Add(original.Vertex2);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Cannot use vertex-based contracted graph for edge-based calculations.");
                     }
 
                     // expand vertex path using the regular graph.
