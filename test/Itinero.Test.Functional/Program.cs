@@ -24,6 +24,7 @@ using Itinero.Logging;
 using Itinero.Test.Functional.Tests;
 using Itinero.IO.Osm;
 using Itinero.LocalGeo;
+using Itinero.Graphs.Directed;
 
 namespace Itinero.Test.Functional
 {
@@ -57,22 +58,37 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
-                router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
-                router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));
+            var source = routerDb.Network.GeometricGraph.Graph;
+            var target = new DirectedMetaGraph(Itinero.Data.Contracted.Edges.ContractedEdgeDataSerializer.Size,
+                Itinero.Data.Contracted.Edges.ContractedEdgeDataSerializer.MetaSize);
+            var profile = routerDb.GetSupportedProfile("car");
+            var weightHandler = router.GetDefaultWeightHandler(profile);
+            var restrictions = routerDb.GetRestrictions(profile);
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+            var func = new Action(() =>
+            {
+                var dualBuilder = new Itinero.Algorithms.Dual.DualGraphBuilder(source, target,
+                    weightHandler, restrictions);
+                dualBuilder.Run();
+            });
+            func.TestPerf("Building dual graph");
 
-            // test routing.
-            RoutingTests.Run(routerDb);
-            RoutingTests.RunFictional();
+            //var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
+            //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
+            //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));
 
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
+            //// test resolving.
+            //ResolvingTests.Run(routerDb);
 
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+            //// test routing.
+            //RoutingTests.Run(routerDb);
+            //RoutingTests.RunFictional();
+
+            //// tests calculate weight matrices.
+            //WeightMatrixTests.Run(routerDb);
+
+            //// test instruction generation.
+            //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG
