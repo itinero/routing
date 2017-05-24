@@ -70,7 +70,7 @@ namespace Itinero
                 }
             }
 
-            lock (db)
+            lock (db) // TODO: reevaluate this lock, not needed around this entire block!
             {
                 if (forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.

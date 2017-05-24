@@ -54,7 +54,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), true);
+            routerDb.AddEdgeBasedContractedForTesting(VehicleMock.Car().Fastest());
 
             // create algorithm and run.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), true);
+            routerDb.AddEdgeBasedContractedForTesting(VehicleMock.Car().Fastest());
 
             // run algorithm.
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
@@ -158,7 +158,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(VehicleMock.Car().Fastest(), true);
+            routerDb.AddEdgeBasedContractedForTesting(VehicleMock.Car().Fastest());
 
             // run algorithm (0, 1, 2)->(0, 1, 2).
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),

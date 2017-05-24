@@ -504,7 +504,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                 Profile = 0,
                 MetaId = 0
             });
-            routerDb.AddContracted(Profiles.VehicleMock.Car().Fastest(), true);
+            routerDb.AddEdgeBasedContractedForTesting(Profiles.VehicleMock.Car().Fastest());
             Itinero.Data.Contracted.ContractedDb contractedDb;
             routerDb.TryGetContracted(Profiles.VehicleMock.Car().Fastest(), out contractedDb);
             
