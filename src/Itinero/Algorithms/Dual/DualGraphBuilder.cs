@@ -102,14 +102,8 @@ namespace Itinero.Algorithms.Dual
                         { // turn is restricted.
                             direction.F = false;
                         }
-                        turn.Reverse();
-                        if (direction.B &&
-                            turn.IsRestrictedBy(_restrictions))
-                        {
-                            direction.B = false;
-                        }
 
-                        if (!direction.F && !direction.B)
+                        if (!direction.F)
                         { // there is no possible combination for these two edges.
                             continue;
                         }

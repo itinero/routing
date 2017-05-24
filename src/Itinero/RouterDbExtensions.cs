@@ -368,6 +368,17 @@ namespace Itinero
                 return null;
             }
 
+            if (vertexPath.Count == 2 &&
+                vertexPath[0] == Constants.NO_VERTEX &&
+                vertexPath[1] == Constants.NO_VERTEX)
+            {
+                if (source.EdgeId != target.EdgeId)
+                {
+                    throw new Exception("Invalid path: the path represents a path inside one edge but source and target don't match.");
+                }
+                return source.EdgePathTo<T>(routerDb, weightHandler, target);
+            }
+
             var path = new EdgePath<T>(vertexPath[0]);
             var i = 1;
             if (path.Vertex == Constants.NO_VERTEX)
@@ -650,6 +661,62 @@ namespace Itinero
 
             return db.GetGeoJsonIn(south.Latitude, west.Longitude, north.Latitude, east.Longitude,
                 includeEdges, includeVertices);
+        }
+
+
+        /// <summary>
+        /// Gets all features inside the given bounding box and builds a geojson string.
+        /// </summary>
+        public static string GetGeoJson(this RouterDb db, bool includeEdges = true, bool includeVertices = true)
+        {
+            var stringWriter = new StringWriter();
+            db.WriteGeoJson(stringWriter, includeEdges, includeVertices);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Gets all features inside the given bounding box and writes them as a geojson string.
+        /// </summary>
+        public static void WriteGeoJson(this RouterDb db, TextWriter writer, bool includeEdges = true, bool includeVertices = true)
+        {
+            if (db == null) { throw new ArgumentNullException("db"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            var edges = new HashSet<long>();
+
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+            for (uint vertex = 0; vertex < db.Network.VertexCount; vertex++)
+            {
+                if (includeVertices)
+                {
+                    db.WriteVertex(jsonWriter, vertex);
+                }
+
+                if (includeEdges)
+                {
+                    edgeEnumerator.MoveTo(vertex);
+                    edgeEnumerator.Reset();
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        if (edges.Contains(edgeEnumerator.Id))
+                        {
+                            continue;
+                        }
+                        edges.Add(edgeEnumerator.Id);
+
+                        db.WriteEdge(jsonWriter, edgeEnumerator);
+                    }
+                }
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
         }
 
         /// <summary>

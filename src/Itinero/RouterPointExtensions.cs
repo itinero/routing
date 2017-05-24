@@ -536,7 +536,7 @@ namespace Itinero
             }
             else
             {
-                throw new ArgumentException(string.Format("Cannot route to neighbour: {0} is not an edge {1}.", neighbour, point.EdgeId));
+                throw new ArgumentException(string.Format("Cannot route to neighbour: {0} is not a vertex on edge {1}.", neighbour, point.EdgeId));
             }
         }
         
