@@ -92,6 +92,11 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Gets the weight from a meta-edge.
         /// </summary>
+        public abstract WeightAndDir<T> GetEdgeWeight(MetaEdge edge);
+
+        /// <summary>
+        /// Gets the weight from a meta-edge.
+        /// </summary>
         public abstract T GetEdgeWeight(DirectedMetaGraph.EdgeEnumerator edge, out bool? direction);
 
         /// <summary>
@@ -360,6 +365,29 @@ namespace Itinero.Algorithms.Weights
                 Distance = distance,
                 Time = time,
                 Value = weight
+            };
+        }
+
+        /// <summary>
+        /// Gets the weight from the given edge and sets the direction.
+        /// </summary>
+        public sealed override WeightAndDir<Weight> GetEdgeWeight(MetaEdge edge)
+        {
+            float time;
+            float distance;
+            uint contractedId;
+            var baseWeight = Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
+            Data.Contracted.Edges.ContractedEdgeDataSerializer.DeserializeMetaAgumented(edge.MetaData,
+                out contractedId, out distance, out time);
+            return new WeightAndDir<Weight>()
+            {
+                Weight = new Weight()
+                {
+                    Distance = distance,
+                    Time = time,
+                    Value = baseWeight.Weight
+                },
+                Direction = baseWeight.Direction
             };
         }
 

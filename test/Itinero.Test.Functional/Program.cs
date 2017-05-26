@@ -57,51 +57,63 @@ namespace Itinero.Test.Functional
             Download.DownloadLuxembourgAll();
 
             // test building a routerdb.
-            var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
+            RouterDb routerDb = null;
+            using (var stream = File.OpenRead("temp.routerdb"))
+            {
+                routerDb = RouterDb.Deserialize(stream);
+            }
 
             var profile = routerDb.GetSupportedProfile("car");
-            ContractedDb contractedDb;
-            routerDb.TryGetContracted(profile, out contractedDb);
-            var target = contractedDb.NodeBasedGraph;
-            var random = new System.Random();
-            var ticks = DateTime.Now.Ticks;
-            var r = 0;
-            while (true)
+            var action = new Action(() =>
             {
-                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
-                if (v1 == v2)
-                {
-                    v2++;
-                }
+                routerDb.AddContracted(profile, true);
+            });
+            action.TestPerf("Contraction");
+            
+            //    var router = new Router(routerDb);
 
-                try
-                {
-                    var f1 = router.Db.Network.GetVertex(v1);
-                    var f2 = router.Db.Network.GetVertex(v2);
+            //var profile = routerDb.GetSupportedProfile("car");
+            //ContractedDb contractedDb;
+            //routerDb.TryGetContracted(profile, out contractedDb);
+            //var target = contractedDb.NodeBasedGraph;
+            //var random = new System.Random();
+            //var ticks = DateTime.Now.Ticks;
+            //var r = 0;
+            //while (true)
+            //{
+            //    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+            //    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
+            //    if (v1 == v2)
+            //    {
+            //        v2++;
+            //    }
 
-                    var resolved1 = router.Resolve(profile, f1);
-                    var resolved2 = router.Resolve(profile, f2);
+            //    try
+            //    {
+            //        var f1 = router.Db.Network.GetVertex(v1);
+            //        var f2 = router.Db.Network.GetVertex(v2);
 
-                    //var rawPath = router.TryCalculateRaw<float>(profile, router.GetDefaultWeightHandler(profile),
-                    //    resolved1.EdgeId + 1, -resolved2.EdgeId + 1, null);
-                    var route = router.TryCalculate(profile, resolved1, resolved2);
+            //        var resolved1 = router.Resolve(profile, f1);
+            //        var resolved2 = router.Resolve(profile, f2);
+
+            //        //var rawPath = router.TryCalculateRaw<float>(profile, router.GetDefaultWeightHandler(profile),
+            //        //    resolved1.EdgeId + 1, -resolved2.EdgeId + 1, null);
+            //        var route = router.TryCalculate(profile, resolved1, resolved2);
                     
-                    r++;
+            //        r++;
 
-                    if (r % 10 == 0)
-                    {
-                        var time = new TimeSpan(DateTime.Now.Ticks - ticks);
-                        Console.WriteLine("Calculated {0} routes in {1}: {2} s/route",
-                            r, time.ToInvariantString(), time.TotalSeconds / r);
-                    }
-                }
-                catch (Exception ex)
-                {
+            //        if (r % 10 == 0)
+            //        {
+            //            var time = new TimeSpan(DateTime.Now.Ticks - ticks);
+            //            Console.WriteLine("Calculated {0} routes in {1}: {2} s/route",
+            //                r, time.ToInvariantString(), time.TotalSeconds / r);
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
 
-                }
-            }
+            //    }
+            //}
 
             //var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
             //    router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
@@ -121,9 +133,9 @@ namespace Itinero.Test.Functional
             //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
+//#if DEBUG
             Console.ReadLine();
-#endif
+//#endif
         }
 
         private static string ToJson(FeatureCollection featureCollection)

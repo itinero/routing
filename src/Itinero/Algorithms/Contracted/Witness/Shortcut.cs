@@ -16,23 +16,21 @@
  *  limitations under the License.
  */
 
-using Itinero.Algorithms.Collections;
-
-namespace Itinero.Algorithms.Contracted
+namespace Itinero.Algorithms.Contracted.Witness
 {
     /// <summary>
-    /// A vertex priority calculator.
+    /// Represents a (potential) shortcut with a forward and backward weight.
     /// </summary>
-    public interface IPriorityCalculator
+    public struct Shortcut<T>
     {
         /// <summary>
-        /// Calculate the priority for the given vertex.
+        /// Gets or sets the forward weight.
         /// </summary>
-        float Calculate(BitArray32 contractedFlags, uint vertex);
+        public T Forward { get; set; }
 
         /// <summary>
-        /// Notifies this calculator that the given vertex was contracted.
+        /// Gets or sets the backward weight.
         /// </summary>
-        void NotifyContracted(uint vertex);
+        public T Backward { get; set; }
     }
 }

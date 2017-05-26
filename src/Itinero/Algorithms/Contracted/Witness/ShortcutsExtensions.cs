@@ -16,29 +16,20 @@
  *  limitations under the License.
  */
 
-using Itinero.Algorithms.Collections;
-using Itinero.Algorithms.Contracted;
-using System.Collections.Generic;
-
-namespace Itinero.Test.Algorithms.Contracted
+namespace Itinero.Algorithms.Contracted.Witness
 {
-    class MockPriorityCalculator : IPriorityCalculator
+    /// <summary>
+    /// Contains extension methods related to shortcuts.
+    /// </summary>
+    public static class ShortcutsExtensions
     {
-        private readonly Dictionary<uint, float> _priorities;
-
-        public MockPriorityCalculator(Dictionary<uint, float> priorities)
+        /// <summary>
+        /// Removes witnessed shortcuts.
+        /// </summary>
+        public static void RemoveWitnessed<T>(this Shortcuts<T> shortcuts, uint vertex, DykstraWitnessCalculator<T> witnessCalculator)
+            where T : struct
         {
-            _priorities = priorities;
-        }
-
-        public float Calculate(BitArray32 contractedFlags, uint vertex)
-        {
-            return _priorities[vertex];
-        }
-
-        public void NotifyContracted(uint vertex)
-        {
-
+            witnessCalculator.Calculate(shortcuts);
         }
     }
 }

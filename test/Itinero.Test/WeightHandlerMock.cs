@@ -62,6 +62,11 @@ namespace Itinero.Test
             throw new NotImplementedException();
         }
 
+        public override WeightAndDir<float> GetEdgeWeight(MetaEdge edge)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
         {
             throw new NotImplementedException();

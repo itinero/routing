@@ -47,8 +47,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -74,8 +73,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -107,8 +105,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -148,11 +145,9 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
-            priorityCalculator.ContractedFactor = 0;
-            priorityCalculator.DepthFactor = 0;
-            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.ContractedFactor = 0;
+            hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.Run();
 
             // check edges.
@@ -214,11 +209,9 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
-            priorityCalculator.ContractedFactor = 0;
-            priorityCalculator.DepthFactor = 0;
-            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.ContractedFactor = 0;
+            hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.Run();
 
             // check edges.
@@ -278,11 +271,9 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
-            priorityCalculator.DepthFactor = 0;
-            priorityCalculator.ContractedFactor = 0;
-            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.DepthFactor = 0;
+            hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.Run();
 
             // check edges.
@@ -327,11 +318,9 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
-            priorityCalculator.ContractedFactor = 0;
-            priorityCalculator.DepthFactor = 0;
-            var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.ContractedFactor = 0;
+            hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.Run();
 
             // check edges.
@@ -407,14 +396,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var priorities = new Dictionary<uint, float>();
-            priorities.Add(1, 0);
-            priorities.Add(0, 1);
-            priorities.Add(2, 2);
-            priorities.Add(3, 3);
-            var hierarchyBuilder = new HierarchyBuilder(graph,
-                new MockPriorityCalculator(priorities),
-                new DykstraWitnessCalculator(int.MaxValue));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
             // edges 1->2 and 2->1 should have been removed.
@@ -462,9 +444,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var hierarchyBuilder = new HierarchyBuilder<Weight>(graph,
-                new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
-                    new DykstraWitnessCalculator(int.MaxValue), new WeightHandler(null));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
             hierarchyBuilder.Run();
 
             // check edges.
@@ -496,11 +476,9 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.Compress();
 
             // contract graph.
-            var priorityCalculator = new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue));
-            priorityCalculator.ContractedFactor = 0;
-            priorityCalculator.DepthFactor = 0;
-            var hierarchyBuilder = new HierarchyBuilder<Weight>(graph, priorityCalculator,
-                new DykstraWitnessCalculator(int.MaxValue), new WeightHandler(null));
+            var hierarchyBuilder = new HierarchyBuilder(graph, new DykstraWitnessCalculator(int.MaxValue));
+            hierarchyBuilder.ContractedFactor = 0;
+            hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.Run();
 
             // check edges.
