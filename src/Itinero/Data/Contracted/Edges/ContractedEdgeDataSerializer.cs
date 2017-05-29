@@ -327,6 +327,7 @@ namespace Itinero.Data.Contracted.Edges
         /// <returns></returns>
         public static WeightAndDir<float> Deserialize(uint data0)
         {
+            // TODO: change layout in future version to simplify this.
             var direction = new Dir();
 
             var dirFlags = (data0 & 3);
@@ -350,6 +351,5 @@ namespace Itinero.Data.Contracted.Edges
                 Weight = ((data0 - dirFlags) / 4.0f) / (float)PRECISION_FACTOR
             };
         }
-
     }
 }

@@ -32,6 +32,15 @@ namespace Itinero.Algorithms.Weights
         internal byte _val;
 
         /// <summary>
+        /// Creates a new direction from it's raw value.
+        /// </summary>
+        /// <param name="val"></param>
+        public Dir(byte val)
+        {
+            _val = val;
+        }
+
+        /// <summary>
         /// Creates a new direction.
         /// </summary>
         public Dir(bool f, bool b)
@@ -169,7 +178,7 @@ namespace Itinero.Algorithms.Weights
         /// </summary>
         public static Dir Combine(Dir dir1, Dir dir2)
         {
-            return new Dir(dir1.F && dir2.F, dir1.B && dir2.B);
+            return new Dir((byte)(dir1._val & dir2._val));
         }
 
         /// <summary>

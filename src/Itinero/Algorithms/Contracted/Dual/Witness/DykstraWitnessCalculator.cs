@@ -99,16 +99,23 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             }
         }
 
+        private HashSet<uint> forwardSettled = new HashSet<uint>();
+        private HashSet<uint> backwardSettled = new HashSet<uint>();
+
+        private HashSet<uint> forwardTargets = new HashSet<uint>();
+        private HashSet<uint> backwardTargets = new HashSet<uint>();
+
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
         public virtual void Calculate(Shortcuts<T> shortcuts, uint vertex, uint source, HashSet<uint> targets)
         {
-            var forwardSettled = new HashSet<uint>();
-            var backwardSettled = new HashSet<uint>();
+            forwardSettled.Clear();
+            backwardSettled.Clear();
+            forwardTargets.Clear();
+            backwardTargets.Clear();
 
-            var forwardTargets = new HashSet<uint>();
-            var backwardTargets = new HashSet<uint>();
+            var maxWeight = 0f;
 
             foreach (var target in targets)
             {
@@ -119,16 +126,25 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 if (shortcutForward > 0 && shortcutForward < float.MaxValue)
                 {
                     forwardTargets.Add(e.Vertex2);
+                    if (shortcutForward > maxWeight)
+                    {
+                        maxWeight = shortcutForward;
+                    }
                 }
                 var shortcutBackward = _weightHandler.GetMetric(shortcut.Backward);
                 if (shortcutBackward > 0 && shortcutBackward < float.MaxValue)
                 {
                     backwardTargets.Add(e.Vertex2);
+                    if (shortcutBackward > maxWeight)
+                    {
+                        maxWeight = shortcutBackward;
+                    }
                 }
             }
 
             // queue the source.
             _pathTree.Clear();
+            _pointerHeap.Clear();
             var p = _pathTree.AddSettledVertex(source, new WeightAndDir<float>()
             {
                 Direction = new Dir(true, true),
@@ -141,6 +157,8 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             WeightAndDir<float> cWeight;
             var cHops = uint.MaxValue;
             var enumerator = _graph.GetEdgeEnumerator();
+            var settles = 0;
+            uint hops = 0;
             while (_pointerHeap.Count > 0)
             {
                 var cPointer = _pointerHeap.Pop();
@@ -149,6 +167,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 if (cVertex == vertex)
                 {
                     continue;
+                }
+
+                if (cWeight.Weight >= maxWeight)
+                {
+                    break;
                 }
 
                 if (forwardSettled.Contains(cVertex) ||
@@ -176,6 +199,21 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                         { // a witness path was found, don't add a shortcut.
                             shortcut.Forward = _weightHandler.Zero;
                             shortcuts[e] = shortcut;
+
+
+                            if (settles < forwardSettled.Count)
+                            {
+                                settles = forwardSettled.Count;
+                            }
+                            if (settles < backwardSettled.Count)
+                            {
+                                settles = backwardSettled.Count;
+                            }
+                            if (cHops > hops)
+                            {
+                                hops = cHops;
+                            }
+
                         }
                         forwardTargets.Remove(cVertex);
                         if (forwardTargets.Count == 0)
@@ -204,6 +242,21 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                         { // a witness path was found, don't add a shortcut.
                             shortcut.Backward = _weightHandler.Zero;
                             shortcuts[e] = shortcut;
+
+
+                            if (settles < forwardSettled.Count)
+                            {
+                                settles = forwardSettled.Count;
+                            }
+                            if (settles < backwardSettled.Count)
+                            {
+                                settles = backwardSettled.Count;
+                            }
+                            if (cHops > hops)
+                            {
+                                hops = cHops;
+                            }
+
                         }
                         backwardTargets.Remove(cVertex);
                         if (backwardTargets.Count == 0)
@@ -263,7 +316,24 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     _pointerHeap.Push(nPoiner, nWeight.Weight);
                 }
             }
+
+
+            if (_settles < settles)
+            {
+                _settles = settles;
+                Itinero.Logging.Logger.Log("DykstraWitnessCalculator", Logging.TraceEventType.Information,
+                    string.Format("New max # settles: {0}", _settles));
+            }
+            if (_hops < hops)
+            {
+                _hops = hops;
+                Itinero.Logging.Logger.Log("DykstraWitnessCalculator", Logging.TraceEventType.Information,
+                    string.Format("New max # hops: {0}", _hops));
+            }
         }
+
+        private int _settles = 0;
+        private uint _hops = 0;
 
         /// <summary>
         /// Gets or sets the hop limit.
@@ -319,16 +389,23 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
 
         }
 
+        private HashSet<uint> forwardSettled = new HashSet<uint>();
+        private HashSet<uint> backwardSettled = new HashSet<uint>();
+
+        private HashSet<uint> forwardTargets = new HashSet<uint>();
+        private HashSet<uint> backwardTargets = new HashSet<uint>();
+
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
         public override void Calculate(Shortcuts<float> shortcuts, uint vertex, uint source, HashSet<uint> targets)
         {
-            var forwardSettled = new HashSet<uint>();
-            var backwardSettled = new HashSet<uint>();
+            forwardSettled.Clear();
+            backwardSettled.Clear();
+            forwardTargets.Clear();
+            backwardTargets.Clear();
 
-            var forwardTargets = new HashSet<uint>();
-            var backwardTargets = new HashSet<uint>();
+            var maxWeight = 0f;
 
             foreach (var target in targets)
             {
@@ -338,15 +415,24 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 if (shortcut.Forward > 0 && shortcut.Forward < float.MaxValue)
                 {
                     forwardTargets.Add(e.Vertex2);
+                    if (shortcut.Forward > maxWeight)
+                    {
+                        maxWeight = shortcut.Forward;
+                    }
                 }
                 if (shortcut.Backward > 0 && shortcut.Backward < float.MaxValue)
                 {
                     backwardTargets.Add(e.Vertex2);
+                    if (shortcut.Backward > maxWeight)
+                    {
+                        maxWeight = shortcut.Backward;
+                    }
                 }
             }
 
             // queue the source.
             _pathTree.Clear();
+            _pointerHeap.Clear();
             var p = _pathTree.AddSettledVertex(source, new WeightAndDir<float>()
             {
                 Direction = new Dir(true, true),
@@ -367,6 +453,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 if (cVertex == vertex)
                 {
                     continue;
+                }
+
+                if (cWeight.Weight >= maxWeight)
+                {
+                    break;
                 }
 
                 if (forwardSettled.Contains(cVertex) ||
@@ -402,10 +493,6 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                                 break;
                             }
                             cWeight.Direction = new Dir(false, cWeight.Direction.B);
-                            if (!cWeight.Direction.F && !cWeight.Direction.B)
-                            {
-                                continue;
-                            }
                         }
                     }
                 }
@@ -429,12 +516,13 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                                 break;
                             }
                             cWeight.Direction = new Dir(cWeight.Direction.F, false);
-                            if (!cWeight.Direction.F && !cWeight.Direction.B)
-                            {
-                                continue;
-                            }
                         }
                     }
+                }
+
+                if (!cWeight.Direction.F && !cWeight.Direction.B)
+                {
+                    continue;
                 }
 
                 if (cHops + 1 >= _hopLimit)
@@ -445,7 +533,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 if (forwardSettled.Count > _maxSettles &&
                     backwardSettled.Count > _maxSettles)
                 {
-                    continue;
+                    break;
                 }
 
                 enumerator.MoveTo(cVertex);
@@ -454,27 +542,28 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     var nVertex = enumerator.Neighbour;
                     var nWeight = ContractedEdgeDataSerializer.Deserialize(enumerator.Data0);
 
-                    nWeight = new WeightAndDir<float>()
-                    {
-                        Direction = Dir.Combine(cWeight.Direction, nWeight.Direction),
-                        Weight = cWeight.Weight + nWeight.Weight
-                    };
+                    var nDir = Dir.Combine(cWeight.Direction, nWeight.Direction);
 
-                    if (nWeight.Direction.F &&
-                        forwardSettled.Contains(nVertex))
-                    {
-                        nWeight.Direction = new Dir(false, nWeight.Direction.B);
-                    }
-                    if (nWeight.Direction.B &&
-                        backwardSettled.Contains(nVertex))
-                    {
-                        nWeight.Direction = new Dir(nWeight.Direction.F, false);
-                    }
-                    if (!nWeight.Direction.F && !nWeight.Direction.B)
+                    //if (nWeight.Direction.F &&
+                    //    forwardSettled.Contains(nVertex))
+                    //{
+                    //    nWeight.Direction = new Dir(false, nWeight.Direction.B);
+                    //}
+                    //if (nWeight.Direction.B &&
+                    //    backwardSettled.Contains(nVertex))
+                    //{
+                    //    nWeight.Direction = new Dir(nWeight.Direction.F, false);
+                    //}
+                    if (!nDir.F && !nDir.B)
                     {
                         continue;
                     }
-
+                    
+                    nWeight = new WeightAndDir<float>()
+                    {
+                        Direction = nDir,
+                        Weight = cWeight.Weight + nWeight.Weight
+                    };
                     var nPoiner = _pathTree.AddSettledVertex(nVertex, nWeight, cHops + 1, cPointer);
                     _pointerHeap.Push(nPoiner, nWeight.Weight);
                 }
