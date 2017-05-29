@@ -77,10 +77,10 @@ namespace Itinero
                     // contract the graph.
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
                         new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
-                            5, 1024), weightHandler);
+                            5, 4096), weightHandler);
                     hierarchyBuilder.DifferenceFactor = 4;
                     hierarchyBuilder.DepthFactor = 7;
-                    hierarchyBuilder.ContractedFactor = 7;
+                    hierarchyBuilder.ContractedFactor = 2;
                     hierarchyBuilder.Run();
 
                     //// contract the graph.

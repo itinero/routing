@@ -423,20 +423,6 @@ namespace Itinero.Algorithms.Contracted.Dual
 
             // loop over all neighbours.
             var edgeEnumerator = _graph.GetEdgeEnumerator(vertex);
-            edgeEnumerator.Reset();
-            while (edgeEnumerator.MoveNext())
-            {
-                var neighbour = edgeEnumerator.Neighbour;
-                int count;
-                if (!_contractionCount.TryGetValue(neighbour, out count))
-                {
-                    _contractionCount[neighbour] = 1;
-                }
-                else
-                {
-                    _contractionCount[neighbour] = count++;
-                }
-            }
 
             int vertexDepth = 0;
             _depth.TryGetValue(vertex, out vertexDepth);
@@ -454,6 +440,16 @@ namespace Itinero.Algorithms.Contracted.Dual
                 if (vertexDepth >= depth)
                 {
                     _depth[neighbour] = vertexDepth;
+                }
+
+                int count;
+                if (!_contractionCount.TryGetValue(neighbour, out count))
+                {
+                    _contractionCount[neighbour] = 1;
+                }
+                else
+                {
+                    _contractionCount[neighbour] = count++;
                 }
             }
         }
