@@ -57,6 +57,11 @@ namespace Itinero.Test
             return weight + distance;
         }
 
+        public override WeightAndDir<float> GetEdgeWeight(MetaEdge edge)
+        {
+            throw new NotImplementedException();
+        }
+
         public override void AddEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, bool? direction, float weight)
         {
             throw new NotImplementedException();

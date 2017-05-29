@@ -16,20 +16,21 @@
  *  limitations under the License.
  */
 
-using Itinero.Graphs.Directed;
-using System.Collections.Generic;
-
 namespace Itinero.Algorithms.Contracted.Dual.Witness
 {
     /// <summary>
-    /// Calculator to calculate witness paths.
+    /// Represents a (potential) shortcut with a forward and backward weight.
     /// </summary>
-    public interface IWitnessCalculator
+    public struct Shortcut<T>
     {
         /// <summary>
-        /// Calculates witnesses.
+        /// Gets or sets the forward weight.
         /// </summary>
-        void Calculate(DirectedGraph graph, uint source, List<uint> targets, List<float> weights,
-            ref bool[] forwardWitness, ref bool[] backwardWitness, uint vertexToSkip);
+        public T Forward { get; set; }
+
+        /// <summary>
+        /// Gets or sets the backward weight.
+        /// </summary>
+        public T Backward { get; set; }
     }
 }
