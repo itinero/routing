@@ -103,42 +103,99 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// <summary>
         /// Calculates the priority of this vertex.
         /// </summary>
-        public static float Priority<T>(this VertexInfo<T> vertexInfo, WeightHandler<T> weightHandler, float differenceFactor, float contractedFactor, float depthFactor)
+        public static float Priority<T>(this VertexInfo<T> vertexInfo, DirectedMetaGraph graph, WeightHandler<T> weightHandler, float differenceFactor, float contractedFactor, 
+            float depthFactor, float weightDiffFactor = 1)
             where T : struct
         {
             var vertex = vertexInfo.Vertex;
 
-            var removed = 0;
+            var removed = vertexInfo.Count;
             var added = 0;
+
+            //var removedWeight = 0f;
+            //var addedWeight = 0f;
 
             foreach (var shortcut in vertexInfo.Shortcuts)
             {
                 var shortcutForward = weightHandler.GetMetric(shortcut.Value.Forward);
                 var shortcutBackward = weightHandler.GetMetric(shortcut.Value.Backward);
 
+                int localAdded, localRemoved;
                 if (shortcutForward > 0 && shortcutForward < float.MaxValue &&
                     shortcutBackward > 0 && shortcutBackward < float.MaxValue &&
                     System.Math.Abs(shortcutForward - shortcutBackward) < HierarchyBuilder.E)
                 { // add two bidirectional edges.
-                    added += 2;
+                    graph.TryAddOrUpdateEdge(shortcut.Key.Vertex1, shortcut.Key.Vertex2, shortcutForward, null, vertex, 
+                        out localAdded, out localRemoved);
+                    added += localAdded;
+                    removed += localRemoved;
+                    graph.TryAddOrUpdateEdge(shortcut.Key.Vertex2, shortcut.Key.Vertex1, shortcutForward, null, vertex,
+                        out localAdded, out localRemoved);
+                    added += localAdded;
+                    removed += localRemoved;
+
+                    //added += 2;
+                    //addedWeight += shortcutForward;
+                    //addedWeight += shortcutBackward;
                 }
                 else
                 {
                     if (shortcutForward > 0 && shortcutForward < float.MaxValue)
                     {
-                        added += 2;
+                        graph.TryAddOrUpdateEdge(shortcut.Key.Vertex1, shortcut.Key.Vertex2, shortcutForward, true, vertex,
+                            out localAdded, out localRemoved);
+                        added += localAdded;
+                        removed += localRemoved;
+                        graph.TryAddOrUpdateEdge(shortcut.Key.Vertex2, shortcut.Key.Vertex1, shortcutForward, false, vertex,
+                            out localAdded, out localRemoved);
+                        added += localAdded;
+                        removed += localRemoved;
+
+                        //added += 2;
+                        //addedWeight += shortcutForward;
+                        //addedWeight += shortcutForward;
                     }
                     if (shortcutBackward > 0 && shortcutBackward < float.MaxValue)
                     {
-                        added += 2;
+                        graph.TryAddOrUpdateEdge(shortcut.Key.Vertex1, shortcut.Key.Vertex2, shortcutBackward, false, vertex,
+                            out localAdded, out localRemoved);
+                        added += localAdded;
+                        removed += localRemoved;
+                        graph.TryAddOrUpdateEdge(shortcut.Key.Vertex2, shortcut.Key.Vertex1, shortcutBackward, true, vertex,
+                            out localAdded, out localRemoved);
+                        added += localAdded;
+                        removed += localRemoved;
+
+                        //added += 2;
+                        //addedWeight += shortcutBackward;
+                        //addedWeight += shortcutBackward;
                     }
                 }
             }
 
-            removed = vertexInfo.Count;
+            //for (var e = 0; e < vertexInfo.Count; e++)
+            //{
+            //    var w = weightHandler.GetEdgeWeight(vertexInfo[e]);
+            //    var wMetric = weightHandler.GetMetric(w.Weight);
+
+            //    if (w.Direction.F)
+            //    {
+            //        removedWeight += wMetric;
+            //    }
+            //    if (w.Direction.B)
+            //    {
+            //        removedWeight += wMetric;
+            //    }
+            //}
+
+            var weigthDiff = 1f;
+            //if (removedWeight != 0)
+            //{
+            //    weigthDiff = removedWeight;
+            //}
             
-            return differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
-                (contractedFactor * vertexInfo.ContractedNeighbours);
+            return (differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
+                (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
         }
     }
 }

@@ -544,16 +544,16 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
 
                     var nDir = Dir.Combine(cWeight.Direction, nWeight.Direction);
 
-                    //if (nWeight.Direction.F &&
-                    //    forwardSettled.Contains(nVertex))
-                    //{
-                    //    nWeight.Direction = new Dir(false, nWeight.Direction.B);
-                    //}
-                    //if (nWeight.Direction.B &&
-                    //    backwardSettled.Contains(nVertex))
-                    //{
-                    //    nWeight.Direction = new Dir(nWeight.Direction.F, false);
-                    //}
+                    if (nDir.F &&
+                        forwardSettled.Contains(nVertex))
+                    {
+                        nWeight.Direction = new Dir(false, nWeight.Direction.B);
+                    }
+                    if (nDir.B &&
+                        backwardSettled.Contains(nVertex))
+                    {
+                        nWeight.Direction = new Dir(nWeight.Direction.F, false);
+                    }
                     if (!nDir.F && !nDir.B)
                     {
                         continue;

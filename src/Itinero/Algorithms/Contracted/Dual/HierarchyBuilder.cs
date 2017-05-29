@@ -186,7 +186,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                     this.UpdateVertexInfo(v);
 
                     // calculate priority.
-                    var priority = _vertexInfo.Priority(_weightHandler, this.DifferenceFactor, this.ContractedFactor, this.DepthFactor);
+                    var priority = _vertexInfo.Priority(_graph, _weightHandler, this.DifferenceFactor, this.ContractedFactor, this.DepthFactor);
 
                     // queue vertex.
                     _queue.Push(v, priority);
@@ -286,7 +286,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             //}
         }
 
-        private int _k = 20; // The amount of queue 'misses' to recalculated.
+        private int _k = 80; // The amount of queue 'misses' to recalculated.
         private int _misses; // Holds a counter of all misses.
         private Queue<bool> _missesQueue; // Holds the misses queue.
 
@@ -310,7 +310,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                 // the lazy updating part!
                 // calculate priority
                 this.UpdateVertexInfo(first);
-                var priority = _vertexInfo.Priority(_weightHandler, this.DifferenceFactor, this.ContractedFactor,
+                var priority = _vertexInfo.Priority(_graph, _weightHandler, this.DifferenceFactor, this.ContractedFactor,
                     this.DepthFactor);
                 if (priority != queuedPriority)
                 { // a succesfull update.
