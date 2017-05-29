@@ -56,6 +56,10 @@ namespace Itinero.Algorithms.Contracted.Dual
             _vertexInfo = new VertexInfo<T>();
             _depth = new Dictionary<long, int>();
             _contractionCount = new Dictionary<uint, int>();
+
+            this.DifferenceFactor = 5;
+            this.DepthFactor = 5;
+            this.ContractedFactor = 8;
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
@@ -195,91 +199,91 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         private void RemoveWitnessedEdges()
         {
-            _logger.Log(TraceEventType.Information, "Removing witnessed edges...");
+            //_logger.Log(TraceEventType.Information, "Removing witnessed edges...");
 
-            var enumerator = _graph.GetEdgeEnumerator();
-            for (uint v = 0; v < _graph.VertexCount; v++)
-            {
-                // update vertex info.
-                _vertexInfo.Clear();
-                _vertexInfo.Vertex = v;
+            //var enumerator = _graph.GetEdgeEnumerator();
+            //for (uint v = 0; v < _graph.VertexCount; v++)
+            //{
+            //    // update vertex info.
+            //    _vertexInfo.Clear();
+            //    _vertexInfo.Vertex = v;
 
-                // add edges.
-                _vertexInfo.AddRelevantEdges(enumerator);
+            //    // add edges.
+            //    _vertexInfo.AddRelevantEdges(enumerator);
 
-                // add 'shortcuts' from this vertex to it's neighbours.
-                for (var e = 0; e < _vertexInfo.Count; e++)
-                {
-                    var edge = _vertexInfo[e];
-                    var edgeWeight = _weightHandler.GetEdgeWeight(edge);
-                    var originalEdge = new OriginalEdge(v, edge.Neighbour);
+            //    // add 'shortcuts' from this vertex to it's neighbours.
+            //    for (var e = 0; e < _vertexInfo.Count; e++)
+            //    {
+            //        var edge = _vertexInfo[e];
+            //        var edgeWeight = _weightHandler.GetEdgeWeight(edge);
+            //        var originalEdge = new OriginalEdge(v, edge.Neighbour);
 
-                    var shortcut = new Shortcut<T>()
-                    {
-                        Forward = edgeWeight.Weight,
-                        Backward = edgeWeight.Weight
-                    };
-                    if (!edgeWeight.Direction.F)
-                    {
-                        shortcut.Forward = _weightHandler.Zero;
-                    }
-                    if (!edgeWeight.Direction.B)
-                    {
-                        shortcut.Backward = _weightHandler.Zero;
-                    }
+            //        var shortcut = new Shortcut<T>()
+            //        {
+            //            Forward = edgeWeight.Weight,
+            //            Backward = edgeWeight.Weight
+            //        };
+            //        if (!edgeWeight.Direction.F)
+            //        {
+            //            shortcut.Forward = _weightHandler.Zero;
+            //        }
+            //        if (!edgeWeight.Direction.B)
+            //        {
+            //            shortcut.Backward = _weightHandler.Zero;
+            //        }
 
-                    _vertexInfo.Shortcuts.AddOrUpdate(originalEdge, shortcut, _weightHandler);
-                }
+            //        _vertexInfo.Shortcuts.AddOrUpdate(originalEdge, shortcut, _weightHandler);
+            //    }
 
-                // remove unneeded shortcuts, or in other words keep shortest paths to all neighbours in this case.
-                _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
+            //    // remove unneeded shortcuts, or in other words keep shortest paths to all neighbours in this case.
+            //    _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
 
-                // remove witnessed neighbours.
-                for (var e = 0; e < _vertexInfo.Count; e++)
-                {
-                    var edge = _vertexInfo[e];
-                    var edgeWeight = _weightHandler.GetEdgeWeight(edge);
-                    var originalEdge = new OriginalEdge(v, edge.Neighbour);
+            //    // remove witnessed neighbours.
+            //    for (var e = 0; e < _vertexInfo.Count; e++)
+            //    {
+            //        var edge = _vertexInfo[e];
+            //        var edgeWeight = _weightHandler.GetEdgeWeight(edge);
+            //        var originalEdge = new OriginalEdge(v, edge.Neighbour);
 
-                    var shortcut = new Shortcut<float>()
-                    {
-                        Forward = _weightHandler.GetMetric(edgeWeight.Weight),
-                        Backward = _weightHandler.GetMetric(edgeWeight.Weight)
-                    };
-                    if (!edgeWeight.Direction.F)
-                    {
-                        shortcut.Forward = 0;
-                    }
-                    if (!edgeWeight.Direction.B)
-                    {
-                        shortcut.Backward = 0;
-                    }
+            //        var shortcut = new Shortcut<float>()
+            //        {
+            //            Forward = _weightHandler.GetMetric(edgeWeight.Weight),
+            //            Backward = _weightHandler.GetMetric(edgeWeight.Weight)
+            //        };
+            //        if (!edgeWeight.Direction.F)
+            //        {
+            //            shortcut.Forward = 0;
+            //        }
+            //        if (!edgeWeight.Direction.B)
+            //        {
+            //            shortcut.Backward = 0;
+            //        }
 
-                    var witnessedShortcut = _vertexInfo.Shortcuts[originalEdge];
-                    var witnessedShortcutForward = _weightHandler.GetMetric(witnessedShortcut.Forward);
-                    var witnessedShortcutBackward = _weightHandler.GetMetric(witnessedShortcut.Backward);
-                    if ((shortcut.Forward == 0 || witnessedShortcutForward < shortcut.Forward) &&
-                        (shortcut.Backward == 0 || witnessedShortcutBackward < shortcut.Backward))
-                    { // edge is useless.
-                        _graph.RemoveEdge(v, originalEdge.Vertex2);
-                    }
-                    else
-                    {
-                        if (witnessedShortcutForward < shortcut.Forward)
-                        { // edge is useless in the forward direction
-                            _graph.RemoveEdge(v, originalEdge.Vertex2);
-                            _weightHandler.AddEdge(_graph, v, originalEdge.Vertex2, Constants.NO_VERTEX,
-                                false, edgeWeight.Weight);
-                        }
-                        if (witnessedShortcutBackward < shortcut.Backward)
-                        { // edge is useless in backward direction.
-                            _graph.RemoveEdge(v, originalEdge.Vertex2);
-                            _weightHandler.AddEdge(_graph, v, originalEdge.Vertex2, Constants.NO_VERTEX,
-                                true, edgeWeight.Weight);
-                        }
-                    }
-                }
-            }
+            //        var witnessedShortcut = _vertexInfo.Shortcuts[originalEdge];
+            //        var witnessedShortcutForward = _weightHandler.GetMetric(witnessedShortcut.Forward);
+            //        var witnessedShortcutBackward = _weightHandler.GetMetric(witnessedShortcut.Backward);
+            //        if ((shortcut.Forward == 0 || witnessedShortcutForward < shortcut.Forward) &&
+            //            (shortcut.Backward == 0 || witnessedShortcutBackward < shortcut.Backward))
+            //        { // edge is useless.
+            //            _graph.RemoveEdge(v, originalEdge.Vertex2);
+            //        }
+            //        else
+            //        {
+            //            if (witnessedShortcutForward < shortcut.Forward)
+            //            { // edge is useless in the forward direction
+            //                _graph.RemoveEdge(v, originalEdge.Vertex2);
+            //                _weightHandler.AddEdge(_graph, v, originalEdge.Vertex2, Constants.NO_VERTEX,
+            //                    false, edgeWeight.Weight);
+            //            }
+            //            if (witnessedShortcutBackward < shortcut.Backward)
+            //            { // edge is useless in backward direction.
+            //                _graph.RemoveEdge(v, originalEdge.Vertex2);
+            //                _weightHandler.AddEdge(_graph, v, originalEdge.Vertex2, Constants.NO_VERTEX,
+            //                    true, edgeWeight.Weight);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private int _k = 20; // The amount of queue 'misses' to recalculated.
@@ -377,7 +381,8 @@ namespace Itinero.Algorithms.Contracted.Dual
                 var forwardMetric = _weightHandler.GetMetric(shortcut.Forward);
                 var backwardMetric = _weightHandler.GetMetric(shortcut.Backward);
 
-                if (forwardMetric > 0 && backwardMetric > 0 &&
+                if (forwardMetric > 0 && forwardMetric < float.MaxValue &&
+                    backwardMetric > 0 && backwardMetric < float.MaxValue &&
                     System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)
                 { // forward and backward and identical weights.
                     _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
@@ -387,18 +392,18 @@ namespace Itinero.Algorithms.Contracted.Dual
                 }
                 else
                 {
-                    if (forwardMetric > 0)
+                    if (forwardMetric > 0 && forwardMetric < float.MaxValue)
                     {
                         _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
                             vertex, true, shortcut.Forward);
-                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
+                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
                             vertex, false, shortcut.Forward);
                     }
-                    if (backwardMetric > 0)
+                    if (backwardMetric > 0 && backwardMetric < float.MaxValue)
                     {
                         _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
                             vertex, false, shortcut.Backward);
-                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
+                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
                             vertex, true, shortcut.Backward);
                     }
                 }

@@ -98,9 +98,9 @@ namespace Itinero
                     if (isBetter != null)
                     { // take into account isBetter function.
                         isBetterGeometric = (edge) =>
-                            {
-                                return isBetter(_db.Network.GetEdge(edge.Id));
-                            };
+                        {
+                            return isBetter(_db.Network.GetEdge(edge.Id));
+                        };
                     }
 
                     // create resolver.
@@ -159,7 +159,7 @@ namespace Itinero
                         };
                     }
                     return new Factor()
-                    { 
+                    {
                         Direction = factor.Direction,
                         Value = 1
                     };
@@ -181,7 +181,7 @@ namespace Itinero
                     }
                 }
 
-                
+
                 if (checkBackward)
                 { // build and run backward dykstra search.
                     var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
@@ -233,7 +233,7 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && 
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) &&
                         (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
@@ -316,7 +316,7 @@ namespace Itinero
                                 original = original.Reverse();
                             }
                             edge.Add(original);
-                            if(vertexPath.Count == 0)
+                            if (vertexPath.Count == 0)
                             {
                                 vertexPath.Add(original.Vertex1);
                             }
@@ -351,7 +351,7 @@ namespace Itinero
                     if (vertexPath != null)
                     {
                         var localPath = _db.BuildEdgePath(weightHandler, source, target, vertexPath);
-                        if (path == null || 
+                        if (path == null ||
                             weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
                         {
                             path = localPath;
@@ -423,7 +423,7 @@ namespace Itinero
                 }
                 return new Result<EdgePath<T>>(path);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return new Result<EdgePath<T>>(ex.Message, (m) => ex);
             }
@@ -474,7 +474,7 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && 
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) &&
                         (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,

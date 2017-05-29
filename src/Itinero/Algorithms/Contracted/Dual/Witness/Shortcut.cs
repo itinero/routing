@@ -32,5 +32,15 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// Gets or sets the backward weight.
         /// </summary>
         public T Backward { get; set; }
+
+        /// <summary>
+        /// Gets a description of this struct.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0}F {1}B", this.Forward.ToInvariantString(),
+                this.Backward.ToInvariantString());
+        }
     }
 }

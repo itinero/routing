@@ -164,7 +164,7 @@ namespace Itinero.Data.Contracted
             {
                 return new ContractedDb(DirectedDynamicGraph.Deserialize(stream, profile == null ? null : profile.EdgeBasedProfile));
             }
-            else if(version == 3)
+            else if (version == 3)
             {
                 return new ContractedDb(DirectedMetaGraph.Deserialize(stream, profile == null ? null : profile.NodeBasedProfile), true);
             }

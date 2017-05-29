@@ -82,13 +82,9 @@ namespace Itinero
                     dualGraphBuilder.Run();
 
                     // contract the graph.
-                    var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
-                        new DykstraWitnessCalculator(int.MaxValue));
-                    priorityCalculator.DifferenceFactor = 5;
-                    priorityCalculator.DepthFactor = 5;
-                    priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new HierarchyBuilder<T>(contracted, priorityCalculator,
-                            new DykstraWitnessCalculator(int.MaxValue), weightHandler);
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<T>(contracted,
+                        new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator<T>(contracted.Graph, weightHandler, int.MaxValue), 
+                            weightHandler);
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, true);

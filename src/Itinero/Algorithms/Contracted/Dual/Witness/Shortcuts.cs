@@ -20,6 +20,7 @@ using Itinero.Algorithms.Weights;
 using System.Collections.Generic;
 using System;
 using System.Collections;
+using System.Text;
 
 namespace Itinero.Algorithms.Contracted.Dual.Witness
 {
@@ -63,6 +64,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             if (!_data.TryGetValue(edge, out existing))
             {
                 _data[edge] = shortcut;
+                return;
             }
 
             // update existing.
@@ -107,6 +109,24 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _data.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Returns a description of this shortcuts collection.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var stringBuilder = new StringBuilder();
+            foreach (var pair in this)
+            {
+                if (stringBuilder.Length > 0)
+                {
+                    stringBuilder.Append(Environment.NewLine);
+                }
+                stringBuilder.Append(pair.ToString());
+            }
+            return stringBuilder.ToString();
         }
     }
 }

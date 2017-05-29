@@ -116,18 +116,19 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 var shortcutForward = weightHandler.GetMetric(shortcut.Value.Forward);
                 var shortcutBackward = weightHandler.GetMetric(shortcut.Value.Backward);
 
-                if (shortcutForward > 0 && shortcutBackward > 0 &&
+                if (shortcutForward > 0 && shortcutForward < float.MaxValue &&
+                    shortcutBackward > 0 && shortcutBackward < float.MaxValue &&
                     System.Math.Abs(shortcutForward - shortcutBackward) < HierarchyBuilder.E)
                 { // add two bidirectional edges.
-                        added += 2;
+                    added += 2;
                 }
                 else
                 {
-                    if(shortcutForward > 0)
+                    if (shortcutForward > 0 && shortcutForward < float.MaxValue)
                     {
                         added += 2;
                     }
-                    if (shortcutBackward > 0)
+                    if (shortcutBackward > 0 && shortcutBackward < float.MaxValue)
                     {
                         added += 2;
                     }
