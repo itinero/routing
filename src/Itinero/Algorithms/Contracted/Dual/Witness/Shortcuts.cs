@@ -41,6 +41,14 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         }
 
         /// <summary>
+        /// Tries to get the shortcut associated with the given edge.
+        /// </summary>
+        public bool TryGetValue(OriginalEdge edge, out Shortcut<T> shortcut)
+        {
+            return _data.TryGetValue(edge, out shortcut);
+        }
+
+        /// <summary>
         /// Gets or sets a shortcut.
         /// </summary>
         public Shortcut<T> this[OriginalEdge edge]
