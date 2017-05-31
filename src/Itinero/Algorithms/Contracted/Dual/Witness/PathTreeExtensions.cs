@@ -37,6 +37,16 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         }
 
         /// <summary>
+        /// Adds a new settled vertex.
+        /// </summary>
+        public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops, uint fromPointer)
+        {
+            var hopsAndDirection = hops * 4 + dir._val;
+            return tree.Add(vertex, (uint)(weight * 10),
+                hopsAndDirection, fromPointer);
+        }
+
+        /// <summary>
         /// Gets a settled vertex.
         /// </summary>
         public static void GetSettledVertex(this PathTree tree, uint pointer, out uint vertex,

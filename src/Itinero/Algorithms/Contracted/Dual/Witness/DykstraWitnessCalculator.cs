@@ -127,13 +127,13 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             }
         }
 
-        private PathTree pathTree = new PathTree();
-        private BinaryHeap<uint> pointerHeap = new BinaryHeap<uint>();
+        protected PathTree pathTree = new PathTree();
+        protected BinaryHeap<uint> pointerHeap = new BinaryHeap<uint>();
 
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public void Calculate(DirectedGraph graph, WeightHandler<T> weightHandler, uint vertex, 
+        public virtual void Calculate(DirectedGraph graph, WeightHandler<T> weightHandler, uint vertex, 
             uint source, Dictionary<uint, Shortcut<T>> targets, int maxSettles, int hopLimit)
         {
             pathTree.Clear();
@@ -374,218 +374,192 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         {
 
         }
-       
-        ///// <summary>
-        ///// Calculates witness paths.
-        ///// </summary>
-        //public override void Calculate(Shortcuts<float> shortcuts, uint vertex, uint source, HashSet<uint> targets)
-        //{
-        //    forwardSettled.Clear();
-        //    backwardSettled.Clear();
-        //    forwardTargets.Clear();
-        //    backwardTargets.Clear();
+        
+        /// <summary>
+        /// Calculates witness paths.
+        /// </summary>
+        public override void Calculate(DirectedGraph graph, WeightHandler<float> weightHandler, uint vertex,
+            uint source, Dictionary<uint, Shortcut<float>> targets, int maxSettles, int hopLimit)
+        {
+            pathTree.Clear();
+            pointerHeap.Clear();
 
-        //    var maxWeight = 0f;
+            var forwardSettled = new HashSet<uint>();
+            var backwardSettled = new HashSet<uint>();
 
-        //    foreach (var target in targets)
-        //    {
-        //        var e = new OriginalEdge(source, target);
-        //        Shortcut<float> shortcut;
-        //        if (!shortcuts.TryGetValue(e, out shortcut))
-        //        {
-        //            e = new OriginalEdge(target, source);
-        //            shortcuts.TryGetValue(e, out shortcut);
-        //            var temp = shortcut.Forward;
-        //            shortcut.Forward = shortcut.Backward;
-        //            shortcut.Backward = temp;
+            var forwardTargets = new HashSet<uint>();
+            var backwardTargets = new HashSet<uint>();
 
-        //            e = new OriginalEdge(source, target);
-        //        }
+            var maxWeight = 0f;
 
-        //        var shortcutForward = _weightHandler.GetMetric(shortcut.Forward);
-        //        if (shortcutForward > 0 && shortcutForward < float.MaxValue)
-        //        {
-        //            forwardTargets.Add(e.Vertex2);
-        //            if (shortcutForward > maxWeight)
-        //            {
-        //                maxWeight = shortcutForward;
-        //            }
-        //        }
-        //        var shortcutBackward = _weightHandler.GetMetric(shortcut.Backward);
-        //        if (shortcutBackward > 0 && shortcutBackward < float.MaxValue)
-        //        {
-        //            backwardTargets.Add(e.Vertex2);
-        //            if (shortcutBackward > maxWeight)
-        //            {
-        //                maxWeight = shortcutBackward;
-        //            }
-        //        }
-        //    }
+            foreach (var targetPair in targets)
+            {
+                var target = targetPair.Key;
+                var shortcut = targetPair.Value;
+                var e = new OriginalEdge(source, target);
+                
+                if (shortcut.Forward > 0 && shortcut.Forward < float.MaxValue)
+                {
+                    forwardTargets.Add(e.Vertex2);
+                    if (shortcut.Forward > maxWeight)
+                    {
+                        maxWeight = shortcut.Forward;
+                    }
+                }
+                if (shortcut.Backward > 0 && shortcut.Backward < float.MaxValue)
+                {
+                    backwardTargets.Add(e.Vertex2);
+                    if (shortcut.Backward > maxWeight)
+                    {
+                        maxWeight = shortcut.Backward;
+                    }
+                }
+            }
 
-        //    // queue the source.
-        //    _pathTree.Clear();
-        //    _pointerHeap.Clear();
-        //    var p = _pathTree.AddSettledVertex(source, new WeightAndDir<float>()
-        //    {
-        //        Direction = new Dir(true, true),
-        //        Weight = 0
-        //    }, 0, uint.MaxValue);
-        //    _pointerHeap.Push(p, 0);
+            // queue the source.
+            pathTree.Clear();
+            pointerHeap.Clear();
+            var p = pathTree.AddSettledVertex(source, 0, new Dir(true, true), 0, uint.MaxValue);
+            pointerHeap.Push(p, 0);
 
-        //    // dequeue vertices until stopping conditions are reached.
-        //    var cVertex = Constants.NO_VERTEX;
-        //    WeightAndDir<float> cWeight;
-        //    var cHops = uint.MaxValue;
-        //    var enumerator = _graph.GetEdgeEnumerator();
-        //    while (_pointerHeap.Count > 0)
-        //    {
-        //        var cPointer = _pointerHeap.Pop();
-        //        _pathTree.GetSettledVertex(cPointer, out cVertex, out cWeight, out cHops);
+            // dequeue vertices until stopping conditions are reached.
+            var cVertex = Constants.NO_VERTEX;
+            WeightAndDir<float> cWeight;
+            var cHops = uint.MaxValue;
+            var enumerator = graph.GetEdgeEnumerator();
+            while (pointerHeap.Count > 0)
+            {
+                var cPointer = pointerHeap.Pop();
+                pathTree.GetSettledVertex(cPointer, out cVertex, out cWeight, out cHops);
 
-        //        if (cVertex == vertex)
-        //        {
-        //            continue;
-        //        }
+                if (cVertex == vertex)
+                {
+                    continue;
+                }
 
-        //        if (cWeight.Weight >= maxWeight)
-        //        {
-        //            break;
-        //        }
+                if (cWeight.Weight >= maxWeight)
+                {
+                    break;
+                }
 
-        //        if (forwardSettled.Contains(cVertex) ||
-        //            forwardTargets.Count == 0 ||
-        //            forwardSettled.Count > _maxSettles)
-        //        {
-        //            cWeight.Direction = new Dir(false, cWeight.Direction.B);
-        //        }
-        //        if (backwardSettled.Contains(cVertex) ||
-        //            backwardTargets.Count == 0 ||
-        //            backwardSettled.Count > _maxSettles)
-        //        {
-        //            cWeight.Direction = new Dir(cWeight.Direction.F, false);
-        //        }
+                if (forwardSettled.Contains(cVertex) ||
+                    forwardTargets.Count == 0 ||
+                    forwardSettled.Count > maxSettles)
+                {
+                    cWeight.Direction = new Dir(false, cWeight.Direction.B);
+                }
+                if (backwardSettled.Contains(cVertex) ||
+                    backwardTargets.Count == 0 ||
+                    backwardSettled.Count > maxSettles)
+                {
+                    cWeight.Direction = new Dir(cWeight.Direction.F, false);
+                }
 
-        //        if (cWeight.Direction.F)
-        //        {
-        //            forwardSettled.Add(cVertex);
-        //            if (forwardTargets.Contains(cVertex))
-        //            { // target reached, evaluate it as a shortcut.
-        //                var e = new OriginalEdge(source, cVertex);
-        //                Shortcut<float> shortcut;
-        //                if (shortcuts.TryGetValue(e, out shortcut))
-        //                {
-        //                    if (shortcut.Forward > cWeight.Weight)
-        //                    { // a witness path was found, don't add a shortcut.
-        //                        shortcut.Forward = 0;
-        //                        shortcuts[e] = shortcut;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    e = new OriginalEdge(cVertex, source);
-        //                    shortcut = shortcuts[e];
-        //                    if (shortcut.Backward > cWeight.Weight)
-        //                    { // a witness path was found, don't add a shortcut.
-        //                        shortcut.Backward = 0;
-        //                        shortcuts[e] = shortcut;
-        //                    }
-        //                }
-        //                forwardTargets.Remove(cVertex);
-        //                if (forwardTargets.Count == 0)
-        //                {
-        //                    if (backwardTargets.Count == 0)
-        //                    {
-        //                        break;
-        //                    }
-        //                    cWeight.Direction = new Dir(false, cWeight.Direction.B);
-        //                }
-        //            }
-        //        }
-        //        if (cWeight.Direction.B)
-        //        {
-        //            backwardSettled.Add(cVertex);
-        //            if (backwardTargets.Contains(cVertex))
-        //            { // target reached, evaluate it as a shortcut.
-        //                var e = new OriginalEdge(source, cVertex);
-        //                Shortcut<float> shortcut;
-        //                if (shortcuts.TryGetValue(e, out shortcut))
-        //                {
-        //                    if (shortcut.Backward > cWeight.Weight)
-        //                    { // a witness path was found, don't add a shortcut.
-        //                        shortcut.Backward = 0;
-        //                        shortcuts[e] = shortcut;
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    e = new OriginalEdge(cVertex, source);
-        //                    shortcut = shortcuts[e];
-        //                    if (shortcut.Forward > cWeight.Weight)
-        //                    { // a witness path was found, don't add a shortcut.
-        //                        shortcut.Forward = 0;
-        //                        shortcuts[e] = shortcut;
-        //                    }
-        //                }
-        //                backwardTargets.Remove(cVertex);
-        //                if (backwardTargets.Count == 0)
-        //                {
-        //                    if (forwardTargets.Count == 0)
-        //                    {
-        //                        break;
-        //                    }
-        //                    cWeight.Direction = new Dir(cWeight.Direction.F, false);
-        //                }
-        //            }
-        //        }
+                if (cWeight.Direction.F)
+                {
+                    forwardSettled.Add(cVertex);
+                    if (forwardTargets.Contains(cVertex))
+                    { // target reached, evaluate it as a shortcut.
+                        Shortcut<float> shortcut;
+                        if (targets.TryGetValue(cVertex, out shortcut))
+                        {
+                            var shortcutForward = shortcut.Forward;
+                            if (shortcutForward > cWeight.Weight)
+                            { // a witness path was found, don't add a shortcut.
+                                shortcut.Forward = 0;
+                                targets[cVertex] = shortcut;
+                            }
+                        }
+                        forwardTargets.Remove(cVertex);
+                        if (forwardTargets.Count == 0)
+                        {
+                            if (backwardTargets.Count == 0)
+                            {
+                                break;
+                            }
+                            cWeight.Direction = new Dir(false, cWeight.Direction.B);
+                            if (!cWeight.Direction.F && !cWeight.Direction.B)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
+                if (cWeight.Direction.B)
+                {
+                    backwardSettled.Add(cVertex);
+                    if (backwardTargets.Contains(cVertex))
+                    { // target reached, evaluate it as a shortcut.
+                        Shortcut<float> shortcut;
+                        if (targets.TryGetValue(cVertex, out shortcut))
+                        {
+                            var shortcutBackward = shortcut.Backward;
+                            if (shortcutBackward > cWeight.Weight)
+                            { // a witness path was found, don't add a shortcut.
+                                shortcut.Backward = 0;
+                                targets[cVertex] = shortcut;
+                            }
+                        }
+                        backwardTargets.Remove(cVertex);
+                        if (backwardTargets.Count == 0)
+                        {
+                            if (forwardTargets.Count == 0)
+                            {
+                                break;
+                            }
+                            cWeight.Direction = new Dir(cWeight.Direction.F, false);
+                            if (!cWeight.Direction.F && !cWeight.Direction.B)
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                }
 
-        //        if (!cWeight.Direction.F && !cWeight.Direction.B)
-        //        {
-        //            continue;
-        //        }
+                if (cHops + 1 >= hopLimit)
+                {
+                    continue;
+                }
 
-        //        if (cHops + 1 >= _hopLimit)
-        //        {
-        //            continue;
-        //        }
+                if (forwardSettled.Count > maxSettles &&
+                    backwardSettled.Count > maxSettles)
+                {
+                    continue;
+                }
 
-        //        if (forwardSettled.Count > _maxSettles &&
-        //            backwardSettled.Count > _maxSettles)
-        //        {
-        //            break;
-        //        }
+                enumerator.MoveTo(cVertex);
+                while (enumerator.MoveNext())
+                {
+                    var nVertex = enumerator.Neighbour;
+                    var nWeight1 = ContractedEdgeDataSerializer.Deserialize(enumerator.Data0);
 
-        //        enumerator.MoveTo(cVertex);
-        //        while (enumerator.MoveNext())
-        //        {
-        //            var nVertex = enumerator.Neighbour;
-        //            var nWeight = ContractedEdgeDataSerializer.Deserialize(enumerator.Data0);
+                    var nDir = Dir.Combine(cWeight.Direction, nWeight1.Direction);
+                    var nWeightWeight = nWeight1.Weight + cWeight.Weight;
+                    //nWeight = new WeightAndDir<float>()
+                    //{
+                    //    Direction = Dir.Combine(cWeight.Direction, nWeight.Direction),
+                    //    Weight = cWeight.Weight + nWeight.Weight
+                    //};
 
-        //            var nDir = Dir.Combine(cWeight.Direction, nWeight.Direction);
+                    if (nDir.F &&
+                        forwardSettled.Contains(nVertex))
+                    {
+                        nDir = new Dir(false, nDir.B);
+                    }
+                    if (nDir.B &&
+                        backwardSettled.Contains(nVertex))
+                    {
+                        nDir = new Dir(nDir.F, false);
+                    }
+                    if (nDir._val == 0)
+                    {
+                        continue;
+                    }
 
-        //            //if (nDir.F &&
-        //            //    forwardSettled.Contains(nVertex))
-        //            //{
-        //            //    nWeight.Direction = new Dir(false, nWeight.Direction.B);
-        //            //}
-        //            //if (nDir.B &&
-        //            //    backwardSettled.Contains(nVertex))
-        //            //{
-        //            //    nWeight.Direction = new Dir(nWeight.Direction.F, false);
-        //            //}
-        //            if (!nDir.F && !nDir.B)
-        //            {
-        //                continue;
-        //            }
-                    
-        //            nWeight = new WeightAndDir<float>()
-        //            {
-        //                Direction = nDir,
-        //                Weight = cWeight.Weight + nWeight.Weight
-        //            };
-        //            var nPoiner = _pathTree.AddSettledVertex(nVertex, nWeight, cHops + 1, cPointer);
-        //            _pointerHeap.Push(nPoiner, nWeight.Weight);
-        //        }
-        //    }
-        //}
+                    var nPoiner = pathTree.AddSettledVertex(nVertex, nWeightWeight, nDir, cHops + 1, cPointer);
+                    pointerHeap.Push(nPoiner, nWeightWeight);
+                }
+            }
+        }
     }
 }
