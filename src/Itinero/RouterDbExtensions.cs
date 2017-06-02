@@ -67,6 +67,9 @@ namespace Itinero
             {
                 if (forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.
+                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an edge-based graph for profile {0}...", 
+                        profile.FullName);
+
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                         weightHandler.MetaSize);
                     var restrictions = db.GetRestrictions(profile);
@@ -97,6 +100,9 @@ namespace Itinero
                 }
                 else
                 { // vertex-based is ok when no complex restrictions found.
+                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an vertex-based graph for profile {0}...",
+                        profile.FullName);
+
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
                     directedGraphBuilder.Run();
@@ -143,6 +149,9 @@ namespace Itinero
             {
                 if (forceEdgeBased)
                 { // edge-based is needed when complex restrictions found.
+                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an edge-based graph for profile {0}...",
+                        profile.FullName);
+
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                         weightHandler.MetaSize);
                     var restrictions = db.GetRestrictions(profile);
@@ -173,6 +182,9 @@ namespace Itinero
                 }
                 else
                 { // vertex-based is ok when no complex restrictions found.
+                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an edge-based graph for profile {0}...",
+                        profile.FullName);
+
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
                     directedGraphBuilder.Run();

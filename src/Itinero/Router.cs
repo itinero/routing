@@ -636,9 +636,9 @@ namespace Itinero
 
                 if (useContracted)
                 {
-                    if (!contracted.HasEdgeBasedGraph)
-                    { // use node-based routing.
-                        var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
+                    if (contracted.HasEdgeBasedGraph)
+                    { // use edge-based routing.
+                        var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
                         algorithm.Run();
                         if (!algorithm.HasSucceeded)
@@ -660,9 +660,14 @@ namespace Itinero
                             }
                         }
                     }
+                    else if (contracted.HasNodeBasedGraph &&
+                        contracted.NodeBasedIsEdgedBased)
+                    { // use vertex-based graph for edge-based routing.
+                        throw new NotSupportedException();
+                    }
                     else
-                    { // use edge-based routing.
-                        var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
+                    { // use node-based routing.
+                        var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
                         algorithm.Run();
                         if (!algorithm.HasSucceeded)
@@ -751,7 +756,8 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) && 
+                        (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                             "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
@@ -768,9 +774,9 @@ namespace Itinero
 
                 if (useContracted)
                 {
-                    if (!contracted.HasEdgeBasedGraph)
-                    { // use node-based routing.
-                        var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
+                    if (contracted.HasEdgeBasedGraph)
+                    { // use edge-based routing.
+                        var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
                         algorithm.Run();
                         if (!algorithm.HasSucceeded)
@@ -782,9 +788,15 @@ namespace Itinero
                         }
                         weights = algorithm.Weights;
                     }
+                    else if (contracted.HasNodeBasedGraph &&
+                        contracted.NodeBasedIsEdgedBased)
+                    { // use vertex-based graph for edge-based routing.
+                        weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted, _db, profileInstance.Profile,
+                            weightHandler, sources, targets, maxSearch).Value;
+                    }
                     else
-                    { // use edge-based routing.
-                        var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
+                    { // use node-based routing.
+                        var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
                         algorithm.Run();
                         if (!algorithm.HasSucceeded)

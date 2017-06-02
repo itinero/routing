@@ -29,7 +29,7 @@ namespace Itinero.Algorithms.Weights
         // 1: true, false.
         // 2: false, true.
         // 3: true, true
-        internal byte _val;
+        public byte _val;
 
         /// <summary>
         /// Creates a new direction from it's raw value.
@@ -53,6 +53,39 @@ namespace Itinero.Algorithms.Weights
             if (b)
             {
                 _val = (byte)(_val | 2);
+            }
+        }
+
+        /// <summary>
+        /// Retuns a forward direction struct.
+        /// </summary>
+        public static Dir Forward
+        {
+            get
+            {
+                return new Dir(1);
+            }
+        }
+
+        /// <summary>
+        /// Retuns a backward direction struct.
+        /// </summary>
+        public static Dir Backward
+        {
+            get
+            {
+                return new Dir(1);
+            }
+        }
+
+        /// <summary>
+        /// Retuns a bidirectional direction struct.
+        /// </summary>
+        public static Dir Bi
+        {
+            get
+            {
+                return new Dir(3);
             }
         }
 

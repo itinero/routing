@@ -16,11 +16,12 @@
  *  limitations under the License.
  */
 
- using Itinero.Algorithms.Weights;
+using Itinero.Algorithms.Weights;
 using System;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using Itinero.Data.Contracted;
+using Itinero.Algorithms.Collections;
 
 namespace Itinero.Test
 {
@@ -73,6 +74,16 @@ namespace Itinero.Test
         }
 
         public override void AddOrUpdateEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, float weight)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override uint AddPathTree(PathTree tree, uint vertex, float weight, uint previous)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void GetPathTree(PathTree tree, uint pointer, out uint vertex, out float weight, out uint previous)
         {
             throw new NotImplementedException();
         }

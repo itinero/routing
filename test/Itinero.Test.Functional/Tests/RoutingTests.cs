@@ -40,11 +40,11 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             // just test some random routes.
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 250).TestPerf("Testing random routes");
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 250).TestPerf("Testing random routes in parallel");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
 
-            // tests many-to-many route calculation.
-            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 50).TestPerf("Testing calculating manytomany routes");
+            //// tests many-to-many route calculation.
+            //GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 50).TestPerf("Testing calculating manytomany routes");
         }
 
         /// <summary>

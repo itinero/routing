@@ -23,6 +23,7 @@ using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Data.Contracted;
 using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Collections;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -47,6 +48,19 @@ namespace Itinero.Algorithms.Weights
         /// Calculates the weight and direction for the given edge profile.
         /// </summary>
         public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance);
+
+        /// <summary>
+        /// Gets the weight and direction for the given edge.
+        /// </summary>
+        /// <param name="edge"></param>
+        /// <returns></returns>
+        public WeightAndDir<T> GetEdgeWeight(Graphs.Graph.EdgeEnumerator edge)
+        {
+            ushort profile;
+            float distance;
+            Itinero.Data.Edges.EdgeDataSerializer.Deserialize(edge.Data0, out distance, out profile);
+            return CalculateWeightAndDir(profile, distance);
+        }
 
         /// <summary>
         /// Adds the two weights.
@@ -113,6 +127,24 @@ namespace Itinero.Algorithms.Weights
         /// Gets the weight from a meta-edge.
         /// </summary>
         public abstract T GetEdgeWeight(DirectedDynamicGraph.EdgeEnumerator edge, out bool? direction);
+
+        /// <summary>
+        /// Adds a new vertex to the given path tree with the given weight and pointer.
+        /// </summary>
+        public uint AddPathTree(PathTree tree, uint vertex, WeightAndDir<T> weight, uint previous)
+        {
+            return this.AddPathTree(tree, vertex, weight.Weight, previous);
+        }
+
+        /// <summary>
+        /// Adds a new vertex to the given path tree with the given weight and pointer.
+        /// </summary>
+        public abstract uint AddPathTree(PathTree tree, uint vertex, T weight, uint previous);
+
+        /// <summary>
+        /// Gets a vertex from the given path tree using the given pointer.
+        /// </summary>
+        public abstract void GetPathTree(PathTree tree, uint pointer, out uint vertex, out T weight, out uint previous);
 
         /// <summary>
         /// Returns the weight that represents 'zero'.
@@ -235,6 +267,32 @@ namespace Itinero.Algorithms.Weights
                 Distance = weight.Distance + distance,
                 Time = weight.Time + (distance * factorAndSpeed.SpeedFactor),
                 Value = weight.Value + (distance * factorAndSpeed.Value)
+            };
+        }
+
+        /// <summary>
+        /// Adds the given vertex and weight to the path tree.
+        /// </summary>
+        public sealed override uint AddPathTree(PathTree tree, uint vertex, Weight weight, uint previous)
+        {
+            uint data1 = (uint)(weight.Value * 10.0f);
+            uint data2 = (uint)(weight.Distance * 10.0f);
+            uint data3 = (uint)(weight.Time * 10.0f);
+            return tree.Add(vertex, data1, data2, data3, previous);
+        }
+
+        /// <summary>
+        /// Gets the path tree.
+        /// </summary>
+        public sealed override void GetPathTree(PathTree tree, uint pointer, out uint vertex, out Weight weight, out uint previous)
+        {
+            uint data1, data2, data3;
+            tree.Get(pointer, out vertex, out data1, out data2, out data3, out previous);
+            weight = new Weight()
+            {
+                Value = data1 / 10.0f,
+                Distance = data1 / 10.0f,
+                Time = data1 / 10.0f
             };
         }
 

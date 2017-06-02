@@ -23,6 +23,7 @@ using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Contracted.EdgeBased;
 using Itinero.Data.Contracted;
 using Itinero.Data.Contracted.Edges;
+using Itinero.Algorithms.Collections;
 
 namespace Itinero.Algorithms.Weights
 {
@@ -184,6 +185,24 @@ namespace Itinero.Algorithms.Weights
         public sealed override WeightAndDir<float> GetEdgeWeight(MetaEdge edge)
         {
             return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
+        }
+        
+        /// <summary>
+        /// Adds a vertex to the path tree.
+        /// </summary>
+        public override uint AddPathTree(PathTree tree, uint vertex, float weight, uint previous)
+        {
+            return tree.Add(vertex, (uint)(weight * 10.0f), previous);
+        }
+
+        /// <summary>
+        /// Gets a vertex from the path tree.
+        /// </summary>
+        public override void GetPathTree(PathTree tree, uint pointer, out uint vertex, out float weight, out uint previous)
+        {
+            uint data1;
+            tree.Get(pointer, out vertex, out data1, out previous);
+            weight = data1 / 10.0f;
         }
 
         /// <summary>
