@@ -320,7 +320,53 @@ namespace Itinero.Data.Contracted.Edges
         {
             return metaData[0];
         }
-        
+
+        /// <summary>
+        /// Parses the edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static void Deserialize(uint data0, out Dir direction, out float weight)
+        {
+            // TODO: change layout in future version to simplify this.
+            var dirFlags = (data0 & 3);
+            if (dirFlags == 1)
+            {
+                direction = new Dir(1);
+            }
+            else if (dirFlags == 2)
+            {
+                direction = new Dir(2);
+            }
+            else
+            {
+                direction = new Dir(3);
+            }
+            weight = ((data0 - dirFlags) >> 2) / (float)PRECISION_FACTOR;
+        }
+
+        /// <summary>
+        /// Parses the edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static void Deserialize(uint data0, out Dir direction, out uint weight)
+        {
+            // TODO: change layout in future version to simplify this.
+            var dirFlags = (data0 & 3);
+            if (dirFlags == 1)
+            {
+                direction = new Dir(1);
+            }
+            else if (dirFlags == 2)
+            {
+                direction = new Dir(2);
+            }
+            else
+            {
+                direction = new Dir(3);
+            }
+            weight = data0 >> 2;
+        }
+
         /// <summary>
         /// Parses the edge data.
         /// </summary>
@@ -328,27 +374,26 @@ namespace Itinero.Data.Contracted.Edges
         public static WeightAndDir<float> Deserialize(uint data0)
         {
             // TODO: change layout in future version to simplify this.
-            var direction = new Dir();
+            Dir direction;
 
             var dirFlags = (data0 & 3);
             if (dirFlags == 1)
             {
-                direction.F = true;
+                direction = new Dir(1);
             }
             else if (dirFlags == 2)
             {
-                direction.B = true;
+                direction = new Dir(2);
             }
             else
             {
-                direction.F = true;
-                direction.B = true;
+                direction = new Dir(3);
             }
 
             return new WeightAndDir<float>()
             {
                 Direction = direction,
-                Weight = ((data0 - dirFlags) / 4.0f) / (float)PRECISION_FACTOR
+                Weight = ((data0 - dirFlags) >> 2) / (float)PRECISION_FACTOR
             };
         }
     }

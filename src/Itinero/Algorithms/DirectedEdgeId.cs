@@ -182,11 +182,11 @@ namespace Itinero.Algorithms
         {
             if (this.Forward)
             {
-                return string.Format("{0}(F)",
-                    this.EdgeId);
+                return string.Format("{1}({0}(F))",
+                    this.EdgeId, this.Raw);
             }
-            return string.Format("{0}(B)",
-                this.EdgeId);
+            return string.Format("{1}({0}(B))",
+                this.EdgeId, this.Raw);
         }
     }
 }

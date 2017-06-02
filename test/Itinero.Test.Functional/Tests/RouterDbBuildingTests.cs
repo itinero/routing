@@ -36,6 +36,8 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
+            //var routerDb = GetTestBuildRouterDb(@"C:\work\data\OSM\netherlands-latest.osm.pbf", false, true,
+            //    Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
             //var routerDb = GetTestBuildRouterDb(@"C:\work\data\OSM\belgium-latest.osm.pbf", false, true,
             //    Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
             var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,

@@ -180,7 +180,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             {
                 Direction = new Dir(true, true),
                 Weight = 0
-            }, 0, uint.MaxValue);
+            }, 0);
             pointerHeap.Push(p, 0);
 
             // dequeue vertices until stopping conditions are reached.
@@ -315,7 +315,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                         continue;
                     }
 
-                    var nPoiner = pathTree.AddSettledVertex(nVertex, nWeight, cHops + 1, cPointer);
+                    var nPoiner = pathTree.AddSettledVertex(nVertex, nWeight, cHops + 1);
                     pointerHeap.Push(nPoiner, nWeight.Weight);
                 }
             }
@@ -391,6 +391,8 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             var backwardTargets = new HashSet<uint>();
 
             var maxWeight = 0f;
+            var maxForwardWeight = 0f;
+            var maxBackwardWeight = 0f;
 
             foreach (var targetPair in targets)
             {
@@ -405,6 +407,10 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     {
                         maxWeight = shortcut.Forward;
                     }
+                    if (shortcut.Forward > maxForwardWeight)
+                    {
+                        maxForwardWeight = shortcut.Forward;
+                    }
                 }
                 if (shortcut.Backward > 0 && shortcut.Backward < float.MaxValue)
                 {
@@ -413,13 +419,17 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     {
                         maxWeight = shortcut.Backward;
                     }
+                    if (shortcut.Backward > maxBackwardWeight)
+                    {
+                        maxBackwardWeight = shortcut.Backward;
+                    }
                 }
             }
 
             // queue the source.
             pathTree.Clear();
             pointerHeap.Clear();
-            var p = pathTree.AddSettledVertex(source, 0, new Dir(true, true), 0, uint.MaxValue);
+            var p = pathTree.AddSettledVertex(source, 0, new Dir(true, true), 0);
             pointerHeap.Push(p, 0);
 
             // dequeue vertices until stopping conditions are reached.
@@ -444,13 +454,15 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
 
                 if (forwardSettled.Contains(cVertex) ||
                     forwardTargets.Count == 0 ||
-                    forwardSettled.Count > maxSettles)
+                    forwardSettled.Count > maxSettles ||
+                    cWeight.Weight > maxForwardWeight)
                 {
                     cWeight.Direction = new Dir(false, cWeight.Direction.B);
                 }
                 if (backwardSettled.Contains(cVertex) ||
                     backwardTargets.Count == 0 ||
-                    backwardSettled.Count > maxSettles)
+                    backwardSettled.Count > maxSettles ||
+                    cWeight.Weight > maxBackwardWeight)
                 {
                     cWeight.Direction = new Dir(cWeight.Direction.F, false);
                 }
@@ -524,40 +536,44 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 if (forwardSettled.Count > maxSettles &&
                     backwardSettled.Count > maxSettles)
                 {
-                    continue;
+                    break;
                 }
 
                 enumerator.MoveTo(cVertex);
                 while (enumerator.MoveNext())
                 {
                     var nVertex = enumerator.Neighbour;
-                    var nWeight1 = ContractedEdgeDataSerializer.Deserialize(enumerator.Data0);
+                    Dir nDir;
+                    float nWeight;
+                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0,
+                        out nDir, out nWeight);
 
-                    var nDir = Dir.Combine(cWeight.Direction, nWeight1.Direction);
-                    var nWeightWeight = nWeight1.Weight + cWeight.Weight;
+                    nDir._val = (byte)(cWeight.Direction._val & nDir._val);
                     //nWeight = new WeightAndDir<float>()
                     //{
                     //    Direction = Dir.Combine(cWeight.Direction, nWeight.Direction),
                     //    Weight = cWeight.Weight + nWeight.Weight
                     //};
 
-                    if (nDir.F &&
-                        forwardSettled.Contains(nVertex))
+                    if (nDir.F && forwardSettled.Contains(nVertex))
                     {
-                        nDir = new Dir(false, nDir.B);
+                        nDir._val = (byte)(nDir._val & 2);
+                        //nDir = new Dir(false, nDir.B);
                     }
-                    if (nDir.B &&
-                        backwardSettled.Contains(nVertex))
+                    if (nDir.B && backwardSettled.Contains(nVertex))
                     {
-                        nDir = new Dir(nDir.F, false);
+                        nDir._val = (byte)(nDir._val & 1);
+                        //nDir = new Dir(nDir.F, false);
                     }
                     if (nDir._val == 0)
                     {
                         continue;
                     }
 
-                    var nPoiner = pathTree.AddSettledVertex(nVertex, nWeightWeight, nDir, cHops + 1, cPointer);
-                    pointerHeap.Push(nPoiner, nWeightWeight);
+                    nWeight = nWeight + cWeight.Weight;
+
+                    var nPoiner = pathTree.AddSettledVertex(nVertex, nWeight, nDir, cHops + 1);
+                    pointerHeap.Push(nPoiner, nWeight);
                 }
             }
         }

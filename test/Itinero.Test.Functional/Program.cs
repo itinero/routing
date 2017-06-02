@@ -46,7 +46,7 @@ namespace Itinero.Test.Functional
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
             _logger = new Logger("Default");
-            
+
             Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 
 #if DEBUG
@@ -58,14 +58,26 @@ namespace Itinero.Test.Functional
 
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
-            //var router = new Router(routerDb);
+
+            //using (var stream = File.Open("temp.routerdb", FileMode.Create))
+            //{
+            //    routerDb.Serialize(stream);
+            //}
+
+            //RouterDb routerDb;
+            //using (var stream = File.OpenRead("temp.routerdb"))
+            //{
+            //    routerDb = RouterDb.Deserialize(stream);
+            //}
+
+            var router = new Router(routerDb);
 
             //// test resolving.
             //ResolvingTests.Run(routerDb);
 
-            //// test routing.
-            //RoutingTests.Run(routerDb);
-            //RoutingTests.RunFictional();
+            // test routing.
+            RoutingTests.Run(routerDb);
+            RoutingTests.RunFictional();
 
             //// tests calculate weight matrices.
             //WeightMatrixTests.Run(routerDb);
@@ -74,9 +86,9 @@ namespace Itinero.Test.Functional
             //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-//#if DEBUG
+            //#if DEBUG
             Console.ReadLine();
-//#endif
+            //#endif
         }
 
         private static string ToJson(FeatureCollection featureCollection)

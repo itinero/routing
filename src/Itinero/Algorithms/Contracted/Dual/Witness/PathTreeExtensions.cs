@@ -29,21 +29,21 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// <summary>
         /// Adds a new settled vertex.
         /// </summary>
-        public static uint AddSettledVertex(this PathTree tree, uint vertex, WeightAndDir<float> weightAndDir, uint hops, uint fromPointer)
+        public static uint AddSettledVertex(this PathTree tree, uint vertex, WeightAndDir<float> weightAndDir, uint hops)
         {
             var hopsAndDirection = hops * 4 + weightAndDir.Direction._val;
             return tree.Add(vertex, (uint)(weightAndDir.Weight * 10),
-                hopsAndDirection, fromPointer);
+                hopsAndDirection);
         }
 
         /// <summary>
         /// Adds a new settled vertex.
         /// </summary>
-        public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops, uint fromPointer)
+        public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops)
         {
             var hopsAndDirection = hops * 4 + dir._val;
             return tree.Add(vertex, (uint)(weight * 10),
-                hopsAndDirection, fromPointer);
+                hopsAndDirection);
         }
 
         /// <summary>

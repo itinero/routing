@@ -74,24 +74,24 @@ namespace Itinero
                         weightHandler, restrictions);
                     dualGraphBuilder.Run();
 
-                    // contract the graph.
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
-                        new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
-                            5, 4096), weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 4;
-                    hierarchyBuilder.DepthFactor = 7;
-                    hierarchyBuilder.ContractedFactor = 2;
-                    hierarchyBuilder.Run();
-
                     //// contract the graph.
-                    //var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
-                    //    new DykstraWitnessCalculator(int.MaxValue));
-                    //priorityCalculator.DifferenceFactor = 5;
-                    //priorityCalculator.DepthFactor = 5;
-                    //priorityCalculator.ContractedFactor = 8;
-                    //var hierarchyBuilder = new HierarchyBuilder<T>(contracted, priorityCalculator,
-                    //        new DykstraWitnessCalculator(int.MaxValue), weightHandler);
+                    //var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
+                    //    new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
+                    //        5, 4096), weightHandler);
+                    //hierarchyBuilder.DifferenceFactor = 4;
+                    //hierarchyBuilder.DepthFactor = 7;
+                    //hierarchyBuilder.ContractedFactor = 2;
                     //hierarchyBuilder.Run();
+
+                    // contract the graph.
+                    var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
+                        new DykstraWitnessCalculator(int.MaxValue));
+                    priorityCalculator.DifferenceFactor = 5;
+                    priorityCalculator.DepthFactor = 5;
+                    priorityCalculator.ContractedFactor = 8;
+                    var hierarchyBuilder = new HierarchyBuilder<float>(contracted, priorityCalculator,
+                            new DykstraWitnessCalculator(int.MaxValue), weightHandler);
+                    hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, true);
                 }
@@ -786,6 +786,10 @@ namespace Itinero
                         {
                             continue;
                         }
+                        if (edgeEnumerator.DataInverted)
+                        {
+                            continue;
+                        }
                         edges.Add(edgeEnumerator.Id);
 
                         db.WriteEdge(jsonWriter, edgeEnumerator);
@@ -851,6 +855,10 @@ namespace Itinero
                     while (edgeEnumerator.MoveNext())
                     {
                         if (edges.Contains(edgeEnumerator.Id))
+                        {
+                            continue;
+                        }
+                        if (edgeEnumerator.DataInverted)
                         {
                             continue;
                         }

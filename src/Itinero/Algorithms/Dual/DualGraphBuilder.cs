@@ -67,6 +67,12 @@ namespace Itinero.Algorithms.Dual
                     EdgeDataSerializer.Deserialize(enumerator1.Data0,
                         out distance, out edgeProfile);
                     var weight1 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance);
+                    if (enumerator1.DataInverted)
+                    {
+                        var dir = weight1.Direction;
+                        dir.Reverse();
+                        weight1.Direction = dir;
+                    }
                     if (_weightHandler.GetMetric(weight1.Weight) == 0)
                     { // not accessible.
                         continue;
@@ -83,6 +89,12 @@ namespace Itinero.Algorithms.Dual
                         EdgeDataSerializer.Deserialize(enumerator2.Data0,
                             out distance, out edgeProfile);
                         var weight2 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance);
+                        if (enumerator2.DataInverted)
+                        {
+                            var dir = weight2.Direction;
+                            dir.Reverse();
+                            weight2.Direction = dir;
+                        }
                         if (_weightHandler.GetMetric(weight2.Weight) == 0)
                         { // not accessible.
                             continue;
@@ -111,10 +123,10 @@ namespace Itinero.Algorithms.Dual
                         // ok, we need to add this edge, it's a non-restricted turn, not a u-turn and edges are in correct direction.
                         var edge2 = enumerator2.DirectedEdgeId();
 
-                        _weightHandler.AddEdge(_target, edge1.Raw, edge2.Raw, Constants.NO_VERTEX, true,
+                        _weightHandler.AddOrUpdateEdge(_target, edge1.Raw, edge2.Raw, Constants.NO_VERTEX, true,
                             weight1.Weight);
                         //direction.Reverse();
-                        _weightHandler.AddEdge(_target, edge2.Raw, edge1.Raw, Constants.NO_VERTEX, false,
+                        _weightHandler.AddOrUpdateEdge(_target, edge2.Raw, edge1.Raw, Constants.NO_VERTEX, false,
                             weight1.Weight);
                     }
                 }

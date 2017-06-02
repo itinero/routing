@@ -155,28 +155,30 @@ namespace Itinero.Test
             routerDb.Network.Sort();
             routerDb.Network.Compress();
 
-            var pedestrian = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
-            routerDb.AddSupportedVehicle(pedestrian.Parent);
+            var profile = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
+            routerDb.AddSupportedVehicle(profile.Parent);
 
-            // test vertex-based.
-            var weightHandler = pedestrian.DefaultWeightHandlerCached(routerDb);
-            var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
-            var directedGraphBuilder = new DirectedGraphBuilder<float>(routerDb.Network.GeometricGraph.Graph, contracted, weightHandler);
-            directedGraphBuilder.Run();
+            //// test vertex-based.
+            //var weightHandler = pedestrian.DefaultWeightHandlerCached(routerDb);
+            //var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
+            //var directedGraphBuilder = new DirectedGraphBuilder<float>(routerDb.Network.GeometricGraph.Graph, contracted, weightHandler);
+            //directedGraphBuilder.Run();
 
-            // contract the graph.
-            var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
-                new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator<float>(contracted.Graph, weightHandler, int.MaxValue),
-                    weightHandler);
-            hierarchyBuilder.DepthFactor = 0;
-            hierarchyBuilder.ContractedFactor = 0;
-            hierarchyBuilder.DifferenceFactor = 1;
-            hierarchyBuilder.Run();
+            //// contract the graph.
+            //var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
+            //    new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator<float>(contracted.Graph, weightHandler, int.MaxValue),
+            //        weightHandler);
+            //hierarchyBuilder.DepthFactor = 0;
+            //hierarchyBuilder.ContractedFactor = 0;
+            //hierarchyBuilder.DifferenceFactor = 1;
+            //hierarchyBuilder.Run();
 
-            var contractedDb = new ContractedDb(contracted, false);
+            //var contractedDb = new ContractedDb(contracted, false);
 
-            // add the graph.
-            routerDb.AddContracted(pedestrian, contractedDb);
+            //// add the graph.
+            //routerDb.AddContracted(pedestrian, contractedDb);
+
+            var json = routerDb.GetGeoJson();
 
             var router = new Router(routerDb);
 
@@ -200,196 +202,196 @@ namespace Itinero.Test
             var vertex7id = routerDb.SearchVertexFor(vertex7.Latitude, vertex7.Longitude);
             var vertex8id = routerDb.SearchVertexFor(vertex8.Latitude, vertex8.Longitude);
 
-            var route = router.Calculate(pedestrian, vertex0, vertex0);
-            route = router.Calculate(pedestrian, vertex0, vertex1);
-            route = router.Calculate(pedestrian, vertex0, vertex2);
-            route = router.Calculate(pedestrian, vertex0, vertex3);
-            route = router.Calculate(pedestrian, vertex0, vertex4);
-            route = router.Calculate(pedestrian, vertex0, vertex5);
-            route = router.Calculate(pedestrian, vertex0, vertex6);
-            route = router.Calculate(pedestrian, vertex0, vertex7);
-            route = router.Calculate(pedestrian, vertex0, vertex8);
+            //var route = router.Calculate(pedestrian, vertex0, vertex0);
+            //route = router.Calculate(pedestrian, vertex0, vertex1);
+            //route = router.Calculate(pedestrian, vertex0, vertex2);
+            //route = router.Calculate(pedestrian, vertex0, vertex3);
+            //route = router.Calculate(pedestrian, vertex0, vertex4);
+            //route = router.Calculate(pedestrian, vertex0, vertex5);
+            //route = router.Calculate(pedestrian, vertex0, vertex6);
+            //route = router.Calculate(pedestrian, vertex0, vertex7);
+            //route = router.Calculate(pedestrian, vertex0, vertex8);
 
-            route = router.Calculate(pedestrian, vertex1, vertex0);
-            route = router.Calculate(pedestrian, vertex1, vertex1);
-            route = router.Calculate(pedestrian, vertex1, vertex2);
-            route = router.Calculate(pedestrian, vertex1, vertex3);
-            route = router.Calculate(pedestrian, vertex1, vertex4);
-            route = router.Calculate(pedestrian, vertex1, vertex5);
-            route = router.Calculate(pedestrian, vertex1, vertex6);
-            route = router.Calculate(pedestrian, vertex1, vertex7);
-            route = router.Calculate(pedestrian, vertex1, vertex8);
+            //route = router.Calculate(pedestrian, vertex1, vertex0);
+            //route = router.Calculate(pedestrian, vertex1, vertex1);
+            //route = router.Calculate(pedestrian, vertex1, vertex2);
+            //route = router.Calculate(pedestrian, vertex1, vertex3);
+            //route = router.Calculate(pedestrian, vertex1, vertex4);
+            //route = router.Calculate(pedestrian, vertex1, vertex5);
+            //route = router.Calculate(pedestrian, vertex1, vertex6);
+            //route = router.Calculate(pedestrian, vertex1, vertex7);
+            //route = router.Calculate(pedestrian, vertex1, vertex8);
 
-            route = router.Calculate(pedestrian, vertex2, vertex0);
-            route = router.Calculate(pedestrian, vertex2, vertex1);
-            route = router.Calculate(pedestrian, vertex2, vertex2);
-            route = router.Calculate(pedestrian, vertex2, vertex3);
-            route = router.Calculate(pedestrian, vertex2, vertex4);
-            route = router.Calculate(pedestrian, vertex2, vertex5);
-            route = router.Calculate(pedestrian, vertex2, vertex6);
-            route = router.Calculate(pedestrian, vertex2, vertex7);
-            route = router.Calculate(pedestrian, vertex2, vertex8);
+            //route = router.Calculate(pedestrian, vertex2, vertex0);
+            //route = router.Calculate(pedestrian, vertex2, vertex1);
+            //route = router.Calculate(pedestrian, vertex2, vertex2);
+            //route = router.Calculate(pedestrian, vertex2, vertex3);
+            //route = router.Calculate(pedestrian, vertex2, vertex4);
+            //route = router.Calculate(pedestrian, vertex2, vertex5);
+            //route = router.Calculate(pedestrian, vertex2, vertex6);
+            //route = router.Calculate(pedestrian, vertex2, vertex7);
+            //route = router.Calculate(pedestrian, vertex2, vertex8);
 
-            route = router.Calculate(pedestrian, vertex3, vertex0);
-            route = router.Calculate(pedestrian, vertex3, vertex1);
-            route = router.Calculate(pedestrian, vertex3, vertex2);
-            route = router.Calculate(pedestrian, vertex3, vertex3);
-            route = router.Calculate(pedestrian, vertex3, vertex4);
-            route = router.Calculate(pedestrian, vertex3, vertex5);
-            route = router.Calculate(pedestrian, vertex3, vertex6);
-            route = router.Calculate(pedestrian, vertex3, vertex7);
-            route = router.Calculate(pedestrian, vertex3, vertex8);
+            //route = router.Calculate(pedestrian, vertex3, vertex0);
+            //route = router.Calculate(pedestrian, vertex3, vertex1);
+            //route = router.Calculate(pedestrian, vertex3, vertex2);
+            //route = router.Calculate(pedestrian, vertex3, vertex3);
+            //route = router.Calculate(pedestrian, vertex3, vertex4);
+            //route = router.Calculate(pedestrian, vertex3, vertex5);
+            //route = router.Calculate(pedestrian, vertex3, vertex6);
+            //route = router.Calculate(pedestrian, vertex3, vertex7);
+            //route = router.Calculate(pedestrian, vertex3, vertex8);
 
-            route = router.Calculate(pedestrian, vertex4, vertex0);
-            route = router.Calculate(pedestrian, vertex4, vertex1);
-            route = router.Calculate(pedestrian, vertex4, vertex2);
-            route = router.Calculate(pedestrian, vertex4, vertex3);
-            route = router.Calculate(pedestrian, vertex4, vertex4);
-            route = router.Calculate(pedestrian, vertex4, vertex5);
-            route = router.Calculate(pedestrian, vertex4, vertex6);
-            route = router.Calculate(pedestrian, vertex4, vertex7);
-            route = router.Calculate(pedestrian, vertex4, vertex8);
+            //route = router.Calculate(pedestrian, vertex4, vertex0);
+            //route = router.Calculate(pedestrian, vertex4, vertex1);
+            //route = router.Calculate(pedestrian, vertex4, vertex2);
+            //route = router.Calculate(pedestrian, vertex4, vertex3);
+            //route = router.Calculate(pedestrian, vertex4, vertex4);
+            //route = router.Calculate(pedestrian, vertex4, vertex5);
+            //route = router.Calculate(pedestrian, vertex4, vertex6);
+            //route = router.Calculate(pedestrian, vertex4, vertex7);
+            //route = router.Calculate(pedestrian, vertex4, vertex8);
 
-            route = router.Calculate(pedestrian, vertex5, vertex0);
-            route = router.Calculate(pedestrian, vertex5, vertex1);
-            route = router.Calculate(pedestrian, vertex5, vertex2);
-            route = router.Calculate(pedestrian, vertex5, vertex3);
-            route = router.Calculate(pedestrian, vertex5, vertex4);
-            route = router.Calculate(pedestrian, vertex5, vertex5);
-            route = router.Calculate(pedestrian, vertex5, vertex6);
-            route = router.Calculate(pedestrian, vertex5, vertex7);
-            route = router.Calculate(pedestrian, vertex5, vertex8);
+            //route = router.Calculate(pedestrian, vertex5, vertex0);
+            //route = router.Calculate(pedestrian, vertex5, vertex1);
+            //route = router.Calculate(pedestrian, vertex5, vertex2);
+            //route = router.Calculate(pedestrian, vertex5, vertex3);
+            //route = router.Calculate(pedestrian, vertex5, vertex4);
+            //route = router.Calculate(pedestrian, vertex5, vertex5);
+            //route = router.Calculate(pedestrian, vertex5, vertex6);
+            //route = router.Calculate(pedestrian, vertex5, vertex7);
+            //route = router.Calculate(pedestrian, vertex5, vertex8);
 
-            route = router.Calculate(pedestrian, vertex6, vertex0);
-            route = router.Calculate(pedestrian, vertex6, vertex1);
-            route = router.Calculate(pedestrian, vertex6, vertex2);
-            route = router.Calculate(pedestrian, vertex6, vertex3);
-            route = router.Calculate(pedestrian, vertex6, vertex4);
-            route = router.Calculate(pedestrian, vertex6, vertex5);
-            route = router.Calculate(pedestrian, vertex6, vertex6);
-            route = router.Calculate(pedestrian, vertex6, vertex7);
-            route = router.Calculate(pedestrian, vertex6, vertex8);
+            //route = router.Calculate(pedestrian, vertex6, vertex0);
+            //route = router.Calculate(pedestrian, vertex6, vertex1);
+            //route = router.Calculate(pedestrian, vertex6, vertex2);
+            //route = router.Calculate(pedestrian, vertex6, vertex3);
+            //route = router.Calculate(pedestrian, vertex6, vertex4);
+            //route = router.Calculate(pedestrian, vertex6, vertex5);
+            //route = router.Calculate(pedestrian, vertex6, vertex6);
+            //route = router.Calculate(pedestrian, vertex6, vertex7);
+            //route = router.Calculate(pedestrian, vertex6, vertex8);
 
-            route = router.Calculate(pedestrian, vertex7, vertex0);
-            route = router.Calculate(pedestrian, vertex7, vertex1);
-            route = router.Calculate(pedestrian, vertex7, vertex2);
-            route = router.Calculate(pedestrian, vertex7, vertex3);
-            route = router.Calculate(pedestrian, vertex7, vertex4);
-            route = router.Calculate(pedestrian, vertex7, vertex5);
-            route = router.Calculate(pedestrian, vertex7, vertex6);
-            route = router.Calculate(pedestrian, vertex7, vertex7);
-            route = router.Calculate(pedestrian, vertex7, vertex8);
+            //route = router.Calculate(pedestrian, vertex7, vertex0);
+            //route = router.Calculate(pedestrian, vertex7, vertex1);
+            //route = router.Calculate(pedestrian, vertex7, vertex2);
+            //route = router.Calculate(pedestrian, vertex7, vertex3);
+            //route = router.Calculate(pedestrian, vertex7, vertex4);
+            //route = router.Calculate(pedestrian, vertex7, vertex5);
+            //route = router.Calculate(pedestrian, vertex7, vertex6);
+            //route = router.Calculate(pedestrian, vertex7, vertex7);
+            //route = router.Calculate(pedestrian, vertex7, vertex8);
 
-            route = router.Calculate(pedestrian, vertex8, vertex0);
-            route = router.Calculate(pedestrian, vertex8, vertex1);
-            route = router.Calculate(pedestrian, vertex8, vertex2);
-            route = router.Calculate(pedestrian, vertex8, vertex3);
-            route = router.Calculate(pedestrian, vertex8, vertex4);
-            route = router.Calculate(pedestrian, vertex8, vertex5);
-            route = router.Calculate(pedestrian, vertex8, vertex6);
-            route = router.Calculate(pedestrian, vertex8, vertex7);
-            route = router.Calculate(pedestrian, vertex8, vertex8);
+            //route = router.Calculate(pedestrian, vertex8, vertex0);
+            //route = router.Calculate(pedestrian, vertex8, vertex1);
+            //route = router.Calculate(pedestrian, vertex8, vertex2);
+            //route = router.Calculate(pedestrian, vertex8, vertex3);
+            //route = router.Calculate(pedestrian, vertex8, vertex4);
+            //route = router.Calculate(pedestrian, vertex8, vertex5);
+            //route = router.Calculate(pedestrian, vertex8, vertex6);
+            //route = router.Calculate(pedestrian, vertex8, vertex7);
+            //route = router.Calculate(pedestrian, vertex8, vertex8);
 
-            route = router.Calculate(pedestrian, vertex0, vertex8);
-            route = router.Calculate(pedestrian, vertex3, vertex7);
-            route = router.Calculate(pedestrian, resolved4, resolved2);
+            //route = router.Calculate(pedestrian, vertex0, vertex8);
+            //route = router.Calculate(pedestrian, vertex3, vertex7);
+            //route = router.Calculate(pedestrian, resolved4, resolved2);
             
             // test edge-based.
-            routerDb.AddContracted(pedestrian, true);
+            routerDb.AddContracted(profile, true);
             
-            route = router.Calculate(pedestrian, vertex0, vertex0);
-            route = router.Calculate(pedestrian, vertex0, vertex1);
-            route = router.Calculate(pedestrian, vertex0, vertex2);
-            route = router.Calculate(pedestrian, vertex0, vertex3);
-            route = router.Calculate(pedestrian, vertex0, vertex4);
-            route = router.Calculate(pedestrian, vertex0, vertex5);
-            route = router.Calculate(pedestrian, vertex0, vertex6);
-            route = router.Calculate(pedestrian, vertex0, vertex7);
-            route = router.Calculate(pedestrian, vertex0, vertex8);
+            var route = router.Calculate(profile, vertex0, vertex0);
+            route = router.Calculate(profile, vertex0, vertex1);
+            route = router.Calculate(profile, vertex0, vertex2);
+            route = router.Calculate(profile, vertex0, vertex3);
+            route = router.Calculate(profile, vertex0, vertex4);
+            route = router.Calculate(profile, vertex0, vertex5);
+            route = router.Calculate(profile, vertex0, vertex6);
+            route = router.Calculate(profile, vertex0, vertex7);
+            route = router.Calculate(profile, vertex0, vertex8);
 
-            route = router.Calculate(pedestrian, vertex1, vertex0);
-            route = router.Calculate(pedestrian, vertex1, vertex1);
-            route = router.Calculate(pedestrian, vertex1, vertex2);
-            route = router.Calculate(pedestrian, vertex1, vertex3);
-            route = router.Calculate(pedestrian, vertex1, vertex4);
-            route = router.Calculate(pedestrian, vertex1, vertex5);
-            route = router.Calculate(pedestrian, vertex1, vertex6);
-            route = router.Calculate(pedestrian, vertex1, vertex7);
-            route = router.Calculate(pedestrian, vertex1, vertex8);
+            route = router.Calculate(profile, vertex1, vertex0);
+            route = router.Calculate(profile, vertex1, vertex1);
+            route = router.Calculate(profile, vertex1, vertex2);
+            route = router.Calculate(profile, vertex1, vertex3);
+            route = router.Calculate(profile, vertex1, vertex4);
+            route = router.Calculate(profile, vertex1, vertex5);
+            route = router.Calculate(profile, vertex1, vertex6);
+            route = router.Calculate(profile, vertex1, vertex7);
+            route = router.Calculate(profile, vertex1, vertex8);
 
-            route = router.Calculate(pedestrian, vertex2, vertex0);
-            route = router.Calculate(pedestrian, vertex2, vertex1);
-            route = router.Calculate(pedestrian, vertex2, vertex2);
-            route = router.Calculate(pedestrian, vertex2, vertex3);
-            route = router.Calculate(pedestrian, vertex2, vertex4);
-            route = router.Calculate(pedestrian, vertex2, vertex5);
-            route = router.Calculate(pedestrian, vertex2, vertex6);
-            route = router.Calculate(pedestrian, vertex2, vertex7);
-            route = router.Calculate(pedestrian, vertex2, vertex8);
+            route = router.Calculate(profile, vertex2, vertex0);
+            route = router.Calculate(profile, vertex2, vertex1);
+            route = router.Calculate(profile, vertex2, vertex2);
+            route = router.Calculate(profile, vertex2, vertex3);
+            route = router.Calculate(profile, vertex2, vertex4);
+            route = router.Calculate(profile, vertex2, vertex5);
+            route = router.Calculate(profile, vertex2, vertex6);
+            route = router.Calculate(profile, vertex2, vertex7);
+            route = router.Calculate(profile, vertex2, vertex8);
 
-            route = router.Calculate(pedestrian, vertex3, vertex0);
-            route = router.Calculate(pedestrian, vertex3, vertex1);
-            route = router.Calculate(pedestrian, vertex3, vertex2);
-            route = router.Calculate(pedestrian, vertex3, vertex3);
-            route = router.Calculate(pedestrian, vertex3, vertex4);
-            route = router.Calculate(pedestrian, vertex3, vertex5);
-            route = router.Calculate(pedestrian, vertex3, vertex6);
-            route = router.Calculate(pedestrian, vertex3, vertex7);
-            route = router.Calculate(pedestrian, vertex3, vertex8);
+            route = router.Calculate(profile, vertex3, vertex0);
+            route = router.Calculate(profile, vertex3, vertex1);
+            route = router.Calculate(profile, vertex3, vertex2);
+            route = router.Calculate(profile, vertex3, vertex3);
+            route = router.Calculate(profile, vertex3, vertex4);
+            route = router.Calculate(profile, vertex3, vertex5);
+            route = router.Calculate(profile, vertex3, vertex6);
+            route = router.Calculate(profile, vertex3, vertex7);
+            route = router.Calculate(profile, vertex3, vertex8);
 
-            route = router.Calculate(pedestrian, vertex4, vertex0);
-            route = router.Calculate(pedestrian, vertex4, vertex1);
-            route = router.Calculate(pedestrian, vertex4, vertex2);
-            route = router.Calculate(pedestrian, vertex4, vertex3);
-            route = router.Calculate(pedestrian, vertex4, vertex4);
-            route = router.Calculate(pedestrian, vertex4, vertex5);
-            route = router.Calculate(pedestrian, vertex4, vertex6);
-            route = router.Calculate(pedestrian, vertex4, vertex7);
-            route = router.Calculate(pedestrian, vertex4, vertex8);
+            route = router.Calculate(profile, vertex4, vertex0);
+            route = router.Calculate(profile, vertex4, vertex1);
+            route = router.Calculate(profile, vertex4, vertex2);
+            route = router.Calculate(profile, vertex4, vertex3);
+            route = router.Calculate(profile, vertex4, vertex4);
+            route = router.Calculate(profile, vertex4, vertex5);
+            route = router.Calculate(profile, vertex4, vertex6);
+            route = router.Calculate(profile, vertex4, vertex7);
+            route = router.Calculate(profile, vertex4, vertex8);
 
-            route = router.Calculate(pedestrian, vertex5, vertex0);
-            route = router.Calculate(pedestrian, vertex5, vertex1);
-            route = router.Calculate(pedestrian, vertex5, vertex2);
-            route = router.Calculate(pedestrian, vertex5, vertex3);
-            route = router.Calculate(pedestrian, vertex5, vertex4);
-            route = router.Calculate(pedestrian, vertex5, vertex5);
-            route = router.Calculate(pedestrian, vertex5, vertex6);
-            route = router.Calculate(pedestrian, vertex5, vertex7);
-            route = router.Calculate(pedestrian, vertex5, vertex8);
+            route = router.Calculate(profile, vertex5, vertex0);
+            route = router.Calculate(profile, vertex5, vertex1);
+            route = router.Calculate(profile, vertex5, vertex2);
+            route = router.Calculate(profile, vertex5, vertex3);
+            route = router.Calculate(profile, vertex5, vertex4);
+            route = router.Calculate(profile, vertex5, vertex5);
+            route = router.Calculate(profile, vertex5, vertex6);
+            route = router.Calculate(profile, vertex5, vertex7);
+            route = router.Calculate(profile, vertex5, vertex8);
 
-            route = router.Calculate(pedestrian, vertex6, vertex0);
-            route = router.Calculate(pedestrian, vertex6, vertex1);
-            route = router.Calculate(pedestrian, vertex6, vertex2);
-            route = router.Calculate(pedestrian, vertex6, vertex3);
-            route = router.Calculate(pedestrian, vertex6, vertex4);
-            route = router.Calculate(pedestrian, vertex6, vertex5);
-            route = router.Calculate(pedestrian, vertex6, vertex6);
-            route = router.Calculate(pedestrian, vertex6, vertex7);
-            route = router.Calculate(pedestrian, vertex6, vertex8);
+            route = router.Calculate(profile, vertex6, vertex0);
+            route = router.Calculate(profile, vertex6, vertex1);
+            route = router.Calculate(profile, vertex6, vertex2);
+            route = router.Calculate(profile, vertex6, vertex3);
+            route = router.Calculate(profile, vertex6, vertex4);
+            route = router.Calculate(profile, vertex6, vertex5);
+            route = router.Calculate(profile, vertex6, vertex6);
+            route = router.Calculate(profile, vertex6, vertex7);
+            route = router.Calculate(profile, vertex6, vertex8);
 
-            route = router.Calculate(pedestrian, vertex7, vertex0);
-            route = router.Calculate(pedestrian, vertex7, vertex1);
-            route = router.Calculate(pedestrian, vertex7, vertex2);
-            route = router.Calculate(pedestrian, vertex7, vertex3);
-            route = router.Calculate(pedestrian, vertex7, vertex4);
-            route = router.Calculate(pedestrian, vertex7, vertex5);
-            route = router.Calculate(pedestrian, vertex7, vertex6);
-            route = router.Calculate(pedestrian, vertex7, vertex7);
-            route = router.Calculate(pedestrian, vertex7, vertex8);
+            route = router.Calculate(profile, vertex7, vertex0);
+            route = router.Calculate(profile, vertex7, vertex1);
+            route = router.Calculate(profile, vertex7, vertex2);
+            route = router.Calculate(profile, vertex7, vertex3);
+            route = router.Calculate(profile, vertex7, vertex4);
+            route = router.Calculate(profile, vertex7, vertex5);
+            route = router.Calculate(profile, vertex7, vertex6);
+            route = router.Calculate(profile, vertex7, vertex7);
+            route = router.Calculate(profile, vertex7, vertex8);
 
-            route = router.Calculate(pedestrian, vertex8, vertex0);
-            route = router.Calculate(pedestrian, vertex8, vertex1);
-            route = router.Calculate(pedestrian, vertex8, vertex2);
-            route = router.Calculate(pedestrian, vertex8, vertex3);
-            route = router.Calculate(pedestrian, vertex8, vertex4);
-            route = router.Calculate(pedestrian, vertex8, vertex5);
-            route = router.Calculate(pedestrian, vertex8, vertex6);
-            route = router.Calculate(pedestrian, vertex8, vertex7);
-            route = router.Calculate(pedestrian, vertex8, vertex8);
+            route = router.Calculate(profile, vertex8, vertex0);
+            route = router.Calculate(profile, vertex8, vertex1);
+            route = router.Calculate(profile, vertex8, vertex2);
+            route = router.Calculate(profile, vertex8, vertex3);
+            route = router.Calculate(profile, vertex8, vertex4);
+            route = router.Calculate(profile, vertex8, vertex5);
+            route = router.Calculate(profile, vertex8, vertex6);
+            route = router.Calculate(profile, vertex8, vertex7);
+            route = router.Calculate(profile, vertex8, vertex8);
 
-            route = router.Calculate(pedestrian, vertex0, vertex8);
-            route = router.Calculate(pedestrian, vertex3, vertex7);
-            route = router.Calculate(pedestrian, resolved4, resolved2);
+            route = router.Calculate(profile, vertex0, vertex8);
+            route = router.Calculate(profile, vertex3, vertex7);
+            route = router.Calculate(profile, resolved4, resolved2);
         }
 
         /// <summary>
@@ -576,7 +578,7 @@ namespace Itinero.Test
                     "Itinero.Test.test_data.networks.network8.geojson"));
             routerDb.Network.Sort();
             var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            routerDb.AddSupportedVehicle(car.Parent);            
+            routerDb.AddSupportedVehicle(car.Parent);       
             var router = new Router(routerDb);
 
             // define 3 location that resolve on an unconnected part of the network.
