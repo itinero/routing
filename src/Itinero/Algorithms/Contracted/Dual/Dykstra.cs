@@ -127,7 +127,10 @@ namespace Itinero.Algorithms.Contracted.Dual
 
             if (this.WasFound != null)
             {
-                this.WasFound(cVertex, cWeight);
+                if (this.WasFound(cPointer, cVertex, cWeight))
+                { // when true is returned, the listener signals it knows what it wants to know.
+                    return false;
+                }
             }
 
             _edgeEnumerator.MoveTo(cVertex);
@@ -152,20 +155,35 @@ namespace Itinero.Algorithms.Contracted.Dual
         }
 
         /// <summary>
-        /// Gets the path tree.
+        /// Gets the path for the vertex at the given pointer.
         /// </summary>
-        public PathTree PathTree
+        public EdgePath<T> GetPath(uint pointer)
         {
-            get
-            {
-                return _pathTree;
-            }
+            throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Gets the weight for the vertex at the given pointer.
+        /// </summary>
+        public T GetWeight(uint pointer)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// A signature of the was found callback function.
+        /// </summary>
+        /// <param name="pointer">The pointer in the path three, can be used to retrieve the complete path.</param>
+        /// <param name="vertex">The vertex found.</param>
+        /// <param name="weight">The weight at the vertex.</param>
+        /// <returns> when true is returned, the listener signals it knows what it wants to know and the search stops.</returns>
+        /// <remarks>Yes, we can use Func but this is less confusing and contains meaning about the parameters.</remarks>
+        public delegate bool WasFoundDelegate(uint pointer, uint vertex, T weight);
 
         /// <summary>
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
-        public Func<uint, T, bool> WasFound
+        public WasFoundDelegate WasFound
         {
             get;
             set;

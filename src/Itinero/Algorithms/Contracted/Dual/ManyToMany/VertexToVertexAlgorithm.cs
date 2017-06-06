@@ -28,20 +28,20 @@ namespace Itinero.Algorithms.Contracted.Dual
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy between source and target vertices.
     /// </summary>
-    public class VertexToVertexWeightAlgorithm<T> : AlgorithmBase
+    public class VertexToVertexAlgorithm<T> : AlgorithmBase
         where T : struct
     {
         private readonly DirectedMetaGraph _graph;
         private readonly DykstraSource<T>[] _sources;
         private readonly DykstraSource<T>[] _targets;
-        private readonly Dictionary<uint, Dictionary<int, T>> _buckets;
+        private readonly Dictionary<uint, Dictionary<int, EdgePath<T>>> _buckets;
         private readonly WeightHandler<T> _weightHandler;
         private readonly T _max;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
-        public VertexToVertexWeightAlgorithm(DirectedMetaGraph graph, WeightHandler<T> weightHandler, DykstraSource<T>[] sources,
+        public VertexToVertexAlgorithm(DirectedMetaGraph graph, WeightHandler<T> weightHandler, DykstraSource<T>[] sources,
             DykstraSource<T>[] targets, T max)
         {
             _graph = graph;
@@ -50,29 +50,26 @@ namespace Itinero.Algorithms.Contracted.Dual
             _weightHandler = weightHandler;
             _max = max;
 
-            _buckets = new Dictionary<uint, Dictionary<int, T>>();
+            _buckets = new Dictionary<uint, Dictionary<int, EdgePath<T>>>();
         }
 
-        private T[][] _weights;
+        private struct Solution
+        {
+            public EdgePath<T> Path1 { get; set; }
+
+            public EdgePath<T> Path2 { get; set; }
+
+            public EdgePath<T> Path { get; set; }
+        }
+
+        private Solution[][] _weights;
 
         /// <summary>
         /// Executes the actual run.
         /// </summary>
         protected override void DoRun()
         {
-            // put in default weights, all are infinite.
-            // EXPLANATION: a path between two identical vertices has to contain at least one edge.
-            _weights = new T[_sources.Length][];
-            for (var i = 0; i < _sources.Length; i++)
-            {
-                var source = _sources[i];
-                _weights[i] = new T[_targets.Length];
-                for (var j = 0; j < _targets.Length; j++)
-                {
-                    var target = _targets[j];
-                    _weights[i][j] = _weightHandler.Infinite;
-                }
-            }
+            _weights = new Solution[_sources.Length][];
 
             // do forward searches into buckets.
             for (var i = 0; i < _sources.Length; i++)
@@ -80,7 +77,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                 var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i], false, _max);
                 forward.WasFound += (p, v, w) =>
                 {
-                    return this.ForwardVertexFound(i, v, w);
+                    return this.ForwardVertexFound(forward, i, p, v, w);
                 };
                 forward.Run();
             }
@@ -91,7 +88,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                 var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i], true, _max);
                 backward.WasFound += (p, v, w) =>
                 {
-                    return this.BackwardVertexFound(i, v, w);
+                    return this.BackwardVertexFound(backward, i, p, v, w);
                 };
                 backward.Run();
             }
@@ -102,40 +99,37 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Gets the weights.
         /// </summary>
-        public T[][] Weights
+        public EdgePath<T>[][] GetPath(int source, int target)
         {
-            get
-            {
-                return _weights;
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
         /// Called when a forward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool ForwardVertexFound(int i, uint vertex, T weight)
+        private bool ForwardVertexFound(Dykstra<T> dykstra, int i, uint pointer, uint vertex, T weight)
         {
-            Dictionary<int, T> bucket;
+            Dictionary<int, EdgePath<T>> bucket;
             if (!_buckets.TryGetValue(vertex, out bucket))
             {
-                bucket = new Dictionary<int, T>();
+                bucket = new Dictionary<int, EdgePath<T>>();
                 _buckets.Add(vertex, bucket);
-                bucket[i] = weight;
+                bucket[i] = dykstra.GetPath(pointer);
             }
             else
             {
-                T existing;
+                EdgePath<T> existing;
                 if (bucket.TryGetValue(i, out existing))
                 {
-                    if (_weightHandler.IsSmallerThan(weight, existing))
+                    if (_weightHandler.IsSmallerThan(weight, existing.Weight))
                     {
-                        bucket[i] = weight;
+                        bucket[i] = dykstra.GetPath(pointer);
                     }
                 }
                 else
                 {
-                    bucket[i] = weight;
+                    bucket[i] = dykstra.GetPath(pointer);
                 }
             }
             return false;
@@ -145,18 +139,33 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// Called when a backward vertex was found.
         /// </summary>
         /// <returns></returns>
-        private bool BackwardVertexFound(int i, uint vertex, T weight)
+        private bool BackwardVertexFound(Dykstra<T> dykstra, int i, uint pointer, uint vertex, T weight)
         {
-            Dictionary<int, T> bucket;
+            Dictionary<int, EdgePath<T>> bucket;
             if (_buckets.TryGetValue(vertex, out bucket))
             {
                 foreach (var pair in bucket)
                 {
                     var existing = _weights[pair.Key][i];
-                    var total = _weightHandler.Add(weight, pair.Value);
-                    if (_weightHandler.IsSmallerThan(total, existing))
+                    var total = _weightHandler.Add(weight, pair.Value.Weight);
+                    var existingWeight = _weightHandler.Infinite;
+                    if (existing.Path != null)
                     {
-                        _weights[pair.Key][i] = total;
+                        existingWeight = existing.Path.Weight;
+                    }
+                    else if (existing.Path1 != null &&
+                        existing.Path2 != null)
+                    {
+                        existingWeight = _weightHandler.Add(existing.Path1.Weight,
+                            existing.Path2.Weight);
+                    }
+                    if (_weightHandler.IsSmallerThan(total, existingWeight))
+                    { // append the backward to the forward path.
+                        _weights[pair.Key][i] = new Solution()
+                        {
+                            Path1 = pair.Value,
+                            Path2 = dykstra.GetPath(pointer)
+                        };
                     }
                 }
             }
