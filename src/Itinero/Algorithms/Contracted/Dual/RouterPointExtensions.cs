@@ -25,12 +25,12 @@ namespace Itinero.Algorithms.Contracted.Dual
     /// <summary>
     /// Contains extension methods related to the routerpoints.
     /// </summary>
-    internal static class RouterPointExtensions
+    public static class RouterPointExtensions
     {
         /// <summary>
         /// Converts the router point to vertex and weights with vertex id being the directed edge id. This results in one dykstra source of this routerpoint.
         /// </summary>
-        internal static DykstraSource<T> ToDualDykstraSource<T>(this RouterPoint point, RouterDb routerDb, WeightHandler<T> weightHandler, bool asSource)
+        public static DykstraSource<T> ToDualDykstraSource<T>(this RouterPoint point, RouterDb routerDb, WeightHandler<T> weightHandler, bool asSource)
             where T : struct
         {
             var graph = routerDb.Network.GeometricGraph;
@@ -93,6 +93,20 @@ namespace Itinero.Algorithms.Contracted.Dual
                     Weight2 = weightHandler.Infinite
                 };
             }
+        }
+
+        /// <summary>
+        /// Converts all the router points to vertex and weights with vertex id being the directed edge id. This results in one dykstra source of this routerpoint.
+        /// </summary>
+        public static DykstraSource<T>[] ToDualDykstraSources<T>(this RouterPoint[] points, RouterDb routerDb, WeightHandler<T> weightHandler, bool asSource)
+            where T : struct
+        {
+            var results = new DykstraSource<T>[points.Length];
+            for (var i = 0; i < points.Length; i++) // TODO: this only reads stuff, perfect to parallelise
+            {
+                results[i] = points[i].ToDualDykstraSource(routerDb, weightHandler, asSource);
+            }
+            return results;
         }
     }
 }

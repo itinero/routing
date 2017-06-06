@@ -58,18 +58,6 @@ namespace Itinero.Test.Functional
 
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
-
-            //using (var stream = File.Open("temp.routerdb", FileMode.Create))
-            //{
-            //    routerDb.Serialize(stream);
-            //}
-
-            //RouterDb routerDb;
-            //using (var stream = File.OpenRead("temp.routerdb"))
-            //{
-            //    routerDb = RouterDb.Deserialize(stream);
-            //}
-
             var router = new Router(routerDb);
 
             // test resolving.
@@ -82,13 +70,13 @@ namespace Itinero.Test.Functional
             // tests calculate weight matrices.
             WeightMatrixTests.Run(routerDb);
 
-            //// test instruction generation.
-            //InstructionTests.Run(routerDb);
+            // test instruction generation.
+            InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-            //#if DEBUG
+//#if DEBUG
             Console.ReadLine();
-            //#endif
+//#endif
         }
 
         private static string ToJson(FeatureCollection featureCollection)

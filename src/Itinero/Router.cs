@@ -433,8 +433,8 @@ namespace Itinero
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
-            RoutingSettings<T> settings)
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, long sourceDirectedEdge, 
+            long targetDirectedEdge, RoutingSettings<T> settings)
         {
             try
             {
@@ -663,7 +663,34 @@ namespace Itinero
                     else if (contracted.HasNodeBasedGraph &&
                         contracted.NodeBasedIsEdgedBased)
                     { // use vertex-based graph for edge-based routing.
-                        throw new NotSupportedException();
+                        var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexAlgorithm<T>(contracted.NodeBasedGraph, weightHandler,
+                            Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(sources, _db, weightHandler, true),
+                            Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(sources, _db, weightHandler, false), maxSearch);
+                        algorithm.Run();
+
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+
+                        // build all routes.
+                        paths = new EdgePath<T>[sources.Length][];
+                        for (var s = 0; s < sources.Length; s++)
+                        {
+                            paths[s] = new EdgePath<T>[targets.Length];
+                            for (var t = 0; t < targets.Length; t++)
+                            {
+                                var path = algorithm.GetPath(s, t);
+                                if (path != null)
+                                {
+                                    path = _db.BuildDualEdgePath(weightHandler, sources[s], targets[t], path);
+                                }
+                                paths[s][t] = path;
+                            }
+                        }
                     }
                     else
                     { // use node-based routing.

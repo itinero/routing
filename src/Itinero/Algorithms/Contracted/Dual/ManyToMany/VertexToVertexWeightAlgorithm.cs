@@ -23,7 +23,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Contracted.Dual
+namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
 {
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy between source and target vertices.

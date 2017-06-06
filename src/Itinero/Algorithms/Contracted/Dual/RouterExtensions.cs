@@ -53,7 +53,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             }
             
             // calculate weights.
-            var algorithm = new VertexToVertexWeightAlgorithm<T>(contractedDb.NodeBasedGraph, weightHandler, dykstraSources, dykstraTargets, weightHandler.Infinite);
+            var algorithm = new ManyToMany.VertexToVertexWeightAlgorithm<T>(contractedDb.NodeBasedGraph, weightHandler, dykstraSources, dykstraTargets, weightHandler.Infinite);
             algorithm.Run();
 
             // subtract the weight of the first edge from each weight.

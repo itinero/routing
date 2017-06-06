@@ -37,6 +37,7 @@ using System.IO;
 using Itinero.IO.Json;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Dual;
+using Itinero.Algorithms;
 
 namespace Itinero
 {
@@ -500,6 +501,57 @@ namespace Itinero
                 path = new EdgePath<T>(vertexPath[i], weightHandler.Add(weight, path.Weight), best, path);
             }
             return path;
+        }
+
+        /// <summary>
+        /// Builds a non-dual edge path from a dual edge path taking into account the original router points.
+        /// </summary>
+        public static EdgePath<T> BuildDualEdgePath<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, EdgePath<T> dualPath)
+            where T : struct
+        {
+            EdgePath<T> top = null;
+            EdgePath<T> path = null;
+            var edgeEnumerator = routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+            uint other = Constants.NO_VERTEX;
+            while (dualPath != null)
+            {
+                var directedEdgeId = DirectedEdgeId.FromRaw(dualPath.Vertex);
+                edgeEnumerator.MoveToEdge(directedEdgeId.EdgeId);
+                var vertex = edgeEnumerator.To;
+                other = edgeEnumerator.From;
+                if (!directedEdgeId.Forward)
+                {
+                    var t = other;
+                    other = vertex;
+                    vertex = t;
+                }
+                var next = new EdgePath<T>(vertex);
+                if (path == null)
+                {
+                    path = next;
+                }
+                else
+                {
+                    path.From = next;
+                    path = path.From;
+                }
+                if (top == null)
+                {
+                    top = path;
+                }
+                dualPath = dualPath.From;
+            }
+            path.From = new EdgePath<T>(other);
+            return top;
+        }
+
+        /// <summary>
+        /// Builds a non-dual edge path from a dual edge path taking into account the original router points.
+        /// </summary>
+        public static EdgePath<T> BuildDualEdgePath<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> dualPath)
+            where T : struct
+        {
+            return routerDb.BuildDualEdgePath(weightHandler, dualPath);
         }
 
         /// <summary>

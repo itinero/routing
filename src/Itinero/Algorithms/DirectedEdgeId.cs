@@ -63,6 +63,17 @@ namespace Itinero.Algorithms
         }
 
         /// <summary>
+        /// Creates a directed edge id structure.
+        /// </summary>
+        public static DirectedEdgeId FromRaw(uint rawDirectedEdgeId)
+        {
+            return new DirectedEdgeId()
+            {
+                Raw = rawDirectedEdgeId
+            };
+        }
+
+        /// <summary>
         /// Gets a direcred edge id that represents no edge.
         /// </summary>
         public static DirectedEdgeId NO_EDGE = new DirectedEdgeId()

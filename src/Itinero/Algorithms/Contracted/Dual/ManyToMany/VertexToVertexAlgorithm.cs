@@ -23,7 +23,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 
-namespace Itinero.Algorithms.Contracted.Dual
+namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
 {
     /// <summary>
     /// An algorithm to calculate many-to-many weights based on a contraction hierarchy between source and target vertices.
@@ -62,14 +62,14 @@ namespace Itinero.Algorithms.Contracted.Dual
             public EdgePath<T> Path { get; set; }
         }
 
-        private Solution[][] _weights;
+        private Solution[][] _solutions;
 
         /// <summary>
         /// Executes the actual run.
         /// </summary>
         protected override void DoRun()
         {
-            _weights = new Solution[_sources.Length][];
+            _solutions = new Solution[_sources.Length][];
 
             // do forward searches into buckets.
             for (var i = 0; i < _sources.Length; i++)
@@ -99,9 +99,16 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Gets the weights.
         /// </summary>
-        public EdgePath<T>[][] GetPath(int source, int target)
+        public EdgePath<T> GetPath(int source, int target)
         {
-            throw new NotImplementedException();
+            this.CheckHasRunAndHasSucceeded();
+
+            var solution = _solutions[source][target];
+            if (solution.Path == null)
+            {
+                solution.Path = solution.Path1.Append(solution.Path2, _weightHandler);
+            }
+            return solution.Path;
         }
 
         /// <summary>
@@ -146,7 +153,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             {
                 foreach (var pair in bucket)
                 {
-                    var existing = _weights[pair.Key][i];
+                    var existing = _solutions[pair.Key][i];
                     var total = _weightHandler.Add(weight, pair.Value.Weight);
                     var existingWeight = _weightHandler.Infinite;
                     if (existing.Path != null)
@@ -161,7 +168,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                     }
                     if (_weightHandler.IsSmallerThan(total, existingWeight))
                     { // append the backward to the forward path.
-                        _weights[pair.Key][i] = new Solution()
+                        _solutions[pair.Key][i] = new Solution()
                         {
                             Path1 = pair.Value,
                             Path2 = dykstra.GetPath(pointer)
