@@ -99,7 +99,7 @@ namespace Itinero.Test.Functional
             Process p = Process.GetCurrentProcess();
             _memory = p.PrivateMemorySize64;
             _ticks = DateTime.Now.Ticks;
-            Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Started!");
+            //Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Started!");
         }
 
         /// <summary>

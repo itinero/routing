@@ -80,5 +80,38 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// Gets or sets the weight2.
         /// </summary>
         public T Weight2 { get; set; }
+
+        /// <summary>
+        /// Returns a description of this dykstra source.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (this.Vertex2 != Constants.NO_VERTEX)
+            {
+                return string.Format("{0}@{1} {2}@{3}", this.Vertex1, this.Weight1, this.Vertex2, this.Weight2);
+            }
+            return string.Format("{0}@{1}", this.Vertex1, this.Weight1);
+        }
+    }
+
+    /// <summary>
+    /// Contains extension methods related to dykstra sources.
+    /// </summary>
+    public static class DykstraSourceExtensions
+    {
+        /// <summary>
+        /// Converts directed edge id's into an array of dykstra sources.
+        /// </summary>
+        public static DykstraSource<T>[] ToDykstraSources<T>(this DirectedEdgeId[] edges)
+            where T : struct
+        {
+            var result = new DykstraSource<T>[edges.Length];
+            for(var i = 0; i < result.Length; i++)
+            {
+                result[i] = new DykstraSource<T>(edges[i].Raw);
+            }
+            return result;
+        }
     }
 }

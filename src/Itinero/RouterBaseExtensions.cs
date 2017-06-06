@@ -26,6 +26,8 @@ using Itinero.Graphs.Geometric;
 using Itinero.Data.Edges;
 using Itinero.Logging;
 using System.Text;
+using Itinero.Algorithms;
+using Itinero.Data.Contracted;
 
 namespace Itinero
 {
@@ -822,6 +824,103 @@ namespace Itinero
                 });
             }
             return weights;
+        }
+
+        /// <summary>
+        /// Calculates a weight matrix between directed edges, returning weight exclusing the first and last edge.
+        /// </summary>
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, DirectedEdgeId[] sources, 
+            DirectedEdgeId[] targets, RoutingSettings<T> settings)
+            where T : struct
+        {
+            try
+            {
+                if (!router.Db.Supports(profileInstance.Profile))
+                {
+                    return new Result<T[][]>("Routing profile is not supported.", (message) =>
+                    {
+                        return new Exception(message);
+                    });
+                }
+
+                var maxSearch = weightHandler.Infinite;
+                if (settings != null)
+                {
+                    if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
+                    {
+                        maxSearch = weightHandler.Infinite;
+                    }
+                }
+
+                ContractedDb contracted;
+                if (router.Db.TryGetContracted(profileInstance.Profile, out contracted))
+                { // contracted calculation.
+                    if (router.Db.HasComplexRestrictions(profileInstance.Profile))
+                    {
+                        if (!(contracted.HasNodeBasedGraph && contracted.NodeBasedIsEdgedBased))
+                        {
+                            Logging.Logger.Log("Router", TraceEventType.Warning, 
+                                "There is a contracted graph in the routerdb but it cannot be used for directional queries. Rebuild the routerDb, falling back to uncontracted routing.");
+                            contracted = null;
+                        }
+                    }
+
+                    if (!weightHandler.CanUse(contracted))
+                    { // there is a contracted graph but it is not equipped to handle this weight-type.
+                        Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                            "There is a contracted graph but it's not built for the given weight calculations, falling back to uncontracted routing.");
+                        contracted = null;
+                    }
+                }
+
+                if (contracted != null)
+                { // do dual edge-based routing.
+                    var graph = contracted.NodeBasedGraph;
+
+                    var dykstraSources = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
+                    var dykstraTargets = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(targets);
+                    var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexWeightAlgorithm<T>(graph, weightHandler,
+                        dykstraSources, dykstraTargets, maxSearch);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new Exceptions.RouteNotFoundException(message);
+                        });
+                    }
+
+                    // subtract the weight of the first edge from each weight.
+                    var edgeEnumerator = router.Db.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+                    var weights = algorithm.Weights;
+                    for (var s = 0; s < sources.Length; s++)
+                    {
+                        var id = new DirectedEdgeId()
+                        {
+                            Raw = dykstraSources[s].Vertex1
+                        };
+                        edgeEnumerator.MoveToEdge(id.EdgeId);
+                        var weight = weightHandler.GetEdgeWeight(edgeEnumerator);
+                        for (var t = 0; t < dykstraTargets.Length; t++)
+                        {
+                            if (weightHandler.IsSmallerThan(weights[s][t], weightHandler.Infinite))
+                            {
+                                weights[s][t] = weightHandler.Subtract(weights[s][t], weight.Weight);
+                            }
+                        }
+                    }
+
+                    return new Result<T[][]>(algorithm.Weights);
+                }
+                else
+                { // use uncontracted routing.
+                    throw new NotSupportedException();
+                }
+            }
+            catch(Exception ex)
+            {
+                return new Result<T[][]>(ex.Message);
+            }
         }
     }
 }

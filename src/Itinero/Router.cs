@@ -619,7 +619,8 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && !contracted.HasEdgeBasedGraph)
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) &&
+                        (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
                             "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");

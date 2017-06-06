@@ -16,10 +16,12 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms;
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
 using NUnit.Framework;
 using System;
+using Itinero;
 using System.Collections.Generic;
 
 namespace Itinero.Test.Functional.Tests
@@ -37,6 +39,7 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
+            GetTestDirectedWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
         }
 
         /// <summary>
@@ -66,6 +69,41 @@ namespace Itinero.Test.Functional.Tests
                 var matrix = new Itinero.Algorithms.Matrices.WeightMatrixAlgorithm(router, profile, massResolver);
                 matrix.Run();
                 Assert.IsTrue(matrix.HasSucceeded);
+            };
+        }
+
+        /// <summary>
+        /// Tests calculating a weight matrix.
+        /// </summary>
+        public static Action GetTestDirectedWeightMatrix(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random(145171654);
+            var vertices = new HashSet<uint>();
+            var locations = new List<Coordinate>();
+            while (locations.Count < count)
+            {
+                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
+                if (!vertices.Contains(v))
+                {
+                    vertices.Add(v);
+                    locations.Add(router.Db.Network.GetVertex(v));
+                }
+            }
+
+            var locationsArray = locations.ToArray();
+            var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
+            massResolver.Run();
+
+            var edges = new List<DirectedEdgeId>();
+            foreach(var resolved in massResolver.RouterPoints)
+            {
+                edges.Add(new DirectedEdgeId(resolved.EdgeId, true));
+                edges.Add(new DirectedEdgeId(resolved.EdgeId, false));
+            }
+
+            return () =>
+            {
+                var result = router.TryCalculateWeight<float>(profile, router.GetDefaultWeightHandler(profile), edges.ToArray(), edges.ToArray(), null);
             };
         }
     }
