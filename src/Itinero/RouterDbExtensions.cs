@@ -37,7 +37,6 @@ using System.IO;
 using Itinero.IO.Json;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Dual;
-using Itinero.Algorithms;
 
 namespace Itinero
 {
