@@ -70,6 +70,10 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         protected override void DoRun()
         {
             _solutions = new Solution[_sources.Length][];
+            for(var s = 0; s < _sources.Length; s++)
+            {
+                _solutions[s] = new Solution[_targets.Length];
+            }
 
             // do forward searches into buckets.
             for (var i = 0; i < _sources.Length; i++)
@@ -106,6 +110,10 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
             var solution = _solutions[source][target];
             if (solution.Path == null)
             {
+                if (solution.Path1 == null || solution.Path2 == null)
+                {
+                    return null;
+                }
                 solution.Path = solution.Path1.Append(solution.Path2, _weightHandler);
             }
             return solution.Path;

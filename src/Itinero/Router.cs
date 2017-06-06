@@ -749,7 +749,7 @@ namespace Itinero
             {
                 return new Result<EdgePath<T>[][]>(ex.Message, (m) => ex);
             }
-        }
+}
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.

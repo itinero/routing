@@ -159,7 +159,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         public EdgePath<T> GetPath(uint pointer)
         {
-            throw new NotImplementedException();
+            return _weightHandler.GetPath(_pathTree, pointer);
         }
 
         /// <summary>
@@ -167,7 +167,10 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         public T GetWeight(uint pointer)
         {
-            throw new NotImplementedException();
+            T weight;
+            uint vertex, previous;
+            _weightHandler.GetPathTree(_pathTree, pointer, out vertex, out weight, out previous);
+            return weight;
         }
 
         /// <summary>
