@@ -41,11 +41,11 @@ namespace Itinero.Test.Functional.Tests
 
             // just test some random routes.
             GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes");
-            //GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
             GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random directed routes");
 
             // tests many-to-many route calculation.
-            //GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing calculating manytomany routes");
+            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing calculating manytomany routes");
         }
 
         /// <summary>
@@ -69,28 +69,42 @@ namespace Itinero.Test.Functional.Tests
         public static Action GetTestRandomRoutes(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
+            var list = new List<RouterPoint>();
+            while (list.Count < count * 2)
+            {
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                var resolved = router.TryResolve(profile, f1);
+                if (resolved.IsError)
+                {
+                    continue;
+                }
+                var direction = random.NextDouble() >= 0.5;
+                list.Add(resolved.Value);
+            }
+
             return () =>
             {
-                var i = count;
                 var errors = 0;
-                while (i > 0)
+                var success = 0;
+                for (var i = 0; i < list.Count; i += 2)
                 {
-                    i--;
-
-                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
-                    if (v1 == v2)
-                    {
-                        v2++;
-                    }
-
-                    var f1 = router.Db.Network.GetVertex(v1);
-                    var f2 = router.Db.Network.GetVertex(v2);
-
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
+                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i], list[i + 1]);
                     if (route.IsError)
                     {
+#if DEBUG
+                        var startJson = list[i].ToGeoJson(router.Db);
+                        var endJson = list[i + 1].ToGeoJson(router.Db);
+#endif
                         errors++;
+                    }
+                    else
+                    {
+#if DEBUG
+                        var startJson = list[i].ToGeoJson(router.Db);
+                        var endJson = list[i + 1].ToGeoJson(router.Db);
+#endif
+                        success++;
                     }
                 }
 
@@ -121,13 +135,26 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 var errors = 0;
+                var success = 0;
                 for (var i = 0; i < list.Count; i += 2)
                 {
                     var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i].Item1, list[i].Item2, 
                         list[i+1].Item1, list[i+1].Item2);
                     if (route.IsError)
                     {
+#if DEBUG
+                        var startJson = list[i].Item1.ToGeoJson(router.Db);
+                        var endJson = list[i + 1].Item1.ToGeoJson(router.Db);
+#endif
                         errors++;
+                    }
+                    else
+                    {
+#if DEBUG
+                        var startJson = list[i].Item1.ToGeoJson(router.Db);
+                        var endJson = list[i + 1].Item1.ToGeoJson(router.Db);
+#endif
+                        success++;
                     }
                 }
 
@@ -141,27 +168,46 @@ namespace Itinero.Test.Functional.Tests
         public static Action GetTestRandomRoutesParallel(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
+            var list = new List<RouterPoint>();
+            while (list.Count < count * 2)
+            {
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                var resolved = router.TryResolve(profile, f1);
+                if (resolved.IsError)
+                {
+                    continue;
+                }
+                var direction = random.NextDouble() >= 0.5;
+                list.Add(resolved.Value);
+            }
+
             return () =>
             {
                 var errors = 0;
+                var success = 0;
                 System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
                 {
-                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                    var v2 = (uint)random.Next((int)router.Db.Network.VertexCount - 1);
-                    if (v1 == v2)
-                    {
-                        v2++;
-                    }
-
-                    var f1 = router.Db.Network.GetVertex(v1);
-                    var f2 = router.Db.Network.GetVertex(v2);
-
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
+                    int i = x * 2;
+                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i], list[i + 1]);
                     if (route.IsError)
                     {
+#if DEBUG
+                        var startJson = list[i].ToGeoJson(router.Db);
+                        var endJson = list[i + 1].ToGeoJson(router.Db);
+#endif
                         errors++;
                     }
+                    else
+                    {
+#if DEBUG
+                        var startJson = list[i].ToGeoJson(router.Db);
+                        var endJson = list[i + 1].ToGeoJson(router.Db);
+#endif
+                        success++;
+                    }
                 });
+
                 Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
             };
         }

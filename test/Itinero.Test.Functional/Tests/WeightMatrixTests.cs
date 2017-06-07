@@ -103,7 +103,7 @@ namespace Itinero.Test.Functional.Tests
 
             return () =>
             {
-                var result = router.TryCalculateWeight<float>(profile, router.GetDefaultWeightHandler(profile), edges.ToArray(), edges.ToArray(), null);
+                var result = router.TryCalculateWeight(profile, edges.ToArray(), edges.ToArray(), null);
             };
         }
     }

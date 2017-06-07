@@ -61,6 +61,9 @@ namespace Itinero.Test.Functional.Tests
                     {
                         errors++;
                     }
+                    //var routerPointValue = new RouterPoint(routerPoint.Value.Latitude, routerPoint.Value.Longitude,
+                    //    routerPoint.Value.EdgeId, ushort.MaxValue / 2);
+                    //var routerPoinJson = routerPointValue.ToGeoJson(router.Db);
                 }
 
                 Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} resolves failed.", errors, count);

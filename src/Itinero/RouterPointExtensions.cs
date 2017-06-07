@@ -26,6 +26,8 @@ using System.Collections.Generic;
 using Itinero.Data.Edges;
 using Itinero.Algorithms.Weights;
 using Itinero.Algorithms.Search.Hilbert;
+using System.IO;
+using Itinero.IO.Json;
 
 namespace Itinero
 {
@@ -700,6 +702,88 @@ namespace Itinero
                         new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>(edge.To))
                     };
             }
+        }
+
+        /// <summary>
+        /// Returns a geojson description for 
+        /// </summary>
+        public static string ToGeoJson(this RouterPoint routerPoint, RouterDb routerDb)
+        {
+            var stringWriter = new StringWriter();
+            routerPoint.WriteGeoJson(stringWriter, routerDb);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Writes geojson describing the given routerpoint.
+        /// </summary>
+        internal static void WriteGeoJson(this RouterPoint routerPoint, TextWriter writer, RouterDb db)
+        {
+            if (db == null) { throw new ArgumentNullException("db"); }
+            if (writer == null) { throw new ArgumentNullException("writer"); }
+
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+            edgeEnumerator.MoveToEdge(routerPoint.EdgeId);
+
+            db.WriteEdge(jsonWriter, edgeEnumerator);
+
+            db.WriteVertex(jsonWriter, edgeEnumerator.From);
+            db.WriteVertex(jsonWriter, edgeEnumerator.To);
+
+            // write location on network.
+            var coordinate = routerPoint.LocationOnNetwork(db);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Feature", true, false);
+            jsonWriter.WritePropertyName("geometry", false);
+
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Point", true, false);
+            jsonWriter.WritePropertyName("coordinates", false);
+            jsonWriter.WriteArrayOpen();
+            jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+            jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            jsonWriter.WritePropertyName("properties");
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "location_on_network", true);
+            jsonWriter.WriteProperty("offset", routerPoint.Offset.ToInvariantString());
+            jsonWriter.WriteClose();
+
+            jsonWriter.WriteClose();
+
+            // write original location.
+            coordinate = routerPoint.LocationOnNetwork(db);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Feature", true, false);
+            jsonWriter.WritePropertyName("geometry", false);
+
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Point", true, false);
+            jsonWriter.WritePropertyName("coordinates", false);
+            jsonWriter.WriteArrayOpen();
+            jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+            jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            jsonWriter.WritePropertyName("properties");
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "original_location", true);
+            jsonWriter.WriteClose();
+
+            jsonWriter.WriteClose();
+
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
         }
     }
 }

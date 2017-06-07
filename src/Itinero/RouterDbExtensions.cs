@@ -999,7 +999,7 @@ namespace Itinero
         /// <summary>
         /// Writes a point-geometry for the given vertex.
         /// </summary>
-        private static void WriteVertex(this RouterDb db, JsonWriter jsonWriter, uint vertex)
+        internal static void WriteVertex(this RouterDb db, JsonWriter jsonWriter, uint vertex)
         {
             var coordinate = db.Network.GetVertex(vertex);
             
@@ -1027,7 +1027,7 @@ namespace Itinero
         /// <summary>
         /// Writes a linestring-geometry for the edge currently in the enumerator.
         /// </summary>
-        private static void WriteEdge(this RouterDb db, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator)
+        internal static void WriteEdge(this RouterDb db, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator)
         {
             var edgeAttributes = new Itinero.Attributes.AttributeCollection(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
             edgeAttributes.AddOrReplace(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));

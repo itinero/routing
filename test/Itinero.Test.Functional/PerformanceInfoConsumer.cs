@@ -156,13 +156,13 @@ namespace Itinero.Test.Functional
                     if (_memoryUsageLog.Count > 0)
                     { // there was memory usage logging.
                         double max = _memoryUsageLog.Max();
-                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Ended at at {0}, spent {1}s and {2}MB of memory diff with {3}MB max used.",
+                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Ended at {0}, spent {1}s and {2}MB of memory diff with {3}MB max used.",
                                 new DateTime(_ticks.Value).ToShortTimeString(),
                                 seconds, memoryDiff, max);
                     }
                     else
                     { // no memory usage logged.
-                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Ended at at {0}, spent {1}s and {2}MB of memory diff.",
+                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, _name + ":Ended at {0}, spent {1}s and {2}MB of memory diff.",
                                 new DateTime(_ticks.Value).ToShortTimeString(),
                                 seconds, memoryDiff);
                     }
