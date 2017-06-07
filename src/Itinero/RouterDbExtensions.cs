@@ -550,7 +550,51 @@ namespace Itinero
         public static EdgePath<T> BuildDualEdgePath<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> dualPath)
             where T : struct
         {
-            return routerDb.BuildDualEdgePath(weightHandler, dualPath);
+            EdgePath<T> top = null;
+            EdgePath<T> path = null;
+            var edgeEnumerator = routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+            uint other = Constants.NO_VERTEX;
+            while (dualPath != null)
+            {
+                var directedEdgeId = DirectedEdgeId.FromRaw(dualPath.Vertex);
+                edgeEnumerator.MoveToEdge(directedEdgeId.EdgeId);
+                var vertex = edgeEnumerator.To;
+                other = edgeEnumerator.From;
+                if (!directedEdgeId.Forward)
+                {
+                    var t = other;
+                    other = vertex;
+                    vertex = t;
+                }
+                var next = new EdgePath<T>(vertex);
+                if (path == null)
+                {
+                    path = next;
+                }
+                else
+                {
+                    path.From = next;
+                    path = path.From;
+                }
+                if (top == null)
+                {
+                    top = path;
+                }
+                dualPath = dualPath.From;
+            }
+            if (target.IsVertex(routerDb, other))
+            {
+                path.From = new EdgePath<T>(other);
+            }
+            else
+            {
+                path.From = new EdgePath<T>(Constants.NO_VERTEX);
+            }
+            if (!source.IsVertex(routerDb, top.Vertex))
+            {
+                top.Vertex = Constants.NO_VERTEX;
+            }
+            return top;
         }
 
         /// <summary>

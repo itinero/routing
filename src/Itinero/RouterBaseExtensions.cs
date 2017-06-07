@@ -829,6 +829,15 @@ namespace Itinero
         /// <summary>
         /// Calculates a weight matrix between directed edges, returning weight exclusing the first and last edge.
         /// </summary>
+        public static Result<float[][]> TryCalculateWeight(this RouterBase router, IProfileInstance profileInstance, DirectedEdgeId[] sources,
+            DirectedEdgeId[] targets, RoutingSettings<float> settings = null)
+        {
+            return router.TryCalculateWeight(profileInstance, router.GetDefaultWeightHandler(profileInstance), sources, targets, settings);
+        }
+
+        /// <summary>
+        /// Calculates a weight matrix between directed edges, returning weight exclusing the first and last edge.
+        /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, DirectedEdgeId[] sources, 
             DirectedEdgeId[] targets, RoutingSettings<T> settings = null)
             where T : struct

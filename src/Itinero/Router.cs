@@ -670,7 +670,7 @@ namespace Itinero
                     { // use vertex-based graph for edge-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexAlgorithm<T>(contracted.NodeBasedGraph, weightHandler,
                             Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(sources, _db, weightHandler, true),
-                            Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(sources, _db, weightHandler, false), maxSearch);
+                            Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(targets, _db, weightHandler, false), maxSearch);
                         algorithm.Run();
 
                         if (!algorithm.HasSucceeded)

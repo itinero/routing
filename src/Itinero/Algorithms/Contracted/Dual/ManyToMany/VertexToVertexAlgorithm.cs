@@ -114,7 +114,52 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 {
                     return null;
                 }
-                solution.Path = solution.Path1.Append(solution.Path2, _weightHandler);
+                if (solution.Path != null)
+                {
+                    return solution.Path;
+                }
+
+                var fromSource = solution.Path1;
+                var toTarget = solution.Path2;
+                var vertices = new List<uint>();
+
+                // add vertices from source.
+                vertices.Add(fromSource.Vertex);
+                while (fromSource.From != null)
+                {
+                    if (fromSource.From.Vertex != Constants.NO_VERTEX)
+                    { // this should be the end of the path.
+                        if (fromSource.Edge == Constants.NO_EDGE)
+                        { // only expand when there is no edge id.
+                            _graph.ExpandEdge(fromSource.From.Vertex, fromSource.Vertex, vertices, false, true);
+                        }
+                    }
+                    vertices.Add(fromSource.From.Vertex);
+                    fromSource = fromSource.From;
+                }
+                vertices.Reverse();
+
+                // and add vertices to target.
+                while (toTarget.From != null)
+                {
+                    if (toTarget.From.Vertex != Constants.NO_VERTEX)
+                    { // this should be the end of the path.
+                        if (toTarget.Edge == Constants.NO_EDGE)
+                        { // only expand when there is no edge id.
+                            _graph.ExpandEdge(toTarget.From.Vertex, toTarget.Vertex, vertices, false, false);
+                        }
+                    }
+                    vertices.Add(toTarget.From.Vertex);
+                    toTarget = toTarget.From;
+                }
+
+                var path = new EdgePath<T>(vertices[0]);
+                for (var i = 1; i < vertices.Count; i++)
+                {
+                    path = new EdgePath<T>(vertices[i], default(T), path);
+                }
+
+                solution.Path = path;
             }
             return solution.Path;
         }
