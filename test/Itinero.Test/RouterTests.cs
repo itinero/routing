@@ -1016,10 +1016,10 @@ namespace Itinero.Test
         }
 
         /// <summary>
-        /// Tests non-contracted directed edge based routing starting and stopping on the same edge but that edge is oneway.
+        /// Tests contracted directed edge based routing starting and stopping at the exact same location.
         /// </summary>
         [Test]
-        public void TestUncontractedDirectedEdgeBasedRoutingSameEdgeOneWay()
+        public void TestContractedDirectedEdgeBasedRoutingSameLocation()
         {
             var e = 0.0001f;
 
@@ -1046,8 +1046,125 @@ namespace Itinero.Test
             routerDb.Network.Sort();
 
             // defined and add the supported profile.
+            var vehicle = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
+            routerDb.AddSupportedVehicle(vehicle.Parent);
+            routerDb.AddContracted(vehicle, true);
+            var router = new Router(routerDb);
+
+            // test routes between identical location.
+            var location3 = new Coordinate(52.35502840541f, 6.66461193744f);
+            var resolved3 = router.Resolve(vehicle, location3);
+            var location5 = new Coordinate(52.35525746742958f, 6.665166020393372f);
+            var resolved5 = router.Resolve(vehicle, location5);
+
+            // route and verify.
+            var route = router.TryCalculate(vehicle, resolved3, true, resolved3, true); // should result in a route of length '0'.
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(1, route.Value.Shape.Length);
+            route = router.TryCalculate(vehicle, resolved3, true, resolved3, false); // should result in a route with a turn along the loop in the network
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(10, route.Value.Shape.Length);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[0], route.Value.Shape[1]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[1], route.Value.Shape[2]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[1], route.Value.Shape[7]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[0], route.Value.Shape[8]), e);
+            route = router.TryCalculate(vehicle, resolved3, false, resolved3, true); // should result in a route with a turn along the loop in the network
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(12, route.Value.Shape.Length);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[3], route.Value.Shape[1]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[4], route.Value.Shape[2]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[6], route.Value.Shape[3]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[6], route.Value.Shape[8]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[4], route.Value.Shape[9]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[3], route.Value.Shape[10]), e);
+            route = router.TryCalculate(vehicle, resolved3, false, resolved3, false); // should result in a route of length '0'.
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(1, route.Value.Shape.Length);
+        }
+
+        /// <summary>
+        /// Tests non-contracted directed edge based routing starting and stopping on the same edge but that edge is oneway.
+        /// </summary>
+        [Test]
+        public void TestUncontractedDirectedEdgeBasedRoutingSameEdgeOneWay()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network9.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7)
+            };
+
+            // sort the network.
+            routerDb.Network.Sort();
+
+            // defined and add the supported profile.
             var vehicle = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
             routerDb.AddSupportedVehicle(vehicle.Parent);
+            var router = new Router(routerDb);
+
+            // test directed routes on the same edge.
+            var location6 = new Coordinate(52.35383385230824f, 6.663897335529327f);
+            var resolved6 = router.Resolve(vehicle, location6);
+            var location7 = new Coordinate(52.35338333164195f, 6.66343331336975f);
+            var resolved7 = router.Resolve(vehicle, location7);
+
+            // route and verify.
+            var route = router.TryCalculate(vehicle, resolved6, true, resolved7, true); // should result route within edge.
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(2, route.Value.Shape.Length);
+            route = router.TryCalculate(vehicle, resolved6, true, resolved7, false); // should result in error.
+            Assert.IsTrue(route.IsError);
+            route = router.TryCalculate(vehicle, resolved6, false, resolved7, true); // should result in error.
+            Assert.IsTrue(route.IsError);
+            route = router.TryCalculate(vehicle, resolved6, false, resolved7, false); // should result in error.
+            Assert.IsTrue(route.IsError);
+        }
+
+        /// <summary>
+        /// Tests contracted directed edge based routing starting and stopping on the same edge but that edge is oneway.
+        /// </summary>
+        [Test]
+        public void TestContractedDirectedEdgeBasedRoutingSameEdgeOneWay()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network9.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7)
+            };
+
+            // sort the network.
+            routerDb.Network.Sort();
+
+            // defined and add the supported profile.
+            var vehicle = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedVehicle(vehicle.Parent);
+            routerDb.AddContracted(vehicle, true);
             var router = new Router(routerDb);
 
             // test directed routes on the same edge.
