@@ -108,8 +108,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this is a better match.
-                    if (forwardVisit.Vertex == backwardVisit.From.Vertex)
-                    { // paths match.
+                    if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
+                        (forwardVisit.From.From != null || backwardVisit.From.From != null))
+                    { // paths match and are bigger than one edge.
                         _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
                         this.HasSucceeded = true;
                     }
@@ -136,8 +137,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
                 if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
                 { // this is a better match.
-                    if (forwardVisit.Vertex == backwardVisit.From.Vertex)
-                    { // paths match.
+                    if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
+                        (forwardVisit.From.From != null || backwardVisit.From.From != null))
+                    { // paths match and are bigger than one edge.
                         _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
                         this.HasSucceeded = true;
                     }
