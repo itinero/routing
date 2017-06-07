@@ -44,7 +44,7 @@ namespace Itinero.Algorithms
             }
 
             Raw = edgeId * 2;
-            if (directedEdgeId > 0)
+            if (directedEdgeId < 0)
             {
                 Raw++;
             }

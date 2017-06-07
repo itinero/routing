@@ -546,6 +546,10 @@ namespace Itinero
                             {
                                 original = original.Reverse();
                             }
+                            if (vertexPath.Count == 0)
+                            {
+                                vertexPath.Add(original.Vertex1);
+                            }
                             vertexPath.Add(original.Vertex2);
                         }
                     }
