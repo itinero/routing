@@ -876,6 +876,80 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Tests non-contracted directed edge based routing starting and stopping on the same edge.
+        /// </summary>
+        [Test]
+        public void TestContractedDirectedEdgeBasedRoutingSameEdge()
+        {
+            var e = 0.0001f;
+
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network9.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7)
+            };
+
+            // sort the network.
+            routerDb.Network.Sort();
+
+            // defined and add the supported profile.
+            var vehicle = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
+            routerDb.AddSupportedVehicle(vehicle.Parent);
+            routerDb.AddContracted(vehicle, true);
+            var router = new Router(routerDb);
+
+            // test directed routes on the same edge.
+            var location3 = new Coordinate(52.35502840541f, 6.66461193744f);
+            var resolved3 = router.Resolve(vehicle, location3);
+            var location5 = new Coordinate(52.35525746742958f, 6.665166020393372f);
+            var resolved5 = router.Resolve(vehicle, location5);
+
+            // route and verify.
+            var route = router.TryCalculate(vehicle, resolved3, true, resolved5, true); // should result in shortest route between 3 and 5
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(2, route.Value.Shape.Length);
+            route = router.TryCalculate(vehicle, resolved3, true, resolved5, false); // should result in a route with a turn along the loop in the network
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(10, route.Value.Shape.Length);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[0], route.Value.Shape[1]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[1], route.Value.Shape[2]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[1], route.Value.Shape[7]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[0], route.Value.Shape[8]), e);
+            route = router.TryCalculate(vehicle, resolved3, false, resolved5, true); // should result in a route with a turn along the loop in the network
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(12, route.Value.Shape.Length);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[3], route.Value.Shape[1]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[4], route.Value.Shape[2]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[6], route.Value.Shape[3]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[6], route.Value.Shape[8]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[4], route.Value.Shape[9]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[3], route.Value.Shape[10]), e);
+            route = router.TryCalculate(vehicle, resolved3, false, resolved5, false); // should result in a route that's almost a closed loop
+            Assert.IsFalse(route.IsError);
+            Assert.AreEqual(9, route.Value.Shape.Length);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[3], route.Value.Shape[1]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[4], route.Value.Shape[2]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[6], route.Value.Shape[3]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[5], route.Value.Shape[4]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[2], route.Value.Shape[5]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[1], route.Value.Shape[6]), e);
+            Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[0], route.Value.Shape[7]), e);
+        }
+
+        /// <summary>
         /// Tests non-contracted directed edge based routing starting and stopping at the exact same location.
         /// </summary>
         [Test]

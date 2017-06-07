@@ -108,7 +108,8 @@ namespace Itinero.Algorithms.Contracted
                     if (current != null)
                     {
                         EdgePath<T> toBest;
-                        if (_backwardVisits.TryGetValue(current.Vertex, out toBest))
+                        if (_backwardVisits.TryGetValue(current.Vertex, out toBest) &&
+                            (toBest.From != null || current.From != null))
                         { // check for a new best.
                             var total = _weightHandler.Add(current.Weight, toBest.Weight);
                             if (_weightHandler.IsSmallerThan(total, _best.Item2))
@@ -135,7 +136,8 @@ namespace Itinero.Algorithms.Contracted
                     if (current != null)
                     {
                         EdgePath<T> toBest;
-                        if (_forwardVisits.TryGetValue(current.Vertex, out toBest))
+                        if (_forwardVisits.TryGetValue(current.Vertex, out toBest) &&
+                            (toBest.From != null || current.From != null))
                         { // check for a new best.
                             var total = _weightHandler.Add(current.Weight, toBest.Weight);
                             if (_weightHandler.IsSmallerThan(total, _best.Item2))
