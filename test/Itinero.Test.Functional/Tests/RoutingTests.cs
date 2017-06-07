@@ -40,11 +40,12 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             // just test some random routes.
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes");
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
+            //GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes");
+            //GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
+            GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random directed routes");
 
             // tests many-to-many route calculation.
-            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing calculating manytomany routes");
+            //GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing calculating manytomany routes");
         }
 
         /// <summary>
@@ -87,6 +88,43 @@ namespace Itinero.Test.Functional.Tests
                     var f2 = router.Db.Network.GetVertex(v2);
 
                     var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), f1, f2);
+                    if (route.IsError)
+                    {
+                        errors++;
+                    }
+                }
+
+                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
+            };
+        }
+
+        /// <summary>
+        /// Tests calculating a number of routes.
+        /// </summary>
+        public static Action GetTestRandomDirectedRoutes(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random();
+            var list = new List<Tuple<RouterPoint, bool>>();
+            while (list.Count < count * 2)
+            {
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                var resolved = router.TryResolve(profile, f1);
+                if (resolved.IsError)
+                {
+                    continue;
+                }
+                var direction = random.NextDouble() >= 0.5;
+                list.Add(new Tuple<RouterPoint, bool>(resolved.Value, direction));
+            }
+
+            return () =>
+            {
+                var errors = 0;
+                for (var i = 0; i < list.Count; i += 2)
+                {
+                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i].Item1, list[i].Item2, 
+                        list[i+1].Item1, list[i+1].Item2);
                     if (route.IsError)
                     {
                         errors++;

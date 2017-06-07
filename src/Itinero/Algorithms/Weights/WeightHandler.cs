@@ -63,6 +63,29 @@ namespace Itinero.Algorithms.Weights
         }
 
         /// <summary>
+        /// Gets the weight and direction for the given edge.
+        /// </summary>
+        /// <param name="edge"></param>
+        /// <returns></returns>
+        public WeightAndDir<T> GetEdgeWeight(Edge edge)
+        {
+            ushort profile;
+            float distance;
+            Itinero.Data.Edges.EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profile);
+            return CalculateWeightAndDir(profile, distance);
+        }
+
+        /// <summary>
+        /// Gets the weight and direction for the given edge.
+        /// </summary>
+        /// <param name="edge"></param>
+        /// <returns></returns>
+        public WeightAndDir<T> GetEdgeWeight(Data.Network.RoutingEdge edge)
+        {
+            return CalculateWeightAndDir(edge.Data.Profile, edge.Data.Distance);
+        }
+
+        /// <summary>
         /// Adds the two weights.
         /// </summary>
         public abstract T Add(T weight1, T weight2);

@@ -82,6 +82,21 @@ namespace Itinero.Algorithms
         };
 
         /// <summary>
+        /// Returns the equivalent signed directed id.
+        /// </summary>
+        public long SignedDirectedId
+        {
+            get
+            {
+                if (this.Forward)
+                {
+                    return this.EdgeId + 1;
+                }
+                return -(this.EdgeId + 1);
+            }
+        }
+
+        /// <summary>
         /// Gets the undirected edge id.
         /// </summary>
         public uint EdgeId

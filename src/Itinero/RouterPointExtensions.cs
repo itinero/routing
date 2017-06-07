@@ -506,6 +506,55 @@ namespace Itinero
         }
         
         /// <summary>
+        /// Calculates the edge path between this router point and the given router point.
+        /// </summary>
+        /// <param name="point">The source point.</param>
+        /// <param name="db">The router db.</param>
+        /// <param name="weightHandler">The weight handler.</param>
+        /// <param name="target">The target point.</param>
+        /// <param name="backward">Forces the direction on the edge to travel in.</param>
+        public static EdgePath<T> EdgePathTo<T>(this RouterPoint point, RouterDb db, WeightHandler<T> weightHandler, RouterPoint target, bool backward = false)
+            where T : struct
+        {
+            if (point.EdgeId != target.EdgeId)
+            {
+                throw new ArgumentException("Target point must be part of the same edge.");
+            }
+
+            if (point.Offset == target.Offset)
+            { // two points are identical, path of length '0'.
+                return new EdgePath<T>(point.VertexId(db));
+            }
+
+            var forward = point.Offset < target.Offset;
+            if (forward && backward)
+            { // forward travel is required but backward travel is requested.
+                return null;
+            }
+
+            var edge = db.Network.GetEdge(point.EdgeId);
+            var distance = ((float)System.Math.Abs((int)point.Offset - (int)target.Offset) / (float)ushort.MaxValue) *
+                edge.Data.Distance;
+            Factor factor;
+            var weight = weightHandler.Calculate(edge.Data.Profile, distance, out factor);
+            if (factor.Value <= 0)
+            { // not possible to travel here.
+                return null;
+            }
+            if (factor.Direction == 0 ||
+               (forward && factor.Direction == 1) ||
+               (!forward && factor.Direction == 2))
+            { // ok, directions match.
+                if (forward)
+                {
+                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                }
+                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Calculates the edge path between this router point and one of it's neighbours.
         /// </summary>
         public static EdgePath<T> EdgePathTo<T>(this RouterPoint point, RouterDb db, WeightHandler<T> weightHandler, uint neighbour, bool backward = false)

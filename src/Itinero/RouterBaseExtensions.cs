@@ -830,7 +830,7 @@ namespace Itinero
         /// Calculates a weight matrix between directed edges, returning weight exclusing the first and last edge.
         /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, DirectedEdgeId[] sources, 
-            DirectedEdgeId[] targets, RoutingSettings<T> settings)
+            DirectedEdgeId[] targets, RoutingSettings<T> settings = null)
             where T : struct
         {
             try
@@ -920,6 +920,95 @@ namespace Itinero
             catch(Exception ex)
             {
                 return new Result<T[][]>(ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Calculates a route between the two given directed edges.
+        /// </summary>
+        public static Result<EdgePath<T>> TryCalculateRaw<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, DirectedEdgeId source, DirectedEdgeId target,
+            RoutingSettings<T> settings = null)
+            where T : struct
+        {
+            return router.TryCalculateRaw(profileInstance, weightHandler, source.SignedDirectedId, target.SignedDirectedId, settings);
+        }
+
+        /// <summary>
+        /// Calculates a route between the two given router points but in a fixed direction.
+        /// </summary>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profileInstance, RouterPoint source, bool sourceForward, RouterPoint target, bool targetForward,
+            RoutingSettings<float> settings = null)
+        {
+            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceForward, target, targetForward);
+        }
+
+        /// <summary>
+        /// Calculates a route between the two given router points but in a fixed direction.
+        /// </summary>
+        public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool sourceForward, RouterPoint target, bool targetForward,
+            RoutingSettings<T> settings = null)
+            where T : struct
+        {
+            EdgePath<T> path = null;
+            if (source.EdgeId == target.EdgeId &&
+                sourceForward == targetForward)
+            { // check for a path on the same edge, in the requested direction.
+                var edgePath = source.EdgePathTo(router.Db, weightHandler, target, !sourceForward);
+                if (edgePath != null)
+                {
+                    path = edgePath;
+
+                    // update settings objects to prevent uneeded searches.
+                    if (settings == null)
+                    {
+                        settings = new RoutingSettings<T>();
+                    }
+                    settings.SetMaxSearch(profileInstance.Profile.FullName, path.Weight);
+                }
+            }
+
+            // try calculating a path.
+            var result = router.TryCalculateRaw<T>(profileInstance, weightHandler, new DirectedEdgeId(source.EdgeId, sourceForward),
+                new DirectedEdgeId(target.EdgeId, targetForward), settings);
+            if (result.IsError &&
+                path == null)
+            {
+                return result.ConvertError<Route>();
+            }
+            else if(!result.IsError)
+            {
+                if (path == null || 
+                    weightHandler.IsSmallerThan(result.Value.Weight, path.Weight))
+                { // update path with the path found because it's better.
+                    path = result.Value;
+                }
+            }
+
+            // make sure the path represents the route between the two routerpoints not between the two edges.
+            try
+            {
+                if (path.From == null)
+                { // path has only one vertex, this represents a path of length '0'.
+                    return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+                }
+
+                // path has at least two vertices, strip first and last vertex.
+                // TODO: optimized this, this can be done without converting to a vertex-list.
+                var vertices = new List<uint>();
+                while (path != null)
+                {
+                    vertices.Add(path.Vertex);
+                    path = path.From;
+                }
+                vertices.Reverse();
+                vertices[0] = Constants.NO_VERTEX;
+                vertices[vertices.Count - 1] = Constants.NO_VERTEX;
+                path = router.Db.BuildEdgePath(weightHandler, source, target, vertices);
+                return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+            }
+            catch(Exception ex)
+            {
+                return new Result<Route>(ex.Message);
             }
         }
     }

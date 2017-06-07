@@ -756,23 +756,39 @@ namespace Itinero
         public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, RoutingEdge edge, bool edgeForward, bool asSource)
             where T : struct
         {
-            var weight = weightHandler.Calculate(edge.Data.Profile, edge.Data.Distance);
+            var weight = weightHandler.GetEdgeWeight(edge);
 
             if (asSource)
             {
                 if (edgeForward)
                 {
-                    return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
+                    if (!weight.Direction.F)
+                    {
+                        return null;
+                    }
+                    return new EdgePath<T>(edge.To, weight.Weight, edge.IdDirected(), new EdgePath<T>(edge.From));
                 }
-                return new EdgePath<T>(edge.From, weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
+                if (!weight.Direction.B)
+                {
+                    return null;
+                }
+                return new EdgePath<T>(edge.From, weight.Weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
             }
             else
             {
                 if (edgeForward)
                 {
-                    return new EdgePath<T>(edge.From, weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
+                    if (!weight.Direction.F)
+                    {
+                        return null;
+                    }
+                    return new EdgePath<T>(edge.From, weight.Weight, -edge.IdDirected(), new EdgePath<T>(edge.To));
                 }
-                return new EdgePath<T>(edge.To, weight, edge.IdDirected(), new EdgePath<T>(edge.From));
+                if (!weight.Direction.B)
+                {
+                    return null;
+                }
+                return new EdgePath<T>(edge.To, weight.Weight, edge.IdDirected(), new EdgePath<T>(edge.From));
             }
         }
 
