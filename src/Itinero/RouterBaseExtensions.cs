@@ -919,11 +919,44 @@ namespace Itinero
                         }
                     }
 
-                    return new Result<T[][]>(algorithm.Weights);
+                    return new Result<T[][]>(weights);
                 }
                 else
                 { // use uncontracted routing.
-                    throw new NotSupportedException();
+                    var graph = router.Db.Network.GeometricGraph.Graph;
+
+                    var dykstraSources = Itinero.Algorithms.Default.EdgeBased.DirectedDykstraSourceExtensions.ToDykstraSources<T>(sources);
+                    var dykstraTargets = Itinero.Algorithms.Default.EdgeBased.DirectedDykstraSourceExtensions.ToDykstraSources<T>(targets);
+                    var algorithm = new Itinero.Algorithms.Default.EdgeBased.DirectedManyToManyWeights<T>(graph, weightHandler, router.Db.GetRestrictions(profileInstance.Profile),
+                        dykstraSources, dykstraTargets, maxSearch);
+                    algorithm.Run();
+                    if (!algorithm.HasSucceeded)
+                    {
+                        return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
+                        {
+                            return new Exceptions.RouteNotFoundException(message);
+                        });
+                    }
+
+                    // subtract the weight of the first edge from each weight.
+                    var edgeEnumerator = router.Db.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+                    var weights = algorithm.Weights;
+                    for (var s = 0; s < sources.Length; s++)
+                    {
+                        var id = dykstraSources[s].Edge1;
+                        edgeEnumerator.MoveToEdge(id.EdgeId);
+                        var weight = weightHandler.GetEdgeWeight(edgeEnumerator);
+                        for (var t = 0; t < dykstraTargets.Length; t++)
+                        {
+                            if (weightHandler.IsSmallerThan(weights[s][t], weightHandler.Infinite) &&
+                                sources[s].Raw != targets[t].Raw)
+                            {
+                                weights[s][t] = weightHandler.Subtract(weights[s][t], weight.Weight);
+                            }
+                        }
+                    }
+
+                    return new Result<T[][]>(weights);
                 }
             }
             catch(Exception ex)

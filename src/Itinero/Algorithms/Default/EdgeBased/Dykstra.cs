@@ -280,13 +280,17 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     var totalWeight = _weightHandler.Add(_current.Weight, edgeWeight);
                     if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
-                        
+
                         var path = new EdgePath<T>(neighbour, totalWeight, directedEdgeId, _current);
                         if (newRestrictions != null)
                         {
                             _edgeRestrictions[path] = newRestrictions;
                         }
                         _heap.Push(path, _weightHandler.GetMetric(totalWeight));
+                    }
+                    else
+                    { // the maxium was reached.
+                        this.MaxReached = true;
                     }
                 }
             }

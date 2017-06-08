@@ -16,50 +16,50 @@
  *  limitations under the License.
  */
 
-namespace Itinero.Algorithms.Contracted.Dual
+namespace Itinero.Algorithms.Default.EdgeBased
 {
     /// <summary>
     /// A structure representing a dykstra search source.
     /// </summary>
-    public struct DykstraSource<T>
+    public struct DirectedDykstraSource<T>
     {
         /// <summary>
         /// Creates a new source.
         /// </summary>
-        public DykstraSource(uint vertex1)
+        public DirectedDykstraSource(DirectedEdgeId edge1)
         {
-            this.Vertex1 = vertex1;
+            this.Edge1 = edge1;
             this.Weight1 = default(T);
-            this.Vertex2 = Constants.NO_VERTEX;
+            this.Edge2 = DirectedEdgeId.NO_EDGE;
             this.Weight2 = default(T);
         }
 
         /// <summary>
         /// Creates a new source.
         /// </summary>
-        public DykstraSource(uint vertex1, T weight1)
+        public DirectedDykstraSource(DirectedEdgeId edge1, T weight1)
         {
-            this.Vertex1 = vertex1;
+            this.Edge1 = edge1;
             this.Weight1 = weight1;
-            this.Vertex2 = Constants.NO_VERTEX;
+            this.Edge2 = DirectedEdgeId.NO_EDGE;
             this.Weight2 = default(T);
         }
 
         /// <summary>
         /// Creates a new source.
         /// </summary>
-        public DykstraSource(uint vertex1, T weight1, uint vertex2, T weight2)
+        public DirectedDykstraSource(DirectedEdgeId edge1, T weight1, DirectedEdgeId edge2, T weight2)
         {
-            this.Vertex1 = vertex1;
+            this.Edge1 = edge1;
             this.Weight1 = weight1;
-            this.Vertex2 = vertex2;
+            this.Edge2 = edge2;
             this.Weight2 = weight2;
         }
 
         /// <summary>
-        /// Gets or sets the vertex1.
+        /// Gets or sets the edge1.
         /// </summary>
-        public uint Vertex1 { get; set; }
+        public DirectedEdgeId Edge1 { get; set; }
 
         /// <summary>
         /// Gets or sets the weight1.
@@ -67,9 +67,9 @@ namespace Itinero.Algorithms.Contracted.Dual
         public T Weight1 { get; set; }
 
         /// <summary>
-        /// Gets or sets the vertex2.
+        /// Gets or sets the edge2.
         /// </summary>
-        public uint Vertex2 { get; set; }
+        public DirectedEdgeId Edge2 { get; set; }
 
         /// <summary>
         /// Gets or sets the weight2.
@@ -82,29 +82,29 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <returns></returns>
         public override string ToString()
         {
-            if (this.Vertex2 != Constants.NO_VERTEX)
+            if (!this.Edge2.IsNoEdge)
             {
-                return string.Format("{0}@{1} {2}@{3}", this.Vertex1, this.Weight1, this.Vertex2, this.Weight2);
+                return string.Format("{0}@{1} {2}@{3}", this.Edge1, this.Weight1, this.Edge2, this.Weight2);
             }
-            return string.Format("{0}@{1}", this.Vertex1, this.Weight1);
+            return string.Format("{0}@{1}", this.Edge1, this.Weight1);
         }
     }
 
     /// <summary>
     /// Contains extension methods related to dykstra sources.
     /// </summary>
-    public static class DykstraSourceExtensions
+    public static class DirectedDykstraSourceExtensions
     {
         /// <summary>
-        /// Converts directed edge id's into an array of dykstra sources.
+        /// Converts directed edge id's into an array of directed dykstra sources.
         /// </summary>
-        public static DykstraSource<T>[] ToDykstraSources<T>(this DirectedEdgeId[] edges)
+        public static DirectedDykstraSource<T>[] ToDykstraSources<T>(this DirectedEdgeId[] edges)
             where T : struct
         {
-            var result = new DykstraSource<T>[edges.Length];
-            for(var i = 0; i < result.Length; i++)
+            var result = new DirectedDykstraSource<T>[edges.Length];
+            for (var i = 0; i < result.Length; i++)
             {
-                result[i] = new DykstraSource<T>(edges[i].Raw);
+                result[i] = new DirectedDykstraSource<T>(edges[i]);
             }
             return result;
         }

@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Collections;
 using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
@@ -151,6 +152,25 @@ namespace Itinero.Algorithms.Weights
             where T : struct
         {
             weightHandler.CheckCanUse(new ContractedDb(graph));
+        }
+
+        /// <summary>
+        /// Returns an edge path for the path represented by the given pointer.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static EdgePath<T> GetPath<T>(this WeightHandler<T> weightHandler, PathTree pathTree, uint pointer)
+            where T : struct
+        {
+            uint vertex, previous;
+            T weight;
+            weightHandler.GetPathTree(pathTree, pointer, out vertex, out weight, out previous);
+            if (previous == uint.MaxValue)
+            {
+                return new EdgePath<T>(vertex);
+            }
+            var previousPath = weightHandler.GetPath(pathTree, previous);
+            return new EdgePath<T>(vertex, weight, previousPath);
         }
     }
 }
