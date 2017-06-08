@@ -912,7 +912,8 @@ namespace Itinero
                         var weight = weightHandler.GetEdgeWeight(edgeEnumerator);
                         for (var t = 0; t < dykstraTargets.Length; t++)
                         {
-                            if (weightHandler.IsSmallerThan(weights[s][t], weightHandler.Infinite))
+                            if (weightHandler.IsSmallerThan(weights[s][t], weightHandler.Infinite) &&
+                                sources[s].Raw != targets[t].Raw)
                             {
                                 weights[s][t] = weightHandler.Subtract(weights[s][t], weight.Weight);
                             }
