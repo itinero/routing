@@ -237,7 +237,7 @@ namespace Itinero.Profiles
                 }
                 return vehicle;
             }
-            throw new Exception(string.Format("Cannot deserialize for type with name: {0}", typeName));
+            throw new Exception(string.Format("Cannot deserialize for type with name: {0}. A custom deserializer was not found.", typeName));
         }
 
         /// <summary>
