@@ -32,5 +32,18 @@ namespace Itinero.Algorithms
         {
             enumerator.MoveToEdge(edgeId.EdgeId);
         }
+        
+        /// <summary>
+        /// Returns an array of directed edges id's for a given array of routerpoints and forward flags.
+        /// </summary>
+        public static DirectedEdgeId[] ToDirectedEdgeIds(this RouterPoint[] points, bool[] forwards)
+        {
+            var directedIds = new DirectedEdgeId[points.Length];
+            for(var i = 0; i < points.Length; i++)
+            {
+                directedIds[i] = new DirectedEdgeId(points[i].EdgeId, forwards[i]);
+            }
+            return directedIds;
+        }
     }
 }

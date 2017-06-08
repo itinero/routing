@@ -287,7 +287,7 @@ namespace Itinero.Test
             Assert.AreEqual(50, routes.Value[3][2].TotalDistance, eMeter);
             Assert.AreEqual(0, routes.Value[3][3].TotalDistance, eMeter);
         }
-
+        
         /// <summary>
         /// Tests directed edge based many-to-many weight calculations. 
         /// </summary>

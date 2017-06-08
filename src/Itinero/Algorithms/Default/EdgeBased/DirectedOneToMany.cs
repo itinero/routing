@@ -152,6 +152,8 @@ namespace Itinero.Algorithms.Default.EdgeBased
 
                 return false;
             };
+            dykstra.Run();
+
             this.HasSucceeded = true;
         }
 

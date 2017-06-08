@@ -71,5 +71,16 @@ namespace Itinero.Algorithms.Default.EdgeBased
 
             this.HasSucceeded = true;
         }
+
+        /// <summary>
+        /// Gets the paths.
+        /// </summary>
+        public EdgePath<T>[][] Paths
+        {
+            get
+            {
+                return _paths;
+            }
+        }
     }
 }
