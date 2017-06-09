@@ -40,7 +40,8 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             // just test some random routes.
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing car random routes");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Testing pedestrian random routes");
             //GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
             GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random directed routes");
 
@@ -89,7 +90,7 @@ namespace Itinero.Test.Functional.Tests
                 var success = 0;
                 for (var i = 0; i < list.Count; i += 2)
                 {
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i], list[i + 1]);
+                    var route = router.TryCalculate(profile, list[i], list[i + 1]);
                     if (route.IsError)
                     {
 #if DEBUG
@@ -138,7 +139,7 @@ namespace Itinero.Test.Functional.Tests
                 var success = 0;
                 for (var i = 0; i < list.Count; i += 2)
                 {
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i].Item1, list[i].Item2, 
+                    var route = router.TryCalculate(profile, list[i].Item1, list[i].Item2, 
                         list[i+1].Item1, list[i+1].Item2);
                     if (route.IsError)
                     {
@@ -189,7 +190,7 @@ namespace Itinero.Test.Functional.Tests
                 System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
                 {
                     int i = x * 2;
-                    var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), list[i], list[i + 1]);
+                    var route = router.TryCalculate(profile, list[i], list[i + 1]);
                     if (route.IsError)
                     {
 #if DEBUG

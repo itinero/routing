@@ -276,11 +276,19 @@ namespace Itinero.IO.Osm.Restrictions
                     this.SecondPass(inverted);
                 }
             }
-
+            
             var vehicleType = string.Empty;
             var positive = false;
             if (!relation.IsRestriction(out vehicleType, out positive) ||
                 relation.Members == null)
+            {
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(vehicleType))
+            {
+                vehicleType = "motor_vehicle";
+            }
+            if (!_vehicleTypes.Contains(vehicleType))
             {
                 return;
             }
@@ -500,7 +508,7 @@ namespace Itinero.IO.Osm.Restrictions
                         "No after vertex found for to way for restriction relation {0}!", relation.Id.Value);
                     return;
                 }
-
+                
                 _foundRestriction(vehicleType, sequence);
             }
         }
