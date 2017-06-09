@@ -37,25 +37,35 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            var routerDb = GetTestBuildRouterDb(@"c:\work\data\OSM\wechel.osm.pbf", false, true,
+            var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
                 Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
-            //var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
-            //    Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
-            
+
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
             //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest(), false).TestPerf("Adding contracted db");
 
-            using (var stream = File.Open("luxembourgh.c.cf.routerdb", FileMode.Create))
-            {
-                routerDb.Serialize(stream);
-            }
-            //using (var stream = File.OpenRead("luxembourgh.c.cf.routerdb"))
-            //{
-            //    routerDb = RouterDb.Deserialize(stream);
-            //}
-
-
+            routerDb = GetTestSerializeDeserialize(routerDb, "luxembourgh.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
+            
             return routerDb;
+        }
+        
+        /// <summary>
+        /// Tests serialize/deserialize.
+        /// </summary>
+        public static Func<RouterDb> GetTestSerializeDeserialize(RouterDb routerDb, string fileName)
+        {
+            return () =>
+            {
+                using (var stream = File.Open(fileName, FileMode.Create))
+                {
+                    routerDb.Serialize(stream);
+                }
+                using (var stream1 = File.OpenRead(fileName))
+                {
+                    //var stream1 = File.OpenRead(fileName);
+                    routerDb = RouterDb.Deserialize(stream1);
+                }
+                return routerDb;
+            };
         }
 
         /// <summary>

@@ -36,7 +36,7 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             GetTestRandomResolves(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random resolves");
-            GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random resolves in parallel");
+            //GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random resolves in parallel");
         }
         
         /// <summary>
