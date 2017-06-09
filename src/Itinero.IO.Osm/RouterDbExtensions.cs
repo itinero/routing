@@ -208,6 +208,9 @@ namespace Itinero.IO.Osm
 
             // sort the network.
             db.Sort();
+
+            // compress the network.
+            db.Network.Compress();
         }
     }
 }

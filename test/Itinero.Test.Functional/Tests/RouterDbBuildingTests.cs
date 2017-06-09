@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Data.Contracted;
 using Itinero.IO.Osm;
 using Itinero.Profiles;
 using Itinero.Test.Functional.Staging;
@@ -36,11 +37,23 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
+            var routerDb = GetTestBuildRouterDb(@"c:\work\data\OSM\wechel.osm.pbf", false, true,
                 Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
-
+            //var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
+            //    Itinero.Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
+            
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
             //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest(), false).TestPerf("Adding contracted db");
+
+            using (var stream = File.Open("luxembourgh.c.cf.routerdb", FileMode.Create))
+            {
+                routerDb.Serialize(stream);
+            }
+            //using (var stream = File.OpenRead("luxembourgh.c.cf.routerdb"))
+            //{
+            //    routerDb = RouterDb.Deserialize(stream);
+            //}
+
 
             return routerDb;
         }

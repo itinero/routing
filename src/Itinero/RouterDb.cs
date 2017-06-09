@@ -448,8 +448,9 @@ namespace Itinero
             // version2: Added ShortcutsDbs.
             // version3: Add advanced profile serialization.
             // version4: Added missing restriction dbs.
+            // version5: Added new dual edge-based contracted graph.
             long size = 1;
-            stream.WriteByte(4);
+            stream.WriteByte(5);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -594,8 +595,9 @@ namespace Itinero
             // version2: Added ShortcutsDbs.
             // version3: Add advanced profile serialization.
             // version4: Added missing restriction dbs.
+            // version5: Added new dual edge-based contracted graph.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2 && version != 3 && version != 4)
+            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
