@@ -1183,7 +1183,7 @@ namespace Itinero.Test.IO.Osm.Streams
 
             // check for a restriction.
             RestrictionsDb restrictions;
-            Assert.IsTrue(routerDb.TryGetRestrictions(string.Empty, out restrictions));
+            Assert.IsTrue(routerDb.TryGetRestrictions("motor_vehicle", out restrictions));
         }
 
         /// <summary>
@@ -1309,7 +1309,7 @@ namespace Itinero.Test.IO.Osm.Streams
 
             // check for a restriction.
             RestrictionsDb restrictions;
-            Assert.IsTrue(routerDb.TryGetRestrictions(string.Empty, out restrictions));
+            Assert.IsTrue(routerDb.TryGetRestrictions("motor_vehicle", out restrictions));
             Assert.AreEqual(2, restrictions.Count);
         }
 
