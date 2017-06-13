@@ -132,7 +132,7 @@ namespace Itinero.Test
                     }
                 }
             }
-            
+
             foreach (var feature in features.Features)
             {
                 if (feature.Geometry is LineString &&
@@ -149,6 +149,30 @@ namespace Itinero.Test
                             (float)line.Coordinates[i].Y,
                             (float)line.Coordinates[i].X, tolerance));
                     }
+
+                    var vehicleType = string.Empty;
+                    if (!feature.Attributes.TryGetValueAsString("vehicle_type", out vehicleType))
+                    {
+                        vehicleType = string.Empty;
+                    }
+                    RestrictionsDb restrictions;
+                    if (!db.TryGetRestrictions(vehicleType, out restrictions))
+                    {
+                        restrictions = new RestrictionsDb();
+                        db.AddRestrictions(vehicleType, restrictions);
+                    }
+
+                    restrictions.Add(sequence.ToArray());
+                }
+
+                if (feature.Geometry is Point &&
+                    feature.Attributes.Contains("restriction", "yes"))
+                {
+                    var point = feature.Geometry as Point;
+                    var sequence = new List<uint>();
+                    sequence.Add(db.SearchVertexFor(
+                        (float)point.Coordinate.Y,
+                        (float)point.Coordinate.X, tolerance));
 
                     var vehicleType = string.Empty;
                     if (!feature.Attributes.TryGetValueAsString("vehicle_type", out vehicleType))
