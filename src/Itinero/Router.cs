@@ -283,7 +283,7 @@ namespace Itinero
                         var targetDirectedId1 = new DirectedEdgeId(target.EdgeId, true);
                         var targetDirectedId2 = new DirectedEdgeId(target.EdgeId, false);
 
-                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, null, weightHandler,
                             new EdgePath<T>[] { new EdgePath<T>(sourceDirectedId1.Raw), new EdgePath<T>(sourceDirectedId2.Raw) },
                             new EdgePath<T>[] { new EdgePath<T>(targetDirectedId1.Raw), new EdgePath<T>(targetDirectedId2.Raw) });
                         bidirectionalSearch.Run();
@@ -328,7 +328,7 @@ namespace Itinero
                     }
                     else
                     {  // use node-based routing.
-                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, _db.GetRestrictions(profileInstance.Profile), weightHandler,
                             source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
                         bidirectionalSearch.Run();
                         if (!bidirectionalSearch.HasSucceeded)
@@ -515,7 +515,7 @@ namespace Itinero
                         var sourceDirectedId = new DirectedEdgeId(sourceDirectedEdge);
                         var targetDirectedId = new DirectedEdgeId(targetDirectedEdge);
 
-                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, weightHandler,
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, null, weightHandler,
                             new EdgePath<T>[] { new EdgePath<T>(sourceDirectedId.Raw) },
                             new EdgePath<T>[] { new EdgePath<T>(targetDirectedId.Raw) });
                         bidirectionalSearch.Run();

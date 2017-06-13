@@ -44,7 +44,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(0, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(1) });
             algorithm.Run();
 
@@ -75,7 +75,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(1, 0, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(1) });
             algorithm.Run();
 
@@ -112,7 +112,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -157,7 +157,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(1, 2, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -202,7 +202,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(2, 1, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -247,7 +247,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -292,7 +292,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(1, 2, 100, true, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -337,7 +337,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(2, 1, 100, false, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -387,7 +387,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(4, 3, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -419,7 +419,7 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(new List<uint>(new uint[] { 0, 1, 2 }), algorithm.GetPath());
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(1) }, new EdgePath<float>[] { new EdgePath<float>(3) });
             algorithm.Run();
 
@@ -445,7 +445,7 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(new List<uint>(new uint[] { 1, 2, 3 }), algorithm.GetPath());
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(3) }, new EdgePath<float>[] { new EdgePath<float>(1) });
             algorithm.Run();
 
@@ -489,7 +489,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(3, 4, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
             algorithm.Run();
 
@@ -534,7 +534,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(4, 0, 400, null, 3);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
             algorithm.Run();
 
@@ -578,7 +578,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(3, 4, 100, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
             algorithm.Run();
 
@@ -620,7 +620,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(2, 3, 30, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(3) });
             algorithm.Run();
 
@@ -669,7 +669,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(3, 4, 40, null, Constants.NO_VERTEX);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
             algorithm.Run();
 
@@ -719,7 +719,7 @@ namespace Itinero.Test.Algorithms.Contracted
             graph.AddEdge(0, 2, 20, false, 1);
 
             // create algorithm and run.
-            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
             algorithm.Run();
 
@@ -731,7 +731,7 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(new List<uint>(new uint[] { 0, 1, 2 }), algorithm.GetPath());
 
             // create algorithm and run.
-            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph,
+            algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(2) }, new EdgePath<float>[] { new EdgePath<float>(0) });
             algorithm.Run();
 

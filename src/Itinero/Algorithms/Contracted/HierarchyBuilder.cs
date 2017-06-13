@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Algorithms.PriorityQueues;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
@@ -37,11 +38,12 @@ namespace Itinero.Algorithms.Contracted
         private readonly IWitnessCalculator _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
         private readonly WeightHandler<T> _weightHandler;
+        private readonly RestrictionCollection _restrictions;
 
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
+        public HierarchyBuilder(DirectedMetaGraph graph, RestrictionCollection restrictions, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator,
             WeightHandler<T> weightHandler)
         {
             weightHandler.CheckCanUse(graph);
@@ -50,6 +52,7 @@ namespace Itinero.Algorithms.Contracted
             _priorityCalculator = priorityCalculator;
             _witnessCalculator = witnessCalculator;
             _weightHandler = weightHandler;
+            _restrictions = restrictions;
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
@@ -298,6 +301,16 @@ namespace Itinero.Algorithms.Contracted
                 }
             }
 
+            // check for a restriction, if vertex is restricted don't add shortcuts.
+            if (_restrictions != null &&
+                _restrictions.Update(vertex))
+            {
+                if (_restrictions.Restricts(vertex))
+                {
+                    return;
+                }
+            }
+
             // loop over all edge-pairs once.
             for(var j = 1; j < edges.Count; j++)
             {
@@ -396,8 +409,8 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Creates a new hierarchy builder.
         /// </summary>
-        public HierarchyBuilder(DirectedMetaGraph graph, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
-            : base(graph, priorityCalculator, witnessCalculator, new DefaultWeightHandler(null)) // the get factor function is never called.
+        public HierarchyBuilder(DirectedMetaGraph graph, RestrictionCollection restrictions, IPriorityCalculator priorityCalculator, IWitnessCalculator witnessCalculator)
+            : base(graph, restrictions, priorityCalculator, witnessCalculator, new DefaultWeightHandler(null)) // the get factor function is never called.
         {
 
         }

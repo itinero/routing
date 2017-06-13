@@ -50,6 +50,43 @@ namespace Itinero.Algorithms.Restrictions
         }
 
         /// <summary>
+        /// Returns true if one of the restrictions restricts the one vertex.
+        /// </summary>
+        public static bool Restricts(this RestrictionCollection restrictions, uint vertex)
+        {
+            for(var r = 0; r < restrictions.Count; r++)
+            {
+                var restriction = restrictions[r];
+                if (restriction.Restricts(vertex))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns true if the restriction restricts the one vertex.
+        /// </summary>
+        public static bool Restricts(this Restriction restriction, uint vertex)
+        {
+            if (restriction.Vertex2 != Constants.NO_VERTEX ||
+                restriction.Vertex3 != Constants.NO_VERTEX)
+            {
+                return false;
+            }
+            return restriction.Vertex1 == vertex;
+        }
+
+        /// <summary>
+        /// Restricts the given turn.
+        /// </summary>
+        public static bool Restricts(this RestrictionCollection restrictions, Turn turn)
+        {
+            return turn.IsRestrictedBy(restrictions);
+        }
+
+        /// <summary>
         /// Compares two non-null sequences and checks if they have identical elements.
         /// </summary>
         public static bool IsSequenceIdentical(this uint[] s1, uint[] s2)

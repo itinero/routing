@@ -17,6 +17,7 @@
  */
 
 using Itinero.Algorithms.PriorityQueues;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using System;
@@ -34,11 +35,12 @@ namespace Itinero.Algorithms.Contracted
         private readonly IEnumerable<EdgePath<T>> _sources;
         private readonly IEnumerable<EdgePath<T>> _targets;
         private readonly WeightHandler<T> _weightHandler;
+        private readonly RestrictionCollection _restrictions;
 
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets)
+        public BidirectionalDykstra(DirectedMetaGraph graph, RestrictionCollection restrictions, WeightHandler<T> weightHandler, IEnumerable<EdgePath<T>> sources, IEnumerable<EdgePath<T>> targets)
         {
             weightHandler.CheckCanUse(graph);
 
@@ -46,6 +48,7 @@ namespace Itinero.Algorithms.Contracted
             _sources = sources;
             _targets = targets;
             _weightHandler = weightHandler;
+            _restrictions = restrictions;
         }
 
         private Tuple<uint, T> _best;
@@ -114,6 +117,8 @@ namespace Itinero.Algorithms.Contracted
                             var total = _weightHandler.Add(current.Weight, toBest.Weight);
                             if (_weightHandler.IsSmallerThan(total, _best.Item2))
                             { // a better path was found.
+                                // check for restrictions.
+
                                 _best = new Tuple<uint, T>(current.Vertex, total);
                                 this.HasSucceeded = true;
                             }
@@ -171,6 +176,14 @@ namespace Itinero.Algorithms.Contracted
         {
             if (current != null)
             { // there is a next vertex found.
+                // check restrictions.
+                if (_restrictions != null &&
+                    _restrictions.Update(current.Vertex) &&
+                    _restrictions.Restricts(current.Vertex))
+                { // vertex is restricted, don't settle.
+                    return;
+                }
+
                 // get the edge enumerator.
                 var edgeEnumerator = _graph.GetEdgeEnumerator();
 
@@ -218,6 +231,14 @@ namespace Itinero.Algorithms.Contracted
         {
             if (current != null)
             {
+                // check restrictions.
+                if (_restrictions != null &&
+                    _restrictions.Update(current.Vertex) &&
+                    _restrictions.Restricts(current.Vertex))
+                { // vertex is restricted, don't settle.
+                    return;
+                }
+
                 // get the edge enumerator.
                 var edgeEnumerator = _graph.GetEdgeEnumerator();
 
@@ -313,8 +334,8 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Creates a new contracted bidirectional router.
         /// </summary>
-        public BidirectionalDykstra(DirectedMetaGraph graph, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets)
-            : base(graph, new DefaultWeightHandler(null), sources, targets)
+        public BidirectionalDykstra(DirectedMetaGraph graph, RestrictionCollection restrictions, IEnumerable<EdgePath<float>> sources, IEnumerable<EdgePath<float>> targets)
+            : base(graph, restrictions, new DefaultWeightHandler(null), sources, targets)
         {
 
         }

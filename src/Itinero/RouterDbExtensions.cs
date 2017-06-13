@@ -113,7 +113,7 @@ namespace Itinero
                     priorityCalculator.DifferenceFactor = 5;
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new HierarchyBuilder<float>(contracted, priorityCalculator,
+                    var hierarchyBuilder = new HierarchyBuilder<float>(contracted, db.GetRestrictions(profile), priorityCalculator,
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
                     hierarchyBuilder.Run();
 
@@ -195,7 +195,7 @@ namespace Itinero
                     priorityCalculator.DifferenceFactor = 5;
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new HierarchyBuilder<T>(contracted, priorityCalculator,
+                    var hierarchyBuilder = new HierarchyBuilder<T>(contracted, db.GetRestrictions(profile), priorityCalculator,
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
                     hierarchyBuilder.Run();
 
