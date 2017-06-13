@@ -356,7 +356,7 @@ namespace Itinero.Test
             Assert.IsTrue(profile.Contains("highway", "residential"));
 
             RestrictionsDb restrictions = null;
-            Assert.IsTrue(routerDb.TryGetRestrictions(string.Empty, out restrictions));
+            Assert.IsTrue(routerDb.TryGetRestrictions("motorcar", out restrictions));
             var enumerator = restrictions.GetEnumerator();
             Assert.IsTrue(enumerator.MoveTo(1));
             Assert.IsTrue(enumerator.MoveNext());

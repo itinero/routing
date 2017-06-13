@@ -369,6 +369,33 @@
           51.26551996332175
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "stroke": "#ff0000",
+        "stroke-width": 2,
+        "stroke-opacity": 1,
+        "restriction": "yes",
+        "vehicle_type": "motorcar"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            4.795821905136108,
+            51.268238714159686
+          ],
+          [
+            4.795811176300049,
+            51.266943131968965
+          ],
+          [
+            4.796723127365112,
+            51.26574149718654
+          ]
+        ]
+      }
     }
   ]
 }

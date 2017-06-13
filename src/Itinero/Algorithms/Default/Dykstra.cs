@@ -86,6 +86,15 @@ namespace Itinero.Algorithms.Default
             // queue all sources.
             foreach (var source in _sources)
             {
+                if (_getRestriction != null)
+                {
+                    var restriction = _getRestriction(source.Vertex);
+                    if (restriction != Constants.NO_VERTEX)
+                    {
+                        continue;
+                    }
+                }
+
                 _heap.Push(source, _weightHandler.GetMetric(source.Weight));
             }
 

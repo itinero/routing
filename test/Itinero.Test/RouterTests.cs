@@ -1184,12 +1184,211 @@ namespace Itinero.Test
             route = router.TryCalculate(vehicle, resolved6, false, resolved7, false); // should result in error.
             Assert.IsTrue(route.IsError);
         }
+        
+        /// <summary>
+        /// Tests a simple restriction with a one-hop route.
+        /// </summary>
+        [Test]
+        public void TestUncontractedSimpleRestrictionOneHopRoute()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network12.geojson"));
 
-        // TODO: add tests for restrictions that consist out of just one vertex.
-        // include cases:
-        // start on one edge -> (restricted node) -> end on adjacent edge.
-        // shorter path is restricted -> still get longer path.
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7),
+                routerDb.Network.GetVertex(8),
+                routerDb.Network.GetVertex(9)
+            };
 
+            var location1 = new Coordinate(51.26568107896568f, 4.7888267040252686f);
+            var location2 = new Coordinate(51.26647993569030f, 4.7911763191223145f);
+            var location3 = new Coordinate(51.26551996332175f, 4.7935795783996580f);
 
+            // sort the network.
+            routerDb.Sort();
+
+            // defined and add the supported profile.
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            var bicycle = Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            routerDb.AddSupportedVehicle(bicycle.Parent);
+            var router = new Router(routerDb);
+
+            // calculate routes.
+            var route1 = router.TryCalculate(car, location1, location2);
+            Assert.IsTrue(route1.IsError);
+            var route2 = router.TryCalculate(car, location1, location3);
+            Assert.IsTrue(route2.IsError);
+            var route3 = router.TryCalculate(car, location2, location3);
+            Assert.IsFalse(route3.IsError);
+            Assert.AreEqual(715, route3.Value.TotalDistance, 10);
+        }
+
+        /// <summary>
+        /// Tests a simple restriction with a one-hop route in a contracted network.
+        /// </summary>
+        [Test]
+        public void TestContractedSimpleRestrictionOneHopRoute()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network12.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7),
+                routerDb.Network.GetVertex(8),
+                routerDb.Network.GetVertex(9)
+            };
+
+            var location1 = new Coordinate(51.26568107896568f, 4.7888267040252686f);
+            var location2 = new Coordinate(51.26647993569030f, 4.7911763191223145f);
+            var location3 = new Coordinate(51.26551996332175f, 4.7935795783996580f);
+
+            // sort the network.
+            routerDb.Sort();
+
+            // defined and add the supported profile.
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            var bicycle = Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            routerDb.AddSupportedVehicle(bicycle.Parent);
+            routerDb.AddContracted(car);
+            var router = new Router(routerDb);
+
+            // calculate routes.
+            var route1 = router.TryCalculate(car, location1, location2);
+            Assert.IsTrue(route1.IsError);
+            var route2 = router.TryCalculate(car, location1, location3);
+            Assert.IsTrue(route2.IsError);
+            var route3 = router.TryCalculate(car, location2, location3);
+            Assert.IsFalse(route3.IsError);
+            Assert.AreEqual(715, route3.Value.TotalDistance, 10);
+        }
+
+        /// <summary>
+        /// Tests a simple restriction with a one-hop route in a network with complex restrictions.
+        /// </summary>
+        [Test]
+        public void TestUncontractedRestrictionOneHopRoute()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network13.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7),
+                routerDb.Network.GetVertex(8),
+                routerDb.Network.GetVertex(9)
+            };
+
+            var location1 = new Coordinate(51.26568107896568f, 4.7888267040252686f);
+            var location2 = new Coordinate(51.26647993569030f, 4.7911763191223145f);
+            var location3 = new Coordinate(51.26551996332175f, 4.7935795783996580f);
+
+            // sort the network.
+            routerDb.Sort();
+
+            // defined and add the supported profile.
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            var bicycle = Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            routerDb.AddSupportedVehicle(bicycle.Parent);
+            var router = new Router(routerDb);
+
+            // calculate routes.
+            var route1 = router.TryCalculate(car, location1, location2);
+            Assert.IsTrue(route1.IsError);
+            var route2 = router.TryCalculate(car, location1, location3);
+            Assert.IsTrue(route2.IsError);
+            var route3 = router.TryCalculate(car, location2, location3);
+            Assert.IsFalse(route3.IsError);
+            Assert.AreEqual(715, route3.Value.TotalDistance, 10);
+        }
+
+        /// <summary>
+        /// Tests a simple restriction with a one-hop route in a network with complex restrictions.
+        /// </summary>
+        [Test]
+        public void TestContractedRestrictionOneHopRoute()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network13.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7),
+                routerDb.Network.GetVertex(8),
+                routerDb.Network.GetVertex(9)
+            };
+
+            var location1 = new Coordinate(51.26568107896568f, 4.7888267040252686f);
+            var location2 = new Coordinate(51.26647993569030f, 4.7911763191223145f);
+            var location3 = new Coordinate(51.26551996332175f, 4.7935795783996580f);
+
+            // sort the network.
+            routerDb.Sort();
+
+            // defined and add the supported profile.
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            var bicycle = Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            routerDb.AddSupportedVehicle(bicycle.Parent);
+            routerDb.AddContracted(car);
+            var router = new Router(routerDb);
+
+            // calculate routes.
+            var route1 = router.TryCalculate(car, location1, location2);
+            Assert.IsTrue(route1.IsError);
+            var route2 = router.TryCalculate(car, location1, location3);
+            Assert.IsTrue(route2.IsError);
+            var route3 = router.TryCalculate(car, location2, location3);
+            Assert.IsFalse(route3.IsError);
+            Assert.AreEqual(715, route3.Value.TotalDistance, 10);
+        }
     }
 }
