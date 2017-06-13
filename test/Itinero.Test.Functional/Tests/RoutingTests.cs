@@ -42,7 +42,6 @@ namespace Itinero.Test.Functional.Tests
             // just test some random routes.
             GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing car random routes");
             GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Testing pedestrian random routes");
-            //GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random routes in parallel");
             GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random directed routes");
 
             // tests many-to-many route calculation.

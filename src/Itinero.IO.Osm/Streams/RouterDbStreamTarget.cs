@@ -121,8 +121,11 @@ namespace Itinero.IO.Osm.Streams
                 },
                 (node) =>
                 {
-                    //_nodeIndex.AddId(node.Id.Value);
-                    //_nodeIndex.AddId(node.Id.Value);
+                    var index = _nodeIndex.TryGetIndex(node.Id.Value);
+                    if (index == long.MaxValue)
+                    { // node is not a vertex.
+                        return Constants.NO_VERTEX;
+                    }
                     return this.AddCoreNode(node.Id.Value, node.Latitude.Value, node.Longitude.Value);
                 },
                 (vehicleType, sequence) =>
