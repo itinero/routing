@@ -1184,5 +1184,12 @@ namespace Itinero.Test
             route = router.TryCalculate(vehicle, resolved6, false, resolved7, false); // should result in error.
             Assert.IsTrue(route.IsError);
         }
+
+        // TODO: add tests for restrictions that consist out of just one vertex.
+        // include cases:
+        // start on one edge -> (restricted node) -> end on adjacent edge.
+        // shorter path is restricted -> still get longer path.
+
+
     }
 }

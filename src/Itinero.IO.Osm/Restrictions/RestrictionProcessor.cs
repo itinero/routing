@@ -36,16 +36,18 @@ namespace Itinero.IO.Osm.Restrictions
         private readonly SparseLongIndex _restrictedWayIds; // ways to keep to process restrictions.
         private readonly Dictionary<long, Way> _restrictedWays; // ways kept to process restrictions.
         private readonly Action<string, List<uint>> _foundRestriction; // restriction found action.
+        private readonly Func<Node, uint> _markCore; // marks the node as core.
 
         /// <summary>
         /// Creates a new restriction processor.
         /// </summary>
-        public RestrictionProcessor(IEnumerable<string> vehicleTypes, Func<long, uint> getVertex, Action<string, List<uint>> foundRestriction)
+        public RestrictionProcessor(IEnumerable<string> vehicleTypes, Func<long, uint> getVertex, Func<Node, uint> markCore, Action<string, List<uint>> foundRestriction)
         {
             _vehicleTypes = new HashSet<string>(vehicleTypes);
             _getVertex = getVertex;
             _foundRestriction = foundRestriction;
-            
+            _markCore = markCore;
+
             _restrictedWayIds = new SparseLongIndex();
             _restrictedWays = new Dictionary<long, Way>();
 
@@ -143,7 +145,17 @@ namespace Itinero.IO.Osm.Restrictions
         /// </summary>
         public void SecondPass(Node node)
         {
-
+            if (node.Tags != null &&
+                node.Tags.Contains("barrier", "bollard"))
+            {
+                var vertex = _markCore(node);
+                if (vertex != Constants.NO_VERTEX)
+                {
+                    var r = new List<uint>();
+                    r.Add(vertex);
+                    _foundRestriction("motorcar", r);
+                }
+            }
         }
 
         /// <summary>

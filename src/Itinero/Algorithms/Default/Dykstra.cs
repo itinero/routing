@@ -107,7 +107,7 @@ namespace Itinero.Algorithms.Default
                 { // keep dequeuing.
                     if (_heap.Count == 0)
                     { // nothing more to pop.
-                        break;
+                        return false;
                     }
                     
                     if (this.Visit != null &&
@@ -119,21 +119,13 @@ namespace Itinero.Algorithms.Default
                     _current = _heap.Pop();
                 }
             }
-
-            if (_current != null &&
-                !_visits.ContainsKey(_current.Vertex))
-            { // we visit this one, set visit.
-                _visits[_current.Vertex] = _current;
-            }
             else
-            { // route is not found, there are no vertices left
-                // or the search went outside of the max bounds.
+            { // no more visits possible.
                 return false;
             }
 
-            if (this.WasFound != null && 
-                this.WasFound(_current.Vertex, _current.Weight))
-            { // vertex was found and true was returned, this search should stop.
+            if (_current == null)
+            { // route is not found, there are no vertices left
                 return false;
             }
 
@@ -145,8 +137,17 @@ namespace Itinero.Algorithms.Default
             }
             if (restriction != Constants.NO_VERTEX)
             { // this vertex is restricted, step is a success but just move 
-                // to the next one because this vertex's neighbours are not allowed.
+              // to the next one because this vertex's neighbours are not allowed.
                 return true;
+            }
+
+            // we visit this one, set visit
+            _visits[_current.Vertex] = _current;
+
+            if (this.WasFound != null && 
+                this.WasFound(_current.Vertex, _current.Weight))
+            { // vertex was found and true was returned, this search should stop.
+                return false;
             }
 
             if (this.Visit != null &&

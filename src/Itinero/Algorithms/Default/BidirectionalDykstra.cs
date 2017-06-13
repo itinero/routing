@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Profiles;
 using System;

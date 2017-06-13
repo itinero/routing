@@ -388,9 +388,9 @@ namespace Itinero
                     }
                     else
                     {
-                        var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
+                        var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, _db.GetGetSimpleRestrictions(profileInstance.Profile), weightHandler,
                             source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
-                        var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, null, weightHandler,
+                        var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, _db.GetGetSimpleRestrictions(profileInstance.Profile) , weightHandler,
                             target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                         var bidirectionalSearch = new BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);

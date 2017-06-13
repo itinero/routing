@@ -36,7 +36,7 @@ namespace Itinero.Test.IO.Osm.Restrictions
         public void TestPerfectRestriction()
         {
             var processor = new RestrictionProcessor(
-                new string[] { }, (node) => (uint)node, (vehicleType, sequence) =>
+                new string[] { }, (node) => (uint)node, (n) => Constants.NO_VERTEX, (vehicleType, sequence) =>
                 {
                     Assert.IsTrue(string.IsNullOrWhiteSpace(vehicleType));
                     Assert.IsNotNull(sequence);
@@ -101,7 +101,7 @@ namespace Itinero.Test.IO.Osm.Restrictions
         public void TestRestrictionFromWayReversed()
         {
             var processor = new RestrictionProcessor(
-                new string[] { }, (node) => (uint)node, (vehicleType, sequence) =>
+                new string[] { }, (node) => (uint)node, (n) => Constants.NO_VERTEX, (vehicleType, sequence) =>
                 {
                     Assert.IsTrue(string.IsNullOrWhiteSpace(vehicleType));
                     Assert.IsNotNull(sequence);
@@ -166,7 +166,7 @@ namespace Itinero.Test.IO.Osm.Restrictions
         public void TestRestrictionToWayReversed()
         {
             var processor = new RestrictionProcessor(
-                new string[] { }, (node) => (uint)node, (vehicleType, sequence) =>
+                new string[] { }, (node) => (uint)node, (n) => Constants.NO_VERTEX, (vehicleType, sequence) =>
                 {
                     Assert.IsTrue(string.IsNullOrWhiteSpace(vehicleType));
                     Assert.IsNotNull(sequence);
@@ -231,7 +231,7 @@ namespace Itinero.Test.IO.Osm.Restrictions
         public void TestPerfectRestrictionViaWay()
         {
             var processor = new RestrictionProcessor(
-                new string[] { }, (node) => (uint)node, (vehicleType, sequence) =>
+                new string[] { }, (node) => (uint)node, (n) => Constants.NO_VERTEX, (vehicleType, sequence) =>
                 {
                     Assert.IsTrue(string.IsNullOrWhiteSpace(vehicleType));
                     Assert.IsNotNull(sequence);
@@ -298,7 +298,7 @@ namespace Itinero.Test.IO.Osm.Restrictions
         public void TestPerfectRestrictionMotorcar()
         {
             var processor = new RestrictionProcessor(
-                new string[] { }, (node) => (uint)node, (vehicleType, sequence) =>
+                new string[] { }, (node) => (uint)node, (n) => Constants.NO_VERTEX, (vehicleType, sequence) =>
                 {
                     Assert.AreEqual("motorcar", vehicleType);
                     Assert.IsNotNull(sequence);

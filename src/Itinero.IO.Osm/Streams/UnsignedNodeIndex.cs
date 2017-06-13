@@ -169,6 +169,12 @@ namespace Itinero.IO.Osm.Streams
             int lon = (int)(longitude * 10000000);
 
             _data.EnsureMinimumSize((idx * 2) + 2, int.MaxValue);
+
+            if (_data[(idx * 2) + 1] == int.MinValue)
+            { // this is already a core vertex, no need to overwrite this more valuable data.
+                return;
+            }
+
             _data[(idx * 2) + 0] = lat;
             _data[(idx * 2) + 1] = lon;
         }

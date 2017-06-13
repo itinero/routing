@@ -13,6 +13,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="test-data\networks\network10.osm" />
+    <None Remove="test-data\networks\network11.osm" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="test-data\networks\network10.osm" />
+    <EmbeddedResource Include="test-data\networks\network11.osm" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="NetTopologySuite" Version="1.14.0" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.14.0" />
     <PackageReference Include="Newtonsoft.Json" Version="7.0.1" />

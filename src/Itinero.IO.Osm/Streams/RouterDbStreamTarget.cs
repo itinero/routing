@@ -119,6 +119,12 @@ namespace Itinero.IO.Osm.Streams
                     }
                     return vertex;
                 },
+                (node) =>
+                {
+                    //_nodeIndex.AddId(node.Id.Value);
+                    //_nodeIndex.AddId(node.Id.Value);
+                    return this.AddCoreNode(node.Id.Value, node.Latitude.Value, node.Longitude.Value);
+                },
                 (vehicleType, sequence) =>
                 {
                     if (vehicleType == null)
@@ -561,6 +567,7 @@ namespace Itinero.IO.Osm.Streams
             if (vertex != uint.MaxValue)
             {
                 coordinate = _db.Network.GetVertex(vertex);
+                isCore = true;
                 return true;
             }
             coordinate = new Coordinate()

@@ -322,6 +322,34 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets the simple restriction function for the given profile.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        /// <param name="profile">The vehicle profile.</param>
+        /// <returns></returns>
+        public static Func<uint, uint> GetGetSimpleRestrictions(this RouterDb db, Profile profile)
+        {
+            var getRestrictions = db.GetGetRestrictions(profile, true);
+            return (v) =>
+            {
+                var r = getRestrictions(v);
+                if (r != null)
+                {
+                    var rEnum = r.GetEnumerator();
+                    while (rEnum.MoveNext())
+                    {
+                        var c = rEnum.Current;
+                        if (c.Length > 0)
+                        {
+                            return c[0];
+                        }
+                    }
+                }
+                return Constants.NO_VERTEX;
+            };
+        }
+
+        /// <summary>
         /// Gets the get restriction function for the given profile.
         /// </summary>
         /// <param name="db">The router db.</param>
