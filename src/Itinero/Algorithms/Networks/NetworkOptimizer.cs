@@ -19,6 +19,8 @@
 using Itinero.LocalGeo;
 using Itinero.Data.Network;
 using System.Collections.Generic;
+using Itinero.Algorithms.Restrictions;
+using System;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -29,6 +31,7 @@ namespace Itinero.Algorithms.Networks
     {
         private readonly RoutingNetwork _network;
         private readonly MergeDelegate _merge;
+        private readonly Func<uint, bool> _hasRestriction;
 
         /// <summary>
         /// A delegate to control the merging of two edges.
@@ -39,10 +42,11 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Creates a new network optimizer algorithm.
         /// </summary>
-        public NetworkOptimizer(RoutingNetwork network, MergeDelegate merge)
+        public NetworkOptimizer(RoutingNetwork network, Func<uint, bool> hasRestriction, MergeDelegate merge)
         {
             _network = network;
             _merge = merge;
+            _hasRestriction = hasRestriction;
         }
 
         /// <summary>
@@ -57,6 +61,11 @@ namespace Itinero.Algorithms.Networks
                 edges.AddRange(_network.GetEdgeEnumerator(vertex));
                 if (edges.Count == 2)
                 {
+                    if (_hasRestriction(vertex))
+                    { // don't remove vertices that have restrictions.
+                        continue;
+                    }
+                    
                     bool inverted;
                     Data.Network.Edges.EdgeData edgeData;
                     if (edges[0].To != edges[1].To &&

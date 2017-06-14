@@ -350,6 +350,31 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets the has any restriction function.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        public static Func<uint, bool> GetHasAnyRestriction(this RouterDb db)
+        {
+            return (vertex) =>
+            {
+                foreach(var restrictionsDb in db.RestrictionDbs)
+                {
+                    if (restrictionsDb == null)
+                    {
+                        continue;
+                    }
+
+                    var enumerator = restrictionsDb.RestrictionsDb.GetEnumerator();
+                    if (enumerator.MoveTo(vertex))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            };
+        }
+
+        /// <summary>
         /// Gets the get restriction function for the given profile.
         /// </summary>
         /// <param name="db">The router db.</param>

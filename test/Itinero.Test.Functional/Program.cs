@@ -16,17 +16,12 @@
  *  limitations under the License.
  */
 
-using NetTopologySuite.Features;
+using Itinero.Logging;
 using Itinero.Test.Functional.Staging;
+using Itinero.Test.Functional.Tests;
+using NetTopologySuite.Features;
 using System;
 using System.IO;
-using Itinero.Logging;
-using Itinero.Test.Functional.Tests;
-using Itinero.IO.Osm;
-using Itinero.LocalGeo;
-using Itinero.Graphs.Directed;
-using Itinero.Algorithms;
-using Itinero.Data.Contracted;
 
 namespace Itinero.Test.Functional
 {
@@ -58,20 +53,20 @@ namespace Itinero.Test.Functional
 
             // test building a routerdb.
             var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
+            //var router = new Router(routerDb);
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+            //// test resolving.
+            //ResolvingTests.Run(routerDb);
 
-            // test routing.
-            RoutingTests.Run(routerDb);
-            //RoutingTests.RunFictional();
+            //// test routing.
+            //RoutingTests.Run(routerDb);
+            ////RoutingTests.RunFictional();
 
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
+            //// tests calculate weight matrices.
+            //WeightMatrixTests.Run(routerDb);
 
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+            //// test instruction generation.
+            //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

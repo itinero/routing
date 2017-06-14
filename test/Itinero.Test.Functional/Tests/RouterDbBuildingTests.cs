@@ -17,6 +17,7 @@
  */
 
 using Itinero.Data.Contracted;
+using Itinero.Algorithms.Networks;
 using Itinero.IO.Osm;
 using Itinero.Profiles;
 using Itinero.Test.Functional.Staging;
@@ -38,12 +39,14 @@ namespace Itinero.Test.Functional.Tests
         public static RouterDb Run()
         {
             var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
-                Osm.Vehicles.Vehicle.Car, Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+                Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
 
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Adding contracted db");
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
+            routerDb.OptimizeNetwork();
 
-            routerDb = GetTestSerializeDeserialize(routerDb, "luxembourgh.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
+            //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Adding contracted db");
+            //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
+
+            routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
             
             return routerDb;
         }
