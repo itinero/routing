@@ -39,12 +39,10 @@ namespace Itinero.Test.Functional.Tests
         public static RouterDb Run()
         {
             var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
-                Osm.Vehicles.Vehicle.Car).TestPerf("Loading OSM data");
+                Osm.Vehicles.Vehicle.Car, Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
 
-            routerDb.OptimizeNetwork();
-
-            //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Adding contracted db");
-            //GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Adding contracted db");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
 
             routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
             
@@ -93,7 +91,13 @@ namespace Itinero.Test.Functional.Tests
                     var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
                     progress.RegisterSource(source);
 
-                    routerdb.LoadOsmData(progress, allcore, processRestrictions, vehicles);
+                    routerdb.LoadOsmData(progress, new LoadSettings()
+                    {
+                        AllCore = allcore,
+                        ProcessRestrictions = processRestrictions,
+                        OptimizeNetwork = true,
+                        NetworkSimplificationEpsilon = 1
+                    }, vehicles);
 
                     return routerdb;
                 }

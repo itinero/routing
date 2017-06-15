@@ -218,23 +218,20 @@ namespace Itinero.Test.Functional.Tests
         public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
         {
             var random = new System.Random();
-            var vertices = new HashSet<uint>();
-            while (vertices.Count < size)
+            var list = new List<RouterPoint>();
+            while (list.Count < size)
             {
-                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
-                if (!vertices.Contains(v))
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                var resolved = router.TryResolve(profile, f1);
+                if (resolved.IsError)
                 {
-                    vertices.Add(v);
+                    continue;
                 }
+                var direction = random.NextDouble() >= 0.5;
+                list.Add(resolved.Value);
             }
-
-            var resolvedPoints = new RouterPoint[vertices.Count];
-            var i = 0;
-            foreach (var v in vertices)
-            {
-                resolvedPoints[i] = router.Resolve(profile, router.Db.Network.GetVertex(v), 500);
-                i++;
-            }
+            var resolvedPoints = list.ToArray();
 
             return () =>
             {

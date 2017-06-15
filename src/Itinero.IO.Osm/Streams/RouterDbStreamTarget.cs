@@ -44,13 +44,15 @@ namespace Itinero.IO.Osm.Streams
         private readonly bool _allCore;
         private readonly NodeIndex _nodeIndex;
         private readonly HashSet<string> _vehicleTypes;
+        private readonly float _simplifyEpsilonInMeter;
 
         /// <summary>
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, Vehicle[] vehicles, bool allCore = false,
-            int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
-            : this(db, new VehicleCache(vehicles), allCore, minimumStages, processors, processRestrictions)
+            int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false,
+            float simplifyEpsilonInMeter = .1f)
+            : this(db, new VehicleCache(vehicles), allCore, minimumStages, processors, processRestrictions, simplifyEpsilonInMeter)
         {
 
         }
@@ -60,10 +62,12 @@ namespace Itinero.IO.Osm.Streams
         /// Creates a new router db stream target.
         /// </summary>
         public RouterDbStreamTarget(RouterDb db, VehicleCache vehicleCache, bool allCore = false,
-            int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false)
+            int minimumStages = 1, IEnumerable<ITwoPassProcessor> processors = null, bool processRestrictions = false,
+            float simplifyEpsilonInMeter = .1f)
         {
             _db = db;
             _allCore = allCore;
+            _simplifyEpsilonInMeter = simplifyEpsilonInMeter;
 
             _vehicleCache = vehicleCache;
             _vehicleTypes = new HashSet<string>();
@@ -613,7 +617,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (data.Distance < _db.Network.MaxEdgeDistance)
             { // edge is ok, smaller than max distance.
-                _db.Network.AddEdge(vertex1, vertex2, data, shape);
+                _db.Network.AddEdge(vertex1, vertex2, data, shape.Simplify(_simplifyEpsilonInMeter));
             }
             else
             { // edge is too big.
@@ -668,7 +672,7 @@ namespace Itinero.IO.Osm.Streams
                             Distance = (float)shortDistance,
                             MetaId = data.MetaId,
                             Profile = data.Profile
-                        }, shortShape);
+                        }, shortShape.Simplify(_simplifyEpsilonInMeter));
                         vertex1 = shortVertex;
 
                         // set new short distance, empty shape.
@@ -697,7 +701,7 @@ namespace Itinero.IO.Osm.Streams
                     Distance = (float)shortDistance,
                     MetaId = data.MetaId,
                     Profile = data.Profile
-                }, shortShape);
+                }, shortShape.Simplify(_simplifyEpsilonInMeter));
             }
         }
 

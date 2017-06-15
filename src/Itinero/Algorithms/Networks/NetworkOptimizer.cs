@@ -32,6 +32,7 @@ namespace Itinero.Algorithms.Networks
         private readonly RoutingNetwork _network;
         private readonly MergeDelegate _merge;
         private readonly Func<uint, bool> _hasRestriction;
+        private readonly float _simplifyEpsilonInMeter;
 
         /// <summary>
         /// A delegate to control the merging of two edges.
@@ -42,11 +43,12 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Creates a new network optimizer algorithm.
         /// </summary>
-        public NetworkOptimizer(RoutingNetwork network, Func<uint, bool> hasRestriction, MergeDelegate merge)
+        public NetworkOptimizer(RoutingNetwork network, Func<uint, bool> hasRestriction, MergeDelegate merge, float simplifyEpsilonInMeter = 0.1f)
         {
             _network = network;
             _merge = merge;
             _hasRestriction = hasRestriction;
+            _simplifyEpsilonInMeter = simplifyEpsilonInMeter;
         }
 
         /// <summary>
@@ -108,12 +110,12 @@ namespace Itinero.Algorithms.Networks
                             // add edges.
                             if (!inverted)
                             { // just add 0->1
-                                _network.AddEdge(edges[0].To, edges[1].To, edgeData, shape);
+                                _network.AddEdge(edges[0].To, edges[1].To, edgeData, shape.Simplify(_simplifyEpsilonInMeter));
                             }
                             else
                             { // add the reverse 1->0
                                 shape.Reverse();
-                                _network.AddEdge(edges[1].To, edges[0].To, edgeData, shape);
+                                _network.AddEdge(edges[1].To, edges[0].To, edgeData, shape.Simplify(_simplifyEpsilonInMeter));
                             }
                         }
                     }

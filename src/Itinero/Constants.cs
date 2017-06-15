@@ -47,5 +47,10 @@ namespace Itinero
         /// An empty sequence/restriction.
         /// </summary>
         public static uint[] EMPTY_SEQUENCE = new uint[0];
+
+        /// <summary>
+        /// The default simplification epsilon.
+        /// </summary>
+        public const float DEFAULT_SIMPL_E = 0.1f;
     }
 }

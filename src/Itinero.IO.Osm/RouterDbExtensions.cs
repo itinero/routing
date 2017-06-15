@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Networks;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.IO.Osm.Streams;
 using OsmSharp;
@@ -55,6 +56,23 @@ namespace Itinero.IO.Osm
             var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
             progress.RegisterSource(source);
             db.LoadOsmData(progress, allCore, true, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, Stream data, LoadSettings settings, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            if (!db.IsEmpty)
+            {
+                throw new ArgumentException("Can only load a new routing network into an empty router db, add multiple streams at once to load multiple files.");
+            }
+
+            // load the data.
+            var source = new PBFOsmStreamSource(data);
+            var progress = new OsmSharp.Streams.Filters.OsmStreamFilterProgress();
+            progress.RegisterSource(source);
+            db.LoadOsmData(new OsmStreamSource[] { progress }, settings, vehicles);
         }
 
         /// <summary>
@@ -167,8 +185,29 @@ namespace Itinero.IO.Osm
         /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
-        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, bool allCore = false, bool processRestrictions = true, 
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, bool allCore = false, bool processRestrictions = true,
             IEnumerable<ITwoPassProcessor> processors = null, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(sources, new LoadSettings()
+            {
+                AllCore = allCore,
+                Processors = processors,
+                ProcessRestrictions = processRestrictions
+            }, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource source, LoadSettings settings, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmData(new OsmStreamSource[] { source }, settings, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network created from OSM data.
+        /// </summary>
+        public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, LoadSettings settings, params Itinero.Profiles.Vehicle[] vehicles)
         {
             if (!db.IsEmpty)
             {
@@ -181,6 +220,11 @@ namespace Itinero.IO.Osm
             if (sources == null || sources.Length == 0)
             {
                 throw new ArgumentNullException("sources", "A least one source is needed to load OSM data.");
+            }
+
+            if (settings == null)
+            {
+                settings = new LoadSettings();
             }
 
             // merge sources if needed.
@@ -202,12 +246,19 @@ namespace Itinero.IO.Osm
 
             // load the data.
             var target = new Streams.RouterDbStreamTarget(db,
-                vehicles, allCore, processRestrictions: processRestrictions, processors: processors);
+                vehicles, settings.AllCore, processRestrictions: settings.ProcessRestrictions, processors: settings.Processors,
+                    simplifyEpsilonInMeter: settings.NetworkSimplificationEpsilon);
             target.RegisterSource(source);
             target.Pull();
 
             // sort the network.
             db.Sort();
+
+            // optimize the network if requested.
+            if (settings.NetworkSimplificationEpsilon != 0)
+            {
+                db.OptimizeNetwork(settings.NetworkSimplificationEpsilon);
+            }
 
             // compress the network.
             db.Network.Compress();

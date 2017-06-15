@@ -78,7 +78,7 @@ namespace Itinero.Test.Algorithms.Networks
             graph.AddEdge(1, 2, new EdgeData() { Profile = 1, MetaId = 1, Distance = 20 }, null);
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, MergeDelegate);
+            var algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate);
             algorithm.Run();
 
             // check result.
@@ -109,7 +109,7 @@ namespace Itinero.Test.Algorithms.Networks
             graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, null);
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, MergeDelegate);
+            var algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate);
             algorithm.Run();
 
             // check result.
@@ -142,7 +142,7 @@ namespace Itinero.Test.Algorithms.Networks
             graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new Coordinate(1.5f, 1.5f));
 
             // execute algorithm.
-            var algorithm = new NetworkOptimizer(graph, MergeDelegate);
+            var algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate, 0);
             algorithm.Run();
 
             // check result.
@@ -167,7 +167,7 @@ namespace Itinero.Test.Algorithms.Networks
             graph.AddEdge(1, 2, new EdgeData() { Profile = 1 }, new Coordinate(1.5f, 1.5f));
 
             // execute algorithm.
-            algorithm = new NetworkOptimizer(graph, MergeDelegate);
+            algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate, 0);
             algorithm.Run();
 
             // check result.
@@ -192,7 +192,7 @@ namespace Itinero.Test.Algorithms.Networks
             graph.AddEdge(2, 1, new EdgeData() { Profile = 1 }, new Coordinate(1.5f, 1.5f));
 
             // execute algorithm.
-            algorithm = new NetworkOptimizer(graph, MergeDelegate);
+            algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate, 0);
             algorithm.Run();
 
             // check result.

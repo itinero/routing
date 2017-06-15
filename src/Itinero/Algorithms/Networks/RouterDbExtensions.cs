@@ -30,7 +30,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Optimizes the network by removing irrelevant vertex.
         /// </summary>
-        public static void OptimizeNetwork(this RouterDb routerDb)
+        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter = Constants.DEFAULT_SIMPL_E)
         {
             var router = new Router(routerDb);
 
@@ -114,7 +114,7 @@ namespace Itinero.Algorithms.Networks
                         }
                     }
                     return true;
-                });
+                }, simplifyEpsilonInMeter);
             algorithm.Run();
         }
     }

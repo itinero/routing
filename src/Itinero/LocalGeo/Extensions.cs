@@ -56,6 +56,87 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
+        /// Simplifies the specified points using episilon.
+        /// </summary>
+        /// <param name="points"></param>
+        /// <param name="epsilonInMeter"></param>
+        /// <returns></returns>
+        public static List<Coordinate> Simplify(this List<Coordinate> shape, float epsilonInMeter = .1f)
+        {
+            if (epsilonInMeter == 0)
+            {
+                return shape;
+            }
+
+            if (shape != null && shape.Count > 2)
+            {
+                var simplified = SimplifyBetween(shape, epsilonInMeter, 0, shape.Count - 1);
+                if (simplified.Count != shape.Count)
+                {
+                    return simplified;
+                }
+            }
+            return shape;
+        }
+
+        /// <summary>
+        /// Simplify the specified points using epsilon.
+        /// </summary>
+        /// <param name="points">Points.</param>
+        /// <param name="epsilon">Epsilon.</param>
+        /// <param name="first">First.</param>
+        /// <param name="last">Last.</param>
+        public static List<Coordinate> SimplifyBetween(this List<Coordinate> points, float epsilonInMeter, int first, int last)
+        {
+            if (points == null)
+                throw new ArgumentNullException("points");
+            if (epsilonInMeter <= 0)
+                throw new ArgumentOutOfRangeException("epsilon");
+            if (first > last)
+                throw new ArgumentException(string.Format("first[{0}] must be smaller or equal than last[{1}]!",
+                                                          first, last));
+
+            if (first + 1 != last)
+            {
+                // find point with the maximum distance.
+                float maxDistance = 0;
+                int foundIndex = -1;
+
+                // create the line between first-last.
+                var line = new Line(points[first], points[last]);
+                for (int idx = first + 1; idx < last; idx++)
+                {
+                    var distance = line.DistanceInMeter(points[idx]);
+                    if (distance.HasValue && distance.Value > maxDistance)
+                    {
+                        // larger distance found.
+                        maxDistance = distance.Value;
+                        foundIndex = idx;
+                    }
+                }
+
+                if (foundIndex > 0 && maxDistance > epsilonInMeter)
+                { // a point was found and it is far enough.
+                    var before = SimplifyBetween(points, epsilonInMeter, first, foundIndex);
+                    var after = SimplifyBetween(points, epsilonInMeter, foundIndex, last);
+
+                    // build result.
+                    var result = new List<Coordinate>(before.Count + after.Count - 1);
+                    for (int idx = 0; idx < before.Count - 1; idx++)
+                    {
+                        result.Add(before[idx]);
+                    }
+                    for (int idx = 0; idx < after.Count; idx++)
+                    {
+                        result.Add(after[idx]);
+                    }
+                    return result;
+                }
+            }
+            return new List<Coordinate>(new Coordinate[] { points[first], points[last] });
+        }
+
+        /// <summary>
         /// Simplify the specified points using epsilon.
         /// </summary>
         /// <param name="points">Points.</param>
