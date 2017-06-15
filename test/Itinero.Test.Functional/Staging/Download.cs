@@ -27,33 +27,9 @@ namespace Itinero.Test.Functional.Staging
     /// </summary>
     public static class Download
     {
-        public static string BelgiumAllSource = "ftp://build.osmsharp.com/data/OSM/routing/planet/europe/belgium.a.routing.zip";
-        public static string BelgiumPBF = "ftp://build.osmsharp.com/data/OSM/planet/europe/belgium-latest.osm.pbf";
-        public static string BelgiumLocal = "belgium-latest.osm.pbf";
-        public static string LuxembourgPBF = "ftp://build.osmsharp.com/data/OSM/planet/europe/luxembourg-latest.osm.pbf";
+        public static string LuxembourgPBF = "http://files.itinero.tech/data/OSM/planet/europe/luxembourg-latest.osm.pbf";
         public static string LuxembourgLocal = "luxembourg-latest.osm.pbf";
-
-        /// <summary>
-        /// Downloads the belgium data.
-        /// </summary>
-        public static void DownloadBelgiumAll()
-        {
-            if (!File.Exists("belgium.a.routing"))
-            {
-                var client = new WebClient();
-                client.DownloadFile(Download.BelgiumAllSource,
-                    "belgium.a.routing.zip");
-                ZipFile.ExtractToDirectory("belgium.a.routing.zip", ".");
-                File.Delete("belgium.a.routing.zip");
-            }
-            if(!File.Exists(Download.BelgiumLocal))
-            {
-                var client = new WebClient();
-                client.DownloadFile(Download.BelgiumPBF,
-                    Download.BelgiumLocal);
-            }
-        }
-
+        
         /// <summary>
         /// Downloads the luxembourg data.
         /// </summary>
