@@ -17,6 +17,7 @@
  */
 
 using Itinero.Algorithms;
+using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,35 +39,48 @@ namespace Itinero.Test.Functional.Tests
             GetTestRandomResolves(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves");
             GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves in parallel");
         }
-        
+
         /// <summary>
         /// Tests a number of resolves.
         /// </summary>
         public static Func<string> GetTestRandomResolves(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
+            var vertices = new List<Coordinate>();
+            
+            // make sure all locations are near to accesible roads.
+            while (vertices.Count < count)
+            {
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                
+                var factor = router.GetDefaultGetFactor(profile);
+                var edgeEnumerator = router.Db.Network.GetEdgeEnumerator();
+                edgeEnumerator.MoveTo(v1);
+                while (edgeEnumerator.MoveNext())
+                {
+                    var f = factor(edgeEnumerator.Current.Data.Profile);
+                    if (f.Value != 0)
+                    {
+                        vertices.Add(router.Db.Network.GetVertex(v1));
+                        break;
+                    }
+                }
+            }
+            
+            // resolve all.
             return () =>
             {
-                var i = count;
                 var errors = 0;
-                while (i > 0)
+                for(var i = 0; i < vertices.Count; i++)
                 {
-                    i--;
-
-                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                    var f1 = router.Db.Network.GetVertex(v1);
-
-                    var routerPoint = router.TryResolve(profile, f1);
+                    var routerPoint = router.TryResolve(profile, vertices[i]);
                     if (routerPoint.IsError)
                     {
                         errors++;
                     }
-                    //var routerPointValue = new RouterPoint(routerPoint.Value.Latitude, routerPoint.Value.Longitude,
-                    //    routerPoint.Value.EdgeId, ushort.MaxValue / 2);
-                    //var routerPoinJson = routerPointValue.ToGeoJson(router.Db);
                 }
-
-                return string.Format("{0}/{1} resolves failed.", errors, count);
+                return string.Format("{0}/{1} resolves failed.", errors, vertices.Count);
             };
         }
 
@@ -76,21 +90,42 @@ namespace Itinero.Test.Functional.Tests
         public static Func<string> GetTestRandomResolvesParallel(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
+            var vertices = new List<Coordinate>();
+
+            // make sure all locations are near to accesible roads.
+            while (vertices.Count < count)
+            {
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+
+                var factor = router.GetDefaultGetFactor(profile);
+                var edgeEnumerator = router.Db.Network.GetEdgeEnumerator();
+                edgeEnumerator.MoveTo(v1);
+                while (edgeEnumerator.MoveNext())
+                {
+                    var f = factor(edgeEnumerator.Current.Data.Profile);
+                    if (f.Value != 0)
+                    {
+                        vertices.Add(router.Db.Network.GetVertex(v1));
+                        break;
+                    }
+                }
+            }
+
+            // resolve all.
             return () =>
             {
                 var errors = 0;
+
                 System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
                 {
-                    var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
-                    var f1 = router.Db.Network.GetVertex(v1);
-
-                    var routerPoint = router.TryResolve(profile, f1);
+                    var routerPoint = router.TryResolve(profile, vertices[x]);
                     if (routerPoint.IsError)
                     {
                         errors++;
                     }
                 });
-                return string.Format("{0}/{1} resolves failed.", errors, count);
+                return string.Format("{0}/{1} resolves failed.", errors, vertices.Count);
             };
         }
     }
