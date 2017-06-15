@@ -21,6 +21,7 @@ using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Test.Algorithms.Search
 {
@@ -276,6 +277,26 @@ namespace Itinero.Test.Algorithms.Search
             location = graph.GetVertex(24);
             Assert.AreEqual(.06f, location.Latitude);
             Assert.AreEqual(.06f, location.Longitude);
+        }
+
+        /// <summary>
+        /// Tests a geometric search fix.
+        /// </summary>
+        [Test]
+        public void GeometricSearchRegressionTest()
+        {
+            // setup a routing network to test against.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network7.geojson"));
+            routerDb.Sort();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+
+            var vertex7 = routerDb.Network.GetVertex(7);
+            var vertices = routerDb.Network.GeometricGraph.Search(vertex7.Latitude, vertex7.Longitude, 0.001f);
+            Assert.AreEqual(1, vertices.Count);
+            Assert.AreEqual(7, vertices.First());
         }
     }
 }

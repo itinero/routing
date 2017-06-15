@@ -57,10 +57,6 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            var route = router.Calculate(Osm.Vehicles.Vehicle.Car.Fastest(),
-                router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.501803f, 6.066170f),
-                router.Resolve(Osm.Vehicles.Vehicle.Car.Fastest(), 49.557734f, 5.884209f));
-
             // test resolving.
             ResolvingTests.Run(routerDb);
 

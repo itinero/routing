@@ -541,6 +541,16 @@ namespace Itinero.Algorithms.Search.Hilbert
                     vertex1 == vertex2 ||
                     vertex1 == vertex2 - 1)
                 { // search is finished.
+                    if (vertex1 == vertex2 - 1)
+                    { // check vertex2 first.
+                        var vertex2Hilbert = HilbertExtensions.Distance(graph, n, vertex2);
+                        if (minHilbert <= vertex2Hilbert && vertex2Hilbert <= maxHilbert)
+                        {
+                            vertex = vertex2;
+                            count = 1;
+                            return true;
+                        }
+                    }
                     vertex = vertex1;
                     count = 0;
                     return true;
