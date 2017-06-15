@@ -41,8 +41,8 @@ namespace Itinero.Test.Functional.Tests
             var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
                 Osm.Vehicles.Vehicle.Car, Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
 
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Adding contracted db");
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Adding contracted db");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
 
             routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
             
@@ -52,27 +52,44 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests serialize/deserialize.
         /// </summary>
-        public static Func<RouterDb> GetTestSerializeDeserialize(RouterDb routerDb, string fileName)
+        public static Func<PerformanceTestResult<RouterDb>> GetTestSerializeDeserialize(RouterDb routerDb, string fileName)
         {
             return () =>
             {
+                var bytes = 0L;
                 using (var stream = File.Open(fileName, FileMode.Create))
                 {
                     routerDb.Serialize(stream);
+                    bytes = stream.Position;
                 }
                 using (var stream1 = File.OpenRead(fileName))
                 {
-                    //var stream1 = File.OpenRead(fileName);
                     routerDb = RouterDb.Deserialize(stream1);
                 }
-                return routerDb;
+                return new PerformanceTestResult<RouterDb>(routerDb)
+                {
+                    Message = string.Format("Size of routerdb: {0}", FormatBytes(bytes))
+                };
             };
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            string[] Suffix = { "B", "KB", "MB", "GB", "TB" };
+            int i;
+            double dblSByte = bytes;
+            for (i = 0; i < Suffix.Length && bytes >= 1024; i++, bytes /= 1024)
+            {
+                dblSByte = bytes / 1024.0;
+            }
+
+            return String.Format("{0:0.##} {1}", dblSByte, Suffix[i]);
         }
 
         /// <summary>
         /// Tests building a router db.
         /// </summary>
-        public static Func<RouterDb> GetTestBuildRouterDb(string file, bool allcore, bool processRestrictions, params Vehicle[] vehicles)
+        public static Func<PerformanceTestResult<RouterDb>> GetTestBuildRouterDb(string file, bool allcore, bool processRestrictions, params Vehicle[] vehicles)
         {
             return () =>
             {
@@ -99,7 +116,7 @@ namespace Itinero.Test.Functional.Tests
                         NetworkSimplificationEpsilon = 1
                     }, vehicles);
 
-                    return routerdb;
+                    return new PerformanceTestResult<RouterDb>(routerdb);
                 }
             };
         }

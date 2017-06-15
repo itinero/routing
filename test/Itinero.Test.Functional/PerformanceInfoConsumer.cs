@@ -136,7 +136,7 @@ namespace Itinero.Test.Functional
         /// <summary>
         /// Reports the end of the process/time period to measure.
         /// </summary>
-        public void Stop()
+        public void Stop(string message)
         {
             if (_memoryUsageTimer != null)
             { // only dispose and stop when there IS a timer.
@@ -153,18 +153,21 @@ namespace Itinero.Test.Functional
                     var p = Process.GetCurrentProcess();
                     var memoryDiff = System.Math.Round((p.PrivateMemorySize64 - _memory.Value) / 1024.0 / 1024.0, 4);
 
+                    if (!string.IsNullOrWhiteSpace(message))
+                    {
+                        message = ":" + message;
+                    }
+
                     if (_memoryUsageLog.Count > 0)
                     { // there was memory usage logging.
                         double max = _memoryUsageLog.Max();
-                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, "Finished at {0} spent {1}s:" + _name,
-                                new DateTime(_ticks.Value).ToShortTimeString(),
-                                seconds, memoryDiff, max);
+                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, "Spent {0}s:" + _name + message,
+                                seconds.ToString("F3"), memoryDiff, max);
                     }
                     else
                     { // no memory usage logged.
-                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, "Finished at {0} spent {1}s:" + _name,
-                                new DateTime(_ticks.Value).ToShortTimeString(),
-                                seconds, memoryDiff);
+                        Itinero.Logging.Logger.Log("Test", Itinero.Logging.TraceEventType.Information, "Spent {0}s:" + _name + message,
+                                seconds.ToString("F3"), memoryDiff);
                     }
                 }
             }

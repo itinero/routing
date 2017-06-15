@@ -40,12 +40,12 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             // just test some random routes.
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing car random routes");
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Testing pedestrian random routes");
-            GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random directed routes");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random routes");
+            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Pedestrian random routes");
+            GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random directed routes");
 
             // tests many-to-many route calculation.
-            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing calculating manytomany routes");
+            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating manytomany car routes");
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a number of routes.
         /// </summary>
-        public static Action GetTestRandomRoutes(Router router, Profiles.Profile profile, int count)
+        public static Func<string> GetTestRandomRoutes(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
             var list = new List<RouterPoint>();
@@ -108,14 +108,14 @@ namespace Itinero.Test.Functional.Tests
                     }
                 }
 
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
+                return string.Format("{0}/{1} routes failed.", errors, count);
             };
         }
 
         /// <summary>
         /// Tests calculating a number of routes.
         /// </summary>
-        public static Action GetTestRandomDirectedRoutes(Router router, Profiles.Profile profile, int count)
+        public static Func<string> GetTestRandomDirectedRoutes(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
             var list = new List<Tuple<RouterPoint, bool>>();
@@ -158,14 +158,14 @@ namespace Itinero.Test.Functional.Tests
                     }
                 }
 
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
+                return string.Format("{0}/{1} routes failed.", errors, count);
             };
         }
 
         /// <summary>
         /// Tests calculating a number of routes.
         /// </summary>
-        public static Action GetTestRandomRoutesParallel(Router router, Profiles.Profile profile, int count)
+        public static Func<string> GetTestRandomRoutesParallel(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
             var list = new List<RouterPoint>();
@@ -208,14 +208,14 @@ namespace Itinero.Test.Functional.Tests
                     }
                 });
 
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
+                return string.Format("{0}/{1} routes failed.", errors, count);
             };
         }
         
         /// <summary>
         /// Tests calculating a collection of one to one routes.
         /// </summary>
-        public static Func<EdgePath<float>[][]> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
+        public static Func<PerformanceTestResult<EdgePath<float>[][]>> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
         {
             var random = new System.Random();
             var list = new List<RouterPoint>();
@@ -235,7 +235,8 @@ namespace Itinero.Test.Functional.Tests
 
             return () =>
             {
-                return router.TryCalculateRaw(profile, router.GetDefaultWeightHandler(profile), resolvedPoints, resolvedPoints, null).Value;
+                return new PerformanceTestResult<EdgePath<float>[][]>(
+                    router.TryCalculateRaw(profile, router.GetDefaultWeightHandler(profile), resolvedPoints, resolvedPoints, null).Value);
             };
         }
     }

@@ -35,14 +35,14 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            GetTestRandomResolves(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random resolves");
-            //GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Testing random resolves in parallel");
+            GetTestRandomResolves(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves");
+            GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves in parallel");
         }
         
         /// <summary>
         /// Tests a number of resolves.
         /// </summary>
-        public static Action GetTestRandomResolves(Router router, Profiles.Profile profile, int count)
+        public static Func<string> GetTestRandomResolves(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
             return () =>
@@ -66,14 +66,14 @@ namespace Itinero.Test.Functional.Tests
                     //var routerPoinJson = routerPointValue.ToGeoJson(router.Db);
                 }
 
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} resolves failed.", errors, count);
+                return string.Format("{0}/{1} resolves failed.", errors, count);
             };
         }
 
         /// <summary>
         /// Tests a number of resolves.
         /// </summary>
-        public static Action GetTestRandomResolvesParallel(Router router, Profiles.Profile profile, int count)
+        public static Func<string> GetTestRandomResolvesParallel(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
             return () =>
@@ -90,9 +90,8 @@ namespace Itinero.Test.Functional.Tests
                         errors++;
                     }
                 });
-                Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} resolves failed.", errors, count);
+                return string.Format("{0}/{1} resolves failed.", errors, count);
             };
         }
-
     }
 }
