@@ -44,7 +44,7 @@ namespace Itinero.Geo.Graphs
             foreach (var vertex in vertices)
             {
                 var attributes = new AttributesTable();
-                attributes.AddAttribute("id", vertex.ToInvariantString());
+                attributes.Add("id", vertex.ToInvariantString());
                 var vertexLocation = graph.GetVertex(vertex);
                 features.Add(new Feature(new Point(vertexLocation.ToCoordinate()),
                     attributes));
@@ -60,7 +60,7 @@ namespace Itinero.Geo.Graphs
                     
                     var geometry = new LineString(graph.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
                     attributes = new AttributesTable();
-                    attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
+                    attributes.Add("id", edgeEnumerator.Id.ToInvariantString());
                     features.Add(new Feature(geometry,
                         attributes));
                 }

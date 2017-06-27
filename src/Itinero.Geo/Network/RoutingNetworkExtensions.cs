@@ -54,7 +54,7 @@ namespace Itinero.Geo.Network
             foreach (var vertex in vertices)
             {
                 var attributes = new AttributesTable();
-                attributes.AddAttribute("id", vertex.ToInvariantString());
+                attributes.Add("id", vertex.ToInvariantString());
                 var vertexLocation = network.GetVertex(vertex);
                 features.Add(new Feature(new Point(vertexLocation.ToCoordinate()),
                     attributes));
@@ -70,7 +70,7 @@ namespace Itinero.Geo.Network
 
                     var geometry = new LineString(network.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
                     attributes = new AttributesTable();
-                    attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
+                    attributes.Add("id", edgeEnumerator.Id.ToInvariantString());
                     features.Add(new Feature(geometry,
                         attributes));
                 }
@@ -93,7 +93,7 @@ namespace Itinero.Geo.Network
                 {
                     var vertexLocation = new LocalGeo.Coordinate(latitude1, longitude1);
                     var attributes = new AttributesTable();
-                    attributes.AddAttribute("id", vertex.ToInvariantString());
+                    attributes.Add("id", vertex.ToInvariantString());
                     features.Add(new Feature(new Point(vertexLocation.ToCoordinate()),
                         attributes));
                 }

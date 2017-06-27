@@ -49,7 +49,7 @@ namespace Itinero.Geo
             {
                 var vertexLocation = network.GeometricGraph.GetVertex(vertex);
                 var attributes = new AttributesTable();
-                attributes.AddAttribute("id", vertex.ToInvariantString());
+                attributes.Add("id", vertex.ToInvariantString());
                 features.Add(new Feature(new Point(vertexLocation.ToCoordinate()),
                     attributes));
                 edgeEnumerator.MoveTo(vertex);
@@ -67,8 +67,8 @@ namespace Itinero.Geo
 
                     var geometry = new LineString(network.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
                     attributes = edgeAttributes.ToAttributesTable();
-                    attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
-                    attributes.AddAttribute("distance", edgeEnumerator.Data.Distance.ToInvariantString());
+                    attributes.Add("id", edgeEnumerator.Id.ToInvariantString());
+                    attributes.Add("distance", edgeEnumerator.Data.Distance.ToInvariantString());
                     var tags = db.GetProfileAndMeta(edgeEnumerator.Data.Profile, edgeEnumerator.Data.MetaId);
                     features.Add(new Feature(geometry,
                         attributes));
@@ -125,8 +125,8 @@ namespace Itinero.Geo
 
                         var geometry = new LineString(db.Network.GetShape(edgeEnumerator.Current).ToCoordinatesArray());
                         var attributes = edgeAttributes.ToAttributesTable();
-                        attributes.AddAttribute("id", edgeEnumerator.Id.ToInvariantString());
-                        attributes.AddAttribute("distance", edgeEnumerator.Data.Distance.ToInvariantString());
+                        attributes.Add("id", edgeEnumerator.Id.ToInvariantString());
+                        attributes.Add("distance", edgeEnumerator.Data.Distance.ToInvariantString());
                         features.Add(new Feature(geometry,
                             attributes));
                     }
@@ -148,8 +148,8 @@ namespace Itinero.Geo
 
             var geometry = new LineString(routerDb.Network.GetShape(edge).ToCoordinatesArray());
             var attributes = edgeAttributes.ToAttributesTable();
-            attributes.AddAttribute("id", edge.Id.ToInvariantString());
-            attributes.AddAttribute("distance", edge.Data.Distance.ToInvariantString());
+            attributes.Add("id", edge.Id.ToInvariantString());
+            attributes.Add("distance", edge.Data.Distance.ToInvariantString());
             return new Feature(geometry, attributes);
         }
 
@@ -161,7 +161,7 @@ namespace Itinero.Geo
             var coordinate = routerDb.Network.GetVertex(vertex).ToCoordinate();
 
             var attributes = new AttributesTable();
-            attributes.AddAttribute("id", vertex);
+            attributes.Add("id", vertex);
             return new Feature(new Point(coordinate), attributes);
         }
     }

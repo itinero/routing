@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net40;net45;portable40-net403+sl5+win8+wp8</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net40;net45;portable40-net403+sl5+win8+wp8</TargetFrameworks>
     <AssemblyName>Itinero.Geo</AssemblyName>
     <PackageId>Itinero.Geo</PackageId>
     <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GeoAPI" Version="1.7.4" />
-    <PackageReference Include="NetTopologySuite" Version="1.14.0" />
+    <PackageReference Include="GeoAPI" Version="1.7.5-pre2"/>
+    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre2" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">

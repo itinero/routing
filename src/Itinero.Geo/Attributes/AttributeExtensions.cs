@@ -36,7 +36,7 @@ namespace Itinero.Geo.Attributes
             var attributes = new AttributesTable();
             foreach(var attribute in collection)
             {
-                attributes.AddAttribute(attribute.Key, attribute.Value);
+                attributes.Add(attribute.Key, attribute.Value);
             }
             return attributes;
         }

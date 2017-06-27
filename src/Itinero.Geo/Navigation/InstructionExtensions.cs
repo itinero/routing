@@ -45,8 +45,8 @@ namespace Itinero.Geo.Navigation
                 var coordinate = route.Shape[instruction.Shape].ToCoordinate();
 
                 var attributes = new AttributesTable();
-                attributes.AddAttribute("text", instruction.Text);
-                attributes.AddAttribute("type", instruction.Type.ToInvariantString().ToLowerInvariant());
+                attributes.Add("text", instruction.Text);
+                attributes.Add("type", instruction.Type.ToInvariantString().ToLowerInvariant());
 
                 var point = new Point(coordinate);
 

@@ -180,10 +180,10 @@ namespace Itinero.Geo
             foreach (var treeEdge in tree.Edges)
             {
                 var attributes = new NetTopologySuite.Features.AttributesTable();
-                attributes.AddAttribute("weight1", treeEdge.Weight1.ToInvariantString());
-                attributes.AddAttribute("weight2", treeEdge.Weight2.ToInvariantString());
-                attributes.AddAttribute("edge", treeEdge.EdgeId.ToInvariantString());
-                attributes.AddAttribute("previous_edge", treeEdge.PreviousEdgeId.ToInvariantString());
+                attributes.Add("weight1", treeEdge.Weight1.ToInvariantString());
+                attributes.Add("weight2", treeEdge.Weight2.ToInvariantString());
+                attributes.Add("edge", treeEdge.EdgeId.ToInvariantString());
+                attributes.Add("previous_edge", treeEdge.PreviousEdgeId.ToInvariantString());
                 featureCollection.Add(new NetTopologySuite.Features.Feature(
                     treeEdge.ToLineString(), attributes));
             }
@@ -199,8 +199,8 @@ namespace Itinero.Geo
             foreach (var instruction in instructions)
             {
                 var attributes = new NetTopologySuite.Features.AttributesTable();
-                attributes.AddAttribute("text", instruction.Text);
-                attributes.AddAttribute("type", instruction.Type);
+                attributes.Add("text", instruction.Text);
+                attributes.Add("type", instruction.Type);
                 var location = route.Shape[instruction.Shape];
                 featureCollection.Add(new NetTopologySuite.Features.Feature(
                     new NetTopologySuite.Geometries.Point(location.ToCoordinate()), attributes));
