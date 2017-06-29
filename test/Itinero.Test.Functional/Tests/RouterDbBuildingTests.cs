@@ -38,8 +38,7 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            // var sourcePBF = Download.LuxembourgLocal;
-            var sourcePBF = @"C:\work\data\OSM\belgium-latest.osm.pbf";
+            var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
                 Osm.Vehicles.Vehicle.Car, 
                 Osm.Vehicles.Vehicle.Pedestrian, 
