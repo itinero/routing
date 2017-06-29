@@ -69,6 +69,9 @@ namespace Itinero.Test.Functional
 
         private static void EnableLogging()
         {
+#if DEBUG
+            var loggingBlacklist = new HashSet<string>();
+#else
             var loggingBlacklist = new HashSet<string>(
                 new string[] { "StreamProgress",
                     "RouterDbStreamTarget",
@@ -77,6 +80,7 @@ namespace Itinero.Test.Functional
                     "RestrictionProcessor",
                     "NodeIndex",
                     "RouterDb"});
+#endif
             OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
                 if (loggingBlacklist.Contains(o))

@@ -124,6 +124,11 @@ namespace Itinero.IO.Osm.Streams
                 var int2 = _index[i * 2 + 1];
                 var id = doubleInt2long(int1, int2);
 
+                if  (id == 30976106)
+                {
+                    System.Diagnostics.Debug.WriteLine(string.Empty);
+                }
+
                 if (id >= (long)int.MaxValue * (long)(_overflows.Count + 1))
                 { // nodes are overflowing again.
                     _overflows.Add(i);
@@ -186,6 +191,11 @@ namespace Itinero.IO.Osm.Streams
         {
             var idx = TryGetIndex(id);
             if (idx == long.MaxValue)
+            {
+                vertex = uint.MaxValue;
+                return false;
+            }
+            if (_data.Length <= (idx * 2) + 0)
             {
                 vertex = uint.MaxValue;
                 return false;

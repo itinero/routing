@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.Attributes;
 using Itinero.Data.Contracted;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Restrictions;
@@ -43,13 +44,19 @@ namespace Itinero
         public RestrictionsDbProfile RestrictionDbProfile { get; set; }
 
         /// <summary>
+        /// Gets or sets the vertex meta profile.
+        /// </summary>
+        public MappedAttributesIndexProfile VertexMetaProfile { get; set; }
+
+        /// <summary>
         /// A profile telling the router db to do no caching.
         /// </summary>
         public static RouterDbProfile NoCache = new RouterDbProfile()
         {
             ContractedDbProfile = ContractedDbProfile.NoCache,
             RoutingNetworkProfile = RoutingNetworkProfile.NoCache,
-            RestrictionDbProfile = RestrictionsDbProfile.NoCache
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache,
+            VertexMetaProfile = MappedAttributesIndexProfile.NoCache
         };
 
         /// <summary>
@@ -59,7 +66,8 @@ namespace Itinero
         {
             ContractedDbProfile = ContractedDbProfile.Aggressive24,
             RoutingNetworkProfile = RoutingNetworkProfile.NoCache,
-            RestrictionDbProfile = RestrictionsDbProfile.NoCache
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache,
+            VertexMetaProfile = MappedAttributesIndexProfile.NoCache
         };
 
         /// <summary>
@@ -69,7 +77,8 @@ namespace Itinero
         {
             ContractedDbProfile = ContractedDbProfile.Aggressive24,
             RoutingNetworkProfile = RoutingNetworkProfile.Default,
-            RestrictionDbProfile = RestrictionsDbProfile.NoCache
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache,
+            VertexMetaProfile = MappedAttributesIndexProfile.NoCache
         };
 
         /// <summary>
@@ -79,7 +88,8 @@ namespace Itinero
         {
             ContractedDbProfile = ContractedDbProfile.Aggressive24,
             RoutingNetworkProfile = RoutingNetworkProfile.Default,
-            RestrictionDbProfile = RestrictionsDbProfile.NoCache
+            RestrictionDbProfile = RestrictionsDbProfile.NoCache,
+            VertexMetaProfile = MappedAttributesIndexProfile.NoCache
         };
     }
 }

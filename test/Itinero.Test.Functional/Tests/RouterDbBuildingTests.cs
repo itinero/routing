@@ -38,8 +38,12 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            var routerDb = GetTestBuildRouterDb(Download.LuxembourgLocal, false, true,
-                Osm.Vehicles.Vehicle.Car, Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+            // var sourcePBF = Download.LuxembourgLocal;
+            var sourcePBF = @"C:\work\data\OSM\belgium-latest.osm.pbf";
+            var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
+                Osm.Vehicles.Vehicle.Car, 
+                Osm.Vehicles.Vehicle.Pedestrian, 
+                Osm.Vehicles.Vehicle.Bicycle).TestPerf("Loading OSM data");
 
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");

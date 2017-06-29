@@ -21,14 +21,16 @@ using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Collections;
 
 namespace Itinero.Attributes
 {
     /// <summary>
     /// A collection that contains meta-data per unique id, can be used to map meta-data to vertices or edges by their id's.
     /// </summary>
-    public class MappedAttributesIndex
+    public class MappedAttributesIndex : IEnumerable<uint>
     {
         private const int _BLOCK_SIZE = 1024;
         private const uint _NO_DATA = uint.MaxValue;
@@ -112,6 +114,27 @@ namespace Itinero.Attributes
         }
 
         /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerator<uint> GetEnumerator()
+        {
+            for (var p = 0; p < _pointer; p += 2)
+            {
+                yield return _data[p];
+            }
+        }
+
+        /// <summary>
+        /// Gets the enumerator.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        /// <summary>
         /// Returns true if this index is sorted and optimized.
         /// </summary>
         public bool IsOptimized
@@ -192,6 +215,48 @@ namespace Itinero.Attributes
             size += _attributes.Serialize(stream);
 
             return size;
+        }
+
+        /// <summary>
+        /// Switches the two id's.
+        /// </summary>
+        public void Switch(uint id1, uint id2)
+        {
+            if (_reverseIndex == null)
+            {
+                this.MakeWriteable();
+            }
+
+            // remove the two from the index and keep their pointers.
+            int pointer1, pointer2;
+            if (!_reverseIndex.TryGetValue(id1, out pointer1))
+            {
+                pointer1 = -1;
+            }
+            else
+            {
+                _reverseIndex.Remove(id1);
+            }
+            if (!_reverseIndex.TryGetValue(id2, out pointer2))
+            {
+                pointer2 = -1;
+            }
+            else
+            {
+                _reverseIndex.Remove(id2);
+            }
+
+            // add them again but in reverse.
+            if (pointer1 != -1)
+            {
+                _data[pointer1] = id2;
+                _reverseIndex[id2] = pointer1;
+            }
+            if (pointer2 != -1)
+            {
+                _data[pointer2] = id1;
+                _reverseIndex[id1] = pointer2;
+            }
         }
 
         /// <summary>

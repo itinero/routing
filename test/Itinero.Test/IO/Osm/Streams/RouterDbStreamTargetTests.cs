@@ -26,6 +26,7 @@ using OsmSharp.Tags;
 using System.Linq;
 using OsmSharp;
 using Itinero.Data.Network.Restrictions;
+using Itinero.IO.Osm;
 
 namespace Itinero.Test.IO.Osm.Streams
 {
@@ -1311,6 +1312,91 @@ namespace Itinero.Test.IO.Osm.Streams
             RestrictionsDb restrictions;
             Assert.IsTrue(routerDb.TryGetRestrictions("motor_vehicle", out restrictions));
             Assert.AreEqual(2, restrictions.Count);
+        }
+
+        /// <summary>
+        /// Tests processing vertex meta related to cycle networks.
+        /// </summary>
+        [Test]
+        public void TestVertexMeta()
+        {
+            // build source stream.
+            var location1 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7835588455200195f };
+            var location2 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7907257080078125f };
+            var location3 = new Coordinate() { Latitude = 51.265016473294075f, Longitude = 4.7978925704956050f };
+            var location4 = new Coordinate() { Latitude = 51.265106473294075f, Longitude = 4.7907257080078125f };
+            var location5 = new Coordinate() { Latitude = 51.264916473294075f, Longitude = 4.7907257080078125f };
+            var source = new OsmGeo[] {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude,
+                    Tags = new TagsCollection(
+                        new Tag("rcn_ref", "12")),
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2 }
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 2, 3 }
+                },
+                new Way()
+                {
+                    Id = 3,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 2, 4 }
+                },
+                new Way()
+                {
+                    Id = 4,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 2, 5 }
+                }
+            };
+
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(source, Itinero.Osm.Vehicles.Vehicle.Bicycle);
+
+            var vertexNode3 = Itinero.Algorithms.Search.Hilbert.HilbertExtensions.SearchClosest(routerDb.Network.GeometricGraph,
+                location3.Latitude, location3.Longitude, 0.01f, 0.01f);
+            var meta = routerDb.VertexMeta[vertexNode3];
+            Assert.AreEqual(meta, new AttributeCollection(
+                new Attribute("rcn_ref", "12")));
         }
 
         /// <summary>

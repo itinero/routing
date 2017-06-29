@@ -37,6 +37,10 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void AddId(long id)
         {
+            if (id == 30976106)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
             if (id >= 0)
             {
                 _postiveNodeIndex.AddId(id);

@@ -32,7 +32,7 @@ namespace Itinero.Test.Attributes
         /// Tests adding data.
         /// </summary>
         [Test]
-        public void TestSetSet()
+        public void TestSetGet()
         {
             var map = new MappedAttributesIndex();
 
@@ -48,7 +48,7 @@ namespace Itinero.Test.Attributes
             Assert.AreEqual(map[1234], new AttributeCollection(
                 new Attribute("highway", "residential")));
             Assert.AreEqual(map[12345], new AttributeCollection(
-                new Attribute("highway", "residential")));
+                new Attribute("highway", "primary")));
         }
 
         /// <summary>

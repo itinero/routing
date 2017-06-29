@@ -437,6 +437,24 @@ namespace Itinero.Attributes
             {
                 return this.GetEnumerator();
             }
+
+            /// <summary>
+            /// Gets a proper description of this attribute collection.
+            /// </summary>
+            /// <returns></returns>
+            public override string ToString()
+            {
+                var builder = new System.Text.StringBuilder();
+                foreach (var a in this)
+                {
+                    if (builder.Length > 0)
+                    {
+                        builder.Append('|');
+                    }
+                    builder.Append(a.ToString());
+                }
+                return builder.ToString();
+            }
         }
 
         /// <summary>

@@ -117,6 +117,8 @@ namespace Itinero.Algorithms.Search.Hilbert
                     {
                         restrictionDb.RestrictionsDb.Switch((uint)vertex1, (uint)vertex2);
                     }
+
+                    db.VertexMeta.Switch((uint)vertex1, (uint)vertex2);
                 }
             });
         }

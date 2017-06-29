@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Itinero.Attributes
 {
@@ -130,6 +131,24 @@ namespace Itinero.Attributes
         IEnumerator IEnumerable.GetEnumerator()
         {
             return this.GetEnumerator();
+        }
+
+        /// <summary>
+        /// Gets a proper description of this attribute collection.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            foreach(var a in this)
+            {
+                if (builder.Length > 0)
+                {
+                    builder.Append('|');
+                }
+                builder.Append(a.ToString());
+            }
+            return builder.ToString();
         }
     }
 }

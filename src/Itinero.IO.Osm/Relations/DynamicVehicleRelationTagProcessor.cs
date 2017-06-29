@@ -61,14 +61,14 @@ namespace Itinero.IO.Osm.Relations
             }
 
             var attributes = relation.Tags;
+            if (attributes == null || attributes.Count == 0)
+            {
+                return false;
+            }
             lock (_vehicle.Script)
             {
                 // build lua table.
                 _attributesTable.Clear();
-                if (attributes == null || attributes.Count == 0)
-                {
-                    return false;
-                }
                 foreach (var attribute in attributes)
                 {
                     _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
@@ -81,6 +81,7 @@ namespace Itinero.IO.Osm.Relations
                 // get the result.
                 var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
                 if (dynAttributesToKeep != null &&
+                    dynAttributesToKeep.Type != DataType.Nil &&
                     dynAttributesToKeep.Table != null &&
                     dynAttributesToKeep.Table.Keys.Count() > 0)
                 {
@@ -102,14 +103,14 @@ namespace Itinero.IO.Osm.Relations
 
             var wayTags = way.Tags;
             var relationTags = attributes;
+            if (relationTags == null || relationTags.Count == 0)
+            {
+                return;
+            }
             lock (_vehicle.Script)
             {
                 // build lua table.
                 _attributesTable.Clear();
-                if (relationTags == null || relationTags.Count == 0)
-                {
-                    return;
-                }
                 foreach (var attribute in relationTags)
                 {
                     _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
@@ -122,6 +123,7 @@ namespace Itinero.IO.Osm.Relations
                 // get the result.
                 var dynAttributesToKeep = _resultsTable.Get("attributes_to_keep");
                 if (dynAttributesToKeep != null &&
+                    dynAttributesToKeep.Type != DataType.Nil &&
                     dynAttributesToKeep.Table.Keys.Count() > 0)
                 {
                     foreach (var attribute in dynAttributesToKeep.Table.Pairs)

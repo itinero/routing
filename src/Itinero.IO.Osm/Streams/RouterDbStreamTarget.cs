@@ -31,6 +31,7 @@ using Itinero.IO.Osm.Relations;
 using Itinero.Profiles;
 using System.Text;
 using Itinero.IO.Osm.Normalizer;
+using Itinero.IO.Osm.Nodes;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -107,7 +108,17 @@ namespace Itinero.IO.Osm.Streams
             {
                 if (vehicle is Itinero.Profiles.DynamicVehicle)
                 {
-                    this.Processors.Add(new DynamicVehicleRelationTagProcessor(vehicle as Itinero.Profiles.DynamicVehicle));
+                    var dynamicVehicle = vehicle as Itinero.Profiles.DynamicVehicle;
+                    this.Processors.Add(new DynamicVehicleRelationTagProcessor(dynamicVehicle));
+                    this.Processors.Add(new DynamicVehicleNodeTagProcessor(_db, dynamicVehicle, (node) =>
+                    {
+                        var index = _nodeIndex.TryGetIndex(node.Id.Value);
+                        if (index == long.MaxValue)
+                        { // node is not a vertex.
+                            return Constants.NO_VERTEX;
+                        }
+                        return this.AddCoreNode(node.Id.Value, node.Latitude.Value, node.Longitude.Value);
+                    }));
                 }
             }
 

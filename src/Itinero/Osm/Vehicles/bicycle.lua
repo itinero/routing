@@ -84,12 +84,21 @@ profiles = {
 	}
 }
 
--- processes relation and addes the attributes_to_keep to the child ways for use in routing
+-- processes relation and adds the attributes_to_keep to the child ways for use in routing
 function relation_tag_processor (attributes, result)
 	if attributes.type == "route" and
 	   attributes.route == "bicycle" then
 		result.attributes_to_keep = {
 			cyclenetwork = "yes"
+		}
+	end
+end
+
+-- processes node and adds the attributes to keep to the vertex meta collection in the routerdb.
+function node_tag_processor (attributes, results)
+	if attributes.rcn_ref then
+		results.attributes_to_keep = {
+			rcn_ref = attributes.rcn_ref
 		}
 	end
 end

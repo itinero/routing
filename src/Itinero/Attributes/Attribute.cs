@@ -41,5 +41,14 @@ namespace Itinero.Attributes
         /// Gets or sets the value.
         /// </summary>
         public string Value { get; set; }
+        
+        /// <summary>
+        /// Gets a proper description of this attribute.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return this.Key + "=" + this.Value;
+        }
     }
 }

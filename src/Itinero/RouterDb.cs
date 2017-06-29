@@ -39,6 +39,7 @@ namespace Itinero
         private readonly RoutingNetwork _network;
         private readonly AttributesIndex _edgeProfiles;
         private readonly AttributesIndex _meta;
+        private readonly MappedAttributesIndex _metaVertex;
         private readonly IAttributeCollection _dbMeta;
         private Guid _guid;
 
@@ -57,6 +58,7 @@ namespace Itinero
             _edgeProfiles = new AttributesIndex(AttributesIndexMode.IncreaseOne
                 | AttributesIndexMode.ReverseAll);
             _meta = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
+            _metaVertex = new MappedAttributesIndex();
             _dbMeta = new AttributeCollection();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
@@ -139,13 +141,14 @@ namespace Itinero
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, IAttributeCollection dbMeta,
+        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, MappedAttributesIndex metaVertex, IAttributeCollection dbMeta,
             Profiles.Vehicle[] supportedVehicles)
         {
             _guid = guid;
             _network = network;
             _edgeProfiles = profiles;
             _meta = meta;
+            _metaVertex = metaVertex;
             _dbMeta = dbMeta;
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
@@ -291,6 +294,17 @@ namespace Itinero
             get
             {
                 return _meta;
+            }
+        }
+
+        /// <summary>
+        /// Returns the vertex meta-date index.
+        /// </summary>
+        public MappedAttributesIndex VertexMeta
+        {
+            get
+            {
+                return _metaVertex;
             }
         }
 
@@ -449,8 +463,9 @@ namespace Itinero
             // version3: Add advanced profile serialization.
             // version4: Added missing restriction dbs.
             // version5: Added new dual edge-based contracted graph.
+            // version6: Added vertex meta data.
             long size = 1;
-            stream.WriteByte(5);
+            stream.WriteByte(6);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -499,6 +514,10 @@ namespace Itinero
             // serialize meta-data.
             size += _meta.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
+
+            // serialize vertex meta-data.
+            size += _metaVertex.Serialize(new LimitedStream(stream));
+            stream.Seek(position + size, SeekOrigin.Begin);
 
             // serialize network.
             size += _network.Serialize(new LimitedStream(stream));
@@ -596,8 +615,9 @@ namespace Itinero
             // version3: Add advanced profile serialization.
             // version4: Added missing restriction dbs.
             // version5: Added new dual edge-based contracted graph.
+            // version6: Added vertex meta-data.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5)
+            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
@@ -653,10 +673,15 @@ namespace Itinero
 
             var profiles = AttributesIndex.Deserialize(new LimitedStream(stream), true);
             var meta = AttributesIndex.Deserialize(new LimitedStream(stream), true);
+            MappedAttributesIndex metaVertex = null;
+            if (version >= 6)
+            {
+                metaVertex = MappedAttributesIndex.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexMetaProfile);
+            }
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.
-            var routerDb = new RouterDb(guid, network, profiles, meta, metaDb, supportedVehicleInstances.ToArray());
+            var routerDb = new RouterDb(guid, network, profiles, meta, metaVertex, metaDb, supportedVehicleInstances.ToArray());
 
             // read all shortcut dbs.
             for (var i = 0; i < shorcutsCount; i++)
