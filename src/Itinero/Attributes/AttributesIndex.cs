@@ -435,7 +435,7 @@ namespace Itinero.Attributes
             /// </summary>
             IEnumerator IEnumerable.GetEnumerator()
             {
-                throw new NotImplementedException();
+                return this.GetEnumerator();
             }
         }
 

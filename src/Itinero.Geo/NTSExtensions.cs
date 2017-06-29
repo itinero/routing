@@ -84,5 +84,13 @@ namespace Itinero.Geo
             }
             return false;
         }
+
+        /// <summary>
+        /// Temporary extension method to prepare for NTS 1.15.
+        /// </summary>
+        public static void Add(this AttributesTable table, string name, object value)
+        {
+            table.AddAttribute(name, value);
+        }
     }
 }
