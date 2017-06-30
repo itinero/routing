@@ -56,28 +56,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             var algorithm = new ManyToMany.VertexToVertexWeightAlgorithm<T>(contractedDb.NodeBasedGraph, weightHandler, dykstraSources, dykstraTargets, weightHandler.Infinite);
             algorithm.Run();
 
-            // subtract the weight of the first edge from each weight.
-            var edgeEnumerator = routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
-            var weights = algorithm.Weights;
-            for (var s = 0; s < dykstraSources.Length; s++)
-            {
-                var id = new DirectedEdgeId()
-                {
-                    Raw = dykstraSources[s].Vertex1
-                };
-                edgeEnumerator.MoveToEdge(id.EdgeId);
-                var weight = weightHandler.GetEdgeWeight(edgeEnumerator);
-                for (var t = 0; t < dykstraTargets.Length; t++)
-                {
-                    if (weightHandler.IsSmallerThan(weights[s][t], weightHandler.Infinite))
-                    {
-                        weights[s][t] = weightHandler.Subtract(weights[s][t], weight.Weight);
-                    }
-                }
-            }
-
             // extract the best weight for each edge pair.
-
             return new Result<T[][]>(algorithm.Weights);
         }
     }
