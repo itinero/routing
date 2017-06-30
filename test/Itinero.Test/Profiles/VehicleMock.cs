@@ -86,8 +86,8 @@ namespace Itinero.Test.Profiles
             {
                 return new FactorAndSpeed()
                 {
-                    SpeedFactor = 1 / 50f / 3.6f,
-                    Value = 1 / 50f / 3.6f,
+                    SpeedFactor = 1 / (50f / 3.6f),
+                    Value = 1 / (50f / 3.6f),
                     Direction = 0
                 };
             });

@@ -30,7 +30,7 @@ namespace Itinero.Data.Contracted.Edges
         /// <summary>
         /// Holds the precision-factor.
         /// </summary>
-        public const int PRECISION_FACTOR = 100;
+        public const int PRECISION_FACTOR = 10;
 
         /// <summary>
         /// Holds the maxium distance that can be stored on an edge.

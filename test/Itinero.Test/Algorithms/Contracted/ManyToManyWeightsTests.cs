@@ -34,6 +34,8 @@ namespace Itinero.Test.Algorithms.Contracted
     [TestFixture]
     public class ManyToManyWeightsTests
     {
+        private static float SecondsTolerance = 0.25f;
+
         /// <summary>
         /// Tests many-to-many path calculations on just one edge.
         /// </summary>
@@ -70,7 +72,7 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.IsNotNull(algorithm.Weights);
             Assert.AreEqual(1, algorithm.Weights.Length);
             Assert.AreEqual(1, algorithm.Weights[0].Length);
-            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 100, algorithm.Weights[0][0], 0.01);
+            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 100, algorithm.Weights[0][0], SecondsTolerance);
         }
 
         /// <summary>
@@ -108,7 +110,7 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.IsNotNull(algorithm.Weights);
             Assert.AreEqual(1, algorithm.Weights.Length);
             Assert.AreEqual(1, algorithm.Weights[0].Length);
-            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 80, algorithm.Weights[0][0], 0.01);
+            Assert.AreEqual(VehicleMock.Car().Fastest().FactorAndSpeed(null).Value * 80, algorithm.Weights[0][0], SecondsTolerance);
         }
 
         /// <summary>
@@ -181,15 +183,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, weights.Length);
             Assert.AreEqual(3, weights[0].Length);
             Assert.AreEqual(0, weights[0][0], 0.001);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0][1], 0.01);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0][2], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[0][2], SecondsTolerance);
             Assert.AreEqual(3, weights[1].Length);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1][0], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1][0], SecondsTolerance);
             Assert.AreEqual(0, weights[1][1], 0.001);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1][2], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[1][2], SecondsTolerance);
             Assert.AreEqual(3, weights[2].Length);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[2][0], 0.01);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[2][1], 0.01);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[2][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, weights[2][1], SecondsTolerance);
             Assert.AreEqual(0, weights[2][2], 0.001);
         }
 
@@ -249,15 +251,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
         }
 
         /// <summary>
@@ -316,15 +318,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
         }
 
         /// <summary>
@@ -383,15 +385,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
         }
 
         /// <summary>
@@ -457,15 +459,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
         }
 
         /// <summary>
@@ -530,15 +532,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
         }
 
         /// <summary>
@@ -603,15 +605,15 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(3, algorithm.Weights[1].Length);
             Assert.AreEqual(3, algorithm.Weights[2].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[1][0]);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][0]);
             Assert.AreEqual(float.MaxValue, algorithm.Weights[2][1]);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
         }
 
         /// <summary>
@@ -701,23 +703,23 @@ namespace Itinero.Test.Algorithms.Contracted
             Assert.AreEqual(5, algorithm.Weights[3].Length);
             Assert.AreEqual(5, algorithm.Weights[4].Length);
 
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][3], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][4], 0.1);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][1], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][2], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][3], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[0][4], SecondsTolerance);
 
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][3], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][4], 0.1);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][0], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][1], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][2], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][3], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[1][4], SecondsTolerance);
 
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], 0.1);
-            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], 0.1);
-            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][3], 0.1);
-            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][4], 0.1);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][0], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][1], SecondsTolerance);
+            Assert.AreEqual(000 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][2], SecondsTolerance);
+            Assert.AreEqual(100 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][3], SecondsTolerance);
+            Assert.AreEqual(200 * VehicleMock.Car().Fastest().FactorAndSpeed(null).Value, algorithm.Weights[2][4], SecondsTolerance);
         }
     }
 }
