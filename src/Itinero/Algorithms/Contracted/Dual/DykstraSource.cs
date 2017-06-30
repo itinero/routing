@@ -16,6 +16,8 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
+
 namespace Itinero.Algorithms.Contracted.Dual
 {
     /// <summary>
@@ -103,6 +105,20 @@ namespace Itinero.Algorithms.Contracted.Dual
         {
             var result = new DykstraSource<T>[edges.Length];
             for(var i = 0; i < result.Length; i++)
+            {
+                result[i] = new DykstraSource<T>(edges[i].Raw);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Converts directed edge id's into an array of dykstra sources.
+        /// </summary>
+        public static DykstraSource<T>[] ToDykstraSources<T>(this List<DirectedEdgeId> edges)
+            where T : struct
+        {
+            var result = new DykstraSource<T>[edges.Count];
+            for (var i = 0; i < result.Length; i++)
             {
                 result[i] = new DykstraSource<T>(edges[i].Raw);
             }
