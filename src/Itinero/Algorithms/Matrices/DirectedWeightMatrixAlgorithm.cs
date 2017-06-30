@@ -41,6 +41,7 @@ namespace Itinero.Algorithms.Matrices
 
         protected readonly Dictionary<uint, Dictionary<int, LinkedEdgePath<T>>> _buckets;
         protected readonly DirectedDynamicGraph _graph;
+        protected readonly DirectedMetaGraph _dualGraph;
         protected readonly T _max;
 
         /// <summary>
@@ -70,12 +71,14 @@ namespace Itinero.Algorithms.Matrices
                 throw new NotSupportedException(
                     "Contraction-based many-to-many calculates are not supported in the given router db for the given profile.");
             }
-            if (!contractedDb.HasEdgeBasedGraph)
+            if (contractedDb.HasEdgeBasedGraph)
             {
-                throw new NotSupportedException(
-                    "Contraction-based edge-based many-to-many calculates are not supported in the given router db for the given profile.");
+                _graph = contractedDb.EdgeBasedGraph;
             }
-            _graph = contractedDb.EdgeBasedGraph;
+            else if(contractedDb.HasNodeBasedGraph && contractedDb.NodeBasedIsEdgedBased)
+            {
+                _dualGraph = contractedDb.NodeBasedGraph;
+            }
             weightHandler.CheckCanUse(contractedDb);
             if (max.HasValue)
             {
@@ -112,7 +115,7 @@ namespace Itinero.Algorithms.Matrices
             _correctedResolvedPoints = _massResolver.RouterPoints;
             _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
             _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
-
+            
             // convert sources into directed paths.
             _sourcePaths = new EdgePath<T>[_correctedResolvedPoints.Count * 2];
             for (var i = 0; i < _correctedResolvedPoints.Count; i++)
@@ -175,7 +178,7 @@ namespace Itinero.Algorithms.Matrices
                     var target = _targetPaths[j];
                     _weights[i][j] = _weightHandler.Infinite;
 
-                    if (source == null || 
+                    if (source == null ||
                         target == null)
                     {
                         continue;
@@ -211,38 +214,14 @@ namespace Itinero.Algorithms.Matrices
                 }
             }
 
-            // do forward searches into buckets.
-            for (var i = 0; i < _sourcePaths.Length; i++)
+            // run the actual calculations.
+            if (_graph != null)
             {
-                var path = _sourcePaths[i];
-                if (path != null)
-                {
-                    var forward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, (v) => null, false, _max);
-                    forward.WasFound += (foundPath) =>
-                    {
-                        LinkedEdgePath<T> visits;
-                        forward.TryGetVisits(foundPath.Vertex, out visits);
-                        return this.ForwardVertexFound(i, foundPath.Vertex, visits);
-                    };
-                    forward.Run();
-                }
+                this.DoEdgeBased();
             }
-
-            // do backward searches into buckets.
-            for (var i = 0; i < _targetPaths.Length; i++)
+            else
             {
-                var path = _targetPaths[i];
-                if (path != null)
-                {
-                    var backward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, (v) => null, true, _max);
-                    backward.WasFound += (foundPath) =>
-                    {
-                        LinkedEdgePath<T> visits;
-                        backward.TryGetVisits(foundPath.Vertex, out visits);
-                        return this.BackwardVertexFound(i, foundPath.Vertex, visits);
-                    };
-                    backward.Run();
-                }
+                this.DoDualBased();
             }
 
             // check for invalids.
@@ -302,6 +281,136 @@ namespace Itinero.Algorithms.Matrices
             }
 
             this.HasSucceeded = true;
+        }
+
+        private void DoEdgeBased()
+        {
+
+            // do forward searches into buckets.
+            for (var i = 0; i < _sourcePaths.Length; i++)
+            {
+                var path = _sourcePaths[i];
+                if (path != null)
+                {
+                    var forward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, (v) => null, false, _max);
+                    forward.WasFound += (foundPath) =>
+                    {
+                        LinkedEdgePath<T> visits;
+                        forward.TryGetVisits(foundPath.Vertex, out visits);
+                        return this.ForwardVertexFound(i, foundPath.Vertex, visits);
+                    };
+                    forward.Run();
+                }
+            }
+
+            // do backward searches into buckets.
+            for (var i = 0; i < _targetPaths.Length; i++)
+            {
+                var path = _targetPaths[i];
+                if (path != null)
+                {
+                    var backward = new Itinero.Algorithms.Contracted.EdgeBased.Dykstra<T>(_graph, _weightHandler, new EdgePath<T>[] { path }, (v) => null, true, _max);
+                    backward.WasFound += (foundPath) =>
+                    {
+                        LinkedEdgePath<T> visits;
+                        backward.TryGetVisits(foundPath.Vertex, out visits);
+                        return this.BackwardVertexFound(i, foundPath.Vertex, visits);
+                    };
+                    backward.Run();
+                }
+            }
+        }
+
+        private void DoDualBased()
+        {
+            var uniqueSet = new HashSet<DirectedEdgeId>();
+            var sources = new List<DirectedEdgeId>(_correctedResolvedPoints.Count * 2);
+            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
+            {
+                var f = new DirectedEdgeId(_correctedResolvedPoints[i].EdgeId, false);
+                if (!uniqueSet.Contains(f))
+                {
+                    sources.Add(f);
+                    sources.Add(new DirectedEdgeId(_correctedResolvedPoints[i].EdgeId, true));
+                    uniqueSet.Add(f);
+                }
+            }
+            
+            var dykstraSources = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
+            var dykstraTargets = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
+            var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexWeightAlgorithm<T>(_dualGraph, _weightHandler,
+                dykstraSources, dykstraTargets, _max);
+            algorithm.Run();
+
+            var map = new Dictionary<uint, int>();
+            for (var i = 0; i < sources.Count; i+=2)
+            {
+                map[sources[i].EdgeId] = i / 2;
+            }
+
+            for (var s = 0; s < _correctedResolvedPoints.Count; s++)
+            {
+                T? sourceForward = _sourcePaths[s * 2 + 0] == null ? (T?)null :_sourcePaths[s * 2 + 0].Weight;
+                T? sourceBackward = _sourcePaths[s * 2 + 1] == null ? (T?)null : _sourcePaths[s * 2 + 1].Weight;
+
+                int sourceIdx;
+                if (sourceForward == null && sourceBackward == null)
+                {
+                    continue;
+                }
+                map.TryGetValue(_correctedResolvedPoints[s].EdgeId, out sourceIdx);
+                for (var t = 0; t < _correctedResolvedPoints.Count; t++)
+                {
+                    T? targetForward = _targetPaths[t * 2 + 0] == null ? (T?)null : _targetPaths[t * 2 + 0].Weight;
+                    T? targetBackward = _targetPaths[t * 2 + 1] == null ? (T?)null : _targetPaths[t * 2 + 1].Weight;
+
+                    int targetIdx;
+                    map.TryGetValue(_correctedResolvedPoints[t].EdgeId, out targetIdx);
+                    if (targetForward != null)
+                    {
+                        if(sourceForward != null)
+                        {
+                            var w = _weightHandler.Add(_weightHandler.Add(sourceForward.Value, targetForward.Value),
+                                algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 0]);
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 0]))
+                            {
+                                _weights[s * 2 + 0][t * 2 + 0] = w;
+                            }
+                        }
+                        if(sourceBackward != null)
+                        {
+                            var w = _weightHandler.Add(_weightHandler.Add(sourceBackward.Value, targetForward.Value),
+                                algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 0]);
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 0]))
+                            {
+                                _weights[s * 2 + 1][t * 2 + 0] = w;
+                            }
+                        }
+                    }
+                    if (targetBackward != null)
+                    {
+                        if (sourceForward != null)
+                        {
+                            var w = _weightHandler.Add(_weightHandler.Add(sourceForward.Value, targetBackward.Value),
+                                algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 1]);
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 1]))
+                            {
+                                _weights[s * 2 + 0][t * 2 + 1] = w;
+                            }
+                        }
+                        if (sourceBackward != null)
+                        {
+                            var w = _weightHandler.Add(_weightHandler.Add(sourceBackward.Value, targetBackward.Value),
+                                algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 1]);
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 1]))
+                            {
+                                _weights[s * 2 + 1][t * 2 + 1] = w;
+                            }
+                        }
+                    }
+
+                }
+            }
         }
 
         /// <summary>

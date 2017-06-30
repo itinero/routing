@@ -467,6 +467,15 @@ namespace Itinero
                     return new Result<EdgePath<T>>("Target edge cannot be routed along in the requested direction.");
                 }
 
+                if (sourceDirectedEdge == targetDirectedEdge)
+                { // when edges match, path is always the edge itself.
+                    var edgePath = sourcePath;
+                    if (edgePath != null)
+                    {
+                        return new Result<EdgePath<T>>(edgePath);
+                    }
+                }
+
                 EdgePath<T> path;
                 ContractedDb contracted;
 
