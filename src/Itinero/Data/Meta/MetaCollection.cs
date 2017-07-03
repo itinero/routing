@@ -197,7 +197,7 @@ namespace Itinero.Data
         /// <summary>
         /// Creates a new meta-data collection.
         /// </summary>
-        internal MetaCollection(long size)
+        public MetaCollection(long size)
         {
             this.VerifyType();
 
