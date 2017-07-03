@@ -36,6 +36,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         public MetaCollectionDb(long length)
         {
+            _length = length;
             _collections = new Dictionary<string, MetaCollection>();
         }
 
@@ -44,6 +45,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         private MetaCollectionDb(long length, Dictionary<string, MetaCollection> collections)
         {
+            _length = length;
             _collections = collections;
         }
 
@@ -142,6 +144,7 @@ namespace Itinero.Data.Network.Edges
 
             // write collections count.
             stream.WriteByte((byte)_collections.Count);
+            size++;
 
             foreach (var collection in _collections)
             {
