@@ -168,7 +168,7 @@ namespace Itinero.IO.Osm.Normalizer
             }
             else if (maxspeed.EndsWith("mph"))
             {
-                if (int.TryParse(maxspeed.Substring(0, maxspeed.Length - 4), out maxSpeedValue) &&
+                if (int.TryParse(maxspeed.Substring(0, maxspeed.Length - 3), out maxSpeedValue) &&
                     maxSpeedValue > 0 && maxSpeedValue <= 150)
                 {
                     profileTags.AddOrReplace("maxspeed", maxspeed);
