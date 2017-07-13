@@ -30,6 +30,7 @@ namespace Itinero.IO.Osm.Relations
     public abstract class RelationTagProcessor : ITwoPassProcessor
     {
         private readonly Dictionary<long, LinkedRelation> _linkedRelations; // keeps an index of way->relation relations.
+        private readonly Dictionary<long, LinkedRelation> _linkedMemberRelations; // keeps an index of relation->relation relations.
         private readonly Dictionary<long, TagsCollectionBase> _relationTags; // keeps an index or relationId->tags.
 
         /// <summary>
@@ -38,6 +39,7 @@ namespace Itinero.IO.Osm.Relations
         public RelationTagProcessor()
         {
             _linkedRelations = new Dictionary<long, LinkedRelation>();
+            _linkedMemberRelations = new Dictionary<long, LinkedRelation>();
             _relationTags = new Dictionary<long, TagsCollectionBase>();
         }
 
@@ -62,20 +64,31 @@ namespace Itinero.IO.Osm.Relations
             }
         }
 
+        private HashSet<long> _relationsAsMembers = new HashSet<long>();
+        private HashSet<long> _relations = new HashSet<long>();
+
         /// <summary>
         /// Executes the first pass for relations.
         /// </summary>
-        public void FirstPass(Relation relation)
+        public bool FirstPass(Relation relation)
         {
-            if (IsRelevant(relation))
+            if (_relationsAsMembers.Contains(relation.Id.Value) ||
+                IsRelevant(relation))
             {
+                if (_relations.Contains(relation.Id.Value))
+                {
+                    return false;
+                }
+                _relations.Add(relation.Id.Value);
+                _relationsAsMembers.Remove(relation.Id.Value);
                 _relationTags[relation.Id.Value] = relation.Tags;
 
                 if (relation.Members == null)
                 {
-                    return;
+                    return false;
                 }
 
+                bool oneMorePass = false;
                 foreach(var member in relation.Members)
                 {
                     if (member.Type == OsmGeoType.Way)
@@ -88,8 +101,21 @@ namespace Itinero.IO.Osm.Relations
                             RelationId = relation.Id.Value
                         };
                     }
+                    else if (member.Type == OsmGeoType.Relation)
+                    {
+                        oneMorePass = true;
+                        LinkedRelation linkedRelation = null;
+                        _linkedMemberRelations.TryGetValue(member.Id, out linkedRelation);
+                        _linkedMemberRelations[member.Id] = new LinkedRelation()
+                        {
+                            Next = linkedRelation,
+                            RelationId = relation.Id.Value
+                        };
+                    }
                 }
+                return oneMorePass;
             }
+            return false;
         }
 
         /// <summary>

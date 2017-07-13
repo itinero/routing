@@ -33,7 +33,7 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Processes the first pass of this relation.
         /// </summary>
-        void FirstPass(Relation relation);
+        bool FirstPass(Relation relation);
 
         /// <summary>
         /// Processes a node in the second pass.
