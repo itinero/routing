@@ -295,10 +295,10 @@ namespace Itinero.Test
             //route = router.Calculate(pedestrian, vertex0, vertex8);
             //route = router.Calculate(pedestrian, vertex3, vertex7);
             //route = router.Calculate(pedestrian, resolved4, resolved2);
-            
+
             // test edge-based.
             routerDb.AddContracted(profile, true);
-            
+
             var route = router.Calculate(profile, vertex0, vertex0);
             route = router.Calculate(profile, vertex0, vertex1);
             route = router.Calculate(profile, vertex0, vertex2);
@@ -533,11 +533,11 @@ namespace Itinero.Test
             routerDb.AddContracted(car, true);
 
             var ids = new uint[vertices.Length];
-            for(uint v = 0; v < ids.Length; v++)
+            for (uint v = 0; v < ids.Length; v++)
             {
                 ids[v] = routerDb.SearchVertexFor(vertices[v].Latitude, vertices[v].Longitude);
             }
-            
+
             var router = new Router(routerDb);
 
             var route = router.Calculate(car, vertices[0], vertices[2]);
@@ -578,14 +578,14 @@ namespace Itinero.Test
                     "Itinero.Test.test_data.networks.network8.geojson"));
             routerDb.Network.Sort();
             var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            routerDb.AddSupportedVehicle(car.Parent);       
+            routerDb.AddSupportedVehicle(car.Parent);
             var router = new Router(routerDb);
 
             // define 3 location that resolve on an unconnected part of the network.
             var location5 = new Coordinate(52.3531703566375f, 6.6664910316467285f);
             var location6 = new Coordinate(52.3542941977726f, 6.6631704568862915f);
             var location7 = new Coordinate(52.3554049048100f, 6.6648924350738520f);
-            
+
             var point = router.TryResolve(car, location5);
             Assert.IsFalse(point.IsError);
             Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location5, point.Value.LocationOnNetwork(routerDb)) < 20);
@@ -801,7 +801,7 @@ namespace Itinero.Test
             Assert.AreEqual(3, route.Value.Shape.Length);
             Assert.AreEqual(0, Coordinate.DistanceEstimateInMeter(vertices[1], route.Value.Shape[1]), e);
         }
-        
+
         /// <summary>
         /// Tests non-contracted directed edge based routing starting and stopping on the same edge.
         /// </summary>
@@ -993,7 +993,7 @@ namespace Itinero.Test
             var resolved3 = router.Resolve(vehicle, location3);
             var location5 = new Coordinate(52.35525746742958f, 6.665166020393372f);
             var resolved5 = router.Resolve(vehicle, location5);
-            
+
             // route and verify.
             var route = router.TryCalculate(vehicle, resolved3, true, resolved3, true); // should result in a route of length '0'.
             Assert.IsFalse(route.IsError);
@@ -1188,7 +1188,7 @@ namespace Itinero.Test
             route = router.TryCalculate(vehicle, resolved6, false, resolved7, false); // should result in error.
             Assert.IsTrue(route.IsError);
         }
-        
+
         /// <summary>
         /// Tests a simple restriction with a one-hop route.
         /// </summary>
@@ -1393,6 +1393,51 @@ namespace Itinero.Test
             var route3 = router.TryCalculate(car, location2, location3);
             Assert.IsFalse(route3.IsError);
             Assert.AreEqual(715, route3.Value.TotalDistance, 10);
+        }
+
+        /// <summary>
+        /// Tests connectivity.
+        /// </summary>
+        [Test]
+        public void TestCheckConnectivity()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network14.geojson"));
+
+            var location1 = new Coordinate(51.265711288086045f, 4.798069596290588f);
+
+            // sort the network.
+            routerDb.Sort();
+            
+            // defined and add the supported profile.
+            var car = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            var bicycle = Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest();
+            routerDb.AddSupportedVehicle(car.Parent);
+            routerDb.AddSupportedVehicle(bicycle.Parent);
+            var router = new Router(routerDb);
+
+            var json = routerDb.GetGeoJson();
+
+            //foreach(var db in routerDb.RestrictionDbs)
+            //{
+            //    var dbEnumerator = db.RestrictionsDb.GetEnumerator();
+            //    while(dbEnumerator.MoveNext())
+            //    {
+            //        var c = new uint[dbEnumerator.Count];
+            //        for (var i = 0; i < dbEnumerator.Count; i++)
+            //        {
+            //            c[i] = dbEnumerator[i];
+            //        }
+            //    }
+            //}
+
+            // check connectivity.
+            var resolved = router.Resolve(car, location1);
+            var connected = router.CheckConnectivity(car, resolved, 25);
+            connected = router.CheckConnectivity(bicycle, resolved, 250);
         }
     }
 }
