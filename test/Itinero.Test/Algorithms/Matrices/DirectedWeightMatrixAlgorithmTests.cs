@@ -195,25 +195,25 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.AreEqual(4, weights.Length);
             Assert.AreEqual(4, weights[0].Length);
 
-            Assert.AreEqual(0, weights[0][0]);
+            Assert.AreEqual(float.MaxValue, weights[0][0]);
             Assert.AreEqual(float.MaxValue, weights[0][1]);
-            Assert.AreEqual(75, weights[0][2], 10);
+            Assert.AreEqual(float.MaxValue, weights[0][2]);
             Assert.AreEqual(float.MaxValue, weights[0][3]);
 
             Assert.AreEqual(float.MaxValue, weights[1][0]);
-            Assert.AreEqual(float.MaxValue, weights[1][1]);
+            Assert.AreEqual(0, weights[1][1]);
             Assert.AreEqual(float.MaxValue, weights[1][2]);
-            Assert.AreEqual(float.MaxValue, weights[1][3]);
+            Assert.AreEqual(75, weights[1][3], 10);
 
-            Assert.AreEqual(75, weights[2][0], 10);
+            Assert.AreEqual(float.MaxValue, weights[2][0]);
             Assert.AreEqual(float.MaxValue, weights[2][1]);
-            Assert.AreEqual(0, weights[2][2]);
+            Assert.AreEqual(float.MaxValue, weights[2][2]);
             Assert.AreEqual(float.MaxValue, weights[2][3]);
 
             Assert.AreEqual(float.MaxValue, weights[3][0]);
-            Assert.AreEqual(float.MaxValue, weights[3][1]);
+            Assert.AreEqual(75, weights[3][1], 10);
             Assert.AreEqual(float.MaxValue, weights[3][2]);
-            Assert.AreEqual(float.MaxValue, weights[3][3]);
+            Assert.AreEqual(0, weights[3][3]);
         }
     }
 }

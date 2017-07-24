@@ -75,7 +75,7 @@ namespace Itinero.Algorithms.Matrices
             {
                 _graph = contractedDb.EdgeBasedGraph;
             }
-            else if(contractedDb.HasNodeBasedGraph && contractedDb.NodeBasedIsEdgedBased)
+            else if (contractedDb.HasNodeBasedGraph && contractedDb.NodeBasedIsEdgedBased)
             {
                 _dualGraph = contractedDb.NodeBasedGraph;
             }
@@ -115,14 +115,14 @@ namespace Itinero.Algorithms.Matrices
             _correctedResolvedPoints = _massResolver.RouterPoints;
             _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
             _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
-            
+
             // convert sources into directed paths.
             _sourcePaths = new EdgePath<T>[_correctedResolvedPoints.Count * 2];
             for (var i = 0; i < _correctedResolvedPoints.Count; i++)
             {
                 _correctedIndices.Add(i);
 
-                var paths = _correctedResolvedPoints[i].ToEdgePathsDirected(_router.Db, _weightHandler, true);
+                var paths = _correctedResolvedPoints[i].ToEdgePathsDirectedFixed(_router.Db, _weightHandler, true);
                 if (paths.Length == 0)
                 {
                     this.ErrorMessage = string.Format("Source at {0} could not be resolved properly.", i);
@@ -130,40 +130,22 @@ namespace Itinero.Algorithms.Matrices
                 }
 
                 _sourcePaths[i * 2 + 0] = paths[0];
-                if (paths.Length == 2)
-                {
-                    _sourcePaths[i * 2 + 1] = paths[1];
-                }
+                _sourcePaths[i * 2 + 1] = paths[1];
             }
 
             // convert targets into directed paths.
             _targetPaths = new EdgePath<T>[_correctedResolvedPoints.Count * 2];
             for (var i = 0; i < _correctedResolvedPoints.Count; i++)
             {
-                var paths = _correctedResolvedPoints[i].ToEdgePathsDirected(_router.Db, _weightHandler, false);
+                var paths = _correctedResolvedPoints[i].ToEdgePathsDirectedFixed(_router.Db, _weightHandler, false);
                 if (paths.Length == 0)
                 {
                     this.ErrorMessage = string.Format("Target at {0} could not be resolved properly.", i);
                     return;
                 }
 
-                // make sure paths are the opposive of the sources.
-                if (paths[0].Edge == _sourcePaths[i * 2 + 0].Edge)
-                { // switchs.
-                    _targetPaths[i * 2 + 1] = paths[0];
-                    if (paths.Length == 2)
-                    {
-                        _targetPaths[i * 2 + 0] = paths[1];
-                    }
-                }
-                else
-                { // keep.
-                    _targetPaths[i * 2 + 0] = paths[0];
-                    if (paths.Length == 2)
-                    {
-                        _targetPaths[i * 2 + 1] = paths[1];
-                    }
-                }
+                _targetPaths[i * 2 + 0] = paths[1];
+                _targetPaths[i * 2 + 1] = paths[0];
             }
 
             // put in default weights and weights for one-edge-paths.
@@ -335,7 +317,7 @@ namespace Itinero.Algorithms.Matrices
                     uniqueSet.Add(f);
                 }
             }
-            
+
             var dykstraSources = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
             var dykstraTargets = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
             var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexWeightAlgorithm<T>(_dualGraph, _weightHandler,
@@ -343,15 +325,15 @@ namespace Itinero.Algorithms.Matrices
             algorithm.Run();
 
             var map = new Dictionary<uint, int>();
-            for (var i = 0; i < sources.Count; i+=2)
+            for (var i = 0; i < sources.Count; i += 2)
             {
                 map[sources[i].EdgeId] = i / 2;
             }
 
             for (var s = 0; s < _correctedResolvedPoints.Count; s++)
             {
-                T? sourceForward = _sourcePaths[s * 2 + 0] == null ? (T?)null :_sourcePaths[s * 2 + 0].Weight;
-                T? sourceBackward = _sourcePaths[s * 2 + 1] == null ? (T?)null : _sourcePaths[s * 2 + 1].Weight;
+                T? sourceBackward = _sourcePaths[s * 2 + 0] == null ? (T?)null : _sourcePaths[s * 2 + 0].Weight;
+                T? sourceForward = _sourcePaths[s * 2 + 1] == null ? (T?)null : _sourcePaths[s * 2 + 1].Weight;
 
                 int sourceIdx;
                 if (sourceForward == null && sourceBackward == null)
@@ -361,29 +343,29 @@ namespace Itinero.Algorithms.Matrices
                 map.TryGetValue(_correctedResolvedPoints[s].EdgeId, out sourceIdx);
                 for (var t = 0; t < _correctedResolvedPoints.Count; t++)
                 {
-                    T? targetForward = _targetPaths[t * 2 + 0] == null ? (T?)null : _targetPaths[t * 2 + 0].Weight;
-                    T? targetBackward = _targetPaths[t * 2 + 1] == null ? (T?)null : _targetPaths[t * 2 + 1].Weight;
+                    T? targetBackward = _targetPaths[t * 2 + 0] == null ? (T?)null : _targetPaths[t * 2 + 0].Weight;
+                    T? targetForward = _targetPaths[t * 2 + 1] == null ? (T?)null : _targetPaths[t * 2 + 1].Weight;
 
                     int targetIdx;
                     map.TryGetValue(_correctedResolvedPoints[t].EdgeId, out targetIdx);
                     if (targetForward != null)
                     {
-                        if(sourceForward != null)
+                        if (sourceForward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceForward.Value, targetForward.Value),
                                 algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 1]);
-                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 0]))
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 1]))
                             {
-                                _weights[s * 2 + 0][t * 2 + 0] = w;
+                                _weights[s * 2 + 1][t * 2 + 1] = w;
                             }
                         }
-                        if(sourceBackward != null)
+                        if (sourceBackward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceBackward.Value, targetForward.Value),
                                 algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 1]);
-                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 0]))
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 1]))
                             {
-                                _weights[s * 2 + 1][t * 2 + 0] = w;
+                                _weights[s * 2 + 0][t * 2 + 1] = w;
                             }
                         }
                     }
@@ -393,18 +375,18 @@ namespace Itinero.Algorithms.Matrices
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceForward.Value, targetBackward.Value),
                                 algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 0]);
-                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 1]))
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 0]))
                             {
-                                _weights[s * 2 + 0][t * 2 + 1] = w;
+                                _weights[s * 2 + 1][t * 2 + 0] = w;
                             }
                         }
                         if (sourceBackward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceBackward.Value, targetBackward.Value),
                                 algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 0]);
-                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 1]))
+                            if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 0]))
                             {
-                                _weights[s * 2 + 1][t * 2 + 1] = w;
+                                _weights[s * 2 + 0][t * 2 + 0] = w;
                             }
                         }
                     }
@@ -714,7 +696,7 @@ namespace Itinero.Algorithms.Matrices
         {
 
         }
-        
+
         /// <summary>
         /// Called when a backward vertex was found.
         /// </summary>
