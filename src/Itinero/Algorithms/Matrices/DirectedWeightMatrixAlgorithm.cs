@@ -371,7 +371,7 @@ namespace Itinero.Algorithms.Matrices
                         if(sourceForward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceForward.Value, targetForward.Value),
-                                algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 0]);
+                                algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 1]);
                             if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 0]))
                             {
                                 _weights[s * 2 + 0][t * 2 + 0] = w;
@@ -380,7 +380,7 @@ namespace Itinero.Algorithms.Matrices
                         if(sourceBackward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceBackward.Value, targetForward.Value),
-                                algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 0]);
+                                algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 1]);
                             if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 0]))
                             {
                                 _weights[s * 2 + 1][t * 2 + 0] = w;
@@ -392,7 +392,7 @@ namespace Itinero.Algorithms.Matrices
                         if (sourceForward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceForward.Value, targetBackward.Value),
-                                algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 1]);
+                                algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 0]);
                             if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 0][t * 2 + 1]))
                             {
                                 _weights[s * 2 + 0][t * 2 + 1] = w;
@@ -401,7 +401,7 @@ namespace Itinero.Algorithms.Matrices
                         if (sourceBackward != null)
                         {
                             var w = _weightHandler.Add(_weightHandler.Add(sourceBackward.Value, targetBackward.Value),
-                                algorithm.Weights[sourceIdx * 2 + 1][targetIdx * 2 + 1]);
+                                algorithm.Weights[sourceIdx * 2 + 0][targetIdx * 2 + 0]);
                             if (_weightHandler.IsSmallerThan(w, _weights[s * 2 + 1][t * 2 + 1]))
                             {
                                 _weights[s * 2 + 1][t * 2 + 1] = w;
