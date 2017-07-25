@@ -1,4 +1,4 @@
-Itinero 1.1.1 Release Notes
+Itinero 1.2.0 Release Notes
 ---------------------------
 
 This update fixes the issues with the edge-based routing experience in v1.0. On top of that there are some more enhancements for network simplification and several bugfixes related to resolving and restriction handling.
