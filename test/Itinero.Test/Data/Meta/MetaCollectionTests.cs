@@ -36,11 +36,7 @@ namespace Itinero.Test.Data.Meta
         {
             var collection = new MetaCollection<int>(1024);
 
-            Assert.AreEqual(1024, collection.Count);
-            for (uint i = 0; i < collection.Count; i++)
-            {
-                Assert.AreEqual(0, collection[i]);
-            }
+            Assert.AreEqual(0, collection.Count);
         }
 
         /// <summary>
@@ -49,13 +45,15 @@ namespace Itinero.Test.Data.Meta
         [Test]
         public void TestGetSet()
         {
-            var collection = new MetaCollection<int>(1024);
-            for (uint i = 0; i < collection.Count; i++)
+            var collection = new MetaCollection<int>(0);
+
+            var size = 1024;
+            for (uint i = 0; i < size; i++)
             {
                 collection[i] = (int)(i * 2);
             }
 
-            for (uint i = 0; i < collection.Count; i++)
+            for (uint i = 0; i < size; i++)
             {
                 Assert.AreEqual(i * 2, collection[i]);
             }
@@ -67,8 +65,10 @@ namespace Itinero.Test.Data.Meta
         [Test]
         public void SerializeDeserialize()
         {
-            var collection = new MetaCollection<int>(1024);
-            for (uint i = 0; i < collection.Count; i++)
+            var collection = new MetaCollection<int>(0);
+
+            var size = 1024;
+            for (uint i = 0; i < size; i++)
             {
                 collection[i] = (int)(i * 2);
             }
@@ -82,7 +82,7 @@ namespace Itinero.Test.Data.Meta
                 collection = MetaCollection.Deserialize(stream, null) as MetaCollection<int>;
             }
 
-            for (uint i = 0; i < collection.Count; i++)
+            for (uint i = 0; i < size; i++)
             {
                 Assert.AreEqual(i * 2, collection[i]);
             }

@@ -193,15 +193,18 @@ namespace Itinero.Data
         where T : struct
     {
         private readonly ArrayBase<T> _data;
+        private uint _length;
+        private const int BLOCK_SIZE = 1024;
 
         /// <summary>
         /// Creates a new meta-data collection.
         /// </summary>
-        public MetaCollection(long size)
+        public MetaCollection(long capacity)
         {
             this.VerifyType();
 
-            _data = new MemoryArray<T>(size);
+            _length = 0;
+            _data = new MemoryArray<T>(capacity);
         }
 
         /// <summary>
@@ -210,6 +213,7 @@ namespace Itinero.Data
         internal MetaCollection(ArrayBase<T> data)
         {
             _data = data;
+            _length = (uint)data.Length;
         }
 
         /// <summary>
@@ -230,6 +234,19 @@ namespace Itinero.Data
             }
             set
             {
+                if (i >= _data.Length)
+                {
+                    var diff = i - _data.Length + 1;
+                    var blocks = (diff / BLOCK_SIZE) + 1;
+
+                    _data.Resize(_data.Length + (blocks * BLOCK_SIZE));
+                }
+
+                if (i >= _length)
+                {
+                    _length = i + 1;
+                }
+
                 _data[i] = value;
             }
         }
@@ -241,7 +258,7 @@ namespace Itinero.Data
         {
             get
             {
-                return _data.Length;
+                return _length;
             }
         }
 
@@ -251,7 +268,7 @@ namespace Itinero.Data
         /// <returns></returns>
         public IEnumerator<T> GetEnumerator()
         {
-            for (var i = 0; i < _data.Length; i++)
+            for (var i = 0; i < _length; i++)
             {
                 yield return _data[i];
             }
@@ -265,6 +282,14 @@ namespace Itinero.Data
         {
             return this.GetEnumerator();
         }
+
+        /// <summary>
+        /// Trims the internal data structures to it's minimum possible size.
+        /// </summary>
+        public void Trim()
+        {
+            _data.Resize(_length);
+        }
         
         /// <summary>
         /// Serializes this collection.
@@ -273,6 +298,8 @@ namespace Itinero.Data
         /// <returns></returns>
         public override long Serialize(Stream stream)
         {
+            this.Trim();
+
             long size = 1;
             stream.WriteByte(1);
 
