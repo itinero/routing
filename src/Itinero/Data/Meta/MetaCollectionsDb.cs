@@ -48,6 +48,17 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
+        /// Switches the two vertices around.
+        /// </summary>
+        public void Switch(uint vertex1, uint vertex2)
+        {
+            foreach(var collection in _collections)
+            {
+                collection.Value.Switch(vertex1, vertex2);
+            }
+        }
+
+        /// <summary>
         /// Adds a new meta collection.
         /// </summary>
         public MetaCollection<int> AddInt32(string name)

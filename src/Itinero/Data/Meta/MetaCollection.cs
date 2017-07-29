@@ -55,6 +55,11 @@ namespace Itinero.Data
         public abstract long Serialize(Stream stream);
 
         /// <summary>
+        /// Switches the two vertices around.
+        /// </summary>
+        public abstract void Switch(uint vertex1, uint vertex2);
+
+        /// <summary>
         /// Deserializes a meta-collection from the given stream.
         /// </summary>
         public static MetaCollection Deserialize(Stream stream, ArrayProfile profile)
@@ -252,6 +257,32 @@ namespace Itinero.Data
         }
 
         /// <summary>
+        /// Switches the two vertices around.
+        /// </summary>
+        public override void Switch(uint vertex1, uint vertex2)
+        {
+            if (vertex1 < this.Count &&
+                vertex2 < this.Count)
+            {
+                var data = this[vertex1];
+                this[vertex1] = this[vertex2];
+                this[vertex2] = data;
+            }
+            else
+            {
+                if (vertex1 < this.Count)
+                {
+                    this[vertex1] = default(T);
+                }
+
+                if (vertex2 < this.Count)
+                {
+                    this[vertex2] = default(T);
+                }
+            }
+        }
+
+        /// <summary>
         /// Gets the # of elements.
         /// </summary>
         public long Count
@@ -305,6 +336,7 @@ namespace Itinero.Data
 
             // write type header.
             stream.WriteByte(this.GetTypeHeader());
+            size++;
 
             var bytes = BitConverter.GetBytes(_data.Length);
             stream.Write(bytes, 0, 8);
