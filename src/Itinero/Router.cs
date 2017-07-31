@@ -171,8 +171,8 @@ namespace Itinero
 
                 if (checkForward)
                 { // build and run forward dykstra search.
-                    var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, true), radiusInMeter, false);
+                    var dykstra = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                        _db.GetGetRestrictions(profileInstance.Profile, true), point.ToEdgePaths(_db, weightHandler, true), radiusInMeter, false);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
@@ -184,8 +184,8 @@ namespace Itinero
 
                 if (checkBackward)
                 { // build and run backward dykstra search.
-                    var dykstra = new Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, null,
-                        point.ToEdgePaths(_db, weightHandler, false), radiusInMeter, true);
+                    var dykstra = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                        _db.GetGetRestrictions(profileInstance.Profile, false), point.ToEdgePaths(_db, weightHandler, false), radiusInMeter, true);
                     dykstra.Run();
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)

@@ -51,5 +51,36 @@ namespace Itinero.IO.Osm
         {
             attributes.AddOrReplace(tag.Key, tag.Value);
         }
+
+        /// <summary>
+        /// Adds or appends the tag value to the value collection.
+        /// </summary>
+        public static void AddOrAppend(this TagsCollectionBase tags, Tag tag)
+        {
+            foreach(var t in tags)
+            {
+                if (t.Key == tag.Key)
+                {
+                    if (!string.IsNullOrWhiteSpace(t.Value))
+                    {
+                        var values = t.Value.Split(',');
+                        for (var i = 0; i < values.Length; i++)
+                        {
+                            if (values[i] == tag.Value)
+                            {
+                                return;
+                            }
+                        }
+                        tags.AddOrReplace(tag.Key, t.Value + "," + tag.Value);
+                    }
+                    else
+                    {
+                        tags.AddOrReplace(tag);
+                    }
+                    return;
+                }
+            }
+            tags.Add(tag);
+        }
     }
 }

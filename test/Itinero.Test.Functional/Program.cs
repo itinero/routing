@@ -16,10 +16,13 @@
  *  limitations under the License.
  */
 
+using Itinero.IO.Osm;
 using Itinero.Logging;
+using Itinero.Profiles;
 using Itinero.Test.Functional.Staging;
 using Itinero.Test.Functional.Tests;
 using NetTopologySuite.Features;
+using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -62,9 +65,9 @@ namespace Itinero.Test.Functional
             InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-//#if DEBUG
+#if DEBUG
             Console.ReadLine();
-//#endif
+#endif
         }
 
         private static void EnableLogging()

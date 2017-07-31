@@ -178,6 +178,24 @@ namespace Itinero.IO.Osm.Streams
             // execute the first pass.
             this.DoPull(true, false, false);
 
+            // do extra relation passes if needed.
+            while (_anotherPass.Count > 0)
+            {
+                var anotherPass = new HashSet<ITwoPassProcessor>();
+                this.Source.Reset();
+                while(this.Source.MoveNext(true, true, false))
+                {
+                    foreach(var processor in _anotherPass)
+                    {
+                        if (processor.FirstPass(this.Source.Current() as Relation))
+                        {
+                            anotherPass.Add(processor);
+                        }
+                    }
+                }
+                _anotherPass = anotherPass;
+            }
+
             // move to second pass.
             _firstPass = false;
             _nodeIndex.SortAndConvertIndex();
@@ -716,6 +734,8 @@ namespace Itinero.IO.Osm.Streams
             }
         }
 
+        private HashSet<ITwoPassProcessor> _anotherPass = new HashSet<ITwoPassProcessor>();
+
         /// <summary>
         /// Adds a relation.
         /// </summary>
@@ -727,7 +747,10 @@ namespace Itinero.IO.Osm.Streams
                 {
                     foreach (var processor in this.Processors)
                     {
-                        processor.FirstPass(relation);
+                        if (processor.FirstPass(relation))
+                        {
+                            _anotherPass.Add(processor);
+                        }
                     }
                 }
             }

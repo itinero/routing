@@ -16,9 +16,13 @@
  *  limitations under the License.
  */
 
+using Itinero.IO.Osm;
+using Itinero.Profiles;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 
 namespace Itinero.Test.Functional.Staging
 {
@@ -41,6 +45,66 @@ namespace Itinero.Test.Functional.Staging
                 client.DownloadFile(Download.LuxembourgPBF,
                     Download.LuxembourgLocal);
             }
+        }
+
+        /// <summary>
+        /// Downloads data from overpass.
+        /// </summary>
+        public static string DownloadOverpass(string query, string name)
+        {
+            var filename = name + ".osm";
+
+            if (!File.Exists(filename))
+            {
+                var client = new HttpClient();
+                var content = new StringContent("data=" + query);
+                var response = client.PostAsync(@"http://overpass-api.de/api/interpreter", content);
+                using (var stream = response.GetAwaiter().GetResult().Content.ReadAsStreamAsync().GetAwaiter().GetResult())
+                using (var outputStream = File.OpenWrite(filename))
+                {
+                    stream.CopyTo(outputStream);
+                }
+            }
+            return filename;
+        }
+
+        /// <summary>
+        /// Builds a routerdb from an overpass query.
+        /// </summary>
+        public static RouterDb BuildRouterDbOverpass(string query, Vehicle vehicle)
+        {
+            var fileName = DownloadOverpass(query, "temp");
+
+            RouterDb routerDb;
+            using (var stream = File.OpenRead(fileName))
+            {
+                var xmlStream = new OsmSharp.Streams.XmlOsmStreamSource(stream);
+                var sortedData = xmlStream.ToList();
+                sortedData.Sort((x, y) =>
+                {
+                    if (x.Type == y.Type)
+                    {
+                        return x.Id.Value.CompareTo(y.Id.Value);
+                    }
+                    if (x.Type == OsmSharp.OsmGeoType.Node)
+                    {
+                        return -1;
+                    }
+                    else if (x.Type == OsmSharp.OsmGeoType.Way)
+                    {
+                        if (y.Type == OsmSharp.OsmGeoType.Node)
+                        {
+                            return 1;
+                        }
+                        return -1;
+                    }
+                    return 1;
+                });
+
+                routerDb = new RouterDb();
+                routerDb.LoadOsmData(sortedData, vehicle);
+            }
+            return routerDb;
         }
     }
 }

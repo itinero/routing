@@ -111,9 +111,9 @@ namespace Itinero.IO.Osm.Nodes
         /// <summary>
         /// Processes the first pass of this relation.
         /// </summary>
-        public void FirstPass(Relation relation)
+        public bool FirstPass(Relation relation)
         {
-
+            return false;
         }
 
         /// <summary>

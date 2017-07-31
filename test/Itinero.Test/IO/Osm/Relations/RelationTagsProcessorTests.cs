@@ -96,8 +96,74 @@ namespace Itinero.Test.IO.Osm.Relations
             target.Pull();
         }
 
+        /// <summary>
+        /// The most basic positive tests of the relation tags processor with multiple levels.
+        /// </summary>
+        [Test]
+        public void TestAddingMultipleLevelRelations()
+        {
+            var way = new Way()
+            {
+                Id = 1,
+                Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                Nodes = new long[] { 1, 2 }
+            };
+            var relation1 = new Relation()
+            {
+                Id = 1,
+                Tags = new TagsCollection(
+                        new Tag("type", "level1")),
+                Members = new RelationMember[]
+                    {
+                        new RelationMember()
+                        {
+                            Id = 1,
+                            Role = "some_role",
+                            Type = OsmGeoType.Way
+                        }
+                    }
+            };
+            var relation2 = new Relation()
+            {
+                Id = 2,
+                Tags = new TagsCollection(
+                        new Tag("type", "level2")),
+                Members = new RelationMember[]
+                    {
+                        new RelationMember()
+                        {
+                            Id = 1,
+                            Role = "some_role",
+                            Type = OsmGeoType.Relation
+                        }
+                    }
+            };
+
+            // create processor.
+            var processor = new SimpleRelationTagProcessor(true);
+            Assert.AreEqual(false, processor.FirstPass(relation1));
+            Assert.AreEqual(true, processor.FirstPass(relation2));
+            Assert.AreEqual(false, processor.FirstPass(relation1));
+            Assert.AreEqual(false, processor.FirstPass(relation2));
+
+            processor.SecondPass(way);
+
+            string typeValue;
+            if (way.Tags.TryGetValue("type", out typeValue))
+            {
+                Assert.AreEqual("level1,level2", typeValue);
+            }
+        }
+
         class SimpleRelationTagProcessor : RelationTagProcessor
         {
+            public SimpleRelationTagProcessor(bool processMemberRelations = false)
+                : base(processMemberRelations)
+            {
+
+            }
+
             public override void AddTags(Way w, TagsCollectionBase t)
             {
                 w.Tags.AddOrReplace(t);

@@ -128,7 +128,7 @@ namespace Itinero.IO.Osm.Relations
                 {
                     foreach (var attribute in dynAttributesToKeep.Table.Pairs)
                     {
-                        wayTags.AddOrReplace(attribute.Key.String, attribute.Value.String);
+                        wayTags.AddOrAppend(new Tag(attribute.Key.String, attribute.Value.String));
                     }
                 }
             }

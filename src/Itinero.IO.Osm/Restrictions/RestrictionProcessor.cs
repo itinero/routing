@@ -69,14 +69,14 @@ namespace Itinero.IO.Osm.Restrictions
         /// <summary>
         /// Processes the given relation in the first pass.
         /// </summary>
-        public void FirstPass(Relation relation)
+        public bool FirstPass(Relation relation)
         {
             var vehicleType = string.Empty;
             var positive = false;
             if (!relation.IsRestriction(out vehicleType, out positive) ||
                 relation.Members == null)
             {
-                return;
+                return false;
             }
 
             long? from = null;
@@ -108,7 +108,7 @@ namespace Itinero.IO.Osm.Restrictions
                     {
                         Logging.Logger.Log("RestrictionProcessor", Logging.TraceEventType.Warning,
                             "A positive restriction (only_xxx) with a via-way not supported, relation {0} not processed!", relation.Id.Value);
-                        return;
+                        return false;
                     }
                     else
                     {
@@ -138,6 +138,7 @@ namespace Itinero.IO.Osm.Restrictions
                     }
                 }
             }
+            return false;
         }
 
         /// <summary>

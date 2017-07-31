@@ -30,14 +30,19 @@ namespace Itinero.IO.Osm.Relations
     public abstract class RelationTagProcessor : ITwoPassProcessor
     {
         private readonly Dictionary<long, LinkedRelation> _linkedRelations; // keeps an index of way->relation relations.
+        private readonly Dictionary<long, LinkedRelation> _linkedMemberRelations; // keeps an index of relation->relation relations.
         private readonly Dictionary<long, TagsCollectionBase> _relationTags; // keeps an index or relationId->tags.
 
         /// <summary>
         /// Creates a new relation tag processor.
         /// </summary>
-        public RelationTagProcessor()
+        public RelationTagProcessor(bool processMemberRelations = false)
         {
             _linkedRelations = new Dictionary<long, LinkedRelation>();
+            if (processMemberRelations)
+            {
+                _linkedMemberRelations = new Dictionary<long, LinkedRelation>();
+            }
             _relationTags = new Dictionary<long, TagsCollectionBase>();
         }
 
@@ -62,25 +67,58 @@ namespace Itinero.IO.Osm.Relations
             }
         }
 
+        private HashSet<long> _relationsAsMembers = new HashSet<long>();
+        private HashSet<long> _relations = new HashSet<long>();
+
         /// <summary>
         /// Executes the first pass for relations.
         /// </summary>
-        public void FirstPass(Relation relation)
+        public bool FirstPass(Relation relation)
         {
-            if (IsRelevant(relation))
+            if (relation.Id.Value == 3147287)
             {
-                _relationTags[relation.Id.Value] = relation.Tags;
-
-                if (relation.Members == null)
+                System.Diagnostics.Debug.WriteLine(string.Empty);
+            }
+            if (_relationsAsMembers.Contains(relation.Id.Value) ||
+                IsRelevant(relation))
+            {
+                if (_relations.Contains(relation.Id.Value))
                 {
-                    return;
+                    return false;
+                }
+                _relations.Add(relation.Id.Value);
+                _relationsAsMembers.Remove(relation.Id.Value);
+
+                var tags = relation.Tags;
+                LinkedRelation linkedRelation;
+                if (_linkedMemberRelations != null &&
+                    _linkedMemberRelations.TryGetValue(relation.Id.Value, out linkedRelation))
+                {
+                    while(linkedRelation != null)
+                    {
+                        var parentTags = _relationTags[linkedRelation.RelationId];
+
+                        foreach(var parentTag in parentTags)
+                        {
+                            tags.AddOrAppend(parentTag);
+                        }
+
+                        linkedRelation = linkedRelation.Next;
+                    }
                 }
 
+                _relationTags[relation.Id.Value] = relation.Tags;
+                
+                if (relation.Members == null)
+                {
+                    return false;
+                }
+
+                bool oneMorePass = false;
                 foreach(var member in relation.Members)
                 {
                     if (member.Type == OsmGeoType.Way)
                     {
-                        LinkedRelation linkedRelation = null;
                         _linkedRelations.TryGetValue(member.Id, out linkedRelation);
                         _linkedRelations[member.Id] = new LinkedRelation()
                         {
@@ -88,8 +126,24 @@ namespace Itinero.IO.Osm.Relations
                             RelationId = relation.Id.Value
                         };
                     }
+                    else if (member.Type == OsmGeoType.Relation)
+                    {
+                        if (_linkedMemberRelations != null)
+                        { // only do this when requested.
+                            oneMorePass = true;
+                            _linkedMemberRelations.TryGetValue(member.Id, out linkedRelation);
+                            _linkedMemberRelations[member.Id] = new LinkedRelation()
+                            {
+                                Next = linkedRelation,
+                                RelationId = relation.Id.Value
+                            };
+                            _relations.Remove(member.Id);
+                        }
+                    }
                 }
+                return oneMorePass;
             }
+            return false;
         }
 
         /// <summary>

@@ -135,5 +135,85 @@ namespace Itinero.Test.Algorithms.Matrices
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);
         }
+
+        /// <summary>
+        /// Tests directed edge based many-to-many weight calculations. 
+        /// </summary>
+        [Test]
+        public void TestContractedDualManyToManyWeightsOneway()
+        {
+            var eMeter = 20f;
+
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network15.geojson"));
+
+            // get the vertex locations to verify the resulting routes.
+            var vertices = new Coordinate[]
+            {
+                routerDb.Network.GetVertex(0),
+                routerDb.Network.GetVertex(1),
+                routerDb.Network.GetVertex(2),
+                routerDb.Network.GetVertex(3),
+                routerDb.Network.GetVertex(4),
+                routerDb.Network.GetVertex(5),
+                routerDb.Network.GetVertex(6),
+                routerDb.Network.GetVertex(7)
+            };
+
+            // sort the network.
+            routerDb.Network.Sort();
+
+            // defined and add the supported profile.
+            var vehicle = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddSupportedVehicle(vehicle.Parent);
+            routerDb.AddContracted(vehicle, true);
+            var router = new Router(routerDb);
+
+            var json = routerDb.GetGeoJson();
+
+            // route between two locations for all 4 options.
+            var location1 = new Coordinate(51.222421401217204f, 4.426546096801758f);
+            var location2 = new Coordinate(51.22244827903742f, 4.43248987197876f);
+
+            // route and verify (a few select weights).
+            var matrixCalculator = new Itinero.Algorithms.Matrices.DirectedWeightMatrixAlgorithm(router,
+                vehicle, new Coordinate[]
+                {
+                    location1,
+                    location2
+                }, float.MaxValue);
+            matrixCalculator.Run();
+
+            Assert.IsTrue(matrixCalculator.HasRun);
+            Assert.IsTrue(matrixCalculator.HasSucceeded);
+
+            var weights = matrixCalculator.Weights;
+            Assert.IsNotNull(weights);
+            Assert.AreEqual(4, weights.Length);
+            Assert.AreEqual(4, weights[0].Length);
+
+            Assert.AreEqual(float.MaxValue, weights[0][0]);
+            Assert.AreEqual(float.MaxValue, weights[0][1]);
+            Assert.AreEqual(float.MaxValue, weights[0][2]);
+            Assert.AreEqual(float.MaxValue, weights[0][3]);
+
+            Assert.AreEqual(float.MaxValue, weights[1][0]);
+            Assert.AreEqual(0, weights[1][1]);
+            Assert.AreEqual(float.MaxValue, weights[1][2]);
+            Assert.AreEqual(75, weights[1][3], 10);
+
+            Assert.AreEqual(float.MaxValue, weights[2][0]);
+            Assert.AreEqual(float.MaxValue, weights[2][1]);
+            Assert.AreEqual(float.MaxValue, weights[2][2]);
+            Assert.AreEqual(float.MaxValue, weights[2][3]);
+
+            Assert.AreEqual(float.MaxValue, weights[3][0]);
+            Assert.AreEqual(75, weights[3][1], 10);
+            Assert.AreEqual(float.MaxValue, weights[3][2]);
+            Assert.AreEqual(0, weights[3][3]);
+        }
     }
 }
