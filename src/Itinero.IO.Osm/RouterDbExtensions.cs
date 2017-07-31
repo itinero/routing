@@ -248,6 +248,7 @@ namespace Itinero.IO.Osm
             var target = new Streams.RouterDbStreamTarget(db,
                 vehicles, settings.AllCore, processRestrictions: settings.ProcessRestrictions, processors: settings.Processors,
                     simplifyEpsilonInMeter: settings.NetworkSimplificationEpsilon);
+            target.KeepNodeIds = settings.KeepNodeIds;
             target.RegisterSource(source);
             target.Pull();
 

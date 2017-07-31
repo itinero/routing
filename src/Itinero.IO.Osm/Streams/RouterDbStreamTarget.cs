@@ -16,22 +16,23 @@
  *  limitations under the License.
  */
 
-using Itinero.LocalGeo;
+using Itinero.Attributes;
+using Itinero.Data;
 using Itinero.Data.Network;
+using Itinero.Data.Network.Edges;
+using Itinero.Data.Network.Restrictions;
+using Itinero.IO.Osm.Nodes;
+using Itinero.IO.Osm.Normalizer;
+using Itinero.IO.Osm.Relations;
+using Itinero.IO.Osm.Restrictions;
+using Itinero.LocalGeo;
+using Itinero.Profiles;
+using OsmSharp;
 using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Itinero.Attributes;
-using OsmSharp;
-using Itinero.Data.Network.Edges;
-using Itinero.IO.Osm.Restrictions;
-using Itinero.Data.Network.Restrictions;
-using Itinero.IO.Osm.Relations;
-using Itinero.Profiles;
 using System.Text;
-using Itinero.IO.Osm.Normalizer;
-using Itinero.IO.Osm.Nodes;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -57,7 +58,6 @@ namespace Itinero.IO.Osm.Streams
         {
 
         }
-
 
         /// <summary>
         /// Creates a new router db stream target.
@@ -97,6 +97,7 @@ namespace Itinero.IO.Osm.Streams
         }
 
         private bool _firstPass = true; // flag for first/second pass.
+        private MetaCollection<long> _nodeData = null;
 
         /// <summary>
         /// Setups default add-on processors.
@@ -167,6 +168,11 @@ namespace Itinero.IO.Osm.Streams
         public override void Initialize()
         {
             _firstPass = true;
+            
+            if (this.KeepNodeIds)
+            {
+                _nodeData = _db.VertexData.AddInt64("node_ids");
+            }
         }
 
         /// <summary>
@@ -220,6 +226,11 @@ namespace Itinero.IO.Osm.Streams
                 return _vehicleCache;
             }
         }
+
+        /// <summary>
+        /// Gets or sets a flag to keep node id's.
+        /// </summary>
+        public bool KeepNodeIds { get; set; }
 
         /// <summary>
         /// Registers the source.
@@ -636,6 +647,11 @@ namespace Itinero.IO.Osm.Streams
             var vertex = _db.Network.VertexCount;
             _db.Network.AddVertex(vertex, latitude, longitude);
             _nodeIndex.Set(node, vertex);
+
+            if (_nodeData != null)
+            {
+                _nodeData[vertex] = node;
+            }
             return vertex;
         }
 

@@ -35,8 +35,8 @@ namespace Itinero.Test.Data.Meta
         [Test]
         public void TestCreate()
         {
-            var db = new MetaCollectionDb(1024);
-
+            var db = new MetaCollectionDb();
+            
             MetaCollection<int> col;
             Assert.IsFalse(db.TryGet<int>("not-there", out col));
         }
@@ -47,10 +47,12 @@ namespace Itinero.Test.Data.Meta
         [Test]
         public void TestAddGet()
         {
-            var db = new MetaCollectionDb(1024);
+            var db = new MetaCollectionDb();
 
             var intCol = db.AddInt32("int");
+            intCol[1023] = 1;
             var dblCol = db.AddDouble("double");
+            dblCol[1023] = 1;
 
             Assert.IsTrue(db.TryGet<int>("int", out intCol));
             Assert.IsTrue(db.TryGet<double>("double", out dblCol));
@@ -62,16 +64,17 @@ namespace Itinero.Test.Data.Meta
         [Test]
         public void TestSerializeDeserialize()
         {
-            var db = new MetaCollectionDb(1024);
+            var db = new MetaCollectionDb();
 
             var intCol = db.AddInt32("int");
             var dblCol = db.AddDouble("double");
 
-            for (uint i = 0; i < intCol.Count; i++)
+            var size = 15213;
+            for (uint i = 0; i < size; i++)
             {
                 intCol[i] = (int)(i * 2);
             }
-            for (uint i = 0; i < dblCol.Count; i++)
+            for (uint i = 0; i < size; i++)
             {
                 dblCol[i] = i * .1;
             }

@@ -29,24 +29,33 @@ namespace Itinero.Data.Network.Edges
     public sealed class MetaCollectionDb
     {
         private readonly Dictionary<string, MetaCollection> _collections;
-        private readonly long _length;
+        private const int BLOCK_SIZE = 1024;
 
         /// <summary>
         /// Creates a new edge meta collection db.
         /// </summary>
-        public MetaCollectionDb(long length)
+        public MetaCollectionDb()
         {
-            _length = length;
             _collections = new Dictionary<string, MetaCollection>();
         }
 
         /// <summary>
         /// Creates a new edge meta collection db.
         /// </summary>
-        private MetaCollectionDb(long length, Dictionary<string, MetaCollection> collections)
+        private MetaCollectionDb(Dictionary<string, MetaCollection> collections)
         {
-            _length = length;
             _collections = collections;
+        }
+
+        /// <summary>
+        /// Switches the two vertices around.
+        /// </summary>
+        public void Switch(uint vertex1, uint vertex2)
+        {
+            foreach(var collection in _collections)
+            {
+                collection.Value.Switch(vertex1, vertex2);
+            }
         }
 
         /// <summary>
@@ -54,7 +63,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         public MetaCollection<int> AddInt32(string name)
         {
-            var metaCollection = new MetaCollection<int>(_length);
+            var metaCollection = new MetaCollection<int>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
         }
@@ -64,7 +73,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         public MetaCollection<uint> AddUInt32(string name)
         {
-            var metaCollection = new MetaCollection<uint>(_length);
+            var metaCollection = new MetaCollection<uint>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
         }
@@ -74,7 +83,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         public MetaCollection<long> AddInt64(string name)
         {
-            var metaCollection = new MetaCollection<long>(_length);
+            var metaCollection = new MetaCollection<long>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
         }
@@ -84,7 +93,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         public MetaCollection<float> AddSingle(string name)
         {
-            var metaCollection = new MetaCollection<float>(_length);
+            var metaCollection = new MetaCollection<float>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
         }
@@ -94,7 +103,7 @@ namespace Itinero.Data.Network.Edges
         /// </summary>
         public MetaCollection<double> AddDouble(string name)
         {
-            var metaCollection = new MetaCollection<double>(_length);
+            var metaCollection = new MetaCollection<double>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
         }
@@ -137,11 +146,6 @@ namespace Itinero.Data.Network.Edges
             long size = 1;
             stream.WriteByte(1); // write version header.
 
-            // write length.
-            var bytes = BitConverter.GetBytes(_length);
-            stream.Write(bytes, 0, 8);
-            size += 8;
-
             // write collections count.
             stream.WriteByte((byte)_collections.Count);
             size++;
@@ -169,10 +173,6 @@ namespace Itinero.Data.Network.Edges
                 }
             }
 
-            var bytes = new byte[8];
-            stream.Read(bytes, 0, 8);
-            var length = BitConverter.ToInt64(bytes, 0);
-
             var collections = new Dictionary<string, MetaCollection>();
             var count = stream.ReadByte();
             for (var i = 0; i < count; i++)
@@ -182,7 +182,7 @@ namespace Itinero.Data.Network.Edges
 
                 collections[name] = collection;
             }
-            return new MetaCollectionDb(length, collections);
+            return new MetaCollectionDb(collections);
         }
     }
 }

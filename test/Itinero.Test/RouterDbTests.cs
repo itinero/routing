@@ -26,6 +26,7 @@ using Itinero.Data.Network.Restrictions;
 using Itinero.Data.Contracted;
 using System.Collections.Generic;
 using Itinero.Algorithms.Search.Hilbert;
+using Itinero.Data;
 
 namespace Itinero.Test
 {
@@ -561,6 +562,33 @@ namespace Itinero.Test
             json = routerDb.GetGeoJsonAround(4, 10, true, true);
             Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3}}]}",
                 json);
+        }
+        
+        /// <summary>
+        /// Tests saving and then loading test network4.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork4AndVertexData()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network4.geojson"));
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream, null);
+            }
+
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            MetaCollection<long> nodeIds;
+            Assert.IsTrue(routerDb.VertexData.TryGet("node_ids", out nodeIds));
+            Assert.AreEqual(4, nodeIds.Count);
         }
     }
 }

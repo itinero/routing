@@ -55,6 +55,11 @@ namespace Itinero.Data
         public abstract long Serialize(Stream stream);
 
         /// <summary>
+        /// Switches the two vertices around.
+        /// </summary>
+        public abstract void Switch(uint vertex1, uint vertex2);
+
+        /// <summary>
         /// Deserializes a meta-collection from the given stream.
         /// </summary>
         public static MetaCollection Deserialize(Stream stream, ArrayProfile profile)
@@ -193,15 +198,18 @@ namespace Itinero.Data
         where T : struct
     {
         private readonly ArrayBase<T> _data;
+        private uint _length;
+        private const int BLOCK_SIZE = 1024;
 
         /// <summary>
         /// Creates a new meta-data collection.
         /// </summary>
-        public MetaCollection(long size)
+        public MetaCollection(long capacity)
         {
             this.VerifyType();
 
-            _data = new MemoryArray<T>(size);
+            _length = 0;
+            _data = new MemoryArray<T>(capacity);
         }
 
         /// <summary>
@@ -210,6 +218,7 @@ namespace Itinero.Data
         internal MetaCollection(ArrayBase<T> data)
         {
             _data = data;
+            _length = (uint)data.Length;
         }
 
         /// <summary>
@@ -230,7 +239,46 @@ namespace Itinero.Data
             }
             set
             {
+                if (i >= _data.Length)
+                {
+                    var diff = i - _data.Length + 1;
+                    var blocks = (diff / BLOCK_SIZE) + 1;
+
+                    _data.Resize(_data.Length + (blocks * BLOCK_SIZE));
+                }
+
+                if (i >= _length)
+                {
+                    _length = i + 1;
+                }
+
                 _data[i] = value;
+            }
+        }
+
+        /// <summary>
+        /// Switches the two vertices around.
+        /// </summary>
+        public override void Switch(uint vertex1, uint vertex2)
+        {
+            if (vertex1 < this.Count &&
+                vertex2 < this.Count)
+            {
+                var data = this[vertex1];
+                this[vertex1] = this[vertex2];
+                this[vertex2] = data;
+            }
+            else
+            {
+                if (vertex1 < this.Count)
+                {
+                    this[vertex1] = default(T);
+                }
+
+                if (vertex2 < this.Count)
+                {
+                    this[vertex2] = default(T);
+                }
             }
         }
 
@@ -241,7 +289,7 @@ namespace Itinero.Data
         {
             get
             {
-                return _data.Length;
+                return _length;
             }
         }
 
@@ -251,7 +299,7 @@ namespace Itinero.Data
         /// <returns></returns>
         public IEnumerator<T> GetEnumerator()
         {
-            for (var i = 0; i < _data.Length; i++)
+            for (var i = 0; i < _length; i++)
             {
                 yield return _data[i];
             }
@@ -265,6 +313,14 @@ namespace Itinero.Data
         {
             return this.GetEnumerator();
         }
+
+        /// <summary>
+        /// Trims the internal data structures to it's minimum possible size.
+        /// </summary>
+        public void Trim()
+        {
+            _data.Resize(_length);
+        }
         
         /// <summary>
         /// Serializes this collection.
@@ -273,11 +329,14 @@ namespace Itinero.Data
         /// <returns></returns>
         public override long Serialize(Stream stream)
         {
+            this.Trim();
+
             long size = 1;
             stream.WriteByte(1);
 
             // write type header.
             stream.WriteByte(this.GetTypeHeader());
+            size++;
 
             var bytes = BitConverter.GetBytes(_data.Length);
             stream.Write(bytes, 0, 8);

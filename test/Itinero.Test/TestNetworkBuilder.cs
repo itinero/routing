@@ -50,6 +50,8 @@ namespace Itinero.Test
         /// </summary>
         public static void LoadTestNetwork(this RouterDb db, string geoJson, float tolerance = 20)
         {
+            var nodeIds = db.VertexData.AddInt64("node_ids");
+
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);
 
@@ -61,10 +63,12 @@ namespace Itinero.Test
                     uint id;
                     if (feature.Attributes.Exists("id") &&
                        uint.TryParse(feature.Attributes["id"].ToInvariantString(), out id))
-                    { // has and id, add as vertex.
+                    { // has an id, add as vertex.
                         db.Network.AddVertex(id,
                             (float)point.Coordinate.Y,
                             (float)point.Coordinate.X);
+
+                        nodeIds[id] = id;
                     }
                 }
             }

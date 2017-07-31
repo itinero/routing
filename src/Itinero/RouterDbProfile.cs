@@ -20,6 +20,7 @@ using Itinero.Attributes;
 using Itinero.Data.Contracted;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Restrictions;
+using Reminiscence.Arrays;
 
 namespace Itinero
 {
@@ -47,6 +48,11 @@ namespace Itinero
         /// Gets or sets the vertex meta profile.
         /// </summary>
         public MappedAttributesIndexProfile VertexMetaProfile { get; set; }
+
+        /// <summary>
+        /// Gets or sets the vertex data profile.
+        /// </summary>
+        public ArrayProfile VertexDataProfile { get; set; }
 
         /// <summary>
         /// A profile telling the router db to do no caching.
