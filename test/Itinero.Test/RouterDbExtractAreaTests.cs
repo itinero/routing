@@ -51,7 +51,14 @@ namespace Itinero.Test
 
             var newRouterDb = routerDb.ExtractArea(52.35246589354224f, 6.662435531616211f,
                 52.35580134510498f, 6.667134761810303f);
+
+            // check if the vertices have been copied.
             Assert.AreEqual(11, newRouterDb.Network.VertexCount);
+
+            // check if the vertex data meta collections have been copied.
+            MetaCollection<long> metaCollection;
+            Assert.IsTrue(newRouterDb.VertexData.TryGet<long>("node_ids", out metaCollection));
+            Assert.AreEqual(11, metaCollection.Count);
         }
     }
 }

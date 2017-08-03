@@ -1261,12 +1261,23 @@ namespace Itinero
                 newDb.AddSupportedVehicle(vehicle);
             }
 
-            //// copy over all vertex meta.
-            //for (uint v = 0; v < db.Network.VertexCount; v++)
-            //{
-            //    if db.VertexData
-            //}
+            // copy over all vertex meta.
+            var vertexData = db.VertexData;
+            var vertexDataNames = db.VertexData.Names;
+            foreach (var name in vertexDataNames)
+            {
+                var collection = db.VertexData.Get(name);
+                var newCollection = newDb.VertexData.Add(name, collection.ElementType);
 
+                for (uint v = 0; v < db.Network.VertexCount; v++)
+                {
+                    if (idMap.TryGetValue(v, out newV))
+                    {
+                        newCollection.CopyFrom(collection, newV, v);
+                    }
+                }
+            }
+            
             return newDb;
         }
     }
