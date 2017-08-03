@@ -59,5 +59,14 @@ namespace Itinero.IO.Shape
             var reader = new IO.Shape.Reader.ShapefileReader(routerDb, new List<ShapefileDataReader>(shapefileReaders), vehicles, sourceVertexColumn, targetVertexColumn);
             reader.Run();
         }
+
+        /// <summary>
+        /// Writes the routerdb to a shapefile.
+        /// </summary>
+        public static void WriteToShape(this RouterDb routerDb, string fileName, params Profile[] profiles)
+        {
+            var writer = new Writer.ShapeFileWriter(routerDb, profiles, fileName);
+            writer.Run();
+        }
     }
 }

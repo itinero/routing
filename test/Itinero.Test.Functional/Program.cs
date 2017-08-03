@@ -19,6 +19,7 @@
 using Itinero.IO.Osm;
 using Itinero.Logging;
 using Itinero.Profiles;
+using Itinero.IO.Shape;
 using Itinero.Test.Functional.Staging;
 using Itinero.Test.Functional.Tests;
 using NetTopologySuite.Features;
@@ -26,6 +27,7 @@ using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Itinero.Test.Functional.Tests.IO.Shape;
 
 namespace Itinero.Test.Functional
 {
@@ -51,6 +53,9 @@ namespace Itinero.Test.Functional
             _logger.Log(TraceEventType.Information, "Starting tests...");
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
+
+            // test writing shapefile.
+            ShapeFileWriterTests.Run(routerDb);
 
             // test resolving.
             ResolvingTests.Run(routerDb);

@@ -39,3 +39,7 @@ packages/*
 TestResult*.xml
 *.routerdb
 *.osm.pbf
+
+*.shp
+*.dbf
+*.shx

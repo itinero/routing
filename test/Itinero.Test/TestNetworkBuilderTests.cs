@@ -24,6 +24,7 @@ using Itinero.Data.Network;
 using System.Linq;
 using System.Reflection;
 using Itinero.Data.Network.Restrictions;
+using Itinero.Data;
 
 namespace Itinero.Test
 {
@@ -67,6 +68,10 @@ namespace Itinero.Test
             var edgeMeta = routerDb.EdgeMeta.Get(
                 edge.Data.MetaId);
             Assert.IsTrue(edgeMeta.Contains("name", "Abelshausen Blvd."));
+
+            MetaCollection<long> nodeIds;
+            Assert.IsTrue(routerDb.VertexData.TryGet("node_ids", out nodeIds));
+            Assert.AreEqual(2, nodeIds.Count);
         }
 
         /// <summary>

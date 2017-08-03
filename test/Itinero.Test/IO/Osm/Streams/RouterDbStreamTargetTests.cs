@@ -27,6 +27,7 @@ using System.Linq;
 using OsmSharp;
 using Itinero.Data.Network.Restrictions;
 using Itinero.IO.Osm;
+using Itinero.Data;
 
 namespace Itinero.Test.IO.Osm.Streams
 {
@@ -1398,6 +1399,98 @@ namespace Itinero.Test.IO.Osm.Streams
             Assert.AreEqual(meta, new AttributeCollection(
                 new Attribute("rcn_ref", "12")));
         }
+
+        /// <summary>
+        /// Tests loading data the keeps the node id's.
+        /// </summary>
+        [Test]
+        public void TestKeepingNodeIds()
+        {
+            // build source stream with one way:
+            //         
+            //         (1)
+            //          |
+            //          |
+            //    (3)--(2)--(5)
+            //      \       /   
+            //       \     /
+            //        \   /
+            //         (4)
+            //        
+            // this should result in edges:
+            //   1-2, 2-3, 2-5, 3-(4)-5
+
+            var location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
+            var location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
+            var location3 = new Coordinate() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
+            var location4 = new Coordinate() { Latitude = 51.26152881427841f, Longitude = 4.795939922332763f };
+            var location5 = new Coordinate() { Latitude = 51.26134754276387f, Longitude = 4.795937240123749f };
+            var source = new OsmGeo[] {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3, 4, 5, 2 }
+                }};
+
+            // build db from stream.
+            var routerDb = new RouterDb();
+            var target = new RouterDbStreamTarget(
+                routerDb, new Itinero.Profiles.Vehicle[] {
+                    Vehicle.Car
+                });
+            target.KeepNodeIds = true;
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            // check result.
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(4, routerDb.Network.EdgeCount);
+
+            var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
+            var vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
+            var vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
+            var vertex5 = this.FindVertex(routerDb, location5.Latitude, location5.Longitude);
+            
+            var nodeIds = routerDb.VertexData.Get<long>("node_ids");
+            Assert.AreEqual(1, nodeIds[vertex1]);
+            Assert.AreEqual(2, nodeIds[vertex2]);
+            Assert.AreEqual(0, nodeIds[vertex3]);
+            Assert.AreEqual(0, nodeIds[vertex5]);
+        }
+
 
         /// <summary>
         /// Finds a vertex in the given router db.

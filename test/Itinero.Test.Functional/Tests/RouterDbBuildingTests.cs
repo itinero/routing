@@ -116,7 +116,8 @@ namespace Itinero.Test.Functional.Tests
                         AllCore = allcore,
                         ProcessRestrictions = processRestrictions,
                         OptimizeNetwork = true,
-                        NetworkSimplificationEpsilon = 1
+                        NetworkSimplificationEpsilon = 1,
+                        KeepNodeIds = true
                     }, vehicles);
 
                     return new PerformanceTestResult<RouterDb>(routerdb);

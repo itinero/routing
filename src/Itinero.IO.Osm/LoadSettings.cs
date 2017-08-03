@@ -36,6 +36,7 @@ namespace Itinero.IO.Osm
             this.Processors = null;
             this.NetworkSimplificationEpsilon = 0;
             this.OptimizeNetwork = false;
+            this.KeepNodeIds = false;
         }
 
         /// <summary>
@@ -63,5 +64,10 @@ namespace Itinero.IO.Osm
         /// Gets or sets the network optimization flag.
         /// </summary>
         public bool OptimizeNetwork { get; set; }
+
+        /// <summary>
+        /// Gets or sets the flag to keep node id's.
+        /// </summary>
+        public bool KeepNodeIds { get; set; }
     }
 }
