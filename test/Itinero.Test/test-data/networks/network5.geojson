@@ -113,7 +113,8 @@
         "marker-color": "#7e7e7e",
         "marker-size": "medium",
         "marker-symbol": "",
-        "id": 1
+        "id": 1,
+        "name": "meta-value1"
       },
       "geometry": {
         "type": "Point",
@@ -145,7 +146,8 @@
         "marker-color": "#7e7e7e",
         "marker-size": "medium",
         "marker-symbol": "",
-        "id": 3
+        "id": 3,
+        "name": "meta-value3"
       },
       "geometry": {
         "type": "Point",
@@ -225,7 +227,8 @@
         "marker-color": "#7e7e7e",
         "marker-size": "medium",
         "marker-symbol": "",
-        "id": 8
+        "id": 8,
+        "name": "meta-value8"
       },
       "geometry": {
         "type": "Point",
@@ -631,7 +634,8 @@
         "marker-color": "#7e7e7e",
         "marker-size": "medium",
         "marker-symbol": "",
-        "id": 14
+        "id": 14,
+        "name": "meta-value14"
       },
       "geometry": {
         "type": "Point",

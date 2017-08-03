@@ -40,7 +40,7 @@ namespace Itinero.Test
         /// Tests extracting a boundingbox from network 5.
         /// </summary>
         [Test]
-        public void TestSaveLoadNetwork5()
+        public void TestExtractBoxNetwork5()
         {
             var routerDb = new RouterDb();
             routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
@@ -49,16 +49,21 @@ namespace Itinero.Test
                     "Itinero.Test.test_data.networks.network5.geojson"));
             routerDb.Sort();
 
-            var newRouterDb = routerDb.ExtractArea(52.35246589354224f, 6.662435531616211f,
+            // extract.
+            routerDb = routerDb.ExtractArea(52.35246589354224f, 6.662435531616211f,
                 52.35580134510498f, 6.667134761810303f);
 
             // check if the vertices have been copied.
-            Assert.AreEqual(11, newRouterDb.Network.VertexCount);
+            Assert.AreEqual(11, routerDb.Network.VertexCount);
 
             // check if the vertex data meta collections have been copied.
             MetaCollection<long> metaCollection;
-            Assert.IsTrue(newRouterDb.VertexData.TryGet<long>("node_ids", out metaCollection));
+            Assert.IsTrue(routerDb.VertexData.TryGet<long>("node_ids", out metaCollection));
             Assert.AreEqual(11, metaCollection.Count);
+
+            // check if the vertex meta has been copied.
+            var vertexMetaIds = new List<uint>(routerDb.VertexMeta);
+            Assert.AreEqual(3, vertexMetaIds.Count);
         }
     }
 }

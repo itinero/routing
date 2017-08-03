@@ -1277,6 +1277,13 @@ namespace Itinero
                     }
                 }
             }
+            foreach (var v in db.VertexMeta)
+            {
+                if (idMap.TryGetValue(v, out newV))
+                {
+                    newDb.VertexMeta[newV] = db.VertexMeta[v];
+                }
+            }
             
             return newDb;
         }
