@@ -205,6 +205,39 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Tests building network 5.
+        /// </summary>
+        [Test]
+        public void TestNetwork5()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network5.geojson"));
+
+            Assert.AreEqual(18, routerDb.Network.VertexCount);
+            Assert.AreEqual(21, routerDb.Network.EdgeCount);
+
+            string name;
+            var meta = routerDb.VertexMeta[1];
+            Assert.IsNotNull(meta);
+            Assert.IsTrue(meta.TryGetValue("name", out name));
+            Assert.AreEqual("meta-value1", name);
+            meta = routerDb.VertexMeta[3];
+            Assert.IsNotNull(meta);
+            Assert.IsTrue(meta.TryGetValue("name", out name));
+            Assert.AreEqual("meta-value3", name);
+            meta = routerDb.VertexMeta[8];
+            Assert.IsNotNull(meta);
+            Assert.IsTrue(meta.TryGetValue("name", out name));
+            Assert.AreEqual("meta-value8", name);
+            meta = routerDb.VertexMeta[14];
+            Assert.IsNotNull(meta);
+            Assert.IsTrue(meta.TryGetValue("name", out name));
+            Assert.AreEqual("meta-value14", name);
+        }
+
+        /// <summary>
         /// Tests building network 7 (with a 3-vertex restriction).
         /// </summary>
         [Test]
