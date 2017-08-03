@@ -51,9 +51,7 @@ namespace Itinero.Test
 
             var newRouterDb = routerDb.ExtractArea(52.35246589354224f, 6.662435531616211f,
                 52.35580134510498f, 6.667134761810303f);
-
-            var json = newRouterDb.GetGeoJson();
-
+            Assert.AreEqual(11, newRouterDb.Network.VertexCount);
         }
     }
 }
