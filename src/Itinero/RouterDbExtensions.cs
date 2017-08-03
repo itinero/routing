@@ -37,6 +37,7 @@ using System.IO;
 using Itinero.IO.Json;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Dual;
+using Itinero.Data.Network.Edges;
 
 namespace Itinero
 {
@@ -1122,6 +1123,145 @@ namespace Itinero
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
+        }
+        
+        /// <summary>
+        /// Extracts part of the routerdb defined by the isInside function.
+        /// </summary>
+        /// <param name="db">The routerdb to extract from.</param>
+        /// <returns></returns>
+        public static RouterDb ExtractArea(this RouterDb db, float minLatitude, float minLongitude,
+            float maxLatitude, float maxLongitude)
+        {
+            var box = new Box(minLatitude, minLongitude, maxLatitude, maxLongitude);
+
+            return db.ExtractArea((l) => box.Overlaps(l.Latitude, l.Longitude));
+        }
+
+        /// <summary>
+        /// Extracts part of the routerdb defined by the isInside function.
+        /// </summary>
+        /// <param name="db">The routerdb to extract from.</param>
+        /// <param name="isInside">The is inside function.</param>
+        /// <returns></returns>
+        public static RouterDb ExtractArea(this RouterDb db, Func<Coordinate, bool> isInside)
+        {
+            var newDb = new RouterDb(db.Network.MaxEdgeDistance);
+            // maps vertices old -> new.
+            var idMap = new Dictionary<uint, uint>();
+            // keeps a set of vertices not inside but are needed for an edge that is partially inside.
+            var boundaryVertices = new HashSet<uint>();
+
+            // copy over all profiles.
+            for (uint p = 0; p < db.EdgeProfiles.Count; p++)
+            {
+                var newP = newDb.EdgeProfiles.Add(db.EdgeProfiles.Get(p));
+
+                System.Diagnostics.Debug.Assert(p == newP);
+            }
+
+            // loop over vertices and copy over relevant vertices and edges.
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+            uint newV = 0;
+            for (uint v = 0; v < db.Network.VertexCount; v++)
+            {
+                var vLocation = db.Network.GetVertex(v);
+
+                if (!isInside(vLocation))
+                {
+                    // check if this vertex has neighbours that are inside.
+                    // if so it needs to be kept.
+                    if (!edgeEnumerator.MoveTo(v))
+                    {
+                        continue;
+                    }
+
+                    var keep = false;
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        var to = edgeEnumerator.To;
+
+                        if (idMap.ContainsKey(to))
+                        {
+                            if (!boundaryVertices.Contains(to))
+                            {
+                                keep = true;
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            var toLocation = db.Network.GetVertex(to);
+
+                            if (isInside(toLocation))
+                            {
+                                keep = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!keep)
+                    {
+                        continue;
+                    }
+
+                    // this vertex is not inside but needs to be kept anyway.
+                    boundaryVertices.Add(v);
+                }
+
+                // keep the mapping.
+                idMap[v] = newV;
+
+                // add the vertex.
+                newDb.Network.AddVertex(newV, vLocation.Latitude, vLocation.Longitude);
+                
+                // move the enumerator to the correct vertex.
+                if (!edgeEnumerator.MoveTo(v))
+                {
+                    continue;
+                }
+
+                // add the edges if they lead to lower vertices.
+                while (edgeEnumerator.MoveNext())
+                {
+                    var to = edgeEnumerator.To;
+
+                    if (to > v)
+                    {
+                        continue;
+                    }
+
+                    // lower vertices should always have a mapping already.
+                    uint newTo;
+                    if (!idMap.TryGetValue(to, out newTo))
+                    { // edge not inside.
+                        continue;
+                    }
+
+                    // build edge data, only keep meta for copied edges.
+                    var edgeData = edgeEnumerator.Data;
+                    var newEdgeData = new EdgeData()
+                    {
+                        Distance = edgeData.Distance,
+                        Profile = edgeData.Profile,
+                        MetaId = newDb.EdgeMeta.Add(
+                            db.EdgeMeta.Get(edgeData.MetaId))
+                    };
+                    newDb.Network.AddEdge(newV, newTo, newEdgeData, edgeEnumerator.Shape);
+                }
+
+                newV++;
+            }
+
+            // copy over all supported vehicles.
+            var supportedVehicles = db.GetSupportedVehicles();
+            foreach (var vehicle in supportedVehicles)
+            {
+                newDb.AddSupportedVehicle(vehicle);
+            }
+
+            return newDb;
         }
     }
 }
