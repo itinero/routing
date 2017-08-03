@@ -1215,7 +1215,7 @@ namespace Itinero
 
                 // add the vertex.
                 newDb.Network.AddVertex(newV, vLocation.Latitude, vLocation.Longitude);
-                
+
                 // move the enumerator to the correct vertex.
                 if (!edgeEnumerator.MoveTo(v))
                 {
@@ -1260,6 +1260,12 @@ namespace Itinero
             {
                 newDb.AddSupportedVehicle(vehicle);
             }
+
+            //// copy over all vertex meta.
+            //for (uint v = 0; v < db.Network.VertexCount; v++)
+            //{
+            //    if db.VertexData
+            //}
 
             return newDb;
         }
