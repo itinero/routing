@@ -65,5 +65,31 @@ namespace Itinero.Test
             var vertexMetaIds = new List<uint>(routerDb.VertexMeta);
             Assert.AreEqual(3, vertexMetaIds.Count);
         }
+
+        /// <summary>
+        /// Tests extracting a boundingbox from network 14.
+        /// </summary>
+        [Test]
+        public void TestExtractBoxNetwork14()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network14.geojson"));
+            routerDb.Sort();
+
+            // extract.
+            routerDb = routerDb.ExtractArea(51.264969480610056f, 4.794631004333496f,
+                51.26752715540532f, 4.798053503036499f);
+
+            // check if the vertices have been copied.
+            Assert.AreEqual(6, routerDb.Network.VertexCount);
+
+            // check restrictions.
+            var restrictions = new List<RestrictionsDbMeta>(routerDb.RestrictionDbs);
+            Assert.AreEqual(1, restrictions.Count);
+            Assert.AreEqual(2, restrictions[0].RestrictionsDb.Count);
+        }
     }
 }

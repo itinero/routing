@@ -1284,6 +1284,50 @@ namespace Itinero
                     newDb.VertexMeta[newV] = db.VertexMeta[v];
                 }
             }
+
+            // copy over all restrictions.
+            foreach (var r in db.RestrictionDbs)
+            {
+                var newR = new RestrictionsDb();
+                newDb.AddRestrictions(r.Vehicle, newR);
+
+                var enumerator = r.RestrictionsDb.GetEnumerator();
+                var restrictionsSet = new HashSet<uint>();
+                foreach(var pair in idMap)
+                {
+                    if (!enumerator.MoveTo(pair.Key))
+                    {
+                        continue;
+                    }
+    
+                    while (enumerator.MoveNext())
+                    {
+                        if (restrictionsSet.Contains(enumerator.Id))
+                        {
+                            continue;
+                        }
+                        restrictionsSet.Add(enumerator.Id);
+
+                        var restriction = enumerator.ToArray();
+                        var newRestriction = new uint[restriction.Length];
+                        for (var i = 0; i < restriction.Length; i++)
+                        {
+                            if (!idMap.TryGetValue(restriction[i], out newV))
+                            {
+                                newRestriction = null;
+                                break;
+                            }
+
+                            newRestriction[i] = newV;
+                        }
+
+                        if (newRestriction != null)
+                        {
+                            newR.Add(newRestriction);
+                        }
+                    }
+                }
+            }
             
             return newDb;
         }
