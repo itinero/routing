@@ -54,6 +54,9 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
+            // test some routerdb extensions.
+            RouterDbExtensionsTests.Run(routerDb);
+
             // test writing shapefile.
             ShapeFileWriterTests.Run(routerDb);
 

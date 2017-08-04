@@ -1248,7 +1248,13 @@ namespace Itinero
                         MetaId = newDb.EdgeMeta.Add(
                             db.EdgeMeta.Get(edgeData.MetaId))
                     };
-                    newDb.Network.AddEdge(newV, newTo, newEdgeData, edgeEnumerator.Shape);
+                    var shape = edgeEnumerator.Shape;
+                    if (shape != null &&
+                        edgeEnumerator.DataInverted)
+                    {
+                        shape = shape.Reverse();
+                    }
+                    newDb.Network.AddEdge(newV, newTo, newEdgeData, shape);
                 }
 
                 newV++;
