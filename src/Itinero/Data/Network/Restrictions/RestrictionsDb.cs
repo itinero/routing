@@ -439,6 +439,17 @@ namespace Itinero.Data.Network.Restrictions
                     return _db._restrictions[_restrictionPointer + 1 + i];
                 }
             }
+
+            /// <summary>
+            /// Gets the id of this restriction.
+            /// </summary>
+            public uint Id
+            {
+                get
+                {
+                    return _restrictionPointer;
+                }
+            }
         }
 
         private class LinkedNode

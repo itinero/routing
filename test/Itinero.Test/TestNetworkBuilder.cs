@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.IO;
 using Itinero.Geo;
 using Itinero.Data.Network.Restrictions;
+using Itinero.Attributes;
 
 namespace Itinero.Test
 {
@@ -69,6 +70,31 @@ namespace Itinero.Test
                             (float)point.Coordinate.X);
 
                         nodeIds[id] = id;
+
+                        var vertexMeta = new AttributeCollection();
+                        foreach (var name in feature.Attributes.GetNames())
+                        {
+                            if (name == "id" ||
+                                name.StartsWith("marker"))
+                            {
+                                continue;
+                            }
+
+                            var value = feature.Attributes[name];
+                            if (value == null)
+                            {
+                                vertexMeta.AddOrReplace(name, string.Empty);
+                            }
+                            else
+                            {
+                                vertexMeta.AddOrReplace(name, value.ToInvariantString());
+                            }
+                        }
+
+                        if (vertexMeta.Count > 0)
+                        {
+                            db.VertexMeta[id] = vertexMeta;
+                        }
                     }
                 }
             }

@@ -55,6 +55,11 @@ namespace Itinero.Data
         public abstract long Serialize(Stream stream);
 
         /// <summary>
+        /// Copies an element from the other collection to this one. Collections must have the same type.
+        /// </summary>
+        public abstract void CopyFrom(MetaCollection other, uint idx, uint otherIdx);
+
+        /// <summary>
         /// Switches the two vertices around.
         /// </summary>
         public abstract void Switch(uint vertex1, uint vertex2);
@@ -225,6 +230,22 @@ namespace Itinero.Data
         /// Gets the type of the elements.
         /// </summary>
         public override Type ElementType => typeof(T);
+
+        /// <summary>
+        /// Copies elements from the other collection to this collection.
+        /// </summary>
+        public override void CopyFrom(MetaCollection other, uint idx, uint otherIdx)
+        {
+            if (other.ElementType != this.ElementType)
+            {
+                throw new Exception(string.Format(
+                    "Cannot copy from a meta collection with type {0} to one with type {1}.",
+                        other.ElementType.ToInvariantString(), this.ElementType.ToInvariantString()));
+            }
+
+            var otherTyped = (MetaCollection<T>)other;
+            this[idx] = otherTyped[otherIdx];
+        }
 
         /// <summary>
         /// Gets or sets the meta-data.

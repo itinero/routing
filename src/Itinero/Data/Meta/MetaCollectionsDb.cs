@@ -48,6 +48,30 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
+        /// Gets the meta collection names.
+        /// </summary>
+        public IEnumerable<string> Names
+        {
+            get
+            {
+                return _collections.Keys;
+            }
+        }
+
+        /// <summary>
+        /// Gets the type of the collection with the given name.
+        /// </summary>
+        public Type GetType(string name)
+        {
+            MetaCollection collection;
+            if (_collections.TryGetValue(name, out collection))
+            {
+                return collection.ElementType;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Switches the two vertices around.
         /// </summary>
         public void Switch(uint vertex1, uint vertex2)
@@ -56,6 +80,43 @@ namespace Itinero.Data.Network.Edges
             {
                 collection.Value.Switch(vertex1, vertex2);
             }
+        }
+
+        /// <summary>
+        /// Adds a new meta collection.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public MetaCollection Add(string name, Type type)
+        {
+            if (type == typeof(int))
+            {
+                return this.AddInt32(name);
+            }
+            if (type == typeof(uint))
+            {
+                return this.AddUInt32(name);
+            }
+            if (type == typeof(long))
+            {
+                return this.AddInt64(name);
+            }
+            if (type == typeof(ulong))
+            {
+                return this.AddUInt64(name);
+            }
+            if (type == typeof(float))
+            {
+                return this.AddSingle(name);
+            }
+            if (type == typeof(double))
+            {
+                return this.AddDouble(name);
+            }
+            throw new Exception(string.Format(
+                "Meta collection not supported for type {0}: MetaCollection can only handle integer types or float and double.",
+                    type));
         }
 
         /// <summary>
@@ -91,6 +152,16 @@ namespace Itinero.Data.Network.Edges
         /// <summary>
         /// Adds a new meta collection.
         /// </summary>
+        public MetaCollection<ulong> AddUInt64(string name)
+        {
+            var metaCollection = new MetaCollection<ulong>(BLOCK_SIZE);
+            _collections[name] = metaCollection;
+            return metaCollection;
+        }
+
+        /// <summary>
+        /// Adds a new meta collection.
+        /// </summary>
         public MetaCollection<float> AddSingle(string name)
         {
             var metaCollection = new MetaCollection<float>(BLOCK_SIZE);
@@ -106,6 +177,27 @@ namespace Itinero.Data.Network.Edges
             var metaCollection = new MetaCollection<double>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
+        }
+
+        /// <summary>
+        /// Tries to get an edge meta collection for the given key.
+        /// </summary>
+        public MetaCollection Get(string name)
+        {
+            MetaCollection metaCollection;
+            if (!this.TryGet(name, out metaCollection))
+            {
+                return null;
+            }
+            return metaCollection;
+        }
+
+        /// <summary>
+        /// Tries to get an edge meta collection for the given key.
+        /// </summary>
+        public bool TryGet(string name, out MetaCollection metaCollection)
+        {
+            return _collections.TryGetValue(name, out metaCollection);
         }
 
         /// <summary>
