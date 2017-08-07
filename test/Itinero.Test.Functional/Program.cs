@@ -28,6 +28,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Itinero.Test.Functional.Tests.IO.Shape;
+using NUnit.Framework;
+using Itinero.LocalGeo;
+using System.Linq;
 
 namespace Itinero.Test.Functional
 {
@@ -69,7 +72,7 @@ namespace Itinero.Test.Functional
             // tests calculate weight matrices.
             WeightMatrixTests.Run(routerDb);
 
-            //// test instruction generation.
+            // test instruction generation.
             InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");

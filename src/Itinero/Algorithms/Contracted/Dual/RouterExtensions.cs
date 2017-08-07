@@ -49,7 +49,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             var dykstraTargets = new DykstraSource<T>[targets.Length];
             for (var i = 0; i < targets.Length; i++)
             {
-                dykstraTargets[i] = targets[i].ToDualDykstraSource(routerDb, weightHandler, false);
+                dykstraTargets[i] = targets[i].ToDualDykstraSource(routerDb, weightHandler, true);
             }
             
             // calculate weights.

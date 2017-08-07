@@ -39,6 +39,7 @@ namespace Itinero.Test.Functional.Tests
             var router = new Router(routerDb);
 
             GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
+            GetTestWeightMatrixAlgorithm(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
             GetTestDirectedWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
         }
 
@@ -46,6 +47,37 @@ namespace Itinero.Test.Functional.Tests
         /// Tests calculating a weight matrix.
         /// </summary>
         public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random(145171654);
+            var vertices = new HashSet<uint>();
+            var locations = new List<Coordinate>();
+            while (locations.Count < count)
+            {
+                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
+                if (!vertices.Contains(v))
+                {
+                    vertices.Add(v);
+                    locations.Add(router.Db.Network.GetVertex(v));
+                }
+            }
+
+            var locationsArray = locations.ToArray();
+            var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
+            massResolver.Run();
+
+            return () =>
+            {
+                var invalids = new HashSet<int>();
+                var weights = router.CalculateWeight(profile, massResolver.RouterPoints.ToArray(), invalids);
+                //Assert.IsTrue(matrix.HasSucceeded);
+            };
+        }
+
+
+        /// <summary>
+        /// Tests calculating a weight matrix.
+        /// </summary>
+        public static Action GetTestWeightMatrixAlgorithm(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random(145171654);
             var vertices = new HashSet<uint>();
