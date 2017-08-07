@@ -1,18 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
-    <metadata>
-        <id>Itinero.Geo</id>
-        <version>$version$</version>
-        <title>Itinero.Geo</title>
-        <authors>Ben Abelshausen</authors>
-        <owners>Ben Abelshausen</owners>
-        <licenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</licenseUrl>
-        <projectUrl>http://www.itinero.tech/</projectUrl>
-        <iconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</iconUrl>
-        <requireLicenseAcceptance>false</requireLicenseAcceptance>
-        <description>Itinero.Geo - A bridge between Itinero and Geo.</description>
-        <summary>Itinero.Geo is a package that provides a bridge between Itinero and Geo using NTS/GeoAPI.</summary>
-		<releaseNotes>Itinero 1.3.0 Release Notes
+Itinero 1.3.0 Release Notes
 ---------------------------
 
 New features:
@@ -62,18 +48,3 @@ Bugfixes:
 
 - Fixed NUnit test runner (thanks @airbreather).
 - Fixed issue in hilbert search cause resolve to fail in rare cases.
-    </releaseNotes>
-        <copyright>Ben Abelshausen</copyright>
-        <tags>osm, openstreetmap, routing, mapping</tags>
-        <dependencies>
-          <dependency id="GeoAPI" version="[1.7.4,2)" />
-          <dependency id="NetTopologySuite" version="[1.14,2)" />
-          <dependency id="Itinero" version="$version$" />
-        </dependencies>
-    </metadata>
-    <files>
-      <file src="src\Itinero.Geo\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.Geo.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.Geo.dll" />
-      <file src="src\Itinero.Geo\bin\Release\net40\Itinero.Geo.dll" target="lib\net40\Itinero.Geo.dll" />
-      <file src="src\Itinero.Geo\bin\Release\net45\Itinero.Geo.dll" target="lib\net45\Itinero.Geo.dll" />
-    </files>
-</package>
