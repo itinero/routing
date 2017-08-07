@@ -555,7 +555,7 @@ namespace Itinero.Algorithms.Search.Hilbert
                         }
                     }
                     vertex = vertex1;
-                    count = 0;
+                    count = 1;
                     return true;
                 }
             }

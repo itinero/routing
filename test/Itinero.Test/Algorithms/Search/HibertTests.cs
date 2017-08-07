@@ -298,5 +298,43 @@ namespace Itinero.Test.Algorithms.Search
             Assert.AreEqual(1, vertices.Count);
             Assert.AreEqual(7, vertices.First());
         }
+
+        /// <summary>
+        /// Regression tests for issue: https://github.com/itinero/routing/issues/117
+        /// </summary>
+        [Test]
+        public void SearchCloseVerticesTest()
+        {
+            var DefaultHilbertSteps = (int)System.Math.Pow(2, 15);
+
+            // build locations.
+            var locations = new List<Coordinate>();
+            locations.Add(new Coordinate(53.06905f, 29.40519f));
+            locations.Add(new Coordinate(53.1183f, 29.31932f));
+            locations.Add(new Coordinate(53.08611f, 29.37143f));
+            locations.Add(new Coordinate(53.05757f, 29.44653f));
+
+            // build graph.
+            var graph = new GeometricGraph(1);
+            int vertex = 0;
+            for (vertex = 0; vertex < locations.Count; vertex++)
+            {
+                graph.AddVertex((uint)vertex, locations[vertex].Latitude,
+                    locations[vertex].Longitude);
+            }
+
+            // build a sorted version in-place.
+            graph.Sort(DefaultHilbertSteps);
+            var closelist1 = graph.Search(53.0695f, 29.40594f, 0.1f);
+            Assert.AreEqual(4, closelist1.Count);
+            
+            // add another vertex.
+            graph.AddVertex((uint)vertex, 52.7362f, 29.4935f);
+            graph.Sort(DefaultHilbertSteps);
+
+            // build a sorted version in-place.
+            var closelist2 = graph.Search(53.0695f, 29.40594f, 0.1f);
+            Assert.IsTrue(closelist2.Count >= 3, "some close vertex missed");
+        }
     }
 }
