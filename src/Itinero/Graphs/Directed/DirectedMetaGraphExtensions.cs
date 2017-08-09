@@ -25,6 +25,52 @@ namespace Itinero.Graphs.Directed
     /// </summary>
     public static class DirectedMetaGraphExtensions
     {
+        /// <summary>
+        /// Extracts a part of the graph transforming the vertices along the way.
+        /// </summary>
+        /// <param name="graph">The graph.</param>
+        /// <param name="transform">The transform function, returns Constant.NO_VERTEX when a vertex needs to be skipped.</param>
+        /// <returns></returns>
+        public static DirectedMetaGraph Extract(this DirectedMetaGraph graph, Func<uint, uint> transform)
+        {
+            var newGraph = new DirectedMetaGraph(graph.Graph.EdgeDataSize, graph.EdgeDataSize);
 
+            var enumerator = graph.GetEdgeEnumerator();
+            for (uint v = 0; v < graph.VertexCount; v++)
+            {
+                var newV = transform(v);
+                if (newV == Constants.NO_VERTEX)
+                {
+                    continue;
+                }
+
+                enumerator.MoveTo(v);
+                while (enumerator.MoveNext())
+                {
+                    var newNeighbour = transform(enumerator.Neighbour);
+                    if (newNeighbour == Constants.NO_VERTEX)
+                    {
+                        continue;
+                    }
+
+                    var data = enumerator.Data;
+                    var metaData = enumerator.MetaData;
+
+                    // transform contracted vertex.
+                    if (metaData[0] != Constants.NO_VERTEX)
+                    {
+                        metaData[0] = transform(metaData[0]);
+                        if (metaData[0] == Constants.NO_VERTEX)
+                        {
+                            continue;
+                        }
+                    }
+
+                    newGraph.AddEdge(newV, newNeighbour, data, metaData);
+                }
+            }
+
+            return newGraph;
+        }
     }
 }

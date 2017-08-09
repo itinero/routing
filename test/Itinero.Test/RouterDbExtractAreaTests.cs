@@ -91,5 +91,44 @@ namespace Itinero.Test
             Assert.AreEqual(1, restrictions.Count);
             Assert.AreEqual(2, restrictions[0].RestrictionsDb.Count);
         }
+        
+        /// <summary>
+        /// Tests extracting a boundingbox from network 5 when there are contracted graphs.
+        /// </summary>
+        [Test]
+        public void TestExtractBoxNetwork5WithContracted()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Pedestrian);
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network5.geojson"));
+            routerDb.Sort();
+
+            // add contracted graph.
+            routerDb.AddContracted(routerDb.GetSupportedProfile("pedestrian"));
+            routerDb.AddContracted(routerDb.GetSupportedProfile("car"), true);
+
+            // extract.
+            routerDb = routerDb.ExtractArea(52.35246589354224f, 6.662435531616211f,
+                52.35580134510498f, 6.667134761810303f);
+            
+            // there should be 2 contracted graphs.
+            Assert.AreEqual(2, routerDb.GetContractedProfiles().ToList().Count);
+
+            // there should be a pedestrian contracted graph.
+            var profile = routerDb.GetSupportedProfile("pedestrian");
+            ContractedDb contractedDb;
+            Assert.IsTrue(routerDb.TryGetContracted(profile, out contractedDb));
+            Assert.IsTrue(contractedDb.HasNodeBasedGraph);
+            Assert.IsFalse(contractedDb.NodeBasedIsEdgedBased);
+
+            // there should be a car contracted graph.
+            profile = routerDb.GetSupportedProfile("car");
+            Assert.IsTrue(routerDb.TryGetContracted(profile, out contractedDb));
+            Assert.IsTrue(contractedDb.HasNodeBasedGraph);
+            Assert.IsTrue(contractedDb.NodeBasedIsEdgedBased);
+        }
     }
 }

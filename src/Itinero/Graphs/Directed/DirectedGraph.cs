@@ -139,6 +139,17 @@ namespace Itinero.Graphs.Directed
         private long _edgeCount;
 
         /// <summary>
+        /// Gets the edge data size.
+        /// </summary>
+        public int EdgeDataSize
+        {
+            get
+            {
+                return _edgeDataSize;
+            }
+        }
+
+        /// <summary>
         /// Adds an edge with the associated data.
         /// </summary>
         public uint AddEdge(uint vertex1, uint vertex2, uint data)

@@ -1149,6 +1149,8 @@ namespace Itinero
             var newDb = new RouterDb(db.Network.MaxEdgeDistance);
             // maps vertices old -> new.
             var idMap = new Dictionary<uint, uint>();
+            // maps edges old -> new.
+            var edgeIdMap = new Dictionary<uint, uint>();
             // keeps a set of vertices not inside but are needed for an edge that is partially inside.
             var boundaryVertices = new HashSet<uint>();
 
@@ -1249,12 +1251,17 @@ namespace Itinero
                             db.EdgeMeta.Get(edgeData.MetaId))
                     };
                     var shape = edgeEnumerator.Shape;
-                    if (shape != null &&
-                        edgeEnumerator.DataInverted)
+                    uint newEdgeId;
+                    if (!edgeEnumerator.DataInverted)
                     {
-                        shape = shape.Reverse();
+                        newEdgeId = newDb.Network.AddEdge(newV, newTo, newEdgeData, shape);
                     }
-                    newDb.Network.AddEdge(newV, newTo, newEdgeData, shape);
+                    else
+                    {
+                        newEdgeId = newDb.Network.AddEdge(newTo, newV, newEdgeData, shape);
+                    }
+
+                    edgeIdMap[edgeEnumerator.Id] = newEdgeId;
                 }
 
                 newV++;
@@ -1334,7 +1341,64 @@ namespace Itinero
                     }
                 }
             }
-            
+
+            // copy over the contracted graph(s).
+            var graphEnumerator = db.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+            var newGraphEnumerator = newDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+            foreach (var profileName in db.GetContractedProfiles())
+            {
+                var profile = db.GetSupportedProfile(profileName);
+
+                ContractedDb contractedDb;
+                if (!db.TryGetContracted(profile, out contractedDb))
+                {
+                    continue;
+                }
+
+                // three options:
+                // - vertex-based.
+                // - dual vertex-based.
+
+                if (contractedDb.HasNodeBasedGraph &&
+                    contractedDb.NodeBasedIsEdgedBased)
+                { // dual vertex-based
+                    var graph = contractedDb.NodeBasedGraph;
+
+                    var newGraph = graph.Extract(v =>
+                    {
+                        var edgeId = DirectedEdgeId.FromRaw(v);
+
+                        uint newEdgeId;
+                        if (!edgeIdMap.TryGetValue(edgeId.EdgeId, out newEdgeId))
+                        {
+                            return Constants.NO_VERTEX;
+                        }
+                        return new DirectedEdgeId(newEdgeId, edgeId.Forward).Raw;
+                    });
+
+                    var newContractedDb = new ContractedDb(newGraph, true);
+
+                    newDb.AddContracted(profile, newContractedDb);
+                }
+                else if (contractedDb.HasNodeBasedGraph)
+                { // vertex-based.
+                    var graph = contractedDb.NodeBasedGraph;
+
+                    var newGraph = graph.Extract(v =>
+                    {
+                        if (!idMap.TryGetValue(v, out newV))
+                        {
+                            return Constants.NO_VERTEX;
+                        }
+                        return newV;
+                    });
+
+                    var newContractedDb = new ContractedDb(newGraph, false);
+
+                    newDb.AddContracted(profile, newContractedDb);
+                }
+            }
+
             return newDb;
         }
     }

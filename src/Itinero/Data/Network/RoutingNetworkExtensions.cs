@@ -20,6 +20,7 @@ using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
+using Itinero.Algorithms;
 
 namespace Itinero.Data.Network
 {
@@ -274,6 +275,19 @@ namespace Itinero.Data.Network
                 edgeId = (uint)((-directedEdgeId) - 1);
             }
             return graph.GetEdge(edgeId);
+        }
+        
+        /// <summary>
+        /// Returns a directed version of the edge-id. Smaller than 0 if inverted, as-is if not inverted.
+        /// </summary>
+        /// <remarks>
+        /// The relationship between a regular edge id and a directed edge id:
+        /// - 0 -> 1 forward, -1 backward.
+        /// - all other id's are offset by 1 and postive when forward, negative when backward.
+        /// </remarks>
+        public static DirectedEdgeId DirectedEdgeId(this RoutingNetwork.EdgeEnumerator enumerator)
+        {
+            return new DirectedEdgeId(enumerator.Id, !enumerator.DataInverted);
         }
     }
 }
