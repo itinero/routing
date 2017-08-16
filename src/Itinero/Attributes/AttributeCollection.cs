@@ -156,7 +156,7 @@ namespace Itinero.Attributes
         /// </summary>
         public bool ContainsKey(string key)
         {
-            return _attribute.ContainsKey(key);
+            return _attributes.ContainsKey(key);
         }
     }
 }
