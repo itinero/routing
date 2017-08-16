@@ -150,5 +150,13 @@ namespace Itinero.Attributes
             }
             return builder.ToString();
         }
+        
+        /// <summary>
+        /// Checks if a given key exists.
+        /// </summary>
+        public bool ContainsKey(string key)
+        {
+            return _attribute.ContainsKey(key);
+        }
     }
 }
