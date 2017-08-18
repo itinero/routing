@@ -43,12 +43,12 @@ namespace Itinero.Algorithms.Matrices
         T[][] Weights { get; }
 
         /// <summary>
-        /// Returns the original index of the routerpoint, given the corrected index.
+        /// Returns the original location index (after resolving) of the given weight matrix index.
         /// </summary>
-        int OriginalIndexOf(int correctedIdx);
+        int OriginalIndexOf(int matrixIdx);
 
         /// <summary>
-        /// Returns the corrected index of the routerpoint, given the original index.
+        /// Returns the corrected index, the index in the weight matrix, given the original location index (after resolving).
         /// </summary>
         int CorrectedIndexOf(int originalIdx);
 

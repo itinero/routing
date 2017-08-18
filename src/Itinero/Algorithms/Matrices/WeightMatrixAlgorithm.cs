@@ -164,7 +164,7 @@ namespace Itinero.Algorithms.Matrices
         }
 
         /// <summary>
-        /// Returns the corrected index of the routerpoint, given the original index.
+        /// Returns the corrected index, the index in the weight matrix, given the original location index (after resolving).
         /// </summary>
         public int CorrectedIndexOf(int originalIdx)
         {
@@ -174,7 +174,7 @@ namespace Itinero.Algorithms.Matrices
         }
 
         /// <summary>
-        /// Returns the original index of the routerpoint, given the corrected index.
+        /// Returns the original location index (after resolving) of the given weight matrix index.
         /// </summary>
         public int OriginalIndexOf(int routerPointIdx)
         {
