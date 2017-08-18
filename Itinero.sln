@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4B330D21-2EE5-4C34-B716-0DB1FBC58E29}"
 EndProject
@@ -48,6 +48,11 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Test.Runner", "test\Itinero.Test.Runner\Itinero.Test.Runner.csproj", "{78C98956-6CA5-4BB4-8819-B734FF180B92}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{71C3E43F-7206-435F-8A43-92F79B2777B8}"
+	ProjectSection(SolutionItems) = preProject
+		docs\docfx.json = docs\docfx.json
+		docs\INDEX.md = docs\INDEX.md
+		docs\toc.yml = docs\toc.yml
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "releasenotes", "releasenotes", "{7B0DAA6C-67CD-4BCD-97AC-B81804EAA2F8}"
 	ProjectSection(SolutionItems) = preProject
@@ -160,5 +165,8 @@ Global
 		{51203AD7-1E31-4D1C-B3A4-54591044FC29} = {7E594B3F-4CA9-4198-B90D-DD16972D0481}
 		{78C98956-6CA5-4BB4-8819-B734FF180B92} = {7E594B3F-4CA9-4198-B90D-DD16972D0481}
 		{7B0DAA6C-67CD-4BCD-97AC-B81804EAA2F8} = {71C3E43F-7206-435F-8A43-92F79B2777B8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DF8C53F9-34E3-485D-AEF0-E2A20D6696EC}
 	EndGlobalSection
 EndGlobal

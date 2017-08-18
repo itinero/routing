@@ -43,3 +43,7 @@ TestResult*.xml
 *.shp
 *.dbf
 *.shx
+
+docs/obj/*
+docs/api/*
+docs/_site/*
