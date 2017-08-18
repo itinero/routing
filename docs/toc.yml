@@ -1,2 +1,6 @@
-- name: API Documentation
+- name: Documentation
+  href: docs/
+- name: API
   href: api/
+- name: Release Notes
+  href: releasenotes/

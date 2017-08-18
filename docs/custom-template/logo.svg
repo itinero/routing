@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="46.216007"
+   height="43.444786"
+   id="svg3174"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   inkscape:export-filename="C:\Users\saenoi\Downloads\itinero_logo_notext.svg.github.png"
+   inkscape:export-xdpi="182.68634"
+   inkscape:export-ydpi="182.68634"
+   sodipodi:docname="logo.svg">
+  <defs
+     id="defs3176">
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#grad30-6"
+       id="linearGradient3097"
+       x1="-2.25"
+       y1="844.14001"
+       x2="-2.25"
+       y2="807.78003"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="grad30-6"
+       v:fillPattern="30"
+       v:foreground="#f0f0f0"
+       v:foregroundOpacity="0"
+       v:background="#ffffff"
+       v:backgroundOpacity="0"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#f0f0f0;stop-opacity:0"
+         id="stop8" />
+      <stop
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0"
+         id="stop10" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#grad30-6"
+       id="linearGradient3099"
+       x1="-2.25"
+       y1="844.14001"
+       x2="-2.25"
+       y2="754.59998"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient3654"
+       v:fillPattern="30"
+       v:foreground="#f0f0f0"
+       v:foregroundOpacity="0"
+       v:background="#ffffff"
+       v:backgroundOpacity="0"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#f0f0f0;stop-opacity:0"
+         id="stop3656" />
+      <stop
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0"
+         id="stop3658" />
+    </linearGradient>
+    <linearGradient
+       id="grad30-15"
+       v:fillPattern="30"
+       v:foreground="#3e75a6"
+       v:background="#3e75a6"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop13" />
+      <stop
+         offset="1"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop15" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3665"
+       v:fillPattern="30"
+       v:foreground="#3e75a6"
+       v:background="#3e75a6"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop3667" />
+      <stop
+         offset="1"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop3669" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3672"
+       v:fillPattern="30"
+       v:foreground="#3e75a6"
+       v:background="#3e75a6"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop3674" />
+      <stop
+         offset="1"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop3676" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3679"
+       v:fillPattern="30"
+       v:foreground="#3e75a6"
+       v:background="#3e75a6"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop3681" />
+      <stop
+         offset="1"
+         style="stop-color:#3e75a6;stop-opacity:1"
+         id="stop3683" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#grad30-6"
+       id="linearGradient3109"
+       x1="-2.25"
+       y1="844.14001"
+       x2="-2.25"
+       y2="781.20001"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       id="linearGradient3686"
+       v:fillPattern="30"
+       v:foreground="#f0f0f0"
+       v:foregroundOpacity="0"
+       v:background="#ffffff"
+       v:backgroundOpacity="0"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#f0f0f0;stop-opacity:0"
+         id="stop3688" />
+      <stop
+         offset="1"
+         style="stop-color:#ffffff;stop-opacity:0"
+         id="stop3690" />
+    </linearGradient>
+    <linearGradient
+       id="grad30-33"
+       v:fillPattern="30"
+       v:foreground="#a6c3dd"
+       v:background="#a6c3dd"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#a6c3dd;stop-opacity:1"
+         id="stop18" />
+      <stop
+         offset="1"
+         style="stop-color:#a6c3dd;stop-opacity:1"
+         id="stop20" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3697"
+       v:fillPattern="30"
+       v:foreground="#a6c3dd"
+       v:background="#a6c3dd"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#a6c3dd;stop-opacity:1"
+         id="stop3699" />
+      <stop
+         offset="1"
+         style="stop-color:#a6c3dd;stop-opacity:1"
+         id="stop3701" />
+    </linearGradient>
+    <linearGradient
+       id="grad30-40"
+       v:fillPattern="30"
+       v:foreground="#e1ebf3"
+       v:background="#e1ebf3"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#e1ebf3;stop-opacity:1"
+         id="stop23" />
+      <stop
+         offset="1"
+         style="stop-color:#e1ebf3;stop-opacity:1"
+         id="stop25" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3708"
+       v:fillPattern="30"
+       v:foreground="#e1ebf3"
+       v:background="#e1ebf3"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#e1ebf3;stop-opacity:1"
+         id="stop3710" />
+      <stop
+         offset="1"
+         style="stop-color:#e1ebf3;stop-opacity:1"
+         id="stop3712" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient3715"
+       v:fillPattern="30"
+       v:foreground="#e1ebf3"
+       v:background="#e1ebf3"
+       x1="0"
+       y1="1"
+       x2="0"
+       y2="0">
+      <stop
+         offset="0"
+         style="stop-color:#e1ebf3;stop-opacity:1"
+         id="stop3717" />
+      <stop
+         offset="1"
+         style="stop-color:#e1ebf3;stop-opacity:1"
+         id="stop3719" />
+    </linearGradient>
+    <linearGradient
+       y2="807.78003"
+       x2="-2.25"
+       y1="844.14001"
+       x1="-2.25"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3770"
+       xlink:href="#grad30-6"
+       inkscape:collect="always" />
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="4.236995"
+     inkscape:cx="31.130476"
+     inkscape:cy="44.329443"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="px"
+     showgrid="false"
+     fit-margin-top="4"
+     fit-margin-left="4"
+     fit-margin-right="4"
+     fit-margin-bottom="4"
+     inkscape:window-width="1920"
+     inkscape:window-height="1137"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata3179">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     id="layer1"
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     transform="translate(-72.469428,-201.90294)">
+    <g
+       id="shape1-7"
+       v:mID="1"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,78.622104,-88.080869)"
+       style="stroke:#ffffff;stroke-opacity:1">
+      <title
+         id="title40">Cirkel</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <g
+         id="shadow1-8"
+         v:groupContext="shadow"
+         v:shadowOffsetX="1.44"
+         v:shadowOffsetY="-1.44"
+         v:shadowType="1"
+         transform="translate(1.44,1.44)"
+         class="st1"
+         style="visibility:visible;stroke:#ffffff;stroke-opacity:1">
+        <path
+           d="m 0,799.37 a 42.52,42.52 0 0 1 85.04,0 42.52,42.52 0 1 1 -85.04,0 z"
+           class="st2"
+           id="path43"
+           inkscape:connector-curvature="0"
+           style="fill:#cdcdcd;fill-opacity:0;stroke:#ffffff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      </g>
+      <path
+         d="m 0,799.37 a 42.52,42.52 0 0 1 85.04,0 42.52,42.52 0 1 1 -85.04,0 z"
+         class="st4"
+         id="path45"
+         style="fill:url(#linearGradient3099);stroke:#ffffff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape6-25"
+       v:mID="6"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,84.028222,-93.9274)"
+       style="stroke:#ffffff;stroke-opacity:1">
+      <title
+         id="title68">Cirkel.6</title>
+      <path
+         d="m 0,812.67 a 29.22,29.22 0 0 1 58.44,0 29.22,29.22 0 1 1 -58.44,0 z"
+         class="st6"
+         id="path73"
+         style="fill:url(#linearGradient3109);stroke:#ffffff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+         inkscape:connector-curvature="0" />
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <g
+         id="shadow6-26"
+         v:groupContext="shadow"
+         v:shadowOffsetX="1.44"
+         v:shadowOffsetY="-1.44"
+         v:shadowType="1"
+         transform="translate(1.44,1.44)"
+         class="st1"
+         style="visibility:visible;stroke:#ffffff;stroke-opacity:1">
+        <path
+           d="m 0,812.67 a 29.22,29.22 0 0 1 58.44,0 29.22,29.22 0 1 1 -58.44,0 z"
+           class="st2"
+           id="path71"
+           inkscape:connector-curvature="0"
+           style="fill:#cdcdcd;fill-opacity:0;stroke:#ffffff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      </g>
+    </g>
+    <g
+       id="shape10-1"
+       v:mID="10"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,89.429672,-99.105063)"
+       style="stroke:#ffffff;stroke-opacity:1">
+      <title
+         id="title32">Cirkel.10</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <g
+         id="shadow10-2"
+         v:groupContext="shadow"
+         v:shadowOffsetX="1.44"
+         v:shadowOffsetY="-1.44"
+         v:shadowType="1"
+         transform="translate(1.44,1.44)"
+         class="st1"
+         style="visibility:visible;stroke:#ffffff;stroke-opacity:1">
+        <path
+           d="m 0,825.96 a 15.93,15.93 0 1 1 31.86,0 15.93,15.93 0 0 1 -31.86,0 z"
+           class="st2"
+           id="path35"
+           inkscape:connector-curvature="0"
+           style="fill:#cdcdcd;fill-opacity:0;stroke:#ffffff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1" />
+      </g>
+      <path
+         d="m 0,825.96 a 15.93,15.93 0 1 1 31.86,0 15.93,15.93 0 0 1 -31.86,0 z"
+         class="st3"
+         id="path37"
+         style="fill:url(#linearGradient3770);stroke:#ffffff;stroke-width:4.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape2-12"
+       v:mID="2"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,76.469839,-99.473233)"
+       style="fill:#ffffff">
+      <title
+         id="title48">Cirkel.2</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st5"
+         id="path50"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape3-16"
+       v:mID="3"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,103.55651,-88.371733)"
+       style="fill:#ffffff">
+      <title
+         id="title53">Cirkel.3</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st5"
+         id="path55"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape4-19"
+       v:mID="4"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,104.90844,-114.7307)"
+       style="fill:#000000">
+      <title
+         id="title58">Cirkel.4</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st5"
+         id="path60"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape5-22"
+       v:mID="5"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,82.230381,-89.534022)"
+       style="fill:#ffffff">
+      <title
+         id="title63">Cirkel.5</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st5"
+         id="path65"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape7-30"
+       v:mID="7"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,104.90844,-104.64619)"
+       style="fill:#ffffff">
+      <title
+         id="title76">Cirkel.7</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st7"
+         id="path78"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape9-34"
+       v:mID="9"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,87.990931,-112.92845)"
+       style="fill:#ffffff">
+      <title
+         id="title81">Cirkel.9</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st7"
+         id="path83"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape11-37"
+       v:mID="11"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,98.784205,-99.105063)"
+       style="fill:#ffffff">
+      <title
+         id="title86">Cirkel.11</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st8"
+         id="path88"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape12-41"
+       v:mID="12"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,87.990931,-99.105063)"
+       style="fill:#ffffff">
+      <title
+         id="title91">Cirkel.12</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st8"
+         id="path93"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+    <g
+       id="shape13-44"
+       v:mID="13"
+       v:groupContext="shape"
+       transform="matrix(0.40643899,0,0,0.38958892,95.903802,-108.86041)"
+       style="fill:#ffffff">
+      <title
+         id="title96">Cirkel.13</title>
+      <v:userDefs>
+        <v:ud
+           v:nameU="visVersion"
+           v:val="VT0(14):26" />
+        <v:ud
+           v:nameU="msvThemeColors"
+           v:val="VT0(36):26" />
+        <v:ud
+           v:nameU="msvThemeEffects"
+           v:val="VT0(16):26" />
+      </v:userDefs>
+      <path
+         d="m 0,835.7 a 6.19101,6.19101 0 1 1 12.38,0 6.19101,6.19101 0 0 1 -12.38,0 z"
+         class="st8"
+         id="path98"
+         style="fill:#ffffff;stroke:none"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>

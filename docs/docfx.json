@@ -27,8 +27,20 @@
       },
       {
         "files": [
-          "articles/**.md",
-          "articles/**/toc.yml",
+          "releasenotes/**.md",
+          "releasenotes/**.yml",
+          "toc.yml",
+          "*.md"
+        ],
+        "exclude": [
+          "obj/**",
+          "_site/**"
+        ]
+      },
+      {
+        "files": [
+          "docs/**.md",
+          "docs/**.yml",
           "toc.yml",
           "*.md"
         ],
@@ -64,7 +76,8 @@
     "globalMetadataFiles": [],
     "fileMetadataFiles": [],
     "template": [
-      "default"
+      "default",
+	  "custom-template"
     ],
     "postProcessors": [],
     "noLangKeyword": false,

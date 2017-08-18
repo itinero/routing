@@ -1,0 +1,8 @@
+- name: Latest
+  href: index.md
+- name: 1.2.0
+  href: 1.2.0.md
+- name: 1.1.1
+  href: 1.1.1.md
+- name: 1.1.0
+  href: 1.1.0.md
