@@ -133,13 +133,15 @@ namespace Itinero
                                 }
 
                                 var fromCount = il[edge.From];
-                                if (fromCount < settings.MinIslandSize)
+                                if (fromCount < settings.MinIslandSize &&
+                                    fromCount != 0)
                                 {
                                     return false;
                                 }
 
                                 var toCount = il[edge.To];
-                                if (toCount < settings.MinIslandSize)
+                                if (toCount < settings.MinIslandSize &&
+                                    toCount != 0)
                                 {
                                     return false;
                                 }

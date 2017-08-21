@@ -1147,6 +1147,21 @@ namespace Itinero
         /// <returns></returns>
         public static RouterDb ExtractArea(this RouterDb db, Func<Coordinate, bool> isInside)
         {
+            return db.ExtractArea((v) =>
+            {
+                var l = db.Network.GeometricGraph.GetVertex(v);
+                return isInside(l);
+            });
+        }
+
+        /// <summary>
+        /// Extracts part of the routerdb defined by the isInside function.
+        /// </summary>
+        /// <param name="db">The routerdb to extract from.</param>
+        /// <param name="isInside">The is inside function.</param>
+        /// <returns></returns>
+        public static RouterDb ExtractArea(this RouterDb db, Func<uint, bool> isInside)
+        {
             var newDb = new RouterDb(db.Network.MaxEdgeDistance);
             // maps vertices old -> new.
             var idMap = new Dictionary<uint, uint>();
@@ -1168,9 +1183,7 @@ namespace Itinero
             uint newV = 0;
             for (uint v = 0; v < db.Network.VertexCount; v++)
             {
-                var vLocation = db.Network.GetVertex(v);
-
-                if (!isInside(vLocation))
+                if (!isInside(v))
                 {
                     // check if this vertex has neighbours that are inside.
                     // if so it needs to be kept.
@@ -1194,9 +1207,7 @@ namespace Itinero
                         }
                         else
                         {
-                            var toLocation = db.Network.GetVertex(to);
-
-                            if (isInside(toLocation))
+                            if (isInside(to))
                             {
                                 keep = true;
                                 break;
@@ -1217,6 +1228,7 @@ namespace Itinero
                 idMap[v] = newV;
 
                 // add the vertex.
+                var vLocation = db.Network.GetVertex(v);
                 newDb.Network.AddVertex(newV, vLocation.Latitude, vLocation.Longitude);
 
                 // move the enumerator to the correct vertex.
@@ -1408,6 +1420,11 @@ namespace Itinero
         /// </summary>
         public static void AddIslandData(this RouterDb db, Profile profile)
         {
+            if (!db.Supports(profile))
+            {
+                throw new ArgumentException(string.Format("Cannot build island data for an unsupported profile: {0}", profile.FullName));
+            }
+
             var router = new Router(db);
 
             // run island detection.

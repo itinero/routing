@@ -72,7 +72,7 @@ namespace Itinero.Data
         public static MetaCollection Deserialize(Stream stream, ArrayProfile profile)
         {
             var version = stream.ReadByte();
-            if (version != 1 || version != 2)
+            if (version != 1 && version != 2)
             {
                 throw new Exception(string.Format("Cannot deserialize meta-data collection: Invalid version #: {0}, upgrade Itinero.", version));
             }
@@ -93,6 +93,16 @@ namespace Itinero.Data
             {
                 return new MetaCollection<uint>(MetaCollection.DeserializeArray<uint>(
                     stream, profile, length, 4));
+            }
+            if (type == typeof(short))
+            {
+                return new MetaCollection<short>(MetaCollection.DeserializeArray<short>(
+                    stream, profile, length, 2));
+            }
+            if (type == typeof(ushort))
+            {
+                return new MetaCollection<ushort>(MetaCollection.DeserializeArray<ushort>(
+                    stream, profile, length, 2));
             }
             if (type == typeof(long))
             {

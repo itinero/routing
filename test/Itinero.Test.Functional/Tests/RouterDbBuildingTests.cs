@@ -24,6 +24,8 @@ using Itinero.Test.Functional.Staging;
 using OsmSharp.Streams;
 using System;
 using System.IO;
+using Itinero.Data;
+using Itinero.LocalGeo;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -40,9 +42,12 @@ namespace Itinero.Test.Functional.Tests
         {
             var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
-                Osm.Vehicles.Vehicle.Car, 
-                Osm.Vehicles.Vehicle.Pedestrian, 
-                Osm.Vehicles.Vehicle.Bicycle).TestPerf("Loading OSM data");
+                Osm.Vehicles.Vehicle.Car,
+                Osm.Vehicles.Vehicle.Bicycle,
+                Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
 
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
@@ -74,19 +79,6 @@ namespace Itinero.Test.Functional.Tests
                     Message = string.Format("Size of routerdb: {0}", FormatBytes(bytes))
                 };
             };
-        }
-
-        private static string FormatBytes(long bytes)
-        {
-            string[] Suffix = { "B", "KB", "MB", "GB", "TB" };
-            int i;
-            double dblSByte = bytes;
-            for (i = 0; i < Suffix.Length && bytes >= 1024; i++, bytes /= 1024)
-            {
-                dblSByte = bytes / 1024.0;
-            }
-
-            return String.Format("{0:0.##} {1}", dblSByte, Suffix[i]);
         }
 
         /// <summary>
@@ -135,5 +127,45 @@ namespace Itinero.Test.Functional.Tests
                 routerDb.AddContracted(profile, forceEdgeBased);
             };
         }
+
+        /// <summary>
+        /// Tests adding islands data.
+        /// </summary>
+        public static Action GetTestAddIslandData(RouterDb routerDb, Profiles.Profile profile)
+        {
+            return () =>
+            {
+                routerDb.AddIslandData(profile);
+
+#if DEBUG
+                MetaCollection<ushort> islands;
+                if (routerDb.VertexData.TryGet("islands_" + profile.FullName, out islands))
+                {
+                    var islandDb = routerDb.ExtractArea((v) =>
+                    {
+                        return islands[v] != ushort.MaxValue &&
+                             islands[v] != 0;
+                    });
+
+                    File.WriteAllText("islands_" + profile.FullName + ".geojson",
+                        islandDb.GetGeoJson(true, false));
+                }
+#endif
+            };
+        }
+
+        private static string FormatBytes(long bytes)
+        {
+            string[] Suffix = { "B", "KB", "MB", "GB", "TB" };
+            int i;
+            double dblSByte = bytes;
+            for (i = 0; i < Suffix.Length && bytes >= 1024; i++, bytes /= 1024)
+            {
+                dblSByte = bytes / 1024.0;
+            }
+
+            return String.Format("{0:0.##} {1}", dblSByte, Suffix[i]);
+        }
+
     }
 }
