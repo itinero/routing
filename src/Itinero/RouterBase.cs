@@ -17,6 +17,7 @@
  */
 
 using Itinero.Algorithms;
+using Itinero.Algorithms.Search;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Network;
 using Itinero.Profiles;
@@ -53,7 +54,8 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public abstract Result<RouterPoint> TryResolve(IProfileInstance[] profiles, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter);
+            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter,
+            ResolveSettings settings = null);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.

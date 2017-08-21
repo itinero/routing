@@ -1423,7 +1423,27 @@ namespace Itinero
             var meta = db.VertexData.AddUInt16(name);
             for (uint i = 0; i < meta.Count; i++)
             {
-                meta[i] = islands[i];
+                var island = islands[i];
+                if (island == IslandDetector.SINGLETON_ISLAND)
+                { // these vertices can be removed in preprocessing but sometimes it's usefull to keep them in.
+                    meta[i] = 1;
+                }
+                else
+                {
+                    uint size;
+                    if (islandDetector.IslandSizes.TryGetValue(island, out size))
+                    {
+                        if (size > ushort.MaxValue)
+                        {
+                            size = ushort.MaxValue;
+                        }
+                        meta[i] = (ushort)size;
+                    }
+                    else
+                    { // hmm, there should be at least something here, but no reason to fail on it.
+                        meta[i] = 0;
+                    }
+                }
             }
         }
     }

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using Itinero.Data.Contracted;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Weights;
+using Itinero.Data;
 
 namespace Itinero
 {
@@ -75,8 +76,13 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<RouterPoint> TryResolve(IProfileInstance[] profileInstances, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter)
+            Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null)
         {
+            if (settings == null)
+            {
+                settings = new ResolveSettings();
+            }
+
             try
             {
                 if (!_db.SupportsAll(profileInstances))
@@ -91,6 +97,57 @@ namespace Itinero
 
                 // get is acceptable.
                 var isAcceptable = this.GetIsAcceptable(profileInstances);
+
+                // enhance is acceptable with islands if needed and if island are there.
+                if (settings.MinIslandSize > 0)
+                {
+                    MetaCollection<ushort>[] islands = null;
+                    for (var p = 0; p < profileInstances.Length; p++)
+                    {
+                        MetaCollection<ushort> il;
+                        if (this.Db.VertexData.TryGet("island_" + profileInstances[p].Profile.FullName, out il))
+                        {
+                            if (islands == null)
+                            {
+                                islands = new MetaCollection<ushort>[profileInstances.Length];
+                            }
+                            islands[p] = il;
+                        }
+                    }
+
+                    if (islands != null)
+                    { // override default is acceptable and also check islands.
+                        isAcceptable = new Func<GeometricEdge, bool>(edge =>
+                        {
+                            if (!isAcceptable(edge))
+                            { // fail fast.
+                                return false;
+                            }
+
+                            foreach (var il in islands)
+                            {
+                                if (il == null)
+                                {
+                                    continue;
+                                }
+
+                                var fromCount = il[edge.From];
+                                if (fromCount < settings.MinIslandSize)
+                                {
+                                    return false;
+                                }
+
+                                var toCount = il[edge.To];
+                                if (toCount < settings.MinIslandSize)
+                                {
+                                    return false;
+                                }
+                            }
+
+                            return true;
+                        });
+                    }
+                }
 
                 if (this.CreateCustomResolver == null)
                 { // just use the default resolver algorithm.
@@ -180,7 +237,6 @@ namespace Itinero
                         return new Result<bool>(false);
                     }
                 }
-
 
                 if (checkBackward)
                 { // build and run backward dykstra search.
