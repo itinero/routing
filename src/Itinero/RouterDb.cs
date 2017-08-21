@@ -485,9 +485,10 @@ namespace Itinero
             // version3: Add advanced profile serialization.
             // version4: Added missing restriction dbs.
             // version5: Added new dual edge-based contracted graph.
-            // version6: Added vertex meta data.
+            // version6: Added vertex meta-data.
+            // version7: Added support for shorts in vertex meta-data.
             long size = 1;
-            stream.WriteByte(6);
+            stream.WriteByte(7);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -642,8 +643,9 @@ namespace Itinero
             // version4: Added missing restriction dbs.
             // version5: Added new dual edge-based contracted graph.
             // version6: Added vertex meta-data.
+            // version7: Added support for shorts in vertex meta-data.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6)
+            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6 && version != 7)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
