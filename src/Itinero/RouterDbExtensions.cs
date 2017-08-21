@@ -1421,7 +1421,7 @@ namespace Itinero
             // add the data to the routerdb.
             var name = "islands_" + profile.FullName;
             var meta = db.VertexData.AddUInt16(name);
-            for (uint i = 0; i < meta.Count; i++)
+            for (uint i = 0; i < islands.Length; i++)
             {
                 var island = islands[i];
                 if (island == IslandDetector.SINGLETON_ISLAND)
@@ -1434,6 +1434,10 @@ namespace Itinero
                     if (islandDetector.IslandSizes.TryGetValue(island, out size))
                     {
                         if (size > ushort.MaxValue)
+                        {
+                            size = ushort.MaxValue;
+                        }
+                        if (size > (islands.Length / 2))
                         {
                             size = ushort.MaxValue;
                         }

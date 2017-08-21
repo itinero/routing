@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using System;
 using Itinero.Algorithms;
+using Itinero.Algorithms.Search;
 
 namespace Itinero.Test
 {
@@ -114,7 +115,7 @@ namespace Itinero.Test
 
         public override Result<RouterPoint> TryResolve(IProfileInstance[] profiles,
             float latitude, float longitude, System.Func<RoutingEdge, bool> isBetter,
-                float maxSearchDistance = Constants.SearchDistanceInMeter)
+                float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null)
         {
             if (latitude < -90 || latitude > 90 ||
                 longitude < -180 || longitude > 180)
