@@ -514,6 +514,22 @@
           51.27560874067112
         ]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "marker-color": "#7e7e7e",
+        "marker-size": "medium",
+        "marker-symbol": "",
+        "name": "location4"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.788472652435303,
+          51.28462836628995
+        ]
+      }
     }
   ]
 }

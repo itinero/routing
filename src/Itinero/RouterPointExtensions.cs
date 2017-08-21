@@ -760,7 +760,7 @@ namespace Itinero
             jsonWriter.WriteClose();
 
             // write original location.
-            coordinate = routerPoint.LocationOnNetwork(db);
+            coordinate = routerPoint.Location();
             jsonWriter.WriteOpen();
             jsonWriter.WriteProperty("type", "Feature", true, false);
             jsonWriter.WritePropertyName("geometry", false);

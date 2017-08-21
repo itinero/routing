@@ -105,7 +105,7 @@ namespace Itinero
                     for (var p = 0; p < profileInstances.Length; p++)
                     {
                         MetaCollection<ushort> il;
-                        if (this.Db.VertexData.TryGet("island_" + profileInstances[p].Profile.FullName, out il))
+                        if (this.Db.VertexData.TryGet("islands_" + profileInstances[p].Profile.FullName, out il))
                         {
                             if (islands == null)
                             {
@@ -117,9 +117,10 @@ namespace Itinero
 
                     if (islands != null)
                     { // override default is acceptable and also check islands.
+                        var oldIsAcceptable = isAcceptable;
                         isAcceptable = new Func<GeometricEdge, bool>(edge =>
                         {
-                            if (!isAcceptable(edge))
+                            if (!oldIsAcceptable(edge))
                             { // fail fast.
                                 return false;
                             }
