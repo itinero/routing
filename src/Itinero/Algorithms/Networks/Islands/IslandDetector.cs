@@ -49,17 +49,19 @@ namespace Itinero.Algorithms.Networks
             _routerDb = routerDb;
 
             _islands = new ushort[_routerDb.Network.VertexCount];
+            _islandSizes = new Dictionary<ushort, uint>();
 		}
 
         private Graph.EdgeEnumerator _enumerator;
         private SparseLongIndex _vertexFlags;
         private HashSet<ushort> _canTraverse;
+        private Dictionary<ushort, uint> _islandSizes;
 
         /// <summary>
         /// Runs the island detection.
         /// </summary>
 		protected override void DoRun()
-		{
+        {
             _enumerator = _routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
             _vertexFlags = new SparseLongIndex();
             var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;
@@ -80,7 +82,7 @@ namespace Itinero.Algorithms.Networks
             {
                 // find the first vertex without an island assignment.
                 var vertex = uint.MaxValue;
-                for(uint v = lower; v < vertexCount; v++)
+                for (uint v = lower; v < vertexCount; v++)
                 {
                     if (_islands[v] == 0)
                     {
@@ -138,6 +140,73 @@ namespace Itinero.Algorithms.Networks
                     island++;
                 }
             }
+
+            // calculate island sizes.
+            uint count = 1, size = 0;
+            ushort lastIsland = _islands[0];
+            for (var v = 1; v < _islands.Length; v++)
+            {
+                var currentIsland = _islands[v];
+                if (currentIsland == SINGLETON_ISLAND)
+                {
+                    continue;
+                }
+
+                if (currentIsland != lastIsland)
+                {
+                    if (!_islandSizes.TryGetValue(lastIsland, out size))
+                    {
+                        size = 0;
+                    }
+                    size += count;
+                    if (lastIsland != SINGLETON_ISLAND)
+                    {
+                        _islandSizes[lastIsland] = size;
+                    }
+
+                    lastIsland = currentIsland;
+                    count = 1;
+                }
+                else
+                {
+                    count++;
+                }
+            }
+            if (!_islandSizes.TryGetValue(lastIsland, out size))
+            {
+                size = 0;
+            }
+            size += count;
+            if (lastIsland != SINGLETON_ISLAND)
+            {
+                _islandSizes[lastIsland] = size;
+            }
+
+            // sort islands.
+            var sortedIslands = new List<KeyValuePair<ushort, uint>>(_islandSizes);
+            sortedIslands.Sort((x, y) => -x.Value.CompareTo(y.Value));
+            var newIds = new Dictionary<ushort, ushort>();
+            for (ushort i = 0; i < sortedIslands.Count; i++)
+            {
+                newIds[sortedIslands[i].Key] = i;
+            }
+            for (var v = 0; v < _islands.Length; v++)
+            {
+                ushort newId;
+                if (newIds.TryGetValue(_islands[v], out newId))
+                {
+                    _islands[v] = newId;
+                }
+            }
+            _islandSizes.Clear();
+            foreach (var sortedIsland in sortedIslands)
+            {
+                ushort newId;
+                if (newIds.TryGetValue(sortedIsland.Key, out newId))
+                {
+                    _islandSizes[newId] = sortedIsland.Value;
+                }
+            }
         }
 
         /// <summary>
@@ -148,6 +217,17 @@ namespace Itinero.Algorithms.Networks
             get
             {
                 return _islands;
+            }
+        }
+
+        /// <summary>
+        /// Gets the island sizes.
+        /// </summary>
+        public Dictionary<ushort, uint> IslandSizes
+        {
+            get
+            {
+                return _islandSizes;
             }
         }
 
@@ -183,6 +263,7 @@ namespace Itinero.Algorithms.Networks
                     min = neighbour;
                 }
             }
+
             return min;
         }
 
