@@ -1443,7 +1443,7 @@ namespace Itinero
                 var island = islands[i];
                 if (island == IslandDetector.SINGLETON_ISLAND)
                 { // these vertices can be removed in preprocessing but sometimes it's usefull to keep them in.
-                    meta[i] = 1;
+                    meta[i] = 0;
                 }
                 else
                 {
