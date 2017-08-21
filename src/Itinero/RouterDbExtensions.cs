@@ -38,6 +38,7 @@ using Itinero.IO.Json;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Dual;
 using Itinero.Data.Network.Edges;
+using Itinero.Algorithms.Networks;
 
 namespace Itinero
 {
@@ -1400,6 +1401,30 @@ namespace Itinero
             }
 
             return newDb;
+        }
+
+        /// <summary>
+        /// Adds and detects island data to improve resolving.
+        /// </summary>
+        public static void AddIslandData(this RouterDb db, Profile profile)
+        {
+            var router = new Router(db);
+
+            // run island detection.
+            var islandDetector = new IslandDetector(db,
+                new Func<ushort, Factor>[] { router.GetDefaultGetFactor(profile) });
+            islandDetector.Run();
+
+            // properly format islands.
+            var islands = islandDetector.Islands;
+            
+            // add the data to the routerdb.
+            var name = "islands_" + profile.FullName;
+            var meta = db.VertexData.AddUInt16(name);
+            for (uint i = 0; i < meta.Count; i++)
+            {
+                meta[i] = islands[i];
+            }
         }
     }
 }
