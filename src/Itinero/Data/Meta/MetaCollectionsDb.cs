@@ -114,6 +114,14 @@ namespace Itinero.Data.Network.Edges
             {
                 return this.AddDouble(name);
             }
+            if (type == typeof(short))
+            {
+                return this.AddInt16(name);
+            }
+            if (type == typeof(ushort))
+            {
+                return this.AddUInt16(name);
+            }
             throw new Exception(string.Format(
                 "Meta collection not supported for type {0}: MetaCollection can only handle integer types or float and double.",
                     type));
@@ -175,6 +183,26 @@ namespace Itinero.Data.Network.Edges
         public MetaCollection<double> AddDouble(string name)
         {
             var metaCollection = new MetaCollection<double>(BLOCK_SIZE);
+            _collections[name] = metaCollection;
+            return metaCollection;
+        }
+
+        /// <summary>
+        /// Adds a new meta collection.
+        /// </summary>
+        public MetaCollection<short> AddInt16(string name)
+        {
+            var metaCollection = new MetaCollection<short>(BLOCK_SIZE);
+            _collections[name] = metaCollection;
+            return metaCollection;
+        }
+
+        /// <summary>
+        /// Adds a new meta collection.
+        /// </summary>
+        public MetaCollection<ushort> AddUInt16(string name)
+        {
+            var metaCollection = new MetaCollection<ushort>(BLOCK_SIZE);
             _collections[name] = metaCollection;
             return metaCollection;
         }

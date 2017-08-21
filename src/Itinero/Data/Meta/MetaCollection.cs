@@ -38,7 +38,9 @@ namespace Itinero.Data
             new Tuple<Type, byte>(typeof(long), 2),
             new Tuple<Type, byte>(typeof(ulong), 3),
             new Tuple<Type, byte>(typeof(float), 4),
-            new Tuple<Type, byte>(typeof(double), 5)
+            new Tuple<Type, byte>(typeof(double), 5),
+            new Tuple<Type, byte>(typeof(short), 6),
+            new Tuple<Type, byte>(typeof(ushort), 7)
         };
 
         /// <summary>
@@ -70,7 +72,7 @@ namespace Itinero.Data
         public static MetaCollection Deserialize(Stream stream, ArrayProfile profile)
         {
             var version = stream.ReadByte();
-            if (version != 1)
+            if (version != 1 || version != 2)
             {
                 throw new Exception(string.Format("Cannot deserialize meta-data collection: Invalid version #: {0}, upgrade Itinero.", version));
             }
@@ -352,8 +354,11 @@ namespace Itinero.Data
         {
             this.Trim();
 
+            // VERSION HISTORY:
+            // VERSION1: Initial implementatioN.
+            // VERSION2: Added support for short and ushort.
             long size = 1;
-            stream.WriteByte(1);
+            stream.WriteByte(2);
 
             // write type header.
             stream.WriteByte(this.GetTypeHeader());
