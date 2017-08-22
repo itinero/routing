@@ -1,6 +1,7 @@
 #  Itinero
 
 ![Build status](http://build.osmsharp.com/app/rest/builds/buildType:(id:Itinero_RoutingDevelop)/statusIcon)
+[![Join the chat at https://gitter.im/Itinero/Lobby](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Itinero/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Visit our website](https://img.shields.io/badge/website-itinero.tech-020031.svg) ](http://www.itinero.tech/)
 [![GPL licensed](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/itinero/routing/blob/develop/LICENSE.md)
 
