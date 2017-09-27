@@ -55,20 +55,20 @@
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
           <group targetFramework=".NETFramework4.0">
-            <dependency id="Reminiscence" version="[1.0.5, )" />
+            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
           </group>
           <group targetFramework=".NETFramework4.5">
-            <dependency id="Reminiscence" version="[1.0.5, )" />
+            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
           </group>
           <group targetFramework=".NETPortable4.0-Profile147">
-            <dependency id="Reminiscence" version="[1.0.5, )" />
+            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
           </group>
           <group targetFramework=".NETStandard1.3">
             <dependency id="NETStandard.Library" version="[1.6.0, )" />
             <dependency id="System.Reflection" version="[4.1.0, )" />
             <dependency id="System.Reflection.TypeExtensions" version="[4.1.0, )" />
             <dependency id="System.Xml.XmlSerializer" version="[4.0.11, )" />
-            <dependency id="Reminiscence" version="[1.0.5, )" />
+            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
           </group>
         </dependencies>
         <frameworkAssemblies>
