@@ -541,9 +541,9 @@ namespace Itinero
             size += _metaVertex.Serialize(new LimitedStream(stream));
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
-            // serialize vertex data.
-            size += _vertexData.Serialize(stream);
-            stream.Seek(position + size, SeekOrigin.Begin);
+            //// serialize vertex data.
+            //size += _vertexData.Serialize(stream);
+            //stream.Seek(position + size, SeekOrigin.Begin);
 
             // serialize network.
             size += _network.Serialize(new LimitedStream(stream));
