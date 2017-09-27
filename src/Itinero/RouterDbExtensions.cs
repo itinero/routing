@@ -1269,25 +1269,28 @@ namespace Itinero
 
             // copy over all vertex meta.
             var vertexData = db.VertexData;
-            var vertexDataNames = db.VertexData.Names;
-            foreach (var name in vertexDataNames)
+            if (vertexData != null)
             {
-                var collection = db.VertexData.Get(name);
-                var newCollection = newDb.VertexData.Add(name, collection.ElementType);
+                var vertexDataNames = db.VertexData.Names;
+                foreach (var name in vertexDataNames)
+                {
+                    var collection = db.VertexData.Get(name);
+                    var newCollection = newDb.VertexData.Add(name, collection.ElementType);
 
-                for (uint v = 0; v < db.Network.VertexCount; v++)
+                    for (uint v = 0; v < db.Network.VertexCount; v++)
+                    {
+                        if (idMap.TryGetValue(v, out newV))
+                        {
+                            newCollection.CopyFrom(collection, newV, v);
+                        }
+                    }
+                }
+                foreach (var v in db.VertexMeta)
                 {
                     if (idMap.TryGetValue(v, out newV))
                     {
-                        newCollection.CopyFrom(collection, newV, v);
+                        newDb.VertexMeta[newV] = db.VertexMeta[v];
                     }
-                }
-            }
-            foreach (var v in db.VertexMeta)
-            {
-                if (idMap.TryGetValue(v, out newV))
-                {
-                    newDb.VertexMeta[newV] = db.VertexMeta[v];
                 }
             }
 
