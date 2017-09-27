@@ -704,7 +704,7 @@ namespace Itinero
             if (version >= 6)
             {
                 metaVertex = MappedAttributesIndex.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexMetaProfile);
-                vertexData = MetaCollectionDb.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexDataProfile);
+                //vertexData = MetaCollectionDb.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexDataProfile);
             }
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
