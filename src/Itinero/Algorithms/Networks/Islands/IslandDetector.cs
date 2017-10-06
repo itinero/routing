@@ -76,6 +76,24 @@ namespace Itinero.Algorithms.Networks
                 }
             }
 
+            // find vertices that are deadends but oneway and mark them as singleton islands.
+            for (uint v = 0; v < vertexCount; v++)
+            {
+                if (_islands[v] == 0)
+                {
+                    var current = v;
+                    var neighbour = IsOnewayDeadend(current);
+
+                    while (neighbour != Constants.NO_VERTEX)
+                    {
+                        _islands[current] = SINGLETON_ISLAND;
+
+                        current = neighbour;
+                        neighbour = IsOnewayDeadend(current);
+                    }
+                }
+            }
+
             var island = (ushort)1;
             uint lower = 0;
             while (true)
@@ -282,6 +300,65 @@ namespace Itinero.Algorithms.Networks
             }
             return false;
         }
-	}
+
+        /// <summary>
+        /// Returns true if the edge profile can be traversed by any of the profiles and at least on of the profiles notifies as oneway.
+        /// </summary>
+        private bool IsOneway(ushort edgeProfile)
+        {
+            for (var p = 0; p < _profiles.Length; p++)
+            {
+                var f = _profiles[p](edgeProfile);
+                if (f.Value != 0 &&
+                    f.Direction != 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Returns the only neighbour if this vertex is a oneway deadend, ignoring neighbours marked as singletons. 
+        /// </summary>
+        private uint IsOnewayDeadend(uint v)
+        {
+            _enumerator.MoveTo(v);
+
+            uint onewayDeadend = Constants.NO_VERTEX;
+            while (_enumerator.MoveNext())
+            {
+                if (_islands[_enumerator.Current.To] == SINGLETON_ISLAND)
+                { // the other vertex is a singleton, ignore.
+                    continue;
+                }
+                else
+                {
+                    float distance;
+                    ushort edgeProfile;
+                    EdgeDataSerializer.Deserialize(_enumerator.Data0, out distance, out edgeProfile);
+
+                    if (this.CanTraverse(edgeProfile))
+                    {
+                        if (!this.IsOneway(edgeProfile))
+                        { // bidirectional neighbour, never a oneway deadend, skip this one.
+                            return Constants.NO_VERTEX;
+                        }
+
+                        // neighbour found, and it's oneway.
+                        if (onewayDeadend != Constants.NO_VERTEX)
+                        { // two oneway neighbours found, skip this one.
+                            return Constants.NO_VERTEX;
+                        }
+
+                        // mark as oneway deadend, up until now there is one oneway neighbour.
+                        onewayDeadend = _enumerator.Current.To;
+                    }
+                }
+            }
+
+            return onewayDeadend;
+        }
+    }
 }
 
