@@ -207,5 +207,49 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             Assert.IsTrue(islandSizes.TryGetValue(1, out size));
             Assert.AreEqual(2, size);
         }
+
+        /// <summary>
+        /// Tests handling of oneway cases.
+        /// </summary>
+        [Test]
+        public void TestOnewayHandling()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network17.geojson"));
+
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            Func<ushort, Itinero.Profiles.Factor> getFactor = (x) =>
+            {
+                var attributes = routerDb.EdgeProfiles.Get(x);
+                var factorAndSpeed = profile.FactorAndSpeed(attributes);
+                return new Itinero.Profiles.Factor()
+                {
+                    Direction = factorAndSpeed.Direction,
+                    Value = factorAndSpeed.Value
+                };
+            };
+
+            // start island detector.
+            var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
+            islandDetector.Run();
+
+            // verify the islands.
+            var islands = islandDetector.Islands;
+            Assert.IsNotNull(islands);
+            Assert.AreEqual(10, islands.Length);
+            Assert.AreEqual(0, islands[0]);
+            Assert.AreNotEqual(0, islands[1]);
+            Assert.AreEqual(0, islands[2]);
+            Assert.AreEqual(0, islands[3]);
+            Assert.AreEqual(0, islands[4]);
+            Assert.AreEqual(0, islands[5]);
+            Assert.AreEqual(0, islands[6]);
+            Assert.AreEqual(0, islands[7]);
+            Assert.AreNotEqual(0, islands[8]);
+            Assert.AreNotEqual(0, islands[9]);
+        }
     }
 }

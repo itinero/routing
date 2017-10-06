@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data;
+using Itinero.LocalGeo;
 using NUnit.Framework;
 
 namespace Itinero.Test
@@ -93,6 +94,40 @@ namespace Itinero.Test
                     Assert.AreEqual(3, islands[i]);
                 }
             }
+        }
+
+        /// <summary>
+        /// Tests oneway islands and resolving.
+        /// </summary>
+        [Test]
+        public void TestAddIslandsOneway()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network17.geojson"));
+            routerDb.Sort();
+
+            // add island data.
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddIslandData(profile);
+
+            // resolve at the location of the oneway island.
+            var router = new Router(routerDb);
+
+            var location = new Coordinate(51.22620094060593f, 4.424091875553131f);
+            var point = router.Resolve(profile, location, 1000);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location, point.LocationOnNetwork(routerDb)) > 10);
+
+            location = new Coordinate(51.22468580253045f, 4.421868324279785f);
+            point = router.Resolve(profile, location, 1000);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location, point.LocationOnNetwork(routerDb)) > 10);
+
+            location = new Coordinate(51.22427593399205f, 4.425215721130371f);
+            point = router.Resolve(profile, location, 1000);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location, point.LocationOnNetwork(routerDb)) > 10);
         }
     }
 }

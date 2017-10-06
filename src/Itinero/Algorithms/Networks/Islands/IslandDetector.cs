@@ -77,6 +77,7 @@ namespace Itinero.Algorithms.Networks
             }
 
             // find vertices that are deadends but oneway and mark them as singleton islands.
+            var island = (ushort)1;
             for (uint v = 0; v < vertexCount; v++)
             {
                 if (_islands[v] == 0)
@@ -84,17 +85,23 @@ namespace Itinero.Algorithms.Networks
                     var current = v;
                     var neighbour = IsOnewayDeadend(current);
 
-                    while (neighbour != Constants.NO_VERTEX)
+                    if (neighbour != Constants.NO_VERTEX)
                     {
-                        _islands[current] = SINGLETON_ISLAND;
+                        var nextIsland = island;
+                        island++;
 
-                        current = neighbour;
-                        neighbour = IsOnewayDeadend(current);
+                        while (neighbour != Constants.NO_VERTEX)
+                        {
+                            _islands[current] = nextIsland;
+                            _vertexFlags.Add(current);
+
+                            current = neighbour;
+                            neighbour = IsOnewayDeadend(current);
+                        }
                     }
                 }
             }
 
-            var island = (ushort)1;
             uint lower = 0;
             while (true)
             {
@@ -328,7 +335,7 @@ namespace Itinero.Algorithms.Networks
             uint onewayDeadend = Constants.NO_VERTEX;
             while (_enumerator.MoveNext())
             {
-                if (_islands[_enumerator.Current.To] == SINGLETON_ISLAND)
+                if (_islands[_enumerator.Current.To] != 0)
                 { // the other vertex is a singleton, ignore.
                     continue;
                 }
