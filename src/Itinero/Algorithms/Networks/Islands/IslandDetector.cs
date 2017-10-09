@@ -23,6 +23,7 @@ using Itinero.Algorithms.Collections;
 using Itinero.Data.Edges;
 using System.Collections.Generic;
 using Itinero.Algorithms.PriorityQueues;
+using Reminiscence.Arrays;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -34,6 +35,8 @@ namespace Itinero.Algorithms.Networks
 		private readonly Func<ushort, Factor>[] _profiles;
         private readonly ushort[] _islands; // holds the island # per vertex.
         private readonly RouterDb _routerDb;
+        private const uint NO_DATA = uint.MaxValue;
+        private const ushort NO_ISLAND = ushort.MaxValue;
 
         /// <summary>
         /// A value representing a singleton island.
@@ -53,9 +56,14 @@ namespace Itinero.Algorithms.Networks
 		}
 
         private Graph.EdgeEnumerator _enumerator;
-        private SparseLongIndex _vertexFlags;
-        private HashSet<ushort> _canTraverse;
         private Dictionary<ushort, uint> _islandSizes;
+
+        private ArrayBase<uint> _index;
+        private Collections.Stack<uint> _stack;
+        private SparseLongIndex _onStack;
+
+        private uint _nextIndex = 0;
+        private ushort _nextIsland = 0;
 
         /// <summary>
         /// Runs the island detection.
@@ -63,174 +71,109 @@ namespace Itinero.Algorithms.Networks
 		protected override void DoRun()
         {
             _enumerator = _routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
-            _vertexFlags = new SparseLongIndex();
+            _onStack = new SparseLongIndex();
             var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;
 
-            // precalculate all edge types for the given profiles.
-            _canTraverse = new HashSet<ushort>();
-            for (ushort p = 0; p < _routerDb.EdgeProfiles.Count; p++)
+            // initialize all islands to NO_ISLAND.
+            for (var i = 0; i < _islands.Length; i++)
             {
-                if (this.CanTraverse(p))
-                {
-                    _canTraverse.Add(p);
-                }
+                _islands[i] = NO_ISLAND;
             }
 
-            // find vertices that are deadends but oneway and mark them as singleton islands.
-            var island = (ushort)1;
+            // build index data structure and stack.
+            _index = new MemoryArray<uint>(vertexCount * 2);
+            for (var i = 0; i < _index.Length; i++)
+            {
+                _index[i] = NO_DATA;
+            }
+            _stack = new Collections.Stack<uint>();
+
+            // https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
             for (uint v = 0; v < vertexCount; v++)
             {
-                if (_islands[v] == 0)
-                {
-                    var current = v;
-                    var neighbour = IsOnewayDeadend(current);
-
-                    if (neighbour != Constants.NO_VERTEX)
-                    {
-                        var nextIsland = island;
-                        island++;
-
-                        while (neighbour != Constants.NO_VERTEX)
-                        {
-                            _islands[current] = nextIsland;
-                            _vertexFlags.Add(current);
-
-                            current = neighbour;
-                            neighbour = IsOnewayDeadend(current);
-                        }
-                    }
-                }
-            }
-
-            uint lower = 0;
-            while (true)
-            {
-                // find the first vertex without an island assignment.
-                var vertex = uint.MaxValue;
-                for (uint v = lower; v < vertexCount; v++)
-                {
-                    if (_islands[v] == 0)
-                    {
-                        lower = v;
-                        vertex = v;
-                        break;
-                    }
-                }
-
-                if (vertex == uint.MaxValue)
-                { // no more islands left.
-                    break;
-                }
-
-                // expand island until no longer possible.
-                var current = vertex;
-                _islands[vertex] = island;
-                _vertexFlags.Add(vertex);
-                vertex = this.Expand(vertex, island);
-
-                if (vertex == uint.MaxValue)
-                { // expanding failed, still just the source vertex, this is an island of one.
-                    _islands[current] = SINGLETON_ISLAND;
-                }
-                else
-                {
-                    while (vertex != uint.MaxValue)
-                    {
-                        _islands[vertex] = island;
-                        _vertexFlags.Add(vertex);
-
-                        vertex = this.Expand(vertex, island);
-
-                        if (vertex < current)
-                        {
-                            current = vertex;
-                        }
-
-                        if (vertex == uint.MaxValue)
-                        {
-                            while (current < vertexCount)
-                            {
-                                if (_islands[current] == island &&
-                                   !_vertexFlags.Contains(current))
-                                { // part of island but has not been used to expand yet.
-                                    vertex = current;
-                                    break;
-                                }
-                                current++;
-                            }
-                        }
-                    }
-
-                    // island was no singleton, move to next island.
-                    island++;
-                }
-            }
-
-            // calculate island sizes.
-            uint count = 1, size = 0;
-            ushort lastIsland = _islands[0];
-            for (var v = 1; v < _islands.Length; v++)
-            {
-                var currentIsland = _islands[v];
-                if (currentIsland == SINGLETON_ISLAND)
+                var vIndex = _index[v * 2];
+                if (vIndex != NO_DATA)
                 {
                     continue;
                 }
 
-                if (currentIsland != lastIsland)
+                StrongConnect(v);
+            }
+        }
+
+        private void StrongConnect(uint v)
+        {
+            _enumerator.MoveTo(v);
+
+            _index[v * 2 + 0] = _nextIndex;
+            _index[v * 2 + 1] = _nextIndex;
+            _nextIndex++;
+
+            _stack.Push(v);
+
+            if (_enumerator.MoveTo(v))
+            {
+                while (_enumerator.MoveNext())
                 {
-                    if (!_islandSizes.TryGetValue(lastIsland, out size))
+                    float distance;
+                    ushort edgeProfile;
+                    EdgeDataSerializer.Deserialize(_enumerator.Data0, out distance, out edgeProfile);
+
+                    var access = this.GetAccess(edgeProfile);
+
+                    if (_enumerator.DataInverted)
                     {
-                        size = 0;
-                    }
-                    size += count;
-                    if (lastIsland != SINGLETON_ISLAND)
-                    {
-                        _islandSizes[lastIsland] = size;
+                        if (access == Access.OnewayBackward)
+                        {
+                            access = Access.OnewayForward;
+                        }
+                        else if(access == Access.OnewayForward)
+                        {
+                            access = Access.OnewayForward;
+                        }
                     }
 
-                    lastIsland = currentIsland;
-                    count = 1;
+                    if (access != Access.OnewayForward ||
+                        access != Access.Bidirectional)
+                    {
+                        continue;
+                    }
+
+                    var n = _enumerator.To;
+                    var nIndex = _index[n * 2 + 0];
+                    if (nIndex == NO_DATA)
+                    {
+                        StrongConnect(v);
+                        var nLowLink = _index[n * 2 + 1];
+                        if (nLowLink < _index[v * 2 + 1])
+                        {
+                            _index[v * 2 + 1] = nLowLink; 
+                        }
+                    }
+                    else if (_onStack.Contains(n))
+                    {
+                        if (nIndex < _index[v * 2 + 1])
+                        {
+                            _index[v * 2 + 1] = nIndex;
+                        }
+                    }
                 }
-                else
-                {
-                    count++;
-                }
-            }
-            if (!_islandSizes.TryGetValue(lastIsland, out size))
-            {
-                size = 0;
-            }
-            size += count;
-            if (lastIsland != SINGLETON_ISLAND)
-            {
-                _islandSizes[lastIsland] = size;
             }
 
-            // sort islands.
-            var sortedIslands = new List<KeyValuePair<ushort, uint>>(_islandSizes);
-            sortedIslands.Sort((x, y) => -x.Value.CompareTo(y.Value));
-            var newIds = new Dictionary<ushort, ushort>();
-            for (ushort i = 0; i < sortedIslands.Count; i++)
-            {
-                newIds[sortedIslands[i].Key] = i;
-            }
-            for (var v = 0; v < _islands.Length; v++)
-            {
-                ushort newId;
-                if (newIds.TryGetValue(_islands[v], out newId))
+            if (_index[v * 2 + 0] == _index[v * 2 + 1])
+            { // this was a root node so this is an island!
+                // pop from stack until root reached.
+                var island = _nextIsland;
+                _nextIsland++;
+
+                uint size = 0;
+                var islandVertex = _stack.Pop();
+                do
                 {
-                    _islands[v] = newId;
-                }
-            }
-            _islandSizes.Clear();
-            foreach (var sortedIsland in sortedIslands)
-            {
-                ushort newId;
-                if (newIds.TryGetValue(sortedIsland.Key, out newId))
-                {
-                    _islandSizes[newId] = sortedIsland.Value;
-                }
+                    size++;
+
+                    _islands[islandVertex] = island;
+                } while (islandVertex != v);
             }
         }
 
@@ -255,116 +198,52 @@ namespace Itinero.Algorithms.Networks
                 return _islandSizes;
             }
         }
-
+        
         /// <summary>
-        /// Expands an island starting the given vertex.
+        /// Returns true if the edge profile can be traversed by any of the profiles and at least on of the profiles notifies as oneway.
         /// </summary>
-        private uint Expand(uint vertex, ushort island)
+        private Access GetAccess(ushort edgeProfile)
         {
-            var min = uint.MaxValue;
-            _enumerator.MoveTo(vertex);
-
-            while(_enumerator.MoveNext())
-            {
-                var neighbour = _enumerator.To;
-                if (_vertexFlags.Contains(neighbour))
-                {
-                    continue;
-                }
-
-                float distance;
-                ushort edgeProfile;
-                EdgeDataSerializer.Deserialize(_enumerator.Data0, out distance, out edgeProfile);
-
-                if (!_canTraverse.Contains(edgeProfile))
-                {
-                    continue;
-                }
-
-                _islands[neighbour] = island; // set the island.
-
-                if (neighbour < min)
-                {
-                    min = neighbour;
-                }
-            }
-
-            return min;
-        }
-
-        /// <summary>
-        /// Returns true if the edge profile can be traversed by any of the profiles.
-        /// </summary>
-        private bool CanTraverse(ushort edgeProfile)
-        {
-            for(var p = 0; p < _profiles.Length; p++)
+            var access = Access.None;
+            for (var p = 0; p < _profiles.Length; p++)
             {
                 var f = _profiles[p](edgeProfile);
                 if (f.Value != 0)
                 {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Returns true if the edge profile can be traversed by any of the profiles and at least on of the profiles notifies as oneway.
-        /// </summary>
-        private bool IsOneway(ushort edgeProfile)
-        {
-            for (var p = 0; p < _profiles.Length; p++)
-            {
-                var f = _profiles[p](edgeProfile);
-                if (f.Value != 0 &&
-                    f.Direction != 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Returns the only neighbour if this vertex is a oneway deadend, ignoring neighbours marked as singletons. 
-        /// </summary>
-        private uint IsOnewayDeadend(uint v)
-        {
-            _enumerator.MoveTo(v);
-
-            uint onewayDeadend = Constants.NO_VERTEX;
-            while (_enumerator.MoveNext())
-            {
-                if (_islands[_enumerator.Current.To] != 0)
-                { // the other vertex is a singleton, ignore.
-                    continue;
-                }
-                else
-                {
-                    float distance;
-                    ushort edgeProfile;
-                    EdgeDataSerializer.Deserialize(_enumerator.Data0, out distance, out edgeProfile);
-
-                    if (this.CanTraverse(edgeProfile))
+                    if (f.Direction == 0)
                     {
-                        if (!this.IsOneway(edgeProfile))
-                        { // bidirectional neighbour, never a oneway deadend, skip this one.
-                            return Constants.NO_VERTEX;
+                        if (access == Access.None)
+                        {
+                            access = Access.Bidirectional;
                         }
-
-                        // neighbour found, and it's oneway.
-                        if (onewayDeadend != Constants.NO_VERTEX)
-                        { // two oneway neighbours found, skip this one.
-                            return Constants.NO_VERTEX;
+                    }
+                    else if (f.Direction == 1)
+                    {
+                        if (access == Access.OnewayBackward)
+                        {
+                            return Access.None;
                         }
-
-                        // mark as oneway deadend, up until now there is one oneway neighbour.
-                        onewayDeadend = _enumerator.Current.To;
+                        access = Access.OnewayForward;
+                    }
+                    else if (f.Direction == 2)
+                    {
+                        if (access == Access.OnewayForward)
+                        {
+                            return Access.None;
+                        }
+                        access = Access.OnewayBackward;
                     }
                 }
             }
+            return access;
+        }
 
-            return onewayDeadend;
+        private enum Access
+        {
+            None,
+            OnewayForward,
+            OnewayBackward,
+            Bidirectional
         }
     }
 }
