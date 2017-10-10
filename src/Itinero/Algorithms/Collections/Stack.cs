@@ -44,7 +44,7 @@ namespace Itinero.Algorithms.Collections
         /// </summary>
         public void Push(T element)
         {
-            if (_pointer < _data.Length)
+            if (_pointer >= _data.Length - 1)
             {
                 _data.Resize(_data.Length + 1024);
             }

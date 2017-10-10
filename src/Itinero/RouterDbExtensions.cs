@@ -1144,14 +1144,15 @@ namespace Itinero
         /// </summary>
         /// <param name="db">The routerdb to extract from.</param>
         /// <param name="isInside">The is inside function.</param>
+        /// <param name="insideOnly">Don't keep vertices outside, even if they have a neighbour that is inside.</param>
         /// <returns></returns>
-        public static RouterDb ExtractArea(this RouterDb db, Func<Coordinate, bool> isInside)
+        public static RouterDb ExtractArea(this RouterDb db, Func<Coordinate, bool> isInside, bool insideOnly = false)
         {
             return db.ExtractArea((v) =>
             {
                 var l = db.Network.GeometricGraph.GetVertex(v);
                 return isInside(l);
-            });
+            }, insideOnly);
         }
 
         /// <summary>
@@ -1159,8 +1160,9 @@ namespace Itinero
         /// </summary>
         /// <param name="db">The routerdb to extract from.</param>
         /// <param name="isInside">The is inside function.</param>
+        /// <param name="insideOnly">Don't keep vertices outside, even if they have a neighbour that is inside.</param>
         /// <returns></returns>
-        public static RouterDb ExtractArea(this RouterDb db, Func<uint, bool> isInside)
+        public static RouterDb ExtractArea(this RouterDb db, Func<uint, bool> isInside, bool insideOnly = false)
         {
             var newDb = new RouterDb(db.Network.MaxEdgeDistance);
             // maps vertices old -> new.
@@ -1251,6 +1253,11 @@ namespace Itinero
                     uint newTo;
                     if (!idMap.TryGetValue(to, out newTo))
                     { // edge not inside.
+                        continue;
+                    }
+
+                    if (insideOnly && !isInside(to))
+                    { // keep only edge that have both inside.
                         continue;
                     }
 
@@ -1442,8 +1449,8 @@ namespace Itinero
             {
                 var island = islands[i];
                 if (island == IslandDetector.SINGLETON_ISLAND)
-                { // these vertices can be removed in preprocessing but sometimes it's usefull to keep them in.
-                    meta[i] = 0;
+                { // these vertices can be removed in preprocessing but when using multiple profiles they can't.
+                    meta[i] = 1;
                 }
                 else
                 {

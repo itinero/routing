@@ -209,6 +209,107 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         }
 
         /// <summary>
+        /// Tests island detection on one edge and one deadend oneway.
+        /// </summary>
+        [Test]
+        public void TestOnewayDeadend()
+        {
+            // build routerdb.
+            var routerDb = new RouterDb();
+            routerDb.Network.AddVertex(0, 0, 0);
+            routerDb.Network.AddVertex(1, 1, 1);
+            routerDb.Network.AddVertex(2, 2, 2);
+            routerDb.Network.AddEdge(0, 1, new Itinero.Data.Network.Edges.EdgeData()
+            {
+                Distance = 100,
+                Profile = 1
+            }, null);
+            routerDb.Network.AddEdge(1, 2, new Itinero.Data.Network.Edges.EdgeData()
+            {
+                Distance = 100,
+                Profile = 2
+            }, null);
+
+            // build speed profile function.
+            var speed = 100f / 3.6f;
+            Func<ushort, Itinero.Profiles.Factor> getFactor = (x) =>
+            {
+                if (x == 1)
+                {
+                    return new Itinero.Profiles.Factor()
+                    {
+                        Direction = 0,
+                        Value = 1.0f / speed
+                    };
+                }
+                else
+                {
+                    return new Itinero.Profiles.Factor()
+                    {
+                        Direction = 1,
+                        Value = 1.0f / speed
+                    };
+                }
+            };
+
+            // start island detector.
+            var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
+            islandDetector.Run();
+
+            // verify the islands.
+            var islands = islandDetector.Islands;
+            Assert.IsNotNull(islands);
+            Assert.AreEqual(3, islands.Length);
+            Assert.AreEqual(0, islands[0]);
+            Assert.AreEqual(0, islands[1]);
+            Assert.AreEqual(IslandDetector.SINGLETON_ISLAND, islands[2]);
+
+            var islandSizes = islandDetector.IslandSizes;
+            Assert.AreEqual(1, islandSizes.Count);
+            uint size;
+            Assert.IsTrue(islandSizes.TryGetValue(0, out size));
+            Assert.AreEqual(2, size);
+            
+            // make oneway go the other direction.
+            getFactor = (x) =>
+            {
+                if (x == 1)
+                {
+                    return new Itinero.Profiles.Factor()
+                    {
+                        Direction = 0,
+                        Value = 1.0f / speed
+                    };
+                }
+                else
+                {
+                    return new Itinero.Profiles.Factor()
+                    {
+                        Direction = 2,
+                        Value = 1.0f / speed
+                    };
+                }
+            };
+
+            // start island detector.
+            islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
+            islandDetector.Run();
+
+            // verify the islands.
+            islands = islandDetector.Islands;
+            Assert.IsNotNull(islands);
+            Assert.AreEqual(3, islands.Length);
+            Assert.AreEqual(0, islands[0]);
+            Assert.AreEqual(0, islands[1]);
+            Assert.AreEqual(IslandDetector.SINGLETON_ISLAND, islands[2]);
+
+            islandSizes = islandDetector.IslandSizes;
+            Assert.AreEqual(1, islandSizes.Count);
+            Assert.IsTrue(islandSizes.TryGetValue(0, out size));
+            Assert.AreEqual(2, size);
+        }
+
+        /// <summary>
         /// Tests handling of oneway cases.
         /// </summary>
         [Test]

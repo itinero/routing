@@ -26,6 +26,6 @@ namespace Itinero.Algorithms.Search
         /// <summary>
         /// The minimum island size in vertices.
         /// </summary>
-        public int MinIslandSize { get; set; } = 100;
+        public int MinIslandSize { get; set; } = 1024;
     }
 }

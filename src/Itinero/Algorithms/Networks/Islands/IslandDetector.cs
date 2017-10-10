@@ -36,7 +36,7 @@ namespace Itinero.Algorithms.Networks
         private readonly ushort[] _islands; // holds the island # per vertex.
         private readonly RouterDb _routerDb;
         private const uint NO_DATA = uint.MaxValue;
-        private const ushort NO_ISLAND = ushort.MaxValue;
+        private const ushort NO_ISLAND = ushort.MaxValue - 1;
 
         /// <summary>
         /// A value representing a singleton island.
@@ -54,8 +54,7 @@ namespace Itinero.Algorithms.Networks
             _islands = new ushort[_routerDb.Network.VertexCount];
             _islandSizes = new Dictionary<ushort, uint>();
 		}
-
-        private Graph.EdgeEnumerator _enumerator;
+        
         private Dictionary<ushort, uint> _islandSizes;
 
         private ArrayBase<uint> _index;
@@ -70,7 +69,6 @@ namespace Itinero.Algorithms.Networks
         /// </summary>
 		protected override void DoRun()
         {
-            _enumerator = _routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
             _onStack = new SparseLongIndex();
             var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;
 
@@ -99,81 +97,153 @@ namespace Itinero.Algorithms.Networks
 
                 StrongConnect(v);
             }
+            
+            // sort islands.
+            var sortedIslands = new List<KeyValuePair<ushort, uint>>(_islandSizes);
+            sortedIslands.Sort((x, y) => -x.Value.CompareTo(y.Value));
+            var newIds = new Dictionary<ushort, ushort>();
+            for (ushort i = 0; i < sortedIslands.Count; i++)
+            {
+                newIds[sortedIslands[i].Key] = i;
+            }
+            for (var v = 0; v < _islands.Length; v++)
+            {
+                ushort newId;
+                if (newIds.TryGetValue(_islands[v], out newId))
+                {
+                    _islands[v] = newId;
+                }
+            }
+            _islandSizes.Clear();
+            foreach (var sortedIsland in sortedIslands)
+            {
+                ushort newId;
+                if (newIds.TryGetValue(sortedIsland.Key, out newId))
+                {
+                    _islandSizes[newId] = sortedIsland.Value;
+                }
+            }
         }
 
         private void StrongConnect(uint v)
         {
-            _enumerator.MoveTo(v);
+            var nextStack = new Collections.Stack<uint>();
+            nextStack.Push(Constants.NO_VERTEX);
+            nextStack.Push(v);
 
-            _index[v * 2 + 0] = _nextIndex;
-            _index[v * 2 + 1] = _nextIndex;
-            _nextIndex++;
-
-            _stack.Push(v);
-
-            if (_enumerator.MoveTo(v))
+            while (nextStack.Count > 0)
             {
-                while (_enumerator.MoveNext())
+                v = nextStack.Pop();
+                var parent = nextStack.Pop();
+
+                if (_islands[v] != NO_ISLAND)
                 {
-                    float distance;
-                    ushort edgeProfile;
-                    EdgeDataSerializer.Deserialize(_enumerator.Data0, out distance, out edgeProfile);
-
-                    var access = this.GetAccess(edgeProfile);
-
-                    if (_enumerator.DataInverted)
+                    continue;
+                }
+                
+                // 2 options: 
+                // OPTION 1: vertex was already processed, check if it's a root vertex.
+                if (_index[v * 2 + 0] != NO_DATA)
+                { // vertex was already processed, do wrap-up.
+                    if (parent != Constants.NO_VERTEX)
                     {
-                        if (access == Access.OnewayBackward)
+                        var vLowLink = _index[v * 2 + 1];
+                        if (vLowLink < _index[parent * 2 + 1])
                         {
-                            access = Access.OnewayForward;
-                        }
-                        else if(access == Access.OnewayForward)
-                        {
-                            access = Access.OnewayForward;
+                            _index[parent * 2 + 1] = vLowLink;
                         }
                     }
 
-                    if (access != Access.OnewayForward ||
-                        access != Access.Bidirectional)
-                    {
-                        continue;
-                    }
+                    if (_index[v * 2 + 0] == _index[v * 2 + 1])
+                    { // this was a root node so this is an island!
+                      // pop from stack until root reached.
+                        var island = _nextIsland;
+                        _nextIsland++;
 
-                    var n = _enumerator.To;
-                    var nIndex = _index[n * 2 + 0];
-                    if (nIndex == NO_DATA)
-                    {
-                        StrongConnect(v);
-                        var nLowLink = _index[n * 2 + 1];
-                        if (nLowLink < _index[v * 2 + 1])
+                        uint size = 0;
+                        uint islandVertex = Constants.NO_VERTEX;
+                        do
                         {
-                            _index[v * 2 + 1] = nLowLink; 
+                            islandVertex = _stack.Pop();
+                            _onStack.Remove(islandVertex);
+
+                            size++;
+                            _islands[islandVertex] = island;
+                        } while (islandVertex != v);
+
+                        if (size == 1)
+                        { // only the root vertex, meaning this is a singleton.
+                            _islands[v] = SINGLETON_ISLAND;
+                            _nextIsland--; // reset island counter.
+                        }
+                        else
+                        { // keep island size.
+                            _islandSizes[island] = size;
                         }
                     }
-                    else if (_onStack.Contains(n))
+
+                    continue;
+                }
+
+                // OPTION 2: vertex wasn't already processed, process it and queue it's neigbours.
+                // push again to trigger OPTION1.
+                nextStack.Push(parent);
+                nextStack.Push(v);
+
+                var enumerator = _routerDb.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+                enumerator.MoveTo(v);
+
+                _index[v * 2 + 0] = _nextIndex;
+                _index[v * 2 + 1] = _nextIndex;
+                _nextIndex++;
+
+                _stack.Push(v);
+                _onStack.Add(v);
+
+                if (enumerator.MoveTo(v))
+                {
+                    while (enumerator.MoveNext())
                     {
-                        if (nIndex < _index[v * 2 + 1])
+                        float distance;
+                        ushort edgeProfile;
+                        EdgeDataSerializer.Deserialize(enumerator.Data0, out distance, out edgeProfile);
+
+                        var access = this.GetAccess(edgeProfile);
+
+                        if (enumerator.DataInverted)
                         {
-                            _index[v * 2 + 1] = nIndex;
+                            if (access == Access.OnewayBackward)
+                            {
+                                access = Access.OnewayForward;
+                            }
+                            else if (access == Access.OnewayForward)
+                            {
+                                access = Access.OnewayBackward;
+                            }
+                        }
+
+                        if (access != Access.OnewayForward &&
+                            access != Access.Bidirectional)
+                        {
+                            continue;
+                        }
+
+                        var n = enumerator.To;
+                        var nIndex = _index[n * 2 + 0];
+                        if (nIndex == NO_DATA)
+                        { // queue parent and neighbour.
+                            nextStack.Push(v);
+                            nextStack.Push(n);
+                        }
+                        else if (_onStack.Contains(n))
+                        {
+                            if (nIndex < _index[v * 2 + 1])
+                            {
+                                _index[v * 2 + 1] = nIndex;
+                            }
                         }
                     }
                 }
-            }
-
-            if (_index[v * 2 + 0] == _index[v * 2 + 1])
-            { // this was a root node so this is an island!
-                // pop from stack until root reached.
-                var island = _nextIsland;
-                _nextIsland++;
-
-                uint size = 0;
-                var islandVertex = _stack.Pop();
-                do
-                {
-                    size++;
-
-                    _islands[islandVertex] = island;
-                } while (islandVertex != v);
             }
         }
 

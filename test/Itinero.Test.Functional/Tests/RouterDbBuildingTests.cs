@@ -145,7 +145,7 @@ namespace Itinero.Test.Functional.Tests
                     {
                         return islands[v] != ushort.MaxValue &&
                              islands[v] != 0;
-                    });
+                    }, true);
 
                     File.WriteAllText("islands_" + profile.FullName + ".geojson",
                         islandDb.GetGeoJson(true, false));
