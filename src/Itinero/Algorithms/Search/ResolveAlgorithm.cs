@@ -69,6 +69,11 @@ namespace Itinero.Algorithms.Search
             _maxOffsetInMeter = maxOffsetInMeter;
             _isAcceptable = isAcceptable;
             _isBetter = isBetter;
+
+            if (_maxDistance > _maxOffsetInMeter)
+            {
+                _maxOffsetInMeter = _maxDistance;
+            }
         }
         
         private RouterPoint _result = null;
