@@ -87,7 +87,7 @@ namespace Itinero.Test
                 }
                 else if (i == 6)
                 {
-                    Assert.AreEqual(0, islands[i]);
+                    Assert.AreEqual(1, islands[i]);
                 }
                 else
                 {
