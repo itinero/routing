@@ -91,7 +91,7 @@ namespace Itinero.Test
                 }
                 else
                 {
-                    Assert.AreEqual(3, islands[i]);
+                    Assert.AreEqual(13, islands[i]);
                 }
             }
         }
