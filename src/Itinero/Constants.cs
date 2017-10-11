@@ -52,5 +52,15 @@ namespace Itinero
         /// The default simplification epsilon.
         /// </summary>
         public const float DEFAULT_SIMPL_E = 0.1f;
+
+        /// <summary>
+        /// Indicates a vertex that's a singleton island.
+        /// </summary>
+        public const ushort ISLAND_SINGLETON = 1;
+
+        /// <summary>
+        /// Indicates a vertex that's a restricted island.
+        /// </summary>
+        public const ushort ISLAND_RESTRICTED = 2;
     }
 }

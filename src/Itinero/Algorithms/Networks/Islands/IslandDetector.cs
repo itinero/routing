@@ -39,6 +39,13 @@ namespace Itinero.Algorithms.Networks
         private const ushort NO_ISLAND = ushort.MaxValue - 1;
 
         /// <summary>
+        /// A value representing a restricted vertex, could be part of multiple islands.
+        /// </summary>
+        public const ushort RESTRICTED = ushort.MaxValue - 2;
+
+        private readonly Restrictions.RestrictionCollection _restrictionCollection;
+
+        /// <summary>
         /// A value representing a singleton island.
         /// </summary>
         public const ushort SINGLETON_ISLAND = ushort.MaxValue;
@@ -46,10 +53,11 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Creates a new island detector.
         /// </summary>
-		public IslandDetector(RouterDb routerDb, Func<ushort, Factor>[] profiles)
+		public IslandDetector(RouterDb routerDb, Func<ushort, Factor>[] profiles, Restrictions.RestrictionCollection restrictionCollection = null)
 		{
             _profiles = profiles;
             _routerDb = routerDb;
+            _restrictionCollection = restrictionCollection;
 
             _islands = new ushort[_routerDb.Network.VertexCount];
             _islandSizes = new Dictionary<ushort, uint>();
@@ -73,9 +81,30 @@ namespace Itinero.Algorithms.Networks
             var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;
 
             // initialize all islands to NO_ISLAND.
-            for (var i = 0; i < _islands.Length; i++)
+            for (uint i = 0; i < _islands.Length; i++)
             {
                 _islands[i] = NO_ISLAND;
+
+                if (_restrictionCollection != null)
+                {
+                    _restrictionCollection.Update(i);
+
+                    for (var r = 0; r < _restrictionCollection.Count; r++)
+                    {
+                        var restriction = _restrictionCollection[r];
+
+                        if (restriction.Vertex2 == Constants.NO_VERTEX &&
+                            restriction.Vertex3 == Constants.NO_VERTEX)
+                        {
+                            _islands[i] = RESTRICTED;
+                            break;
+                        }
+                        else
+                        {
+                            // TODO: support other restrictions.
+                        }
+                    }
+                }
             }
 
             // build index data structure and stack.
@@ -229,6 +258,12 @@ namespace Itinero.Algorithms.Networks
                         }
 
                         var n = enumerator.To;
+                        
+                        if (_islands[n] == RESTRICTED)
+                        { // check if this neighbour is restricted, if so ignore.
+                            continue;
+                        }
+
                         var nIndex = _index[n * 2 + 0];
                         if (nIndex == NO_DATA)
                         { // queue parent and neighbour.

@@ -141,15 +141,44 @@ namespace Itinero.Test.Functional.Tests
                 MetaCollection<ushort> islands;
                 if (routerDb.VertexData.TryGet("islands_" + profile.FullName, out islands))
                 {
-                    var islandDb = routerDb.ExtractArea((v) =>
-                    {
-                        return islands[v] != ushort.MaxValue &&
-                             islands[v] != 0;
-                    }, true);
+                    var islandDb = routerDb.ExtractArea(v =>
+                        {
+                            return islands[v] != ushort.MaxValue;
+                        },
+                        (f, t) =>
+                        {
+                            var fromCount = islands[f];
+                            var toCount = islands[t];
+
+                            //if (fromCount != Constants.ISLAND_SINGLETON &&
+                            //    toCount != Constants.ISLAND_SINGLETON)
+                            //{
+                            //    return false;
+                            //}
+
+                            if (fromCount < 1024 &&
+                                fromCount != 0 && fromCount != Constants.ISLAND_RESTRICTED)
+                            {
+                                return true;
+                            }
+
+                            if (toCount < 1024 &&
+                                toCount != 0 && toCount != Constants.ISLAND_RESTRICTED)
+                            {
+                                return true;
+                            }
+
+                            if (toCount == Constants.ISLAND_RESTRICTED && fromCount == Constants.ISLAND_RESTRICTED)
+                            { // single-vertex restrictions on both sides.
+                                return true;
+                            }
+
+                            return false;
+                        });
 
                     File.WriteAllText("islands_" + profile.FullName + ".geojson",
                         islandDb.GetGeoJson(true, false));
-                }
+               }
 #endif
             };
         }

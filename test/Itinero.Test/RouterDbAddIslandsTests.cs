@@ -119,15 +119,55 @@ namespace Itinero.Test
 
             var location = new Coordinate(51.22620094060593f, 4.424091875553131f);
             var point = router.Resolve(profile, location, 1000);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location, point.LocationOnNetwork(routerDb)) > 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
+                point.LocationOnNetwork(routerDb)) < 10);
 
             location = new Coordinate(51.22468580253045f, 4.421868324279785f);
             point = router.Resolve(profile, location, 1000);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location, point.LocationOnNetwork(routerDb)) > 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
+                point.LocationOnNetwork(routerDb)) < 10);
 
             location = new Coordinate(51.22427593399205f, 4.425215721130371f);
             point = router.Resolve(profile, location, 1000);
-            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(location, point.LocationOnNetwork(routerDb)) > 10);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
+                point.LocationOnNetwork(routerDb)) < 10);
+        }
+
+        /// <summary>
+        /// Tests single vertex restriction islands and resolving.
+        /// </summary>
+        [Test]
+        public void TestAddIslandsSingleVertexRestriction()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network18.geojson"));
+            routerDb.Sort();
+
+            // add island data.
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddIslandData(profile);
+
+            // resolve at the location of the oneway island.
+            var router = new Router(routerDb);
+
+            var location = new Coordinate(51.22620094060593f, 4.424091875553131f);
+            var point = router.Resolve(profile, location, 1000);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
+                point.LocationOnNetwork(routerDb)) < 10);
+
+            location = new Coordinate(51.22468580253045f, 4.421868324279785f);
+            point = router.Resolve(profile, location, 1000);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
+                point.LocationOnNetwork(routerDb)) < 10);
+
+            location = new Coordinate(51.22427593399205f, 4.425215721130371f);
+            point = router.Resolve(profile, location, 1000);
+            Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
+                point.LocationOnNetwork(routerDb)) < 10);
         }
     }
 }

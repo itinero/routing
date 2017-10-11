@@ -134,15 +134,20 @@ namespace Itinero
 
                                 var fromCount = il[edge.From];
                                 if (fromCount < settings.MinIslandSize &&
-                                    fromCount != 0)
+                                    fromCount != 0 && fromCount != Constants.ISLAND_RESTRICTED)
                                 {
                                     return false;
                                 }
 
                                 var toCount = il[edge.To];
                                 if (toCount < settings.MinIslandSize &&
-                                    toCount != 0)
+                                    toCount != 0 && toCount != Constants.ISLAND_RESTRICTED)
                                 {
+                                    return false;
+                                }
+
+                                if (toCount == Constants.ISLAND_RESTRICTED && fromCount == Constants.ISLAND_RESTRICTED)
+                                { // single-vertex restrictions on both sides.
                                     return false;
                                 }
                             }
