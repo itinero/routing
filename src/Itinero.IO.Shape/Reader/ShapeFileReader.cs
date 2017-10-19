@@ -17,7 +17,6 @@
  */
 
 using Itinero.Algorithms;
-using NetTopologySuite.IO;
 using System.Collections.Generic;
 using System;
 using NetTopologySuite.Geometries;
@@ -27,8 +26,8 @@ using Itinero.Attributes;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data.Network;
 using Itinero.Profiles;
-using Itinero.Graphs.Geometric.Shapes;
 using System.Linq;
+using NetTopologySuite.IO.PortableShape;
 
 namespace Itinero.IO.Shape.Reader
 {

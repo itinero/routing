@@ -102,7 +102,7 @@ namespace Itinero.IO.Shape.Writer
             {
                 value = defaultValue;
             }
-            table.AddAttribute(name, value);
+            table.Add(name, value);
         }
     }
 }

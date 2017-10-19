@@ -224,7 +224,7 @@ namespace Itinero.IO.Shape.Writer
                 attributes.Add(profileName + "_dir", factor.Direction);
             }
 
-            attributes.AddAttribute("length", System.Math.Round(length, 3));
+            attributes.Add("length", System.Math.Round(length, 3));
 
             string lanesString;
             var lanes = 1;
@@ -238,18 +238,18 @@ namespace Itinero.IO.Shape.Writer
                     lanesVerified = false;
                 }
             }
-            attributes.AddAttribute("lanes", lanes);
-            attributes.AddAttribute("lanes_ve", lanesVerified);
+            attributes.Add("lanes", lanes);
+            attributes.Add("lanes_ve", lanesVerified);
             
             var name = tags.ExtractName();
-            attributes.AddAttribute("name", name);
+            attributes.Add("name", name);
 
             attributes.AddFrom("way_id", tags);
             attributes.AddFrom("tunnel", tags);
             attributes.AddFrom("bridge", tags);
             
-            attributes.AddAttribute("from", edge.From);
-            attributes.AddAttribute("to", edge.To);
+            attributes.Add("from", edge.From);
+            attributes.Add("to", edge.To);
             
             return new Feature(geometry, attributes);
         }

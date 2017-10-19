@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net40;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net40;net45</TargetFrameworks>
     <AssemblyName>Itinero.IO.Shape</AssemblyName>
     <PackageId>Itinero.IO.Shape</PackageId>
-    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.1</NetStandardImplicitPackageVersion>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -13,14 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj" />
-    <ProjectReference Include="..\Itinero\Itinero.csproj" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre027" />
+    <PackageReference Include="NetTopologySuite.IO.PortableShape" Version="0.0.1-pre002" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GeoAPI" Version="1.7.4" />
-    <PackageReference Include="NetTopologySuite" Version="1.14.0" />
-    <PackageReference Include="NetTopologySuite.IO" Version="1.14.0.1" />
+    <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj" />
+    <ProjectReference Include="..\Itinero\Itinero.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">

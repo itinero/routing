@@ -19,6 +19,7 @@
 using Itinero.Profiles;
 using NetTopologySuite;
 using NetTopologySuite.IO;
+using NetTopologySuite.IO.PortableShape;
 using System.Collections.Generic;
 using System.IO;
 

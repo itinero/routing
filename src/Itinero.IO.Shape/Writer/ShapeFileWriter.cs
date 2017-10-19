@@ -21,6 +21,7 @@ using NetTopologySuite.IO;
 using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 using Itinero.Profiles;
+using NetTopologySuite.IO.PortableShape;
 
 namespace Itinero.IO.Shape.Writer
 {

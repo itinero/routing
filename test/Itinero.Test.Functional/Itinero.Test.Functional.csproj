@@ -27,11 +27,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre027" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="NUnit" Version="3.4.1" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.14.0" />
-    <PackageReference Include="NetTopologySuite" Version="1.14.0" />
-    <PackageReference Include="GeoAPI" Version="1.7.4" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre027" />
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-2" />
   </ItemGroup>
 

@@ -90,7 +90,7 @@ namespace Itinero.Geo
         /// </summary>
         public static void Add(this AttributesTable table, string name, object value)
         {
-            table.AddAttribute(name, value);
+            table.Add(name, value);
         }
     }
 }

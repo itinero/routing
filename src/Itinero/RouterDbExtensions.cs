@@ -32,7 +32,6 @@ using Itinero.Graphs;
 using Itinero.Data.Network;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
-using System.Text;
 using System.IO;
 using Itinero.IO.Json;
 using Itinero.Algorithms.Restrictions;
