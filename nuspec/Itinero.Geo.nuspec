@@ -53,11 +53,26 @@
     </releaseNotes>
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
-        <dependencies>
-          <dependency id="GeoAPI" version="[1.7.4,2)" />
-          <dependency id="NetTopologySuite" version="[1.14,2)" />
-          <dependency id="Itinero" version="$version$" />
-        </dependencies>
+      <dependencies>
+        <group targetFramework=".NETFramework4.5">
+          <dependency id="Itinero" version="1.0.0" exclude="Build,Analyzers" />
+          <dependency id="NetTopologySuite" version="1.15.0-pre027" exclude="Build,Analyzers" />
+        </group>
+        <group targetFramework=".NETFramework4.0">
+          <dependency id="Itinero" version="1.0.0" exclude="Build,Analyzers" />
+          <dependency id="NetTopologySuite" version="1.15.0-pre027" exclude="Build,Analyzers" />
+        </group>
+        <group targetFramework=".NETStandard1.3">
+          <dependency id="Itinero" version="1.0.0" exclude="Build,Analyzers" />
+          <dependency id="NetTopologySuite" version="1.15.0-pre027" exclude="Build,Analyzers" />
+          <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+        </group>
+      </dependencies>
+      <frameworkAssemblies>
+        <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.0, .NETFramework4.5" />
+        <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0, .NETFramework4.5" />
+        <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.0, .NETFramework4.5" />
+      </frameworkAssemblies>
     </metadata>
     <files>
       <file src="src\Itinero.Geo\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.Geo.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.Geo.dll" />
