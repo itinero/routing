@@ -38,7 +38,7 @@ namespace Sample.Shape
         /// </summary>
         public static async Task ToFile(string url, string filename)
         {
-            if (!File.Exists(filename))
+            if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filename)))
             {
                 var client = new HttpClient();
                 client.Timeout = new TimeSpan(0, 10, 0);

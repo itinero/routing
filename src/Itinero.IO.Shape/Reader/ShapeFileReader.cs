@@ -87,7 +87,7 @@ namespace Itinero.IO.Shape.Reader
                 { // build header.
                     for (int idx = 0; idx < reader.DbaseHeader.Fields.Length; idx++)
                     {
-                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx);
+                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx + 1);
                     }
 
                     // check if all columns are in the header.
@@ -159,7 +159,7 @@ namespace Itinero.IO.Shape.Reader
                 { // build header.
                     for (int idx = 0; idx < reader.DbaseHeader.Fields.Length; idx++)
                     {
-                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx);
+                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx + 1);
                     }
                 }
 
@@ -219,7 +219,7 @@ namespace Itinero.IO.Shape.Reader
                         for (var i = 1; i < reader.FieldCount; i++)
                         {
                             var name = reader.GetName(i);
-                            var value = reader.GetValue(i - 1);
+                            var value = reader.GetValue(i);
                             var valueString = string.Empty;
                             if (value != null)
                             { 
