@@ -26,7 +26,8 @@ speed_profile = {
 	["ferry"] = 4,
 	["movable"] = 4,
 	["shuttle_train"] = 4,
-  	["default"] = 4
+  	["default"] = 4,
+	["steps"] = 2
 }
 
 access_values = {
