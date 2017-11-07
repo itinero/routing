@@ -52,7 +52,12 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Calculates the weight and direction for the given edge profile.
         /// </summary>
-        public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible);
+        public virtual WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible)
+        { // this is an implementation of the old definition of accessible, it doesn't maintain topology, override this.
+            var weightAndDir = this.CalculateWeightAndDir(edgeProfile, distance);
+            accessible = this.GetMetric(weightAndDir.Weight) > 0;
+            return weightAndDir;
+        }
 
         /// <summary>
         /// Gets the weight and direction for the given edge.
