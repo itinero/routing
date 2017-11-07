@@ -103,6 +103,11 @@ namespace Itinero.Test
             return distance;
         }
 
+        public override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible)
+        {
+            throw new NotImplementedException();
+        }
+
         public override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance)
         {
             throw new NotImplementedException();

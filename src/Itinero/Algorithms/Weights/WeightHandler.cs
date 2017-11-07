@@ -50,6 +50,11 @@ namespace Itinero.Algorithms.Weights
         public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance);
 
         /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible);
+
+        /// <summary>
         /// Gets the weight and direction for the given edge.
         /// </summary>
         /// <param name="edge"></param>
@@ -103,7 +108,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Adds a new edge to a graph with the given direction and weight.
         /// </summary>
-        public abstract void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, 
+        public abstract void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId,
             bool? direction, T weight);
 
         /// <summary>
@@ -120,7 +125,7 @@ namespace Itinero.Algorithms.Weights
         /// Adds or updates an edge.
         /// </summary>
         public abstract void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, T weight, uint[] s1, uint[] s2);
-        
+
         /// <summary>
         /// Gets the weight from a meta-edge.
         /// </summary>
@@ -333,11 +338,20 @@ namespace Itinero.Algorithms.Weights
                 Value = (distance * factorAndSpeed.Value)
             };
         }
-        
+
         /// <summary>
         /// Calculates the weight and direction for the given edge profile.
         /// </summary>
         public sealed override WeightAndDir<Weight> CalculateWeightAndDir(ushort edgeProfile, float distance)
+        {
+            bool accessible;
+            return this.CalculateWeightAndDir(edgeProfile, distance, out accessible);
+        }
+
+        /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public sealed override WeightAndDir<Weight> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible)
         {
             var factor = _getFactorAndSpeed(edgeProfile);
             var weight = new WeightAndDir<Weight>();
@@ -360,6 +374,7 @@ namespace Itinero.Algorithms.Weights
                 Time = (distance * factor.SpeedFactor),
                 Value = (distance * factor.Value)
             };
+            accessible = factor.Value != 0;
             return weight;
         }
 

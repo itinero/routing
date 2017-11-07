@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Weights
         {
             _getFactor = getFactor;
         }
-        
+
         /// <summary>
         /// Returns the weight that represents 'zero'.
         /// </summary>
@@ -53,7 +53,7 @@ namespace Itinero.Algorithms.Weights
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// Returns the weight that represents 'infinite'.
         /// </summary>
@@ -96,6 +96,15 @@ namespace Itinero.Algorithms.Weights
         /// </summary>
         public sealed override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance)
         {
+            bool accessible;
+            return this.CalculateWeightAndDir(edgeProfile, distance, out accessible);
+        }
+
+        /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public sealed override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible)
+        {
             var factor = _getFactor(edgeProfile);
             var weight = new WeightAndDir<float>();
             if (factor.Direction == 0)
@@ -112,6 +121,7 @@ namespace Itinero.Algorithms.Weights
             }
 
             weight.Weight = distance * factor.Value;
+            accessible = factor.Value != 0;
             return weight;
         }
 
@@ -186,7 +196,7 @@ namespace Itinero.Algorithms.Weights
         {
             return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
         }
-        
+
         /// <summary>
         /// Adds a vertex to the path tree.
         /// </summary>
