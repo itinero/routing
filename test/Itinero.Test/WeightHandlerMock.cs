@@ -108,6 +108,11 @@ namespace Itinero.Test
             throw new NotImplementedException();
         }
 
+        public override WeightAndDir<float> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible)
+        {
+            throw new NotImplementedException();
+        }
+
         public override float GetEdgeWeight(DynamicEdge edge, out bool? direction)
         {
             throw new NotImplementedException();

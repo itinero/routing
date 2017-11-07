@@ -66,14 +66,15 @@ namespace Itinero.Algorithms.Dual
                 {
                     EdgeDataSerializer.Deserialize(enumerator1.Data0,
                         out distance, out edgeProfile);
-                    var weight1 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance);
+                    var accessible1 = false;
+                    var weight1 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance, out accessible1);
                     if (enumerator1.DataInverted)
                     {
                         var dir = weight1.Direction;
                         dir.Reverse();
                         weight1.Direction = dir;
                     }
-                    if (_weightHandler.GetMetric(weight1.Weight) == 0)
+                    if (!accessible1)
                     { // not accessible.
                         continue;
                     }
@@ -88,14 +89,15 @@ namespace Itinero.Algorithms.Dual
                         var turn = new Turn(new OriginalEdge(v, enumerator1.To), Constants.NO_VERTEX);
                         EdgeDataSerializer.Deserialize(enumerator2.Data0,
                             out distance, out edgeProfile);
-                        var weight2 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance);
+                        var accessible2 = false;
+                        var weight2 = _weightHandler.CalculateWeightAndDir(edgeProfile, distance, out accessible2);
                         if (enumerator2.DataInverted)
                         {
                             var dir = weight2.Direction;
                             dir.Reverse();
                             weight2.Direction = dir;
                         }
-                        if (_weightHandler.GetMetric(weight2.Weight) == 0)
+                        if (!accessible2)
                         { // not accessible.
                             continue;
                         }

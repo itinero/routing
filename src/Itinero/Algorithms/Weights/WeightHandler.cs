@@ -50,6 +50,11 @@ namespace Itinero.Algorithms.Weights
         public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance);
 
         /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public abstract WeightAndDir<T> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible);
+
+        /// <summary>
         /// Gets the weight and direction for the given edge.
         /// </summary>
         /// <param name="edge"></param>
@@ -333,11 +338,20 @@ namespace Itinero.Algorithms.Weights
                 Value = (distance * factorAndSpeed.Value)
             };
         }
-        
+
         /// <summary>
         /// Calculates the weight and direction for the given edge profile.
         /// </summary>
         public sealed override WeightAndDir<Weight> CalculateWeightAndDir(ushort edgeProfile, float distance)
+        {
+            bool accessible;
+            return this.CalculateWeightAndDir(edgeProfile, distance, out accessible);
+        }
+
+        /// <summary>
+        /// Calculates the weight and direction for the given edge profile.
+        /// </summary>
+        public sealed override WeightAndDir<Weight> CalculateWeightAndDir(ushort edgeProfile, float distance, out bool accessible)
         {
             var factor = _getFactorAndSpeed(edgeProfile);
             var weight = new WeightAndDir<Weight>();
@@ -360,6 +374,7 @@ namespace Itinero.Algorithms.Weights
                 Time = (distance * factor.SpeedFactor),
                 Value = (distance * factor.Value)
             };
+            accessible = factor.Value != 0;
             return weight;
         }
 
