@@ -130,5 +130,26 @@ namespace Itinero.Test
             Assert.IsTrue(contractedDb.HasNodeBasedGraph);
             Assert.IsTrue(contractedDb.NodeBasedIsEdgedBased);
         }
+
+        /// <summary>
+        /// Tests extracting a boundingbox outside of the network bounds.
+        /// </summary>
+        [Test]
+        public void TestExtractBoxNetwork14Empty()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network14.geojson"));
+            routerDb.Sort();
+
+            // extract.
+            routerDb = routerDb.ExtractArea(45.34828480683999f, -75.83587646484375f,
+                45.48998297722822f, -75.57151794433594f);
+
+            // check if the vertices have been copied.
+            Assert.AreEqual(0, routerDb.Network.VertexCount);
+        }
     }
 }
