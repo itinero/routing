@@ -255,27 +255,7 @@ namespace Itinero
         /// </summary>
         public static Coordinate LocationOnNetwork(this RouterPoint point, RouterDb db)
         {
-            var geometricEdge = db.Network.GeometricGraph.GetEdge(point.EdgeId);
-            var shape = db.Network.GeometricGraph.GetShape(geometricEdge);
-            var length = db.Network.GeometricGraph.Length(geometricEdge);
-            var currentLength = 0.0;
-            var targetLength = length * (point.Offset / (double)ushort.MaxValue);
-            for (var i = 1; i < shape.Count; i++)
-            {
-                var segmentLength = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
-                if(segmentLength + currentLength > targetLength)
-                {
-                    var segmentOffsetLength = segmentLength + currentLength - targetLength;
-                    var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
-                    return new Coordinate()
-                    {
-                        Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
-                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude)))
-                    };
-                }
-                currentLength += segmentLength;
-            }
-            return shape[shape.Count - 1];
+            return db.LocationOnNetwork(point.EdgeId, point.Offset);
         }
 
         /// <summary>
@@ -310,6 +290,15 @@ namespace Itinero
                 return edge.To == vertex;
             }
             return false;
+        }
+
+        /// <summary>
+        /// Creates a new router point.
+        /// </summary>
+        public static RouterPoint CreateRouterPoint(this RouterDb routerDb, uint edgeId, ushort offset)
+        {
+            var location = routerDb.LocationOnNetwork(edgeId, offset);
+            return new RouterPoint(location.Latitude, location.Longitude, edgeId, offset);
         }
 
         /// <summary>
