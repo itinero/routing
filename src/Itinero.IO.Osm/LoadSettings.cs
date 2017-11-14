@@ -34,7 +34,7 @@ namespace Itinero.IO.Osm
             this.AllCore = false;
             this.ProcessRestrictions = true;
             this.Processors = null;
-            this.NetworkSimplificationEpsilon = 0;
+            this.NetworkSimplificationEpsilon = 1;
             this.OptimizeNetwork = false;
             this.KeepNodeIds = false;
         }
