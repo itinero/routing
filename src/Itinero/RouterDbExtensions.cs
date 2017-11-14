@@ -38,6 +38,7 @@ using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Dual;
 using Itinero.Data.Network.Edges;
 using Itinero.Algorithms.Networks;
+using Itinero.Graphs.Geometric;
 
 namespace Itinero
 {
@@ -1747,6 +1748,34 @@ namespace Itinero
                     }
                 }
             }
+        }
+        
+        /// <summary>
+        /// Returns the location on the network.
+        /// </summary>
+        public static Coordinate LocationOnNetwork(this RouterDb db, uint edgeId, ushort offset)
+        {
+            var geometricEdge = db.Network.GeometricGraph.GetEdge(edgeId);
+            var shape = db.Network.GeometricGraph.GetShape(geometricEdge);
+            var length = db.Network.GeometricGraph.Length(geometricEdge);
+            var currentLength = 0.0;
+            var targetLength = length * (offset / (double)ushort.MaxValue);
+            for (var i = 1; i < shape.Count; i++)
+            {
+                var segmentLength = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
+                if (segmentLength + currentLength > targetLength)
+                {
+                    var segmentOffsetLength = segmentLength + currentLength - targetLength;
+                    var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
+                    return new Coordinate()
+                    {
+                        Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
+                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude)))
+                    };
+                }
+                currentLength += segmentLength;
+            }
+            return shape[shape.Count - 1];
         }
     }
 }

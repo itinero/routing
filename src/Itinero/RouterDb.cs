@@ -262,6 +262,20 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets one of the supported profiles.
+        /// </summary>
+        public IEnumerable<Profile> GetSupportedProfiles()
+        {
+            foreach (var vehicle in this.GetSupportedVehicles())
+            {
+                foreach (var profile in vehicle.GetProfiles())
+                {
+                    yield return profile;
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the network.
         /// </summary>
         public RoutingNetwork Network
