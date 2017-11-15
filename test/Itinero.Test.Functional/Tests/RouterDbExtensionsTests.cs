@@ -31,7 +31,7 @@ namespace Itinero.Test.Functional.Tests
         public static void Run(RouterDb routerDb)
         {
             var result = GetExtractBox(routerDb, 49.611432945371156f, 6.207876205444336f,
-                49.6213593071641f, 6.2299346923828125f).TestPerf<RouterDb>("Writing shapefile.");
+                49.6213593071641f, 6.2299346923828125f).TestPerf<RouterDb>("Extracting area...");
 
             var resultJson = result.GetGeoJson();
 

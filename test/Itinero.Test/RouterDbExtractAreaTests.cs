@@ -27,6 +27,7 @@ using Itinero.Data.Contracted;
 using System.Collections.Generic;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data;
+using Itinero.LocalGeo.IO;
 
 namespace Itinero.Test
 {
@@ -55,6 +56,12 @@ namespace Itinero.Test
 
             // check if the vertices have been copied.
             Assert.AreEqual(11, routerDb.Network.VertexCount);
+
+            // verify that the bounds are there.
+            string bounds;
+            Assert.IsTrue(routerDb.Meta.TryGetValue("bounds", out bounds));
+            Assert.AreEqual(new Box(52.35246589354224f, 6.662435531616211f,
+                52.35580134510498f, 6.667134761810303f).ToPolygon().ToGeoJson(), bounds);
 
             // check if the vertex data meta collections have been copied.
             MetaCollection<long> metaCollection;
@@ -85,6 +92,12 @@ namespace Itinero.Test
 
             // check if the vertices have been copied.
             Assert.AreEqual(6, routerDb.Network.VertexCount);
+
+            // verify that the bounds are there.
+            string bounds;
+            Assert.IsTrue(routerDb.Meta.TryGetValue("bounds", out bounds));
+            Assert.AreEqual(new Box(51.264969480610056f, 4.794631004333496f,
+                51.26752715540532f, 4.798053503036499f).ToPolygon().ToGeoJson(), bounds);
 
             // check restrictions.
             var restrictions = new List<RestrictionsDbMeta>(routerDb.RestrictionDbs);
@@ -117,6 +130,12 @@ namespace Itinero.Test
             // there should be 2 contracted graphs.
             Assert.AreEqual(2, routerDb.GetContractedProfiles().ToList().Count);
 
+            // verify that the bounds are there.
+            string bounds;
+            Assert.IsTrue(routerDb.Meta.TryGetValue("bounds", out bounds));
+            Assert.AreEqual(new Box(52.35246589354224f, 6.662435531616211f,
+                52.35580134510498f, 6.667134761810303f).ToPolygon().ToGeoJson(), bounds);
+
             // there should be a pedestrian contracted graph.
             var profile = routerDb.GetSupportedProfile("pedestrian");
             ContractedDb contractedDb;
@@ -147,6 +166,12 @@ namespace Itinero.Test
             // extract.
             routerDb = routerDb.ExtractArea(45.34828480683999f, -75.83587646484375f,
                 45.48998297722822f, -75.57151794433594f);
+
+            // verify that the bounds are there.
+            string bounds;
+            Assert.IsTrue(routerDb.Meta.TryGetValue("bounds", out bounds));
+            Assert.AreEqual(new Box(45.34828480683999f, -75.83587646484375f,
+                45.48998297722822f, -75.57151794433594f).ToPolygon().ToGeoJson(), bounds);
 
             // check if the vertices have been copied.
             Assert.AreEqual(0, routerDb.Network.VertexCount);

@@ -39,6 +39,7 @@ using Itinero.Algorithms.Dual;
 using Itinero.Data.Network.Edges;
 using Itinero.Algorithms.Networks;
 using Itinero.Graphs.Geometric;
+using Itinero.LocalGeo.IO;
 
 namespace Itinero
 {
@@ -1135,8 +1136,12 @@ namespace Itinero
             float maxLatitude, float maxLongitude)
         {
             var box = new Box(minLatitude, minLongitude, maxLatitude, maxLongitude);
+            var extract = db.ExtractArea((l) => box.Overlaps(l.Latitude, l.Longitude));
 
-            return db.ExtractArea((l) => box.Overlaps(l.Latitude, l.Longitude));
+            var boxJson = box.ToPolygon().ToGeoJson();
+            extract.Meta.AddOrReplace("bounds", boxJson);
+
+            return extract;
         }
 
         /// <summary>

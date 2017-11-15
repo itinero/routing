@@ -192,5 +192,23 @@ namespace Itinero.LocalGeo
             }
             return new Coordinate[] { points[first], points[last] };
         }
+
+        /// <summary>
+        /// Converts the box to a polygon.
+        /// </summary>
+        public static Polygon ToPolygon(this Box box)
+        {
+            return new Polygon()
+            {
+                ExteriorRing = new List<Coordinate>(new Coordinate[]
+                {
+                    new Coordinate(box.MinLat, box.MinLon),
+                    new Coordinate(box.MaxLat, box.MinLon),
+                    new Coordinate(box.MaxLat, box.MaxLon),
+                    new Coordinate(box.MinLat, box.MaxLon),
+                    new Coordinate(box.MinLat, box.MinLon)
+                })
+            };
+        }
     }
 }
