@@ -363,7 +363,8 @@ namespace Itinero.Test
             {
                 for (int t = 0; t < vertices.Length; t++)
                 {
-                    var route = router.Calculate(pedestrian, vertices[f], vertices[t]);
+                    var route = router.TryCalculate(pedestrian, vertices[f], vertices[t]);
+                    Assert.IsFalse(route.IsError);
                 }
             }
         }

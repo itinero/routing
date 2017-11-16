@@ -352,43 +352,45 @@ namespace Itinero
                             new EdgePath<T>[] { new EdgePath<T>(targetDirectedId1.Raw), new EdgePath<T>(targetDirectedId2.Raw) });
                         bidirectionalSearch.Run();
 
-                        if (!bidirectionalSearch.HasSucceeded)
+                        if (bidirectionalSearch.HasSucceeded)
+                        {
+                            var directedEdgePath = Algorithms.Dual.BidirectionalDykstraExtensions.GetDualPath(bidirectionalSearch);
+
+                            // convert directed edge-path to an original vertex path.
+                            var enumerator = _db.Network.GetEdgeEnumerator();
+                            vertexPath = new List<uint>();
+                            var edge = new List<OriginalEdge>();
+                            for (var i = 0; i < directedEdgePath.Count; i++)
+                            {
+                                var e = new DirectedEdgeId()
+                                {
+                                    Raw = directedEdgePath[i]
+                                };
+
+                                enumerator.MoveToEdge(e.EdgeId);
+                                var original = new OriginalEdge(enumerator.From, enumerator.To);
+                                if (!e.Forward)
+                                {
+                                    original = original.Reverse();
+                                }
+                                edge.Add(original);
+                                if (vertexPath.Count == 0)
+                                {
+                                    vertexPath.Add(original.Vertex1);
+                                }
+                                vertexPath.Add(original.Vertex2);
+                            }
+
+                            vertexPath[0] = Constants.NO_VERTEX;
+                            vertexPath[vertexPath.Count - 1] = Constants.NO_VERTEX;
+                        }
+                        else if(path == null)
                         {
                             return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                             {
                                 return new RouteNotFoundException(message);
                             });
                         }
-
-                        var directedEdgePath = Algorithms.Dual.BidirectionalDykstraExtensions.GetDualPath(bidirectionalSearch);
-
-                        // convert directed edge-path to an original vertex path.
-                        var enumerator = _db.Network.GetEdgeEnumerator();
-                        vertexPath = new List<uint>();
-                        var edge = new List<OriginalEdge>();
-                        for (var i = 0; i < directedEdgePath.Count; i++)
-                        {
-                            var e = new DirectedEdgeId()
-                            {
-                                Raw = directedEdgePath[i]
-                            };
-
-                            enumerator.MoveToEdge(e.EdgeId);
-                            var original = new OriginalEdge(enumerator.From, enumerator.To);
-                            if (!e.Forward)
-                            {
-                                original = original.Reverse();
-                            }
-                            edge.Add(original);
-                            if (vertexPath.Count == 0)
-                            {
-                                vertexPath.Add(original.Vertex1);
-                            }
-                            vertexPath.Add(original.Vertex2);
-                        }
-
-                        vertexPath[0] = Constants.NO_VERTEX;
-                        vertexPath[vertexPath.Count - 1] = Constants.NO_VERTEX;
                     }
                     else
                     {  // use node-based routing.
