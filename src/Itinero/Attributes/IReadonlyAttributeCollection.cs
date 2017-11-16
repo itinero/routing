@@ -21,28 +21,18 @@ using System.Collections.Generic;
 namespace Itinero.Attributes
 {
     /// <summary>
-    /// Abstract representation of an attribute collection.
+    /// Abstract representation of a readonly attribute collection.
     /// </summary>
-    public interface IAttributeCollection : IReadonlyAttributeCollection
+    public interface IReadonlyAttributeCollection : IEnumerable<Attribute>
     {
         /// <summary>
-        /// Gets the readonly flag.
+        /// Gets the count.
         /// </summary>
-        bool IsReadonly { get; }
-
+        int Count { get; }
+        
         /// <summary>
-        /// Adds or replaces an attribute.
+        /// Tries to get the value for the given key.
         /// </summary>
-        void AddOrReplace(string key, string value);
-
-        /// <summary>
-        /// Removes the attribute with the given key.
-        /// </summary>
-        bool RemoveKey(string key);
-
-        /// <summary>
-        /// Clears all attributes.
-        /// </summary>
-        void Clear();
+        bool TryGetValue(string key, out string value);
     }
 }

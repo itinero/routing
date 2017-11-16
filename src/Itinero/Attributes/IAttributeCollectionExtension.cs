@@ -49,7 +49,7 @@ namespace Itinero.Attributes
         /// <summary>
         /// Returns true if the given tags key has an associated value that can be interpreted as true.
         /// </summary>
-        public static bool IsTrue(this IAttributeCollection tags, string tagKey)
+        public static bool IsTrue(this IReadonlyAttributeCollection tags, string tagKey)
         {
             if (tags == null || string.IsNullOrWhiteSpace(tagKey))
                 return false;
@@ -69,7 +69,7 @@ namespace Itinero.Attributes
         /// <param name="tags">The tags to search.</param>
         /// <param name="accessTagHierachy">The hierarchy of <c>Access</c>-Tags for different vehicle types.</param>
         /// <returns>The best fitting value is returned.</returns>
-        public static string GetAccessTag(this IAttributeCollection tags, IEnumerable<string> accessTagHierachy)
+        public static string GetAccessTag(this IReadonlyAttributeCollection tags, IEnumerable<string> accessTagHierachy)
         {
             if (tags == null)
                 return null;
@@ -86,7 +86,7 @@ namespace Itinero.Attributes
         /// 
         ///  http://wiki.openstreetmap.org/wiki/Key:maxspeed
         /// </summary>
-        public static bool TryGetMaxSpeed(this IAttributeCollection attributes, out float kmPerHour)
+        public static bool TryGetMaxSpeed(this IReadonlyAttributeCollection attributes, out float kmPerHour)
         {
             kmPerHour = float.MaxValue;
             string tagValue;
@@ -101,7 +101,7 @@ namespace Itinero.Attributes
         /// 
         ///  http://wiki.openstreetmap.org/wiki/Key:maxweight
         /// </summary>
-        public static bool TryGetMaxWeight(this IAttributeCollection tags, out float kilogram)
+        public static bool TryGetMaxWeight(this IReadonlyAttributeCollection tags, out float kilogram)
         {
             kilogram = float.MaxValue;
             string tagValue;
@@ -115,7 +115,7 @@ namespace Itinero.Attributes
         /// 
         /// http://wiki.openstreetmap.org/wiki/Key:maxaxleload
         /// </summary>
-        public static bool TryGetMaxAxleLoad(this IAttributeCollection tags, out float kilogram)
+        public static bool TryGetMaxAxleLoad(this IReadonlyAttributeCollection tags, out float kilogram)
         {
             kilogram = float.MaxValue;
             string tagValue;
@@ -129,7 +129,7 @@ namespace Itinero.Attributes
         /// 
         /// http://wiki.openstreetmap.org/wiki/Maxheight
         /// </summary>
-        public static bool TryGetMaxHeight(this IAttributeCollection tags, out float meter)
+        public static bool TryGetMaxHeight(this IReadonlyAttributeCollection tags, out float meter)
         {
             meter = float.MaxValue;
 
@@ -148,7 +148,7 @@ namespace Itinero.Attributes
         /// <param name="attributes">The tags to search.</param>
         /// <param name="meter"></param>
         /// <returns></returns>
-        public static bool TryGetMaxWidth(this IAttributeCollection attributes, out float meter)
+        public static bool TryGetMaxWidth(this IReadonlyAttributeCollection attributes, out float meter)
         {
             meter = float.MaxValue;
             string tagValue;
@@ -181,7 +181,7 @@ namespace Itinero.Attributes
         /// <summary>
         /// Returns true if the given tags key has an associated value that can be interpreted as false.
         /// </summary>
-        public static bool IsFalse(this IAttributeCollection tags, string tagKey)
+        public static bool IsFalse(this IReadonlyAttributeCollection tags, string tagKey)
         {
             if (tags == null || string.IsNullOrWhiteSpace(tagKey))
                 return false;
@@ -452,7 +452,7 @@ namespace Itinero.Attributes
         /// <summary>
         /// Tries to get a single value for the given key.
         /// </summary>
-        public static bool TryGetSingle(this IAttributeCollection attributes, string key, out float value)
+        public static bool TryGetSingle(this IReadonlyAttributeCollection attributes, string key, out float value)
         {
             string stringValue;
             if (!attributes.TryGetValue(key, out stringValue))
@@ -474,7 +474,7 @@ namespace Itinero.Attributes
         /// <summary>
         /// Returns true if the given attribute is found.
         /// </summary>
-        public static bool Contains(this IAttributeCollection attributes, string key, string value)
+        public static bool Contains(this IReadonlyAttributeCollection attributes, string key, string value)
         {
             string foundValue;
             if (!attributes.TryGetValue(key, out foundValue))
@@ -487,7 +487,7 @@ namespace Itinero.Attributes
         /// <summary>
         /// Returns true if the given attribute collection contains the same attributes than the given collection.
         /// </summary>
-        public static bool ContainsSame(this IAttributeCollection attributes, IAttributeCollection other)
+        public static bool ContainsSame(this IReadonlyAttributeCollection attributes, IReadonlyAttributeCollection other)
         {
             if (attributes == null && other == null)
             {
@@ -528,7 +528,7 @@ namespace Itinero.Attributes
         /// <summary>
         /// Returns true if the given attribute collection contains the same attributes than the given collection.
         /// </summary>
-        public static bool ContainsSame(this IAttributeCollection attributes, IAttributeCollection other, params string[] exclude)
+        public static bool ContainsSame(this IReadonlyAttributeCollection attributes, IReadonlyAttributeCollection other, params string[] exclude)
         {            
             var attributesCount = 0;
             var otherCount = 0;
