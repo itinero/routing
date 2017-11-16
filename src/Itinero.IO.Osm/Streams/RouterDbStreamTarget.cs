@@ -523,6 +523,10 @@ namespace Itinero.IO.Osm.Streams
                                 { // no intermediates in current edge.
                                   // save old edge data.
                                     intermediates = new List<Coordinate>(edge.Shape);
+                                    if (edge.DataInverted)
+                                    {
+                                        intermediates.Reverse();
+                                    }
                                     fromVertex = edge.From;
                                     toVertex = edge.To;
                                     splitMeta = edge.Data.MetaId;

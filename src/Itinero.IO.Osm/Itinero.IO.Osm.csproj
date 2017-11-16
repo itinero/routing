@@ -42,7 +42,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-    <Compile Include="..\..\SharedAssemblyVersion.cs" Link="SharedAssemblyVersion.cs" />
+    <Compile Include="..\..\SharedAssemblyVersion.cs" Link="Properties\SharedAssemblyVersion.cs" />
     <EmbeddedResource Include="Profiles\Defaults\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 
