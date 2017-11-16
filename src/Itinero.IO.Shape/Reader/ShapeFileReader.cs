@@ -55,6 +55,43 @@ namespace Itinero.IO.Shape.Reader
             _targetVertexColumn = targetVertexColumn;
 
             _vehicleCache = new VehicleCache(vehicles);
+
+            if (string.IsNullOrEmpty(_sourceVertexColumn) && 
+                string.IsNullOrEmpty(_targetVertexColumn))
+            { // check for these in the vehicle(s).
+                foreach (var vehicle in vehicles)
+                {
+                    var profileSourceVertex = string.Empty;
+                    var profileTargetVertex = string.Empty;
+
+                    if (vehicle.Parameters != null &&
+                        vehicle.Parameters.TryGetValue("source_vertex", out profileSourceVertex) &&
+                        vehicle.Parameters.TryGetValue("target_vertex", out profileTargetVertex))
+                    {
+                        if (string.IsNullOrWhiteSpace(_sourceVertexColumn))
+                        {
+                            _sourceVertexColumn = profileSourceVertex;
+                        }
+                        else if (_sourceVertexColumn != profileSourceVertex)
+                        {
+                            throw new Exception(string.Format(
+                                "Cannot configure shapefile reader: Multiple vehicle definitions but different source vertex column defined: {0} and {1} found.",
+                                    _sourceVertexColumn, profileSourceVertex));
+                        }
+
+                        if (string.IsNullOrWhiteSpace(_targetVertexColumn))
+                        {
+                            _targetVertexColumn = profileTargetVertex;
+                        }
+                        else if (_targetVertexColumn != profileTargetVertex)
+                        {
+                            throw new Exception(string.Format(
+                                "Cannot configure shapefile reader: Multiple vehicle definitions but different target vertex column defined: {0} and {1} found.",
+                                    _targetVertexColumn, profileTargetVertex));
+                        }
+                    }
+                }
+            }
         }
 
         private const long PointInterval = 10000;

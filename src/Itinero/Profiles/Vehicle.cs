@@ -241,6 +241,17 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Gets parameters 
+        /// </summary>
+        public virtual IReadonlyAttributeCollection Parameters
+        {
+            get
+            {
+                return new AttributeCollection();
+            }
+        }
+
+        /// <summary>
         /// Gets or sets a custom vehicle deserializer.
         /// </summary>
         public static Func<string, Stream, Vehicle> CustomDeserializer

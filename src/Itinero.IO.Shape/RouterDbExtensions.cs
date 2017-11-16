@@ -33,6 +33,14 @@ namespace Itinero.IO.Shape
         /// <summary>
         /// Loads routing data from the given shapefiles for the given vehicles.
         /// </summary>
+        public static void LoadFromShape(this RouterDb routerDb, string path, string searchPattern, params Vehicle[] vehicles)
+        {
+            routerDb.LoadFromShape(path, searchPattern, null, null, vehicles);
+        }
+
+        /// <summary>
+        /// Loads routing data from the given shapefiles for the given vehicles.
+        /// </summary>
         public static void LoadFromShape(this RouterDb routerDb, string path, string searchPattern, string sourceVertexColumn, string targetVertexColumn,
             params Vehicle[] vehicles)
         {
@@ -49,6 +57,14 @@ namespace Itinero.IO.Shape
             }
 
             routerDb.LoadFromShape(readers, sourceVertexColumn, targetVertexColumn, vehicles);
+        }
+
+        /// <summary>
+        /// Loads routing data from the given shapefiles for the given vehicles.
+        /// </summary>
+        public static void LoadFromShape(this RouterDb routerDb, IEnumerable<ShapefileDataReader> shapefileReaders, params Vehicle[] vehicles)
+        {
+            routerDb.LoadFromShape(shapefileReaders, null, null, vehicles);
         }
 
         /// <summary>

@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-
 using Itinero;
 using Itinero.Data.Edges;
 using Itinero.IO.Shape;
@@ -29,8 +28,6 @@ using Itinero.Profiles;
 using Itinero.Geo;
 using System;
 using System.IO;
-using System.IO.Compression;
-using NetTopologySuite.Features;
 
 namespace Sample.Shape
 {
@@ -50,7 +47,7 @@ namespace Sample.Shape
             var vehicle = DynamicVehicle.LoadFromStream(File.OpenRead(
                 Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "car.lua")));
             var routerDb = new RouterDb(EdgeDataSerializer.MAX_DISTANCE);
-            routerDb.LoadFromShape(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp"), "wegvakken.shp", "JTE_ID_BEG", "JTE_ID_END", vehicle);
+            routerDb.LoadFromShape(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp"), "wegvakken.shp", vehicle);
 
             // OPTIONAL: build a contracted version of the routing graph.
             // routerDb.AddContracted(vehicle.Fastest());

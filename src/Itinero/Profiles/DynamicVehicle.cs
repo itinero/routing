@@ -37,7 +37,8 @@ namespace Itinero.Profiles
         private readonly string _name;
         private readonly HashSet<string> _metaWhiteList;
         private readonly HashSet<string> _profileWhiteList;
-        
+        private readonly IReadonlyAttributeCollection _parameters;
+
         /// <summary>
         /// Creates a new dynamic profile based on the given lua script.
         /// </summary>
@@ -72,7 +73,7 @@ namespace Itinero.Profiles
             {
                 throw new ArgumentException("No profiles defined in lua script.");
             }
-            foreach(var dynProfile in dynProfiles.Table.Pairs)
+            foreach (var dynProfile in dynProfiles.Table.Pairs)
             {
                 var profileDefinition = dynProfile.Value;
                 var profileName = profileDefinition.Table.Get("name").String;
@@ -105,7 +106,7 @@ namespace Itinero.Profiles
                 var profile = new DynamicProfile(profileName, metric, _vehicleTypes, this, _script, function);
                 this.Register(profile);
             }
-            
+
             var dynAttributesWhitelist = this.Script.Globals.Get("meta_whitelist");
             _metaWhiteList = new HashSet<string>();
             if (dynAttributesWhitelist != null)
@@ -125,6 +126,20 @@ namespace Itinero.Profiles
                     _profileWhiteList.Add(attribute);
                 }
             }
+
+            var dynParameters = _script.Globals.Get("parameters");
+            var parameters = new AttributeCollection();
+            if (dynParameters != null && dynParameters.Table != null)
+            {
+                foreach (var dynParameter in dynParameters.Table.Pairs)
+                {
+                    var parameterName = dynParameter.Key;
+                    var parameterValue = dynParameter.Value;
+
+                    parameters.AddOrReplace(parameterName.String, parameterValue.String);
+                }
+            }
+            _parameters = parameters;
         }
 
         private readonly Dictionary<string, object> _profileFunctions;
@@ -246,6 +261,17 @@ namespace Itinero.Profiles
                 }
             }
             return traversable;
+        }
+
+        /// <summary>
+        /// Gets the parameters.
+        /// </summary>
+        public override IReadonlyAttributeCollection Parameters
+        {
+            get
+            {
+                return _parameters;
+            }
         }
 
         /// <summary>

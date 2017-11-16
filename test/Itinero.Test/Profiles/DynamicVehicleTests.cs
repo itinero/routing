@@ -76,6 +76,31 @@ namespace Itinero.Test.Profiles
         }
 
         /// <summary>
+        /// Tests loading a running a mock shapefile car profile.
+        /// </summary>
+        [Test]
+        public void TestShapeCar()
+        {
+            var vehicle = DynamicVehicle.LoadFromEmbeddedResource(typeof(DynamicVehicleTests).Assembly, "Itinero.Test.test_data.profiles.shape.car.lua");
+            var profile = vehicle.Fastest();
+            
+            // default types.
+            this.TestFactorAndSpeed(profile, 0, null, 50, "BST_CODE", "BVD");
+            this.TestFactorAndSpeed(profile, 0, null, 70, "BST_CODE", "AF");
+            this.TestFactorAndSpeed(profile, 0, null, 70, "BST_CODE", "OP");
+            this.TestFactorAndSpeed(profile, 0, null, 120, "BST_CODE", "HR");
+            this.TestFactorAndSpeed(profile, 1, null, 30, "BST_CODE", "MRB");
+            this.TestFactorAndSpeed(profile, 1, null, 30, "BST_CODE", "NRB");
+
+            // test parameters.
+            var value = string.Empty;
+            Assert.IsTrue(vehicle.Parameters.TryGetValue("source_vertex", out value));
+            Assert.AreEqual("JTE_ID_BEG", value);
+            Assert.IsTrue(vehicle.Parameters.TryGetValue("target_vertex", out value));
+            Assert.AreEqual("JTE_ID_END", value);
+        }
+
+        /// <summary>
         /// Tests getting factor and speed.
         /// </summary>
         protected void TestFactorAndSpeed(Itinero.Profiles.Profile profile, short? direction, float? factor, float? speed, params string[] tags)

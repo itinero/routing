@@ -15,11 +15,13 @@
   <ItemGroup>
     <None Remove="test-data\networks\network10.osm" />
     <None Remove="test-data\networks\network11.osm" />
+    <None Remove="test-data\profiles\shape\car.lua" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="test-data\networks\network10.osm" />
     <EmbeddedResource Include="test-data\networks\network11.osm" />
+    <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
   </ItemGroup>
 
   <ItemGroup>
