@@ -59,7 +59,7 @@ namespace Itinero.Algorithms.Contracted.Dual
 
             this.DifferenceFactor = 5;
             this.DepthFactor = 5;
-            this.ContractedFactor = 8;
+            this.ContractedFactor = 5;
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
@@ -449,7 +449,8 @@ namespace Itinero.Algorithms.Contracted.Dual
                 }
                 else
                 {
-                    _contractionCount[neighbour] = count++;
+                    count++;
+                    _contractionCount[neighbour] = count;
                 }
             }
         }

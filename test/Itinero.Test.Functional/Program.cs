@@ -57,28 +57,28 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
-            // test some routerdb extensions.
-            RouterDbExtensionsTests.Run(routerDb);
+            //// test some routerdb extensions.
+            //RouterDbExtensionsTests.Run(routerDb);
 
-            // test writing shapefile.
-            ShapeFileWriterTests.Run(routerDb);
+            //// test writing shapefile.
+            //ShapeFileWriterTests.Run(routerDb);
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+            //// test resolving.
+            //ResolvingTests.Run(routerDb);
 
-            // test routing.
-            RoutingTests.Run(routerDb);
+            //// test routing.
+            //RoutingTests.Run(routerDb);
 
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
+            //// tests calculate weight matrices.
+            //WeightMatrixTests.Run(routerDb);
 
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+            //// test instruction generation.
+            //InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
+//#if DEBUG
             Console.ReadLine();
-#endif
+//#endif
         }
 
         private static void EnableLogging()
