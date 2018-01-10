@@ -17,7 +17,6 @@
  */
 
 using Itinero.Algorithms.Search.Hilbert;
-using Itinero.Geo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
@@ -43,13 +42,13 @@ namespace Itinero.Test.Functional.Tests
     /// </summary>
     public static class Runner
     {
-        /// <summary>
-        /// Default resolver test function.
-        /// </summary>
-        public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) =>
-            {
-                return router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), coordinate);
-            };
+        ///// <summary>
+        ///// Default resolver test function.
+        ///// </summary>
+        //public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) =>
+        //    {
+        //        return router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), coordinate);
+        //    };
 
         /// <summary>
         /// Tests resolving all points in the given feature collection.

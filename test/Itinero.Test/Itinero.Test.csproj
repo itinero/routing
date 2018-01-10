@@ -25,15 +25,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Itinero.Geo" Version="1.4.0-pre18" />
     <PackageReference Include="NetTopologySuite" Version="1.15.0-pre027" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre027" />
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="NUnit" Version="3.8.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
-    <ProjectReference Include="..\..\src\Itinero.Geo\Itinero.Geo.csproj" />
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
 
