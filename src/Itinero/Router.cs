@@ -105,7 +105,8 @@ namespace Itinero
                     for (var p = 0; p < profileInstances.Length; p++)
                     {
                         MetaCollection<ushort> il;
-                        if (this.Db.VertexData.TryGet("islands_" + profileInstances[p].Profile.FullName, out il))
+                        if (this.Db.VertexData != null &&
+                            this.Db.VertexData.TryGet("islands_" + profileInstances[p].Profile.FullName, out il))
                         {
                             if (islands == null)
                             {
