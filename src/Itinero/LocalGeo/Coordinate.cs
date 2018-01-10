@@ -48,6 +48,11 @@ namespace Itinero.LocalGeo
         public float Longitude { get; set; }
 
         /// <summary>
+        /// Gets or sets the elevation in meter.
+        /// </summary>
+        public short? Elevation { get; set; }
+
+        /// <summary>
         /// Offsets this coordinate for a given distance in a given direction.
         /// </summary>
         public Coordinate OffsetWithDirection(float distance, DirectionEnum direction)
