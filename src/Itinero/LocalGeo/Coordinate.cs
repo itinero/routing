@@ -39,6 +39,16 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
+        /// Creates a new coordinate.
+        /// </summary>
+        public Coordinate(float latitude, float longitude, short elevation)
+        {
+            this.Latitude = latitude;
+            this.Longitude = longitude;
+            this.Elevation = elevation;
+        }
+
+        /// <summary>
         /// Gets or sets the latitude.
         /// </summary>
         public float Latitude { get; set; }

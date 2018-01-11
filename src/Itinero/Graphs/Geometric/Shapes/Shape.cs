@@ -27,6 +27,7 @@ namespace Itinero.Graphs.Geometric.Shapes
     public class Shape : ShapeBase
     {
         private readonly ArrayBase<float> _coordinates;
+        private readonly ArrayBase<short> _elevation;
         private readonly long _pointer;
         private readonly int _size;
         private readonly bool _reversed;
@@ -37,6 +38,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         internal Shape(ArrayBase<float> coordinates, long pointer, int size)
         {
             _coordinates = coordinates;
+            _elevation = null;
             _pointer = pointer;
             _size = size;
             _reversed = false;
@@ -48,6 +50,31 @@ namespace Itinero.Graphs.Geometric.Shapes
         internal Shape(ArrayBase<float> coordinates, long pointer, int size, bool reversed)
         {
             _coordinates = coordinates;
+            _elevation = null;
+            _pointer = pointer;
+            _size = size;
+            _reversed = reversed;
+        }
+
+        /// <summary>
+        /// Creates a new shape.
+        /// </summary>
+        internal Shape(ArrayBase<float> coordinates, ArrayBase<short> elevation, long pointer, int size)
+        {
+            _coordinates = coordinates;
+            _elevation = elevation;
+            _pointer = pointer;
+            _size = size;
+            _reversed = false;
+        }
+
+        /// <summary>
+        /// Creates a new shape.
+        /// </summary>
+        internal Shape(ArrayBase<float> coordinates, ArrayBase<short> elevation, long pointer, int size, bool reversed)
+        {
+            _coordinates = coordinates;
+            _elevation = elevation;
             _pointer = pointer;
             _size = size;
             _reversed = reversed;
@@ -70,10 +97,28 @@ namespace Itinero.Graphs.Geometric.Shapes
             {
                 if (_reversed)
                 {
+                    if (_elevation != null)
+                    {
+                        return new Coordinate()
+                        {
+                            Latitude = _coordinates[_pointer + ((_size - 1) * 2) - (i * 2)],
+                            Longitude = _coordinates[_pointer + ((_size - 1) * 2) - (i * 2) + 1],
+                            Elevation = _elevation[(_pointer / 2) + (_size - 1) - i]
+                        };
+                    }
                     return new Coordinate()
                     {
                         Latitude = _coordinates[_pointer + ((_size - 1) * 2) - (i * 2)],
                         Longitude = _coordinates[_pointer + ((_size - 1) * 2) - (i * 2) + 1],
+                    };
+                }
+                if (_elevation != null)
+                {
+                    return new Coordinate()
+                    {
+                        Latitude = _coordinates[_pointer + (i * 2)],
+                        Longitude = _coordinates[_pointer + (i * 2) + 1],
+                        Elevation = _elevation[(_pointer / 2) + i]
                     };
                 }
                 return new Coordinate()

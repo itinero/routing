@@ -130,6 +130,24 @@ namespace Itinero.Test.Graphs.Geometric.Shapes
         }
 
         /// <summary>
+        /// Tests copy to.
+        /// </summary>
+        [Test]
+        public void TestCopyToWithElevation()
+        {
+            using (var map = new MemoryMapStream())
+            {
+                var array = new ShapesArray(map, 1);
+                array.Set(0, new Coordinate(0, 0.1f, 10), new Coordinate(1, 1.1f, 11));
+
+                using (var stream = new MemoryStream())
+                {
+                    Assert.AreEqual(16 + 8 + (4 * 4) + 2 * 2, array.CopyTo(stream));
+                }
+            }
+        }
+
+        /// <summary>
         /// Tests copy to and create from.
         /// </summary>
         [Test]
@@ -203,6 +221,83 @@ namespace Itinero.Test.Graphs.Geometric.Shapes
         }
 
         /// <summary>
+        /// Tests copy to and create from.
+        /// </summary>
+        [Test]
+
+        public void TestCopyToCreateFromWithElevation()
+        {
+            var box = new Box(
+                new Coordinate(-90, -180),
+                new Coordinate(90, 180));
+            var refArray = new ShapesArray(1024);
+
+            var rand = new System.Random(46541577);
+            var totalCoordinateCount = 0;
+            for (var i = 0; i < 1024; i++)
+            {
+                var count = rand.Next(10);
+                totalCoordinateCount += count;
+                var newShape = new List<Coordinate>(count);
+                for (var j = 0; j < count; j++)
+                {
+                    var c = box.GenerateRandomIn();
+                    c.Elevation = (short)(short.MaxValue * (rand.NextDouble()));
+                    newShape.Add(c);
+                }
+
+                var shape = new ShapeEnumerable(newShape);
+                refArray[i] = shape;
+            }
+
+            using (var stream = new MemoryStream())
+            {
+                Assert.AreEqual(16 + (1024 * 8) + (totalCoordinateCount * 8) + (totalCoordinateCount * 2),
+                    refArray.CopyTo(stream));
+                stream.Seek(0, SeekOrigin.Begin);
+
+                var array = ShapesArray.CreateFrom(stream, true, true);
+                for (var i = 0; i < refArray.Length; i++)
+                {
+                    var refShape = refArray[i];
+                    if (refShape.Count == 0)
+                    {
+                        continue;
+                    }
+                    var shape = array[i];
+                    Assert.IsNotNull(shape);
+
+                    for (var j = 0; j < shape.Count; j++)
+                    {
+                        Assert.AreEqual(refShape[j].Latitude, shape[j].Latitude);
+                        Assert.AreEqual(refShape[j].Longitude, shape[j].Longitude);
+                        Assert.AreEqual(refShape[j].Elevation, shape[j].Elevation);
+                    }
+                }
+
+                stream.Seek(0, SeekOrigin.Begin);
+                array = ShapesArray.CreateFrom(stream, false, true);
+                for (var i = 0; i < refArray.Length; i++)
+                {
+                    var refShape = refArray[i];
+                    if (refShape.Count == 0)
+                    {
+                        continue;
+                    }
+                    var shape = array[i];
+                    Assert.IsNotNull(shape);
+
+                    for (var j = 0; j < shape.Count; j++)
+                    {
+                        Assert.AreEqual(refShape[j].Latitude, shape[j].Latitude);
+                        Assert.AreEqual(refShape[j].Longitude, shape[j].Longitude);
+                        Assert.AreEqual(refShape[j].Elevation, shape[j].Elevation);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Tests copy to.
         /// </summary>
         [Test]
@@ -220,6 +315,68 @@ namespace Itinero.Test.Graphs.Geometric.Shapes
                 Assert.IsNull(array[7]);
                 Assert.IsNull(array[2]);
                 Assert.IsNull(array[8]);
+            }
+        }
+        
+        /// <summary>
+        /// Tests adding shapes with elevation.
+        /// </summary>
+        [Test]
+        public void TestAddWithElevation()
+        {
+            using (var map = new MemoryMapStream())
+            {
+                var array = new ShapesArray(map, 1024);
+                array.Set(0, new Coordinate(0, 0.1f, 10),
+                    new Coordinate(1, 1.1f, 11));
+
+                var shape = array[0];
+                Assert.IsNotNull(shape);
+                Assert.AreEqual(2, shape.Count);
+                Assert.AreEqual(0, shape[0].Latitude, .00001);
+                Assert.AreEqual(0.1, shape[0].Longitude, .00001);
+                Assert.AreEqual(10, shape[0].Elevation);
+                Assert.AreEqual(1, shape[1].Latitude, .00001);
+                Assert.AreEqual(1.1, shape[1].Longitude, .00001);
+                Assert.AreEqual(11, shape[1].Elevation);
+            }
+
+            using (var map = new MemoryMapStream())
+            {
+                var box = new Box(
+                    new Coordinate(-90, -180),
+                    new Coordinate(90, 180));
+                var refArray = new ShapeBase[1024];
+                var array = new ShapesArray(map, 1024);
+
+                var rand = new Randomizer(1587341311);
+                for (var i = 0; i < 1024; i++)
+                {
+                    var count = rand.Next(10);
+                    var newShape = new List<Coordinate>(count);
+                    for (var j = 0; j < count; j++)
+                    {
+                        newShape.Add(box.GenerateRandomIn());
+                    }
+
+                    var shape = new ShapeEnumerable(newShape);
+                    refArray[i] = shape;
+                    array[i] = shape;
+                }
+
+                for (var i = 0; i < refArray.Length; i++)
+                {
+                    var refShape = refArray[i];
+                    var shape = array[i];
+                    Assert.IsNotNull(shape);
+
+                    for (var j = 0; j < shape.Count; j++)
+                    {
+                        Assert.AreEqual(refShape[j].Latitude, shape[j].Latitude);
+                        Assert.AreEqual(refShape[j].Longitude, shape[j].Longitude);
+                        Assert.AreEqual(refShape[j].Elevation, shape[j].Elevation);
+                    }
+                }
             }
         }
     }
