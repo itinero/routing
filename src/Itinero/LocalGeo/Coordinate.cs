@@ -35,6 +35,7 @@ namespace Itinero.LocalGeo
         {
             this.Latitude = latitude;
             this.Longitude = longitude;
+            this.Elevation = null;
         }
 
         /// <summary>
@@ -155,6 +156,11 @@ namespace Itinero.LocalGeo
         /// </summary>
         public override string ToString()
         {
+            if (this.Elevation.HasValue)
+            {
+                return string.Format("{0},{1}@{2}m", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString(),
+                    this.Elevation.Value.ToInvariantString());
+            }
             return string.Format("{0},{1}", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString());
         }
     }

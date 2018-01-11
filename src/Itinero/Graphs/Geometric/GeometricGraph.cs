@@ -277,7 +277,7 @@ namespace Itinero.Graphs.Geometric
 
             if (elevation != null)
             {
-                if (elevation == null)
+                if (_elevation == null)
                 {
                     _elevation = _createElevation(_coordinates.Length / 2);
                     for (var i = 0; i < _elevation.Length; i++)
@@ -429,6 +429,10 @@ namespace Itinero.Graphs.Geometric
             });
             _shapes.Resize(_graph.EdgeCount);
             _coordinates.Resize(_graph.VertexCapacity * 2);
+            if (_elevation != null)
+            {
+                _elevation.Resize(_graph.VertexCapacity);
+            }
         }
 
         /// <summary>
@@ -442,6 +446,10 @@ namespace Itinero.Graphs.Geometric
                 });
             _shapes.Resize(_graph.EdgeCount);
             _coordinates.Resize(_graph.VertexCapacity * 2);
+            if (_elevation != null)
+            {
+                _elevation.Resize(_graph.VertexCapacity);
+            }
         }
 
         /// <summary>
@@ -451,7 +459,11 @@ namespace Itinero.Graphs.Geometric
         {
             _graph.Trim();
 
-            _coordinates.Resize(_graph.VertexCount);
+            _coordinates.Resize(_graph.VertexCount * 2);
+            if (_elevation != null)
+            {
+                _elevation.Resize(_graph.VertexCount);
+            }
             _shapes.Resize(_graph.EdgeCount);
         }
 
@@ -694,6 +706,7 @@ namespace Itinero.Graphs.Geometric
             else
             { // only break compatibility when there is elevation.
                 stream.WriteByte(2);
+                size++;
                 stream.WriteByte(1); // extra flag for future version upgrades, indicating if elevation is there.
             }
 
@@ -720,7 +733,7 @@ namespace Itinero.Graphs.Geometric
         public static GeometricGraph Deserialize(System.IO.Stream stream, GeometricGraphProfile profile)
         {
             var version = stream.ReadByte();
-            if (version != 1 || version != 2)
+            if (version != 1 && version != 2)
             {
                 throw new Exception(string.Format("Cannot deserialize geometric graph: Invalid version #: {0}.", version));
             }
@@ -734,8 +747,8 @@ namespace Itinero.Graphs.Geometric
 
             // read data.
             var graph = Graph.Deserialize(stream, profile == null ? null : profile.GraphProfile);
-            var initialPosition = stream.Position;
             var size = 0L;
+            var initialPosition = stream.Position;
 
             ArrayBase<float> coordinates;
             ArrayBase<short> elevation = null;
@@ -764,6 +777,8 @@ namespace Itinero.Graphs.Geometric
                 stream.Seek(position + graph.VertexCount * 4 * 2, System.IO.SeekOrigin.Begin);
                 if (hasElevation)
                 {
+                    position = stream.Position;
+                    map = new MemoryMapStream(new CappedStream(stream, position, graph.VertexCount * 2));
                     elevation = new Array<short>(map.CreateInt16(graph.VertexCount), profile.CoordinatesProfile);
                     size += graph.VertexCount * 2;
                     stream.Seek(position + graph.VertexCount * 4 * 2 + graph.VertexCount * 2, System.IO.SeekOrigin.Begin);
