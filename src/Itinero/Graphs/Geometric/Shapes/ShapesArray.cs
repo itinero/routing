@@ -97,8 +97,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// <summary>
         /// A new shape index.
         /// </summary>
-        private ShapesArray(ArrayBase<ulong> index, ArrayBase<float> coordinates, ArrayBase<short> elevation,
-            Func<long, ArrayBase<short>> createElevation)
+        private ShapesArray(ArrayBase<ulong> index, ArrayBase<float> coordinates, ArrayBase<short> elevation)
         {
             _index = index;
             _coordinates = coordinates;
