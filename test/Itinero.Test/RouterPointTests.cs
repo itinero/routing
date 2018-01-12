@@ -455,7 +455,7 @@ namespace Itinero.Test
             var routerDb = new RouterDb();
             routerDb.Network.AddVertex(0, 0, 0);
             routerDb.Network.AddVertex(1, .1f, .1f);
-            routerDb.Network.AddEdge(0, 1, new EdgeData()
+            var edgeId = routerDb.Network.AddEdge(0, 1, new EdgeData()
             {
                 Distance = 1000,
                 MetaId = routerDb.EdgeProfiles.Add(new AttributeCollection(
@@ -478,11 +478,13 @@ namespace Itinero.Test
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
+            Assert.AreEqual(edgeId + 1, path.Edge);
 
             path = point2.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);
             Assert.AreEqual(800 * profile.Factor(new AttributeCollection(
                     new Attribute("highway", "residential"))).Value, path.Weight, 0.001f);
+            Assert.AreEqual(-edgeId - 1, path.Edge);
 
             path = point1.EdgePathTo(routerDb, profile.DefaultWeightHandler(new Router(routerDb)), point1);
             Assert.IsNotNull(path);

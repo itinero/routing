@@ -50,7 +50,7 @@ namespace Sample.Matrix
 
             // METHOD1: quick and easy for high-quality data already on the road network.
             // calculate drive time in seconds between all given locations.
-            var resolved = router.Resolve(Vehicle.Car.Fastest(), locations.ToArray());
+            var resolved = router.Resolve(Vehicle.Car.Fastest(), locations.ToArray(), 150);
             var invalidPoints = new HashSet<int>();
             var matrix = router.CalculateWeight(Vehicle.Car.Fastest(), resolved, invalidPoints);
 

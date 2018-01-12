@@ -489,9 +489,9 @@ namespace Itinero
             { // ok, directions match.
                 if (forward)
                 {
-                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId + 1, new EdgePath<T>(point.VertexId(db)));
                 }
-                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId - 1, new EdgePath<T>(point.VertexId(db)));
             }
             return null;
         }
@@ -538,9 +538,9 @@ namespace Itinero
             { // ok, directions match.
                 if (forward)
                 {
-                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                    return new EdgePath<T>(target.VertexId(db), weight, point.EdgeId + 1, new EdgePath<T>(point.VertexId(db)));
                 }
-                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId, new EdgePath<T>(point.VertexId(db)));
+                return new EdgePath<T>(target.VertexId(db), weight, -point.EdgeId - 1, new EdgePath<T>(point.VertexId(db)));
             }
             return null;
         }
