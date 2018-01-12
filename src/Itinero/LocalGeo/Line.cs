@@ -110,7 +110,7 @@ namespace Itinero.LocalGeo
         /// 
         /// Assumes the given line is not a segement and this line is a segment.
         /// </summary>
-        internal Coordinate? Intersect(Line line)
+        public Coordinate? Intersect(Line line)
         {
             var det = (double)(line.A * this.B - this.A * line.B);
             if (System.Math.Abs(det) <= E)
@@ -137,6 +137,37 @@ namespace Itinero.LocalGeo
                 if (distTo2 > dist)
                 {
                     return null;
+                }
+
+                if (_coordinate1.Elevation.HasValue && _coordinate2.Elevation.HasValue)
+                {
+                    if (_coordinate1.Elevation == _coordinate2.Elevation)
+                    { // don't calculate anything, elevation is identical.
+                        coordinate.Elevation = _coordinate1.Elevation;
+                    }
+                    else if (System.Math.Abs(this.A) < E && System.Math.Abs(this.B) < E)
+                    { // tiny segment, not stable to calculate offset
+                        coordinate.Elevation = _coordinate1.Elevation;
+                    }
+                    else
+                    { // calculate offset and calculate an estimiate of the elevation.
+                        if (System.Math.Abs(this.A) > System.Math.Abs(this.B))
+                        {
+                            var diffLat = System.Math.Abs(this.A);
+                            var diffLatIntersection = System.Math.Abs(coordinate.Latitude - _coordinate1.Latitude);
+
+                            coordinate.Elevation = (short)((_coordinate2.Elevation - _coordinate1.Elevation) * (diffLatIntersection / diffLat) +
+                                _coordinate1.Elevation);
+                        }
+                        else
+                        {
+                            var diffLon = System.Math.Abs(this.B);
+                            var diffLonIntersection = System.Math.Abs(coordinate.Longitude - _coordinate1.Longitude);
+
+                            coordinate.Elevation = (short)((_coordinate2.Elevation - _coordinate1.Elevation) * (diffLonIntersection / diffLon) +
+                                _coordinate1.Elevation);
+                        }
+                    }
                 }
                 return coordinate;
             }
