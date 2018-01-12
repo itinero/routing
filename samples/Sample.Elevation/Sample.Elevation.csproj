@@ -10,8 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
-    <ProjectReference Include="..\src\Itinero\Itinero.csproj" />
+    <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
+    <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
 
 </Project>
