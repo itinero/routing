@@ -97,11 +97,22 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// <summary>
         /// A new shape index.
         /// </summary>
-        private ShapesArray(ArrayBase<ulong> index, ArrayBase<float> coordinates, ArrayBase<short> elevation)
+        private ShapesArray(ArrayBase<ulong> index, ArrayBase<float> coordinates, ArrayBase<short> elevation,
+            Func<long, ArrayBase<short>> createElevation)
         {
             _index = index;
             _coordinates = coordinates;
             _elevation = elevation;
+
+            _createElevation = (s) =>
+            {
+                var e = Context.ArrayFactory.CreateMemoryBackedArray<short>(s);
+                for (var i = 0; i < e.Length; i++)
+                {
+                    e[i] = NO_ELEVATION;
+                }
+                return e;
+            };
         }
 
         private long _nextPointer = 0; // Holds the next idx.
