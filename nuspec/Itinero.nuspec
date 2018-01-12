@@ -13,10 +13,14 @@
         <description>Itinero - Routing for .NET.</description>
         <summary>Itinero is a route planning project for .NET to plan routes in a road network.</summary>
       <releaseNotes>
-        Itinero 1.3.1 Release Notes
+        Itinero 1.3.2 Release Notes
         ---------------------------
 
         This is a minor release with a single bugfix:
+
+        - Fixed issue in one-hop paths having incorrect edge id when within a single edge.
+
+        ### 1.3.0 -> 1.3.1
 
         - Fixed issue in dualgraph builder not keeping topology.
 

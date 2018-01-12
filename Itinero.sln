@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4B330D21-2EE5-4C34-B716-0DB1FBC58E29}"
 EndProject
@@ -56,6 +56,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "releasenotes", "releasenote
 		docs\releasenotes\itinero-1.2.0.md = docs\releasenotes\itinero-1.2.0.md
 		docs\releasenotes\itinero-1.3.0.md = docs\releasenotes\itinero-1.3.0.md
 		docs\releasenotes\itinero-1.3.1.md = docs\releasenotes\itinero-1.3.1.md
+		docs\releasenotes\itinero-1.3.2.md = docs\releasenotes\itinero-1.3.2.md
 	EndProjectSection
 EndProject
 Global
