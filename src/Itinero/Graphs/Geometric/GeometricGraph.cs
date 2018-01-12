@@ -23,6 +23,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using Itinero.LocalGeo.Elevation;
 
 namespace Itinero.Graphs.Geometric
 {
@@ -272,6 +273,48 @@ namespace Itinero.Graphs.Geometric
 
             // increase coordinates length, if needed.
             _coordinates.EnsureMinimumSize(vertex * 2 + 2, NO_COORDINATE);
+            _coordinates[vertex * 2] = latitude;
+            _coordinates[vertex * 2 + 1] = longitude;
+
+            if (elevation != null)
+            {
+                if (_elevation == null)
+                {
+                    _elevation = _createElevation(_coordinates.Length / 2);
+                    for (var i = 0; i < _elevation.Length; i++)
+                    {
+                        _elevation[i] = NO_ELEVATION;
+                    }
+                }
+                _elevation[vertex] = elevation.Value;
+            }
+        }
+        
+        /// <summary>
+        /// Adds elevation.
+        /// </summary>
+        public void AddElevation(ElevationHandler.GetElevationDelegate getElevationFunc)
+        {
+            // add elevation to all vertices.
+            for (uint v = 0; v < this.VertexCount; v++)
+            {
+                var location = this.GetVertex(v);
+                var elevation = getElevationFunc(location.Latitude, location.Longitude);
+
+                this.UpdateVertex(v, location.Latitude, location.Longitude, elevation);
+            }
+
+            _shapes.AddElevation(getElevationFunc);
+        }
+
+        /// <summary>
+        /// Updates the given vertex.
+        /// </summary>
+        public void UpdateVertex(uint vertex, float latitude, float longitude, short? elevation = null)
+        {
+            if (vertex >= _coordinates.Length) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
+            if (_coordinates[vertex].Equals(NO_COORDINATE)) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
+            
             _coordinates[vertex * 2] = latitude;
             _coordinates[vertex * 2 + 1] = longitude;
 
@@ -765,7 +808,7 @@ namespace Itinero.Graphs.Geometric
                     size += graph.VertexCount * 2;
                 }
                 long shapeSize;
-                shapes = ShapesArray.CreateFrom(stream, true, out shapeSize);
+                shapes = ShapesArray.CreateFrom(stream, true, out shapeSize, hasElevation);
                 size += shapeSize;
             }
             else
@@ -784,7 +827,7 @@ namespace Itinero.Graphs.Geometric
                     stream.Seek(position + graph.VertexCount * 4 * 2 + graph.VertexCount * 2, System.IO.SeekOrigin.Begin);
                 }
                 long shapeSize;
-                shapes = ShapesArray.CreateFrom(stream, false, out shapeSize);
+                shapes = ShapesArray.CreateFrom(stream, false, out shapeSize, hasElevation);
                 size += shapeSize;
             }
 

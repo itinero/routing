@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.LocalGeo.Elevation;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
@@ -178,6 +179,42 @@ namespace Itinero.Graphs.Geometric.Shapes
             set
             {
                 this.Set(id, value);
+            }
+        }
+
+        /// <summary>
+        /// Adds elevation.
+        /// </summary>
+        public void AddElevation(ElevationHandler.GetElevationDelegate getElevationFunc)
+        {
+            if (_elevation == null)
+            {
+                _elevation = _createElevation(_coordinates.Length / 2);
+            }
+
+            long pointer;
+            int size;
+            for (var i = 0; i < _index.Length; i++)
+            {
+                ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                if (size > 0)
+                {
+                    for (var p = 0; p < size; p++)
+                    {
+                        var lat = _coordinates[pointer + (p * 2)];
+                        var lon = _coordinates[pointer + (p * 2) + 1];
+
+                        var e = getElevationFunc(lat, lon);
+                        if (e.HasValue)
+                        {
+                            _elevation[pointer / 2 + p] = e.Value;
+                        }
+                        else
+                        {
+                            _elevation[pointer / 2 + p] = NO_ELEVATION;
+                        }
+                    }
+                }
             }
         }
 

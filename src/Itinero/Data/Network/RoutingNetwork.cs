@@ -144,6 +144,14 @@ namespace Itinero.Data.Network
         }
 
         /// <summary>
+        /// Adds a new vertex.
+        /// </summary>
+        public void AddVertex(uint vertex, float latitude, float longitude, short? elevation)
+        {
+            _graph.AddVertex(vertex, latitude, longitude, elevation);
+        }
+
+        /// <summary>
         /// Gets the vertex.
         /// </summary>
         public Coordinate GetVertex(uint vertex)

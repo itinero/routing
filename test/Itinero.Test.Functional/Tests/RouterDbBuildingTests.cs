@@ -26,6 +26,8 @@ using System;
 using System.IO;
 using Itinero.Data;
 using Itinero.LocalGeo;
+using SRTM;
+using Itinero.Elevation;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -45,6 +47,8 @@ namespace Itinero.Test.Functional.Tests
                 Osm.Vehicles.Vehicle.Car,
                 Osm.Vehicles.Vehicle.Bicycle,
                 Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+
+            GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM."); ;
 
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
@@ -180,6 +184,30 @@ namespace Itinero.Test.Functional.Tests
                         islandDb.GetGeoJson(true, false));
                }
 #endif
+            };
+        }
+
+        /// <summary>
+        /// Tests adding elevation data.
+        /// </summary>
+        public static Action GetTestAddElevation(RouterDb routerDb)
+        {
+            // create a new srtm data instance.
+            // it accepts a folder to download and cache data into.
+            var srtmCache = new DirectoryInfo("srtm-cache");
+            if (!srtmCache.Exists)
+            {
+                srtmCache.Create();
+            }
+            var srtmData = new SRTMData("srtm-cache");
+            LocalGeo.Elevation.ElevationHandler.GetElevation = (lat, lon) =>
+            {
+                return (short)srtmData.GetElevation(lat, lon);
+            };
+
+            return () =>
+            {
+                routerDb.AddElevation();
             };
         }
 

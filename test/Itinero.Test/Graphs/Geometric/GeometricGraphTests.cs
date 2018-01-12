@@ -565,6 +565,43 @@ namespace Itinero.Test.Graphs.Geometric
         }
 
         /// <summary>
+        /// Tests setting a vertex.
+        /// </summary>
+        [Test]
+        public void TestUpdateVertexWithElevation()
+        {
+            var graph = new GeometricGraph(1, 100);
+
+            graph.AddVertex(0, 1, 1);
+            graph.AddVertex(1, 10, 10);
+            graph.AddVertex(2, 2, 2);
+
+            graph.UpdateVertex(0, 0, 0, 10);
+            graph.UpdateVertex(1, 1, 1, 20);
+            graph.UpdateVertex(2, 2, 2, 30);
+
+            float latitude, longitude;
+            Assert.IsTrue(graph.GetVertex(0, out latitude, out longitude));
+            Assert.AreEqual(0, latitude);
+            Assert.AreEqual(0, longitude);
+            Assert.AreEqual(0, graph.GetVertex(0).Latitude);
+            Assert.AreEqual(0, graph.GetVertex(0).Longitude);
+            Assert.AreEqual(10, graph.GetVertex(0).Elevation);
+            Assert.IsTrue(graph.GetVertex(1, out latitude, out longitude));
+            Assert.AreEqual(1, latitude);
+            Assert.AreEqual(1, longitude);
+            Assert.AreEqual(1, graph.GetVertex(1).Latitude);
+            Assert.AreEqual(1, graph.GetVertex(1).Longitude);
+            Assert.AreEqual(20, graph.GetVertex(1).Elevation);
+            Assert.IsTrue(graph.GetVertex(2, out latitude, out longitude));
+            Assert.AreEqual(2, latitude);
+            Assert.AreEqual(2, longitude);
+            Assert.AreEqual(2, graph.GetVertex(2).Latitude);
+            Assert.AreEqual(2, graph.GetVertex(2).Longitude);
+            Assert.AreEqual(30, graph.GetVertex(2).Elevation);
+        }
+
+        /// <summary>
         /// Tests get edge enumerator.
         /// </summary>
         [Test]

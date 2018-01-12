@@ -134,7 +134,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// </summary>
         public override ShapeBase Reverse()
         {
-            return new Shape(_coordinates, _pointer, _size, !_reversed);
+            return new Shape(_coordinates, _elevation, _pointer, _size, !_reversed);
         }
     }
 }

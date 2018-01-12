@@ -19,10 +19,10 @@
 using Itinero.Algorithms;
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
-using NUnit.Framework;
 using System;
 using Itinero;
 using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Itinero.Test.Functional.Tests
 {
