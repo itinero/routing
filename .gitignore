@@ -45,3 +45,4 @@ TestResult*.xml
 *.shx
 
 islands_*.geojson
+*.hgt.zip

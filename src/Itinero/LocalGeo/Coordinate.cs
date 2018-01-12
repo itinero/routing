@@ -35,6 +35,17 @@ namespace Itinero.LocalGeo
         {
             this.Latitude = latitude;
             this.Longitude = longitude;
+            this.Elevation = null;
+        }
+
+        /// <summary>
+        /// Creates a new coordinate.
+        /// </summary>
+        public Coordinate(float latitude, float longitude, short elevation)
+        {
+            this.Latitude = latitude;
+            this.Longitude = longitude;
+            this.Elevation = elevation;
         }
 
         /// <summary>
@@ -46,6 +57,11 @@ namespace Itinero.LocalGeo
         /// Gets or sets the longitude.
         /// </summary>
         public float Longitude { get; set; }
+
+        /// <summary>
+        /// Gets or sets the elevation in meter.
+        /// </summary>
+        public short? Elevation { get; set; }
 
         /// <summary>
         /// Offsets this coordinate for a given distance in a given direction.
@@ -150,6 +166,11 @@ namespace Itinero.LocalGeo
         /// </summary>
         public override string ToString()
         {
+            if (this.Elevation.HasValue)
+            {
+                return string.Format("{0},{1}@{2}m", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString(),
+                    this.Elevation.Value.ToInvariantString());
+            }
             return string.Format("{0},{1}", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString());
         }
     }

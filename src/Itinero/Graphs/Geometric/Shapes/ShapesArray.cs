@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using Itinero.LocalGeo.Elevation;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
@@ -30,9 +31,12 @@ namespace Itinero.Graphs.Geometric.Shapes
     public class ShapesArray : ArrayBase<ShapeBase>
     {
         private const int MAX_COLLECTION_SIZE = ushort.MaxValue; // The maximum size of one collection is.
+        private const short NO_ELEVATION = short.MaxValue;
         private const int ESTIMATED_SIZE = 5; // The average estimated size.
         private readonly ArrayBase<ulong> _index; // Holds the coordinates index position and count.
-        private readonly ArrayBase<float> _coordinates; // Holds the coordinates in linked-list form.
+        private readonly ArrayBase<float> _coordinates; // holds the coordinates.
+        private ArrayBase<short> _elevation; // holds the elevation.
+        private readonly Func<long, ArrayBase<short>> _createElevation;
 
         /// <summary>
         /// A new shape index.
@@ -41,6 +45,15 @@ namespace Itinero.Graphs.Geometric.Shapes
         {
             _index = Context.ArrayFactory.CreateMemoryBackedArray<ulong>(size);
             _coordinates = Context.ArrayFactory.CreateMemoryBackedArray<float>(size * 2 * ESTIMATED_SIZE);
+            _createElevation = (s) =>
+            {
+                var elevation = Context.ArrayFactory.CreateMemoryBackedArray<short>(s);
+                for (var i = 0; i < elevation.Length; i++)
+                {
+                    elevation[i] = NO_ELEVATION;
+                }
+                return elevation;
+            };
 
             for (long i = 0; i < _index.Length; i++)
             {
@@ -60,6 +73,15 @@ namespace Itinero.Graphs.Geometric.Shapes
         {
             _index = new Array<ulong>(map, size);
             _coordinates = new Array<float>(map, size * 2 * ESTIMATED_SIZE);
+            _createElevation = (s) =>
+            {
+                var elevation = new Array<short>(map, s);
+                for (var i = 0; i < elevation.Length; i++)
+                {
+                    elevation[i] = NO_ELEVATION;
+                }
+                return elevation;
+            };
 
             for (long i = 0; i < _index.Length; i++)
             {
@@ -75,10 +97,11 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// <summary>
         /// A new shape index.
         /// </summary>
-        private ShapesArray(ArrayBase<ulong> index, ArrayBase<float> coordinates)
+        private ShapesArray(ArrayBase<ulong> index, ArrayBase<float> coordinates, ArrayBase<short> elevation)
         {
             _index = index;
             _coordinates = coordinates;
+            _elevation = elevation;
         }
 
         private long _nextPointer = 0; // Holds the next idx.
@@ -117,6 +140,10 @@ namespace Itinero.Graphs.Geometric.Shapes
             get
             {
                 var sizeInBytes = 16 + _index.Length * 8;
+                if (_elevation != null)
+                {
+                    sizeInBytes++;
+                }
                 for (var i = 0; i < _index.Length; i++)
                 {
                     long pointer;
@@ -125,6 +152,10 @@ namespace Itinero.Graphs.Geometric.Shapes
                     if (size > 0)
                     {
                         sizeInBytes += size * 4;
+                        if (_elevation != null)
+                        {
+                            sizeInBytes += size; // elevation if any.
+                        }
                     }
                 }
                 return sizeInBytes;
@@ -148,6 +179,42 @@ namespace Itinero.Graphs.Geometric.Shapes
             set
             {
                 this.Set(id, value);
+            }
+        }
+
+        /// <summary>
+        /// Adds elevation.
+        /// </summary>
+        public void AddElevation(ElevationHandler.GetElevationDelegate getElevationFunc)
+        {
+            if (_elevation == null)
+            {
+                _elevation = _createElevation(_coordinates.Length / 2);
+            }
+
+            long pointer;
+            int size;
+            for (var i = 0; i < _index.Length; i++)
+            {
+                ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                if (size > 0)
+                {
+                    for (var p = 0; p < size; p++)
+                    {
+                        var lat = _coordinates[pointer + (p * 2)];
+                        var lon = _coordinates[pointer + (p * 2) + 1];
+
+                        var e = getElevationFunc(lat, lon);
+                        if (e.HasValue)
+                        {
+                            _elevation[pointer / 2 + p] = e.Value;
+                        }
+                        else
+                        {
+                            _elevation[pointer / 2 + p] = NO_ELEVATION;
+                        }
+                    }
+                }
             }
         }
 
@@ -183,12 +250,25 @@ namespace Itinero.Graphs.Geometric.Shapes
 
                 // increase the size of the coordinates if needed.
                 _coordinates.EnsureMinimumSize(_nextPointer + (2 * shape.Count));
+                if (_elevation != null)
+                {
+                    _elevation.EnsureMinimumSize((_nextPointer / 2) + shape.Count);
+                }
 
                 for (var i = 0; i < shape.Count; i++)
                 {
                     var coordinate = shape[i];
                     _coordinates[_nextPointer + (i * 2)] = coordinate.Latitude;
                     _coordinates[_nextPointer + (i * 2) + 1] = coordinate.Longitude;
+
+                    if (coordinate.Elevation.HasValue)
+                    {
+                        if (_elevation == null)
+                        {
+                            _elevation = _createElevation(_coordinates.Length / 2);
+                        }
+                        _elevation[_nextPointer / 2 + i] = coordinate.Elevation.Value;
+                    }
                 }
                 _nextPointer += (2 * shape.Count);
             }
@@ -200,6 +280,15 @@ namespace Itinero.Graphs.Geometric.Shapes
                     var coordinate = shape[i];
                     _coordinates[pointer + (i * 2)] = coordinate.Latitude;
                     _coordinates[pointer + (i * 2) + 1] = coordinate.Longitude;
+
+                    if (coordinate.Elevation.HasValue)
+                    {
+                        if (_elevation == null)
+                        {
+                            _elevation = _createElevation(_coordinates.Length / 2);
+                        }
+                        _elevation[_nextPointer / 2 + i] = coordinate.Elevation.Value;
+                    }
                 }
             }
         }
@@ -214,7 +303,7 @@ namespace Itinero.Graphs.Geometric.Shapes
             GetPointerAndSize(id, out index, out size);
             if (index >= 0)
             {
-                shape = new Shape(_coordinates, index, size);
+                shape = new Shape(_coordinates, _elevation, index, size);
                 return true;
             }
             shape = null;
@@ -282,6 +371,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         public void Trim()
         {
             _coordinates.Resize(_nextPointer);
+            _elevation.Resize(_nextPointer / 2);
         }
 
         /// <summary>
@@ -297,6 +387,7 @@ namespace Itinero.Graphs.Geometric.Shapes
             var position = stream.Position;
             var coordinatesPosition = position + (_index.Length * 8);
             long newPointer = 0;
+            long elevationNewPointer = 0;
             using (var indexStream = new BinaryWriter(new LimitedStream(stream, position)))
             {
                 using(var coordinatesStream = new BinaryWriter(new LimitedStream(stream, coordinatesPosition)))
@@ -326,6 +417,39 @@ namespace Itinero.Graphs.Geometric.Shapes
                         }
                     }
                 }
+
+                if (_elevation != null)
+                {
+                    var elevationPosition = coordinatesPosition + newPointer * 4;
+                    using (var elevationStream = new BinaryWriter(new LimitedStream(stream, elevationPosition)))
+                    {
+                        long pointer;
+                        int size;
+                        for (var i = 0; i < _index.Length; i++)
+                        {
+                            elevationStream.SeekBegin(elevationNewPointer * 2);
+                            ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                            if (size > 0)
+                            {
+                                for (var p = 0; p < size; p++)
+                                {
+                                    elevationStream.Write(_elevation[pointer / 2 + p]);
+                                }
+
+                                // ALREADY WRITTEN
+                                //indexStream.SeekBegin(i * 8);
+                                //indexStream.Write(ShapesArray.BuildPointerAndSize(newPointer, size));
+                                elevationNewPointer += size;
+                            }
+                            else
+                            {
+                                // ALREADY WRITTEN
+                                //indexStream.SeekBegin(i * 8);
+                                //indexStream.Write((ulong)0);
+                            }
+                        }
+                    }
+                }
             }
 
             // write coordinates size.
@@ -333,9 +457,21 @@ namespace Itinero.Graphs.Geometric.Shapes
             stream.Write(BitConverter.GetBytes(newPointer), 0, 8);
 
             // seek until after.
-            var sizeInBytes = 16 + (_index.Length * 8) + (newPointer * 4);
+            var sizeInBytes = 16 + (_index.Length * 8) + (newPointer * 4) + (elevationNewPointer * 2);
             stream.Seek(initialPosition + sizeInBytes, System.IO.SeekOrigin.Begin);
             return sizeInBytes;
+        }
+        /// <summary>
+        /// Copies from the given stream.
+        /// </summary>
+        public void CopyFrom(Stream stream, bool hasElevation = false)
+        {
+            var array = CreateFrom(stream, false, hasElevation);
+
+            for (var i = 0; i < array.Length; i++)
+            {
+                this[i] = array[i];
+            }
         }
 
         /// <summary>
@@ -343,27 +479,22 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// </summary>
         public override void CopyFrom(Stream stream)
         {
-            var array = CreateFrom(stream, false);
-
-            for(var i = 0; i < array.Length; i++)
-            {
-                this[i] = array[i];
-            }
+            this.CopyFrom(stream, false);
         }
 
         /// <summary>
         /// Deserializes an shapes index from the given stream.
         /// </summary>
-        public static ShapesArray CreateFrom(Stream stream, bool copy)
+        public static ShapesArray CreateFrom(Stream stream, bool copy, bool hasElevation = false)
         {
             long size;
-            return ShapesArray.CreateFrom(stream, copy, out size);
+            return ShapesArray.CreateFrom(stream, copy, out size, hasElevation);
         }
 
         /// <summary>
         /// Deserializes an shapes index from the given stream.
         /// </summary>
-        public static ShapesArray CreateFrom(Stream stream, bool copy, out long size)
+        public static ShapesArray CreateFrom(Stream stream, bool copy, out long size, bool hasElevation = false)
         {
             var initialPosition = stream.Position;
 
@@ -378,7 +509,8 @@ namespace Itinero.Graphs.Geometric.Shapes
 
             ArrayBase<ulong> index;
             ArrayBase<float> coordinates;
-            if(copy)
+            ArrayBase<short> elevation = null;
+            if (copy)
             { // just create arrays and read the data.
                 index = Context.ArrayFactory.CreateMemoryBackedArray<ulong>(indexLength);
                 index.CopyFrom(stream);
@@ -386,6 +518,12 @@ namespace Itinero.Graphs.Geometric.Shapes
                 coordinates = Context.ArrayFactory.CreateMemoryBackedArray<float>(coordinatesLength);
                 size += coordinatesLength * 4;
                 coordinates.CopyFrom(stream);
+                if (hasElevation)
+                {
+                    elevation = Context.ArrayFactory.CreateMemoryBackedArray<short>(coordinatesLength / 2);
+                    size += coordinatesLength;
+                    elevation.CopyFrom(stream);
+                }
             }
             else
             { // create accessors over the exact part of the stream that represents vertices/edges.
@@ -397,12 +535,19 @@ namespace Itinero.Graphs.Geometric.Shapes
                     coordinatesLength * 4));
                 coordinates = new Array<float>(map2.CreateSingle(coordinatesLength));
                 size += coordinatesLength * 4;
+                if (hasElevation)
+                {
+                    var map3 = new MemoryMapStream(new CappedStream(stream, position + indexLength * 8 + coordinatesLength * 4,
+                        coordinatesLength));
+                    elevation = new Array<short>(map3.CreateInt16(coordinatesLength / 2));
+                    size += coordinatesLength;
+                }
             }
 
             // make stream is positioned correctly.
             stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
-            return new ShapesArray(index, coordinates);
+            return new ShapesArray(index, coordinates, elevation);
         }
 
         /// <summary>
@@ -412,6 +557,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         {
             _index.Dispose();
             _coordinates.Dispose();
+            _elevation.Dispose();
         }
     }
 }

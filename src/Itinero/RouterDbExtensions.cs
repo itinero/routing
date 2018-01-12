@@ -1226,7 +1226,7 @@ namespace Itinero
 
                 // add the vertex.
                 var vLocation = db.Network.GetVertex(v);
-                newDb.Network.AddVertex(newV, vLocation.Latitude, vLocation.Longitude);
+                newDb.Network.AddVertex(newV, vLocation.Latitude, vLocation.Longitude, vLocation.Elevation);
 
                 // move the enumerator to the correct vertex.
                 if (!edgeEnumerator.MoveTo(v))
@@ -1762,10 +1762,17 @@ namespace Itinero
                 {
                     var segmentOffsetLength = segmentLength + currentLength - targetLength;
                     var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
+                    short? elevation = null;
+                    if (shape[i - 1].Elevation.HasValue && 
+                        shape[i].Elevation.HasValue)
+                    {
+                        elevation = (short)(shape[i - 1].Elevation.Value + (segmentOffset * (shape[i].Elevation.Value - shape[i - 1].Elevation.Value)));
+                    }
                     return new Coordinate()
                     {
                         Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
-                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude)))
+                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude))),
+                        Elevation = elevation
                     };
                 }
                 currentLength += segmentLength;

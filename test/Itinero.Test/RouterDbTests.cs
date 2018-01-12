@@ -27,6 +27,9 @@ using Itinero.Data.Contracted;
 using System.Collections.Generic;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.Data;
+using System;
+using Itinero.Elevation;
+using Itinero.LocalGeo.Elevation;
 
 namespace Itinero.Test
 {
@@ -127,6 +130,69 @@ namespace Itinero.Test
             var vertex3 = routerDb.Network.GetVertex(3);
             Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
             Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+
+            var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+
+            var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+
+            var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network2 with elevation.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2WithElevation()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network2.geojson"));
+
+            // add elevation.
+            ElevationHandler.GetElevation = (lat, lon) =>
+            {
+                return (short)(((lat * lon) % 2000) - 100);
+            };
+            routerDb.AddElevation();
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream, null);
+            }
+
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            var vertex0 = routerDb.Network.GetVertex(0);
+            Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+            Assert.AreEqual(51.2296492895387, vertex0.Latitude, 0.00001);
+            Assert.AreEqual(ElevationHandler.GetElevation(vertex0.Latitude, vertex0.Longitude),
+                vertex0.Elevation);
+
+            var vertex1 = routerDb.Network.GetVertex(1);
+            Assert.AreEqual(4.463168978691101, vertex1.Longitude, 0.00001);
+            Assert.AreEqual(51.2296224159235, vertex1.Latitude, 0.00001);
+            Assert.AreEqual(ElevationHandler.GetElevation(vertex1.Latitude, vertex1.Longitude),
+                vertex1.Elevation);
+
+            var vertex2 = routerDb.Network.GetVertex(2);
+            Assert.AreEqual(4.465247690677643, vertex2.Longitude, 0.00001);
+            Assert.AreEqual(51.22962073632204, vertex2.Latitude, 0.00001);
+            Assert.AreEqual(ElevationHandler.GetElevation(vertex2.Latitude, vertex2.Longitude),
+                vertex2.Elevation);
+
+            var vertex3 = routerDb.Network.GetVertex(3);
+            Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
+            Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+            Assert.AreEqual(ElevationHandler.GetElevation(vertex3.Latitude, vertex3.Longitude),
+                vertex3.Elevation);
 
             var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
             Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);

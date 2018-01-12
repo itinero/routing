@@ -35,7 +35,7 @@ namespace Itinero.Test.Graphs.Geometric
         /// Tests argument exceptions.
         /// </summary>
         [Test]
-        public void TestArgumentExcptions()
+        public void TestArgumentExceptions()
         {
             // create graph with one vertex and start adding 2.
             var graph = new GeometricGraph(1, 2);
@@ -565,6 +565,43 @@ namespace Itinero.Test.Graphs.Geometric
         }
 
         /// <summary>
+        /// Tests setting a vertex.
+        /// </summary>
+        [Test]
+        public void TestUpdateVertexWithElevation()
+        {
+            var graph = new GeometricGraph(1, 100);
+
+            graph.AddVertex(0, 1, 1);
+            graph.AddVertex(1, 10, 10);
+            graph.AddVertex(2, 2, 2);
+
+            graph.UpdateVertex(0, 0, 0, 10);
+            graph.UpdateVertex(1, 1, 1, 20);
+            graph.UpdateVertex(2, 2, 2, 30);
+
+            float latitude, longitude;
+            Assert.IsTrue(graph.GetVertex(0, out latitude, out longitude));
+            Assert.AreEqual(0, latitude);
+            Assert.AreEqual(0, longitude);
+            Assert.AreEqual(0, graph.GetVertex(0).Latitude);
+            Assert.AreEqual(0, graph.GetVertex(0).Longitude);
+            Assert.AreEqual(10, graph.GetVertex(0).Elevation);
+            Assert.IsTrue(graph.GetVertex(1, out latitude, out longitude));
+            Assert.AreEqual(1, latitude);
+            Assert.AreEqual(1, longitude);
+            Assert.AreEqual(1, graph.GetVertex(1).Latitude);
+            Assert.AreEqual(1, graph.GetVertex(1).Longitude);
+            Assert.AreEqual(20, graph.GetVertex(1).Elevation);
+            Assert.IsTrue(graph.GetVertex(2, out latitude, out longitude));
+            Assert.AreEqual(2, latitude);
+            Assert.AreEqual(2, longitude);
+            Assert.AreEqual(2, graph.GetVertex(2).Latitude);
+            Assert.AreEqual(2, graph.GetVertex(2).Longitude);
+            Assert.AreEqual(30, graph.GetVertex(2).Elevation);
+        }
+
+        /// <summary>
         /// Tests get edge enumerator.
         /// </summary>
         [Test]
@@ -1059,6 +1096,76 @@ namespace Itinero.Test.Graphs.Geometric
             Assert.AreEqual(4, edges.First(x => x.To == 0).Data[0]);
             Assert.AreEqual(true, edges.First(x => x.To == 5).DataInverted);
             Assert.AreEqual(8, edges.First(x => x.To == 5).Data[0]);
+        }
+
+        /// <summary>
+        /// Tests adding a vertex with elevation.
+        /// </summary>
+        [Test]
+        public void TestAddVertexWithElevation()
+        {
+            var graph = new GeometricGraph(1, 100);
+            graph.AddVertex(0, 1, 10, 100);
+            graph.AddVertex(1, 2, 20, 200);
+
+            var vertex = graph.GetVertex(0);
+            Assert.AreEqual(1, vertex.Latitude);
+            Assert.AreEqual(10, vertex.Longitude);
+            Assert.AreEqual(100, vertex.Elevation);
+            vertex = graph.GetVertex(1);
+            Assert.AreEqual(2, vertex.Latitude);
+            Assert.AreEqual(20, vertex.Longitude);
+            Assert.AreEqual(200, vertex.Elevation);
+        }
+
+        /// <summary>
+        /// Tests serializing a geometric graph with elevation.
+        /// </summary>
+        [Test]
+        public void TestSerializeVertexWithElevation()
+        {
+            var graph = new GeometricGraph(1, 100);
+            graph.AddVertex(0, 1, 10, 100);
+            graph.AddVertex(1, 2, 20, 200);
+
+            // serialize.
+            GeometricGraph deserializedGraph = null;
+            using (var stream = new System.IO.MemoryStream())
+            {
+                var size = graph.Serialize(stream);
+                stream.Seek(0, System.IO.SeekOrigin.Begin);
+
+                deserializedGraph = GeometricGraph.Deserialize(stream, null);
+                Assert.AreEqual(size, stream.Position);
+
+                Assert.AreEqual(graph.VertexCount, deserializedGraph.VertexCount);
+                Assert.AreEqual(graph.EdgeCount, deserializedGraph.EdgeCount);
+
+                var vertex = deserializedGraph.GetVertex(0);
+                Assert.AreEqual(1, vertex.Latitude);
+                Assert.AreEqual(10, vertex.Longitude);
+                Assert.AreEqual(100, vertex.Elevation);
+                vertex = deserializedGraph.GetVertex(1);
+                Assert.AreEqual(2, vertex.Latitude);
+                Assert.AreEqual(20, vertex.Longitude);
+                Assert.AreEqual(200, vertex.Elevation);
+
+                stream.Seek(0, System.IO.SeekOrigin.Begin);
+                deserializedGraph = GeometricGraph.Deserialize(stream, GeometricGraphProfile.NoCache);
+                Assert.AreEqual(size, stream.Position);
+
+                Assert.AreEqual(graph.VertexCount, deserializedGraph.VertexCount);
+                Assert.AreEqual(graph.EdgeCount, deserializedGraph.EdgeCount);
+
+                vertex = deserializedGraph.GetVertex(0);
+                Assert.AreEqual(1, vertex.Latitude);
+                Assert.AreEqual(10, vertex.Longitude);
+                Assert.AreEqual(100, vertex.Elevation);
+                vertex = deserializedGraph.GetVertex(1);
+                Assert.AreEqual(2, vertex.Latitude);
+                Assert.AreEqual(20, vertex.Longitude);
+                Assert.AreEqual(200, vertex.Elevation);
+            }
         }
     }
 }

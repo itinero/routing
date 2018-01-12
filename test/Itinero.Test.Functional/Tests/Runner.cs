@@ -20,7 +20,6 @@ using Itinero.Algorithms.Search.Hilbert;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
-using NUnit.Framework;
 using System;
 using System.IO;
 using System.Reflection;
@@ -34,6 +33,7 @@ using Itinero.Algorithms.Networks.Analytics.Trees;
 using Itinero.Algorithms;
 using Itinero.Profiles;
 using System.Linq;
+using NUnit.Framework;
 
 namespace Itinero.Test.Functional.Tests
 {

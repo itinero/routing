@@ -23,6 +23,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using Itinero.LocalGeo.Elevation;
 
 namespace Itinero.Graphs.Geometric
 {
@@ -32,10 +33,13 @@ namespace Itinero.Graphs.Geometric
     public class GeometricGraph
     {
         private const float NO_COORDINATE = float.MaxValue;
+        private const short NO_ELEVATION = short.MaxValue;
         private const int BLOCKSIZE = 1024;
 
         private readonly Graph _graph;
         private readonly ArrayBase<float> _coordinates;
+        private ArrayBase<short> _elevation = null;
+        private readonly Func<long, ArrayBase<short>> _createElevation;
         private readonly ShapesArray _shapes;
 
         /// <summary>
@@ -59,6 +63,11 @@ namespace Itinero.Graphs.Geometric
                 _coordinates[i] = NO_COORDINATE;
             }
             _shapes = new ShapesArray(size);
+
+            _createElevation = (s) =>
+            {
+                return Context.ArrayFactory.CreateMemoryBackedArray<short>(s);
+            };
         }
 
         /// <summary>
@@ -82,6 +91,11 @@ namespace Itinero.Graphs.Geometric
                 _coordinates[i] = NO_COORDINATE;
             }
             _shapes = new ShapesArray(map, size);
+
+            _createElevation = (s) =>
+            {
+                return new Array<short>(map, size);
+            };
         }
 
         /// <summary>
@@ -118,17 +132,28 @@ namespace Itinero.Graphs.Geometric
                 }
                 _shapes = new ShapesArray(map, size);
             }
+
+            _createElevation = (s) =>
+            {
+                return new Array<short>(map, size);
+            };
         }
 
         /// <summary>
         /// Creates a new geometric graph.
         /// </summary>
         private GeometricGraph(Graph graph, ArrayBase<float> coordinates,
-            ShapesArray shapes)
+            ShapesArray shapes, ArrayBase<short> elevation)
         {
             _graph = graph;
             _coordinates = coordinates;
             _shapes = shapes;
+            _elevation = elevation;
+
+            _createElevation = (s) =>
+            {
+                return Context.ArrayFactory.CreateMemoryBackedArray<short>(s);
+            };
         }
 
         /// <summary>
@@ -150,10 +175,24 @@ namespace Itinero.Graphs.Geometric
             if (vertex >= _coordinates.Length) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
             if (_coordinates[vertex].Equals(NO_COORDINATE)) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
 
+            if (_elevation == null)
+            {
+                return new Coordinate()
+                {
+                    Latitude = _coordinates[vertex * 2],
+                    Longitude = _coordinates[vertex * 2 + 1]
+                };
+            }
+            short? elevation = _elevation[vertex];
+            if (elevation == NO_ELEVATION)
+            {
+                elevation = null;
+            }
             return new Coordinate()
             {
                 Latitude = _coordinates[vertex * 2],
-                Longitude = _coordinates[vertex * 2 + 1]
+                Longitude = _coordinates[vertex * 2 + 1],
+                Elevation = elevation
             };
         }
 
@@ -177,6 +216,35 @@ namespace Itinero.Graphs.Geometric
         }
 
         /// <summary>
+        /// Gets the given vertex.
+        /// </summary>
+        public bool GetVertex(uint vertex, out float latitude, out float longitude, out short? elevation)
+        {
+            if (vertex * 2 + 1 < _coordinates.Length)
+            {
+                latitude = _coordinates[vertex * 2];
+                longitude = _coordinates[vertex * 2 + 1];
+                elevation = null;
+                if (_elevation != null)
+                {
+                    elevation = _elevation[vertex];
+                    if (elevation == NO_ELEVATION)
+                    {
+                        elevation = null;
+                    }
+                }
+                if (!latitude.Equals(NO_COORDINATE))
+                {
+                    return true;
+                }
+            }
+            latitude = 0;
+            longitude = 0;
+            elevation = null;
+            return false;
+        }
+
+        /// <summary>
         /// Removes the given vertex.
         /// </summary>
         public bool RemoveVertex(uint vertex)
@@ -185,6 +253,11 @@ namespace Itinero.Graphs.Geometric
             {
                 _coordinates[vertex * 2] = NO_COORDINATE;
                 _coordinates[vertex * 2 + 1] = NO_COORDINATE;
+
+                if (_elevation != null)
+                {
+                    _elevation[vertex] = NO_ELEVATION;
+                }
                 return true;
             }
             return false;
@@ -193,7 +266,8 @@ namespace Itinero.Graphs.Geometric
         /// <summary>
         /// Adds the given vertex.
         /// </summary>
-        public void AddVertex(uint vertex, float latitude, float longitude)
+        public void AddVertex(uint vertex, float latitude, float longitude, 
+            short? elevation = null)
         {
             _graph.AddVertex(vertex);
 
@@ -201,6 +275,61 @@ namespace Itinero.Graphs.Geometric
             _coordinates.EnsureMinimumSize(vertex * 2 + 2, NO_COORDINATE);
             _coordinates[vertex * 2] = latitude;
             _coordinates[vertex * 2 + 1] = longitude;
+
+            if (elevation != null)
+            {
+                if (_elevation == null)
+                {
+                    _elevation = _createElevation(_coordinates.Length / 2);
+                    for (var i = 0; i < _elevation.Length; i++)
+                    {
+                        _elevation[i] = NO_ELEVATION;
+                    }
+                }
+                _elevation[vertex] = elevation.Value;
+            }
+        }
+        
+        /// <summary>
+        /// Adds elevation.
+        /// </summary>
+        public void AddElevation(ElevationHandler.GetElevationDelegate getElevationFunc)
+        {
+            // add elevation to all vertices.
+            for (uint v = 0; v < this.VertexCount; v++)
+            {
+                var location = this.GetVertex(v);
+                var elevation = getElevationFunc(location.Latitude, location.Longitude);
+
+                this.UpdateVertex(v, location.Latitude, location.Longitude, elevation);
+            }
+
+            _shapes.AddElevation(getElevationFunc);
+        }
+
+        /// <summary>
+        /// Updates the given vertex.
+        /// </summary>
+        public void UpdateVertex(uint vertex, float latitude, float longitude, short? elevation = null)
+        {
+            if (vertex >= _coordinates.Length) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
+            if (_coordinates[vertex].Equals(NO_COORDINATE)) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex)); }
+            
+            _coordinates[vertex * 2] = latitude;
+            _coordinates[vertex * 2 + 1] = longitude;
+
+            if (elevation != null)
+            {
+                if (_elevation == null)
+                {
+                    _elevation = _createElevation(_coordinates.Length / 2);
+                    for (var i = 0; i < _elevation.Length; i++)
+                    {
+                        _elevation[i] = NO_ELEVATION;
+                    }
+                }
+                _elevation[vertex] = elevation.Value;
+            }
         }
 
         /// <summary>
@@ -343,6 +472,10 @@ namespace Itinero.Graphs.Geometric
             });
             _shapes.Resize(_graph.EdgeCount);
             _coordinates.Resize(_graph.VertexCapacity * 2);
+            if (_elevation != null)
+            {
+                _elevation.Resize(_graph.VertexCapacity);
+            }
         }
 
         /// <summary>
@@ -356,6 +489,10 @@ namespace Itinero.Graphs.Geometric
                 });
             _shapes.Resize(_graph.EdgeCount);
             _coordinates.Resize(_graph.VertexCapacity * 2);
+            if (_elevation != null)
+            {
+                _elevation.Resize(_graph.VertexCapacity);
+            }
         }
 
         /// <summary>
@@ -365,7 +502,11 @@ namespace Itinero.Graphs.Geometric
         {
             _graph.Trim();
 
-            _coordinates.Resize(_graph.VertexCount);
+            _coordinates.Resize(_graph.VertexCount * 2);
+            if (_elevation != null)
+            {
+                _elevation.Resize(_graph.VertexCount);
+            }
             _shapes.Resize(_graph.EdgeCount);
         }
 
@@ -593,16 +734,35 @@ namespace Itinero.Graphs.Geometric
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
+            // VERSION1: default.
+            // VERSION2: including elevation.
+
             // compress first.
             this.Compress();
 
             // serialize the base graph & make sure to seek to right after.
             long size = 1;
-            stream.WriteByte(1);
+            if (_elevation == null)
+            { // keep things compatible with the previous format.
+                stream.WriteByte(1);
+            }
+            else
+            { // only break compatibility when there is elevation.
+                stream.WriteByte(2);
+                size++;
+                stream.WriteByte(1); // extra flag for future version upgrades, indicating if elevation is there.
+            }
+
+            // write graph.
             size += _graph.Serialize(stream);
 
             // serialize the coordinates.
             size += _coordinates.CopyTo(stream);
+
+            if (_elevation != null)
+            { // write elevation.
+                size += _elevation.CopyTo(stream);
+            }
 
             // and serialize the shapes.
             size += _shapes.CopyTo(stream);
@@ -616,23 +776,39 @@ namespace Itinero.Graphs.Geometric
         public static GeometricGraph Deserialize(System.IO.Stream stream, GeometricGraphProfile profile)
         {
             var version = stream.ReadByte();
-            if(version != 1)
+            if (version != 1 && version != 2)
             {
                 throw new Exception(string.Format("Cannot deserialize geometric graph: Invalid version #: {0}.", version));
             }
+
+            // read elevation flag if any.
+            var hasElevation = false;
+            if (version >= 2)
+            {
+                hasElevation = (stream.ReadByte() == 1);
+            }
+
+            // read data.
             var graph = Graph.Deserialize(stream, profile == null ? null : profile.GraphProfile);
-            var initialPosition = stream.Position;
             var size = 0L;
+            var initialPosition = stream.Position;
 
             ArrayBase<float> coordinates;
+            ArrayBase<short> elevation = null;
             ShapesArray shapes;
             if (profile == null)
             { // don't use the stream, the read from it.
                 coordinates = Context.ArrayFactory.CreateMemoryBackedArray<float>(graph.VertexCount * 2);
                 coordinates.CopyFrom(stream);
                 size += graph.VertexCount * 2 * 4;
+                if (hasElevation)
+                {
+                    elevation = Context.ArrayFactory.CreateMemoryBackedArray<short>(graph.VertexCount);
+                    elevation.CopyFrom(stream);
+                    size += graph.VertexCount * 2;
+                }
                 long shapeSize;
-                shapes = ShapesArray.CreateFrom(stream, true, out shapeSize);
+                shapes = ShapesArray.CreateFrom(stream, true, out shapeSize, hasElevation);
                 size += shapeSize;
             }
             else
@@ -642,15 +818,23 @@ namespace Itinero.Graphs.Geometric
                 coordinates = new Array<float>(map.CreateSingle(graph.VertexCount * 2), profile.CoordinatesProfile);
                 size += graph.VertexCount * 2 * 4;
                 stream.Seek(position + graph.VertexCount * 4 * 2, System.IO.SeekOrigin.Begin);
+                if (hasElevation)
+                {
+                    position = stream.Position;
+                    map = new MemoryMapStream(new CappedStream(stream, position, graph.VertexCount * 2));
+                    elevation = new Array<short>(map.CreateInt16(graph.VertexCount), profile.CoordinatesProfile);
+                    size += graph.VertexCount * 2;
+                    stream.Seek(position + graph.VertexCount * 4 * 2 + graph.VertexCount * 2, System.IO.SeekOrigin.Begin);
+                }
                 long shapeSize;
-                shapes = ShapesArray.CreateFrom(stream, false, out shapeSize);
+                shapes = ShapesArray.CreateFrom(stream, false, out shapeSize, hasElevation);
                 size += shapeSize;
             }
 
             // make stream is positioned correctly.
             stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
-            return new GeometricGraph(graph, coordinates, shapes);
+            return new GeometricGraph(graph, coordinates, shapes, elevation);
         }
     }
 }
