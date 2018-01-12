@@ -214,6 +214,14 @@ namespace Itinero
                     var diffLon = route.Shape[i + 1].Longitude - route.Shape[i].Longitude;
                     var lat = route.Shape[i].Latitude + diffLat * (segmentDistance / currentDistance);
                     var lon = route.Shape[i].Longitude + diffLon * (segmentDistance / currentDistance);
+                    short? elevation = null;
+                    if (route.Shape[i].Elevation.HasValue &&
+                        route.Shape[i + 1].Elevation.HasValue)
+                    {
+                        var diffElev = route.Shape[i + 1].Elevation.Value - route.Shape[i].Elevation.Value;
+                        elevation = (short)(route.Shape[i].Elevation.Value + diffElev * (segmentDistance / currentDistance));
+                        return new Coordinate(lat, lon, elevation.Value);
+                    }
                     return new Coordinate(lat, lon);
                 }
                 distanceMeter += currentDistance;
@@ -731,6 +739,10 @@ namespace Itinero
                                 jsonWriter.WriteArrayOpen();
                                 jsonWriter.WriteArrayValue(coordinates[shape].Longitude.ToInvariantString());
                                 jsonWriter.WriteArrayValue(coordinates[shape].Latitude.ToInvariantString());
+                                if (coordinates[shape].Elevation.HasValue)
+                                {
+                                    jsonWriter.WriteArrayValue(coordinates[shape].Elevation.Value.ToInvariantString());
+                                }
                                 jsonWriter.WriteArrayClose();
                             }
 
@@ -772,6 +784,10 @@ namespace Itinero
                         jsonWriter.WriteArrayOpen();
                         jsonWriter.WriteArrayValue(stop.Coordinate.Longitude.ToInvariantString());
                         jsonWriter.WriteArrayValue(stop.Coordinate.Latitude.ToInvariantString());
+                        if (stop.Coordinate.Elevation.HasValue)
+                        {
+                            jsonWriter.WriteArrayValue(stop.Coordinate.Elevation.Value.ToInvariantString());
+                        }
                         jsonWriter.WriteArrayClose();
                         jsonWriter.WriteClose();
 
@@ -821,6 +837,10 @@ namespace Itinero
                         jsonWriter.WriteArrayOpen();
                         jsonWriter.WriteArrayValue(route.Shape[i].Longitude.ToInvariantString());
                         jsonWriter.WriteArrayValue(route.Shape[i].Latitude.ToInvariantString());
+                        if (route.Shape[i].Elevation.HasValue)
+                        {
+                            jsonWriter.WriteArrayValue(route.Shape[i].Elevation.Value.ToInvariantString());
+                        }
                         jsonWriter.WriteArrayClose();
                     }
                     jsonWriter.WriteArrayClose();
@@ -850,6 +870,10 @@ namespace Itinero
                         jsonWriter.WriteArrayOpen();
                         jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
                         jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                        if (coordinate.Elevation.HasValue)
+                        {
+                            jsonWriter.WriteArrayValue(coordinate.Elevation.Value.ToInvariantString());
+                        }
                         jsonWriter.WriteArrayClose();
                         jsonWriter.WriteClose();
 
@@ -887,6 +911,10 @@ namespace Itinero
                         jsonWriter.WriteArrayOpen();
                         jsonWriter.WriteArrayValue(stop.Coordinate.Longitude.ToInvariantString());
                         jsonWriter.WriteArrayValue(stop.Coordinate.Latitude.ToInvariantString());
+                        if (stop.Coordinate.Elevation.HasValue)
+                        {
+                            jsonWriter.WriteArrayValue(stop.Coordinate.Elevation.Value.ToInvariantString());
+                        }
                         jsonWriter.WriteArrayClose();
                         jsonWriter.WriteClose();
 
