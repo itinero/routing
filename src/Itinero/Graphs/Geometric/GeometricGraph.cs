@@ -824,7 +824,7 @@ namespace Itinero.Graphs.Geometric
                     map = new MemoryMapStream(new CappedStream(stream, position, graph.VertexCount * 2));
                     elevation = new Array<short>(map.CreateInt16(graph.VertexCount), profile.CoordinatesProfile);
                     size += graph.VertexCount * 2;
-                    stream.Seek(position + graph.VertexCount * 4 * 2 + graph.VertexCount * 2, System.IO.SeekOrigin.Begin);
+                    stream.Seek(position + graph.VertexCount * 2, System.IO.SeekOrigin.Begin);
                 }
                 long shapeSize;
                 shapes = ShapesArray.CreateFrom(stream, false, out shapeSize, hasElevation);

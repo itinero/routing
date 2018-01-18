@@ -76,6 +76,10 @@ namespace Itinero.Test.Functional.Tests
                 }
                 using (var stream1 = File.OpenRead(fileName))
                 {
+                    routerDb = RouterDb.Deserialize(stream1, RouterDbProfile.NoCache);
+                }
+                using (var stream1 = File.OpenRead(fileName))
+                {
                     routerDb = RouterDb.Deserialize(stream1);
                 }
                 return new PerformanceTestResult<RouterDb>(routerDb)
