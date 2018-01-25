@@ -5,14 +5,14 @@
    "version": "0.2.0",
    "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Run Functional Tests",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "build-test-functional",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/samples/Sample.Basic/bin/Debug/netcoreapp1.1/Sample.Basic.dll",
+            "program": "${workspaceRoot}/test/Itinero.Test.Functional/bin/Debug/netcoreapp2.0/Itinero.Test.Functional.dll",
             "args": [],
-            "cwd": "${workspaceRoot}/samples/Sample.Basic",
+            "cwd": "${workspaceRoot}/test/Itinero.Test.Functional",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "internalConsole",
             "stopAtEntry": false,
