@@ -61,6 +61,7 @@ namespace Sample.Basic
             var route = router.Calculate(Vehicle.Car.Fastest(), new Coordinate(49.75635954613685f, 6.095362901687622f),
                 new Coordinate(49.75263039062888f, 6.098860502243042f));
             var routeGeoJson = route.ToGeoJson();
+            Console.WriteLine(routeGeoJson);
         }
     }
 }
