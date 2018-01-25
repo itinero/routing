@@ -23,5 +23,6 @@ Check the [documentation website](http://docs.itinero.tech/docs/index.html) for 
 ### Other projects
 
 - [routing](https://github.com/itinero/routing): The core routing project, used by all other projects.
+- [geo](https://github.com/itinero/geo): A collection of extensions to Itinero to work with NTS.
 - [idp](https://github.com/itinero/idp): The data processing project, a CLI tool to process data into routerdb's.
 - [routing-api](https://github.com/itinero/routing-api): A routing server that can load routerdb's and accept routing requests over HTTP.
