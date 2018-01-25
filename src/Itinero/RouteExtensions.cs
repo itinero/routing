@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
+using System.Xml;
 
 namespace Itinero
 {
@@ -649,8 +650,15 @@ namespace Itinero
         /// </summary>
         public static void WriteXml(this Route route, TextWriter writer)
         {
-            var ser = new XmlSerializer(typeof(Route));
-            ser.Serialize(writer, route);
+            var settings = new XmlWriterSettings();
+            settings.Indent = false;
+            settings.NewLineHandling = NewLineHandling.None;
+            
+            using(var xmlWriter = XmlWriter.Create(writer))
+            {
+                var ser = new XmlSerializer(typeof(Route));
+                ser.Serialize(xmlWriter, route);
+            }
             writer.Flush();
         }
 

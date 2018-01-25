@@ -4,11 +4,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "command": "dotnet",
-            "label": "build-test-functional",
-            "args": [ "build", "./test/Itinero.Test.Functional" ]
-        },
-        {
             "type": "shell",
             "command": "./build.sh",
             "label": "build",
@@ -17,6 +12,11 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "command": "dotnet",
+            "label": "build-test-functional",
+            "args": [ "build", "./test/Itinero.Test.Functional" ]
         }
     ]
 }

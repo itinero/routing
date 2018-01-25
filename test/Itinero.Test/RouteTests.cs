@@ -485,7 +485,7 @@ namespace Itinero.Test
             };
 
             var xml = route.ToXml();
-            Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<route>\r\n  <shape>\r\n    <c lat=\"51.26782\" lon=\"4.801353\" />\r\n    <c lat=\"51.26822\" lon=\"4.801353\" />\r\n  </shape>\r\n  <metas>\r\n    <meta shape=\"0\" />\r\n    <meta shape=\"1\">\r\n      <property k=\"highway\" v=\"residential\" />\r\n    </meta>\r\n  </metas>\r\n  <branches>\r\n    <branch shape=\"1\">\r\n      <property k=\"highway\" v=\"residential\" />\r\n    </branch>\r\n  </branches>\r\n  <stops>\r\n    <stop shape=\"1\" lat=\"51.26822\" lon=\"4.801353\">\r\n      <property k=\"address\" v=\"Pastorijstraat 102, 2275 Wechelderzande\" />\r\n    </stop>\r\n  </stops>\r\n</route>",
+            Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?><route><shape><c lat=\"51.26782\" lon=\"4.801353\" /><c lat=\"51.26822\" lon=\"4.801353\" /></shape><metas><meta shape=\"0\" /><meta shape=\"1\"><property k=\"highway\" v=\"residential\" /></meta></metas><branches><branch shape=\"1\"><property k=\"highway\" v=\"residential\" /></branch></branches><stops><stop shape=\"1\" lat=\"51.26822\" lon=\"4.801353\"><property k=\"address\" v=\"Pastorijstraat 102, 2275 Wechelderzande\" /></stop></stops></route>",
                 xml);
         }
 
