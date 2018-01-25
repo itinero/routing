@@ -19,3 +19,20 @@ First of all don't be afraid to contribute. Most contributions are small but ver
 - Don't break things, try to fix a bug without changing the API or when adding a feature make sure to add, not remove stuff. If you do need to break things, get in touch by reporting an [issue](https://github.com/itinero/routing/issues).
 
 We also ask all contributors to sign a [contributor agreement](https://docs.google.com/forms/d/e/1FAIpQLSebPyLfaneaDUXXkNaMC8U7UfmW-IORpjiOcBotePtuuy5W6g/viewform). We do this to be able to change the license afterwards without having to contact everyone individually. Don't worry, we won't be closing off any of the code and what's there now will stay that way. It is possible that we change in the future from for example GPLv2 to MIT, or even public domain. The agreement guarantees your code stays open and you'll be given credit.
+
+### Practicalities
+
+To build this project from source you need to install .NET core, go to the [dot.net website](dot.net) to install it for your platform. You can then use the build scripts to build the project and/or run the tests.
+
+There are two test projects:
+
+- Itinero.Test: These are the unittests, add things here when you add new features, make sure things are test.
+- Itinero.Test.Functional: These are functional tests to test the main features of Itinero in real-world scenario's. When you run these all data get's downloaded.
+
+Usually development is done using VS code but you can use any of the following:
+
+- Visual Studio Code
+- Visual Studio (Windows)
+- Visual Studio (Mac)
+- Jetbrains Rider
+- (any text editor)
