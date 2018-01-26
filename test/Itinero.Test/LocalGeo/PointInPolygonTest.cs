@@ -17,15 +17,13 @@
  */
 
 using NUnit.Framework;
-using Itinero.Algorithms.Default;
 using Itinero.Test.Profiles;
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
 
-
-namespace Itinero.Test.Algorithms.Default
+namespace Itinero.Test.LocalGeo
 {
     /// <summary>
     /// Executes tests
@@ -33,6 +31,9 @@ namespace Itinero.Test.Algorithms.Default
     [TestFixture]
     class PointInPolygonTest
     {
+        /// <summary>
+        /// Tests basics of point in polygon.
+        /// </summary>
         [Test]
         public void TestPointInPolygon()
         {
@@ -51,14 +52,14 @@ namespace Itinero.Test.Algorithms.Default
 
             // In the middle of the polygon
             Coordinate testPoint0 = new Coordinate((float)51.2157635, (float)3.2200099);
-            Assert.IsTrue(p.PointLiesWithin(testPoint0));
+            Assert.IsTrue(p.PointIn(testPoint0));
             // just outside of the polygon, but within the bounding box
             Coordinate testPoint1 = new Coordinate((float)51.2157898, (float)3.2200648);
-            Assert.IsFalse(p.PointLiesWithin(testPoint1));
+            Assert.IsFalse(p.PointIn(testPoint1));
 
             // way outside of the poly
             Coordinate testPoint2 = new Coordinate((float)51.2158183, (float)3.2201524);
-            Assert.IsFalse(p.PointLiesWithin(testPoint2));
+            Assert.IsFalse(p.PointIn(testPoint2));
 
         }
     }
