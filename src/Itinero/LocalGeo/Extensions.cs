@@ -214,17 +214,17 @@ namespace Itinero.LocalGeo
         /// <summary>
         /// Returns true if the given point lies within the polygon.
         /// </summary>
-        public static Boolean PointIn(this Polygon poly, Coordinate point){
+        public static bool PointIn(this Polygon poly, Coordinate point){
             // For startes, the point should lie within the outer
 
-            Boolean inOuter = PointIn(poly.ExteriorRing, point);
+            var inOuter = PointIn(poly.ExteriorRing, point);
             if(!inOuter){
                 return false;
             }
 
             // and it should *not* lay within any inner ring
             for(int i = 0; i < poly.InteriorRings.Count; i++){
-                Boolean inInner = PointIn(poly.InteriorRings[i], point);
+                var inInner = PointIn(poly.InteriorRings[i], point);
                 if(inInner){
                     return false;
                 }
@@ -235,7 +235,7 @@ namespace Itinero.LocalGeo
         /// <summary>
         /// Returns true if the given point lies within the ring.
         /// </summary>
-        public static Boolean PointIn(List<Coordinate> ring, Coordinate point)
+        public static bool PointIn(List<Coordinate> ring, Coordinate point)
         {
             /* The basic, actual algorithm
             The algorithm is based on the ray casting algorthm, where the point moves horizontally
@@ -243,13 +243,13 @@ namespace Itinero.LocalGeo
             */
 
             // no intersections passed yet -> not within the polygon
-            Boolean result = false;
+            var result = false;
 
 
             for (int i = 0; i < ring.Count; i++)
             {
-                Coordinate start = ring[i];
-                Coordinate end = ring[(i + 1) % ring.Count];
+                var start = ring[i];
+                var end = ring[(i + 1) % ring.Count];
 
                 // The raycast is from west to east - thus at the same latitude level of the point
                 // Thus, if the longitude is not between the longitude of the segments, we skip the segment
@@ -279,7 +279,7 @@ namespace Itinero.LocalGeo
 
                 // we calculate the longitude on the segment for the latitude of the point
                 // x = y_p * (x1 - x2)/(y1 - y2) + (x2y1-x1y1)/(y1-y2)
-                float longit = point.Latitude * (start.Longitude - end.Longitude) + //
+                var longit = point.Latitude * (start.Longitude - end.Longitude) + //
                                 (end.Longitude * start.Latitude - start.Longitude * end.Latitude);
                 longit /= (start.Latitude - end.Latitude);
 
@@ -288,7 +288,6 @@ namespace Itinero.LocalGeo
                 if(longit >= point.Longitude && longit <= Math.Max(start.Longitude, end.Longitude)){
                     result = !result;
                 }
-
             }
 
             return result;
