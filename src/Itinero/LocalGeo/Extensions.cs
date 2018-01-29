@@ -273,6 +273,10 @@ namespace Itinero.LocalGeo
                     // We flip the bounding box to be entirely between [0, 360]
                     flip(ref bbWest);
                     flip(ref bbEast);
+                    // this means we have to swap the east and west sides of the bounding box
+                    float x = bbWest;
+                    bbWest = bbEast;
+                    bbEast = x;
                     // We might have to update the point as well, to this new coordinate system
                     flip(ref longitude);
                 }
