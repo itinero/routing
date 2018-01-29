@@ -262,23 +262,23 @@ namespace Itinero.LocalGeo
 
             BoundingBox(ring, out bbNorth, out bbEast, out bbSouth, out bbWest);
 
-            Boolean antemeridian_crossed = false;
+            var antemeridianCrossed = false;
             if (Math.Sign(bbEast) != Math.Sign(bbWest))
             {
                 // opposite signs: we either cross the prime meridian or antemeridian
                 if (Math.Min(bbEast, bbWest) <= -90 && Math.Max(bbEast, bbWest) >= 90)
                 {
                     // The lowest longitude is really low, the highest really high => We probably cross the antemeridian
-                    antemeridian_crossed = true;
+                    antemeridianCrossed = true;
                     // We flip the bounding box to be entirely between [0, 360]
-                    flip(ref bbWest);
-                    flip(ref bbEast);
+                    Flip(ref bbWest);
+                    Flip(ref bbEast);
                     // this means we have to swap the east and west sides of the bounding box
                     float x = bbWest;
                     bbWest = bbEast;
                     bbEast = x;
                     // We might have to update the point as well, to this new coordinate system
-                    flip(ref longitude);
+                    Flip(ref longitude);
                 }
             }
 
@@ -315,9 +315,9 @@ namespace Itinero.LocalGeo
                 var stLong = start.Longitude;
                 var endLat = end.Latitude;
                 var endLong = end.Longitude;
-                if(antemeridian_crossed){
-                    flip(ref stLong);
-                    flip(ref endLong);
+                if(antemeridianCrossed){
+                    Flip(ref stLong);
+                    Flip(ref endLong);
                 }
 
                 // The raycast is from west to east - thus at the same latitude level of the point
@@ -364,9 +364,10 @@ namespace Itinero.LocalGeo
 
             return result;
         }
+
         /// <summary>
         /// Calculates a bounding box for the polygon.
-        /// TODO: if this is needed a lot, we should cache it in the polygon
+        /// TODO: if this is needed a lot, we should cache it in the polygon, see https://github.com/itinero/routing/issues/138
         /// </summary>
         public static void BoundingBox(this Polygon polygon, out float north, out float east, out float south, out float west)
         {
@@ -386,7 +387,7 @@ namespace Itinero.LocalGeo
 
             for (int i = 1; i < exteriorRing.Count; i++)
             {
-                Coordinate c = exteriorRing[i];
+                var c = exteriorRing[i];
                 if (c.Longitude < west)
                 {
                     west = c.Longitude;
@@ -414,14 +415,12 @@ namespace Itinero.LocalGeo
         /// Usefull when coordinates are near the antemeridian
         /// </summary>
         /// <param name="longitude">The paramater that is flipped</param>
-        public static void flip(ref float longitude)
+        public static void Flip(ref float longitude)
         {
             if (longitude < 0)
             {
                 longitude += 360;
             }
         }
-
-
     }
 }
