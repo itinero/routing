@@ -61,13 +61,44 @@ namespace Itinero.Test.LocalGeo
             Assert.IsFalse(p.PointIn(testPoint2));
         }
 
+
+        /// <summary>
+        /// Tests PIP with a polygon with a hole.
+        /// </summary>
+        [Test]
+        public void TestPointInPolygonWithHole()
+        { // http://geojson.io/#id=gist:anonymous/3df900982f5685b17529376e87c7e037&map=13/51.1932/4.4385
+            var p = new Polygon();
+            p.ExteriorRing.Add(new Coordinate(51.1725629311492f, 4.383201599121094f));
+            p.ExteriorRing.Add(new Coordinate(51.1408018208278f, 4.466800689697266f));
+            p.ExteriorRing.Add(new Coordinate(51.22860288655629f, 4.470577239990234f));
+            p.ExteriorRing.Add(new Coordinate(51.17256293114924f, 4.383201599121094f)); // this is closed manually.
+            
+            Assert.IsTrue(p.PointIn(new Coordinate(51.210647407041904f, 4.456501007080078f)));
+            Assert.IsTrue(p.PointIn(new Coordinate(51.16728887106285f, 4.425601959228516f)));
+            
+            // this should be 'in the hole'.
+            Assert.IsTrue(p.PointIn(new Coordinate(51.184508061068165f, 4.440021514892578f)));
+
+            p.InteriorRings.Add(new List<Coordinate>());
+            p.InteriorRings[0].Add(new Coordinate(51.19752580320046f, 4.446544647216797f));
+            p.InteriorRings[0].Add(new Coordinate(51.18300163866561f, 4.424400329589844f));
+            p.InteriorRings[0].Add(new Coordinate(51.17406969467605f, 4.448089599609375f));
+            p.InteriorRings[0].Add(new Coordinate(51.19752580320046f, 4.446544647216797f)); // this is closed manually.
+
+            Assert.IsTrue(p.PointIn(new Coordinate(51.210647407041904f, 4.456501007080078f)));
+            Assert.IsTrue(p.PointIn(new Coordinate(51.16728887106285f, 4.425601959228516f)));
+
+            // this should be 'in the hole'.
+            Assert.IsFalse(p.PointIn(new Coordinate(51.184508061068165f, 4.440021514892578f)));
+        }
+
         /// <summary>
         /// Tests PIP when the coordinates are around 180°
         /// </summary>
         [Test]
         public void TestPointInPolygonAround180()
         {
-
             var p = new Polygon();
             p.ExteriorRing.Add(new Coordinate(1, -178));
             p.ExteriorRing.Add(new Coordinate(1, 178));
@@ -82,6 +113,19 @@ namespace Itinero.Test.LocalGeo
             Assert.IsFalse(p.PointIn(new Coordinate(2, 177)));
             Assert.IsFalse(p.PointIn(new Coordinate(2, -177)));
 
+            p = new Polygon();
+            p.ExteriorRing.Add(new Coordinate(3, -178));
+            p.ExteriorRing.Add(new Coordinate(3, 178));
+            p.ExteriorRing.Add(new Coordinate(1, 178));
+            p.ExteriorRing.Add(new Coordinate(1, -178));
+
+            Assert.IsTrue(p.PointIn(new Coordinate(2, 179)));
+            Assert.IsTrue(p.PointIn(new Coordinate(2, 180)));
+            Assert.IsTrue(p.PointIn(new Coordinate(2, -180)));
+            Assert.IsTrue(p.PointIn(new Coordinate(2, -179)));
+
+            Assert.IsFalse(p.PointIn(new Coordinate(2, 177)));
+            Assert.IsFalse(p.PointIn(new Coordinate(2, -177)));
         }
     }
 }
