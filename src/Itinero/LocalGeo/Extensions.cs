@@ -33,7 +33,7 @@ namespace Itinero.LocalGeo
         {
             var array = new double[coordinates.Count][];
 
-            for(var i = 0; i < coordinates.Count; i++)
+            for (var i = 0; i < coordinates.Count; i++)
             {
                 array[i] = new double[]
                 {
@@ -213,19 +213,26 @@ namespace Itinero.LocalGeo
 
         /// <summary>
         /// Returns true if the given point lies within the polygon.
+        /// 
+        /// Note that polygons spanning a pole, without a point at the pole itself, will fail to detect points within the polygon;
+        /// (e.g. Polygon=[(lat=80°, 0), (80, 90), (80, 180)] will *not* detect the point (85, 90))
         /// </summary>
-        public static bool PointIn(this Polygon poly, Coordinate point){
+        public static bool PointIn(this Polygon poly, Coordinate point)
+        {
             // For startes, the point should lie within the outer
 
             var inOuter = PointIn(poly.ExteriorRing, point);
-            if(!inOuter){
+            if (!inOuter)
+            {
                 return false;
             }
 
             // and it should *not* lay within any inner ring
-            for(int i = 0; i < poly.InteriorRings.Count; i++){
+            for (int i = 0; i < poly.InteriorRings.Count; i++)
+            {
                 var inInner = PointIn(poly.InteriorRings[i], point);
-                if(inInner){
+                if (inInner)
+                {
                     return false;
                 }
             }
@@ -237,6 +244,54 @@ namespace Itinero.LocalGeo
         /// </summary>
         public static bool PointIn(List<Coordinate> ring, Coordinate point)
         {
+
+            // Coordinate of the point. Longitude might be changed in the antemeridian-crossing case
+            var longitude = point.Longitude;
+            var latitude = point.Latitude;
+
+            /*
+            Some preprocessing. If the polygon crosses the antemeridian, we have some troubles and and 360 to all the negative longitudes.
+            This crossing is detected by using the bounding box. If there are longitudes between [+90..-90], we know that the antemeridian is crossed
+            */
+
+
+            float bbNorth;
+            float bbEast;
+            float bbSouth;
+            float bbWest;
+
+            BoundingBox(ring, out bbNorth, out bbEast, out bbSouth, out bbWest);
+
+            Boolean antemeridian_crossed = false;
+            if (Math.Sign(bbEast) != Math.Sign(bbWest))
+            {
+                // opposite signs: we either cross the prime meridian or antemeridian
+                if (Math.Min(bbEast, bbWest) <= -90 && Math.Max(bbEast, bbWest) >= 90)
+                {
+                    // The lowest longitude is really low, the highest really high => We probably cross the antemeridian
+                    antemeridian_crossed = true;
+                    // We flip the bounding box to be entirely between [0, 360]
+                    flip(ref bbWest);
+                    flip(ref bbEast);
+                    // We might have to update the point as well, to this new coordinate system
+                    flip(ref longitude);
+                }
+            }
+
+
+
+            // As we now have a neat bounding box laying around, it would be a pity not to use this
+            // If the point is not within the BB, it certainly is not within the polygon
+            if (!(bbWest <= longitude && bbNorth >= latitude && bbEast >= longitude && bbSouth <= latitude))
+            {
+                return false;
+            }
+
+
+
+
+
+
             /* The basic, actual algorithm
             The algorithm is based on the ray casting algorthm, where the point moves horizontally
             If an even number of intersections are counted, the point lies outside of the polygon
@@ -251,11 +306,21 @@ namespace Itinero.LocalGeo
                 var start = ring[i];
                 var end = ring[(i + 1) % ring.Count];
 
+                // Again, longitudes might be changed in the ante-meridian-crossing case
+                var stLat = start.Latitude;
+                var stLong = start.Longitude;
+                var endLat = end.Latitude;
+                var endLong = end.Longitude;
+                if(antemeridian_crossed){
+                    flip(ref stLong);
+                    flip(ref endLong);
+                }
+
                 // The raycast is from west to east - thus at the same latitude level of the point
-                // Thus, if the longitude is not between the longitude of the segments, we skip the segment
-                // Note that this fails for polygons spanning a pole (e.g. every latitude is 80°, around the world, but the point is at lat. 85°)
-                if (!(Math.Min(start.Latitude, end.Latitude) < point.Latitude
-                        && point.Latitude < Math.Max(start.Latitude, end.Latitude)))
+                // Thus, if the latitude of the point is not between the latitudes of the segment ends, we can skip the segment
+                // Note that this fails for polygons spanning a pole (but that's okay, it's documented)
+                if (!(Math.Min(stLat, endLat) < latitude
+                        && latitude < Math.Max(stLat, endLat)))
                 {
                     continue;
                 }
@@ -264,7 +329,9 @@ namespace Itinero.LocalGeo
 
 
                 // If both ends of the segment fall to the right, the line will intersect: we toggle our switch and continue with the next segment
-                if (Math.Min(start.Longitude, end.Longitude) >= point.Longitude)
+                // The following code however misses the case that the segment crosses the ante-primemeridian (longitude=180=-180)
+                // We take care of that in the next if
+                if (Math.Min(stLong, endLong) >= longitude)
                 {
                     result = !result;
                     continue;
@@ -272,25 +339,85 @@ namespace Itinero.LocalGeo
 
                 // Analogously, at least one point of the segments should be on the right (east) of the point;
                 // otherwise, no intersection is possible (as the raycast goes right)
-                if (!(Math.Max(start.Longitude, end.Longitude) >= point.Longitude))
+                if (!(Math.Max(stLong, endLong) >= longitude))
                 {
                     continue;
                 }
 
                 // we calculate the longitude on the segment for the latitude of the point
                 // x = y_p * (x1 - x2)/(y1 - y2) + (x2y1-x1y1)/(y1-y2)
-                var longit = point.Latitude * (start.Longitude - end.Longitude) + //
-                                (end.Longitude * start.Latitude - start.Longitude * end.Latitude);
-                longit /= (start.Latitude - end.Latitude);
+                var longit = latitude * (stLong - endLong) + //
+                                (endLong * stLat - stLong * endLat);
+                longit /= (stLat - endLat);
 
                 // If the longitude lays on the right of the point AND lays within the segment (only right bound is needed to check)
                 // the segment intersects the raycast and we flip the bit
-                if(longit >= point.Longitude && longit <= Math.Max(start.Longitude, end.Longitude)){
+                if (longit >= longitude && longit <= Math.Max(stLong, endLong))
+                {
                     result = !result;
                 }
             }
 
             return result;
         }
+        /// <summary>
+        /// Calculates a bounding box for the polygon.
+        /// TODO: if this is needed a lot, we should cache it in the polygon
+        /// </summary>
+        public static void BoundingBox(this Polygon polygon, out float north, out float east, out float south, out float west)
+        {
+            BoundingBox(polygon.ExteriorRing, out north, out east, out south, out west);
+        }
+
+
+        /// <summary>
+        /// Calculates a bounding box for the ring.
+        /// </summary>
+        public static void BoundingBox(List<Coordinate> exteriorRing, out float north, out float east, out float south, out float west)
+        {
+            east = exteriorRing[0].Longitude;
+            west = exteriorRing[0].Longitude;
+            north = exteriorRing[0].Latitude;
+            south = exteriorRing[0].Latitude;
+
+            for (int i = 1; i < exteriorRing.Count; i++)
+            {
+                Coordinate c = exteriorRing[i];
+                if (c.Longitude < west)
+                {
+                    west = c.Longitude;
+                }
+
+                if (c.Longitude > east)
+                {
+                    east = c.Longitude;
+                }
+
+                if (c.Latitude < south)
+                {
+                    south = c.Latitude;
+                }
+
+                if (c.Latitude > north)
+                {
+                    north = c.Latitude;
+                }
+            }
+        }
+
+        /// <summary>
+        /// If the longitude is smaller then 0, add 360.
+        /// Usefull when coordinates are near the antemeridian
+        /// </summary>
+        /// <param name="longitude">The paramater that is flipped</param>
+        public static void flip(ref float longitude)
+        {
+            if (longitude < 0)
+            {
+                longitude += 360;
+            }
+        }
+
+
     }
 }

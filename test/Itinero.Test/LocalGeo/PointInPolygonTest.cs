@@ -60,5 +60,28 @@ namespace Itinero.Test.LocalGeo
             var testPoint2 = new Coordinate(51.2158183f, 3.2201524f);
             Assert.IsFalse(p.PointIn(testPoint2));
         }
+
+        /// <summary>
+        /// Tests PIP when the coordinates are around 180°
+        /// </summary>
+        [Test]
+        public void TestPointInPolygonAround180()
+        {
+
+            var p = new Polygon();
+            p.ExteriorRing.Add(new Coordinate(1, -178));
+            p.ExteriorRing.Add(new Coordinate(1, 178));
+            p.ExteriorRing.Add(new Coordinate(3, 178));
+            p.ExteriorRing.Add(new Coordinate(3, -178));
+
+            Assert.IsTrue(p.PointIn(new Coordinate(2, 179)));
+            Assert.IsTrue(p.PointIn(new Coordinate(2, 180)));
+            Assert.IsTrue(p.PointIn(new Coordinate(2, -180)));
+            Assert.IsTrue(p.PointIn(new Coordinate(2, -179)));
+
+            Assert.IsFalse(p.PointIn(new Coordinate(2, 177)));
+            Assert.IsFalse(p.PointIn(new Coordinate(2, -177)));
+
+        }
     }
 }
