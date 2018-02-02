@@ -28,6 +28,20 @@ namespace Itinero.Test.LocalGeo
     public class BoxTests
     {
         /// <summary>
+        /// Tests overlaps with box.
+        /// </summary>
+        [Test]
+        public void TestOverlapsWithBox()
+        {
+            var box = new Box(0, 0, 2, 2);
+            
+            Assert.IsTrue(box.Overlaps(box));
+            Assert.IsTrue(box.Overlaps(new Box(0, 0, 1, 1)));
+            Assert.IsTrue(box.Overlaps(new Box(-1, -1, 3, 3)));
+            Assert.IsFalse(box.Overlaps(new Box(10, 10, 30, 30)));
+        }
+
+        /// <summary>
         /// Tests expand with.
         /// </summary>
         [Test]
