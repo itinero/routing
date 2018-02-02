@@ -122,6 +122,20 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
+        /// Expands this box (if needed) to incluce the given coordinate.
+        /// </summary>
+        public Box ExpandWith(float lat, float lon)
+        {
+            if (this.Overlaps(lat, lon))
+            { // assume this happens in most cases.
+                return this;
+            }
+
+            return new Box(System.Math.Min(this.MinLat, lat), System.Math.Min(this.MinLon, lon),
+                System.Math.Max(this.MaxLat, lat), System.Math.Max(this.MaxLon, lon));
+        }
+
+        /// <summary>
         /// Returns true if the line potentially intersects with this box.
         /// </summary>
         public bool IntersectsPotentially(float longitude1, float latitude1, float longitude2, float latitude2)
