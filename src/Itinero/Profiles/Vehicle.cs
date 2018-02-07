@@ -35,11 +35,7 @@ namespace Itinero.Profiles
         /// </summary>
         public Vehicle()
         {
-            if (!string.IsNullOrEmpty(this.Name))
-            {
-                this.Register(new Profile("shortest", ProfileMetric.DistanceInMeters, this.VehicleTypes, null, this));
-                this.Register(new Profile(string.Empty, ProfileMetric.TimeInSeconds, this.VehicleTypes, null, this));
-            }
+            
         }
 
         /// <summary>
@@ -225,16 +221,11 @@ namespace Itinero.Profiles
             {
                 case "Itinero.Profiles.DynamicVehicle":
                     var vehicle = new DynamicVehicle(stream.ReadWithSizeString());
-                    Vehicle.Register(vehicle);
                     return vehicle;
             }
             if (Vehicle.CustomDeserializer != null)
             {
                 var vehicle = Vehicle.CustomDeserializer(typeName, stream);
-                if (vehicle != null)
-                {
-                    Vehicle.Register(vehicle);
-                }
                 return vehicle;
             }
             throw new Exception(string.Format("Cannot deserialize for type with name: {0}. A custom deserializer was not found.", typeName));
