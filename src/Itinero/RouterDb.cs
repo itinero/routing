@@ -695,7 +695,6 @@ namespace Itinero
                 {
                     var vehicle = Vehicle.Deserialize(stream);
                     supportedVehicleInstances.Add(vehicle);
-                    vehicle.Register();
                 }
             }
             
