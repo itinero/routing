@@ -32,8 +32,6 @@ namespace Itinero.Test.Algorithms.Matrices
         [Test]
         public void TestContractedDirectedOldEdgeBasedManyToManyWeights()
         {
-            var eMeter = 20f;
-
             // build and load network.
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
@@ -87,8 +85,6 @@ namespace Itinero.Test.Algorithms.Matrices
         [Test]
         public void TestContractedDualManyToManyWeights()
         {
-            var eMeter = 20f;
-
             // build and load network.
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
@@ -142,8 +138,6 @@ namespace Itinero.Test.Algorithms.Matrices
         [Test]
         public void TestContractedDualManyToManyWeightsOneway()
         {
-            var eMeter = 20f;
-
             // build and load network.
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(

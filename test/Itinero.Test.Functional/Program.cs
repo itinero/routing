@@ -107,14 +107,5 @@ namespace Itinero.Test.Functional
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
         }
-
-        private static string ToJson(FeatureCollection featureCollection)
-        {
-            var jsonSerializer = new NetTopologySuite.IO.GeoJsonSerializer();
-            var jsonStream = new StringWriter();
-            jsonSerializer.Serialize(jsonStream, featureCollection);
-            var json = jsonStream.ToInvariantString();
-            return json;
-        }
     }
 }
