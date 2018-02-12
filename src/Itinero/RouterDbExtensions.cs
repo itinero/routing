@@ -1112,6 +1112,19 @@ namespace Itinero
             jsonWriter.WriteProperty("edgeid", edgeEnumerator.Id.ToInvariantString());
             jsonWriter.WriteProperty("vertex1", edgeEnumerator.From.ToInvariantString());
             jsonWriter.WriteProperty("vertex2", edgeEnumerator.To.ToInvariantString());
+
+            if (db.EdgeData != null)
+            {
+                foreach (var dataName in db.EdgeData.Names)
+                {
+                    var data = db.EdgeData.Get(dataName).GetRaw(edgeEnumerator.Id);
+                    if (data != null)
+                    {
+                        jsonWriter.WriteProperty(dataName, data.ToInvariantString());
+                    }
+                }
+            }
+
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
@@ -1257,13 +1270,13 @@ namespace Itinero
                     }
 
                     // build edge data, only keep meta for copied edges.
-                    var edgeData = edgeEnumerator.Data;
+                    var currentEdgeData = edgeEnumerator.Data;
                     var newEdgeData = new EdgeData()
                     {
-                        Distance = edgeData.Distance,
-                        Profile = edgeData.Profile,
+                        Distance = currentEdgeData.Distance,
+                        Profile = currentEdgeData.Profile,
                         MetaId = newDb.EdgeMeta.Add(
-                            db.EdgeMeta.Get(edgeData.MetaId))
+                            db.EdgeMeta.Get(currentEdgeData.MetaId))
                     };
                     var shape = edgeEnumerator.Shape;
                     uint newEdgeId;
@@ -1310,6 +1323,24 @@ namespace Itinero
                 if (idMap.TryGetValue(v, out newV))
                 {
                     newDb.VertexMeta[newV] = db.VertexMeta[v];
+                }
+            }
+
+            // copy over all edge data.
+            var edgeData = db.EdgeData;
+            var edgeDataNames = db.EdgeData.Names;
+            foreach (var name in edgeDataNames)
+            {
+                var collection = db.EdgeData.Get(name);
+                var newCollection = newDb.EdgeData.Add(name, collection.ElementType);
+
+                for (uint e = 0; e < db.Network.EdgeCount; e++)
+                {
+                    uint newEdgeId;
+                    if (edgeIdMap.TryGetValue(e, out newEdgeId))
+                    {
+                        newCollection.CopyFrom(collection, newEdgeId, e);
+                    }
                 }
             }
 

@@ -28,6 +28,7 @@ using OsmSharp;
 using Itinero.Data.Network.Restrictions;
 using Itinero.IO.Osm;
 using Itinero.Data;
+using Itinero.Data.Network;
 
 namespace Itinero.Test.IO.Osm.Streams
 {
@@ -1491,6 +1492,109 @@ namespace Itinero.Test.IO.Osm.Streams
             Assert.AreEqual(0, nodeIds[vertex5]);
         }
 
+        /// <summary>
+        /// Tests loading data the keeps the way id's.
+        /// </summary>
+        [Test]
+        public void TestKeepingWayIds()
+        {
+            // build source stream with two ways:
+            //         
+            //         (1)
+            //          |
+            //         (2)
+            //          |
+            //    (4)--(3)--(5)
+            //        
+            // this should result in edges:
+            //   1-3, 4-3, 3-5
+
+            var location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
+            var location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
+            var location3 = new Coordinate() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
+            var location4 = new Coordinate() { Latitude = 51.26152881427841f, Longitude = 4.795939922332763f };
+            var location5 = new Coordinate() { Latitude = 51.26134754276387f, Longitude = 4.795937240123749f };
+            var source = new OsmGeo[] {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Node()
+                {
+                    Id = 4,
+                    Latitude = location4.Latitude,
+                    Longitude = location4.Longitude
+                },
+                new Node()
+                {
+                    Id = 5,
+                    Latitude = location5.Latitude,
+                    Longitude = location5.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                },
+                new Way()
+                {
+                    Id = 2,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 4, 3, 5 }
+                }};
+
+            // build db from stream.
+            var routerDb = new RouterDb();
+            var target = new RouterDbStreamTarget(
+                routerDb, new Itinero.Profiles.Vehicle[] {
+                    Vehicle.Car
+                });
+            target.KeepWayIds = true;
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            // check result.
+            Assert.AreEqual(4, routerDb.Network.VertexCount);
+            Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+            var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
+            var vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
+            var vertex4 = this.FindVertex(routerDb, location4.Latitude, location4.Longitude);
+            var vertex5 = this.FindVertex(routerDb, location5.Latitude, location5.Longitude);
+            
+            var wayIds = routerDb.EdgeData.Get<long>("way_ids");
+            Assert.IsNotNull(wayIds);
+            var wayNodeIndices = routerDb.EdgeData.Get<ushort>("way_node_idx");
+            Assert.IsNotNull(wayNodeIndices);
+
+            var edge = routerDb.Network.GetEdges(vertex1).First(x => x.To == vertex3).Id;
+            Assert.AreEqual(1, wayIds[edge]);
+            Assert.AreEqual(0, wayNodeIndices[edge]);
+            edge = routerDb.Network.GetEdges(vertex4).First(x => x.To == vertex3).Id;
+            Assert.AreEqual(2, wayIds[edge]);
+            Assert.AreEqual(0, wayNodeIndices[edge]);
+            edge = routerDb.Network.GetEdges(vertex3).First(x => x.To == vertex5).Id;
+            Assert.AreEqual(2, wayIds[edge]);
+            Assert.AreEqual(1, wayNodeIndices[edge]);
+        }
 
         /// <summary>
         /// Finds a vertex in the given router db.

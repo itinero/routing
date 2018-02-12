@@ -98,6 +98,8 @@ namespace Itinero.IO.Osm.Streams
 
         private bool _firstPass = true; // flag for first/second pass.
         private MetaCollection<long> _nodeData = null;
+        private MetaCollection<long> _wayIds = null;
+        private MetaCollection<ushort> _wayNodeIndices = null;
 
         /// <summary>
         /// Setups default add-on processors.
@@ -173,6 +175,12 @@ namespace Itinero.IO.Osm.Streams
             {
                 _nodeData = _db.VertexData.AddInt64("node_ids");
             }
+
+            if (this.KeepWayIds)
+            {
+                _wayIds = _db.EdgeData.AddInt64("way_ids");
+                _wayNodeIndices = _db.EdgeData.AddUInt16("way_node_idx");
+            }
         }
 
         /// <summary>
@@ -230,7 +238,15 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Gets or sets a flag to keep node id's.
         /// </summary>
+        /// <remarks>This is a way to build 'stable' identifiers for each vertex.</remarks>
         public bool KeepNodeIds { get; set; }
+
+        /// <summary>
+        /// Gets or sets a flag to keep way id's and the index of the first node of the edge in the original way.
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>This is a way to build 'stable' identifiers for each segment.</remarks>
+        public bool KeepWayIds { get; set; }
 
         /// <summary>
         /// Registers the source.
@@ -404,9 +420,12 @@ namespace Itinero.IO.Osm.Streams
 
                     // convert way into one or more edges.
                     var node = 0;
+                    var fromNodeIdx = 0;
                     var isCore = false;
                     while (node < way.Nodes.Length - 1)
                     {
+                        fromNodeIdx = node;
+
                         // build edge to add.
                         var intermediates = new List<Coordinate>();
                         var distance = 0.0f;
@@ -456,7 +475,7 @@ namespace Itinero.IO.Osm.Streams
                                     Distance = Coordinate.DistanceEstimateInMeter(
                                         _db.Network.GetVertex(fromVertex), intermediates[0]),
                                     Profile = (ushort)profile
-                                }, null);
+                                }, null, way.Id.Value, (ushort)fromNodeIdx);
                             }
                             else if (intermediates.Count >= 2)
                             { // there is more than one intermediate, add two new core vertices.
@@ -476,19 +495,19 @@ namespace Itinero.IO.Osm.Streams
                                     MetaId = meta,
                                     Distance = distance1,
                                     Profile = (ushort)profile
-                                }, null);
+                                }, null, way.Id.Value, (ushort)(fromNodeIdx));
                                 this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance - distance2 - distance1,
                                     Profile = (ushort)profile
-                                }, intermediates);
+                                }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
                                 this.AddCoreEdge(newCoreVertex2, toVertex, new Data.Network.Edges.EdgeData()
                                 {
                                     MetaId = meta,
                                     Distance = distance2,
                                     Profile = (ushort)profile
-                                }, null);
+                                }, null, way.Id.Value, (ushort)(fromNodeIdx));
                             }
                             continue;
                         }
@@ -501,7 +520,7 @@ namespace Itinero.IO.Osm.Streams
                                 MetaId = meta,
                                 Distance = distance,
                                 Profile = (ushort)profile
-                            }, intermediates);
+                            }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
                         }
                         else
                         { // oeps, already an edge there.
@@ -540,7 +559,7 @@ namespace Itinero.IO.Osm.Streams
                                         MetaId = meta,
                                         Distance = System.Math.Max(distance, 0.0f),
                                         Profile = (ushort)profile
-                                    }, null);
+                                    }, null, way.Id.Value, (ushort)(node));
                                 }
 
                                 if (intermediates.Count > 0)
@@ -559,7 +578,7 @@ namespace Itinero.IO.Osm.Streams
                                         MetaId = splitMeta,
                                         Distance = System.Math.Max(newDistance, 0.0f),
                                         Profile = (ushort)splitProfile
-                                    }, null);
+                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
 
                                     // add second part.
                                     intermediates.RemoveAt(0);
@@ -568,7 +587,7 @@ namespace Itinero.IO.Osm.Streams
                                         MetaId = splitMeta,
                                         Distance = System.Math.Max(splitDistance, 0.0f),
                                         Profile = (ushort)splitProfile
-                                    }, intermediates);
+                                    }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
                                 }
                                 else
                                 { // no intermediate or shapepoint found in either one. two identical edge overlayed with different profiles.
@@ -581,7 +600,7 @@ namespace Itinero.IO.Osm.Streams
                                         Distance = 0,
                                         MetaId = splitMeta,
                                         Profile = (ushort)splitProfile
-                                    }, null);
+                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
                                     var toLocation = _db.Network.GetVertex(toVertex);
                                     var newToVertex = this.AddNewCoreNode(toNode, toLocation.Latitude, toLocation.Longitude);
                                     this.AddCoreEdge(newToVertex, toVertex, new EdgeData()
@@ -589,14 +608,14 @@ namespace Itinero.IO.Osm.Streams
                                         Distance = 0,
                                         MetaId = splitMeta,
                                         Profile = (ushort)splitProfile
-                                    }, null);
+                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
 
                                     this.AddCoreEdge(newFromVertex, newToVertex, new EdgeData()
                                     {
                                         Distance = splitDistance,
                                         MetaId = splitMeta,
                                         Profile = (ushort)splitProfile
-                                    }, null);
+                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
                                 }
                             }
                         }
@@ -662,11 +681,19 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        public void AddCoreEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData data, List<Coordinate> shape)
+        public void AddCoreEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData data, List<Coordinate> shape, long wayId, ushort nodeIdx)
         {
+            uint edgeId;
+
             if (data.Distance < _db.Network.MaxEdgeDistance)
             { // edge is ok, smaller than max distance.
-                _db.Network.AddEdge(vertex1, vertex2, data, shape.Simplify(_simplifyEpsilonInMeter));
+                edgeId = _db.Network.AddEdge(vertex1, vertex2, data, shape.Simplify(_simplifyEpsilonInMeter));
+
+                if (_wayIds != null)
+                {
+                    _wayIds[edgeId] = wayId;
+                    _wayNodeIndices[edgeId] = nodeIdx;
+                }
             }
             else
             { // edge is too big.
@@ -716,12 +743,17 @@ namespace Itinero.IO.Osm.Streams
                             shortPoint.Value.Longitude);
 
                         // add edge.
-                        _db.Network.AddEdge(vertex1, shortVertex, new Data.Network.Edges.EdgeData()
+                        edgeId = _db.Network.AddEdge(vertex1, shortVertex, new Data.Network.Edges.EdgeData()
                         {
                             Distance = (float)shortDistance,
                             MetaId = data.MetaId,
                             Profile = data.Profile
                         }, shortShape.Simplify(_simplifyEpsilonInMeter));
+                        if (_wayIds != null)
+                        {
+                            _wayIds[edgeId] = wayId;
+                            _wayNodeIndices[edgeId] = nodeIdx;
+                        }
                         vertex1 = shortVertex;
 
                         // set new short distance, empty shape.
@@ -745,12 +777,17 @@ namespace Itinero.IO.Osm.Streams
                 }
 
                 // add edge.
-                _db.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
+                edgeId = _db.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
                 {
                     Distance = (float)shortDistance,
                     MetaId = data.MetaId,
                     Profile = data.Profile
                 }, shortShape.Simplify(_simplifyEpsilonInMeter));
+                if (_wayIds != null)
+                {
+                    _wayIds[edgeId] = wayId;
+                    _wayNodeIndices[edgeId] = nodeIdx;
+                }
             }
         }
 

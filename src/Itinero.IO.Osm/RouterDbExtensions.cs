@@ -249,6 +249,7 @@ namespace Itinero.IO.Osm
                 vehicles, settings.AllCore, processRestrictions: settings.ProcessRestrictions, processors: settings.Processors,
                     simplifyEpsilonInMeter: settings.NetworkSimplificationEpsilon);
             target.KeepNodeIds = settings.KeepNodeIds;
+            target.KeepWayIds = settings.KeepWayIds;
             target.RegisterSource(source);
             target.Pull();
 

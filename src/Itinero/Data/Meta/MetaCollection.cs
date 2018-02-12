@@ -44,6 +44,11 @@ namespace Itinero.Data
         };
 
         /// <summary>
+        /// Gets the data.
+        /// </summary>
+        public abstract object GetRaw(uint idx);
+
+        /// <summary>
         /// Gets the type of the elements in this meta collection.
         /// </summary>
         public abstract Type ElementType
@@ -257,6 +262,14 @@ namespace Itinero.Data
 
             var otherTyped = (MetaCollection<T>)other;
             this[idx] = otherTyped[otherIdx];
+        }
+
+        /// <summary>
+        /// Gets the raw data.
+        /// </summary>
+        public override object GetRaw(uint idx)
+        {
+            return this[idx];
         }
 
         /// <summary>
