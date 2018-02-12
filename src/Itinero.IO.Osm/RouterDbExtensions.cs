@@ -262,7 +262,7 @@ namespace Itinero.IO.Osm
             }
 
             // compress the network.
-            db.Network.Compress();
+            db.Compress();
         }
     }
 }

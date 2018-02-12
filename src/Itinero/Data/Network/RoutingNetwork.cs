@@ -293,6 +293,23 @@ namespace Itinero.Data.Network
         }
 
         /// <summary>
+        /// Relocates data internally in the most compact way possible.
+        /// </summary>
+        public void Compress(Action<uint, uint> updateEdgeId)
+        {
+            _graph.Compress((originalId, newId) =>
+                {
+                    _edgeData[newId] = _edgeData[originalId];
+
+                    if (updateEdgeId != null)
+                    {
+                        updateEdgeId(originalId, newId);
+                    }
+                });
+            _edgeData.Resize(_graph.EdgeCount);
+        }
+
+        /// <summary>
         /// Resizes the internal data structures to their smallest size possible.
         /// </summary>
         public void Trim()
@@ -511,7 +528,15 @@ namespace Itinero.Data.Network
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            this.Compress();
+            return this.Serialize(stream, null);
+        } 
+
+        /// <summary>
+        /// Serializes to a stream.
+        /// </summary>
+        public long Serialize(System.IO.Stream stream, Action<uint, uint> updateEdgeId)
+        {
+            this.Compress(updateEdgeId);
 
             // serialize geometric graph.
             long size = 1;

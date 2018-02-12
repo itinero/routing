@@ -79,7 +79,7 @@ namespace Itinero.Algorithms.Search.Hilbert
         }
 
         /// <summary>
-        /// Copies all data from the given graph.
+        /// Sorts all data from the given graph.
         /// </summary>
         public static void Sort(this RoutingNetwork graph, int n, Action<long, long> swap = null)
         {

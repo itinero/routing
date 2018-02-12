@@ -52,6 +52,7 @@ namespace Itinero.Test
         public static void LoadTestNetwork(this RouterDb db, string geoJson, float tolerance = 20)
         {
             var nodeIds = db.VertexData.AddInt64("node_ids");
+            var edgeIds = db.EdgeData.AddInt64("edge_ids");
 
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);
@@ -150,13 +151,16 @@ namespace Itinero.Test
                             shape.Add(line.Coordinates[i].FromCoordinate());
                             continue;
                         }
-                        db.Network.AddEdge(vertex1, vertex2, new Itinero.Data.Network.Edges.EdgeData()
+                        var edgeId = db.Network.AddEdge(vertex1, vertex2, new Itinero.Data.Network.Edges.EdgeData()
                         {
                             Distance = (float)distance,
                             MetaId = metaId,
                             Profile = (ushort)profileId
                         }, shape);
                         shape.Clear();
+
+                        edgeIds[edgeId] = vertex1.GetHashCode() ^ vertex2.GetHashCode();
+
                         vertex1 = vertex2;
                         distance = 0;
                     }
