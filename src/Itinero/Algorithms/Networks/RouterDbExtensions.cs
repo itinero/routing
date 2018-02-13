@@ -117,5 +117,27 @@ namespace Itinero.Algorithms.Networks
                 }, simplifyEpsilonInMeter);
             algorithm.Run();
         }
+
+        /// <summary>
+        /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
+        /// </summary>
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null)
+        {
+            var splitter = new Preprocessing.MaxDistanceSplitter(db.Network, db.Network.MaxEdgeDistance, newVertex: newVertex);
+            splitter.Run();
+
+            splitter.CheckHasRunAndHasSucceeded();
+        }
+
+        /// <summary>
+        /// Runs the algorithm to make sure the loaded graph is a 'simple' graph.
+        /// </summary>
+        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null)
+        {
+            var converter = new Preprocessing.SimpleGraphConverter(db.Network, newVertex: newVertex);
+            converter.Run();
+
+            converter.CheckHasRunAndHasSucceeded();
+        }
     }
 }

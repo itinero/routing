@@ -244,6 +244,9 @@ namespace Itinero.IO.Osm
                 source = progress;
             }
 
+            // make sure the routerdb can handle multiple edges.
+            db.Network.GeometricGraph.Graph.MarkAsMulti();
+
             // load the data.
             var target = new Streams.RouterDbStreamTarget(db,
                 vehicles, settings.AllCore, processRestrictions: settings.ProcessRestrictions, processors: settings.Processors,
@@ -252,6 +255,10 @@ namespace Itinero.IO.Osm
             target.KeepWayIds = settings.KeepWayIds;
             target.RegisterSource(source);
             target.Pull();
+
+            // optimize the network for routing.
+            db.SplitLongEdges();
+            db.ConvertToSimple();
 
             // sort the network.
             db.Sort();
