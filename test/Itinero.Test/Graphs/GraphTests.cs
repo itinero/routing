@@ -114,9 +114,10 @@ namespace Itinero.Test.Graphs
         /// Tests adding an edge.
         /// </summary>
         [Test]
-        public void TestAddEdge()
+        public void TestAddEdgeMultiGraph()
         {
             var graph = new Graph(1, 2);
+            graph.MarkAsMulti();
             uint vertex0 = 0;
             uint vertex1 = 1;
 
@@ -765,6 +766,7 @@ namespace Itinero.Test.Graphs
         public void TestEdgeCount()
         {
             var graph = new Graph(1, 10);
+            graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0);
@@ -773,6 +775,7 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(1, graph.EdgeCount);
 
             graph = new Graph(1, 10);
+            graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0);

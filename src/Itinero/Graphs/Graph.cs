@@ -30,7 +30,7 @@ namespace Itinero.Graphs
     /// </summary>
     public class Graph : IDisposable
     {
-        private bool _isSimple = false;
+        private bool _isSimple = true;
         private const int MINIMUM_EDGE_SIZE = 4;
         private const int NODEA = 0;
         private const int NODEB = 1;
@@ -165,37 +165,45 @@ namespace Itinero.Graphs
         }
 
         /// <summary>
-        /// Verifies if this graph is simple and marks it as such.
-        /// </summary>
-        /// <remarks>
-        /// - Checks for duplicate edges, returns false if it still finds one.
-        /// - Marks this graph as simple if the checks succeed.
-        /// </remarks>
-        public bool MarkAsSimple()
+        /// Marks this graph as a multigraph, from now on duplicate edges are allowed.
+        /// </summary>    
+        public void MarkAsMulti()
         {
-            var neighbours = new HashSet<uint>();
-            var enumerator = this.GetEdgeEnumerator();
-            for (uint v = 0; v < this.VertexCount; v++)
-            {
-                if (!enumerator.MoveTo(v))
-                { // no edge here!
-                    continue;
-                }
-
-                neighbours.Clear();
-                while (enumerator.MoveNext())
-                {
-                    if (neighbours.Contains(enumerator.To))
-                    { // a duplicate was found!
-                        return false;
-                    }
-                    neighbours.Add(enumerator.To);
-                }
-            }
-
-            _isSimple = true;
-            return true;
+            _isSimple = false;
         }
+
+        // /// <summary>
+        // /// Verifies if this graph is simple and marks it as such.
+        // /// </summary>
+        // /// <remarks>
+        // /// - Checks for duplicate edges, returns false if it still finds one.
+        // /// - Marks this graph as simple if the checks succeed.
+        // /// </remarks>
+        // public bool MarkAsSimple()
+        // {
+        //     var neighbours = new HashSet<uint>();
+        //     var enumerator = this.GetEdgeEnumerator();
+        //     for (uint v = 0; v < this.VertexCount; v++)
+        //     {
+        //         if (!enumerator.MoveTo(v))
+        //         { // no edge here!
+        //             continue;
+        //         }
+
+        //         neighbours.Clear();
+        //         while (enumerator.MoveNext())
+        //         {
+        //             if (neighbours.Contains(enumerator.To))
+        //             { // a duplicate was found!
+        //                 return false;
+        //             }
+        //             neighbours.Add(enumerator.To);
+        //         }
+        //     }
+
+        //     _isSimple = true;
+        //     return true;
+        // }
 
         /// <summary>
         /// Adds a new vertex.
@@ -476,7 +484,7 @@ namespace Itinero.Graphs
                 return false;
             }
 
-            return this.RemoveEdges(_edges[edgeId + NODEA], _edges[edgeId + NODEB], edgeId);
+            return this.RemoveEdges(_edges[edgeId + NODEA], _edges[edgeId + NODEB], edgeId) > 0;
         }
 
         /// <summary>
@@ -484,18 +492,13 @@ namespace Itinero.Graphs
         /// </summary>
         public int RemoveEdges(uint vertex1, uint vertex2)
         {
-            var removed = 0;
-            while(this.RemoveEdges(vertex1, vertex2, uint.MaxValue))
-            {
-                removed++;
-            }
-            return removed;
+            return this.RemoveEdges(vertex1, vertex2, uint.MaxValue);
         }
 
         /// <summary>
         /// Deletes the edge between the two given vertices.
         /// </summary>
-        private bool RemoveEdges(uint vertex1, uint vertex2, uint edgeId = uint.MaxValue)
+        private int RemoveEdges(uint vertex1, uint vertex2, uint edgeId = uint.MaxValue)
         {
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
@@ -506,11 +509,11 @@ namespace Itinero.Graphs
             if (_vertices[vertex1] == Constants.NO_EDGE ||
                 _vertices[vertex2] == Constants.NO_EDGE)
             { // no edge to remove here!
-                return false;
+                return 0;
             }
 
             // remove for vertex1.
-            var removed = false;
+            var removed = 0;
             var nextEdgeId = _vertices[vertex1];
             uint nextEdgeSlot = 0;
             uint previousEdgeSlot = 0;
@@ -545,7 +548,7 @@ namespace Itinero.Graphs
                         // set the previous edge slot to the current edge id being the next one.
                         _edges[previousEdgeSlot] = nextEdgeId;
                     }
-                    removed = true;
+                    removed++;
                     _edgeCount--;
                     if (_isSimple || edgeId != uint.MaxValue)
                     { // is the graph is simple, there's only one edge.
@@ -556,7 +559,7 @@ namespace Itinero.Graphs
             }
 
             // remove for vertex2.
-            if (removed)
+            if (removed != 0)
             {
                 nextEdgeId = _vertices[vertex2];
                 nextEdgeSlot = 0;
@@ -605,11 +608,10 @@ namespace Itinero.Graphs
                         if (_isSimple || edgeId != uint.MaxValue)
                         { // is the graph is simple, there's only one edge.
                             // if we seek only one edge also break.
-                            return true;
+                            return removed;
                         }
                     }
                 }
-                throw new Exception("Edge could not be reached from vertex2. Data in graph is invalid.");
             }
             return removed;
         }
