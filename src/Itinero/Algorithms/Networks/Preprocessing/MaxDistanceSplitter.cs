@@ -91,6 +91,8 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                     edgeEnumerator.MoveTo(v);
                 }
             }
+            
+            this.HasSucceeded = true;
         }
 
         /// <summary>
@@ -151,6 +153,10 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                         
                         var currentVertex2 = _network.VertexCount;
                         _network.AddVertex(currentVertex2, cutoff.Latitude, cutoff.Longitude);
+                        if (_newVertex != null)
+                        {
+                            _newVertex(currentVertex2);
+                        }
                         _network.AddEdge(currentVertex1, currentVertex2, edgeData, currentShape);
 
                         // reset some stuff for the next segment.

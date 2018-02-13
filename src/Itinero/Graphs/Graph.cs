@@ -172,38 +172,43 @@ namespace Itinero.Graphs
             _isSimple = false;
         }
 
-        // /// <summary>
-        // /// Verifies if this graph is simple and marks it as such.
-        // /// </summary>
-        // /// <remarks>
-        // /// - Checks for duplicate edges, returns false if it still finds one.
-        // /// - Marks this graph as simple if the checks succeed.
-        // /// </remarks>
-        // public bool MarkAsSimple()
-        // {
-        //     var neighbours = new HashSet<uint>();
-        //     var enumerator = this.GetEdgeEnumerator();
-        //     for (uint v = 0; v < this.VertexCount; v++)
-        //     {
-        //         if (!enumerator.MoveTo(v))
-        //         { // no edge here!
-        //             continue;
-        //         }
+        /// <summary>
+        /// Verifies if this graph is simple and marks it as such.
+        /// </summary>
+        /// <remarks>
+        /// - Checks for duplicate edges, returns false if it still finds one.
+        /// - Marks this graph as simple if the checks succeed.
+        /// </remarks>
+        public bool MarkAsSimple()
+        {
+            var neighbours = new HashSet<uint>();
+            var enumerator = this.GetEdgeEnumerator();
+            for (uint v = 0; v < this.VertexCount; v++)
+            {
+                if (!enumerator.MoveTo(v))
+                { // no edge here!
+                    continue;
+                }
 
-        //         neighbours.Clear();
-        //         while (enumerator.MoveNext())
-        //         {
-        //             if (neighbours.Contains(enumerator.To))
-        //             { // a duplicate was found!
-        //                 return false;
-        //             }
-        //             neighbours.Add(enumerator.To);
-        //         }
-        //     }
+                neighbours.Clear();
+                while (enumerator.MoveNext())
+                {
+                    if (enumerator.To == v)
+                    { // a loop was found.
+                        return false;
+                    }
 
-        //     _isSimple = true;
-        //     return true;
-        // }
+                    if (neighbours.Contains(enumerator.To))
+                    { // a duplicate was found!
+                        return false;
+                    }
+                    neighbours.Add(enumerator.To);
+                }
+            }
+
+            _isSimple = true;
+            return true;
+        }
 
         /// <summary>
         /// Adds a new vertex.
