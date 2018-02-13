@@ -134,6 +134,18 @@ namespace Itinero.Data.Network
                 return _graph;
             }
         }
+        
+        /// <summary>
+        /// Returns true if this network is simple (max one edge between any two vertices).
+        /// </summary>
+        /// <returns></returns>
+        public bool IsSimple
+        {
+            get
+            {
+                return _graph.IsSimple;
+            }
+        }
 
         /// <summary>
         /// Adds a new vertex.

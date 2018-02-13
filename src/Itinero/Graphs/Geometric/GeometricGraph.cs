@@ -166,6 +166,18 @@ namespace Itinero.Graphs.Geometric
                 return _graph;
             }
         }
+        
+        /// <summary>
+        /// Returns true if this graph is simple (max one edge between any two vertices).
+        /// </summary>
+        /// <returns></returns>
+        public bool IsSimple
+        {
+            get
+            {
+                return _graph.IsSimple;
+            }
+        }
 
         /// <summary>
         /// Gets the given vertex.
