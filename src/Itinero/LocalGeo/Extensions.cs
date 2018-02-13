@@ -422,5 +422,51 @@ namespace Itinero.LocalGeo
                 longitude += 360;
             }
         }
+
+        /// <summary>
+        /// Returns the location along the line at the given offset distance in meter.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        /// <param name="offset">The offset in meter.</param>
+        /// <param name="forward">When true the offset starts at the first location, otherwise the second..</param>
+        /// <returns></returns>
+        public static Coordinate LocationAfterDistance(this Line line, float offset, bool forward = true)
+        {
+            if (forward)
+            {
+                return LocationAfterDistance(line.Coordinate1, line.Coordinate2, offset);
+            }
+            return LocationAfterDistance(line.Coordinate2, line.Coordinate1, offset);
+        }
+
+        /// <summary>
+        /// Returns the location between the two coordinates at the given offset distance in meter.
+        /// </summary>
+        /// <param name="coordinate1">The first coordinate.</param>
+        /// <param name="coordinate2">The second coordinate.</param>
+        /// <param name="offset">The offset in meter starting at coordinate1.</param>
+        /// <returns></returns>
+        public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float offset)
+        {
+            return LocationAfterDistance(coordinate1, coordinate2, Coordinate.DistanceEstimateInMeter(coordinate1, coordinate2),
+                offset);
+        }
+
+        /// <summary>
+        /// Returns the location between the two coordinates at the given offset distance in meter.
+        /// </summary>
+        /// <param name="coordinate1">The first coordinate.</param>
+        /// <param name="coordinate2">The second coordinate.</param>
+        /// <param name="distanceBetween">The distance between the two, when we already calculated it before.</param>
+        /// <param name="offset">The offset in meter starting at coordinate1.</param>
+        /// <returns></returns>
+        public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float distanceBetween, float offset)
+        {
+            var ratio = offset / distanceBetween;
+            return new Coordinate(
+                (coordinate2.Latitude - coordinate1.Latitude) * ratio + coordinate1.Latitude,
+                (coordinate2.Longitude - coordinate1.Longitude) * ratio + coordinate1.Longitude
+            );
+        }
     }
 }
