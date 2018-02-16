@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Networks;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.IO.Osm.Streams;
+using Itinero.LocalGeo;
 using OsmSharp;
 using OsmSharp.Streams;
 using OsmSharp.Streams.Filters;
@@ -202,6 +203,23 @@ namespace Itinero.IO.Osm
         public static void LoadOsmData(this RouterDb db, OsmStreamSource source, LoadSettings settings, params Itinero.Profiles.Vehicle[] vehicles)
         {
             db.LoadOsmData(new OsmStreamSource[] { source }, settings, vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network from OSM data downloaded from Overpass API.
+        /// </summary>
+        public static void LoadOsmDataFromOverpass(this RouterDb db, Box box, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmDataFromOverpass(box.ToPolygon(), vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network from OSM data downloaded from Overpass API.
+        /// </summary>
+        public static void LoadOsmDataFromOverpass(this RouterDb db, Polygon polygon, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            var stream = new Overpass.OverpassSourceStream(Overpass.OverpassQueryBuilder.BuildQueryForPolygon(polygon));
+            db.LoadOsmData(stream, vehicles);
         }
 
         /// <summary>

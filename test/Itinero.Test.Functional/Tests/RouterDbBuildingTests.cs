@@ -42,13 +42,15 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
+            GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
+
             var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
                 Osm.Vehicles.Vehicle.Car,
                 Osm.Vehicles.Vehicle.Bicycle,
                 Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
 
-            GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM."); ;
+            GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
 
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
@@ -58,7 +60,27 @@ namespace Itinero.Test.Functional.Tests
 
             routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
 
+
             return routerDb;
+        }
+
+        /// <summary>
+        /// Tests downloading a routerdb from overpass.
+        /// </summary>
+        public static Func<PerformanceTestResult<RouterDb>> GetRouterDbFromOverpass()
+        {
+            return () =>
+            {
+                var routerDb = new RouterDb();
+
+                routerDb.LoadOsmDataFromOverpass(new Box(51.25380399985758f, 4.809179306030273f,
+                    51.273138772415194f, 4.765233993530273f), Itinero.Osm.Vehicles.Vehicle.Car);
+
+                return new PerformanceTestResult<RouterDb>(routerDb)
+                {
+                    Message = "RouterDb loaded from overpass."
+                };
+            };
         }
         
         /// <summary>
