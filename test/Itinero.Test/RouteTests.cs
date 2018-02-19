@@ -747,6 +747,113 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Test projecting points on the route.
+        /// </summary>
+        [Test]
+        public void TestProjectOne()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.268977112538806f,
+                        Longitude = 4.800424575805664f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26830584177533f,
+                        Longitude = 4.8006391525268555f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.267768818104585f,
+                        Longitude = 4.801325798034667f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26674845584085f,
+                        Longitude = 4.801068305969238f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26551325015766f,
+                        Longitude = 4.801154136657715f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2,
+                        Distance = 100,
+                        Time = 60
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 4,
+                        Distance = 200,
+                        Time = 120
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 200,
+                TotalTime = 120
+            };
+
+            // calculate actual distance/times.
+            Route.Meta previousMeta = null;
+            foreach (var meta in route.ShapeMeta)
+            {
+                meta.Distance = 0;
+                meta.Time = 0;
+
+                if (previousMeta != null)
+                {
+                    for (var s = previousMeta.Shape; s < meta.Shape; s++)
+                    {
+                        meta.Distance = meta.Distance + Coordinate.DistanceEstimateInMeter(
+                            route.Shape[s], route.Shape[s + 1]);
+                    }
+
+                    meta.Time = meta.Distance / 16.6667f; // 60km/h
+                }
+
+                previousMeta = meta;
+            }
+            route.TotalDistance = route.ShapeMeta[route.ShapeMeta.Length - 1].Distance;
+            route.TotalTime = route.ShapeMeta[route.ShapeMeta.Length - 1].Time;
+
+            float time, distance;
+            int shape;
+            Coordinate projected;
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26856092582056f, 4.800623059272766f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(0, shape);
+            Assert.IsTrue(time > route.ShapeMeta[0].Time);
+            Assert.IsTrue(time < route.ShapeMeta[1].Time);
+
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26795342069926f, 4.801229238510132f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(1, shape);
+            Assert.IsTrue(time > route.ShapeMeta[0].Time);
+            Assert.IsTrue(time < route.ShapeMeta[1].Time);
+
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26712438141587f, 4.801207780838013f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(2, shape);
+            Assert.IsTrue(time > route.ShapeMeta[1].Time);
+            Assert.IsTrue(time < route.ShapeMeta[2].Time);
+
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26610064830449f, 4.801395535469055f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(3, shape);
+            Assert.IsTrue(time > route.ShapeMeta[1].Time);
+            Assert.IsTrue(time < route.ShapeMeta[2].Time);
+        }
+
+        /// <summary>
         /// Test distance and time at a shape.
         /// </summary>
         [Test]

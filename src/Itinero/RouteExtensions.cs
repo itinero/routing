@@ -359,32 +359,47 @@ namespace Itinero
             return;
         }
 
+
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="coordinate">The coordinate to project.</param>
+        /// <param name="projected">The projected coordinate on the route.</param>
+        /// <returns></returns>
         public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected)
         {
-            int segment;
+            int shape;
             float distanceToProjectedInMeter;
             float timeToProjectedInSeconds;
-            return route.ProjectOn(coordinate, out projected, out segment, out distanceToProjectedInMeter, 
+            return route.ProjectOn(coordinate, out projected, out shape, out distanceToProjectedInMeter, 
                 out timeToProjectedInSeconds);
         }
 
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="coordinate">The coordinate to project.</param>
+        /// <param name="projected">The projected coordinate on the route.</param>
+        /// <param name="distanceToProjectedInMeter">The distance in meter to the projected point from the start of the route.</param>
+        /// <param name="timeToProjectedInSeconds">The time in seconds to the projected point from the start of the route.</param>
+        /// <returns></returns>
         public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, 
             out float distanceToProjectedInMeter, out float timeToProjectedInSeconds)
         {
-            int segment;
-            return route.ProjectOn(coordinate, out projected, out segment, out distanceToProjectedInMeter, 
+            int shape;
+            return route.ProjectOn(coordinate, out projected, out shape, out distanceToProjectedInMeter, 
                 out timeToProjectedInSeconds);
         }
 
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="coordinate">The coordinate to project.</param>
+        /// <param name="distanceToProjectedInMeter">The distance in meter to the projected point from the start of the route.</param>
+        /// <returns></returns>
         public static bool ProjectOn(this Route route, Coordinate coordinate, out float distanceFromStartInMeter)
         {
             int segment;
@@ -396,14 +411,38 @@ namespace Itinero
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
-        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, out int segment, 
+        /// <param name="route">The route.</param>
+        /// <param name="coordinate">The coordinate to project.</param>
+        /// <param name="projected">The projected coordinate on the route.</param>
+        /// <param name="distanceToProjectedInMeter">The distance in meter to the projected point from the start of the route.</param>
+        /// <param name="timeToProjectedInSeconds">The time in seconds to the projected point from the start of the route.</param>
+        /// <param name="shape">The shape segment of the route the point was projected on to.</param>
+        /// <returns></returns>
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, out int shape, 
+            out float distanceFromStartInMeter, out float timeFromStartInSeconds)
+        {
+            return route.ProjectOn(0, coordinate, out projected, out shape, out distanceFromStartInMeter, out timeFromStartInSeconds);
+        }
+
+        /// <summary>
+        /// Calculates the closest point on the route relative to the given coordinate.
+        /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="startShape">The shape to start at, relevant for routes with u-turns and navigation.</param>
+        /// <param name="coordinate">The coordinate to project.</param>
+        /// <param name="projected">The projected coordinate on the route.</param>
+        /// <param name="distanceToProjectedInMeter">The distance in meter to the projected point from the start of the route.</param>
+        /// <param name="timeToProjectedInSeconds">The time in seconds to the projected point from the start of the route.</param>
+        /// <param name="shape">The shape segment of the route the point was projected on to.</param>
+        /// <returns></returns>
+        public static bool ProjectOn(this Route route, int startShape, Coordinate coordinate, out Coordinate projected, out int shape, 
             out float distanceFromStartInMeter, out float timeFromStartInSeconds)
         {
             float distance = float.MaxValue;
             distanceFromStartInMeter = 0;
             timeFromStartInSeconds = 0;
             projected = new Coordinate();
-            segment = -1;
+            shape = -1;
 
             if (route.Shape == null)
             {
@@ -413,10 +452,10 @@ namespace Itinero
             Coordinate currentProjected;
             float currentDistanceFromStart = 0;
             float currentDistance;
-            var shape = route.Shape;
-            for (int i = 0; i < shape.Length - 1; i++)
+            for (var i = startShape; i < route.Shape.Length - 1; i++)
             {
-                var line = new Line(shape[i], shape[i + 1]);
+                // project on shape and save distance and such.
+                var line = new Line(route.Shape[i], route.Shape[i + 1]);
                 var projectedPoint = line.ProjectOn(coordinate);
                 if (projectedPoint != null)
                 { // there was a projected point.
@@ -425,39 +464,84 @@ namespace Itinero
                     if (currentDistance < distance)
                     { // this point is closer.
                         projected = currentProjected;
-                        segment = i;
+                        shape = i;
                         distance = currentDistance;
 
-                        // calculate distance/time.
-                        var localDistance = Coordinate.DistanceEstimateInMeter(currentProjected, shape[i]);
+                        // calculate distance.
+                        var localDistance = Coordinate.DistanceEstimateInMeter(currentProjected, route.Shape[i]);
                         distanceFromStartInMeter = currentDistanceFromStart + localDistance;
                     }
                 }
 
                 // check first point.
-                currentProjected = shape[i];
+                currentProjected = route.Shape[i];
                 currentDistance = Coordinate.DistanceEstimateInMeter(coordinate, currentProjected);
                 if (currentDistance < distance)
                 { // this point is closer.
                     projected = currentProjected;
-                    segment = i;
+                    shape = i;
                     distance = currentDistance;
                     distanceFromStartInMeter = currentDistanceFromStart;
                 }
 
                 // update distance from start.
-                currentDistanceFromStart = currentDistanceFromStart + Coordinate.DistanceEstimateInMeter(shape[i], shape[i + 1]);
+                currentDistanceFromStart = currentDistanceFromStart + Coordinate.DistanceEstimateInMeter(route.Shape[i], route.Shape[i + 1]);
             }
 
             // check last point.
-            currentProjected = shape[shape.Length - 1];
+            currentProjected = route.Shape[route.Shape.Length - 1];
             currentDistance = Coordinate.DistanceEstimateInMeter(coordinate, currentProjected);
             if (currentDistance < distance)
             { // this point is closer.
                 projected = currentProjected;
-                segment = shape.Length - 1;
+                shape = route.Shape.Length - 1;
                 distance = currentDistance;
                 distanceFromStartInMeter = currentDistanceFromStart;
+            }
+
+            // calculate time.
+            if (route.ShapeMeta != null)
+            {
+                for (var metaIdx = 0; metaIdx < route.ShapeMeta.Length; metaIdx++)
+                {
+                    var meta = route.ShapeMeta[metaIdx];
+                    if (meta != null && meta.Shape >= shape + 1)
+                    {
+                        var segmentStartShape = 0;
+                        var segmentStartTime = 0f;
+                        if (metaIdx > 0 && route.ShapeMeta[metaIdx - 1] != null)
+                        {
+                            segmentStartShape = route.ShapeMeta[metaIdx - 1].Shape;
+                            segmentStartTime = route.ShapeMeta[metaIdx - 1].Time;
+                        }
+                        
+                        var segmentDistance = 0f;
+                        var segmentDistanceOffset = 0f;
+                        for (var s = startShape; s < meta.Shape; s++)
+                        {
+                            var d = Coordinate.DistanceEstimateInMeter(
+                                route.Shape[s], route.Shape[s + 1]);
+                            if (s < shape)
+                            {
+                                segmentDistanceOffset += d;
+                            }
+                            else if (s == shape)
+                            {
+                                segmentDistanceOffset += Coordinate.DistanceEstimateInMeter(
+                                route.Shape[s], projected);
+                            }
+                            segmentDistance += d;
+                        }
+
+                        if (segmentDistance == 0)
+                        {
+                            break;
+                        }
+                        timeFromStartInSeconds = segmentStartTime + (meta.Time - 
+                            segmentStartTime) * (segmentDistanceOffset / segmentDistance);
+                        break;
+                    }
+                }
             }
             return true;
         }
