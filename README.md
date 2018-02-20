@@ -29,6 +29,6 @@ Check the [documentation website](http://docs.itinero.tech/docs/index.html) for 
 
 ### Contributions
 
-Contributions are **always**, especially if they match what's on our [roadmap](http://docs.itinero.tech/docs/itinero/development/index.html) or it fixes a [bug](https://github.com/itinero/routing/issues). Also check the [contribution guidelines](https://github.com/itinero/routing/issues) before planning anything big. Thanks to past contributions by @Chaz6, @bertt, @jbelien, @pietervdvn, @ironromeo and @airbreather. 
+Contributions are **always**, especially if they match what's on our [roadmap](http://docs.itinero.tech/docs/itinero/development/index.html) or it fixes a [bug](https://github.com/itinero/routing/issues). Also check the [contribution guidelines](https://github.com/itinero/routing/issues) before planning anything big. Thanks to past contributions by @Chaz6, @bertt, @jbelien, @pietervdvn, @ironromeo, @jerryfaust and @airbreather. 
 
 If you like routing, OpenStreetMap & Itinero [get in touch](http://www.itinero.tech/#contact), we may have a job for you!
