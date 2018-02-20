@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Itinero.LocalGeo;
 using Itinero.Attributes;
 using System.Collections.Generic;
+using Itinero.Navigation.Directions;
 
 namespace Itinero.Test
 {
@@ -929,6 +930,114 @@ namespace Itinero.Test
             route.DistanceAndTimeAt(4, out distance, out time);
             Assert.AreEqual(200, distance, 1);
             Assert.AreEqual(120, time, 1);
+        }
+
+        /// <summary>
+        /// Tests relative direction at.
+        /// </summary>
+        [Test]
+        public void TestRelativeDirectionAt()
+        {
+            var offset = 0.001f;
+            var middle = new Coordinate(51.16917253319145f, 4.476456642150879f);
+            var top = new Coordinate(middle.Latitude + offset, middle.Longitude);
+            var right = new Coordinate(middle.Latitude, middle.Longitude + offset);
+            var bottom = new Coordinate(middle.Latitude - offset, middle.Longitude);
+            var left = new Coordinate(middle.Latitude, middle.Longitude - offset);
+            
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    top,
+                    middle, 
+                    bottom
+                }
+            };
+            
+            var dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
+            Assert.AreEqual(180, dir.Angle, 1);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    bottom,
+                    middle, 
+                    right
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.Right, dir.Direction);
+            Assert.AreEqual(90, dir.Angle, 1);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    bottom,
+                    middle, 
+                    left
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.Left, dir.Direction);
+            Assert.AreEqual(270, dir.Angle, 1);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    bottom,
+                    middle, 
+                    bottom
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.TurnBack, dir.Direction);
+            Assert.AreEqual(0, dir.Angle, 1);
+        }
+
+        /// <summary>
+        /// Tests relative direction at.
+        /// </summary>
+        [Test]
+        public void TestRelativeDirectionAtShapeWithIdenticalPoint()
+        {
+            var offset = 0.001f;
+            var middle = new Coordinate(51.16917253319145f, 4.476456642150879f);
+            var top = new Coordinate(middle.Latitude + offset, middle.Longitude);
+            var right = new Coordinate(middle.Latitude, middle.Longitude + offset);
+            var bottom = new Coordinate(middle.Latitude - offset, middle.Longitude);
+            var left = new Coordinate(middle.Latitude, middle.Longitude - offset);
+            
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    top,
+                    middle, 
+                    middle,
+                    bottom
+                }
+            };
+            
+            var dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
+            Assert.AreEqual(180, dir.Angle, 1);
+            dir = route.RelativeDirectionAt(2);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
+            Assert.AreEqual(180, dir.Angle, 1);
         }
     }
 }

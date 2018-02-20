@@ -48,17 +48,17 @@ namespace Itinero.Navigation.Directions
             else if (v10 == v20 && 
                 v11 == -v21)
             {
-                return (float)(System.Math.PI / 2.0f);
+                return (float)(System.Math.PI);
             }
             else if (v10 == -v20 &&
                 v11 == v21)
             {
-                return (float)(-System.Math.PI / 2.0f);
+                return (float)(-System.Math.PI);
             }
             else if (v10 == -v20 &&
                 v11 == -v21)
             {
-                return (float)System.Math.PI;
+                return (float)(2 * System.Math.PI);
             }
 
             var dot = (double)(v11 * v21 + v10 * v20);

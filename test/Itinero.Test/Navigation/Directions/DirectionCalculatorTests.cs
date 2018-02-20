@@ -29,6 +29,33 @@ namespace Itinero.Test.Navigation.Directions
     class DirectionCalculatorTests
     {
         /// <summary>
+        /// Tests angle calculations.
+        /// </summary>
+        [Test]
+        public void TestAngle()
+        {
+            var offset = 0.001f;
+            var center = new Coordinate(51.16917253319145f, 4.476456642150879f);
+            var north = new Coordinate(center.Latitude + offset, center.Longitude);
+            var northEast = new Coordinate(center.Latitude + offset, center.Longitude + offset);
+            var east = new Coordinate(center.Latitude, center.Longitude + offset);
+            var southEast = new Coordinate(center.Latitude - offset, center.Longitude + offset);
+            var south = new Coordinate(center.Latitude - offset, center.Longitude);
+            var southWest = new Coordinate(center.Latitude - offset, center.Longitude - offset);
+            var west = new Coordinate(center.Latitude, center.Longitude - offset);
+            var northWest = new Coordinate(center.Latitude + offset, center.Longitude - offset);
+
+            var E = 1f;
+            Assert.AreEqual(45, DirectionCalculator.Angle(south, center, southEast).ToDegrees(), E);
+            Assert.AreEqual(90, DirectionCalculator.Angle(south, center, east).ToDegrees(), E);
+            Assert.AreEqual(135, DirectionCalculator.Angle(south, center, northEast).ToDegrees(), E);
+            Assert.AreEqual(180, DirectionCalculator.Angle(south, center, north).ToDegrees(), E);
+            Assert.AreEqual(225, DirectionCalculator.Angle(south, center, northWest).ToDegrees(), E);
+            Assert.AreEqual(270, DirectionCalculator.Angle(south, center, west).ToDegrees(), E);
+            Assert.AreEqual(315, DirectionCalculator.Angle(south, center, southWest).ToDegrees(), E);
+        }
+
+        /// <summary>
         /// Tests calculating relative directions.
         /// </summary>
         [Test]

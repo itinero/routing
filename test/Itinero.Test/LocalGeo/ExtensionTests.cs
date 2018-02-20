@@ -17,6 +17,7 @@
  */
 
 using Itinero.LocalGeo;
+using Itinero.Navigation.Directions;
 using NUnit.Framework;
 
 namespace Itinero.Test.LocalGeo

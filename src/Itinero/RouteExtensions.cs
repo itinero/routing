@@ -549,7 +549,7 @@ namespace Itinero
         /// <summary>
         /// Returns the turn direction for the shape point at the given index.
         /// </summary>
-        public static RelativeDirection RelativeDirectionAt(this Route route, int i)
+        public static RelativeDirection RelativeDirectionAt(this Route route, int i, float toleranceInMeters = 1)
         {
             if (i < 0 || i >= route.Shape.Length) { throw new ArgumentOutOfRangeException("i"); }
 
@@ -557,10 +557,24 @@ namespace Itinero
             { // not possible to calculate a relative direction for the first or last segment.
                 throw new ArgumentOutOfRangeException("i", "It's not possible to calculate a relative direction for the first or last segment.");
             }
+
+            var h = i - 1; 
+            while (h >= 0 && Coordinate.DistanceEstimateInMeter(route.Shape[h].Latitude, route.Shape[h].Longitude,
+                route.Shape[i].Latitude ,route.Shape[i].Longitude) < toleranceInMeters)
+            { // work backward from i to make sure we don't use an identical coordinate or one that's too close to be useful.
+                h--;
+            }
+            var j = i + 1; 
+            while (j < route.Shape.Length && Coordinate.DistanceEstimateInMeter(route.Shape[j].Latitude, route.Shape[j].Longitude,
+                route.Shape[i].Latitude ,route.Shape[i].Longitude) < toleranceInMeters)
+            { // work forward from i to make sure we don't use an identical coordinate or one that's too close to be useful.
+                j++;
+            }
+
             return DirectionCalculator.Calculate(
-                new Coordinate(route.Shape[i - 1].Latitude, route.Shape[i - 1].Longitude),
+                new Coordinate(route.Shape[h].Latitude, route.Shape[h].Longitude),
                 new Coordinate(route.Shape[i].Latitude, route.Shape[i].Longitude),
-                new Coordinate(route.Shape[i + 1].Latitude, route.Shape[i + 1].Longitude));
+                new Coordinate(route.Shape[j].Latitude, route.Shape[j].Longitude));
         }
 
         /// <summary>
