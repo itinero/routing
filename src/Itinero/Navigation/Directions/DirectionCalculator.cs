@@ -39,6 +39,11 @@ namespace Itinero.Navigation.Directions
             var v1size = System.Math.Sqrt(v11 * v11 + v10 * v10);
             var v2size = System.Math.Sqrt(v21 * v21 + v20 * v20);
 
+            if (v1size == 0 || v2size == 0)
+            {
+                return float.NaN;
+            }
+
             // filter out the vectors that are parallel.
             if (v10 == v20 && 
                 v11 == v21)

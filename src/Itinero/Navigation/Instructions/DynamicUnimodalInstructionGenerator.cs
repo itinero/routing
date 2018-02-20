@@ -220,8 +220,15 @@ namespace Itinero.Navigation.Instructions
             {
                 var table = new Table(_script);
                 var direction = position.RelativeDirection();
-                table["angle"] = direction.Angle.ToInvariantString();
-                table["direction"] = direction.Direction.ToInvariantString().ToLowerInvariant();
+                if (direction == null)
+                {
+                    table["direction"] = "unknown";
+                }
+                else
+                {
+                    table["angle"] = direction.Angle.ToInvariantString();
+                    table["direction"] = direction.Direction.ToInvariantString().ToLowerInvariant();
+                }
                 return table;
             });
             positionTable["has_branches"] = (Func<bool>)(() =>

@@ -1038,6 +1038,33 @@ namespace Itinero.Test
             Assert.IsNotNull(dir);
             Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
             Assert.AreEqual(180, dir.Angle, 1);
+            
+            // test a few impossible calculations.
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    middle, 
+                    middle,
+                    bottom
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNull(dir);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    top,
+                    middle, 
+                    middle
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNull(dir);
         }
     }
 }

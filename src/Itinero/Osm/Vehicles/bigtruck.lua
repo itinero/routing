@@ -319,6 +319,10 @@ function get_turn (route_position, language_reference, instruction)
 			turn_relevant = true -- an actual normal turn
 		end
 	end
+	
+	if relative_direction == "unknown" then
+		turn_relevant = false -- turn could not be calculated.
+	end
 
 	if turn_relevant then
 		local next = route_position.next()
