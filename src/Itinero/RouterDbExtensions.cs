@@ -1622,8 +1622,7 @@ namespace Itinero
             }
 
             // copy over all edge data.
-            var edgeData = db.EdgeData;
-            if (edgeData != null)
+            if (db.EdgeData != null)
             {
                 var edgeDataNames = db.EdgeData.Names;
                 foreach (var name in edgeDataNames)
