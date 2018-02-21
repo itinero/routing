@@ -1304,42 +1304,48 @@ namespace Itinero
 
             // copy over all vertex meta.
             var vertexData = db.VertexData;
-            var vertexDataNames = db.VertexData.Names;
-            foreach (var name in vertexDataNames)
+            if (vertexData != null)
             {
-                var collection = db.VertexData.Get(name);
-                var newCollection = newDb.VertexData.Add(name, collection.ElementType);
+                var vertexDataNames = db.VertexData.Names;
+                foreach (var name in vertexDataNames)
+                {
+                    var collection = db.VertexData.Get(name);
+                    var newCollection = newDb.VertexData.Add(name, collection.ElementType);
 
-                for (uint v = 0; v < db.Network.VertexCount; v++)
+                    for (uint v = 0; v < db.Network.VertexCount; v++)
+                    {
+                        if (idMap.TryGetValue(v, out newV))
+                        {
+                            newCollection.CopyFrom(collection, newV, v);
+                        }
+                    }
+                }
+                foreach (var v in db.VertexMeta)
                 {
                     if (idMap.TryGetValue(v, out newV))
                     {
-                        newCollection.CopyFrom(collection, newV, v);
+                        newDb.VertexMeta[newV] = db.VertexMeta[v];
                     }
-                }
-            }
-            foreach (var v in db.VertexMeta)
-            {
-                if (idMap.TryGetValue(v, out newV))
-                {
-                    newDb.VertexMeta[newV] = db.VertexMeta[v];
                 }
             }
 
             // copy over all edge data.
             var edgeData = db.EdgeData;
-            var edgeDataNames = db.EdgeData.Names;
-            foreach (var name in edgeDataNames)
+            if (edgeData != null)
             {
-                var collection = db.EdgeData.Get(name);
-                var newCollection = newDb.EdgeData.Add(name, collection.ElementType);
-
-                for (uint e = 0; e < db.Network.EdgeCount; e++)
+                var edgeDataNames = db.EdgeData.Names;
+                foreach (var name in edgeDataNames)
                 {
-                    uint newEdgeId;
-                    if (edgeIdMap.TryGetValue(e, out newEdgeId))
+                    var collection = db.EdgeData.Get(name);
+                    var newCollection = newDb.EdgeData.Add(name, collection.ElementType);
+
+                    for (uint e = 0; e < db.Network.EdgeCount; e++)
                     {
-                        newCollection.CopyFrom(collection, newEdgeId, e);
+                        uint newEdgeId;
+                        if (edgeIdMap.TryGetValue(e, out newEdgeId))
+                        {
+                            newCollection.CopyFrom(collection, newEdgeId, e);
+                        }
                     }
                 }
             }
@@ -1590,25 +1596,49 @@ namespace Itinero
 
             // copy over all vertex meta.
             var vertexData = db.VertexData;
-            var vertexDataNames = db.VertexData.Names;
-            foreach (var name in vertexDataNames)
+            if (vertexData != null)
             {
-                var collection = db.VertexData.Get(name);
-                var newCollection = newDb.VertexData.Add(name, collection.ElementType);
+                var vertexDataNames = db.VertexData.Names;
+                foreach (var name in vertexDataNames)
+                {
+                    var collection = db.VertexData.Get(name);
+                    var newCollection = newDb.VertexData.Add(name, collection.ElementType);
 
-                for (uint v = 0; v < db.Network.VertexCount; v++)
+                    for (uint v = 0; v < db.Network.VertexCount; v++)
+                    {
+                        if (idMap.TryGetValue(v, out newV))
+                        {
+                            newCollection.CopyFrom(collection, newV, v);
+                        }
+                    }
+                }
+                foreach (var v in db.VertexMeta)
                 {
                     if (idMap.TryGetValue(v, out newV))
                     {
-                        newCollection.CopyFrom(collection, newV, v);
+                        newDb.VertexMeta[newV] = db.VertexMeta[v];
                     }
                 }
             }
-            foreach (var v in db.VertexMeta)
+
+            // copy over all edge data.
+            var edgeData = db.EdgeData;
+            if (edgeData != null)
             {
-                if (idMap.TryGetValue(v, out newV))
+                var edgeDataNames = db.EdgeData.Names;
+                foreach (var name in edgeDataNames)
                 {
-                    newDb.VertexMeta[newV] = db.VertexMeta[v];
+                    var collection = db.EdgeData.Get(name);
+                    var newCollection = newDb.EdgeData.Add(name, collection.ElementType);
+
+                    for (uint e = 0; e < db.Network.EdgeCount; e++)
+                    {
+                        uint newEdgeId;
+                        if (edgeIdMap.TryGetValue(e, out newEdgeId))
+                        {
+                            newCollection.CopyFrom(collection, newEdgeId, e);
+                        }
+                    }
                 }
             }
 
