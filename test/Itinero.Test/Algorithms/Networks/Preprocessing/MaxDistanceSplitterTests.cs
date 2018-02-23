@@ -44,7 +44,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                 MetaId = 10
             });
 
-            var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network);
+            var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, (x, y) => {});
             splitter.Run();
 
             Assert.AreEqual(2, network.VertexCount);
@@ -67,7 +67,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                 MetaId = 10
             });
 
-            var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, 50, (v) => 
+            var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, (x, y) => {}, 50, (v) => 
             {
                 Assert.AreEqual(2, v);
             });
@@ -100,7 +100,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
             }, new Coordinate(51.26783594640662f,4.801433086395264f),
                 new Coordinate(51.26672160389640f,4.801068305969238f));
 
-            var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, 300);
+            var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, (x, y) => {}, 300);
             splitter.Run();
 
             Assert.AreEqual(3, network.VertexCount);

@@ -173,12 +173,12 @@ namespace Itinero.IO.Osm.Streams
             
             if (this.KeepNodeIds)
             {
-                _nodeData = _db.VertexData.AddInt64("node_ids");
+                _nodeData = _db.VertexData.AddInt64("node_id");
             }
 
             if (this.KeepWayIds)
             {
-                _wayIds = _db.EdgeData.AddInt64("way_ids");
+                _wayIds = _db.EdgeData.AddInt64("way_id");
                 _wayNodeIndices = _db.EdgeData.AddUInt16("way_node_idx");
             }
         }
@@ -462,58 +462,8 @@ namespace Itinero.IO.Osm.Streams
                             node++;
                         }
 
-                        // try to add edge.
-                        if (fromVertex == toVertex)
-                        { // target and source vertex are identical, this must be a loop.
-                            if (intermediates.Count == 1)
-                            { // there is just one intermediate, add that one as a vertex.
-                                var newCoreVertex = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
-                                this.AddCoreEdge(fromVertex, newCoreVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = Coordinate.DistanceEstimateInMeter(
-                                        _db.Network.GetVertex(fromVertex), intermediates[0]),
-                                    Profile = (ushort)profile
-                                }, null, way.Id.Value, (ushort)fromNodeIdx);
-                            }
-                            else if (intermediates.Count >= 2)
-                            { // there is more than one intermediate, add two new core vertices.
-                                var newCoreVertex1 = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex1, intermediates[0].Latitude, intermediates[0].Longitude);
-                                var newCoreVertex2 = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex2, intermediates[intermediates.Count - 1].Latitude,
-                                    intermediates[intermediates.Count - 1].Longitude);
-                                var distance1 = Coordinate.DistanceEstimateInMeter(
-                                    _db.Network.GetVertex(fromVertex), intermediates[0]);
-                                var distance2 = Coordinate.DistanceEstimateInMeter(
-                                    _db.Network.GetVertex(toVertex), intermediates[intermediates.Count - 1]);
-                                intermediates.RemoveAt(0);
-                                intermediates.RemoveAt(intermediates.Count - 1);
-                                this.AddCoreEdge(fromVertex, newCoreVertex1, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = distance1,
-                                    Profile = (ushort)profile
-                                }, null, way.Id.Value, (ushort)(fromNodeIdx));
-                                this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = distance - distance2 - distance1,
-                                    Profile = (ushort)profile
-                                }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
-                                this.AddCoreEdge(newCoreVertex2, toVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = distance2,
-                                    Profile = (ushort)profile
-                                }, null, way.Id.Value, (ushort)(fromNodeIdx));
-                            }
-                            continue;
-                        }
-
                         // just add edge.
-                        // duplicates are allowed, and too long edges are added with max-length.
+                        // duplicates are allowed, one-edge loops are allowed, and too long edges are added with max-length.
                         // these data-issues are fixed in another processing step.
                         this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
                         {

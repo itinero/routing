@@ -44,7 +44,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                 MetaId = 10
             });
 
-            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network);
+            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (x, y) => {});
             converter.Run();
 
             Assert.AreEqual(2, network.VertexCount);
@@ -74,7 +74,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                 MetaId = 10
             });
 
-            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (v) => 
+            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (x, y) => {}, (v) => 
             {
                 Assert.AreEqual(2, v);
             });
@@ -110,9 +110,42 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                 new Coordinate(51.26672160389640f,4.801068305969238f));
             Assert.IsFalse(network.GeometricGraph.Graph.MarkAsSimple());
 
-            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (v) => 
+            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (x, y) => {}, (v) => 
             {
                 Assert.AreEqual(2, v);
+            });
+            converter.Run();
+
+            Assert.AreEqual(3, network.VertexCount);
+            Assert.AreEqual(3, network.EdgeCount);
+            Assert.IsTrue(network.GeometricGraph.Graph.IsSimple);
+            Assert.IsTrue(network.GeometricGraph.Graph.MarkAsSimple());
+        }
+
+        /// <summary>
+        /// Test on a small network with one looped edge with a shape.
+        /// </summary>
+        [Test]
+        public void TestOneLoopedEdgeWithShape()
+        {
+            var network = new RoutingNetwork();
+            network.GeometricGraph.Graph.MarkAsMulti();
+            network.AddVertex(0, 51.26833269279416f, 4.800724983215332f);
+            network.AddEdge(0, 0, new Itinero.Data.Network.Edges.EdgeData()
+            {
+                Distance = 314.32f,
+                Profile = 1,
+                MetaId = 10
+            }, new Coordinate(51.26783594640662f,4.801433086395264f),
+                new Coordinate(51.26672160389640f,4.801068305969238f));
+            Assert.IsFalse(network.GeometricGraph.Graph.MarkAsSimple());
+
+            var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (x, y) => {}, (v) => 
+            {
+                if (v != 1 && v != 2)
+                {
+                    Assert.Fail("An unexpected vertex was reportedly added.");
+                }
             });
             converter.Run();
 

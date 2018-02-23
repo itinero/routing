@@ -1115,5 +1115,21 @@ namespace Itinero.Test.Graphs
             Assert.AreEqual(true, edges.First(x => x.To == 5).DataInverted);
             Assert.AreEqual(8, edges.First(x => x.To == 5).Data[0]);
         }
+
+        /// <summary>
+        /// Tests adding a loop to a multigraph.
+        /// </summary>
+        [Test]
+        public void TestLoopMultiGraph()
+        {
+            var graph = new Graph(1, 10);
+            graph.MarkAsMulti();
+
+            graph.AddVertex(0);
+            graph.AddEdge(0, 0, 1);
+
+            Assert.AreEqual(1, graph.VertexCount);
+            Assert.AreEqual(1, graph.EdgeCount);
+        }
     }
 }

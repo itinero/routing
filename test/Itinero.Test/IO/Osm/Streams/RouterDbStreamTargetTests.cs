@@ -408,8 +408,8 @@ namespace Itinero.Test.IO.Osm.Streams
             //         (4)
             //        
             // this should result in edges:
-            //   1-2, 2-3, 2-5, 3-(4)-5
-
+            //   1-2, 2-2 (along 3-4-5)
+            
             var location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
             var location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
             var location3 = new Coordinate() { Latitude = 51.26142810796969f, Longitude = 4.796184003353119f };
@@ -456,6 +456,7 @@ namespace Itinero.Test.IO.Osm.Streams
 
             // build db from stream.
             var routerDb = new RouterDb();
+            routerDb.Network.GeometricGraph.Graph.MarkAsMulti();
             var target = new RouterDbStreamTarget(
                 routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
@@ -465,13 +466,11 @@ namespace Itinero.Test.IO.Osm.Streams
             target.Pull();
 
             // check result.
-            Assert.AreEqual(4, routerDb.Network.VertexCount);
-            Assert.AreEqual(4, routerDb.Network.EdgeCount);
+            Assert.AreEqual(2, routerDb.Network.VertexCount);
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
 
             var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
             var vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
-            var vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
-            var vertex5 = this.FindVertex(routerDb, location5.Latitude, location5.Longitude);
 
             // verify 1->2
             var edges = routerDb.Network.GetEdgeEnumerator(vertex1);
@@ -484,36 +483,17 @@ namespace Itinero.Test.IO.Osm.Streams
             Assert.IsTrue(profile.Contains("highway", "residential"));
             Assert.AreEqual(new AttributeCollection(), meta);
 
-            // verify 2->3
+            // verify 2->2
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
-            edge = edges.First(x => x.To == vertex3);
+            edge = edges.First(x => x.To == vertex2);
             Assert.IsNotNull(edge);
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
-            Assert.IsTrue(profile.Contains("highway", "residential"));
-            Assert.AreEqual(new AttributeCollection(), meta);
-
-            // verify 2->5
-            edges = routerDb.Network.GetEdgeEnumerator(vertex2);
-            edge = edges.First(x => x.To == vertex5);
-            Assert.IsNotNull(edge);
-            data = edge.Data;
-            profile = routerDb.EdgeProfiles.Get(data.Profile);
-            meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location5), data.Distance, 0.1);
-            Assert.IsTrue(profile.Contains("highway", "residential"));
-            Assert.AreEqual(new AttributeCollection(), meta);
-
-            // verify 3->5
-            edges = routerDb.Network.GetEdgeEnumerator(vertex3);
-            edge = edges.First(x => x.To == vertex5);
-            Assert.IsNotNull(edge);
-            data = edge.Data;
-            profile = routerDb.EdgeProfiles.Get(data.Profile);
-            meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location3, location4) + Coordinate.DistanceEstimateInMeter(location4, location5), data.Distance, 0.1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location3) +
+                Coordinate.DistanceEstimateInMeter(location3, location4) +
+                Coordinate.DistanceEstimateInMeter(location4, location5) +
+                Coordinate.DistanceEstimateInMeter(location5, location2), data.Distance, 0.1);
             Assert.IsTrue(profile.Contains("highway", "residential"));
             Assert.AreEqual(new AttributeCollection(), meta);
 
@@ -530,7 +510,7 @@ namespace Itinero.Test.IO.Osm.Streams
             //  1, 2, 3, 2
             //        
             // this should result in edges:
-            //   1-2, 2-3
+            //   1-2, 2-2 (along 3)
 
             location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
             location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
@@ -564,6 +544,7 @@ namespace Itinero.Test.IO.Osm.Streams
 
             // build db from stream.
             routerDb = new RouterDb();
+            routerDb.Network.GeometricGraph.Graph.MarkAsMulti();
             target = new RouterDbStreamTarget(
                 routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
@@ -573,12 +554,11 @@ namespace Itinero.Test.IO.Osm.Streams
             target.Pull();
 
             // check result.
-            Assert.AreEqual(3, routerDb.Network.VertexCount);
+            Assert.AreEqual(2, routerDb.Network.VertexCount);
             Assert.AreEqual(2, routerDb.Network.EdgeCount);
 
             vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
             vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
-            vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
 
             // verify 1->2
             edges = routerDb.Network.GetEdgeEnumerator(vertex1);
@@ -593,12 +573,13 @@ namespace Itinero.Test.IO.Osm.Streams
 
             // verify 2->3
             edges = routerDb.Network.GetEdgeEnumerator(vertex2);
-            edge = edges.First(x => x.To == vertex3);
+            edge = edges.First(x => x.To == vertex2);
             Assert.IsNotNull(edge);
             data = edge.Data;
             profile = routerDb.EdgeProfiles.Get(data.Profile);
             meta = routerDb.EdgeMeta.Get(data.MetaId);
-            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location2, location3) +
+                Coordinate.DistanceEstimateInMeter(location3, location2), data.Distance, 0.1);
             Assert.IsTrue(profile.Contains("highway", "residential"));
             Assert.AreEqual(new AttributeCollection(), meta);
         }
@@ -924,7 +905,7 @@ namespace Itinero.Test.IO.Osm.Streams
             //         (4)
             //        
             // this should result in edges:
-            //   1-2, 2-3, 2-5, 3-(4)-5
+            //   1-2, 2-2 (along 3-4-5)
 
             var location1 = new Coordinate() { Latitude = 51.26118473347939f, Longitude = 4.796192049980164f };
             var location2 = new Coordinate() { Latitude = 51.26137943317470f, Longitude = 4.796060621738434f };
@@ -972,6 +953,7 @@ namespace Itinero.Test.IO.Osm.Streams
 
             // build db from stream.
             var routerDb = new RouterDb();
+            routerDb.Network.GeometricGraph.Graph.MarkAsMulti();
             var target = new RouterDbStreamTarget(
                 routerDb, new Itinero.Profiles.Vehicle[] {
                     Vehicle.Car
@@ -982,19 +964,15 @@ namespace Itinero.Test.IO.Osm.Streams
             target.Pull();
 
             // check result.
-            Assert.AreEqual(4, routerDb.Network.VertexCount);
-            Assert.AreEqual(4, routerDb.Network.EdgeCount);
+            Assert.AreEqual(2, routerDb.Network.VertexCount);
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
 
             var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
             var vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
-            var vertex3 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
-            var vertex5 = this.FindVertex(routerDb, location5.Latitude, location5.Longitude);
             
             var nodeIds = routerDb.VertexData.Get<long>("node_ids");
             Assert.AreEqual(1, nodeIds[vertex1]);
             Assert.AreEqual(2, nodeIds[vertex2]);
-            Assert.AreEqual(0, nodeIds[vertex3]);
-            Assert.AreEqual(0, nodeIds[vertex5]);
         }
 
         /// <summary>

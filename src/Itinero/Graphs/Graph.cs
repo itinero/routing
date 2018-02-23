@@ -288,7 +288,10 @@ namespace Itinero.Graphs
         /// </summary>
         public uint AddEdge(uint vertex1, uint vertex2, params uint[] data)
         {
-            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            if (_isSimple)
+            { // no single-edge loops in a simple graph.
+                if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            }
             if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
             if (vertex2 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
             if (_vertices[vertex1] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
@@ -394,31 +397,34 @@ namespace Itinero.Graphs
                 _edgeCount++;
             }
 
-            var toEdgeId = _vertices[vertex2];
-            if (toEdgeId != Constants.NO_EDGE)
-            { // there are existing edges.
-                uint nextEdgeSlot = 0;
-                while (toEdgeId != Constants.NO_EDGE)
-                { // keep looping.
-                    uint otherVertexId = 0;
-                    if (_edges[toEdgeId + NODEA] == vertex2)
-                    {
-                        otherVertexId = _edges[toEdgeId + NODEB];
-                        nextEdgeSlot = toEdgeId + NEXTNODEA;
-                        toEdgeId = _edges[toEdgeId + NEXTNODEA];
+            if (vertex1 != vertex2)
+            {
+                var toEdgeId = _vertices[vertex2];
+                if (toEdgeId != Constants.NO_EDGE)
+                { // there are existing edges.
+                    uint nextEdgeSlot = 0;
+                    while (toEdgeId != Constants.NO_EDGE)
+                    { // keep looping.
+                        uint otherVertexId = 0;
+                        if (_edges[toEdgeId + NODEA] == vertex2)
+                        {
+                            otherVertexId = _edges[toEdgeId + NODEB];
+                            nextEdgeSlot = toEdgeId + NEXTNODEA;
+                            toEdgeId = _edges[toEdgeId + NEXTNODEA];
+                        }
+                        else
+                        {
+                            otherVertexId = _edges[toEdgeId + NODEA];
+                            nextEdgeSlot = toEdgeId + NEXTNODEB;
+                            toEdgeId = _edges[toEdgeId + NEXTNODEB];
+                        }
                     }
-                    else
-                    {
-                        otherVertexId = _edges[toEdgeId + NODEA];
-                        nextEdgeSlot = toEdgeId + NEXTNODEB;
-                        toEdgeId = _edges[toEdgeId + NEXTNODEB];
-                    }
+                    _edges[nextEdgeSlot] = edgeId;
                 }
-                _edges[nextEdgeSlot] = edgeId;
-            }
-            else
-            { // there are no existing edges point the vertex straight to it's first edge.
-                _vertices[vertex2] = edgeId;
+                else
+                { // there are no existing edges point the vertex straight to it's first edge.
+                    _vertices[vertex2] = edgeId;
+                }
             }
 
             return (uint)(edgeId / _edgeSize);
@@ -505,7 +511,10 @@ namespace Itinero.Graphs
         /// </summary>
         private int RemoveEdges(uint vertex1, uint vertex2, uint edgeId = uint.MaxValue)
         {
-            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            if (_isSimple)
+            { // this can happen on non-simple graphs.
+                if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            }
             if (vertex1 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
             if (vertex2 > _vertices.Length - 1) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
             if (_vertices[vertex1] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
@@ -632,6 +641,11 @@ namespace Itinero.Graphs
             if (_vertices[vertex1] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
             if (_vertices[vertex2] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
 
+            if (!_isSimple)
+            { // it's not supported to sort vertices in a multi-graph.
+                throw new NotSupportedException("It's not supported to switch vertices in a multi-graph.");
+            }
+            
             // change things around in the edges of vertex1.
             var pointer = _vertices[vertex1];
             while (pointer != Constants.NO_EDGE)
@@ -744,6 +758,7 @@ namespace Itinero.Graphs
                 }
             }
             _nextEdgeId = maxAllocatedEdgeId;
+            _edgeCount = _nextEdgeId / _edgeSize;
 
             this.Trim();
         }

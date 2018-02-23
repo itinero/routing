@@ -44,6 +44,15 @@ namespace Itinero.Data
         };
 
         /// <summary>
+        /// Gets the # of items in this collection.
+        /// </summary>
+        /// <returns></returns>
+        public abstract long Count
+        {
+            get;
+        }
+
+        /// <summary>
         /// Gets the data.
         /// </summary>
         public abstract object GetRaw(uint idx);
@@ -67,9 +76,19 @@ namespace Itinero.Data
         public abstract void CopyFrom(MetaCollection other, uint idx, uint otherIdx);
 
         /// <summary>
-        /// Switches the two vertices around.
+        /// Switches the two items around.
         /// </summary>
-        public abstract void Switch(uint vertex1, uint vertex2);
+        public abstract void Switch(uint item1, uint item2);
+
+        /// <summary>
+        /// Copies whatever data is in item2 to item1.
+        /// </summary>
+        public abstract void Copy(uint item1, uint item2);
+
+        /// <summary>
+        /// Sets the item to the default empty value.
+        /// </summary>
+        public abstract void SetEmpty(uint item);
 
         /// <summary>
         /// Deserializes a meta-collection from the given stream.
@@ -77,7 +96,7 @@ namespace Itinero.Data
         public static MetaCollection Deserialize(Stream stream, ArrayProfile profile)
         {
             var version = stream.ReadByte();
-            if (version != 1 && version != 2)
+            if (version != 1 && version != 2 && version != 3)
             {
                 throw new Exception(string.Format("Cannot deserialize meta-data collection: Invalid version #: {0}, upgrade Itinero.", version));
             }
@@ -92,42 +111,42 @@ namespace Itinero.Data
             if (type == typeof(int))
             {
                 return new MetaCollection<int>(MetaCollection.DeserializeArray<int>(
-                    stream, profile, length, 4));
+                    stream, profile, length, 4), version >= 3);
             }
             if (type == typeof(uint))
             {
                 return new MetaCollection<uint>(MetaCollection.DeserializeArray<uint>(
-                    stream, profile, length, 4));
+                    stream, profile, length, 4), version >= 3);
             }
             if (type == typeof(short))
             {
                 return new MetaCollection<short>(MetaCollection.DeserializeArray<short>(
-                    stream, profile, length, 2));
+                    stream, profile, length, 2), version >= 3);
             }
             if (type == typeof(ushort))
             {
                 return new MetaCollection<ushort>(MetaCollection.DeserializeArray<ushort>(
-                    stream, profile, length, 2));
+                    stream, profile, length, 2), version >= 3);
             }
             if (type == typeof(long))
             {
                 return new MetaCollection<long>(MetaCollection.DeserializeArray<long>(
-                    stream, profile, length, 8));
+                    stream, profile, length, 8), version >= 3);
             }
             if (type == typeof(ulong))
             {
                 return new MetaCollection<ulong>(MetaCollection.DeserializeArray<ulong>(
-                    stream, profile, length, 8));
+                    stream, profile, length, 8), version >= 3);
             }
             if (type == typeof(float))
             {
                 return new MetaCollection<float>(MetaCollection.DeserializeArray<float>(
-                    stream, profile, length, 4));
+                    stream, profile, length, 4), version >= 3);
             }
             if (type == typeof(double))
             {
                 return new MetaCollection<double>(MetaCollection.DeserializeArray<double>(
-                    stream, profile, length, 8));
+                    stream, profile, length, 8), version >= 3);
             }
             throw new Exception(string.Format(
                 "Meta collection not supported for type {0}: MetaCollection can only handle integer types or float and double.",
@@ -200,7 +219,7 @@ namespace Itinero.Data
                 data.CopyFrom(stream);
             }
             else
-            { // create accessors over the exact part of the stream that represents vertices/edges.
+            { // create accessors over the exact part of the stream that represents items/edges.
                 var position = stream.Position;
                 var byteCount = length * elementSize;
                 var map = new MemoryMapStream(new CappedStream(stream, position, byteCount));
@@ -213,34 +232,56 @@ namespace Itinero.Data
     }
 
     /// <summary>
-    /// A meta-data collection containing meta-data linked to vertices or edges.
+    /// A meta-data collection containing meta-data linked to items or edges.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class MetaCollection<T> : MetaCollection, IEnumerable<T>
         where T : struct
     {
         private readonly ArrayBase<T> _data;
+        private readonly T _empty;
         private uint _length;
         private const int BLOCK_SIZE = 1024;
 
         /// <summary>
         /// Creates a new meta-data collection.
         /// </summary>
-        public MetaCollection(long capacity)
+        public MetaCollection(long capacity, T empty = default(T))
         {
             this.VerifyType();
 
             _length = 0;
             _data = new MemoryArray<T>(capacity);
+            _empty = empty;
         }
 
         /// <summary>
         /// Creates a new meta-data collection.
         /// </summary>
-        internal MetaCollection(ArrayBase<T> data)
+        internal MetaCollection(ArrayBase<T> data, bool lastIsEmpty)
         {
             _data = data;
             _length = (uint)data.Length;
+            _empty = default(T);
+            if (lastIsEmpty)
+            {
+                _length = (uint)data.Length - 1;
+                _empty = _data[_length];
+
+                _data.Resize(_data.Length - 1);
+            }
+        }
+
+        /// <summary>
+        /// Gets a value that represents 'empty'.²
+        /// </summary>
+        /// <returns></returns>
+        public T EmptyValue
+        {
+            get
+            {
+                return _empty;
+            }
         }
 
         /// <summary>
@@ -290,7 +331,13 @@ namespace Itinero.Data
                     var diff = i - _data.Length + 1;
                     var blocks = (diff / BLOCK_SIZE) + 1;
 
+                    // resize and fill the default 'empty' value.
+                    var oldLength = _data.Length;
                     _data.Resize(_data.Length + (blocks * BLOCK_SIZE));
+                    for (var j = oldLength; j < _data.Length; j++)
+                    {
+                        _data[j] = _empty;
+                    }
                 }
 
                 if (i >= _length)
@@ -303,35 +350,61 @@ namespace Itinero.Data
         }
 
         /// <summary>
-        /// Switches the two vertices around.
+        /// Switches the two items around.
         /// </summary>
-        public override void Switch(uint vertex1, uint vertex2)
+        public override void Switch(uint item1, uint item2)
         {
-            if (vertex1 < this.Count &&
-                vertex2 < this.Count)
+            if (item1 < this.Count &&
+                item2 < this.Count)
             {
-                var data = this[vertex1];
-                this[vertex1] = this[vertex2];
-                this[vertex2] = data;
+                var data = this[item1];
+                this[item1] = this[item2];
+                this[item2] = data;
             }
             else
             {
-                if (vertex1 < this.Count)
+                if (item1 < this.Count)
                 {
-                    this[vertex1] = default(T);
+                    this[item1] = _empty;
                 }
 
-                if (vertex2 < this.Count)
+                if (item2 < this.Count)
                 {
-                    this[vertex2] = default(T);
+                    this[item2] = _empty;
                 }
+            }
+        }
+
+        /// <summary>
+        /// Copies whatever data is in item2 to item1.
+        /// </summary>
+        public override void Copy(uint item1, uint item2)
+        {
+            if (item2 < this.Count)
+            {
+                this[item1] = this[item2];
+            }
+            else
+            { // item2 considered empty.
+                this[item1] = _empty;
+            }
+        }
+
+        /// <summary>
+        /// Sets the item to the default empty value.
+        /// </summary>
+        public override void SetEmpty(uint item)
+        {
+            if (item < this.Count)
+            {
+                this[item] = _empty;
             }
         }
 
         /// <summary>
         /// Gets the # of elements.
         /// </summary>
-        public long Count
+        public override long Count
         {
             get
             {
@@ -378,15 +451,21 @@ namespace Itinero.Data
             this.Trim();
 
             // VERSION HISTORY:
-            // VERSION1: Initial implementatioN.
+            // VERSION1: Initial implementation.
             // VERSION2: Added support for short and ushort.
+            // VERSION3: Added support for a default empty value.
             long size = 1;
-            stream.WriteByte(2);
+            stream.WriteByte(3);
 
             // write type header.
             stream.WriteByte(this.GetTypeHeader());
             size++;
 
+            // add empty value.
+            _data.Resize(_data.Length + 1);
+            _data[_data.Length - 1] = _empty;
+
+            // write array.
             var bytes = BitConverter.GetBytes(_data.Length);
             stream.Write(bytes, 0, 8);
             size += 8;

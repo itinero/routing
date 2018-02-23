@@ -123,7 +123,17 @@ namespace Itinero.Algorithms.Networks
         /// </summary>
         public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null)
         {
-            var splitter = new Preprocessing.MaxDistanceSplitter(db.Network, db.Network.MaxEdgeDistance, newVertex: newVertex);
+            var splitter = new Preprocessing.MaxDistanceSplitter(db.Network, (originalEdgeId, newEdgeId) => 
+            {
+                if (newEdgeId == Constants.NO_EDGE)
+                { // original edge was removed.
+                    db.EdgeData.SetEmpty(originalEdgeId);
+                    return;
+                }
+
+                // the edge was split so copy meta-data.
+                db.EdgeData.Copy(newEdgeId, originalEdgeId);
+            },db.Network.MaxEdgeDistance,  newVertex: newVertex);
             splitter.Run();
 
             splitter.CheckHasRunAndHasSucceeded();
@@ -134,7 +144,17 @@ namespace Itinero.Algorithms.Networks
         /// </summary>
         public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null)
         {
-            var converter = new Preprocessing.SimpleGraphConverter(db.Network, newVertex: newVertex);
+            var converter = new Preprocessing.SimpleGraphConverter(db.Network, (originalEdgeId, newEdgeId) => 
+            {
+                if (newEdgeId == Constants.NO_EDGE)
+                { // original edge was removed.
+                    db.EdgeData.SetEmpty(originalEdgeId);
+                    return;
+                }
+
+                // the edge was split so copy meta-data.
+                db.EdgeData.Copy(newEdgeId, originalEdgeId);
+            }, newVertex: newVertex);
             converter.Run();
 
             converter.CheckHasRunAndHasSucceeded();

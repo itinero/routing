@@ -32,16 +32,19 @@ namespace Itinero.Algorithms.Networks.Preprocessing
     {
         private readonly RoutingNetwork _network;
         private readonly Action<uint> _newVertex;
+        private readonly Action<uint, uint> _edgeSplit;
 
         /// <summary>
         /// Creates a new simple graph converter.
         /// </summary>
         /// <param name="network">The network, graph, to convert to a simple version.</param>
         /// <param name="newVertex">A function to report on new vertices.</param>
-        public SimpleGraphConverter(RoutingNetwork network, Action<uint> newVertex = null)
+        /// <param name="edgeSplit">A function called when an edge is split, to properly maintain external data about edges.</param>
+        public SimpleGraphConverter(RoutingNetwork network, Action<uint, uint> edgeSplit, Action<uint> newVertex = null)
         {
             _network = network;
             _newVertex = newVertex;
+            _edgeSplit = edgeSplit;
         }
 
         /// <summary>
@@ -70,7 +73,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
 
                         // collect and copy all edge info.
                         var vertex1 = v;
-                        var vertex2 = edgeEnumerator.Id;
+                        var vertex2 = edgeEnumerator.To;
                         var data = edgeEnumerator.Data;
                         shape.Clear();
                         if (edgeEnumerator.Shape != null)
@@ -79,7 +82,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                         }
                         if (edgeEnumerator.DataInverted)
                         { // cannot invert data so invert the rest.
-                            vertex1 = edgeEnumerator.Id;
+                            vertex1 = edgeEnumerator.To;
                             vertex2 = v;
                             shape.Reverse();
                         }
@@ -88,9 +91,12 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                         _network.RemoveEdge(edgeEnumerator.Id);
 
                         // add two new edges.
-                        this.AddAndSplitEdge(vertex1, vertex2, data, shape);
+                        this.AddAndSplitEdge(edgeEnumerator.Id, vertex1, vertex2, data, shape);
+
+                        _edgeSplit(edgeEnumerator.Id, Constants.NO_EDGE);
 
                         // reset enumerator, graph has changed.
+                        edgeEnumerator = _network.GetEdgeEnumerator();
                         edgeEnumerator.MoveTo(v);
                         neighbours.Clear();
                     }
@@ -107,11 +113,12 @@ namespace Itinero.Algorithms.Networks.Preprocessing
         /// <summary>
         /// Splits the given edge in two pieces.
         /// </summary>
+        /// <param name="originalEdgeId">The original edge.</param>
         /// <param name="vertex1">The first vertex.</param>
         /// <param name="vertex2">The second vertex.</param>
         /// <param name="data">The data.</param>
         /// <param name="shape">The shape.</param>
-        private void AddAndSplitEdge(uint vertex1, uint vertex2, EdgeData data, List<Coordinate> shape)
+        private void AddAndSplitEdge(uint originalEdgeId, uint vertex1, uint vertex2, EdgeData data, List<Coordinate> shape)
         {
             var newVertex = _network.VertexCount;
 
@@ -119,6 +126,10 @@ namespace Itinero.Algorithms.Networks.Preprocessing
 
             if (shape.Count == 0)
             { // add a fictional shapepoint.
+                if (vertex1 == vertex2)
+                { // this is a loop with no shape point, it represents nothing, just remove it.
+                    return;
+                }
                 var line = new Line(_network.GetVertex(vertex1), _network.GetVertex(vertex2));
                 shape.Add(line.Middle);
             }
@@ -132,20 +143,22 @@ namespace Itinero.Algorithms.Networks.Preprocessing
 
             var distance = Coordinate.DistanceEstimateInMeter(_network.GetVertex(vertex1), 
                 shape[0]);
-            _network.AddEdge(vertex1, newVertex, new EdgeData()
+            var newEdgeId = _network.AddEdge(vertex1, newVertex, new EdgeData()
             {
                 Profile = data.Profile,
                 MetaId = data.MetaId,
                 Distance = distance
             });
+            _edgeSplit(originalEdgeId, newEdgeId);
             shape.RemoveAt(0);
 
-            _network.AddEdge(newVertex, vertex2, new EdgeData()
+            newEdgeId = _network.AddEdge(newVertex, vertex2, new EdgeData()
             {
                 Profile = data.Profile,
                 MetaId = data.MetaId,
                 Distance = data.Distance - distance
             }, shape);
+            _edgeSplit(originalEdgeId, newEdgeId);
         }
     }
 }

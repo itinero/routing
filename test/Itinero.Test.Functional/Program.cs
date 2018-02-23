@@ -55,6 +55,8 @@ namespace Itinero.Test.Functional
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
 
+            File.WriteAllText("output.geojson", routerDb.GetGeoJson());
+
             // test some routerdb extensions.
             RouterDbExtensionsTests.Run(routerDb);
 
@@ -71,9 +73,9 @@ namespace Itinero.Test.Functional
             InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
-            Console.ReadLine();
-#endif
+// #if DEBUG
+//             Console.ReadLine();
+// #endif
         }
 
         private static void EnableLogging()

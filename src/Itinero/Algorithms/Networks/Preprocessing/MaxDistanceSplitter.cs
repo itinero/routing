@@ -34,14 +34,17 @@ namespace Itinero.Algorithms.Networks.Preprocessing
         private readonly float _maxDistance;
         private readonly float _tolerance = 1;
         private readonly Action<uint> _newVertex;
+        private readonly Action<uint, uint> _edgeSplit;
 
         /// <summary>
         /// Creates a new distance splitter algorithm instance.
         /// </summary>
-        public MaxDistanceSplitter(RoutingNetwork network, float maxDistance = Constants.DefaultMaxEdgeDistance, Action<uint> newVertex = null)
+        public MaxDistanceSplitter(RoutingNetwork network, Action<uint, uint> edgeSplit, float maxDistance = Constants.DefaultMaxEdgeDistance, Action<uint> newVertex = null)
         {
             _network = network;
             _maxDistance = maxDistance;
+            _newVertex = newVertex;
+            _edgeSplit = edgeSplit;
         }
 
         /// <summary>
@@ -85,7 +88,10 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                     _network.RemoveEdge(edgeEnumerator.Id);
 
                     // add the edge again but split in a few pieces.
-                    this.AddSplitEdges(vertex1, vertex2, data, shape);
+                    this.AddSplitEdges(edgeEnumerator.Id, vertex1, vertex2, data, shape);
+
+                    // notify the edge was removed.
+                    _edgeSplit(edgeEnumerator.Id, Constants.NO_EDGE);
 
                     // reset enumerator, graph was modified.
                     edgeEnumerator.MoveTo(v);
@@ -98,7 +104,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
         /// <summary>
         /// Adds the given edge again but in multiple pieces with a given max length.
         /// </summary>
-        private void AddSplitEdges(uint vertex1, uint vertex2, EdgeData data, List<Coordinate> shape)
+        private void AddSplitEdges(uint originalEdgeId, uint vertex1, uint vertex2, EdgeData data, List<Coordinate> shape)
         {
             var vertex1Location = _network.GetVertex(vertex1);
             var vertex2Location = _network.GetVertex(vertex2);
@@ -157,7 +163,8 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                         {
                             _newVertex(currentVertex2);
                         }
-                        _network.AddEdge(currentVertex1, currentVertex2, edgeData, currentShape);
+                        var newEdgeId = _network.AddEdge(currentVertex1, currentVertex2, edgeData, currentShape);
+                        _edgeSplit(originalEdgeId, newEdgeId);
 
                         // reset some stuff for the next segment.
                         currentDistance = 0;
@@ -170,7 +177,8 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                         if (!hasNextShape)
                         {
                             var currentVertex2 = vertex2;
-                            _network.AddEdge(currentVertex1, currentVertex2, edgeData, currentShape);
+                            var newEdgeId = _network.AddEdge(currentVertex1, currentVertex2, edgeData, currentShape);
+                            _edgeSplit(originalEdgeId, newEdgeId);
                             break;
                         }
 
