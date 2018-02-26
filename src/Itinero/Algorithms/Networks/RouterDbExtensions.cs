@@ -133,7 +133,13 @@ namespace Itinero.Algorithms.Networks
 
                 // the edge was split so copy meta-data.
                 db.EdgeData.Copy(newEdgeId, originalEdgeId);
-            },db.Network.MaxEdgeDistance,  newVertex: newVertex);
+            },db.Network.MaxEdgeDistance, (v) => {
+                db.VertexData.SetEmpty(v);
+                if (newVertex != null)
+                {
+                    newVertex(v);
+                }
+            });
             splitter.Run();
 
             splitter.CheckHasRunAndHasSucceeded();
@@ -154,7 +160,13 @@ namespace Itinero.Algorithms.Networks
 
                 // the edge was split so copy meta-data.
                 db.EdgeData.Copy(newEdgeId, originalEdgeId);
-            }, newVertex: newVertex);
+            }, (v) => {
+                db.VertexData.SetEmpty(v);
+                if (newVertex != null)
+                {
+                    newVertex(v);
+                }
+            });
             converter.Run();
 
             converter.CheckHasRunAndHasSucceeded();

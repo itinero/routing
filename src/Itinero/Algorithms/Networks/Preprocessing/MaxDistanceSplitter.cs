@@ -96,7 +96,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                     // reset enumerator, graph was modified.
                     edgeEnumerator.MoveTo(v);
                 }
-            }
+            }            
             
             this.HasSucceeded = true;
         }

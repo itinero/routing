@@ -322,6 +322,10 @@ namespace Itinero.Data
         {
             get
             {
+                if (i >= _data.Length)
+                {
+                    return _empty;
+                }
                 return _data[i];
             }
             set
