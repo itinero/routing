@@ -970,7 +970,7 @@ namespace Itinero.Test.IO.Osm.Streams
             var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
             var vertex2 = this.FindVertex(routerDb, location2.Latitude, location2.Longitude);
             
-            var nodeIds = routerDb.VertexData.Get<long>("node_ids");
+            var nodeIds = routerDb.VertexData.Get<long>("node_id");
             Assert.AreEqual(1, nodeIds[vertex1]);
             Assert.AreEqual(2, nodeIds[vertex2]);
         }
@@ -1063,7 +1063,7 @@ namespace Itinero.Test.IO.Osm.Streams
             var vertex4 = this.FindVertex(routerDb, location4.Latitude, location4.Longitude);
             var vertex5 = this.FindVertex(routerDb, location5.Latitude, location5.Longitude);
             
-            var wayIds = routerDb.EdgeData.Get<long>("way_ids");
+            var wayIds = routerDb.EdgeData.Get<long>("way_id");
             Assert.IsNotNull(wayIds);
             var wayNodeIndices = routerDb.EdgeData.Get<ushort>("way_node_idx");
             Assert.IsNotNull(wayNodeIndices);

@@ -665,11 +665,11 @@ namespace Itinero.Test
             routerDb.Sort();
 
             var json = routerDb.GetGeoJsonAround(1, 10, false, true);
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.791842,51.26816]},\"properties\":{\"id\":1}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.791842,51.26816]},\"properties\":{\"id\":1,\"node_id\":6}}]}",
                 json);
 
             json = routerDb.GetGeoJsonAround(4, 10, true, true);
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3,\"edge_ids\":5}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4,\"node_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3,\"edge_id\":5}}]}",
                 json);
         }
         
@@ -696,7 +696,7 @@ namespace Itinero.Test
             Assert.AreEqual(3, routerDb.Network.EdgeCount);
 
             MetaCollection<long> nodeIds;
-            Assert.IsTrue(routerDb.VertexData.TryGet("node_ids", out nodeIds));
+            Assert.IsTrue(routerDb.VertexData.TryGet("node_id", out nodeIds));
             Assert.AreEqual(4, nodeIds.Count);
         }
         
@@ -723,7 +723,7 @@ namespace Itinero.Test
             Assert.AreEqual(3, routerDb.Network.EdgeCount);
 
             MetaCollection<long> edgeIds;
-            Assert.IsTrue(routerDb.EdgeData.TryGet("edge_ids", out edgeIds));
+            Assert.IsTrue(routerDb.EdgeData.TryGet("edge_id", out edgeIds));
             Assert.AreEqual(3, edgeIds.Count);
         }
     }

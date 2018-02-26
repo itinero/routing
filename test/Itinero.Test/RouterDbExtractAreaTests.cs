@@ -65,7 +65,7 @@ namespace Itinero.Test
 
             // check if the vertex data meta collections have been copied.
             MetaCollection<long> metaCollection;
-            Assert.IsTrue(routerDb.VertexData.TryGet<long>("node_ids", out metaCollection));
+            Assert.IsTrue(routerDb.VertexData.TryGet<long>("node_id", out metaCollection));
             Assert.AreEqual(11, metaCollection.Count);
 
             // check if the vertex meta has been copied.

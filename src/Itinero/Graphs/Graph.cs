@@ -17,6 +17,7 @@
  */
 
 using Itinero.Algorithms.Sorting;
+using Itinero.Logging;
 using Reminiscence.Arrays;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
@@ -562,6 +563,20 @@ namespace Itinero.Graphs
                         // set the previous edge slot to the current edge id being the next one.
                         _edges[previousEdgeSlot] = nextEdgeId;
                     }
+
+                    if (vertex1 == vertex2)
+                    { // the edge won't be reset in the second part.
+                        // reset everything about this edge.
+                        _edges[currentEdgeId + NODEA] = Constants.NO_EDGE;
+                        _edges[currentEdgeId + NODEB] = Constants.NO_EDGE;
+                        _edges[currentEdgeId + NEXTNODEA] = Constants.NO_EDGE;
+                        _edges[currentEdgeId + NEXTNODEB] = Constants.NO_EDGE;
+                        for (var i = 0; i < _edgeDataSize; i++)
+                        {
+                            _edges[currentEdgeId + MINIMUM_EDGE_SIZE + i] = Constants.NO_EDGE;
+                        }
+                    }
+
                     removed++;
                     _edgeCount--;
                     if (_isSimple || edgeId != uint.MaxValue)
@@ -758,7 +773,13 @@ namespace Itinero.Graphs
                 }
             }
             _nextEdgeId = maxAllocatedEdgeId;
-            _edgeCount = _nextEdgeId / _edgeSize;
+
+            if (_edgeCount != _nextEdgeId / _edgeSize)
+            {
+                Itinero.Logging.Logger.Log("Graph", TraceEventType.Warning, 
+                    "Error in graph bookkeeping: {0} edges found, {1} counted.", 
+                        _nextEdgeId / _edgeSize, _edgeCount);
+            }
 
             this.Trim();
         }
