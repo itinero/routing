@@ -70,7 +70,7 @@ namespace Itinero.Test
             Assert.IsTrue(edgeMeta.Contains("name", "Abelshausen Blvd."));
 
             MetaCollection<long> nodeIds;
-            Assert.IsTrue(routerDb.VertexData.TryGet("node_ids", out nodeIds));
+            Assert.IsTrue(routerDb.VertexData.TryGet("node_id", out nodeIds));
             Assert.AreEqual(2, nodeIds.Count);
         }
 

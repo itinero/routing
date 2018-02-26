@@ -1065,6 +1065,24 @@ namespace Itinero
             jsonWriter.WritePropertyName("properties");
             jsonWriter.WriteOpen();
             jsonWriter.WriteProperty("id", vertex.ToInvariantString());
+
+            if (db.VertexData != null)
+            {
+                foreach (var dataName in db.VertexData.Names)
+                {
+                    var dataCollection = db.VertexData.Get(dataName);
+                    if (vertex >= dataCollection.Count)
+                    {
+                        continue;
+                    }
+                    var data = dataCollection.GetRaw(vertex);
+                    if (data != null)
+                    {
+                        jsonWriter.WriteProperty(dataName, data.ToInvariantString());
+                    }
+                }
+            }
+
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
@@ -1117,7 +1135,13 @@ namespace Itinero
             {
                 foreach (var dataName in db.EdgeData.Names)
                 {
-                    var data = db.EdgeData.Get(dataName).GetRaw(edgeEnumerator.Id);
+                    var edgeId = edgeEnumerator.Id;
+                    var dataCollection = db.EdgeData.Get(dataName);
+                    if (edgeId >= dataCollection.Count)
+                    {
+                        continue;
+                    }
+                    var data = dataCollection.GetRaw(edgeId);
                     if (data != null)
                     {
                         jsonWriter.WriteProperty(dataName, data.ToInvariantString());

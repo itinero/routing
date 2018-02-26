@@ -91,6 +91,19 @@ namespace Itinero.LocalGeo
             }
         }
 
+        /// <summary>
+        /// Gets the middle of this line.
+        /// </summary>
+        /// <returns></returns>
+        public Coordinate Middle
+        {
+            get
+            {
+                return new Coordinate((this.Coordinate1.Latitude + this.Coordinate2.Latitude) / 2,
+                    (this.Coordinate1.Longitude + this.Coordinate2.Longitude) / 2);
+            }
+        }
+
 
         /// <summary>
         /// Gets the length of this line.

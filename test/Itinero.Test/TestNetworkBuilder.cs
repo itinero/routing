@@ -51,8 +51,8 @@ namespace Itinero.Test
         /// </summary>
         public static void LoadTestNetwork(this RouterDb db, string geoJson, float tolerance = 20)
         {
-            var nodeIds = db.VertexData.AddInt64("node_ids");
-            var edgeIds = db.EdgeData.AddInt64("edge_ids");
+            var nodeIds = db.VertexData.AddInt64("node_id");
+            var edgeIds = db.EdgeData.AddInt64("edge_id");
 
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);

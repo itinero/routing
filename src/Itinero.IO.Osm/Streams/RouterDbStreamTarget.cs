@@ -173,12 +173,12 @@ namespace Itinero.IO.Osm.Streams
             
             if (this.KeepNodeIds)
             {
-                _nodeData = _db.VertexData.AddInt64("node_ids");
+                _nodeData = _db.VertexData.AddInt64("node_id");
             }
 
             if (this.KeepWayIds)
             {
-                _wayIds = _db.EdgeData.AddInt64("way_ids");
+                _wayIds = _db.EdgeData.AddInt64("way_id");
                 _wayNodeIndices = _db.EdgeData.AddUInt16("way_node_idx");
             }
         }
@@ -462,163 +462,15 @@ namespace Itinero.IO.Osm.Streams
                             node++;
                         }
 
-                        // try to add edge.
-                        if (fromVertex == toVertex)
-                        { // target and source vertex are identical, this must be a loop.
-                            if (intermediates.Count == 1)
-                            { // there is just one intermediate, add that one as a vertex.
-                                var newCoreVertex = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
-                                this.AddCoreEdge(fromVertex, newCoreVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = Coordinate.DistanceEstimateInMeter(
-                                        _db.Network.GetVertex(fromVertex), intermediates[0]),
-                                    Profile = (ushort)profile
-                                }, null, way.Id.Value, (ushort)fromNodeIdx);
-                            }
-                            else if (intermediates.Count >= 2)
-                            { // there is more than one intermediate, add two new core vertices.
-                                var newCoreVertex1 = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex1, intermediates[0].Latitude, intermediates[0].Longitude);
-                                var newCoreVertex2 = _db.Network.VertexCount;
-                                _db.Network.AddVertex(newCoreVertex2, intermediates[intermediates.Count - 1].Latitude,
-                                    intermediates[intermediates.Count - 1].Longitude);
-                                var distance1 = Coordinate.DistanceEstimateInMeter(
-                                    _db.Network.GetVertex(fromVertex), intermediates[0]);
-                                var distance2 = Coordinate.DistanceEstimateInMeter(
-                                    _db.Network.GetVertex(toVertex), intermediates[intermediates.Count - 1]);
-                                intermediates.RemoveAt(0);
-                                intermediates.RemoveAt(intermediates.Count - 1);
-                                this.AddCoreEdge(fromVertex, newCoreVertex1, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = distance1,
-                                    Profile = (ushort)profile
-                                }, null, way.Id.Value, (ushort)(fromNodeIdx));
-                                this.AddCoreEdge(newCoreVertex1, newCoreVertex2, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = distance - distance2 - distance1,
-                                    Profile = (ushort)profile
-                                }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
-                                this.AddCoreEdge(newCoreVertex2, toVertex, new Data.Network.Edges.EdgeData()
-                                {
-                                    MetaId = meta,
-                                    Distance = distance2,
-                                    Profile = (ushort)profile
-                                }, null, way.Id.Value, (ushort)(fromNodeIdx));
-                            }
-                            continue;
-                        }
-
-                        var edge = _db.Network.GetEdgeEnumerator(fromVertex).FirstOrDefault(x => x.To == toVertex);
-                        if (edge == null && fromVertex != toVertex)
-                        { // just add edge.
-                            this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
-                            {
-                                MetaId = meta,
-                                Distance = distance,
-                                Profile = (ushort)profile
-                            }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
-                        }
-                        else
-                        { // oeps, already an edge there.
-                            if (edge.Data.Distance == distance &&
-                                edge.Data.Profile == profile &&
-                                edge.Data.MetaId == meta)
-                            {
-                                // do nothing, identical duplicate data.
-                            }
-                            else
-                            { // try and use intermediate points if any.
-                              // try and use intermediate points.
-                                var splitMeta = meta;
-                                var splitProfile = profile;
-                                var splitDistance = distance;
-                                if (intermediates.Count == 0 &&
-                                    edge != null &&
-                                    edge.Shape != null)
-                                { // no intermediates in current edge.
-                                  // save old edge data.
-                                    intermediates = new List<Coordinate>(edge.Shape);
-                                    if (edge.DataInverted)
-                                    {
-                                        intermediates.Reverse();
-                                    }
-                                    fromVertex = edge.From;
-                                    toVertex = edge.To;
-                                    splitMeta = edge.Data.MetaId;
-                                    splitProfile = edge.Data.Profile;
-                                    splitDistance = edge.Data.Distance;
-
-                                    // just add edge.
-                                    _db.Network.RemoveEdges(fromVertex, toVertex); // make sure to overwrite and not add an extra edge.
-                                    this.AddCoreEdge(fromVertex, toVertex, new EdgeData()
-                                    {
-                                        MetaId = meta,
-                                        Distance = System.Math.Max(distance, 0.0f),
-                                        Profile = (ushort)profile
-                                    }, null, way.Id.Value, (ushort)(node));
-                                }
-
-                                if (intermediates.Count > 0)
-                                { // intermediates found, use the first intermediate as the core-node.
-                                    var newCoreVertex = _db.Network.VertexCount;
-                                    _db.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
-
-                                    // calculate new distance and update old distance.
-                                    var newDistance = Coordinate.DistanceEstimateInMeter(
-                                        _db.Network.GetVertex(fromVertex), intermediates[0]);
-                                    splitDistance -= newDistance;
-
-                                    // add first part.
-                                    this.AddCoreEdge(fromVertex, newCoreVertex, new EdgeData()
-                                    {
-                                        MetaId = splitMeta,
-                                        Distance = System.Math.Max(newDistance, 0.0f),
-                                        Profile = (ushort)splitProfile
-                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
-
-                                    // add second part.
-                                    intermediates.RemoveAt(0);
-                                    this.AddCoreEdge(newCoreVertex, toVertex, new EdgeData()
-                                    {
-                                        MetaId = splitMeta,
-                                        Distance = System.Math.Max(splitDistance, 0.0f),
-                                        Profile = (ushort)splitProfile
-                                    }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
-                                }
-                                else
-                                { // no intermediate or shapepoint found in either one. two identical edge overlayed with different profiles.
-                                  // add two other vertices with identical positions as the ones given.
-                                  // connect them with an edge of length '0'.
-                                    var fromLocation = _db.Network.GetVertex(fromVertex);
-                                    var newFromVertex = this.AddNewCoreNode(fromNode, fromLocation.Latitude, fromLocation.Longitude);
-                                    this.AddCoreEdge(fromVertex, newFromVertex, new EdgeData()
-                                    {
-                                        Distance = 0,
-                                        MetaId = splitMeta,
-                                        Profile = (ushort)splitProfile
-                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
-                                    var toLocation = _db.Network.GetVertex(toVertex);
-                                    var newToVertex = this.AddNewCoreNode(toNode, toLocation.Latitude, toLocation.Longitude);
-                                    this.AddCoreEdge(newToVertex, toVertex, new EdgeData()
-                                    {
-                                        Distance = 0,
-                                        MetaId = splitMeta,
-                                        Profile = (ushort)splitProfile
-                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
-
-                                    this.AddCoreEdge(newFromVertex, newToVertex, new EdgeData()
-                                    {
-                                        Distance = splitDistance,
-                                        MetaId = splitMeta,
-                                        Profile = (ushort)splitProfile
-                                    }, null, way.Id.Value, (ushort)(fromNodeIdx));
-                                }
-                            }
-                        }
+                        // just add edge.
+                        // duplicates are allowed, one-edge loops are allowed, and too long edges are added with max-length.
+                        // these data-issues are fixed in another processing step.
+                        this.AddCoreEdge(fromVertex, toVertex, new Data.Network.Edges.EdgeData()
+                        {
+                            MetaId = meta,
+                            Distance = distance,
+                            Profile = (ushort)profile
+                        }, intermediates, way.Id.Value, (ushort)(fromNodeIdx));
                     }
                 }
             }
@@ -683,111 +535,27 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void AddCoreEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData data, List<Coordinate> shape, long wayId, ushort nodeIdx)
         {
-            uint edgeId;
-
-            if (data.Distance < _db.Network.MaxEdgeDistance)
-            { // edge is ok, smaller than max distance.
-                edgeId = _db.Network.AddEdge(vertex1, vertex2, data, shape.Simplify(_simplifyEpsilonInMeter));
-
-                if (_wayIds != null)
+            if (data.Distance >= _db.Network.MaxEdgeDistance)
+            { // distance is too big to fit into the graph's data field.
+                // just add the edge with the max distance, length can be recalculated on the fly for these edges 
+                // or (and this is what's probably done) we split up the edge later and add a proper length.
+                data = new Data.Network.Edges.EdgeData()
                 {
-                    _wayIds[edgeId] = wayId;
-                    _wayNodeIndices[edgeId] = nodeIdx;
-                }
+                    Distance = _db.Network.MaxEdgeDistance,
+                    Profile = data.Profile,
+                    MetaId = data.MetaId
+                };
             }
-            else
-            { // edge is too big.
-                if (shape == null)
-                { // make sure there is a shape.
-                    shape = new List<Coordinate>();
-                }
 
-                shape = new List<Coordinate>(shape);
-                shape.Insert(0, _db.Network.GetVertex(vertex1));
-                shape.Add(_db.Network.GetVertex(vertex2));
+            // add the edge.
+            var edgeId = _db.Network.AddEdge(vertex1, vertex2, data, 
+                shape.Simplify(_simplifyEpsilonInMeter));
 
-                for (var s = 1; s < shape.Count; s++)
-                {
-                    var distance = Coordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
-                    if (distance >= _db.Network.MaxEdgeDistance)
-                    { // insert a new intermediate.
-                        shape.Insert(s,
-                            new Coordinate()
-                            {
-                                Latitude = (float)(((double)shape[s - 1].Latitude +
-                                    (double)shape[s].Latitude) / 2.0),
-                                Longitude = (float)(((double)shape[s - 1].Longitude +
-                                    (double)shape[s].Longitude) / 2.0),
-                            });
-                        s--;
-                    }
-                }
-
-                var i = 0;
-                var shortShape = new List<Coordinate>();
-                var shortDistance = 0.0f;
-                uint shortVertex = Constants.NO_VERTEX;
-                Coordinate? shortPoint;
-                i++;
-                while (i < shape.Count)
-                {
-                    var distance = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
-                    if (distance + shortDistance > _db.Network.MaxEdgeDistance)
-                    { // ok, previous shapepoint was the maximum one.
-                        shortPoint = shortShape[shortShape.Count - 1];
-                        shortShape.RemoveAt(shortShape.Count - 1);
-
-                        // add vertex.            
-                        shortVertex = _db.Network.VertexCount;
-                        _db.Network.AddVertex(shortVertex, shortPoint.Value.Latitude, 
-                            shortPoint.Value.Longitude);
-
-                        // add edge.
-                        edgeId = _db.Network.AddEdge(vertex1, shortVertex, new Data.Network.Edges.EdgeData()
-                        {
-                            Distance = (float)shortDistance,
-                            MetaId = data.MetaId,
-                            Profile = data.Profile
-                        }, shortShape.Simplify(_simplifyEpsilonInMeter));
-                        if (_wayIds != null)
-                        {
-                            _wayIds[edgeId] = wayId;
-                            _wayNodeIndices[edgeId] = nodeIdx;
-                        }
-                        vertex1 = shortVertex;
-
-                        // set new short distance, empty shape.
-                        shortShape.Clear();
-                        shortShape.Add(shape[i]);
-                        shortDistance = distance;
-                        i++;
-                    }
-                    else
-                    { // just add short distance and move to the next shape point.
-                        shortShape.Add(shape[i]);
-                        shortDistance += distance;
-                        i++;
-                    }
-                }
-
-                // add final segment.
-                if (shortShape.Count > 0)
-                {
-                    shortShape.RemoveAt(shortShape.Count - 1);
-                }
-
-                // add edge.
-                edgeId = _db.Network.AddEdge(vertex1, vertex2, new Data.Network.Edges.EdgeData()
-                {
-                    Distance = (float)shortDistance,
-                    MetaId = data.MetaId,
-                    Profile = data.Profile
-                }, shortShape.Simplify(_simplifyEpsilonInMeter));
-                if (_wayIds != null)
-                {
-                    _wayIds[edgeId] = wayId;
-                    _wayNodeIndices[edgeId] = nodeIdx;
-                }
+            // save the original way-id and node index for this edge.
+            if (_wayIds != null)
+            {
+                _wayIds[edgeId] = wayId;
+                _wayNodeIndices[edgeId] = nodeIdx;
             }
         }
 

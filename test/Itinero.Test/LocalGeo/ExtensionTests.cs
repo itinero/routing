@@ -65,5 +65,25 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(shape[4].Latitude, simplified[4].Latitude);
             Assert.AreEqual(shape[4].Longitude, simplified[4].Longitude);
         }
+
+        /// <summary>
+        /// Tests the location after distance.
+        /// </summary>
+        [Test]
+        public void TestLocationAfterDistance()
+        {
+            float E = 1f;
+
+            var location1 = new Coordinate(51.266211413970844f, 4.789953231811523f);
+            var location2 = new Coordinate(51.266265118440224f, 4.804372787475586f);
+
+            var total = Coordinate.DistanceEstimateInMeter(location1, location2);
+            var location = Itinero.LocalGeo.Extensions.LocationAfterDistance(location1, location2, 500);
+            Assert.AreEqual(500, Coordinate.DistanceEstimateInMeter(location1, location), E);
+            Assert.AreEqual(total - 500, Coordinate.DistanceEstimateInMeter(location2, location), E);
+            location = Itinero.LocalGeo.Extensions.LocationAfterDistance(location1, location2, 250);
+            Assert.AreEqual(250, Coordinate.DistanceEstimateInMeter(location1, location), E);
+            Assert.AreEqual(total - 250, Coordinate.DistanceEstimateInMeter(location2, location), E);
+        }
     }
 }
