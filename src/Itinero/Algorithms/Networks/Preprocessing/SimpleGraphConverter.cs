@@ -156,7 +156,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
             {
                 Profile = data.Profile,
                 MetaId = data.MetaId,
-                Distance = data.Distance - distance
+                Distance = System.Math.Max(data.Distance - distance, 0)
             }, shape);
             _edgeSplit(originalEdgeId, newEdgeId);
         }
