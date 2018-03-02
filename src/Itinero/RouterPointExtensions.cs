@@ -605,6 +605,19 @@ namespace Itinero
             return other.EdgeId == point.EdgeId &&
                 other.Offset == point.Offset;
         }
+
+        /// <summary>
+        /// Gets the directed edge id for the routerpoint.
+        /// </summary>
+        public static long EdgeIdDirected(this RouterPoint point, bool forward = true)
+        {
+            if (forward)
+            {
+                return point.EdgeId + 1;
+            }
+            return -(point.EdgeId + 1);
+        }
+
         
         /// <summary>
         /// Converts the router point to paths leading to the closest 2 vertices.
