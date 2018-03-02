@@ -387,5 +387,40 @@ namespace Itinero.Graphs.Geometric
             }
             return graph.GetShape(edgeId);
         }
+
+        /// <summary>
+        /// Returns the location on the graph.
+        /// </summary>
+        public static Coordinate LocationOnGraph(this GeometricGraph graph, uint edgeId, ushort offset)
+        {
+            var geometricEdge = graph.GetEdge(edgeId);
+            var shape = graph.GetShape(geometricEdge);
+            var length = graph.Length(geometricEdge);
+            var currentLength = 0.0;
+            var targetLength = length * (offset / (double)ushort.MaxValue);
+            for (var i = 1; i < shape.Count; i++)
+            {
+                var segmentLength = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
+                if (segmentLength + currentLength > targetLength)
+                {
+                    var segmentOffsetLength = segmentLength + currentLength - targetLength;
+                    var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
+                    short? elevation = null;
+                    if (shape[i - 1].Elevation.HasValue && 
+                        shape[i].Elevation.HasValue)
+                    {
+                        elevation = (short)(shape[i - 1].Elevation.Value + (segmentOffset * (shape[i].Elevation.Value - shape[i - 1].Elevation.Value)));
+                    }
+                    return new Coordinate()
+                    {
+                        Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
+                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude))),
+                        Elevation = elevation
+                    };
+                }
+                currentLength += segmentLength;
+            }
+            return shape[shape.Count - 1];
+        }
     }
 }

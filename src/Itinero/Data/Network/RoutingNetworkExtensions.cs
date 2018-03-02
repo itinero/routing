@@ -21,6 +21,7 @@ using Itinero.Graphs.Geometric.Shapes;
 using System;
 using System.Collections.Generic;
 using Itinero.Algorithms;
+using Itinero.Graphs.Geometric;
 
 namespace Itinero.Data.Network
 {
@@ -288,6 +289,14 @@ namespace Itinero.Data.Network
         public static DirectedEdgeId DirectedEdgeId(this RoutingNetwork.EdgeEnumerator enumerator)
         {
             return new DirectedEdgeId(enumerator.Id, !enumerator.DataInverted);
+        }
+
+        /// <summary>
+        /// Returns the location on the network.
+        /// </summary>
+        public static Coordinate LocationOnNetwork(this RoutingNetwork network, uint edgeId, ushort offset)
+        {
+            return network.GeometricGraph.LocationOnGraph(edgeId, offset);
         }
     }
 }
