@@ -448,12 +448,12 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets all the names of the shortcuts databases.
+        /// Gets the names of the restricted vehicle types.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> GetRestrictedVehicleTypes()
         {
-            return _shortcutsDbs.Select(x => x.Key);
+            return _restrictionDbs.Select(x => x.Key);
         }
 
         /// <summary>
@@ -492,6 +492,14 @@ namespace Itinero
         public void AddRestrictions(string vehicleType, RestrictionsDb restrictions)
         {
             _restrictionDbs[vehicleType] = restrictions;
+        }
+
+        /// <summary>
+        /// Removes the restrictions for the given vehicle type.
+        /// </summary>
+        public bool RemoveRestrictions(string vehicleType)
+        {
+            return _restrictionDbs.Remove(vehicleType);
         }
 
         /// <summary>
