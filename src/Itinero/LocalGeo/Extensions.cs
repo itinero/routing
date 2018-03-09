@@ -506,8 +506,8 @@ namespace Itinero.LocalGeo
                 }
 
                 // calculate in or out.
-                var middle = new Coordinate(previous.Latitude + intersection.Value.Latitude / 2,
-                    previous.Longitude + intersection.Value.Longitude / 2);
+                var middle = new Coordinate((previous.Latitude + intersection.Value.Latitude) / 2,
+                    (previous.Longitude + intersection.Value.Longitude) / 2);
                 var middleInside = polygon.PointIn(middle);
                 if (previousInside != middleInside ||
                     cleanIntersections.Count == 0)
@@ -541,7 +541,7 @@ namespace Itinero.LocalGeo
             for (var s = 1; s < ring.Count; s++)
             {
                 var segment = new Line(ring[s - 1], ring[s]);
-                projected = line.Intersect(segment);
+                projected = segment.Intersect(line);
                 if (projected != null)
                 {
                     var dist = Coordinate.DistanceEstimateInMeter(projected.Value, line.Coordinate1);

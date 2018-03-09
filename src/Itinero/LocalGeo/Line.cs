@@ -23,7 +23,7 @@ namespace Itinero.LocalGeo
     /// </summary>
     public struct Line
     {
-        const double E = 0.0000001;
+        const double E = 0.0000000001;
         private readonly Coordinate _coordinate1;
         private readonly Coordinate _coordinate2;
 
