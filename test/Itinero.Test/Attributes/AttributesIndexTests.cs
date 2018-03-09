@@ -225,16 +225,16 @@ namespace Itinero.Test.Attributes
             {
                 var index = new AttributesIndex();
 
-                Assert.AreEqual(17, index.Serialize(memoryStream));
-                Assert.AreEqual(17, memoryStream.Position);
+                Assert.AreEqual(19, index.Serialize(memoryStream));
+                Assert.AreEqual(19, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
                 var index = new AttributesIndex();
                 index.Add(new Attribute("1", "2"));
 
-                Assert.AreEqual(32, index.Serialize(memoryStream));
-                Assert.AreEqual(32, memoryStream.Position);
+                Assert.AreEqual(34, index.Serialize(memoryStream));
+                Assert.AreEqual(34, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
@@ -243,8 +243,8 @@ namespace Itinero.Test.Attributes
                 index.Add(new Attribute("1", "2"));
                 index.Add(new Attribute("1", "2"));
 
-                Assert.AreEqual(32, index.Serialize(memoryStream));
-                Assert.AreEqual(32, memoryStream.Position);
+                Assert.AreEqual(34, index.Serialize(memoryStream));
+                Assert.AreEqual(34, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
@@ -253,8 +253,8 @@ namespace Itinero.Test.Attributes
                 index.Add(new Attribute("1", "2"));
                 index.Add(new Attribute("2", "1"));
 
-                Assert.AreEqual(41, index.Serialize(memoryStream));
-                Assert.AreEqual(41, memoryStream.Position);
+                Assert.AreEqual(43, index.Serialize(memoryStream));
+                Assert.AreEqual(43, memoryStream.Position);
             }
 
 
@@ -262,16 +262,16 @@ namespace Itinero.Test.Attributes
             {
                 var index = new AttributesIndex(AttributesIndexMode.IncreaseOne);
 
-                Assert.AreEqual(16 + 9, index.Serialize(memoryStream));
-                Assert.AreEqual(16 + 9, memoryStream.Position);
+                Assert.AreEqual(16 + 9 + 2, index.Serialize(memoryStream));
+                Assert.AreEqual(16 + 9 + 2, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
                 var index = new AttributesIndex(AttributesIndexMode.IncreaseOne);
                 index.Add(new Attribute("1", "2"));
 
-                Assert.AreEqual(31 + 1 + 8 + 4, index.Serialize(memoryStream));
-                Assert.AreEqual(31 + 1 + 8 + 4, memoryStream.Position);
+                Assert.AreEqual(31 + 3 + 8 + 4, index.Serialize(memoryStream));
+                Assert.AreEqual(31 + 3 + 8 + 4, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
@@ -280,8 +280,8 @@ namespace Itinero.Test.Attributes
                 index.Add(new Attribute("1", "2"));
                 index.Add(new Attribute("1", "2"));
 
-                Assert.AreEqual(31 + 1 + 8 + 4, index.Serialize(memoryStream));
-                Assert.AreEqual(31 + 1 + 8 + 4, memoryStream.Position);
+                Assert.AreEqual(31 + 3 + 8 + 4, index.Serialize(memoryStream));
+                Assert.AreEqual(31 + 3 + 8 + 4, memoryStream.Position);
             }
             using (var memoryStream = new MemoryStream())
             {
@@ -290,8 +290,8 @@ namespace Itinero.Test.Attributes
                 index.Add(new Attribute("1", "2"));
                 index.Add(new Attribute("2", "1"));
 
-                Assert.AreEqual(40 + 1 + 8 + 4 * 2, index.Serialize(memoryStream));
-                Assert.AreEqual(40 + 1 + 8 + 4 * 2, memoryStream.Position);
+                Assert.AreEqual(40 + 3 + 8 + 4 * 2, index.Serialize(memoryStream));
+                Assert.AreEqual(40 + 3 + 8 + 4 * 2, memoryStream.Position);
             }
         }
 
@@ -310,6 +310,7 @@ namespace Itinero.Test.Attributes
             using (var memoryStream = new MemoryStream())
             {
                 var size = refIndex.Serialize(memoryStream);
+                Assert.AreEqual(size, memoryStream.Position);
 
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 var index = AttributesIndex.Deserialize(memoryStream, false);
@@ -529,6 +530,53 @@ namespace Itinero.Test.Attributes
                         Assert.IsTrue(refAttribute.Value.Contains(attribute.Key, attribute.Value));
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Tests attributes index being writable after deserialization.
+        /// </summary>
+        [Test]
+        public void TestWritableAfterDeserialization()
+        {
+            var refIndex = new AttributesIndex();
+
+            var id1 = refIndex.Add(new Attribute("key1", "value1"));
+            var id2 = refIndex.Add(new Attribute("key2", "value1"));
+            var id3 = refIndex.Add(new Attribute("key2", "value2"));
+
+            using (var memoryStream = new MemoryStream())
+            {
+                var size = refIndex.Serialize(memoryStream);
+
+                memoryStream.Seek(0, SeekOrigin.Begin);
+                var index = AttributesIndex.Deserialize(memoryStream, false);
+
+                var id4 = index.Add(new Attribute("key3", "value4"));
+
+                var attributes = index.Get(id1);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key1", attributes.First().Key);
+                Assert.AreEqual("value1", attributes.First().Value);
+                
+                attributes = index.Get(id2);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key2", attributes.First().Key);
+                Assert.AreEqual("value1", attributes.First().Value);
+                
+                attributes = index.Get(id3);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key2", attributes.First().Key);
+                Assert.AreEqual("value2", attributes.First().Value);
+                
+                attributes = index.Get(id4);
+                Assert.IsNotNull(attributes);
+                Assert.AreEqual(1, attributes.Count);
+                Assert.AreEqual("key3", attributes.First().Key);
+                Assert.AreEqual("value4", attributes.First().Value);
             }
         }
     }

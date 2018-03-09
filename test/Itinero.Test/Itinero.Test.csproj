@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -55,6 +54,7 @@
     <EmbeddedResource Include="test-data\networks\network9.geojson" />
     <EmbeddedResource Include="test-data\profiles\osm\car.lua" />
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
+    <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
   </ItemGroup>
 
   <ItemGroup>
