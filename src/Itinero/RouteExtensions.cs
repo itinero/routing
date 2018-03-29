@@ -974,6 +974,7 @@ namespace Itinero
                         jsonWriter.WriteArrayClose();
                     }
                     jsonWriter.WriteArrayClose();
+                    jsonWriter.WriteClose();
 
                     if (attributesCallback != null)
                     {
@@ -987,8 +988,6 @@ namespace Itinero
                         }
                         jsonWriter.WriteClose();
                     }
-
-                    jsonWriter.WriteClose();
 
                     jsonWriter.WriteClose();
                 }
