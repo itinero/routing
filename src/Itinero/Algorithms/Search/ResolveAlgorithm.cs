@@ -95,7 +95,7 @@ namespace Itinero.Algorithms.Search
             { // do not evaluate both, just isOk.
                 edgeIds = new uint[2];
                 edgeIds[0] = _graph.SearchClosestEdge(_latitude, _longitude,
-                    latitudeOffset, longitudeOffset, _maxDistance, _isAcceptable);
+                    latitudeOffset, longitudeOffset, _maxDistance, _isAcceptable, cancellationToken);
             }
             else
             { // evaluate both.
