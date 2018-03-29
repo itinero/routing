@@ -776,25 +776,28 @@ namespace Itinero
         /// <summary>
         /// Returns this route as geojson.
         /// </summary>
-        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
             var stringWriter = new StringWriter();
-            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops, groupByShapeMeta);
+            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops, groupByShapeMeta, attributesCallback);
             return stringWriter.ToInvariantString();
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
-            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops, groupByShapeMeta);
+            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops, groupByShapeMeta, attributesCallback);
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
@@ -805,7 +808,7 @@ namespace Itinero
             jsonWriter.WritePropertyName("features", false);
             jsonWriter.WriteArrayOpen();
 
-            route.WriteGeoJsonFeatures(jsonWriter, includeShapeMeta, includeStops, groupByShapeMeta);
+            route.WriteGeoJsonFeatures(jsonWriter, includeShapeMeta, includeStops, groupByShapeMeta, attributesCallback);
 
             jsonWriter.WriteArrayClose();
             jsonWriter.WriteClose();
@@ -814,7 +817,8 @@ namespace Itinero
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJsonFeatures(this Route route, IO.Json.JsonWriter jsonWriter, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static void WriteGeoJsonFeatures(this Route route, IO.Json.JsonWriter jsonWriter, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (jsonWriter == null) { throw new ArgumentNullException("jsonWriter"); }
@@ -877,7 +881,13 @@ namespace Itinero
                             jsonWriter.WriteOpen();
                             if (shapeMeta.Attributes != null)
                             {
-                                foreach (var attribute in shapeMeta.Attributes)
+                                var attributes = shapeMeta.Attributes;
+                                if (attributesCallback != null)
+                                {
+                                    attributes = new AttributeCollection(attributes);
+                                    attributesCallback(attributes);
+                                }
+                                foreach (var attribute in attributes)
                                 {
                                     jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                                 }
@@ -919,7 +929,13 @@ namespace Itinero
                         jsonWriter.WriteOpen();
                         if (stop.Attributes != null)
                         {
-                            foreach (var attribute in stop.Attributes)
+                            var attributes = stop.Attributes;
+                            if (attributesCallback != null)
+                            {
+                                attributes = new AttributeCollection(attributes);
+                                attributesCallback(attributes);
+                            }
+                            foreach (var attribute in attributes)
                             {
                                 jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                             }
@@ -958,6 +974,20 @@ namespace Itinero
                         jsonWriter.WriteArrayClose();
                     }
                     jsonWriter.WriteArrayClose();
+
+                    if (attributesCallback != null)
+                    {
+                        jsonWriter.WritePropertyName("properties");
+                        jsonWriter.WriteOpen();
+                        var attributes = new AttributeCollection();
+                        attributesCallback(attributes);
+                        foreach (var attribute in attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                        jsonWriter.WriteClose();
+                    }
+
                     jsonWriter.WriteClose();
 
                     jsonWriter.WriteClose();
@@ -993,13 +1023,21 @@ namespace Itinero
 
                         jsonWriter.WritePropertyName("properties");
                         jsonWriter.WriteOpen();
+
                         if (meta.Attributes != null)
                         {
-                            foreach (var attribute in meta.Attributes)
+                            var attributes = meta.Attributes;
+                            if (attributesCallback != null)
+                            {
+                                attributes = new AttributeCollection(attributes);
+                                attributesCallback(attributes);
+                            }
+                            foreach (var attribute in attributes)
                             {
                                 jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                             }
                         }
+
                         jsonWriter.WriteClose();
 
                         jsonWriter.WriteClose();
@@ -1036,7 +1074,13 @@ namespace Itinero
                         jsonWriter.WriteOpen();
                         if (stop.Attributes != null)
                         {
-                            foreach (var attribute in stop.Attributes)
+                            var attributes = stop.Attributes;
+                            if (attributesCallback != null)
+                            {
+                                attributes = new AttributeCollection(attributes);
+                                attributesCallback(attributes);
+                            }
+                            foreach (var attribute in attributes)
                             {
                                 jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                             }

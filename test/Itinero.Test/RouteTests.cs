@@ -565,6 +565,83 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Tests writing a route as geojson.
+        /// </summary>
+        [Test]
+        public void TestWriteGeoJsonWithAttributesCallback()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                    }
+                },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("address", "Pastorijstraat 102, 2275 Wechelderzande")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Branches = new Route.Branch[]
+                {
+                    new Route.Branch()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            var geojson = route.ToGeoJson(attributesCallback: (att) => { att.AddOrReplace("extra", "attributes"); });
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\",\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
+                geojson);
+            geojson = route.ToGeoJson(attributesCallback: (att) => { att.AddOrReplace("extra", "attributes"); }, includeShapeMeta: false, groupByShapeMeta: false);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]],\"properties\":{\"extra\":\"attributes\"}}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
+                geojson);
+        }
+
+        /// <summary>
         /// Tests route concatenation with identical stops.
         /// </summary>
         [Test]
