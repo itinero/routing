@@ -278,6 +278,18 @@ namespace Itinero.IO.Json
             _statusStack.Push(Status.ArrayValueWritten);
         }
 
+        /// <summary>
+        /// Gets the text writer.
+        /// </summary>
+        /// <returns></returns>
+        public TextWriter TextWriter
+        {
+            get
+            {
+                return _writer;
+            }
+        }
+
         private enum Status
         {
             ObjectOpened,
