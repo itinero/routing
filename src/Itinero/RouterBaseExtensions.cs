@@ -28,6 +28,7 @@ using Itinero.Logging;
 using System.Text;
 using Itinero.Algorithms;
 using Itinero.Data.Contracted;
+using System.Threading;
 
 namespace Itinero
 {
@@ -240,91 +241,92 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance profile, float latitude, float longitude, 
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(new IProfileInstance[] { profile }, latitude, longitude, searchDistanceInMeter);
+            return router.TryResolve(new IProfileInstance[] { profile }, latitude, longitude, searchDistanceInMeter, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance[] profiles, float latitude, float longitude,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
             return router.TryResolve(profiles, latitude, longitude, null, 
-                searchDistanceInMeter);
+                searchDistanceInMeter, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this RouterBase router, IProfileInstance profile, float latitude, float longitude,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.Resolve(new IProfileInstance[] { profile }, latitude, longitude, searchDistanceInMeter);
+            return router.Resolve(new IProfileInstance[] { profile }, latitude, longitude, searchDistanceInMeter, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, float latitude, float longitude,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(profiles, latitude, longitude, searchDistanceInMeter).Value;
+            return router.TryResolve(profiles, latitude, longitude, searchDistanceInMeter, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(profiles, latitude, longitude, isBetter, searchDistanceInMeter).Value;
+            return router.TryResolve(profiles, latitude, longitude, isBetter, searchDistanceInMeter, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
-        public static bool CheckConnectivity(this RouterBase router, IProfileInstance profile, RouterPoint point, float radiusInMeters)
+        public static bool CheckConnectivity(this RouterBase router, IProfileInstance profile, RouterPoint point, float radiusInMeters, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCheckConnectivity(profile, point, radiusInMeters).Value;
+            return router.TryCheckConnectivity(profile, point, radiusInMeters, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
-        public static bool CheckConnectivity(this RouterBase router, IProfileInstance profile, RouterPoint point)
+        public static bool CheckConnectivity(this RouterBase router, IProfileInstance profile, RouterPoint point, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.CheckConnectivity(profile, point, DefaultConnectivityRadius);
+            return router.CheckConnectivity(profile, point, DefaultConnectivityRadius, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, locations).Value;
+            return router.TryCalculate(profile, locations, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         public static Route Calculate(this RouterBase router, IProfileInstance profile,
-            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
+            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude,
+            CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, sourceLatitude, sourceLongitude, targetLatitude, targetLongitude).Value;
+            return router.TryCalculate(profile, sourceLatitude, sourceLongitude, targetLatitude, targetLongitude, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations)
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations, CancellationToken cancellationToken = new CancellationToken())
         {
             if (locations.Length < 2)
             {
                 throw new ArgumentOutOfRangeException("Cannot calculate a routing along less than two locations.");
             }
-            var route = router.TryCalculate(profile, locations[0], locations[1]);
+            var route = router.TryCalculate(profile, locations[0], locations[1], cancellationToken: cancellationToken);
             if (route.IsError)
             {
                 return route;
@@ -345,11 +347,11 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
-            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude)
+            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude, CancellationToken cancellationToken = new CancellationToken())
         {
             var profiles = new IProfileInstance[] { profile };
-            var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
-            var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
+            var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude, cancellationToken: cancellationToken);
+            var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude, cancellationToken: cancellationToken);
 
             if(sourcePoint.IsError)
             {
@@ -359,15 +361,15 @@ namespace Itinero
             {
                 return targetPoint.ConvertError<Route>();
             }
-            return router.TryCalculate(profile, sourcePoint.Value, targetPoint.Value);
+            return router.TryCalculate(profile, sourcePoint.Value, targetPoint.Value, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Result<Route[]> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint[] targets)
+        public static Result<Route[]> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint[] targets, CancellationToken cancellationToken = new CancellationToken())
         {
-            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets);
+            var result = router.TryCalculate(profile, new RouterPoint[] { source }, targets, cancellationToken: cancellationToken);
             if(result.IsError)
             {
                 return result.ConvertError<Route[]>();
@@ -384,27 +386,27 @@ namespace Itinero
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, source, target).Value;
+            return router.TryCalculate(profile, source, target, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Route[] Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint[] targets)
+        public static Route[] Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint[] targets, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, source, targets).Value;
+            return router.TryCalculate(profile, source, targets, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public static Result<Route[][]> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] sources, RouterPoint[] targets)
+        public static Result<Route[][]> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] sources, RouterPoint[] targets, CancellationToken cancellationToken = new CancellationToken())
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
-            var paths = router.TryCalculateRaw(profile, weightHandler, sources, targets);
+            var paths = router.TryCalculateRaw(profile, weightHandler, sources, targets, cancellationToken: cancellationToken);
             if (paths.IsError)
             {
                 return paths.ConvertError<Route[][]>();
@@ -435,20 +437,20 @@ namespace Itinero
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
-        public static Route[][] Calculate(this RouterBase router, IProfileInstance profile, RouterPoint[] sources, RouterPoint[] targets)
+        public static Route[][] Calculate(this RouterBase router, IProfileInstance profile, RouterPoint[] sources, RouterPoint[] targets, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, sources, targets).Value;
+            return router.TryCalculate(profile, sources, targets, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
         public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler,
-            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude) where T : struct
+            float sourceLatitude, float sourceLongitude, float targetLatitude, float targetLongitude, CancellationToken cancellationToken = new CancellationToken()) where T : struct
         {
             var profiles = new IProfileInstance[] { profile };
-            var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude);
-            var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude);
+            var sourcePoint = router.TryResolve(profiles, sourceLatitude, sourceLongitude, cancellationToken: cancellationToken);
+            var targetPoint = router.TryResolve(profiles, targetLatitude, targetLongitude, cancellationToken: cancellationToken);
 
             if (sourcePoint.IsError)
             {
@@ -458,16 +460,16 @@ namespace Itinero
             {
                 return targetPoint.ConvertError<T>();
             }
-            return router.TryCalculateWeight(profile, weightHandler, sourcePoint.Value, targetPoint.Value);
+            return router.TryCalculateWeight(profile, weightHandler, sourcePoint.Value, targetPoint.Value, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Tries to calculate the weight between the given source and target.
         /// </summary>
         public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler,
-            RouterPoint source, RouterPoint target) where T : struct
+            RouterPoint source, RouterPoint target, CancellationToken cancellationToken = new CancellationToken()) where T : struct
         {
-            var result = router.TryCalculateRaw<T>(profile, weightHandler, source, target);
+            var result = router.TryCalculateRaw<T>(profile, weightHandler, source, target, cancellationToken: cancellationToken);
             if (result.IsError)
             {
                 return result.ConvertError<T>();
@@ -478,11 +480,12 @@ namespace Itinero
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations)
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
+            CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
             var invalids = new HashSet<int>();
-            var result = router.TryCalculateWeight(profile, weightHandler, locations, locations, invalids, invalids);
+            var result = router.TryCalculateWeight(profile, weightHandler, locations, locations, invalids, invalids, cancellationToken: cancellationToken);
             if (invalids.Count > 0)
             {
                 return new Result<T[][]>("At least one location could not be routed from/to. Most likely there are islands in the loaded network.", (s) =>
@@ -497,41 +500,41 @@ namespace Itinero
         /// Calculates all weights between all locations.
         /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
-            ISet<int> invalids) where T : struct
+            ISet<int> invalids, CancellationToken cancellationToken = new CancellationToken()) where T : struct
         {
-            return router.TryCalculateWeight(profile, weightHandler, locations, locations, invalids, invalids);
+            return router.TryCalculateWeight(profile, weightHandler, locations, locations, invalids, invalids, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
         public static T[][] CalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] locations,
-            ISet<int> invalids) where T : struct
+            ISet<int> invalids, CancellationToken cancellationToken = new CancellationToken()) where T : struct
         {
-            return router.TryCalculateWeight(profile, weightHandler, locations, invalids).Value;
+            return router.TryCalculateWeight(profile, weightHandler, locations, invalids, cancellationToken: cancellationToken).Value;
         }
         
         /// <summary>
         /// Calculates all weights between all locations.
         /// </summary>
         public static float[][] CalculateWeight(this RouterBase router, IProfileInstance profile, RouterPoint[] locations,
-            ISet<int> invalids)
+            ISet<int> invalids, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, invalids).Value;
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, invalids, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
         public static Result<RouterPoint>[] TryResolve(this RouterBase router, IProfileInstance profile, Coordinate[] coordinates,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
 
             var result = new Result<RouterPoint>[coordinates.Length];
             for (var i = 0; i < coordinates.Length; i++)
             {
-                result[i] = router.TryResolve(profile, coordinates[i], searchDistanceInMeter);
+                result[i] = router.TryResolve(profile, coordinates[i], searchDistanceInMeter, cancellationToken: cancellationToken);
             }
             return result;
         }
@@ -540,23 +543,23 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance profile, Coordinate coordinate,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(new IProfileInstance[] { profile }, coordinate, searchDistanceInMeter);
+            return router.TryResolve(new IProfileInstance[] { profile }, coordinate, searchDistanceInMeter, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
         public static Result<RouterPoint>[] TryResolve(this RouterBase router, IProfileInstance[] profiles, Coordinate[] coordinates,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
 
             var result = new Result<RouterPoint>[coordinates.Length];
             for (var i = 0; i < coordinates.Length; i++)
             {
-                result[i] = router.TryResolve(profiles, coordinates[i], searchDistanceInMeter);
+                result[i] = router.TryResolve(profiles, coordinates[i], searchDistanceInMeter, cancellationToken: cancellationToken);
             }
             return result;
         }
@@ -565,47 +568,47 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
             return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude,
-                searchDistanceInMeter);
+                searchDistanceInMeter, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
-            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
             return router.TryResolve(profiles, coordinate.Latitude, coordinate.Longitude, isBetter,
-                searchDistanceInMeter);
+                searchDistanceInMeter, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this RouterBase router, IProfileInstance profile, Coordinate coordinate,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(profile, coordinate, searchDistanceInMeter).Value;
+            return router.TryResolve(profile, coordinate, searchDistanceInMeter, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(profiles, coordinate, searchDistanceInMeter).Value;
+            return router.TryResolve(profiles, coordinate, searchDistanceInMeter, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint[] Resolve(this RouterBase router, IProfileInstance profile, Coordinate[] coordinates,
-            float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            float searchDistanceInMeter = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            var results = router.TryResolve(profile, coordinates, searchDistanceInMeter);
+            var results = router.TryResolve(profile, coordinates, searchDistanceInMeter, cancellationToken: cancellationToken);
             var routerPoints = new RouterPoint[results.Length];
             for (var i = 0; i < results.Length; i++)
             {
@@ -618,27 +621,29 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this RouterBase router, IProfileInstance[] profiles, Coordinate coordinate,
-            Func<RoutingEdge, bool> isBetter,
-                float searchDistanceInMeter = Constants.SearchDistanceInMeter)
+            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter,
+            CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolve(profiles, coordinate, isBetter, searchDistanceInMeter).Value;
+            return router.TryResolve(profiles, coordinate, isBetter, searchDistanceInMeter, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Resolves a location but also checks if it's connected to the rest of the network.
         /// </summary>
         public static Result<RouterPoint> TryResolveConnected(this RouterBase router, IProfileInstance profileInstance, Coordinate location,
-            float radiusInMeter = 2000, float maxSearchDistance = Constants.SearchDistanceInMeter, bool? forward = null)
+            float radiusInMeter = 2000, float maxSearchDistance = Constants.SearchDistanceInMeter, bool? forward = null,
+            CancellationToken cancellationToken = new CancellationToken())
         {
             return router.TryResolveConnected(profileInstance, location.Latitude, location.Longitude, radiusInMeter, maxSearchDistance,
-                forward);
+                forward, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Resolves a location but also checks if it's connected to the rest of the network.
         /// </summary>
         public static Result<RouterPoint> TryResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, 
-            float radiusInMeter = 2000, float maxSearchDistance = Constants.SearchDistanceInMeter, bool? forward = null)
+            float radiusInMeter = 2000, float maxSearchDistance = Constants.SearchDistanceInMeter, bool? forward = null,
+            CancellationToken cancellationToken = new CancellationToken())
         {
             var isAcceptable = router.GetIsAcceptable(profileInstance);
             var resolver = new Algorithms.Search.ResolveAlgorithm(router.Db.Network.GeometricGraph, latitude, longitude, radiusInMeter, maxSearchDistance, (edge) =>
@@ -651,7 +656,7 @@ namespace Itinero
 
                 // create a temp resolved point in the middle of this edge.
                 var tempRouterPoint = new RouterPoint(0, 0, edge.Id, ushort.MaxValue / 2);
-                var connectivityResult = router.TryCheckConnectivity(profileInstance, tempRouterPoint, radiusInMeter, forward);
+                var connectivityResult = router.TryCheckConnectivity(profileInstance, tempRouterPoint, radiusInMeter, forward, cancellationToken: cancellationToken);
                 if (connectivityResult.IsError)
                 { // if there is an error checking connectivity, choose not report it, just don't choose this point.
                     return false;
@@ -674,34 +679,34 @@ namespace Itinero
         /// Resolves a location but also checks if it's connected to the rest of the network.
         /// </summary>
         public static RouterPoint ResolveConnected(this RouterBase router, IProfileInstance profileInstance, float latitude, float longitude, float radiusInMeter = 1000,
-            float maxSearchDistance = Constants.SearchDistanceInMeter)
+            float maxSearchDistance = Constants.SearchDistanceInMeter, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryResolveConnected(profileInstance, latitude, longitude, radiusInMeter, maxSearchDistance).Value;
+            return router.TryResolveConnected(profileInstance, latitude, longitude, radiusInMeter, maxSearchDistance, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, IProfileInstance profile, Coordinate source, Coordinate target)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, Coordinate source, Coordinate target, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, source, target).Value;
+            return router.TryCalculate(profile, source, target, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Route Calculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations)
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, locations).Value;
+            return router.TryCalculate(profile, locations, cancellationToken: cancellationToken).Value;
         }
 
         /// <summary>
         /// Calculates a route the given locations;
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target)
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target, CancellationToken cancellationToken = new CancellationToken())
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
-            var path = router.TryCalculateRaw(profile, weightHandler, source, target);
+            var path = router.TryCalculateRaw(profile, weightHandler, source, target, cancellationToken: cancellationToken);
             if (path.IsError)
             {
                 return path.ConvertError<Route>();
@@ -713,29 +718,29 @@ namespace Itinero
         /// Calculates a route between the two locations.
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate source,
-            Coordinate target)
+            Coordinate target, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profile, source.Latitude, source.Longitude, target.Latitude, target.Longitude);
+            return router.TryCalculate(profile, source.Latitude, source.Longitude, target.Latitude, target.Longitude, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
-        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations)
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations, CancellationToken cancellationToken = new CancellationToken())
         {
             if (locations.Length < 2)
             {
                 throw new ArgumentOutOfRangeException("Cannot calculate a routing along less than two locations.");
             }
-            var resolved = router.TryResolve(profile, locations);
-            var route = router.TryCalculate(profile, resolved[0].Value, resolved[1].Value);
+            var resolved = router.TryResolve(profile, locations, cancellationToken: cancellationToken);
+            var route = router.TryCalculate(profile, resolved[0].Value, resolved[1].Value, cancellationToken: cancellationToken);
             if (route.IsError)
             {
                 return route;
             }
             for (var i = 2; i < resolved.Length; i++)
             {
-                var nextRoute = router.TryCalculate(profile, resolved[i - 1].Value, resolved[i].Value);
+                var nextRoute = router.TryCalculate(profile, resolved[i - 1].Value, resolved[i].Value, cancellationToken: cancellationToken);
                 if (nextRoute.IsError)
                 {
                     return nextRoute;
@@ -748,33 +753,36 @@ namespace Itinero
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<float> TryCalculateWeight(this RouterBase router, IProfileInstance profile, Coordinate source, Coordinate target)
+        public static Result<float> TryCalculateWeight(this RouterBase router, IProfileInstance profile, Coordinate source, Coordinate target, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), source, target);
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), source, target, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates the weight between the two locations.
         /// </summary>
-        public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate source, Coordinate target)
+        public static Result<T> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate source, Coordinate target,
+            CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
-            return router.TryCalculateWeight(profile, weightHandler, source.Latitude, source.Longitude, target.Latitude, target.Longitude);
+            return router.TryCalculateWeight(profile, weightHandler, source.Latitude, source.Longitude, target.Latitude, target.Longitude, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates all weights between all given locations.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, WeightHandler<T> weightHandler, IProfileInstance profile, Coordinate[] locations)
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, WeightHandler<T> weightHandler, IProfileInstance profile, Coordinate[] locations,
+            CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
-            return router.TryCalculateWeight(profile,  weightHandler, locations, locations);
+            return router.TryCalculateWeight(profile,  weightHandler, locations, locations, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
-        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] sources, Coordinate[] targets)
+        public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] sources, Coordinate[] targets,
+            CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
             var resolvedSources = new RouterPoint[sources.Length];
@@ -794,7 +802,7 @@ namespace Itinero
             var resolvedTargets = new RouterPoint[targets.Length];
             for (var i = 0; i < targets.Length; i++)
             {
-                var result = router.TryResolve(profile, targets[i]);
+                var result = router.TryResolve(profile, targets[i], cancellationToken: cancellationToken);
                 if (result.IsError)
                 {
                     return new Result<T[][]>(string.Format("Target at index {0} could not be resolved: {1}",
@@ -808,7 +816,7 @@ namespace Itinero
 
             var invalidSources = new HashSet<int>();
             var invalidTargets = new HashSet<int>();
-            var weights = router.TryCalculateWeight(profile, weightHandler, resolvedSources, resolvedTargets, invalidSources, invalidTargets);
+            var weights = router.TryCalculateWeight(profile, weightHandler, resolvedSources, resolvedTargets, invalidSources, invalidTargets, cancellationToken: cancellationToken);
             if (invalidSources.Count > 0)
             {
                 return new Result<T[][]>("Some sources could not be routed from. Most likely there are islands in the loaded network.", (s) =>
@@ -830,16 +838,16 @@ namespace Itinero
         /// Calculates a weight matrix between directed edges, returning weight exclusing the first and last edge.
         /// </summary>
         public static Result<float[][]> TryCalculateWeight(this RouterBase router, IProfileInstance profileInstance, DirectedEdgeId[] sources,
-            DirectedEdgeId[] targets, RoutingSettings<float> settings = null)
+            DirectedEdgeId[] targets, RoutingSettings<float> settings = null, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculateWeight(profileInstance, router.GetDefaultWeightHandler(profileInstance), sources, targets, settings);
+            return router.TryCalculateWeight(profileInstance, router.GetDefaultWeightHandler(profileInstance), sources, targets, settings, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates a weight matrix between directed edges, returning weight exclusing the first and last edge.
         /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, DirectedEdgeId[] sources, 
-            DirectedEdgeId[] targets, RoutingSettings<T> settings = null)
+            DirectedEdgeId[] targets, RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
             try
@@ -970,26 +978,26 @@ namespace Itinero
         /// Calculates a route between the two given directed edges.
         /// </summary>
         public static Result<EdgePath<T>> TryCalculateRaw<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, DirectedEdgeId source, DirectedEdgeId target,
-            RoutingSettings<T> settings = null)
+            RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
-            return router.TryCalculateRaw(profileInstance, weightHandler, source.SignedDirectedId, target.SignedDirectedId, settings);
+            return router.TryCalculateRaw(profileInstance, weightHandler, source.SignedDirectedId, target.SignedDirectedId, settings, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates a route between the two given router points but in a fixed direction.
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profileInstance, RouterPoint source, bool sourceForward, RouterPoint target, bool targetForward,
-            RoutingSettings<float> settings = null)
+            RoutingSettings<float> settings = null, CancellationToken cancellationToken = new CancellationToken())
         {
-            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceForward, target, targetForward);
+            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceForward, target, targetForward, cancellationToken: cancellationToken);
         }
 
         /// <summary>
         /// Calculates a route between the two given router points but in a fixed direction.
         /// </summary>
         public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool sourceForward, RouterPoint target, bool targetForward,
-            RoutingSettings<T> settings = null)
+            RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
             EdgePath<T> path = null;
@@ -1012,7 +1020,7 @@ namespace Itinero
 
             // try calculating a path.
             var result = router.TryCalculateRaw<T>(profileInstance, weightHandler, new DirectedEdgeId(source.EdgeId, sourceForward),
-                new DirectedEdgeId(target.EdgeId, targetForward), settings);
+                new DirectedEdgeId(target.EdgeId, targetForward), settings: settings, cancellationToken: cancellationToken);
             if (result.IsError &&
                 path == null)
             {

@@ -29,6 +29,7 @@ using Itinero.Data.Contracted;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Weights;
 using Itinero.Data;
+using System.Threading;
 
 namespace Itinero
 {
@@ -76,7 +77,8 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<RouterPoint> TryResolve(IProfileInstance[] profileInstances, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null)
+            Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null,
+            CancellationToken cancellationToken = new CancellationToken())
         {
             if (settings == null)
             {
@@ -199,7 +201,7 @@ namespace Itinero
         /// </summary>
         /// <param name="radiusInMeter">The radius metric, that's always a distance in meters.</param>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward = null)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward = null, CancellationToken cancellationToken = new CancellationToken())
         {
             try
             {
@@ -271,7 +273,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
-            RoutingSettings<T> settings)
+            RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
         {
             try
             {
@@ -501,7 +503,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, long sourceDirectedEdge, 
-            long targetDirectedEdge, RoutingSettings<T> settings)
+            long targetDirectedEdge, RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
         {
             try
             {
@@ -671,7 +673,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            RoutingSettings<T> settings)
+            RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
         {
             try
             {
@@ -836,7 +838,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
         {
             try
             {
