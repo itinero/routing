@@ -22,6 +22,7 @@ using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
 {
@@ -67,7 +68,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         /// <summary>
         /// Executes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _solutions = new Solution[_sources.Length][];
             for(var s = 0; s < _sources.Length; s++)
@@ -83,7 +84,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 {
                     return this.ForwardVertexFound(forward, i, p, v, w);
                 };
-                forward.Run();
+                forward.Run(cancellationToken);
             }
 
             // do backward searches into buckets.
@@ -94,7 +95,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 {
                     return this.BackwardVertexFound(backward, i, p, v, w);
                 };
-                backward.Run();
+                backward.Run(cancellationToken);
             }
 
             this.HasSucceeded = true;

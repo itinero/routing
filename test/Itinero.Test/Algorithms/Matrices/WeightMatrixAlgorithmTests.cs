@@ -21,6 +21,7 @@ using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
 using System.Collections.Generic;
 using Itinero.Algorithms.Matrices;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Matrices
 {
@@ -45,7 +46,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run();
+            matrixAlgorithm.Run(new CancellationToken());
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -77,7 +78,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run();
+            matrixAlgorithm.Run(new CancellationToken());
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -100,7 +101,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run();
+            matrixAlgorithm.Run(new CancellationToken());
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -135,7 +136,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run();
+            matrixAlgorithm.Run(new CancellationToken());
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -160,7 +161,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run();
+            matrixAlgorithm.Run(new CancellationToken());
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);

@@ -40,6 +40,7 @@ using Itinero.Data.Network.Edges;
 using Itinero.Algorithms.Networks;
 using Itinero.Graphs.Geometric;
 using Itinero.LocalGeo.IO;
+using System.Threading;
 
 namespace Itinero
 {
@@ -51,7 +52,7 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false, CancellationToken cancellationToken = new CancellationToken())
         {
             var weightHandler = profile.DefaultWeightHandlerCached(db);
 
@@ -78,7 +79,7 @@ namespace Itinero
                     var restrictions = db.GetRestrictions(profile);
                     var dualGraphBuilder = new DualGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted,
                         weightHandler, restrictions);
-                    dualGraphBuilder.Run();
+                    dualGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
@@ -87,7 +88,7 @@ namespace Itinero
                     hierarchyBuilder.DifferenceFactor = 8;
                     hierarchyBuilder.DepthFactor = 14;
                     hierarchyBuilder.ContractedFactor = 1;
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, true);
                 }
@@ -98,7 +99,7 @@ namespace Itinero
 
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run();
+                    directedGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
@@ -108,7 +109,7 @@ namespace Itinero
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new HierarchyBuilder<float>(contracted, db.GetRestrictions(profile), priorityCalculator,
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, false);
                 }
@@ -124,7 +125,7 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased = false)
+        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased = false, CancellationToken cancellationToken = new CancellationToken())
             where T : struct
         {
             // create the raw directed graph.
@@ -150,7 +151,7 @@ namespace Itinero
                     var restrictions = db.GetRestrictions(profile);
                     var dualGraphBuilder = new DualGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted,
                         weightHandler, restrictions);
-                    dualGraphBuilder.Run();
+                    dualGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<T>(contracted,
@@ -159,7 +160,7 @@ namespace Itinero
                     hierarchyBuilder.DifferenceFactor = 5;
                     hierarchyBuilder.DepthFactor = 5;
                     hierarchyBuilder.ContractedFactor = 8;
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     //// contract the graph.
                     //var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
@@ -180,7 +181,7 @@ namespace Itinero
 
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run();
+                    directedGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
@@ -190,7 +191,7 @@ namespace Itinero
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new HierarchyBuilder<T>(contracted, db.GetRestrictions(profile), priorityCalculator,
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, false);
                 }
@@ -1772,7 +1773,7 @@ namespace Itinero
         /// <summary>
         /// Adds and detects island data to improve resolving.
         /// </summary>
-        public static void AddIslandData(this RouterDb db, Profile profile)
+        public static void AddIslandData(this RouterDb db, Profile profile, CancellationToken cancellationToken = new CancellationToken())
         {
             if (!db.Supports(profile))
             {
@@ -1785,7 +1786,7 @@ namespace Itinero
             var islandDetector = new IslandDetector(db,
                 new Func<ushort, Factor>[] { router.GetDefaultGetFactor(profile) },
                     db.GetRestrictions(profile));
-            islandDetector.Run();
+            islandDetector.Run(cancellationToken);
 
             // properly format islands.
             var islands = islandDetector.Islands;

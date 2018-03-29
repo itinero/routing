@@ -23,6 +23,7 @@ using System;
 using Itinero;
 using System.Collections.Generic;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -63,7 +64,7 @@ namespace Itinero.Test.Functional.Tests
 
             var locationsArray = locations.ToArray();
             var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
-            massResolver.Run();
+            massResolver.Run(new CancellationToken());
 
             return () =>
             {
@@ -94,12 +95,12 @@ namespace Itinero.Test.Functional.Tests
 
             var locationsArray = locations.ToArray();
             var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
-            massResolver.Run();
+            massResolver.Run(new CancellationToken());
 
             return () =>
             {
                 var matrix = new Itinero.Algorithms.Matrices.WeightMatrixAlgorithm(router, profile, massResolver);
-                matrix.Run();
+                matrix.Run(new CancellationToken());
                 Assert.IsTrue(matrix.HasSucceeded);
             };
         }
@@ -124,7 +125,7 @@ namespace Itinero.Test.Functional.Tests
 
             var locationsArray = locations.ToArray();
             var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
-            massResolver.Run();
+            massResolver.Run(new CancellationToken());
 
             var edges = new List<DirectedEdgeId>();
             foreach(var resolved in massResolver.RouterPoints)

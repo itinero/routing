@@ -23,6 +23,7 @@ using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using System.Collections.Generic;
 using Itinero.Data.Contracted.Edges;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted
 {
@@ -46,7 +47,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(1) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -77,7 +78,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(1) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -114,7 +115,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -159,7 +160,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -204,7 +205,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -249,7 +250,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -294,7 +295,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -339,7 +340,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -389,7 +390,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -421,7 +422,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(1) }, new EdgePath<float>[] { new EdgePath<float>(3) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -447,7 +448,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(3) }, new EdgePath<float>[] { new EdgePath<float>(1) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -491,7 +492,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -536,7 +537,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -580,7 +581,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -622,7 +623,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(3) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -671,7 +672,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(4) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -721,7 +722,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             var algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(0) }, new EdgePath<float>[] { new EdgePath<float>(2) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -733,7 +734,7 @@ namespace Itinero.Test.Algorithms.Contracted
             // create algorithm and run.
             algorithm = new Itinero.Algorithms.Contracted.BidirectionalDykstra(graph, null,
                 new EdgePath<float>[] { new EdgePath<float>(2) }, new EdgePath<float>[] { new EdgePath<float>(0) });
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);

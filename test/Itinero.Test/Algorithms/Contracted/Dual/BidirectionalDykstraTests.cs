@@ -18,11 +18,11 @@
 
 using Itinero.Algorithms;
 using Itinero.Algorithms.Contracted;
-using Itinero.Algorithms.Contracted.Dual;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.Dual
 {
@@ -45,7 +45,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
             var bidirectionalDykstra = new Itinero.Algorithms.Contracted.Dual.BidirectionalDykstra<float>(graph,
                 weightHandler, 0, 1);
-            bidirectionalDykstra.Run();
+            bidirectionalDykstra.Run(new CancellationToken());
 
             Assert.AreEqual(true, bidirectionalDykstra.HasRun);
             Assert.AreEqual(true, bidirectionalDykstra.HasSucceeded);
@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
             var bidirectionalDykstra = new Itinero.Algorithms.Contracted.Dual.BidirectionalDykstra<float>(graph,
                 weightHandler, 0, 1);
-            bidirectionalDykstra.Run();
+            bidirectionalDykstra.Run(new CancellationToken());
 
             Assert.AreEqual(true, bidirectionalDykstra.HasRun);
             Assert.AreEqual(true, bidirectionalDykstra.HasSucceeded);

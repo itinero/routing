@@ -22,6 +22,7 @@ using Itinero.Navigation;
 using Itinero.Navigation.Language;
 using Itinero.Test.Navigation.Language;
 using Itinero.Navigation.Instructions;
+using System.Threading;
 
 namespace Itinero.Test.Navigation
 {
@@ -76,7 +77,7 @@ namespace Itinero.Test.Navigation
                             return 1;
                         }
                 }, new MockLanguageReference());
-            generator.Run();
+            generator.Run(new CancellationToken());
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
@@ -141,7 +142,7 @@ namespace Itinero.Test.Navigation
                             return 1;
                         }
                 }, new MockLanguageReference());
-            generator.Run();
+            generator.Run(new CancellationToken());
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
@@ -203,7 +204,7 @@ namespace Itinero.Test.Navigation
                     };
                     return true;
                 }, new MockLanguageReference());
-            generator.Run();
+            generator.Run(new CancellationToken());
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);

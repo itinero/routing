@@ -22,6 +22,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
@@ -63,7 +64,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 }
                 return false;
             };
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -108,7 +109,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 }
                 return false;
             };
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);

@@ -23,6 +23,7 @@ using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
 using Itinero.Data.Edges;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
@@ -75,7 +76,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             var targetSearch = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(2) },
                 float.MaxValue, true);
             var algorithm = new BidirectionalDykstra(sourceSearch, targetSearch, getFactor);
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);

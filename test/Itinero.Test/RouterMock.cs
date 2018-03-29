@@ -74,7 +74,7 @@ namespace Itinero.Test
             return new Result<EdgePath<T>>(new EdgePath<T>());
         }
         
-        public override Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
+        public override Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken token = new CancellationToken())
         {
             var route = new Route();
             route.Shape = new Coordinate[]

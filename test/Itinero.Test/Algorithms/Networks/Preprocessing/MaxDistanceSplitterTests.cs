@@ -19,6 +19,7 @@
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Networks.Preprocessing
 {
@@ -45,7 +46,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
             });
 
             var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, (x, y) => {});
-            splitter.Run();
+            splitter.Run(new CancellationToken());
 
             Assert.AreEqual(2, network.VertexCount);
             Assert.AreEqual(1, network.EdgeCount);
@@ -71,7 +72,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
             {
                 Assert.AreEqual(2, v);
             });
-            splitter.Run();
+            splitter.Run(new CancellationToken());
 
             Assert.AreEqual(3, network.VertexCount);
             Assert.AreEqual(2, network.EdgeCount);
@@ -101,7 +102,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                 new Coordinate(51.26672160389640f,4.801068305969238f));
 
             var splitter = new Itinero.Algorithms.Networks.Preprocessing.MaxDistanceSplitter(network, (x, y) => {}, 300);
-            splitter.Run();
+            splitter.Run(new CancellationToken());
 
             Assert.AreEqual(3, network.VertexCount);
             Assert.AreEqual(2, network.EdgeCount);

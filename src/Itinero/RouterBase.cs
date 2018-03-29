@@ -96,6 +96,6 @@ namespace Itinero
         /// <summary>
         /// Builds a route based on a raw path.
         /// </summary>
-        public abstract Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path) where T : struct;
+        public abstract Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken = new CancellationToken()) where T : struct;
     }
 }

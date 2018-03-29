@@ -20,6 +20,7 @@ using Itinero.Algorithms.Search;
 using Itinero.Attributes;
 using Itinero.LocalGeo;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Search
 {
@@ -47,7 +48,7 @@ namespace Itinero.Test.Algorithms.Search
                 });
 
             // run.
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             // check result.
             Assert.IsNotNull(resolver);
@@ -70,7 +71,7 @@ namespace Itinero.Test.Algorithms.Search
                 });
 
             // run.
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             Assert.IsNotNull(resolver);
             Assert.IsTrue(resolver.HasRun);
@@ -94,7 +95,7 @@ namespace Itinero.Test.Algorithms.Search
             var resolver = new MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Itinero.Osm.Vehicles.Vehicle.Car.Fastest() }, locations);
 
             // run.
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             Assert.IsNotNull(resolver);
             Assert.IsTrue(resolver.HasRun);
@@ -112,7 +113,7 @@ namespace Itinero.Test.Algorithms.Search
             resolver = new MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Itinero.Osm.Vehicles.Vehicle.Car.Fastest() }, locations);
 
             // run.
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             Assert.IsNotNull(resolver);
             Assert.IsTrue(resolver.HasRun);

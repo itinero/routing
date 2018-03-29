@@ -22,6 +22,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.Dual
 {
@@ -56,7 +57,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
                  return false;
             };
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.AreEqual(true, dykstra.HasRun);
             Assert.AreEqual(true, dykstra.HasSucceeded);
@@ -92,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
                 return false;
             };
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.AreEqual(true, dykstra.HasRun);
             Assert.AreEqual(true, dykstra.HasSucceeded);
@@ -128,7 +129,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
                 return false;
             };
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.AreEqual(true, dykstra.HasRun);
             Assert.AreEqual(true, dykstra.HasSucceeded);

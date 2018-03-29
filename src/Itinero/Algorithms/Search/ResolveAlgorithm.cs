@@ -20,6 +20,7 @@ using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
 using System;
+using System.Threading;
 
 namespace Itinero.Algorithms.Search
 {
@@ -81,7 +82,7 @@ namespace Itinero.Algorithms.Search
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // calculate maxOffset in degrees.
             var offsettedLocation = (new Coordinate(_latitude, _longitude)).OffsetWithDistances(_maxOffsetInMeter);

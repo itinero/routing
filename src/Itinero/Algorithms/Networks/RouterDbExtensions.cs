@@ -19,6 +19,7 @@
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -30,7 +31,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Optimizes the network by removing irrelevant vertex.
         /// </summary>
-        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter = Constants.DEFAULT_SIMPL_E)
+        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter = Constants.DEFAULT_SIMPL_E, CancellationToken cancellationToken = new CancellationToken())
         {
             var router = new Router(routerDb);
 
@@ -115,13 +116,13 @@ namespace Itinero.Algorithms.Networks
                     }
                     return true;
                 }, simplifyEpsilonInMeter);
-            algorithm.Run();
+            algorithm.Run(cancellationToken);
         }
 
         /// <summary>
         /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
         /// </summary>
-        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null)
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null, CancellationToken cancellationToken = new CancellationToken())
         {
             var splitter = new Preprocessing.MaxDistanceSplitter(db.Network, (originalEdgeId, newEdgeId) => 
             {
@@ -140,7 +141,7 @@ namespace Itinero.Algorithms.Networks
                     newVertex(v);
                 }
             });
-            splitter.Run();
+            splitter.Run(cancellationToken);
 
             splitter.CheckHasRunAndHasSucceeded();
         }
@@ -148,7 +149,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Runs the algorithm to make sure the loaded graph is a 'simple' graph.
         /// </summary>
-        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null)
+        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null, CancellationToken cancellationToken = new CancellationToken())
         {
             var converter = new Preprocessing.SimpleGraphConverter(db.Network, (originalEdgeId, newEdgeId) => 
             {
@@ -167,7 +168,7 @@ namespace Itinero.Algorithms.Networks
                     newVertex(v);
                 }
             });
-            converter.Run();
+            converter.Run(cancellationToken);
 
             converter.CheckHasRunAndHasSucceeded();
         }

@@ -18,10 +18,10 @@
 
 using Itinero.Algorithms;
 using Itinero.Algorithms.Default.EdgeBased;
-using Itinero.Data;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
@@ -54,7 +54,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
                 new EdgePath<float>(1, 50, -1, new EdgePath<float>())
             }, float.MaxValue, false);
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -96,7 +96,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
                 new EdgePath<float>(1, 50, -1, new EdgePath<float>())
             }, float.MaxValue, false);
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -141,7 +141,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
                 new EdgePath<float>(1, 50, -1, new EdgePath<float>())
             }, float.MaxValue, false);
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -196,7 +196,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
                 new EdgePath<float>(1, 50, -1, new EdgePath<float>())
             }, float.MaxValue, false);
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -252,7 +252,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 new EdgePath<float>(0, 50, 1, new EdgePath<float>()),
                 new EdgePath<float>(1, 50, -1, new EdgePath<float>())
             }, float.MaxValue, false);
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -319,7 +319,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 new EdgePath<float>(1, 50, 1, new EdgePath<float>()),
                 new EdgePath<float>(0, 50, -1, new EdgePath<float>())
             }, float.MaxValue, false);
-            dykstra.Run();
+            dykstra.Run(new CancellationToken());
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);

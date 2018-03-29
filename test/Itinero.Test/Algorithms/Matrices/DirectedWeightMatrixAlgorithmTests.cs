@@ -16,10 +16,10 @@
  *  limitations under the License.
  */
 
-using Itinero.Algorithms;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Matrices
 {
@@ -73,7 +73,7 @@ namespace Itinero.Test.Algorithms.Matrices
                     location2,
                     location3,
                 }, float.MaxValue);
-            matrixCalculator.Run();
+            matrixCalculator.Run(new CancellationToken());
 
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);
@@ -126,7 +126,7 @@ namespace Itinero.Test.Algorithms.Matrices
                     location2,
                     location3,
                 }, float.MaxValue);
-            matrixCalculator.Run();
+            matrixCalculator.Run(new CancellationToken());
 
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);
@@ -179,7 +179,7 @@ namespace Itinero.Test.Algorithms.Matrices
                     location1,
                     location2
                 }, float.MaxValue);
-            matrixCalculator.Run();
+            matrixCalculator.Run(new CancellationToken());
 
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);

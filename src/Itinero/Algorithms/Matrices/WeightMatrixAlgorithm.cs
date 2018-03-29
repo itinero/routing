@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
+using System.Threading;
 
 namespace Itinero.Algorithms.Matrices
 {
@@ -64,12 +65,12 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected sealed override void DoRun()
+        protected sealed override void DoRun(CancellationToken cancellationToken)
         {
             // run mass resolver if needed.
             if (!_massResolver.HasRun)
             {
-                _massResolver.Run();
+                _massResolver.Run(cancellationToken);
             }
 
             // create error and resolved point management data structures.
@@ -102,6 +103,12 @@ namespace Itinero.Algorithms.Matrices
                 _weights = _weights.SchrinkAndCopyMatrix(nonNullInvalids);
             }
             this.HasSucceeded = true;
+        }
+
+        // Whereas the sample presents this class as a public interface, I have provided this wrapper.
+        public void Run()
+        {
+            Run(new CancellationToken());
         }
 
         /// <summary>

@@ -663,7 +663,7 @@ namespace Itinero
                 }
                 return connectivityResult.Value;
             });
-            resolver.Run();
+            resolver.Run(cancellationToken);
 
             if (!resolver.HasSucceeded)
             { // something went wrong.
@@ -898,7 +898,7 @@ namespace Itinero
                     var dykstraTargets = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(targets);
                     var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexWeightAlgorithm<T>(graph, weightHandler,
                         dykstraSources, dykstraTargets, maxSearch);
-                    algorithm.Run();
+                    algorithm.Run(cancellationToken);
                     if (!algorithm.HasSucceeded)
                     {
                         return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
@@ -938,7 +938,7 @@ namespace Itinero
                     var dykstraTargets = Itinero.Algorithms.Default.EdgeBased.DirectedDykstraSourceExtensions.ToDykstraSources<T>(targets);
                     var algorithm = new Itinero.Algorithms.Default.EdgeBased.DirectedManyToManyWeights<T>(graph, weightHandler, router.Db.GetRestrictions(profileInstance.Profile),
                         dykstraSources, dykstraTargets, maxSearch);
-                    algorithm.Run();
+                    algorithm.Run(cancellationToken);
                     if (!algorithm.HasSucceeded)
                     {
                         return new Result<T[][]>(algorithm.ErrorMessage, (message) =>

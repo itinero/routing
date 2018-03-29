@@ -16,6 +16,8 @@
  *  limitations under the License.
  */
 
+using System.Threading;
+
 namespace Itinero.Algorithms
 {
     /// <summary>
@@ -42,7 +44,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Runs the algorithm.
         /// </summary>
-        void Run();
+        void Run(CancellationToken cancellationToken);
 
         /// <summary>
         /// Returns an error message when the algorithm was not successful.

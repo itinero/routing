@@ -25,6 +25,7 @@ using System.Linq;
 using Itinero.Data.Edges;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Weights;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {
@@ -64,7 +65,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // convert graph.
             var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check result.
             Assert.IsTrue(algorithm.HasRun);
@@ -118,7 +119,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // convert graph.
             var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicFixedSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check result.
             Assert.IsTrue(algorithm.HasRun);
@@ -173,7 +174,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // convert graph.
             var directedGraph = new DirectedDynamicGraph(ContractedEdgeDataSerializer.DynamicAugmentedFixedSize);
             var algorithm = new DirectedGraphBuilder<Weight>(graph, directedGraph, new WeightHandler(getFactor));
-            algorithm.Run();
+            algorithm.Run(new CancellationToken());
 
             // check result.
             Assert.IsTrue(algorithm.HasRun);

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Edges;
 using Itinero.Graphs.Geometric.Shapes;
@@ -50,7 +51,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
         /// <summary>
         /// Excutes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var edgeEnumerator = _network.GetEdgeEnumerator();
             var neighbours = new HashSet<uint>();

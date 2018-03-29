@@ -22,6 +22,7 @@ using Itinero.Profiles.Lua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Itinero.Navigation.Instructions
 {
@@ -342,7 +343,7 @@ namespace Itinero.Navigation.Instructions
         /// <summary>
         /// Generates instructions for the given route assuming it's using the profile in this generator.
         /// </summary>
-        public IList<Instruction> Generate(Route route, ILanguageReference languageReference)
+        public IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken = new CancellationToken())
         {
             if (route.IsMultimodal())
             {
@@ -355,7 +356,7 @@ namespace Itinero.Navigation.Instructions
             }
 
             var instructionGenerator = new UnimodalInstructionGenerator(route, _getInstructionFunctions, languageReference);
-            instructionGenerator.Run();
+            instructionGenerator.Run(cancellationToken);
             if (!instructionGenerator.HasSucceeded)
             {
                 throw new Exception(string.Format("Failed to generate instructions: {0}", instructionGenerator.ErrorMessage));

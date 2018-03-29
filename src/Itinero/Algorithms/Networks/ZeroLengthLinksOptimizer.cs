@@ -17,6 +17,7 @@
  */
 
 using Itinero.Data.Network;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -45,7 +46,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var edgeEnumerator = _network.GetEdgeEnumerator();
             for(uint vertex = 0;  vertex < _network.VertexCount; vertex++)

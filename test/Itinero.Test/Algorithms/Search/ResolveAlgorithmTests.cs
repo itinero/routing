@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Search
 {
@@ -48,7 +49,7 @@ namespace Itinero.Test.Algorithms.Search
             var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, 
                 Constants.DefaultMaxEdgeDistance, 50f,
                     (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             var result = resolver.Result;
             Assert.IsNotNull(result);
@@ -57,7 +58,7 @@ namespace Itinero.Test.Algorithms.Search
             location = vertex1;
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -67,7 +68,7 @@ namespace Itinero.Test.Algorithms.Search
                 (vertex0.Longitude + vertex1.Longitude) / 2);
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -93,7 +94,7 @@ namespace Itinero.Test.Algorithms.Search
             var location = vertex0;
             var resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             var result = resolver.Result;
             Assert.IsNotNull(result);
@@ -102,7 +103,7 @@ namespace Itinero.Test.Algorithms.Search
             location = vertex1;
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -111,7 +112,7 @@ namespace Itinero.Test.Algorithms.Search
             location = shape0;
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -120,7 +121,7 @@ namespace Itinero.Test.Algorithms.Search
             location = shape1;
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -129,7 +130,7 @@ namespace Itinero.Test.Algorithms.Search
             location = new Coordinate(51.26771847181371f, 4.801915884017944f);
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -138,7 +139,7 @@ namespace Itinero.Test.Algorithms.Search
             location = new Coordinate(51.266986766160414f, 4.8019373416900635f);
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -162,7 +163,7 @@ namespace Itinero.Test.Algorithms.Search
             var location = vertex0;
             var resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             var result = resolver.Result;
             Assert.IsNotNull(result);
@@ -171,7 +172,7 @@ namespace Itinero.Test.Algorithms.Search
             location = vertex1;
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -181,7 +182,7 @@ namespace Itinero.Test.Algorithms.Search
                 (vertex0.Longitude + vertex1.Longitude) / 2);
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return true; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -208,7 +209,7 @@ namespace Itinero.Test.Algorithms.Search
             var location = vertex0;
             var resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             var result = resolver.Result;
             Assert.IsNotNull(result);
@@ -218,7 +219,7 @@ namespace Itinero.Test.Algorithms.Search
             location = vertex1;
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -229,7 +230,7 @@ namespace Itinero.Test.Algorithms.Search
                 (vertex0.Longitude + vertex1.Longitude) / 2);
             resolver = new ResolveAlgorithm(graph, location.Latitude, location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -259,7 +260,7 @@ namespace Itinero.Test.Algorithms.Search
             var location = vertex0;
             var resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             var result = resolver.Result;
             Assert.IsNotNull(result);
@@ -269,7 +270,7 @@ namespace Itinero.Test.Algorithms.Search
             location = vertex1;
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -279,7 +280,7 @@ namespace Itinero.Test.Algorithms.Search
             location = shape0;
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -289,7 +290,7 @@ namespace Itinero.Test.Algorithms.Search
             location = shape1;
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -299,7 +300,7 @@ namespace Itinero.Test.Algorithms.Search
             location = new Coordinate(51.26771847181371f, 4.801915884017944f);
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);
@@ -309,7 +310,7 @@ namespace Itinero.Test.Algorithms.Search
             location = new Coordinate(51.266986766160414f, 4.8019373416900635f);
             resolver = new ResolveAlgorithm(graph, (float)location.Latitude, (float)location.Longitude, Constants.DefaultMaxEdgeDistance, 50f,
                 (edge) => { return true; }, (edge) => { return edge.Data[0] == 1; });
-            resolver.Run();
+            resolver.Run(new CancellationToken());
 
             result = resolver.Result;
             Assert.IsNotNull(result);

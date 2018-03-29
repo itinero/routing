@@ -34,6 +34,7 @@ using Itinero.Algorithms;
 using Itinero.Profiles;
 using System.Linq;
 using NUnit.Framework;
+using System.Threading;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -168,7 +169,7 @@ namespace Itinero.Test.Functional.Tests
                 {
                     profile
                 });
-                islandDetector.Run();
+                islandDetector.Run(new CancellationToken());
             };
         }
 

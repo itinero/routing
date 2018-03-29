@@ -23,6 +23,7 @@ using Itinero.LocalGeo;
 using Itinero.Logging;
 using Itinero.Profiles;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Shortcuts
 {
@@ -62,7 +63,7 @@ namespace Itinero.Algorithms.Shortcuts
         /// <summary>
         /// Executes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var router = new Router(_db);
             router.VerifyAllStoppable = true;
@@ -74,7 +75,7 @@ namespace Itinero.Algorithms.Shortcuts
             {
                 var resolver = new Algorithms.Search.ResolveVertexAlgorithm(_db.Network.GeometricGraph, _locations[i].Latitude, _locations[i].Longitude, 
                     500, 3000, router.GetIsAcceptable(_profile));
-                resolver.Run();
+                resolver.Run(cancellationToken);
                 if (!resolver.HasSucceeded)
                 {
                     throw new System.Exception(string.Format("Could not resolve shortcut location at index {1}: {0}.", resolver.ErrorMessage, i));
@@ -90,7 +91,7 @@ namespace Itinero.Algorithms.Shortcuts
                 Time = _maxShortcutDuration,
                 Value = _maxShortcutDuration
             });
-            algorithm.Run();
+            algorithm.Run(cancellationToken);
             if (!algorithm.HasSucceeded)
             {
                 this.ErrorMessage = "Many to many calculation failed: " + algorithm.ErrorMessage;

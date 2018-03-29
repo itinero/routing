@@ -18,9 +18,8 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Routes;
-using Itinero.Attributes;
 using Itinero.LocalGeo;
-using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Routes
 {
@@ -69,7 +68,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             var aggregator = new RouteSegmentAggregator(route, (x, y) => null);
-            aggregator.Run();
+            aggregator.Run(new CancellationToken());
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -139,7 +138,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             var aggregator = new RouteSegmentAggregator(route, (x, y) => null);
-            aggregator.Run();
+            aggregator.Run(new CancellationToken());
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -179,7 +178,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(result.ShapeMeta[result.ShapeMeta.Length - 1].Time, result.TotalTime);
 
             aggregator = new RouteSegmentAggregator(route, (x, y) => y);
-            aggregator.Run();
+            aggregator.Run(new CancellationToken());
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -285,7 +284,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             var aggregator = new RouteSegmentAggregator(route, RouteSegmentAggregator.ModalAggregator);
-            aggregator.Run();
+            aggregator.Run(new CancellationToken());
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -377,7 +376,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             aggregator = new RouteSegmentAggregator(route, RouteSegmentAggregator.ModalAggregator);
-            aggregator.Run();
+            aggregator.Run(new CancellationToken());
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);

@@ -23,6 +23,7 @@ using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -51,7 +52,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Executes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             float distance;
             ushort edgeProfile;
