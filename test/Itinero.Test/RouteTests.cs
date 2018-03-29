@@ -560,6 +560,8 @@ namespace Itinero.Test
             };
 
             var geojson = route.ToGeoJson();
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
+                geojson);
         }
 
         /// <summary>
