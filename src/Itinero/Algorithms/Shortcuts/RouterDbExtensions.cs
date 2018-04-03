@@ -31,19 +31,11 @@ namespace Itinero.Algorithms.Shortcuts
         /// <summary>
         /// Adds multiple shortcut db's at the same time.
         /// </summary>
-        public static void AddShortcuts(this RouterDb routerDb, params ShortcutSpecs[] shortcutSpecs)
-        {
-            //This overload is done manually instead of by default parameter to offer the parameter list interface without moving
-            //the cancellation token to an unusual position in the parameter list. The wrapped method below does not include
-            //a default cancellation token in its parameter set because this will create an ambiguous method spec and, potentially,
-            //a stack overflow at runtime (depending on the whims of the compiler.)
-            AddShortcuts(routerDb, shortcutSpecs, new CancellationToken());
-        }
-
+        public static void AddShortcuts(this RouterDb routerDb, params ShortcutSpecs[] shortcutSpecs) => AddShortcuts(routerDb, shortcutSpecs, new CancellationToken());
         /// <summary>
         /// Adds multiple shortcut db's at the same time.
         /// </summary>
-        public static void AddShortcuts(this RouterDb routerDb, ShortcutSpecs[] shortcutSpecs, CancellationToken cancellationToken)
+        public static void AddShortcuts(this RouterDb routerDb, ShortcutSpecs[] shortcutSpecs, CancellationToken cancellationToken = new CancellationToken())
         {
             // check all specs.
             if (shortcutSpecs == null) { throw new ArgumentNullException(); }
