@@ -16,10 +16,10 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.LocalGeo;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Matrices
 {

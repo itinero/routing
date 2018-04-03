@@ -23,7 +23,6 @@ using Itinero.Data.Network.Edges;
 using System.Linq;
 using System.Collections.Generic;
 using Itinero.LocalGeo;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Networks
 {

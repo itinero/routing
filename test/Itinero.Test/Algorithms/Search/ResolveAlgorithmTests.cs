@@ -20,7 +20,6 @@ using NUnit.Framework;
 using Itinero.Algorithms.Search;
 using Itinero.LocalGeo;
 using Itinero.Graphs.Geometric;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Search
 {

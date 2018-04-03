@@ -18,10 +18,10 @@
 
 using Itinero.Algorithms;
 using Itinero.Algorithms.Default.EdgeBased;
+using Itinero.Data;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
