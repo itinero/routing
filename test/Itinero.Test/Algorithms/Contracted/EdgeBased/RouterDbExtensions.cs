@@ -49,7 +49,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var contracted = new DirectedDynamicGraph(weightHandler.DynamicSize);
             var directedGraphBuilder = new Itinero.Algorithms.Contracted.EdgeBased.DirectedGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted,
                 weightHandler);
-            directedGraphBuilder.Run(new CancellationToken());
+            directedGraphBuilder.Run();
 
             // contract the graph.
             var priorityCalculator = new Itinero.Algorithms.Contracted.EdgeBased.EdgeDifferencePriorityCalculator<T>(contracted, weightHandler,
@@ -59,7 +59,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             priorityCalculator.ContractedFactor = 8;
             var hierarchyBuilder = new Itinero.Algorithms.Contracted.EdgeBased.HierarchyBuilder<T>(contracted, priorityCalculator,
                     new Itinero.Algorithms.Contracted.EdgeBased.Witness.DykstraWitnessCalculator<T>(weightHandler, int.MaxValue, 64), weightHandler, db.GetGetRestrictions(profile, null));
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             contractedDb = new ContractedDb(contracted);
 

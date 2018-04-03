@@ -67,7 +67,7 @@ namespace Itinero.Test
             //var weightHandler = pedestrian.DefaultWeightHandlerCached(routerDb);
             //var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
             //var directedGraphBuilder = new DirectedGraphBuilder<float>(routerDb.Network.GeometricGraph.Graph, contracted, weightHandler);
-            //directedGraphBuilder.Run(new CancellationToken());
+            //directedGraphBuilder.Run();
 
             //// contract the graph.
             //var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
@@ -76,7 +76,7 @@ namespace Itinero.Test
             //hierarchyBuilder.DepthFactor = 0;
             //hierarchyBuilder.ContractedFactor = 0;
             //hierarchyBuilder.DifferenceFactor = 1;
-            //hierarchyBuilder.Run(new CancellationToken());
+            //hierarchyBuilder.Run();
 
             //var contractedDb = new ContractedDb(contracted, false);
 

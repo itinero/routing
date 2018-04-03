@@ -49,7 +49,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
             // contract graph.
             var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(graph, 
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -76,7 +76,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
             // contract graph.
             var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(graph, 
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -109,7 +109,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
             // contract graph.
             var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(graph, 
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -152,7 +152,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -217,7 +217,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -280,7 +280,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
             hierarchyBuilder.DepthFactor = 0;
             hierarchyBuilder.ContractedFactor = 0;
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 2);
@@ -328,7 +328,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 2);
@@ -407,7 +407,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
             Assert.IsNotNull(edge);
@@ -455,7 +455,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
             // contract graph.
             var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(graph, 
                 new DykstraWitnessCalculator(graph.Graph, int.MaxValue));
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -491,7 +491,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
                 new DykstraWitnessCalculator<Weight>(graph.Graph, weightHandler, int.MaxValue), weightHandler);
             hierarchyBuilder.ContractedFactor = 0;
             hierarchyBuilder.DepthFactor = 0;
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);

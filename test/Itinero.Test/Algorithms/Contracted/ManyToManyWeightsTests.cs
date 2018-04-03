@@ -63,7 +63,7 @@ namespace Itinero.Test.Algorithms.Contracted
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, 0) }, 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -102,7 +102,7 @@ namespace Itinero.Test.Algorithms.Contracted
             var algorithm = new ManyToManyWeightsBidirectionalDykstra(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint[] { new RouterPoint(0, 0, 0, ushort.MaxValue / 10) },
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -175,7 +175,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken()); Assert.IsTrue(algorithm.HasRun);
+            algorithm.Run(); Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
             var weights = algorithm.Weights;
@@ -239,7 +239,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -306,7 +306,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -373,7 +373,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -447,7 +447,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -520,7 +520,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -593,7 +593,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);
@@ -688,7 +688,7 @@ namespace Itinero.Test.Algorithms.Contracted
                     routerDb.Network.CreateRouterPointForVertex(3),
                     routerDb.Network.CreateRouterPointForVertex(4)
                 });
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check results.
             Assert.IsTrue(algorithm.HasRun);

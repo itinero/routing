@@ -57,7 +57,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
                  return false;
             };
-            dykstra.Run(new CancellationToken());
+            dykstra.Run();
 
             Assert.AreEqual(true, dykstra.HasRun);
             Assert.AreEqual(true, dykstra.HasSucceeded);
@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
                 return false;
             };
-            dykstra.Run(new CancellationToken());
+            dykstra.Run();
 
             Assert.AreEqual(true, dykstra.HasRun);
             Assert.AreEqual(true, dykstra.HasSucceeded);
@@ -129,7 +129,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
                 return false;
             };
-            dykstra.Run(new CancellationToken());
+            dykstra.Run();
 
             Assert.AreEqual(true, dykstra.HasRun);
             Assert.AreEqual(true, dykstra.HasSucceeded);

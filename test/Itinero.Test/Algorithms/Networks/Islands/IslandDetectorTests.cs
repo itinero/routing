@@ -58,7 +58,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
 
             // start island detector.
             var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             var islands = islandDetector.Islands;
@@ -110,7 +110,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
 
             // start island detector.
             var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             var islands = islandDetector.Islands;
@@ -185,7 +185,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
 
             // start island detector.
             var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             var islands = islandDetector.Islands;
@@ -254,7 +254,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
 
             // start island detector.
             var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             var islands = islandDetector.Islands;
@@ -293,7 +293,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
 
             // start island detector.
             islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             islands = islandDetector.Islands;
@@ -335,7 +335,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
 
             // start island detector.
             var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor });
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             var islands = islandDetector.Islands;
@@ -380,7 +380,7 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             // start island detector.
             var islandDetector = new IslandDetector(routerDb, new Func<ushort, Itinero.Profiles.Factor>[] { getFactor },
                 routerDb.GetRestrictions(Itinero.Osm.Vehicles.Vehicle.Car.Fastest()));
-            islandDetector.Run(new CancellationToken());
+            islandDetector.Run();
 
             // verify the islands.
             var islands = islandDetector.Islands;

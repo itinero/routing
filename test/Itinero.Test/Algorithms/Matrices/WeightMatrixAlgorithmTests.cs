@@ -46,7 +46,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run(new CancellationToken());
+            matrixAlgorithm.Run();
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -78,7 +78,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run(new CancellationToken());
+            matrixAlgorithm.Run();
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -101,7 +101,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run(new CancellationToken());
+            matrixAlgorithm.Run();
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -136,7 +136,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run(new CancellationToken());
+            matrixAlgorithm.Run();
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);
@@ -161,7 +161,7 @@ namespace Itinero.Test.Algorithms.Matrices
                 new Itinero.Algorithms.Search.MassResolvingAlgorithm(router, new Itinero.Profiles.Profile[] { Vehicle.Car.Fastest() }, locations, null));
 
             // run.
-            matrixAlgorithm.Run(new CancellationToken());
+            matrixAlgorithm.Run();
 
             Assert.IsNotNull(matrixAlgorithm);
             Assert.IsTrue(matrixAlgorithm.HasRun);

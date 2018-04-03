@@ -66,7 +66,7 @@ namespace Itinero.Test.Algorithms.Contracted
             var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             Assert.IsTrue(algorithm.HasRun);
@@ -123,7 +123,7 @@ namespace Itinero.Test.Algorithms.Contracted
             var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaSize);
             var algorithm = new DirectedGraphBuilder(graph, directedGraph, getFactor);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             Assert.IsTrue(algorithm.HasRun);
@@ -181,7 +181,7 @@ namespace Itinero.Test.Algorithms.Contracted
             var directedGraph = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
                 ContractedEdgeDataSerializer.MetaAugmentedSize);
             var algorithm = new DirectedGraphBuilder<Weight>(graph, directedGraph, new WeightHandler(getFactor));
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             Assert.IsTrue(algorithm.HasRun);

@@ -68,7 +68,7 @@ namespace Itinero.Test.Algorithms
             // run algorithm.
             var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) }, 
                 float.MaxValue, false);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -120,7 +120,7 @@ namespace Itinero.Test.Algorithms
             // run algorithm.
             var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 (100 / speed) / 2, false);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -170,7 +170,7 @@ namespace Itinero.Test.Algorithms
             // run algorithm.
             var algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 float.MaxValue, false);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -198,7 +198,7 @@ namespace Itinero.Test.Algorithms
             // run algorithm.
             algorithm = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
                 float.MaxValue, false);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -268,7 +268,7 @@ namespace Itinero.Test.Algorithms
                 new EdgePath<float>(0, 10 / speed, new EdgePath<float>(uint.MaxValue)),
                 new EdgePath<float>(1, 90 / speed, new EdgePath<float>(uint.MaxValue))},
                 float.MaxValue, false);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -410,7 +410,7 @@ namespace Itinero.Test.Algorithms
                 }
                 return false;
             };
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);

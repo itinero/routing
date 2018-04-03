@@ -55,7 +55,7 @@ namespace Itinero.Test.Algorithms.Default
             // run algorithm.
             var algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(), 
                 new RouterPoint(0, 0, 0, 0), new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue) }, float.MaxValue);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -98,7 +98,7 @@ namespace Itinero.Test.Algorithms.Default
             var algorithm = new OneToMany(new Router(routerDb), VehicleMock.Car().Fastest(),
                 new RouterPoint(0, 0, 0, ushort.MaxValue / 10), 
                 new RouterPoint[] { new RouterPoint(1, 1, 0, ushort.MaxValue / 10 * 9) }, float.MaxValue);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -170,7 +170,7 @@ namespace Itinero.Test.Algorithms.Default
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 }, float.MaxValue);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
@@ -209,7 +209,7 @@ namespace Itinero.Test.Algorithms.Default
                     routerDb.Network.CreateRouterPointForVertex(0),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 }, float.MaxValue);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);

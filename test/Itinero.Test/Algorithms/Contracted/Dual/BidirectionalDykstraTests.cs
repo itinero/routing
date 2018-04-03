@@ -45,7 +45,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
             var bidirectionalDykstra = new Itinero.Algorithms.Contracted.Dual.BidirectionalDykstra<float>(graph,
                 weightHandler, 0, 1);
-            bidirectionalDykstra.Run(new CancellationToken());
+            bidirectionalDykstra.Run();
 
             Assert.AreEqual(true, bidirectionalDykstra.HasRun);
             Assert.AreEqual(true, bidirectionalDykstra.HasSucceeded);
@@ -93,7 +93,7 @@ namespace Itinero.Test.Algorithms.Contracted.Dual
 
             var bidirectionalDykstra = new Itinero.Algorithms.Contracted.Dual.BidirectionalDykstra<float>(graph,
                 weightHandler, 0, 1);
-            bidirectionalDykstra.Run(new CancellationToken());
+            bidirectionalDykstra.Run();
 
             Assert.AreEqual(true, bidirectionalDykstra.HasRun);
             Assert.AreEqual(true, bidirectionalDykstra.HasSucceeded);

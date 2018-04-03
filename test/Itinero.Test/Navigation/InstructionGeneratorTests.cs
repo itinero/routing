@@ -77,7 +77,7 @@ namespace Itinero.Test.Navigation
                             return 1;
                         }
                 }, new MockLanguageReference());
-            generator.Run(new CancellationToken());
+            generator.Run();
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
@@ -142,7 +142,7 @@ namespace Itinero.Test.Navigation
                             return 1;
                         }
                 }, new MockLanguageReference());
-            generator.Run(new CancellationToken());
+            generator.Run();
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);
@@ -204,7 +204,7 @@ namespace Itinero.Test.Navigation
                     };
                     return true;
                 }, new MockLanguageReference());
-            generator.Run(new CancellationToken());
+            generator.Run();
 
             var instructions = generator.Instructions;
             Assert.IsNotNull(instructions);

@@ -68,7 +68,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             var aggregator = new RouteSegmentAggregator(route, (x, y) => null);
-            aggregator.Run(new CancellationToken());
+            aggregator.Run();
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -138,7 +138,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             var aggregator = new RouteSegmentAggregator(route, (x, y) => null);
-            aggregator.Run(new CancellationToken());
+            aggregator.Run();
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -178,7 +178,7 @@ namespace Itinero.Test.Algorithms.Routes
             Assert.AreEqual(result.ShapeMeta[result.ShapeMeta.Length - 1].Time, result.TotalTime);
 
             aggregator = new RouteSegmentAggregator(route, (x, y) => y);
-            aggregator.Run(new CancellationToken());
+            aggregator.Run();
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -284,7 +284,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             var aggregator = new RouteSegmentAggregator(route, RouteSegmentAggregator.ModalAggregator);
-            aggregator.Run(new CancellationToken());
+            aggregator.Run();
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);
@@ -376,7 +376,7 @@ namespace Itinero.Test.Algorithms.Routes
             };
 
             aggregator = new RouteSegmentAggregator(route, RouteSegmentAggregator.ModalAggregator);
-            aggregator.Run(new CancellationToken());
+            aggregator.Run();
 
             Assert.IsTrue(aggregator.HasRun);
             Assert.IsTrue(aggregator.HasSucceeded);

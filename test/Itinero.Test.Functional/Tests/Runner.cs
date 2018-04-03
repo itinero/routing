@@ -169,7 +169,7 @@ namespace Itinero.Test.Functional.Tests
                 {
                     profile
                 });
-                islandDetector.Run(new CancellationToken());
+                islandDetector.Run();
             };
         }
 

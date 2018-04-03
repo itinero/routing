@@ -64,7 +64,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 }
                 return false;
             };
-            dykstra.Run(new CancellationToken());
+            dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);
@@ -109,7 +109,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
                 }
                 return false;
             };
-            dykstra.Run(new CancellationToken());
+            dykstra.Run();
 
             Assert.IsTrue(dykstra.HasRun);
             Assert.IsTrue(dykstra.HasSucceeded);

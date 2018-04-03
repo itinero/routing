@@ -48,7 +48,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // contract graph.
             var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)), 
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -74,7 +74,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // contract graph.
             var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -106,7 +106,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             // contract graph.
             var hierarchyBuilder = new HierarchyBuilder(graph, new EdgeDifferencePriorityCalculator(graph, new DykstraWitnessCalculator(int.MaxValue)),
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -149,7 +149,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             priorityCalculator.DepthFactor = 0;
             var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -214,7 +214,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             priorityCalculator.DepthFactor = 0;
             var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edges01 = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 1);
@@ -289,7 +289,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             priorityCalculator.ContractedFactor = 0;
             var hierarchyBuilder = new HierarchyBuilder(graph, priorityCalculator,
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 2);
@@ -340,7 +340,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
             var hierarchyBuilder = new HierarchyBuilder(graph,
                 new MockPriorityCalculator(priorities),
                 new DykstraWitnessCalculator(int.MaxValue), (i) => Enumerable.Empty<uint[]>());
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // edges 1->2 and 2->1 should have been removed.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
@@ -407,7 +407,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                     }
                     return null;
                 });
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check all edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
@@ -485,7 +485,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                     }
                     return null;
                 });
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check all edges.
             var edge = graph.GetEdgeEnumerator(0).FirstOrDefault(x => x.Neighbour == 3);
@@ -568,7 +568,7 @@ namespace Itinero.Test.Algorithms.Contracted.EdgeBased
                     }
                     return null;
                 });
-            hierarchyBuilder.Run(new CancellationToken());
+            hierarchyBuilder.Run();
 
             // check all edges.
             ContractedEdgeData edgeData;

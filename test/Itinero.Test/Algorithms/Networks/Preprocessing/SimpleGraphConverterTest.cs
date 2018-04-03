@@ -46,7 +46,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
             });
 
             var converter = new Itinero.Algorithms.Networks.Preprocessing.SimpleGraphConverter(network, (x, y) => {});
-            converter.Run(new CancellationToken());
+            converter.Run();
 
             Assert.AreEqual(2, network.VertexCount);
             Assert.AreEqual(1, network.EdgeCount);
@@ -79,7 +79,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
             {
                 Assert.AreEqual(2, v);
             });
-            converter.Run(new CancellationToken());
+            converter.Run();
 
             Assert.AreEqual(3, network.VertexCount);
             Assert.AreEqual(3, network.EdgeCount);
@@ -115,7 +115,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
             {
                 Assert.AreEqual(2, v);
             });
-            converter.Run(new CancellationToken());
+            converter.Run();
 
             Assert.AreEqual(3, network.VertexCount);
             Assert.AreEqual(3, network.EdgeCount);
@@ -148,7 +148,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing
                     Assert.Fail("An unexpected vertex was reportedly added.");
                 }
             });
-            converter.Run(new CancellationToken());
+            converter.Run();
 
             Assert.AreEqual(3, network.VertexCount);
             Assert.AreEqual(3, network.EdgeCount);

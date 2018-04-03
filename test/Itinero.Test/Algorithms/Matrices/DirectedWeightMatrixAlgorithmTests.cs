@@ -73,7 +73,7 @@ namespace Itinero.Test.Algorithms.Matrices
                     location2,
                     location3,
                 }, float.MaxValue);
-            matrixCalculator.Run(new CancellationToken());
+            matrixCalculator.Run();
 
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);
@@ -126,7 +126,7 @@ namespace Itinero.Test.Algorithms.Matrices
                     location2,
                     location3,
                 }, float.MaxValue);
-            matrixCalculator.Run(new CancellationToken());
+            matrixCalculator.Run();
 
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);
@@ -179,7 +179,7 @@ namespace Itinero.Test.Algorithms.Matrices
                     location1,
                     location2
                 }, float.MaxValue);
-            matrixCalculator.Run(new CancellationToken());
+            matrixCalculator.Run();
 
             Assert.IsTrue(matrixCalculator.HasRun);
             Assert.IsTrue(matrixCalculator.HasSucceeded);

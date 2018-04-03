@@ -80,7 +80,7 @@ namespace Itinero.Test.Algorithms.Networks
 
             // execute algorithm.
             var algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             var edges = graph.GetEdgeEnumerator(0);
@@ -111,7 +111,7 @@ namespace Itinero.Test.Algorithms.Networks
 
             // execute algorithm.
             var algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             var edges = graph.GetEdgeEnumerator(0);
@@ -144,7 +144,7 @@ namespace Itinero.Test.Algorithms.Networks
 
             // execute algorithm.
             var algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate, 0);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             var edges = graph.GetEdgeEnumerator(0);
@@ -169,7 +169,7 @@ namespace Itinero.Test.Algorithms.Networks
 
             // execute algorithm.
             algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate, 0);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             edges = graph.GetEdgeEnumerator(0);
@@ -194,7 +194,7 @@ namespace Itinero.Test.Algorithms.Networks
 
             // execute algorithm.
             algorithm = new NetworkOptimizer(graph, (v) => false, MergeDelegate, 0);
-            algorithm.Run(new CancellationToken());
+            algorithm.Run();
 
             // check result.
             edges = graph.GetEdgeEnumerator(0);
