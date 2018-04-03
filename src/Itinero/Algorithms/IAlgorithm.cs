@@ -44,7 +44,7 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Runs the algorithm.
         /// </summary>
-        void Run(CancellationToken cancellationToken);
+        void Run(CancellationToken cancellationToken = new CancellationToken());
 
         /// <summary>
         /// Returns an error message when the algorithm was not successful.

@@ -104,13 +104,7 @@ namespace Itinero.Algorithms.Matrices
             }
             this.HasSucceeded = true;
         }
-
-        // Whereas the sample presents this class as a public interface, I have provided this wrapper.
-        public void Run()
-        {
-            Run(new CancellationToken());
-        }
-
+        
         /// <summary>
         /// Gets the router.
         /// </summary>
