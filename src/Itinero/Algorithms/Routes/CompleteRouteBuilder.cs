@@ -470,7 +470,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<float> path, CancellationToken cancellationToken)
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<float> path, CancellationToken cancellationToken = new CancellationToken())
         {
             return CompleteRouteBuilder.TryBuild(db, profile, source, target, path, cancellationToken).Value;
         }
@@ -478,7 +478,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild<T>(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
+        public static Result<Route> TryBuild<T>(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken = new CancellationToken())
         {
             var pathList = new List<uint>();
             path.AddToListAsVertices(pathList);
@@ -488,7 +488,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken)
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken = new CancellationToken())
         {
             return CompleteRouteBuilder.TryBuild(db, profile, source, target, path, cancellationToken).Value;
         }
@@ -496,7 +496,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken)
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken = new CancellationToken())
         {
             var routeBuilder = new CompleteRouteBuilder(db, profile, source, target, path);
             routeBuilder.Run(cancellationToken);

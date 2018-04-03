@@ -393,7 +393,7 @@ namespace Itinero.Algorithms.Routes
         /// Builds a route.
         /// </summary>
         public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = new CancellationToken())
         {
             return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path, cancellationToken).Value;
         }
@@ -402,7 +402,7 @@ namespace Itinero.Algorithms.Routes
         /// Builds a route.
         /// </summary>
         public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = new CancellationToken())
         {
             var pathList = new List<uint>();
             path.AddToListAsVertices(pathList);
@@ -413,7 +413,7 @@ namespace Itinero.Algorithms.Routes
         /// Builds a route.
         /// </summary>
         public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, List<uint> path,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken = new CancellationToken())
         {
             return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path, cancellationToken).Value;
         }
@@ -422,7 +422,7 @@ namespace Itinero.Algorithms.Routes
         /// Builds a route.
         /// </summary>
         public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, 
-            RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken)
+            RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken = new CancellationToken())
         {
             var routeBuilder = new FastRouteBuilder(db, profile, getFactor, source, target, path);
             routeBuilder.Run(cancellationToken);
