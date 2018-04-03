@@ -17,9 +17,9 @@
  */
 
 using Itinero.Algorithms.Networks;
+using Itinero.Graphs;
 using NUnit.Framework;
 using System;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Networks.Islands
 {

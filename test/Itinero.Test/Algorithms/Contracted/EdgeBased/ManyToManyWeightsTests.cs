@@ -24,7 +24,6 @@ using Itinero.Graphs.Directed;
 using Itinero.Test.Profiles;
 using Itinero.Profiles;
 using Itinero.Data.Contracted.Edges;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {

@@ -26,7 +26,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Itinero.Data.Network.Edges;
 using Itinero.Profiles;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Routes
 {

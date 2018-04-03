@@ -24,7 +24,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Weights;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted
 {

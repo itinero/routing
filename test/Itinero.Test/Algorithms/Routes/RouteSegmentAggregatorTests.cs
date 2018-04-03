@@ -18,8 +18,9 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Routes;
+using Itinero.Attributes;
 using Itinero.LocalGeo;
-using System.Threading;
+using System.Collections.Generic;
 
 namespace Itinero.Test.Algorithms.Routes
 {

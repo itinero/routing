@@ -20,7 +20,6 @@ using NUnit.Framework;
 using Itinero.Algorithms.Default;
 using Itinero.Test.Profiles;
 using Itinero.Data.Network;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default
 {

@@ -23,7 +23,6 @@ using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
 using Itinero.Data.Edges;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default
 {

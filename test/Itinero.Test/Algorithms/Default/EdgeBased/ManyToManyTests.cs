@@ -20,7 +20,6 @@ using NUnit.Framework;
 using Itinero.Algorithms.Default.EdgeBased;
 using Itinero.Data.Network;
 using Itinero.Test.Profiles;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default.EdgeBased
 {

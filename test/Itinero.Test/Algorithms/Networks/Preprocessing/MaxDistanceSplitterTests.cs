@@ -19,7 +19,6 @@
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Networks.Preprocessing
 {

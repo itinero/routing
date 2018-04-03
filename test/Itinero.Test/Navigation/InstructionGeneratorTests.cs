@@ -22,7 +22,6 @@ using Itinero.Navigation;
 using Itinero.Navigation.Language;
 using Itinero.Test.Navigation.Language;
 using Itinero.Navigation.Instructions;
-using System.Threading;
 
 namespace Itinero.Test.Navigation
 {

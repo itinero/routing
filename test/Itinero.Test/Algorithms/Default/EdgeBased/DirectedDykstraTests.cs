@@ -22,7 +22,6 @@ using Itinero.Algorithms.Weights;
 using Itinero.Data.Edges;
 using Itinero.Graphs;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Default.EdgeBased
 {
