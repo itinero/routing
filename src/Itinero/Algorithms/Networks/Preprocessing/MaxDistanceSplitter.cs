@@ -64,7 +64,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                 while (edgeEnumerator.MoveNext())
                 {
                     var data = edgeEnumerator.Data;
-                    if (data.Distance <= _maxDistance)
+                    if (data.Distance < _maxDistance)
                     { // edge is within bounds.
                         continue;
                     }
@@ -81,7 +81,6 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                     { // cannot invert data so invert the rest.
                         vertex1 = edgeEnumerator.To;
                         vertex2 = v;
-                        shape.Reverse();
                     }
 
                     // remove the duplicate.
