@@ -19,12 +19,12 @@
 using NUnit.Framework;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Default;
+using Itinero.Data;
 using Itinero.Graphs;
 using Itinero.Profiles;
 using System;
 using Itinero.Data.Edges;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms
 {

@@ -34,7 +34,6 @@ using Itinero.Algorithms;
 using Itinero.Profiles;
 using System.Linq;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Functional.Tests
 {

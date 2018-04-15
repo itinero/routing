@@ -22,7 +22,6 @@ using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.Dual
 {

@@ -21,7 +21,6 @@ using Itinero.LocalGeo;
 using Itinero.Osm.Vehicles;
 using System.Collections.Generic;
 using Itinero.Algorithms.Matrices;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Matrices
 {

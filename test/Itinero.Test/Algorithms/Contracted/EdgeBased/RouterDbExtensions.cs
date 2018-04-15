@@ -20,7 +20,6 @@ using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted;
 using Itinero.Graphs.Directed;
 using Itinero.Profiles;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.EdgeBased
 {

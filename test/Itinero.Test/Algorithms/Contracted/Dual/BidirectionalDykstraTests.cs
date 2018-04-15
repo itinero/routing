@@ -18,11 +18,11 @@
 
 using Itinero.Algorithms;
 using Itinero.Algorithms.Contracted;
+using Itinero.Algorithms.Contracted.Dual;
 using Itinero.Algorithms.Weights;
 using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using NUnit.Framework;
-using System.Threading;
 
 namespace Itinero.Test.Algorithms.Contracted.Dual
 {
