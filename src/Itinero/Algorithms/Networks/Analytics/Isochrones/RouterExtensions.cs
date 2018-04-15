@@ -52,7 +52,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         /// </summary>
         public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom = 16)
         {
-            return router.CalculateIsochrones(profile, origin, limits, zoom);
+            return router.CalculateIsochrones(profile, origin, limits, zoom, CancellationToken.None);
         }
 
         /// <summary>

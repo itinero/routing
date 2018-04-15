@@ -130,7 +130,10 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
         /// </summary>
-        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null) => db.SplitLongEdges(newVertex, CancellationToken.None);
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null)
+        {
+            db.SplitLongEdges(newVertex, CancellationToken.None);
+        }
 
         /// <summary>
         /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
