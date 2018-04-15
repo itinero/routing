@@ -33,16 +33,32 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         /// <summary>
         /// Calculates isochrones for the given profile based on the given limits.
         /// </summary>
-        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, Coordinate origin, List<float> limits, int zoom = 16, CancellationToken cancellationToken = new CancellationToken())
+        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, Coordinate origin, List<float> limits, int zoom = 16)
         {
-            var routerOrigin = router.Resolve(profile, origin);
-            return router.CalculateIsochrones(profile, routerOrigin, limits, zoom);
+            return router.CalculateIsochrones(profile, origin, limits, zoom, CancellationToken.None);
         }
 
         /// <summary>
         /// Calculates isochrones for the given profile based on the given limits.
         /// </summary>
-        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom = 16, CancellationToken cancellationToken = new CancellationToken())
+        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, Coordinate origin, List<float> limits, int zoom, CancellationToken cancellationToken)
+        {
+            var routerOrigin = router.Resolve(profile, origin);
+            return router.CalculateIsochrones(profile, routerOrigin, limits, zoom, cancellationToken);
+        }
+
+        /// <summary>
+        /// Calculates isochrones for the given profile based on the given limits.
+        /// </summary>
+        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom = 16)
+        {
+            return router.CalculateIsochrones(profile, origin, limits, zoom);
+        }
+
+        /// <summary>
+        /// Calculates isochrones for the given profile based on the given limits.
+        /// </summary>
+        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom, CancellationToken cancellationToken)
         {
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {

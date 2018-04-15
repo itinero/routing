@@ -77,8 +77,8 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<RouterPoint> TryResolve(IProfileInstance[] profileInstances, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null,
-            CancellationToken cancellationToken = new CancellationToken())
+            Func<RoutingEdge, bool> isBetter, float maxSearchDistance, ResolveSettings settings,
+            CancellationToken cancellationToken)
         {
             if (settings == null)
             {
@@ -201,7 +201,7 @@ namespace Itinero
         /// </summary>
         /// <param name="radiusInMeter">The radius metric, that's always a distance in meters.</param>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward = null, CancellationToken cancellationToken = new CancellationToken())
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward, CancellationToken cancellationToken)
         {
             try
             {
@@ -273,7 +273,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
-            RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
+            RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -503,7 +503,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, long sourceDirectedEdge, 
-            long targetDirectedEdge, RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
+            long targetDirectedEdge, RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -673,7 +673,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
+            RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -838,7 +838,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken = new CancellationToken())
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -902,7 +902,7 @@ namespace Itinero
                         contracted.NodeBasedIsEdgedBased)
                     { // use vertex-based graph for edge-based routing.
                         weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted, _db, profileInstance.Profile,
-                            weightHandler, sources, targets, maxSearch).Value;
+                            weightHandler, sources, targets, maxSearch, cancellationToken).Value;
                     }
                     else
                     { // use node-based routing.
@@ -986,7 +986,7 @@ namespace Itinero
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public override sealed Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken = new CancellationToken())
+        public override sealed Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
         {
             try
             {

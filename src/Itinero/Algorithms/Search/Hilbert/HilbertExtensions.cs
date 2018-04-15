@@ -635,8 +635,18 @@ namespace Itinero.Algorithms.Search.Hilbert
         /// </summary>
         /// <returns></returns>
         public static uint SearchClosestEdge(this GeometricGraph graph, float latitude, float longitude,
+            float latitudeOffset, float longitudeOffset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk)
+        {
+            return graph.SearchClosestEdge(latitude, longitude, latitudeOffset, longitudeOffset, maxDistanceMeter, isOk, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Searches for the closest edge.
+        /// </summary>
+        /// <returns></returns>
+        public static uint SearchClosestEdge(this GeometricGraph graph, float latitude, float longitude,
             float latitudeOffset, float longitudeOffset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken)
         {
             var coordinate = new Coordinate(latitude, longitude);
 

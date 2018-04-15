@@ -33,7 +33,15 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// </summary>
         public static Tree CalculateTree(this RouterBase router, Profile profile, Coordinate origin, float max)
         {
-            return router.TryCalculateTree(profile, router.Resolve(profile, origin, 500), max).Value;
+            return router.CalculateTree(profile, origin, max, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Tries to calculate a tree starting at the given location.
+        /// </summary>
+        public static Tree CalculateTree(this RouterBase router, Profile profile, Coordinate origin, float max, CancellationToken cancellationToken)
+        {
+            return router.TryCalculateTree(profile, router.Resolve(profile, origin, 500), max, cancellationToken).Value;
         }
 
         /// <summary>
@@ -41,13 +49,29 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// </summary>
         public static Tree CalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max)
         {
-            return router.TryCalculateTree(profile, origin, max).Value;
+            return router.CalculateTree(profile, origin, max, CancellationToken.None);
         }
 
         /// <summary>
         /// Tries to calculate a tree starting at the given location.
         /// </summary>
-        public static Result<Tree> TryCalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max, CancellationToken cancellationToken = new CancellationToken())
+        public static Tree CalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max, CancellationToken cancellationToken)
+        {
+            return router.TryCalculateTree(profile, origin, max, cancellationToken).Value;
+        }
+
+        /// <summary>
+        /// Tries to calculate a tree starting at the given location.
+        /// </summary>
+        public static Result<Tree> TryCalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max)
+        {
+            return router.TryCalculateTree(profile, origin, max, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Tries to calculate a tree starting at the given location.
+        /// </summary>
+        public static Result<Tree> TryCalculateTree(this RouterBase router, Profile profile, RouterPoint origin, float max, CancellationToken cancellationToken)
         {
             if (!router.SupportsAll(profile))
             {

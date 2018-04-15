@@ -31,7 +31,15 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Optimizes the network by removing irrelevant vertex.
         /// </summary>
-        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter = Constants.DEFAULT_SIMPL_E, CancellationToken cancellationToken = new CancellationToken())
+        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter = Constants.DEFAULT_SIMPL_E)
+        {
+            routerDb.OptimizeNetwork(simplifyEpsilonInMeter, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Optimizes the network by removing irrelevant vertex.
+        /// </summary>
+        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter, CancellationToken cancellationToken)
         {
             var router = new Router(routerDb);
 
@@ -122,7 +130,12 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
         /// </summary>
-        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null, CancellationToken cancellationToken = new CancellationToken())
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null) => db.SplitLongEdges(newVertex, CancellationToken.None);
+
+        /// <summary>
+        /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
+        /// </summary>
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex, CancellationToken cancellationToken)
         {
             var splitter = new Preprocessing.MaxDistanceSplitter(db.Network, (originalEdgeId, newEdgeId) => 
             {
@@ -149,7 +162,15 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Runs the algorithm to make sure the loaded graph is a 'simple' graph.
         /// </summary>
-        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null, CancellationToken cancellationToken = new CancellationToken())
+        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null)
+        {
+            db.ConvertToSimple(newVertex, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Runs the algorithm to make sure the loaded graph is a 'simple' graph.
+        /// </summary>
+        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex, CancellationToken cancellationToken)
         {
             var converter = new Preprocessing.SimpleGraphConverter(db.Network, (originalEdgeId, newEdgeId) => 
             {

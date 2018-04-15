@@ -52,7 +52,15 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false, CancellationToken cancellationToken = new CancellationToken())
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
+        {
+            db.AddContracted(profile, forceEdgeBased, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Creates a new contracted graph and adds it to the router db for the given profile.
+        /// </summary>
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased, CancellationToken cancellationToken)
         {
             var weightHandler = profile.DefaultWeightHandlerCached(db);
 
@@ -125,7 +133,16 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased = false, CancellationToken cancellationToken = new CancellationToken())
+        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased = false)
+            where T : struct
+        {
+            db.AddContracted(profile, weightHandler, forceEdgeBased, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Creates a new contracted graph and adds it to the router db for the given profile.
+        /// </summary>
+        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased, CancellationToken cancellationToken)
             where T : struct
         {
             // create the raw directed graph.
@@ -1773,7 +1790,15 @@ namespace Itinero
         /// <summary>
         /// Adds and detects island data to improve resolving.
         /// </summary>
-        public static void AddIslandData(this RouterDb db, Profile profile, CancellationToken cancellationToken = new CancellationToken())
+        public static void AddIslandData(this RouterDb db, Profile profile)
+        {
+            db.AddIslandData(profile, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Adds and detects island data to improve resolving.
+        /// </summary>
+        public static void AddIslandData(this RouterDb db, Profile profile, CancellationToken cancellationToken)
         {
             if (!db.Supports(profile))
             {

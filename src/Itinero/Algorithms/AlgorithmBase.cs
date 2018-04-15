@@ -80,7 +80,15 @@ namespace Itinero.Algorithms
         /// <summary>
         /// Runs the algorithm.
         /// </summary>
-        public void Run(CancellationToken cancellationToken = new CancellationToken())
+        public void Run()
+        {
+            this.Run(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Runs the algorithm.
+        /// </summary>
+        public void Run(CancellationToken cancellationToken)
         {
             if (this.HasRun)
             {

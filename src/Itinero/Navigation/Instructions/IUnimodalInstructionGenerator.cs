@@ -30,6 +30,11 @@ namespace Itinero.Navigation.Instructions
         /// <summary>
         /// Generates instructions for the given route using the given language reference.
         /// </summary>
-        IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken = new CancellationToken());
+        IList<Instruction> Generate(Route route, ILanguageReference languageReference);
+
+        /// <summary>
+        /// Generates instructions for the given route using the given language reference.
+        /// </summary>
+        IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken);
     }
 }

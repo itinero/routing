@@ -31,7 +31,15 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// <summary>
         /// Calculates heatmap for the given profile.
         /// </summary>
-        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, Coordinate origin, int limitInSeconds, int zoom = 16, CancellationToken cancellationToken = new CancellationToken())
+        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, Coordinate origin, int limitInSeconds, int zoom = 16)
+        {
+            return router.CalculateHeatmap(profile, origin, limitInSeconds, zoom, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates heatmap for the given profile.
+        /// </summary>
+        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, Coordinate origin, int limitInSeconds, int zoom, CancellationToken cancellationToken)
         {
             if (!router.SupportsAll(profile))
             {
@@ -46,7 +54,15 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// <summary>
         /// Calculates heatmap for the given profile.
         /// </summary>
-        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, RouterPoint origin, int limitInSeconds, int zoom = 16, CancellationToken cancellationToken = new CancellationToken())
+        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, RouterPoint origin, int limitInSeconds, int zoom = 16)
+        {
+            return router.CalculateHeatmap(profile, origin, limitInSeconds, zoom, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates heatmap for the given profile.
+        /// </summary>
+        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, RouterPoint origin, int limitInSeconds, int zoom, CancellationToken cancellationToken)
         {
             if (!router.SupportsAll(profile))
             {

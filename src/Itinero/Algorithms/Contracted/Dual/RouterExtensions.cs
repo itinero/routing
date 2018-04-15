@@ -33,7 +33,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// Calculates a many-to-many weight matrix using a dual edge-based graph.
         /// </summary>
         internal static Result<T[][]> CalculateManyToMany<T>(this ContractedDb contractedDb, RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, 
-            RouterPoint[] sources, RouterPoint[] targets, T max, CancellationToken cancellationToken = new CancellationToken()) where T : struct
+            RouterPoint[] sources, RouterPoint[] targets, T max, CancellationToken cancellationToken) where T : struct
         {
             if (!(contractedDb.HasNodeBasedGraph &&
                   contractedDb.NodeBasedIsEdgedBased))
