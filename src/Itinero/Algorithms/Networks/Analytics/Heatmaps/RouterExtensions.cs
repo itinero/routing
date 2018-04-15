@@ -48,7 +48,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             }
 
             var routerOrigin = router.Resolve(profile, origin);
-            return router.CalculateHeatmap(profile, routerOrigin, limitInSeconds, zoom, cancellationToken: cancellationToken);
+            return router.CalculateHeatmap(profile, routerOrigin, limitInSeconds, zoom, cancellationToken);
         }
 
         /// <summary>

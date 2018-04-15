@@ -180,7 +180,7 @@ namespace Itinero
                 { // create the custom resolver algorithm.
                     resolver = this.CreateCustomResolver(latitude, longitude, isAcceptable, isBetter);
                 }
-                resolver.Run(cancellationToken: cancellationToken);
+                resolver.Run(cancellationToken);
                 if (!resolver.HasSucceeded)
                 { // something went wrong.
                     return new Result<RouterPoint>(resolver.ErrorMessage, (message) =>
