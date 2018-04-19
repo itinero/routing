@@ -651,5 +651,70 @@ namespace Itinero.Test
             Assert.AreEqual(3, routerDb.Network.VertexCount);
             Assert.AreEqual(2, routerDb.Network.EdgeCount);
         }
+
+        /// <summary>
+        /// Tests calculating an angle at a routerpoint's location.
+        /// </summary>
+        [Test]
+        public void TestAngle()
+        {
+            var routerDb = new RouterDb(Itinero.Data.Edges.EdgeDataSerializer.MAX_DISTANCE);
+
+            // add a vertical test edge bottom to top.
+            var edge = routerDb.AddTestEdge(
+                51.26737947201908f, 4.793193340301514f, 
+                51.26737947201908f + 0.001f, 4.793193340301514f);
+            var middle = new RouterPoint(0, 0, edge, ushort.MaxValue / 2);
+            var angle = middle.Angle(routerDb.Network);
+            Assert.AreEqual(0, angle, 0.1f);
+            var start = new RouterPoint(0, 0, edge, 0);
+            angle = start.Angle(routerDb.Network);
+            Assert.AreEqual(0, angle, 0.1f);
+            var end = new RouterPoint(0, 0, edge, ushort.MaxValue);
+            angle = end.Angle(routerDb.Network);
+            Assert.AreEqual(0, angle, 0.1f);
+
+            // add an horizontal test edge left to right.
+            edge = routerDb.AddTestEdge(
+                51.26737947201908f, 4.793193340301514f, 
+                51.26737947201908f, 4.793193340301514f + 0.001f);
+            middle = new RouterPoint(0, 0, edge, ushort.MaxValue / 2);
+            angle = middle.Angle(routerDb.Network);
+            Assert.AreEqual(90, angle);
+            start = new RouterPoint(0, 0, edge, 0);
+            angle = start.Angle(routerDb.Network);
+            Assert.AreEqual(90, angle, 0.1f);
+            end = new RouterPoint(0, 0, edge, ushort.MaxValue);
+            angle = end.Angle(routerDb.Network);
+            Assert.AreEqual(90, angle, 0.1f);
+
+            // add a vertical test edge top to bottom.
+            edge = routerDb.AddTestEdge(
+                51.26737947201908f + 0.001f, 4.793193340301514f, 
+                51.26737947201908f, 4.793193340301514f);
+            middle = new RouterPoint(0, 0, edge, ushort.MaxValue / 2);
+            angle = middle.Angle(routerDb.Network);
+            Assert.AreEqual(180, angle);
+            start = new RouterPoint(0, 0, edge, 0);
+            angle = start.Angle(routerDb.Network);
+            Assert.AreEqual(180, angle, 0.1f);
+            end = new RouterPoint(0, 0, edge, ushort.MaxValue);
+            angle = end.Angle(routerDb.Network);
+            Assert.AreEqual(180, angle, 0.1f);
+
+            // add an horizontal test edge right to left.
+            edge = routerDb.AddTestEdge(
+                51.26737947201908f, 4.793193340301514f + 0.001f, 
+                51.26737947201908f, 4.793193340301514f);
+            middle = new RouterPoint(0, 0, edge, ushort.MaxValue / 2);
+            angle = middle.Angle(routerDb.Network);
+            Assert.AreEqual(270, angle);
+            start = new RouterPoint(0, 0, edge, 0);
+            angle = start.Angle(routerDb.Network);
+            Assert.AreEqual(270, angle, 0.1f);
+            end = new RouterPoint(0, 0, edge, ushort.MaxValue);
+            angle = end.Angle(routerDb.Network);
+            Assert.AreEqual(270, angle, 0.1f);
+        }
     }
 }

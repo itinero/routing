@@ -1054,5 +1054,52 @@ namespace Itinero
                 return new Result<Route>(ex.Message);
             }
         }
+
+        /// <summary>
+        /// Calculates a route between the two given router points but in a fixed direction.
+        /// </summary>
+        public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool? sourceForward, RouterPoint target, bool? targetForward,
+            RoutingSettings<T> settings = null)
+            where T : struct
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Tries to calculate a route using the given directions as guidance.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="source">The source location.</param>
+        /// <param name="sourceDirection">The direction to go in at the source location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="target">The target location.</param>
+        /// <param name="targetDirection">The direction to arrive on at the target location, an angle in degrees relative to north, null if don't care.</param>
+        /// <returns></returns>
+        public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, float? sourceDirection, 
+            RouterPoint target, float? targetDirection, RoutingSettings<T> settings = null)
+            where T : struct
+        {
+            bool? sourceForward = null;
+            if (sourceDirection != null)
+            { // calculate the angle and compare them.
+                var angle = source.Angle(router.Db.Network);
+                if  (angle != null)
+                {
+                    var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(sourceDirection.Value, angle.Value));
+                    sourceForward = (diff < 180);
+                }
+            }
+            bool? targetForward = null;
+            if (targetDirection != null)
+            { // calculate the angle and compare them.
+                var angle = source.Angle(router.Db.Network);
+                if  (angle != null)
+                {
+                    var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(targetDirection.Value, angle.Value));
+                    targetForward = (diff < 180);
+                }
+            }
+
+            return router.TryCalculate(profileInstance, weightHandler, source, sourceForward, target, targetForward, settings);
+        }
     }
 }

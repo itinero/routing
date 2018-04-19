@@ -16,8 +16,9 @@
  *  limitations under the License.
  */
 
-using Itinero.LocalGeo;
 using System;
+using Itinero.Data.Network;
+using Itinero.LocalGeo;
 
 namespace Itinero.Test
 {
@@ -33,11 +34,31 @@ namespace Itinero.Test
         /// </summary>
         public static Coordinate GenerateRandomIn(this Box box)
         {
-            var xNext = (float)_random.NextDouble();
-            var yNext = (float)_random.NextDouble();
+            var xNext = (float) _random.NextDouble();
+            var yNext = (float) _random.NextDouble();
 
             return new Coordinate(box.MinLat + (box.MaxLat - box.MinLat) * xNext,
                 box.MinLon + (box.MaxLon - box.MinLon) * yNext);
+        }
+
+        /// <summary>
+        /// Adds a test edge.
+        /// </summary>
+        public static uint AddTestEdge(this RouterDb routerDb, float latitude1, float longitude1,
+            float latitude2, float longitude2)
+        {
+            var vertex1 = routerDb.Network.VertexCount;
+            routerDb.Network.AddVertex(vertex1, latitude1, longitude1);
+            var vertex2 = routerDb.Network.VertexCount;
+            routerDb.Network.AddVertex(vertex2, latitude2, longitude2);
+
+            return routerDb.Network.AddEdge(vertex1, vertex2, 
+                new Itinero.Data.Network.Edges.EdgeData()
+                {
+                    Distance = Coordinate.DistanceEstimateInMeter(latitude1, longitude1, latitude2, longitude2),
+                    Profile = 0,
+                    MetaId = 0
+                });
         }
     }
 }

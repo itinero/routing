@@ -33,6 +33,7 @@ namespace Itinero
         public RoutingSettings()
         {
             _maxSearch = new Dictionary<string, T>();
+            this.DirectionAbsolute = true;
         }
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace Itinero
         public void SetMaxSearch(string profile, T weight)
         {
             _maxSearch[profile] = weight;
+            this.DirectionAbsolute = true;
         }
 
         /// <summary>
@@ -51,5 +53,11 @@ namespace Itinero
         {
             return _maxSearch.TryGetValue(profile, out weight);
         }
+
+        /// <summary>
+        /// Gets or sets the direction absolute flag.
+        /// </summary>
+        /// <remarks>When true any route not following the source or target directions will not be considered.</remarks>
+        public bool DirectionAbsolute { get; set; }
     }
 }
