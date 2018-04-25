@@ -37,6 +37,13 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             _edges = new MetaEdge[64];
         }
 
+        private VertexInfo(Shortcuts<T> shortcuts, int edgesCount, MetaEdge[] edges)
+        {
+            _shortcuts = shortcuts;
+            _edgesCount = edgesCount;
+            _edges = edges;
+        }
+
         private int _edgesCount;
         private MetaEdge[] _edges;
 
@@ -111,6 +118,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             _shortcuts.Clear();
 
             this.Vertex = Constants.NO_VERTEX;
+        }
+
+        public VertexInfo<T> Clone()
+        {
+            return new VertexInfo<T>(_shortcuts.Clone(), _edgesCount, _edges.Clone() as MetaEdge[]);
         }
     }
 }

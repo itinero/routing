@@ -46,30 +46,36 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-            // download and extract test-data if not already there.
-            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
-            Download.DownloadLuxembourgAll();
+            try
+            {
+                // download and extract test-data if not already there.
+                _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
+                Download.DownloadLuxembourgAll();
 
-            // test building a routerdb.
-            _logger.Log(TraceEventType.Information, "Starting tests...");
-            var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
+                // test building a routerdb.
+                _logger.Log(TraceEventType.Information, "Starting tests...");
+                var routerDb = RouterDbBuildingTests.Run();
+                var router = new Router(routerDb);
 
-            // test some routerdb extensions.
-            RouterDbExtensionsTests.Run(routerDb);
+                // // test some routerdb extensions.
+                // RouterDbExtensionsTests.Run(routerDb);
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+                // // test resolving.
+                // ResolvingTests.Run(routerDb);
 
-            // test routing.
-            RoutingTests.Run(routerDb);
+                // // test routing.
+                // RoutingTests.Run(routerDb);
 
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
+                // // tests calculate weight matrices.
+                // WeightMatrixTests.Run(routerDb);
 
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
-
+                // // test instruction generation.
+                // InstructionTests.Run(routerDb);
+            }
+            catch (Exception ex)
+            {
+                _logger.Log(TraceEventType.Error, ex.Message);
+            }
             _logger.Log(TraceEventType.Information, "Testing finished.");
 // #if DEBUG
 //             Console.ReadLine();
@@ -78,18 +84,18 @@ namespace Itinero.Test.Functional
 
         private static void EnableLogging()
         {
-#if DEBUG
+// #if DEBUG
             var loggingBlacklist = new HashSet<string>();
-#else
-            var loggingBlacklist = new HashSet<string>(
-                new string[] { "StreamProgress",
-                    "RouterDbStreamTarget",
-                    "RouterBaseExtensions",
-                    "HierarchyBuilder",
-                    "RestrictionProcessor",
-                    "NodeIndex",
-                    "RouterDb"});
-#endif
+// #else
+//             var loggingBlacklist = new HashSet<string>(
+//                 new string[] { "StreamProgress",
+//                     "RouterDbStreamTarget",
+//                     "RouterBaseExtensions",
+//                     "HierarchyBuilder",
+//                     "RestrictionProcessor",
+//                     "NodeIndex",
+//                     "RouterDb"});
+// #endif
             OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
                 if (loggingBlacklist.Contains(o))

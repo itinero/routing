@@ -40,6 +40,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             _data = new Dictionary<OriginalEdge, Shortcut<T>>();
         }
 
+        private Shortcuts(Dictionary<OriginalEdge, Shortcut<T>> data)
+        {
+            _data = data;
+        }
+
         /// <summary>
         /// Tries to get the shortcut associated with the given edge.
         /// </summary>
@@ -135,6 +140,16 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 stringBuilder.Append(pair.ToString());
             }
             return stringBuilder.ToString();
+        }
+
+        public Shortcuts<T> Clone()
+        {
+            var data = new Dictionary<OriginalEdge, Shortcut<T>>();
+            foreach (var pair in _data)
+            {
+                data[pair.Key] = pair.Value;
+            }
+            return new Shortcuts<T>(data);
         }
     }
 }

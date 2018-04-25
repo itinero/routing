@@ -81,9 +81,9 @@ namespace Itinero
                     dualGraphBuilder.Run();
 
                     // contract the graph.
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(contracted,
                         new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
-                            5, 4096), weightHandler);
+                            5, 4096));
                     hierarchyBuilder.DifferenceFactor = 8;
                     hierarchyBuilder.DepthFactor = 14;
                     hierarchyBuilder.ContractedFactor = 1;
@@ -106,8 +106,8 @@ namespace Itinero
                     priorityCalculator.DifferenceFactor = 5;
                     priorityCalculator.DepthFactor = 5;
                     priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new HierarchyBuilder<float>(contracted, db.GetRestrictions(profile), priorityCalculator,
-                            new DykstraWitnessCalculator(int.MaxValue), weightHandler);
+                    var hierarchyBuilder = new HierarchyBuilder(contracted, db.GetRestrictions(profile), priorityCalculator,
+                            new DykstraWitnessCalculator(int.MaxValue));
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, false);
