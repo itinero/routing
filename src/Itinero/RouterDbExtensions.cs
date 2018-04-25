@@ -81,12 +81,15 @@ namespace Itinero
                     dualGraphBuilder.Run();
 
                     // contract the graph.
+                    //var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(contracted,
+                    //    new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
+                    //        5, 4096));
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(contracted,
                         new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
                             5, 4096));
                     hierarchyBuilder.DifferenceFactor = 8;
                     hierarchyBuilder.DepthFactor = 14;
-                    hierarchyBuilder.ContractedFactor = 1;
+                    hierarchyBuilder.ContractedFactor = 0;
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, true);

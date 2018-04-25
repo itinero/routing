@@ -122,7 +122,17 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
 
         public VertexInfo<T> Clone()
         {
-            return new VertexInfo<T>(_shortcuts.Clone(), _edgesCount, _edges.Clone() as MetaEdge[]);
+            var edges = new MetaEdge[_edgesCount];
+            for (var i = 0; i < _edgesCount; i++)
+            {
+                edges[i] = _edges[i].Clone();
+            }
+
+            var vi = new VertexInfo<T>(_shortcuts.Clone(), _edgesCount, edges);
+            vi.Vertex = this.Vertex;
+            vi.Depth = this.Depth;
+            vi.ContractedNeighbours = this.ContractedNeighbours;
+            return vi;
         }
     }
 }

@@ -88,5 +88,20 @@ namespace Itinero.Graphs.Directed
                 this.Neighbour,
                 this.Data.ToInvariantString());
         }
+
+        /// <summary>
+        /// Creates a clone of this object.
+        /// </summary>
+        /// <returns></returns>
+        public MetaEdge Clone()
+        {
+            return new MetaEdge()
+            {
+                Neighbour = this.Neighbour,
+                Data = this.Data.Clone() as uint[],
+                MetaData = this.MetaData.Clone() as uint[],
+                Id = this.Id
+            };
+        }
     }
 }

@@ -1,0 +1,37 @@
+Ideas to improve performance:
+
+- Keep only n-lowest vertices in the queue.
+  - If we determine an upper limit to priority can we exclude vertices?
+  - Or just always process only x-% of the queue until the queue falls below a given percentage of total.
+- Optimize the call to _graph.RemoveEdge() by removing all edges starting at edge.Neighbour in one go.
+- Don't use the weight handler if it's not needed & use the non-generic version.
+- Find a way to not update vertexinfo in select next if it's sure it hasn't been updated.
+- In selectNext use non-weighthandler method and non-generic version.
+
+MAIN IDEA: Store witness paths only
+
+REASONING: 
+  Witness paths never change.
+  We know when we need to recalculate & update (during contraction of neighbour).
+  We only keep witness paths because we assume enumerating neigbours is cheap.
+  
+EXECUTION:
+  - For each vertex that has witnesses store all witness paths.
+  - When a vertex needs updating, after one of it's neighbours was contracted, mark the new neighbours.
+    -> only re-check the new neighbours for witness paths.
+  - Vertices that aren't kept don't have any witness paths, also only check the new neighbours and start saving if they have witness paths.
+  - When removing an edge it's possible to update the existing vertex info's directly.
+  
+=> This should reduce witness checking to a minimum!
+
+
+Performance luxembourg
+- 29.51s
+- Removed obsolete enumerator: 28.63s(10)
+- Cached all vertex info's: 
+
+
+Belgium:
+- 264s
+- 
+
