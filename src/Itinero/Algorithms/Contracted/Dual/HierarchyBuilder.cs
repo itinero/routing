@@ -142,6 +142,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);
             _noWitnessesFlags = new BitArray32(_graph.VertexCount);
+            uint queueSize = (uint)(_graph.VertexCount / 100 * 25);
             _missesQueue = new Queue<bool>();
 
             // remove all edges that have witness paths, meaning longer than the shortest path
@@ -149,19 +150,33 @@ namespace Itinero.Algorithms.Contracted.Dual
             this.RemoveWitnessedEdges();
 
             // build queue.
-            this.CalculateQueue();
+            this.CalculateQueue(queueSize);
 
-            this.SelectNext();
+            this.SelectNext(queueSize);
             var latestProgress = 0f;
             var current = 0;
             var total = _graph.VertexCount;
-            while (_queue.Count > 0)
+            var toDoCount = total;
+            while (_queue.Count > 0 || 
+                toDoCount > 0)
             {
+                if (_queue.Count == 0)
+                {
+                    this.CalculateQueue(queueSize);
+                }
+
                 // contract...
                 this.Contract();
 
                 // ... and select next.
-                this.SelectNext();
+                this.SelectNext(queueSize);
+
+                toDoCount = total - current;
+                if (toDoCount > queueSize / 3 &&
+                    _queue.Count < queueSize / 3)
+                {
+                    this.CalculateQueue(queueSize);
+                }
 
                 // calculate and log progress.
                 var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
@@ -207,7 +222,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Calculates the entire queue.
         /// </summary>
-        private void CalculateQueue()
+        private void CalculateQueue(uint size)
         {
             _logger.Log(TraceEventType.Information, "Calculating queue...");
 
@@ -230,6 +245,11 @@ namespace Itinero.Algorithms.Contracted.Dual
 
                     // queue vertex.
                     _queue.Push(v, priority);
+
+                    if (_queue.Count >= size)
+                    {
+                        break;
+                    }
                 }
             }
             _logger.Log(TraceEventType.Information, "Queue calculated: {0}/{1} have witnesses.",
@@ -252,7 +272,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// Select the next vertex to contract.
         /// </summary>
         /// <returns></returns>
-        protected virtual void SelectNext()
+        protected virtual void SelectNext(uint queueSize)
         {
             // first check the first of the current queue.
             while (_queue.Count > 0)
@@ -290,7 +310,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                 // if the misses are _k
                 if (_misses == _k)
                 { // recalculation.
-                    this.CalculateQueue();
+                    this.CalculateQueue(queueSize);
 
                     // clear misses.
                     _missesQueue.Clear();
