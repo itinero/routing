@@ -73,6 +73,11 @@ namespace Itinero.Test
             return new Result<EdgePath<T>>(new EdgePath<T>());
         }
 
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool? sourceForward, RouterPoint target, bool? targetForward, RoutingSettings<T> settings)
+        {
+            return new Result<EdgePath<T>>(new EdgePath<T>());
+        }
+
         public override Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
         {
             var route = new Route();
