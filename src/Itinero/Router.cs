@@ -692,7 +692,7 @@ namespace Itinero
                     }
                 }
 
-                if (sourceForward.Value)
+                if (sourceForward.HasValue && sourceForward.Value)
                 { // check source and it's associated direction for validity
                     var sourceDirectedEdge = new DirectedEdgeId(source.EdgeId, sourceForward.Value);
                     var sourcePath = _db.GetPathForEdge(weightHandler, sourceDirectedEdge, true);
@@ -707,7 +707,7 @@ namespace Itinero
                         sourceForward = null;
                     }
                 }
-                if (targetForward.Value)
+                if (targetForward.HasValue && targetForward.Value)
                 {
                     var targetDirectedEdge = new DirectedEdgeId(target.EdgeId, targetForward.Value);
                     var targetPath = _db.GetPathForEdge(weightHandler, targetDirectedEdge, false);
@@ -781,11 +781,11 @@ namespace Itinero
                         };
                         if (sourceForward != null)
                         {
-                            if (sourceForward.HasValue)
+                            if (sourceForward.Value)
                             {
-                            sourcePaths = new EdgePath<T>[]
-                            {
-                            sourcePaths[0]
+                                sourcePaths = new EdgePath<T>[]
+                                {
+                                    sourcePaths[0]
                                 };
                             }
                             else
@@ -803,11 +803,11 @@ namespace Itinero
                         };
                         if (targetForward != null)
                         {
-                            if (targetForward.HasValue)
+                            if (targetForward.Value)
                             {
-                            targetPaths = new EdgePath<T>[]
-                            {
-                            targetPaths[0]
+                                targetPaths = new EdgePath<T>[]
+                                {
+                                    targetPaths[0]
                                 };
                             }
                             else
@@ -881,6 +881,11 @@ namespace Itinero
                 else
                 { // use the regular graph.
                     EdgePath<T> localPath = null;
+
+                    if (targetForward.HasValue)
+                    { // the dykstra calculate expects this flag the other way around.
+                        targetForward = !targetForward.Value;
+                    }
 
                     var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
                         _db.GetGetRestrictions(profileInstance.Profile, true), source.ToEdgePaths(_db, weightHandler, true, sourceForward), maxSearch, false);

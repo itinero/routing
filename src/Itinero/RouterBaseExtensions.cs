@@ -1130,11 +1130,40 @@ namespace Itinero
         /// <param name="sourceDirection">The direction to go in at the source location, an angle in degrees relative to north, null if don't care.</param>
         /// <param name="target">The target location.</param>
         /// <param name="targetDirection">The direction to arrive on at the target location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="diffLimit">The diff limit when the angle is smaller than this we consider it the same direction.</param>
+        /// <returns></returns>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profileInstance, RouterPoint source, float? sourceDirection, 
+            RouterPoint target, float? targetDirection, float diffLimit = 45, RoutingSettings<float> settings = null)
+        {
+            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceDirection, 
+                target, targetDirection, diffLimit, settings);
+        }
+
+        /// <summary>
+        /// Tries to calculate a route using the given directions as guidance.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="source">The source location.</param>
+        /// <param name="sourceDirection">The direction to go in at the source location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="target">The target location.</param>
+        /// <param name="targetDirection">The direction to arrive on at the target location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="diffLimit">The diff limit when the angle is smaller than this we consider it the same direction.</param>
         /// <returns></returns>
         public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, float? sourceDirection, 
-            RouterPoint target, float? targetDirection, RoutingSettings<T> settings = null)
+            RouterPoint target, float? targetDirection, float diffLimit = 45, RoutingSettings<T> settings = null)
             where T : struct
         {
+            if (diffLimit <= 0 || diffLimit > 90) { throw new ArgumentOutOfRangeException(nameof(diffLimit), "Expected to be in range ]0, 90]."); }
+
+            if (sourceDirection.HasValue)
+            { // make sure angles are normalized.
+                sourceDirection = (float)Itinero.LocalGeo.Tools.NormalizeDegrees(sourceDirection.Value);
+            }
+            if (targetDirection.HasValue)
+            { // make sure angles are normalized.
+                targetDirection = (float)Itinero.LocalGeo.Tools.NormalizeDegrees(targetDirection.Value);
+            }
+
             bool? sourceForward = null;
             if (sourceDirection != null)
             { // calculate the angle and compare them.
@@ -1142,17 +1171,31 @@ namespace Itinero
                 if  (angle != null)
                 {
                     var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(sourceDirection.Value, angle.Value));
-                    sourceForward = (diff < 180);
+                    if (diff < diffLimit)
+                    {
+                        sourceForward = true;
+                    }
+                    else if (180 - diff < diffLimit)
+                    {
+                        sourceForward = false;
+                    }
                 }
             }
             bool? targetForward = null;
             if (targetDirection != null)
             { // calculate the angle and compare them.
-                var angle = source.Angle(router.Db.Network);
+                var angle = target.Angle(router.Db.Network);
                 if  (angle != null)
                 {
                     var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(targetDirection.Value, angle.Value));
-                    targetForward = (diff < 180);
+                    if (diff < diffLimit)
+                    {
+                        targetForward = true;
+                    }
+                    else if (180 - diff < diffLimit)
+                    {
+                        targetForward = false;
+                    }
                 }
             }
 
