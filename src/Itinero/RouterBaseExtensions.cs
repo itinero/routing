@@ -701,7 +701,17 @@ namespace Itinero
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target)
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
-            var path = router.TryCalculateRaw(profile, weightHandler, source, target);
+            return router.TryCalculate<float>(profile, weightHandler, source, target);
+        }
+
+        /// <summary>
+        /// Calculates a route the given locations;
+        /// </summary>
+        public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, 
+            RouterPoint source, RouterPoint target, RoutingSettings<T> settings = null) 
+            where T : struct
+        {
+            var path = router.TryCalculateRaw(profile, weightHandler, source, target, settings);
             if (path.IsError)
             {
                 return path.ConvertError<Route>();
@@ -982,7 +992,7 @@ namespace Itinero
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profileInstance, RouterPoint source, bool sourceForward, RouterPoint target, bool targetForward,
             RoutingSettings<float> settings = null)
         {
-            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceForward, target, targetForward);
+            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceForward, target, targetForward, settings);
         }
 
         /// <summary>
@@ -992,67 +1002,213 @@ namespace Itinero
             RoutingSettings<T> settings = null)
             where T : struct
         {
-            EdgePath<T> path = null;
-            if (source.EdgeId == target.EdgeId &&
-                sourceForward == targetForward)
-            { // check for a path on the same edge, in the requested direction.
-                var edgePath = source.EdgePathTo(router.Db, weightHandler, target, !sourceForward);
-                if (edgePath != null)
-                {
-                    path = edgePath;
+            return router.TryCalculate(profileInstance, weightHandler, source, (bool?)sourceForward, target, targetForward, settings);
+        }
 
-                    // update settings objects to prevent uneeded searches.
-                    if (settings == null)
-                    {
-                        settings = new RoutingSettings<T>();
-                    }
-                    settings.SetMaxSearch(profileInstance.Profile.FullName, path.Weight);
-                }
-            }
+        /// <summary>
+        /// Calculates a route between the two given router points but in a fixed direction.
+        /// </summary>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profileInstance, RouterPoint source, bool? sourceForward, RouterPoint target, bool? targetForward,
+            RoutingSettings<float> settings = null)
+        {
+            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceForward, target, targetForward, settings);
+        }
 
-            // try calculating a path.
-            var result = router.TryCalculateRaw<T>(profileInstance, weightHandler, new DirectedEdgeId(source.EdgeId, sourceForward),
-                new DirectedEdgeId(target.EdgeId, targetForward), settings);
-            if (result.IsError &&
-                path == null)
-            {
-                return result.ConvertError<Route>();
-            }
-            else if(!result.IsError)
-            {
-                if (path == null || 
-                    weightHandler.IsSmallerThan(result.Value.Weight, path.Weight))
-                { // update path with the path found because it's better.
-                    path = result.Value;
-                }
-            }
-
-            // make sure the path represents the route between the two routerpoints not between the two edges.
+        /// <summary>
+        /// Calculates a route between the two given router points but in a fixed direction.
+        /// </summary>
+        public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool? sourceForward, RouterPoint target, bool? targetForward,
+            RoutingSettings<T> settings = null)
+            where T : struct
+        {
             try
             {
-                if (path.From == null)
-                { // path has only one vertex, this represents a path of length '0'.
-                    return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+                EdgePath<T> path = null;
+                if (source.EdgeId == target.EdgeId)
+                { // check for a path on the same edge, in the requested direction(s).
+                    if (sourceForward.HasValue &&
+                        targetForward.HasValue)
+                    { // both direction are set.
+                        if (sourceForward == targetForward)
+                        { // try to get a path inside the same edge.
+                            path = source.EdgePathTo(router.Db, weightHandler, target, !sourceForward.Value);
+                        }
+                    }
+                    else if(sourceForward.HasValue)
+                    { // only source is set.
+                        path = source.EdgePathTo(router.Db, weightHandler, target, !sourceForward.Value);
+                    }
+                    else if(targetForward.HasValue)
+                    { // only target is set.
+                        path = source.EdgePathTo(router.Db, weightHandler, target, !targetForward.Value);
+                    }
+                    else
+                    { // both are don't care.
+                        path = source.EdgePathTo(router.Db, weightHandler, target);
+                    }
+                    
+                    if (path != null)
+                    { // update settings objects to prevent uneeded searches.
+                        if (settings == null)
+                        {
+                            settings = new RoutingSettings<T>();
+                        }
+                        else
+                        {
+                            settings = settings.Clone();
+                        }
+                        settings.SetMaxSearch(profileInstance.Profile.FullName, path.Weight);
+                    }
                 }
 
-                // path has at least two vertices, strip first and last vertex.
-                // TODO: optimized this, this can be done without converting to a vertex-list.
-                var vertices = new List<uint>();
-                while (path != null)
-                {
-                    vertices.Add(path.Vertex);
-                    path = path.From;
+                // try calculating a path.
+                var result = router.TryCalculateRaw<T>(profileInstance, weightHandler, source, sourceForward, target, targetForward, settings);
+                if (result != null &&
+                    !result.IsError)
+                { 
+                    if (path == null || 
+                        weightHandler.IsSmallerThan(result.Value.Weight, path.Weight))
+                    { // the found path is better.
+                        path = result.Value;
+                    }
                 }
-                vertices.Reverse();
-                vertices[0] = Constants.NO_VERTEX;
-                vertices[vertices.Count - 1] = Constants.NO_VERTEX;
-                path = router.Db.BuildEdgePath(weightHandler, source, target, vertices);
-                return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+
+                if (path != null)
+                { // a route was found, return it.
+                    // make sure the path represents the route between the two routerpoints not between the two edges.
+                    if (path.From == null)
+                    { // path has only one vertex, this represents a path of length '0'.
+                        return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+                    }
+
+                    // path has at least two vertices, strip first and last vertex.
+                    // TODO: optimize this, this can be done without converting to a vertex-list.
+                    var vertices = new List<uint>();
+                    while (path != null)
+                    {
+                        vertices.Add(path.Vertex);
+                        path = path.From;
+                    }
+                    vertices.Reverse();
+                    vertices[0] = Constants.NO_VERTEX;
+                    vertices[vertices.Count - 1] = Constants.NO_VERTEX;
+                    path = router.Db.BuildEdgePath(weightHandler, source, target, vertices);
+                    return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+                }
+                else if (settings != null && 
+                    !settings.DirectionAbsolute)
+                { // no route was found but maybe because the requested directions aren't available.
+                    if (sourceForward.HasValue)
+                    { // the source direction was set, try again without it.
+                        return router.TryCalculate(profileInstance, weightHandler, source, null, target, targetForward, settings);
+                    }
+                    else if (targetForward.HasValue)
+                    { // the target direction was set, try again without it.
+                        return router.TryCalculate(profileInstance, weightHandler, source, target, settings);
+                    }
+                    else
+                    { // route wasn't found but there was no directional info either.
+                        return new Result<Route>("Route not found.");
+                    }
+                }
+                else
+                { // route wasn't found and directions are strict.
+                    return new Result<Route>("Route not found.");
+                }
             }
             catch(Exception ex)
             {
                 return new Result<Route>(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Tries to calculate a route using the given directions as guidance.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="source">The source location.</param>
+        /// <param name="sourceDirection">The direction to go in at the source location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="target">The target location.</param>
+        /// <param name="targetDirection">The direction to arrive on at the target location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="diffLimit">The diff limit when the angle is smaller than this we consider it the same direction.</param>
+        /// <returns></returns>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profileInstance, RouterPoint source, float? sourceDirection, 
+            RouterPoint target, float? targetDirection, float diffLimit = 45, RoutingSettings<float> settings = null)
+        {
+            return router.TryCalculate(profileInstance, router.GetDefaultWeightHandler(profileInstance), source, sourceDirection, 
+                target, targetDirection, diffLimit, settings);
+        }
+
+        /// <summary>
+        /// Tries to calculate a route using the given directions as guidance.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="source">The source location.</param>
+        /// <param name="sourceDirection">The direction to go in at the source location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="target">The target location.</param>
+        /// <param name="targetDirection">The direction to arrive on at the target location, an angle in degrees relative to north, null if don't care.</param>
+        /// <param name="diffLimit">The diff limit when the angle is smaller than this we consider it the same direction.</param>
+        /// <returns></returns>
+        public static Result<Route> TryCalculate<T>(this RouterBase router, IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, float? sourceDirection, 
+            RouterPoint target, float? targetDirection, float diffLimit = 45, RoutingSettings<T> settings = null)
+            where T : struct
+        {
+            if (diffLimit <= 0 || diffLimit > 90) { throw new ArgumentOutOfRangeException(nameof(diffLimit), "Expected to be in range ]0, 90]."); }
+
+            if (sourceDirection.HasValue)
+            { // make sure angles are normalized.
+                sourceDirection = (float)Itinero.LocalGeo.Tools.NormalizeDegrees(sourceDirection.Value);
+            }
+            if (targetDirection.HasValue)
+            { // make sure angles are normalized.
+                targetDirection = (float)Itinero.LocalGeo.Tools.NormalizeDegrees(targetDirection.Value);
+            }
+
+            bool? sourceForward = null;
+            if (sourceDirection != null)
+            { // calculate the angle and compare them.
+                var angle = source.Angle(router.Db.Network);
+                if  (angle != null)
+                {
+                    var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(sourceDirection.Value, angle.Value));
+                    if (diff < diffLimit)
+                    {
+                        sourceForward = true;
+                    }
+                    else if (180 - diff < diffLimit)
+                    {
+                        sourceForward = false;
+                    }
+                }
+            }
+            bool? targetForward = null;
+            if (targetDirection != null)
+            { // calculate the angle and compare them.
+                var angle = target.Angle(router.Db.Network);
+                if  (angle != null)
+                {
+                    var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(targetDirection.Value, angle.Value));
+                    if (diff < diffLimit)
+                    {
+                        targetForward = true;
+                    }
+                    else if (180 - diff < diffLimit)
+                    {
+                        targetForward = false;
+                    }
+                }
+            }
+
+            return router.TryCalculate(profileInstance, weightHandler, source, sourceForward, target, targetForward, settings);
+        }
+
+        /// <summary>
+        /// Calculates a route along the given locations.
+        /// </summary>        
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, float? sourceDirection, 
+            RouterPoint target, float? targetDirection)
+        {
+            return router.TryCalculate<float>(profile, router.GetDefaultWeightHandler(profile), source, sourceDirection, target, targetDirection).Value;
         }
     }
 }

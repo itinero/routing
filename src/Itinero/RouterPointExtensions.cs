@@ -28,6 +28,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Algorithms.Search.Hilbert;
 using System.IO;
 using Itinero.IO.Json;
+using Itinero.Navigation.Directions;
 
 namespace Itinero
 {
@@ -36,6 +37,81 @@ namespace Itinero
     /// </summary>
     public static class RouterPointExtensions
     {
+        /// <summary>
+        /// Converts the router point to paths leading to the closest 2 vertices.
+        /// </summary>
+        public static EdgePath<T>[] ToEdgePaths<T>(this RouterPoint point, RouterDb routerDb, WeightHandler<T> weightHandler, bool asSource, bool? forward)
+            where T : struct
+        {
+            if (forward == null)
+            { // don't-care direction, use default implementation.
+                return point.ToEdgePaths(routerDb, weightHandler, asSource);
+            }
+
+            var graph = routerDb.Network.GeometricGraph;
+            var edge = graph.GetEdge(point.EdgeId);
+
+            float distance;
+            ushort profileId;
+            EdgeDataSerializer.Deserialize(edge.Data[0], out distance, out profileId);
+            Factor factor;
+            var edgeWeight = weightHandler.Calculate(profileId, distance, out factor);
+
+            var offset = point.Offset / (float)ushort.MaxValue;
+            if (factor.Direction == 0)
+            { // bidirectional.
+                if (forward.Value)
+                {
+                    return new EdgePath<T>[] {
+                        new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
+                    };
+                }
+                return new EdgePath<T>[] {
+                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
+                };
+            }
+            else if (factor.Direction == 1)
+            { // edge is forward oneway.
+                if (asSource)
+                {
+                    if (forward.Value)
+                    {
+                        return new EdgePath<T>[] {
+                            new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
+                        };
+                    }
+                    return new EdgePath<T>[0];
+                }
+                if (forward.Value)
+                {
+                    return new EdgePath<T>[0];
+                }
+                return new EdgePath<T>[] {
+                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
+                };
+            }
+            else
+            { // edge is backward oneway.
+                if (!asSource)
+                {
+                    if (forward.Value)
+                    {
+                        return new EdgePath<T>[] {
+                            new EdgePath<T>(edge.To, weightHandler.Calculate(profileId, distance * (1 - offset)), edge.IdDirected(), new EdgePath<T>())
+                        };
+                    }
+                    return new EdgePath<T>[0];
+                }
+                if (forward.Value)
+                {
+                    return new EdgePath<T>[0];
+                }
+                return new EdgePath<T>[] {
+                    new EdgePath<T>(edge.From, weightHandler.Calculate(profileId, distance * offset), -edge.IdDirected(), new EdgePath<T>())
+                };
+            }
+        }
+
         /// <summary>
         /// Converts the router point to paths leading to the closest 2 vertices.
         /// </summary>
@@ -544,6 +620,36 @@ namespace Itinero
             }
             return null;
         }
+        
+        /// <summary>
+        /// Calculates the edge path between this router point and the given router point.
+        /// </summary>
+        /// <param name="point">The source point.</param>
+        /// <param name="db">The router db.</param>
+        /// <param name="weightHandler">The weight handler.</param>
+        /// <param name="sourceForward">The source forward flag, true if forward, false if backward, null if don't care.</param>
+        /// <param name="target">The target point.</param>
+        /// <param name="targetForward">The target forward flag, true if forward, false if backward, null if don't care.</param>
+        public static EdgePath<T> EdgePathTo<T>(this RouterPoint point, RouterDb db, WeightHandler<T> weightHandler, bool? sourceForward, RouterPoint target, bool? targetForward)
+            where T : struct
+        {
+            if (!sourceForward.HasValue && !targetForward.HasValue)
+            {
+                return point.EdgePathTo(db, weightHandler, target);
+            }
+            if (sourceForward.HasValue && targetForward.HasValue)
+            {
+                if (sourceForward.Value != targetForward.Value)
+                { // impossible route inside one edge.
+                    return null;
+                }
+            }
+            if(sourceForward.HasValue)
+            {
+                return point.EdgePathTo(db, weightHandler, target, !sourceForward.Value);
+            }
+            return point.EdgePathTo(db, weightHandler, target, !targetForward.Value);
+        }
 
         /// <summary>
         /// Calculates the edge path between this router point and one of it's neighbours.
@@ -616,6 +722,55 @@ namespace Itinero
                 return point.EdgeId + 1;
             }
             return -(point.EdgeId + 1);
+        }
+
+        /// <summary>
+        /// Calculates the angle in degress at the given routerpoint over a given distance. 
+        /// </summary>
+        /// <param name="point">The router point.</param>
+        /// <param name="network">The routing network.</param>
+        /// <param name="distance">The distance to average over.</param>
+        /// <returns>The angle relative to the meridians.</returns>
+        public static float? Angle(this RouterPoint point, RoutingNetwork network, float distance = 100)
+        {
+            var edge = network.GetEdge(point.EdgeId);
+            var edgeLength = edge.Data.Distance;
+            var distanceOffset = (distance / edgeLength) * ushort.MaxValue;
+            ushort offset1 = 0;
+            ushort offset2 = ushort.MaxValue;
+            if (distanceOffset <= ushort.MaxValue)
+            { // not the entire edge.
+                offset1 = (ushort)System.Math.Max(0,
+                    point.Offset - distanceOffset);
+                offset2 = (ushort)System.Math.Min(ushort.MaxValue,
+                    point.Offset + distanceOffset);
+
+                if (offset2 - offset1 == 0)
+                {
+                    if (offset1 > 0)
+                    {
+                        offset1--;
+                    }
+                    if (offset2 < ushort.MaxValue)
+                    {
+                        offset2++;
+                    }
+                }
+            }
+
+            // calculate the locations.
+            var location1 = network.LocationOnNetwork(point.EdgeId, offset1);
+            var location2 = network.LocationOnNetwork(point.EdgeId, offset2);
+
+            if (Coordinate.DistanceEstimateInMeter(location1, location2) < .1)
+            { // distance too small, edge to short.
+                return null;
+            }
+
+            // calculate and return angle.
+            var toNorth =  new Coordinate(location1.Latitude + 0.001f, location1.Longitude);
+            var angleRadians = DirectionCalculator.Angle(location2, location1,  toNorth);
+            return (float)angleRadians.ToDegrees().NormalizeDegrees();
         }
 
         

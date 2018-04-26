@@ -832,6 +832,17 @@ namespace Itinero
         /// <summary>
         /// Generates an edge path for the given edge.
         /// </summary>
+        public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, DirectedEdgeId directedEdgeId, bool asSource)
+            where T : struct
+        {
+            var edge = routerDb.Network.GetEdge(directedEdgeId.EdgeId);
+
+            return routerDb.GetPathForEdge(weightHandler, edge, directedEdgeId.Forward, asSource);
+        }
+
+        /// <summary>
+        /// Generates an edge path for the given edge.
+        /// </summary>
         public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, long directedEdgeId, bool asSource)
             where T : struct
         {
