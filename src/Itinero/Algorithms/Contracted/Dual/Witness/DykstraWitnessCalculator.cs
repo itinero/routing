@@ -64,8 +64,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// <summary>
         /// Calculates and updates the shortcuts by searching for witness paths.
         /// </summary>
-        public virtual void Calculate(uint vertex, Shortcuts<T> shortcuts)
+        /// <returns>True if at least one witness was found.</returns>
+        public virtual bool Calculate(uint vertex, Shortcuts<T> shortcuts)
         {
+            var witnesses = false;
+
             var sources = new HashSet<OriginalEdge>();
             var waitHandlers = new List<ManualResetEvent>();
 
@@ -103,7 +106,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     break;
                 }
 
-                Calculate(_graph, _weightHandler, vertex, source, targets, _maxSettles,
+                witnesses |= Calculate(_graph, _weightHandler, vertex, source, targets, _maxSettles,
                     _hopLimit);
 
                 foreach (var targetPair in targets)
@@ -125,6 +128,8 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     }
                 }
             }
+
+            return witnesses;
         }
 
         protected PathTree pathTree = new PathTree();
@@ -133,9 +138,12 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public virtual void Calculate(DirectedGraph graph, WeightHandler<T> weightHandler, uint vertex, 
+        /// <returns>True if at least one witness path was found.</returns>
+        public virtual bool Calculate(DirectedGraph graph, WeightHandler<T> weightHandler, uint vertex, 
             uint source, Dictionary<uint, Shortcut<T>> targets, int maxSettles, int hopLimit)
         {
+            var witnesses = false;
+
             pathTree.Clear();
             pointerHeap.Clear();
 
@@ -229,6 +237,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                             { // a witness path was found, don't add a shortcut.
                                 shortcut.Forward = weightHandler.Zero;
                                 targets[cVertex] = shortcut;
+                                witnesses = true;
                             }
                         }
                         forwardTargets.Remove(cVertex);
@@ -259,6 +268,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                             { // a witness path was found, don't add a shortcut.
                                 shortcut.Backward = weightHandler.Zero;
                                 targets[cVertex] = shortcut;
+                                witnesses = true;
                             }
                         }
                         backwardTargets.Remove(cVertex);
@@ -319,6 +329,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     pointerHeap.Push(nPoiner, nWeight.Weight);
                 }
             }
+            return witnesses;
         }
 
         /// <summary>
@@ -378,9 +389,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// <summary>
         /// Calculates witness paths.
         /// </summary>
-        public override void Calculate(DirectedGraph graph, WeightHandler<float> weightHandler, uint vertex,
+        public override bool Calculate(DirectedGraph graph, WeightHandler<float> weightHandler, uint vertex,
             uint source, Dictionary<uint, Shortcut<float>> targets, int maxSettles, int hopLimit)
         {
+            var witnesses = false;
+
             pathTree.Clear();
             pointerHeap.Clear();
 
@@ -480,6 +493,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                             { // a witness path was found, don't add a shortcut.
                                 shortcut.Forward = 0;
                                 targets[cVertex] = shortcut;
+                                witnesses = true;
                             }
                         }
                         forwardTargets.Remove(cVertex);
@@ -510,6 +524,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                             { // a witness path was found, don't add a shortcut.
                                 shortcut.Backward = 0;
                                 targets[cVertex] = shortcut;
+                                witnesses = true;
                             }
                         }
                         backwardTargets.Remove(cVertex);
@@ -576,6 +591,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     pointerHeap.Push(nPoiner, nWeight);
                 }
             }
+            return witnesses;
         }
     }
 }

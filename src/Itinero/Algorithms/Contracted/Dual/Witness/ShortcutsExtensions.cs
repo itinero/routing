@@ -26,10 +26,10 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// <summary>
         /// Removes witnessed shortcuts.
         /// </summary>
-        public static void RemoveWitnessed<T>(this Shortcuts<T> shortcuts, uint vertex, DykstraWitnessCalculator<T> witnessCalculator)
+        public static bool RemoveWitnessed<T>(this Shortcuts<T> shortcuts, uint vertex, DykstraWitnessCalculator<T> witnessCalculator)
             where T : struct
         {
-            witnessCalculator.Calculate(vertex, shortcuts);
+            return witnessCalculator.Calculate(vertex, shortcuts);
         }
     }
 }
