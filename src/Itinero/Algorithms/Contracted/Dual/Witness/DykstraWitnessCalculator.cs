@@ -62,6 +62,87 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         protected int _maxSettles;
 
         /// <summary>
+        /// Calculates and returns all witness paths.
+        /// </summary>
+        public virtual Dictionary<OriginalEdge, T> CalculateWitnesses(uint vertex, Shortcuts<T> shortcuts)
+        {
+            var witnesses = new Dictionary<OriginalEdge, T>();
+
+            var sources = new HashSet<OriginalEdge>();
+            var waitHandlers = new List<ManualResetEvent>();
+
+            while (true)
+            {
+                var source = Constants.NO_VERTEX;
+                var targets = new Dictionary<uint, Shortcut<T>>();
+
+                foreach (var shortcut in shortcuts)
+                {
+                    if (source == Constants.NO_VERTEX &&
+                        !sources.Contains(shortcut.Key))
+                    {
+                        source = shortcut.Key.Vertex1;
+                        sources.Add(shortcut.Key);
+                    }
+                    if (shortcut.Key.Vertex1 == source)
+                    {
+                        targets[shortcut.Key.Vertex2] = shortcut.Value;
+                        sources.Add(shortcut.Key);
+                    }
+                    if (shortcut.Key.Vertex2 == source)
+                    {
+                        targets[shortcut.Key.Vertex1] = new Shortcut<T>()
+                        {
+                            Backward = shortcut.Value.Forward,
+                            Forward = shortcut.Value.Backward
+                        };
+                        sources.Add(shortcut.Key);
+                    }
+                }
+
+                if (targets.Count == 0)
+                { // no more searches needed.
+                    break;
+                }
+
+                Calculate(_graph, _weightHandler, vertex, source, targets, _maxSettles, _hopLimit);
+
+                foreach (var targetPair in targets)
+                {
+                    var e = new OriginalEdge(source, targetPair.Key);
+                    if (shortcuts.TryGetValue(e, out Shortcut<T> s))
+                    {
+                        if (_weightHandler.IsSmallerThan(targetPair.Value.Forward, s.Forward))
+                        {
+                            witnesses[e] = targetPair.Value.Forward;
+                        }
+                        if (_weightHandler.IsSmallerThan(targetPair.Value.Backward, s.Backward))
+                        {
+                            witnesses[e.Reverse()] = targetPair.Value.Backward;
+                        }
+                    }
+                    else
+                    {
+                        e = e.Reverse();
+                        if (shortcuts.TryGetValue(e, out s))
+                        {
+                            if (_weightHandler.IsSmallerThan(targetPair.Value.Forward, s.Backward))
+                            {
+                                witnesses[e] = targetPair.Value.Forward;
+                            }
+                            if (_weightHandler.IsSmallerThan(targetPair.Value.Backward, s.Forward))
+                            {
+                                witnesses[e.Reverse()] = targetPair.Value.Backward;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return witnesses;
+        }
+
+        /// <summary>
         /// Calculates and updates the shortcuts by searching for witness paths.
         /// </summary>
         /// <returns>True if at least one witness was found.</returns>

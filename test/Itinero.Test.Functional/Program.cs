@@ -46,8 +46,8 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-            try
-            {
+            // try
+            // {
                 // download and extract test-data if not already there.
                 _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
                 Download.DownloadLuxembourgAll();
@@ -71,11 +71,11 @@ namespace Itinero.Test.Functional
 
                 // // test instruction generation.
                 // InstructionTests.Run(routerDb);
-            }
-            catch (Exception ex)
-            {
-                _logger.Log(TraceEventType.Error, ex.Message);
-            }
+            // }
+            // catch (Exception ex)
+            // {
+            //     _logger.Log(TraceEventType.Error, ex.Message);
+            // }
             _logger.Log(TraceEventType.Information, "Testing finished.");
 // #if DEBUG
              Console.ReadLine();

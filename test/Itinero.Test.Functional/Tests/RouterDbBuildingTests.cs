@@ -16,18 +16,22 @@
  *  limitations under the License.
  */
 
-using Itinero.Data.Contracted;
+using System;
+using System.IO;
+using Itinero.Algorithms.Dual;
 using Itinero.Algorithms.Networks;
+using Itinero.Algorithms.Weights;
+using Itinero.Data;
+using Itinero.Data.Contracted;
+using Itinero.Data.Contracted.Edges;
+using Itinero.Elevation;
+using Itinero.Graphs.Directed;
 using Itinero.IO.Osm;
+using Itinero.LocalGeo;
 using Itinero.Profiles;
 using Itinero.Test.Functional.Staging;
 using OsmSharp.Streams;
-using System;
-using System.IO;
-using Itinero.Data;
-using Itinero.LocalGeo;
 using SRTM;
-using Itinero.Elevation;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -44,8 +48,8 @@ namespace Itinero.Test.Functional.Tests
         {
             //GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
 
-            //var sourcePBF = @"C:\work\data\OSM\belgium-latest.osm.pbf"; //Download.LuxembourgLocal;
-            //var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
+            // var sourcePBF = @"/home/xivk/work/data/OSM/germany-latest.osm.pbf"; //Download.LuxembourgLocal;
+            // var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
             //    Osm.Vehicles.Vehicle.Car,
             //    Osm.Vehicles.Vehicle.Bicycle,
             //    Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
@@ -53,21 +57,54 @@ namespace Itinero.Test.Functional.Tests
             // GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
 
             RouterDb routerDb;
-            using (var stream = File.OpenRead("belgium.c.cf.opt.routerdb"))
+            using(var stream = File.OpenRead("luxembourg.c.cf.opt.routerdb"))
             {
                 routerDb = RouterDb.Deserialize(stream);
             }
 
-            //routerDb = GetTestSerializeDeserialize(routerDb, "belgium.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            var weightHandler = profile.DefaultWeightHandlerCached(routerDb);
+            var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                weightHandler.MetaSize);
+            var restrictions = routerDb.GetRestrictions(profile);
+            var dualGraphBuilder = new DualGraphBuilder<float>(routerDb.Network.GeometricGraph.Graph, contracted,
+                weightHandler, restrictions);
+            dualGraphBuilder.Run();
+
+            // var witnessGraph = new DirectedGraph(1, contracted.VertexCount);
+            // var witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator(
+            //     contracted.Graph);
+            // var witnessCount = 0;
+            // for (uint v = 0; v < contracted.VertexCount; v++)
+            // {
+            //     witnessCalculator.Run(v, null, (v1, v2, w) => 
+            //     {
+            //         Console.WriteLine("{0}->{1}:{2}", v1, v2, w);
+            //         if (w.Forward != float.MaxValue)
+            //         {
+            //             witnessGraph.AddEdge(v1, v2, ContractedEdgeDataSerializer.SerializeDistance(w.Forward));
+            //         }
+            //         if (w.Backward != float.MaxValue)
+            //         {
+            //             witnessGraph.AddEdge(v2, v1, ContractedEdgeDataSerializer.SerializeDistance(w.Backward));
+            //         }
+            //         witnessCount++;
+            //     });
+            // }
+            // Console.WriteLine("{0} witnesses", witnessCount);
+
+            var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder<float>(contracted, weightHandler);
+            hierarchyBuilder.Run();
+
+            // routerDb = GetTestSerializeDeserialize(routerDb, "belgium.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
 
             // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
             // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
 
             // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car", 1);
+            // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car", 1);
 
             //routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
-
 
             return routerDb;
         }
@@ -90,7 +127,7 @@ namespace Itinero.Test.Functional.Tests
                 };
             };
         }
-        
+
         /// <summary>
         /// Tests serialize/deserialize.
         /// </summary>
@@ -99,16 +136,16 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 var bytes = 0L;
-                using (var stream = File.Open(fileName, FileMode.Create))
+                using(var stream = File.Open(fileName, FileMode.Create))
                 {
                     routerDb.Serialize(stream);
                     bytes = stream.Position;
                 }
-                using (var stream1 = File.OpenRead(fileName))
+                using(var stream1 = File.OpenRead(fileName))
                 {
                     routerDb = RouterDb.Deserialize(stream1, RouterDbProfile.NoCache);
                 }
-                using (var stream1 = File.OpenRead(fileName))
+                using(var stream1 = File.OpenRead(fileName))
                 {
                     routerDb = RouterDb.Deserialize(stream1);
                 }
@@ -127,7 +164,7 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 OsmStreamSource source;
-                using (var stream = File.OpenRead(file))
+                using(var stream = File.OpenRead(file))
                 {
                     var routerdb = new RouterDb();
                     if (file.ToLowerInvariant().EndsWith("osm.pbf"))
@@ -144,11 +181,11 @@ namespace Itinero.Test.Functional.Tests
                     routerdb.LoadOsmData(progress, new LoadSettings()
                     {
                         AllCore = allcore,
-                        ProcessRestrictions = processRestrictions,
-                        OptimizeNetwork = true,
-                        NetworkSimplificationEpsilon = 1,
-                        KeepNodeIds = true,
-                        KeepWayIds = true
+                            ProcessRestrictions = processRestrictions,
+                            OptimizeNetwork = true,
+                            NetworkSimplificationEpsilon = 1,
+                            KeepNodeIds = true,
+                            KeepWayIds = true
                     }, vehicles);
 
                     return new PerformanceTestResult<RouterDb>(routerdb);
@@ -217,7 +254,7 @@ namespace Itinero.Test.Functional.Tests
 
                     File.WriteAllText("islands_" + profile.FullName + ".geojson",
                         islandDb.GetGeoJson(true, false));
-               }
+                }
 #endif
             };
         }
@@ -237,7 +274,7 @@ namespace Itinero.Test.Functional.Tests
             var srtmData = new SRTMData("srtm-cache");
             LocalGeo.Elevation.ElevationHandler.GetElevation = (lat, lon) =>
             {
-                return (short)srtmData.GetElevation(lat, lon);
+                return (short) srtmData.GetElevation(lat, lon);
             };
 
             return () =>

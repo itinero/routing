@@ -98,6 +98,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             _data[edge] = existing;
         }
 
+        public IEnumerable<OriginalEdge> Edges()
+        {
+            return _data.Keys;
+        }
+
         /// <summary>
         /// Clears all shortcuts.
         /// </summary>

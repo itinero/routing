@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using System;
 using Itinero.Graphs.Directed;
 
 namespace Itinero.Algorithms.Contracted.Dual.Witness

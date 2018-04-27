@@ -495,6 +495,14 @@ namespace Itinero.Graphs.Directed
         }
 
         /// <summary>
+        /// Returns the space used in edges.
+        /// </summary>
+        public uint EdgeSpaceCount
+        {
+            get { return (uint)(_edges.Length / (this.EdgeDataSize + 1)); }
+        }
+
+        /// <summary>
         /// Trims the internal data structures of this graph.
         /// </summary>
         public void Trim()

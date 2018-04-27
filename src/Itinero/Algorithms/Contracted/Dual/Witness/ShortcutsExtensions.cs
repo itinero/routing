@@ -16,6 +16,9 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
+using Itinero.Algorithms.Weights;
+
 namespace Itinero.Algorithms.Contracted.Dual.Witness
 {
     /// <summary>
@@ -30,6 +33,72 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             where T : struct
         {
             return witnessCalculator.Calculate(vertex, shortcuts);
+        }
+
+        /// <summary>
+        /// Builds a witnesses dictionary.
+        /// </summary>
+        /// <param name="shortcuts"></param>
+        /// <param name="vertex"></param>
+        /// <param name="witnessCalculator"></param>
+        /// <returns></returns>
+        public static Dictionary<OriginalEdge, T> BuildWitnesses<T>(this Shortcuts<T> shortcuts, uint vertex, DykstraWitnessCalculator<T> witnessCalculator)
+            where T : struct
+        {
+            return witnessCalculator.CalculateWitnesses(vertex, shortcuts);
+        }
+
+        /// <summary>
+        /// Removes witnessed shortcuts.
+        /// </summary>
+        /// <param name="shortcuts"></param>
+        /// <param name="witnesses"></param>
+        /// <returns></returns>
+        public static bool RemoveWitnessed<T>(this Shortcuts<T> shortcuts, WeightHandler<T> weightHandler, uint vertex, Dictionary<uint, Dictionary<OriginalEdge, T>> witnesses)
+            where T : struct
+        {
+            if (witnesses.TryGetValue(vertex, out Dictionary<OriginalEdge, T> vertexWitnesses))
+            {
+                return shortcuts.RemoveWitnessed(weightHandler, vertexWitnesses);
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Removes witnessed shortcuts.
+        /// </summary>
+        /// <param name="shortcuts"></param>
+        /// <param name="witnesses"></param>
+        /// <returns></returns>
+        public static bool RemoveWitnessed<T>(this Shortcuts<T> shortcuts, WeightHandler<T> weightHandler, Dictionary<OriginalEdge, T> witnesses)
+            where T : struct
+        {
+            bool witnessed = false;
+            foreach (var witness in witnesses)
+            {
+                var edge = witness.Key;
+                if (shortcuts.TryGetValue(edge, out Shortcut<T> shortcut))
+                {
+                    if (weightHandler.IsSmallerThan(witness.Value, shortcut.Forward))
+                    {
+                        shortcut.Forward = witness.Value;
+                        shortcuts.AddOrUpdate(edge, shortcut, weightHandler);
+                        witnessed = true;
+                    }
+                }
+                // TODO: this should be 'else', in theory this extra check isn't needed.
+                edge = edge.Reverse();
+                if (shortcuts.TryGetValue(edge, out shortcut))
+                {
+                    if (weightHandler.IsSmallerThan(witness.Value, shortcut.Backward))
+                    {
+                        shortcut.Backward = witness.Value;
+                        shortcuts.AddOrUpdate(edge, shortcut, weightHandler);
+                        witnessed = true;
+                    }
+                }
+            }
+            return witnessed;
         }
     }
 }

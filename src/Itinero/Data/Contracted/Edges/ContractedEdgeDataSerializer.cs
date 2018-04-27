@@ -137,6 +137,15 @@ namespace Itinero.Data.Contracted.Edges
             ContractedEdgeDataSerializer.Deserialize(data, out weight, out direction);
             return weight;
         }
+    
+        /// <summary>
+        /// Parses the edge data.
+        /// </summary>
+        /// <returns></returns>
+        public static float DeserializeDistance(uint data)
+        {
+            return data / 10.0f;
+        }
 
         /// <summary>
         /// Returns true if the data represents the same direction.
