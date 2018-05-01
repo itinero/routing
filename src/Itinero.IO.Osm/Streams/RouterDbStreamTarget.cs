@@ -375,6 +375,11 @@ namespace Itinero.IO.Osm.Streams
                         processor.SecondPass(way);
                     }
                 }
+
+                if (way.Id == 304961389)
+                {
+                    System.Diagnostics.Debug.WriteLine("");
+                }
                 
                 var wayAttributes = way.Tags.ToAttributes();
                 var profileWhiteList = new Whitelist();
