@@ -54,48 +54,117 @@ namespace Itinero
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         /// <returns></returns>
-        public abstract Result<RouterPoint> TryResolve(IProfileInstance[] profiles, float latitude, float longitude,
+        public Result<RouterPoint> TryResolve(IProfileInstance[] profiles, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter,
-            ResolveSettings settings = null, CancellationToken cancellationToken = new CancellationToken());
+            ResolveSettings settings = null)
+        {
+            return this.TryResolve(profiles, latitude, longitude, isBetter, searchDistanceInMeter, settings, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Searches for the closest point on the routing network that's routable for the given profiles.
+        /// </summary>
+        /// <returns></returns>
+        public abstract Result<RouterPoint> TryResolve(IProfileInstance[] profiles, float latitude, float longitude,
+            Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter,
+            ResolveSettings settings, CancellationToken cancellationToken);
 
         /// <summary>
         /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
         /// </summary>
         /// <param name="radiusInMeter">The radius metric, that's always a distance.</param>
         /// <returns></returns>
-        public abstract Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeter, bool? forward = null, CancellationToken cancellationToken = new CancellationToken());
+        public Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeter, bool? forward = null)
+        {
+            return this.TryCheckConnectivity(profile, point, radiusInMeter, forward, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Checks if the given point is connected to the rest of the network. Use this to detect points on routing islands.
+        /// </summary>
+        /// <param name="radiusInMeter">The radius metric, that's always a distance.</param>
+        /// <returns></returns>
+        public abstract Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeter, bool? forward, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Calculates a route between the two locations.
+        /// </summary>
+        /// <returns></returns>
+        public Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
+            RoutingSettings<T> settings = null) where T : struct
+        {
+            return this.TryCalculateRaw(profile, weightHandler, source, target, settings, CancellationToken.None);
+        }
 
         /// <summary>
         /// Calculates a route between the two locations.
         /// </summary>
         /// <returns></returns>
         public abstract Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
-            RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken()) where T : struct;
+            RoutingSettings<T> settings, CancellationToken cancellationToken) where T : struct;
+
+        /// <summary>
+        /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
+        /// </summary>
+        /// <returns></returns>
+        public Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
+            RoutingSettings<T> settings = null) where T : struct
+        {
+            return this.TryCalculateRaw(profile, weightHandler, sourceDirectedEdge, targetDirectedEdge, settings, CancellationToken.None);
+        }
 
         /// <summary>
         /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
         /// </summary>
         /// <returns></returns>
         public abstract Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge,
-            RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken()) where T : struct;
+            RoutingSettings<T> settings, CancellationToken cancellationToken) where T : struct;
+
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            RoutingSettings<T> settings = null) where T : struct
+        {
+            return this.TryCalculateRaw(profile, weightHandler, sources, targets, settings, CancellationToken.None);
+        }
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public abstract Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken()) where T : struct;
+            RoutingSettings<T> settings, CancellationToken cancellationToken) where T : struct;
+
+        /// <summary>
+        /// Calculates all weights between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public Result<T[][]> TryCalculateWeight<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings = null) where T : struct
+        {
+            return this.TryCalculateWeight(profile, weightHandler, sources, targets, invalidSources, invalidTargets, settings, CancellationToken.None);
+        }
 
         /// <summary>
         /// Calculates all weights between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public abstract Result<T[][]> TryCalculateWeight<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings = null, CancellationToken cancellationToken = new CancellationToken()) where T : struct;
-        
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken) where T : struct;
+
         /// <summary>
         /// Builds a route based on a raw path.
         /// </summary>
-        public abstract Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken = new CancellationToken()) where T : struct;
+        public Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path) where T : struct
+        {
+            return this.BuildRoute(profile, weightHandler, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route based on a raw path.
+        /// </summary>
+        public abstract Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken) where T : struct;
     }
 }

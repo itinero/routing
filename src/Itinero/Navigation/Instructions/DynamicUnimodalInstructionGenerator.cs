@@ -343,7 +343,15 @@ namespace Itinero.Navigation.Instructions
         /// <summary>
         /// Generates instructions for the given route assuming it's using the profile in this generator.
         /// </summary>
-        public IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken = new CancellationToken())
+        public IList<Instruction> Generate(Route route, ILanguageReference languageReference)
+        {
+            return this.Generate(route, languageReference, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Generates instructions for the given route assuming it's using the profile in this generator.
+        /// </summary>
+        public IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken)
         {
             if (route.IsMultimodal())
             {

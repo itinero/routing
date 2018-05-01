@@ -31,11 +31,15 @@ namespace Itinero.Algorithms.Shortcuts
         /// <summary>
         /// Adds multiple shortcut db's at the same time.
         /// </summary>
-        public static void AddShortcuts(this RouterDb routerDb, params ShortcutSpecs[] shortcutSpecs) => AddShortcuts(routerDb, shortcutSpecs, new CancellationToken());
+        public static void AddShortcuts(this RouterDb routerDb, params ShortcutSpecs[] shortcutSpecs)
+        {
+            routerDb.AddShortcuts(shortcutSpecs, CancellationToken.None);
+        }
+
         /// <summary>
         /// Adds multiple shortcut db's at the same time.
         /// </summary>
-        public static void AddShortcuts(this RouterDb routerDb, ShortcutSpecs[] shortcutSpecs, CancellationToken cancellationToken = new CancellationToken())
+        public static void AddShortcuts(this RouterDb routerDb, ShortcutSpecs[] shortcutSpecs, CancellationToken cancellationToken)
         {
             // check all specs.
             if (shortcutSpecs == null) { throw new ArgumentNullException(); }
