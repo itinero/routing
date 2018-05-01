@@ -1028,7 +1028,7 @@ namespace Itinero
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint source, RouterPoint target, CancellationToken cancellationToken)
         {
             var weightHandler = router.GetDefaultWeightHandler(profile);
-            return router.TryCalculate<float>(profile, weightHandler, source, target);
+            return router.TryCalculate<float>(profile, weightHandler, source, target, null, cancellationToken);
         }
 
         /// <summary>
@@ -1501,7 +1501,7 @@ namespace Itinero
                     // make sure the path represents the route between the two routerpoints not between the two edges.
                     if (path.From == null)
                     { // path has only one vertex, this represents a path of length '0'.
-                        return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+                        return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path, cancellationToken);
                     }
 
                     // path has at least two vertices, strip first and last vertex.
@@ -1516,18 +1516,18 @@ namespace Itinero
                     vertices[0] = Constants.NO_VERTEX;
                     vertices[vertices.Count - 1] = Constants.NO_VERTEX;
                     path = router.Db.BuildEdgePath(weightHandler, source, target, vertices);
-                    return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path);
+                    return router.BuildRoute(profileInstance.Profile, weightHandler, source, target, path, cancellationToken);
                 }
                 else if (settings != null && 
                     !settings.DirectionAbsolute)
                 { // no route was found but maybe because the requested directions aren't available.
                     if (sourceForward.HasValue)
                     { // the source direction was set, try again without it.
-                        return router.TryCalculate(profileInstance, weightHandler, source, null, target, targetForward, settings);
+                        return router.TryCalculate(profileInstance, weightHandler, source, null, target, targetForward, settings, cancellationToken);
                     }
                     else if (targetForward.HasValue)
                     { // the target direction was set, try again without it.
-                        return router.TryCalculate(profileInstance, weightHandler, source, target, settings);
+                        return router.TryCalculate(profileInstance, weightHandler, source, target, settings, cancellationToken);
                     }
                     else
                     { // route wasn't found but there was no directional info either.
@@ -1657,7 +1657,7 @@ namespace Itinero
         public static Route Calculate(this RouterBase router, IProfileInstance profile, RouterPoint source, float? sourceDirection, 
             RouterPoint target, float? targetDirection, CancellationToken cancellationToken)
         {
-            return router.TryCalculate<float>(profile, router.GetDefaultWeightHandler(profile), source, sourceDirection, target, targetDirection).Value;
+            return router.TryCalculate<float>(profile, router.GetDefaultWeightHandler(profile), source, sourceDirection, target, targetDirection, 45, null, cancellationToken).Value;
         }
     }
 }
