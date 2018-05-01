@@ -363,6 +363,10 @@ namespace Itinero.Graphs.Directed
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
+            if (edgeCount == 0)
+            {
+                return Constants.NO_EDGE;
+            }
             var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
             var lastEdgePointer = edgePointer + (edgeCount * (uint)_edgeSize);
 
@@ -384,6 +388,48 @@ namespace Itinero.Graphs.Directed
                         }
                         return edgePointer / (uint)_edgeSize;
                     }
+                }
+                edgePointer += (uint)_edgeSize;
+            }
+            return Constants.NO_EDGE;
+        }
+
+        /// <summary>
+        /// Updates and edge's associated data.
+        /// </summary>
+        public uint UpdateEdgeIfBetter(uint vertex1, uint vertex2, Func<uint[], bool> update, params uint[] data)
+        {
+            if (_readonly) { throw new Exception("Graph is readonly."); }
+            if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
+            _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) * VERTEX_SIZE + EDGE_COUNT + 1);
+
+            var vertexPointer = vertex1 * VERTEX_SIZE;
+            var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
+            if (edgeCount == 0)
+            {
+                return Constants.NO_EDGE;
+            }
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+            var lastEdgePointer = edgePointer + (edgeCount * (uint)_edgeSize);
+
+            var currentData = new uint[_edgeDataSize];
+            while (edgePointer < lastEdgePointer)
+            {
+                for (uint i = 0; i < _edgeDataSize; i++)
+                {
+                    currentData[i] = _edges[edgePointer + MINIMUM_EDGE_SIZE + i];
+                }
+                if (_edges[edgePointer] == vertex2)
+                {
+                    if (update(currentData))
+                    { // yes, update here.
+                        for (uint i = 0; i < _edgeDataSize; i++)
+                        {
+                            _edges[edgePointer + MINIMUM_EDGE_SIZE + i] =
+                                data[i];
+                        }
+                    }
+                    return edgePointer / (uint)_edgeSize;
                 }
                 edgePointer += (uint)_edgeSize;
             }

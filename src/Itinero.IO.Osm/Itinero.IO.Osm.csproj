@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;net45;portable40-net403+sl5+win8+wp8</TargetFrameworks>
+    <TargetFrameworks>netstandard1.6;net45</TargetFrameworks>
     <AssemblyName>Itinero.IO.Osm</AssemblyName>
     <PackageId>Itinero.IO.Osm</PackageId>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>

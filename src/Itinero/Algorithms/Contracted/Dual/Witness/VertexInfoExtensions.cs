@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
-using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 
 namespace Itinero.Algorithms.Contracted.Dual.Witness
@@ -215,48 +214,55 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     edge.Vertex2 >= witnessGraph.VertexCount)
                 {
                     continue;
-                }                    
+                }
 
                 var shortcut = pair.Value;
 
                 var shortcutForward = weightHandler.GetMetric(shortcut.Forward);
                 var shortcutBackward = weightHandler.GetMetric(shortcut.Backward);
 
-                // check forward.
-                var hasUpdates = false;
-                if (shortcutForward > 0 && shortcutForward < float.MaxValue) 
+                var witnessedForward = float.MaxValue;
+                var witnessedBackward = float.MaxValue;
+                if (edge.Vertex1 < edge.Vertex2)
                 {
                     witnessGraphEnumerator.MoveTo(edge.Vertex1);
                     while (witnessGraphEnumerator.MoveNext())
                     {
                         if (witnessGraphEnumerator.Neighbour == edge.Vertex2)
-                        { // forward witness found.
-                            var witnessWeight = ContractedEdgeDataSerializer.DeserializeDistance(witnessGraphEnumerator.Data0);
-                            if (witnessWeight + FastHierarchyBuilder<T>.E < shortcutForward)
-                            { // witness weight is truly smaller.
-                                shortcut.Forward = weightHandler.Infinite;
-                                hasUpdates = true;
-                                break;
-                            }
+                        {
+                            witnessedForward = DirectedGraphExtensions.FromData(witnessGraphEnumerator.Data0);
+                            witnessedBackward = DirectedGraphExtensions.FromData(witnessGraphEnumerator.Data1);
+                            break;
                         }
                     }
                 }
-                if (shortcutBackward > 0 && shortcutBackward < float.MaxValue)
+                else
                 {
                     witnessGraphEnumerator.MoveTo(edge.Vertex2);
                     while (witnessGraphEnumerator.MoveNext())
                     {
                         if (witnessGraphEnumerator.Neighbour == edge.Vertex1)
-                        { // forward witness found.
-                            var witnessWeight = ContractedEdgeDataSerializer.DeserializeDistance(witnessGraphEnumerator.Data0);
-                            if (witnessWeight + FastHierarchyBuilder<T>.E < shortcutBackward)
-                            { // witness weight is truly smaller.
-                                shortcut.Backward = weightHandler.Infinite;
-                                hasUpdates = true;
-                                break;
-                            }
+                        {
+                            witnessedBackward = DirectedGraphExtensions.FromData(witnessGraphEnumerator.Data0);
+                            witnessedForward = DirectedGraphExtensions.FromData(witnessGraphEnumerator.Data1);
+                            break;
                         }
                     }
+                }
+
+                // check forward.
+                var hasUpdates = false;
+                if (shortcutForward > 0 && shortcutForward < float.MaxValue &&
+                    shortcutForward > witnessedForward)
+                {
+                    shortcut.Forward = weightHandler.Infinite;
+                    hasUpdates = true;
+                }
+                if (shortcutBackward > 0 && shortcutBackward < float.MaxValue &&
+                    shortcutBackward > witnessedBackward)
+                {
+                    shortcut.Backward = weightHandler.Infinite;
+                    hasUpdates = true;
                 }
 
                 if (hasUpdates)

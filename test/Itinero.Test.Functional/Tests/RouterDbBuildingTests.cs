@@ -93,8 +93,13 @@ namespace Itinero.Test.Functional.Tests
             // }
             // Console.WriteLine("{0} witnesses", witnessCount);
 
-            var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder<float>(contracted, weightHandler);
-            hierarchyBuilder.Run();
+            Action a = () =>
+            {
+                var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder<float>(contracted, weightHandler);
+                hierarchyBuilder.Run();
+            };
+            a.TestPerf("Fact hier builder.");
+            Console.ReadLine();
 
             // routerDb = GetTestSerializeDeserialize(routerDb, "belgium.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
 

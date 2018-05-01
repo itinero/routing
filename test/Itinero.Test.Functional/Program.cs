@@ -78,7 +78,7 @@ namespace Itinero.Test.Functional
             // }
             _logger.Log(TraceEventType.Information, "Testing finished.");
 // #if DEBUG
-             Console.ReadLine();
+             //Console.ReadLine();
 // #endif
         }
 

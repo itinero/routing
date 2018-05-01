@@ -3,9 +3,10 @@ using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.Dual.Witness;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
-using Itinero.Data.Contracted.Edges;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.Dual
 {
@@ -19,6 +20,12 @@ namespace Itinero.Algorithms.Contracted.Dual
         private readonly Dictionary<long, int> _depth;
         protected VertexInfo<T> _vertexInfo;
         public const float E = 0.1f;
+
+        // Thread-Local variable that yields a name for a thread
+        ThreadLocal<NeighbourWitnessCalculator> WitnessCalculators = new ThreadLocal<NeighbourWitnessCalculator>(() =>
+        {
+            return new NeighbourWitnessCalculator();
+        });
 
         /// <summary>
         /// Creates a new hierarchy builder.
@@ -35,9 +42,9 @@ namespace Itinero.Algorithms.Contracted.Dual
             _depth = new Dictionary<long, int>();
             _contractionCount = new Dictionary<uint, int>();
 
-            this.DifferenceFactor = 5;
-            this.DepthFactor = 5;
-            this.ContractedFactor = 5;
+            this.DifferenceFactor = 4;
+            this.DepthFactor = 14;
+            this.ContractedFactor = 1;
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
@@ -62,31 +69,29 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         public int ContractedFactor { get; set; }
 
-        private Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator _witnessCalculator = null;
+        //private Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator _witnessCalculator = null;
 
         private void InitializeWitnessGraph()
         {
             _logger.Log(TraceEventType.Information, "Initializing witness graph...");
 
-            _witnessGraph = new DirectedGraph(1, _graph.VertexCount);
-            _witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator(
-                _graph.Graph);
-            var witnessCount = 0;
-            for (uint v = 0; v < _graph.VertexCount; v++)
+            _witnessGraph = new DirectedGraph(2, _graph.VertexCount);
+            //_witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator(
+            //    _graph.Graph);
+            //var witnessCount = 0;
+            System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
             {
-                _witnessCalculator.Run(v, null, (v1, v2, w) =>
-                {
-                    if (w.Forward != float.MaxValue)
-                    {
-                        _witnessGraph.AddOrUpdateEdge(v1, v2, w.Forward);
-                    }
-                    if (w.Backward != float.MaxValue)
-                    {
-                        _witnessGraph.AddOrUpdateEdge(v2, v1, w.Backward);
-                    }
-                    witnessCount++;
-                });
-            }
+                var witnessCalculator = WitnessCalculators.Value;
+                witnessCalculator.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+            });
+            //for (uint v = 0; v < _graph.VertexCount; v++)
+            //{
+            //    _witnessCalculator.Run(v, null, (v1, v2, w) =>
+            //    {
+            //        _witnessGraph.AddOrUpdateEdge(v1, v2, w.Forward, w.Backward);
+            //        witnessCount++;
+            //    });
+            //}
         }
 
         /// <summary>
@@ -155,8 +160,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             var current = 0;
             var total = _graph.VertexCount;
             var toDoCount = total;
-            while (_queue.Count > 0 ||
-                toDoCount > 0)
+            while (_queue.Count > 0)
             {
                 // contract...
                 this.Contract();
@@ -177,25 +181,25 @@ namespace Itinero.Algorithms.Contracted.Dual
                     int totaEdges = 0;
                     int totalUncontracted = 0;
                     int maxCardinality = 0;
-                    var neighbourCount = new Dictionary<uint, int>();
-                    for (uint v = 0; v < _graph.VertexCount; v++)
-                    {
-                        if (!_contractedFlags[v])
-                        {
-                            neighbourCount.Clear();
-                            var edges = _graph.GetEdgeEnumerator(v);
-                            if (edges != null)
-                            {
-                                var edgesCount = edges.Count;
-                                totaEdges = edgesCount + totaEdges;
-                                if (maxCardinality < edgesCount)
-                                {
-                                    maxCardinality = edgesCount;
-                                }
-                            }
-                            totalUncontracted++;
-                        }
-                    }
+                    //var neighbourCount = new Dictionary<uint, int>();
+                    //for (uint v = 0; v < _graph.VertexCount; v++)
+                    //{
+                    //    if (!_contractedFlags[v])
+                    //    {
+                    //        neighbourCount.Clear();
+                    //        var edges = _graph.GetEdgeEnumerator(v);
+                    //        if (edges != null)
+                    //        {
+                    //            var edgesCount = edges.Count;
+                    //            totaEdges = edgesCount + totaEdges;
+                    //            if (maxCardinality < edgesCount)
+                    //            {
+                    //                maxCardinality = edgesCount;
+                    //            }
+                    //        }
+                    //        totalUncontracted++;
+                    //    }
+                    //}
 
                     var density = (double) totaEdges / (double) totalUncontracted;
                     _logger.Log(TraceEventType.Information, "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}",
@@ -326,6 +330,7 @@ namespace Itinero.Algorithms.Contracted.Dual
                 i++;
 
                 // TOOD: what to do when stuff is only removed, is nothing ok?
+                //_witnessQueue.Add(edge.Neighbour);
             }
 
             // add shortcuts.
@@ -384,22 +389,21 @@ namespace Itinero.Algorithms.Contracted.Dual
         {
             if (_witnessQueue.Count > 0)
             {
-                foreach (var v in _witnessQueue)
+                System.Threading.Tasks.Parallel.ForEach(_witnessQueue, (v) =>
                 {
-                    _witnessCalculator.Run(v, _witnessQueue, (v1, v2, w) =>
-                    {
-                        if (w.Forward != float.MaxValue)
-                        {
-                            _witnessGraph.AddOrUpdateEdge(v1, v2, w.Forward);
-                        }
-                        if (w.Backward != float.MaxValue)
-                        {
-                            _witnessGraph.AddOrUpdateEdge(v2, v1, w.Backward);
-                        }
-                    });
-                }
+                    //var witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator();
+                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+                });
+
+                //foreach (var v in _witnessQueue)
+                //{
+                //    _witnessCalculator.Run(v, _witnessQueue, (v1, v2, w) =>
+                //    {
+                //        _witnessGraph.AddOrUpdateEdge(v1, v2, w.Forward, w.Backward);
+                //    });
+                //}
                 _witnessQueue.Clear();
-                if (_witnessGraph.EdgeSpaceCount > _witnessGraph.EdgeCount * 4)
+                if (_witnessGraph.EdgeSpaceCount > _witnessGraph.EdgeCount * 8)
                 {
                     _witnessGraph.Compress();
                     _logger.Log(TraceEventType.Information, "Witnessgraph size: {0}", _witnessGraph.EdgeCount);
@@ -469,22 +473,67 @@ namespace Itinero.Algorithms.Contracted.Dual
 
     public static class DirectedGraphExtensions
     {
-        public static void AddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float weight)
+        public static void AddOrUpdateEdge(this DirectedGraph graph, uint vertex1, uint vertex2, float forward, float backward)
         {
-            var data = ContractedEdgeDataSerializer.SerializeDistance(weight);
-            if (graph.UpdateEdge(vertex1, vertex2, (d) =>
+
+            if (vertex1 > vertex2)
+            {
+                var t = vertex2;
+                vertex2 = vertex1;
+                vertex1 = t;
+
+                var tw = backward;
+                backward = forward;
+                forward = tw;
+            }
+
+            var dataForward = ToData(forward);
+            var dataBackward = ToData(backward);
+            var data = new uint[] { dataForward, dataBackward };
+            if (graph.UpdateEdgeIfBetter(vertex1, vertex2, (d) =>
                 {
-                    var existingWeight = ContractedEdgeDataSerializer.DeserializeDistance(d[0]);
-                    if (existingWeight > weight)
-                    {
-                        d[0] = data;
-                        return true;
+                    var existingForward = FromData(d[0]);
+                    var existingBackward = FromData(d[1]);
+                    var update = false;
+                    if (existingForward > forward)
+                    { // update, what we have here is better.
+                        update = true;
                     }
-                    return false;
+                    else
+                    { // take what's there, it's better.
+                        data[0] = d[0];
+                    }
+                    if (existingBackward > backward)
+                    { // update, what we have here is better.
+                        update = true;
+                    }
+                    else
+                    { // take what's there, it's better.
+                        data[1] = d[1];
+                    }
+                    return update;
                 }, data) == Constants.NO_EDGE)
             { // was not updated.
                 graph.AddEdge(vertex1, vertex2, data);
             }
+        }
+
+        public static uint ToData(float weight)
+        {
+            if (weight == float.MaxValue)
+            {
+                return uint.MaxValue;
+            }
+            return (uint)(weight * 100);
+        }
+
+        public static float FromData(uint data)
+        {
+            if (data == uint.MaxValue)
+            {
+                return float.MaxValue;
+            }
+            return data / 100.0f;
         }
     }
 }
