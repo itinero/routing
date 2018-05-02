@@ -55,7 +55,7 @@ namespace Itinero.Test.Functional.Tests
             //     Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
 
             RouterDb routerDb;
-            using(var stream = File.OpenRead("luxembourg.c.cf.opt.routerdb"))
+            using(var stream = File.OpenRead("belgium.c.cf.opt.routerdb"))
             {
                 routerDb = RouterDb.Deserialize(stream);
             }

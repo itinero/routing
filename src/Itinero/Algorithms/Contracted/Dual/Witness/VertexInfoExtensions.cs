@@ -196,6 +196,8 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             //    weigthDiff = removedWeight;
             //}
             
+            // return ((differenceFactor * (2 * added - 3 * removed)) / 2 + (depthFactor * vertexInfo.Depth) +
+            //     (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
             return (differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
                 (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
         }

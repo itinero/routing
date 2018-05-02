@@ -1,12 +1,12 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Contracted.Dual.Witness;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.Dual
 {
@@ -76,20 +76,20 @@ namespace Itinero.Algorithms.Contracted.Dual
             _logger.Log(TraceEventType.Information, "Initializing witness graph...");
 
             _witnessGraph = new DirectedGraph(2, _graph.VertexCount);
-            // System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
-            // {
-            //     WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
-            // });
-            for (uint v = 0; v < _graph.VertexCount; v++)
+            System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
             {
-                WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
-            }
+                WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint) v, null);
+            });
+            // for (uint v = 0; v < _graph.VertexCount; v++)
+            // {
+            //     WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint) v, null);
+            // }
         }
 
         /// <summary>
         /// Updates the vertex info object with the given vertex.
         /// </summary>
-        /// <returns>True if witness paths have been found.</returns>
+        /// <returns>True if succeeded, false if a witness calculation is required.</returns>
         private bool UpdateVertexInfo(uint v)
         {
             var contracted = 0;
@@ -103,34 +103,30 @@ namespace Itinero.Algorithms.Contracted.Dual
             _depth.TryGetValue(v, out depth);
             _vertexInfo.Depth = depth;
 
-            // calculate shortcuts and witnesses.
+            // add neighbours.
             _vertexInfo.AddRelevantEdges(_graph.GetEdgeEnumerator());
-            _vertexInfo.BuildShortcuts(_weightHandler);
 
             // check if any of neighbours are in witness queue.
             if (_witnessQueue.Count > 0)
             {
-                var c = 0;
                 for (var i = 0; i < _vertexInfo.Count; i++)
                 {
                     var m = _vertexInfo[i];
                     if (_witnessQueue.Contains(m.Neighbour))
                     {
-                        c++;
-                        if (c > 1)
-                        {
-                            this.DoWitnessQueue();
-                            break;
-                        }
+                        //this.DoWitnessQueue();
+                        //break;
+                        return false;
                     }
                 }
             }
 
-            if (_vertexInfo.RemoveShortcuts(_witnessGraph, _weightHandler))
-            {
-                return true;
-            }
-            return false;
+            // build shortcuts.
+            _vertexInfo.BuildShortcuts(_weightHandler);
+
+            // remove witnessed shortcuts.
+            _vertexInfo.RemoveShortcuts(_witnessGraph, _weightHandler);
+            return true;
         }
 
         /// <summary>
@@ -176,21 +172,21 @@ namespace Itinero.Algorithms.Contracted.Dual
                     var neighbourCount = new Dictionary<uint, int>();
                     for (uint v = 0; v < _graph.VertexCount; v++)
                     {
-                       if (!_contractedFlags[v])
-                       {
-                           neighbourCount.Clear();
-                           var edges = _graph.GetEdgeEnumerator(v);
-                           if (edges != null)
-                           {
-                               var edgesCount = edges.Count;
-                               totaEdges = edgesCount + totaEdges;
-                               if (maxCardinality < edgesCount)
-                               {
-                                   maxCardinality = edgesCount;
-                               }
-                           }
-                           totalUncontracted++;
-                       }
+                        if (!_contractedFlags[v])
+                        {
+                            neighbourCount.Clear();
+                            var edges = _graph.GetEdgeEnumerator(v);
+                            if (edges != null)
+                            {
+                                var edgesCount = edges.Count;
+                                totaEdges = edgesCount + totaEdges;
+                                if (maxCardinality < edgesCount)
+                                {
+                                    maxCardinality = edgesCount;
+                                }
+                            }
+                            totalUncontracted++;
+                        }
                     }
 
                     var density = (double) totaEdges / (double) totalUncontracted;
@@ -207,6 +203,8 @@ namespace Itinero.Algorithms.Contracted.Dual
         private void CalculateQueue(uint size)
         {
             _logger.Log(TraceEventType.Information, "Calculating queue...");
+
+            this.DoWitnessQueue();
 
             long witnessed = 0;
             long total = 0;
@@ -234,8 +232,24 @@ namespace Itinero.Algorithms.Contracted.Dual
                     }
                 }
             }
-            _logger.Log(TraceEventType.Information, "Queue calculated: {0}/{1} have witnesses.",
-                witnessed, total);
+            // _logger.Log(TraceEventType.Information, "Queue calculated: {0}/{1} have witnesses.",
+            //     witnessed, total);
+        }
+
+        private HashSet<uint> localQueue = new HashSet<uint>();
+        private int MaxLocalQueueSize = 1;
+
+        private void FlushLocalQueue()
+        {
+            this.DoWitnessQueue();
+            foreach (var queued in localQueue)
+            {
+                this.UpdateVertexInfo(queued);
+                var localPriority = _vertexInfo.Priority(_graph, _weightHandler, this.DifferenceFactor, this.ContractedFactor,
+                    this.DepthFactor);
+                _queue.Push(queued, localPriority);
+            }
+            localQueue.Clear();
         }
 
         /// <summary>
@@ -253,11 +267,47 @@ namespace Itinero.Algorithms.Contracted.Dual
                     _queue.Pop();
                     continue;
                 }
-                var queuedPriority = _queue.PeekWeight();
+
+                //this.UpdateVertexInfo(first);
+                //keep trying until local queue is full.
+                while (true)
+                {
+                    if (this.UpdateVertexInfo(first))
+                    { // update succeed.
+                        break;
+                    }
+
+                    // move queues.
+                    _queue.Pop();
+                    localQueue.Add(first);
+
+                    if (localQueue.Count > MaxLocalQueueSize ||
+                        _queue.Count == 0)
+                    { // if over max or queue empty do local queue.
+                        this.FlushLocalQueue();
+                        this.SelectNext(queueSize);
+                        return;
+                    }
+
+                    // checkout the next one.
+                    first = _queue.Peek();
+                    while (_contractedFlags[first])
+                    { // already contracted, priority was updated.
+                        _queue.Pop();
+
+                        if (_queue.Count == 0)
+                        {
+                            this.FlushLocalQueue();
+                            this.SelectNext(queueSize);
+                            return;
+                        }
+                        first = _queue.Peek();
+                    }
+                }
 
                 // the lazy updating part!
+                var queuedPriority = _queue.PeekWeight();
                 // calculate priority
-                this.UpdateVertexInfo(first);
                 var priority = _vertexInfo.Priority(_graph, _weightHandler, this.DifferenceFactor, this.ContractedFactor,
                     this.DepthFactor);
                 if (priority != queuedPriority)
@@ -383,7 +433,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             {
                 System.Threading.Tasks.Parallel.ForEach(_witnessQueue, (v) =>
                 {
-                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, _witnessQueue);
+                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint) v, _witnessQueue);
                 });
                 //foreach (var v in _witnessQueue)
                 //{
@@ -511,7 +561,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             {
                 return uint.MaxValue;
             }
-            return (uint)(weight * 100);
+            return (uint) (weight * 100);
         }
 
         public static float FromData(uint data)
