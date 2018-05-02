@@ -13,7 +13,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         protected readonly int _hopLimit;
         protected readonly int _maxSettles;
 
-        public NeighbourWitnessCalculator(int hopLimit = 5, int maxSettles = 4096)
+        public NeighbourWitnessCalculator(int hopLimit = 5, int maxSettles = 1024)
         {
             _hopLimit = hopLimit;
             _maxSettles = maxSettles;
@@ -52,22 +52,79 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 {
                     Direction = new Dir(true, true),
                     Weight = 0
-                }, 0);
+                }, 0, Constants.NO_VERTEX);
                 pointerHeap.Push(p, 0);
 
                 // dequeue vertices until stopping conditions are reached.
-                var queued2Hops = -1;
                 var enumerator = graph.GetEdgeEnumerator();
+
+                // calculate max forward/backward weight.
+                var forwardMax = 0f;
+                var backwardMax = 0f;
+                enumerator.MoveTo(vertex);
+                var nextEnumerator = graph.GetEdgeEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    var nVertex1 = enumerator.Neighbour;
+
+                    if (dirty != null &&
+                        !dirty.Contains(nVertex1))
+                    { // this is not a hop-2 to consider.
+                        continue;
+                    }
+
+                    ContractedEdgeDataSerializer.Deserialize(enumerator.Data0,
+                        out Dir dir1, out float weight1);
+                    var p1 = pathTree.AddSettledVertex(nVertex1, weight1, dir1, 1, vertex);
+                    pointerHeap.Push(p1, weight1);
+
+                    nextEnumerator.MoveTo(enumerator.Neighbour);
+                    while (nextEnumerator.MoveNext())
+                    {
+                        var nVertex2 = nextEnumerator.Neighbour;
+                        if (nVertex2 == vertex)
+                        { // no u-turns.
+                            continue;
+                        }
+
+                        ContractedEdgeDataSerializer.Deserialize(nextEnumerator.Data0,
+                            out Dir dir2, out float weight2);
+
+                        dir2._val = (byte)(dir1._val & dir2._val);
+                        if (dir2._val == 0)
+                        {
+                            continue;
+                        }
+
+                        var weight2Hops = weight1 + weight2;
+                        var p2 = pathTree.AddSettledVertex(nVertex2, weight2Hops, dir2, 2, nVertex1);
+                        pointerHeap.Push(p2, weight2Hops);
+
+                        if (dir2.F && weight2Hops > forwardMax)
+                        {
+                            forwardMax = weight2Hops;
+                        }
+                        if (dir2.B && weight2Hops > backwardMax)
+                        {
+                            backwardMax = weight2Hops;
+                        }
+                    }
+                }
+
+                if (forwardMax == 0 &&
+                    backwardMax == 0)
+                {
+                    return;
+                }
+
                 while (pointerHeap.Count > 0)
                 {
                     var cPointer = pointerHeap.Pop();
                     pathTree.GetSettledVertex(cPointer, out uint cVertex, out WeightAndDir<float> cWeight,
-                        out uint cHops);
+                        out uint cHops, out uint pVertex);
 
                     if (cHops == 2)
                     { // check if the search can stop or not.
-                        queued2Hops--;
-
                         var witness = new Shortcut<float>();
                         witness.Forward = float.MaxValue;
                         witness.Backward = float.MaxValue;
@@ -88,8 +145,6 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                         { // report witness here.
                             if (vertex != cVertex)
                             { // TODO: check this, how can they ever be the same?
-                              //witnessCallback(vertex, cVertex, witness);
-                                //witnesses.Add(new Tuple<uint, uint, Shortcut<float>>(vertex, cVertex, witness));
                                 witnesses.Add(new Witness()
                                 {
                                     Vertex1 = vertex,
@@ -99,11 +154,6 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                                 });
                             }
                         }
-
-                        if (queued2Hops == 0)
-                        { // all 2-hops have been considered, stop the search.
-                            break;
-                        }
                     }
 
                     if (forwardSettled.Count > _maxSettles ||
@@ -112,13 +162,19 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                         break;
                     }
 
+                    if (cWeight.Weight > backwardMax &&
+                        cWeight.Weight > forwardMax)
+                    { // over max weights.
+                        break;
+                    }
+
                     if (forwardSettled.ContainsKey(cVertex) ||
-                        forwardSettled.Count > _maxSettles)
+                        cWeight.Weight > forwardMax)
                     {
                         cWeight.Direction = new Dir(false, cWeight.Direction.B);
                     }
                     if (backwardSettled.ContainsKey(cVertex) ||
-                        backwardSettled.Count > _maxSettles)
+                        cWeight.Weight > backwardMax)
                     {
                         cWeight.Direction = new Dir(cWeight.Direction.F, false);
                     }
@@ -142,8 +198,24 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
 
                     cHops++;
                     if (cHops >= _hopLimit)
-                    { // over hop limit.
+                    { // over hop limit, don't queue.
                         continue;
+                    }
+
+                    if (cHops == 1)
+                    {
+                        if (dirty == null)
+                        { // all hops 1 are already queued.
+                            continue;
+                        }
+                    }
+                    else if (cHops == 2)
+                    {
+                        if (dirty == null ||
+                            dirty.Contains(cVertex))
+                        { // all these hops 2 are already queue.
+                            continue;
+                        }
                     }
 
                     enumerator.MoveTo(cVertex);
@@ -151,10 +223,15 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                     {
                         var nVertex = enumerator.Neighbour;
 
-                        if (dirty != null && cHops == 1)
+                        if (nVertex == pVertex)
+                        { // no going back.
+                            continue;
+                        }
+
+                        if (cHops == 1)
                         { // check if the neighbour is dirty.
-                            if (!dirty.Contains(nVertex))
-                            { // only do dirty vertices if they are defined.
+                            if (dirty.Contains(nVertex))
+                            { // skip dirty vertices, they are already in the queue.
                                 continue;
                             }
                         }
@@ -172,27 +249,39 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
 
                         nWeight = nWeight + cWeight.Weight;
 
-                        var nPoiner = pathTree.AddSettledVertex(nVertex, nWeight, nDir, cHops);
-                        if (cHops == 2)
-                        { // increase 2 hops counter.
-                            if (queued2Hops == -1)
-                            { // go from -1 -> 1
-                                queued2Hops = 0;
+                        if (nDir.F && nWeight > forwardMax)
+                        {
+                            nDir = new Dir(false, nDir.B);
+                            if (nDir._val == 0)
+                            {
+                                continue;
                             }
-                            queued2Hops++;
                         }
+                        if (nDir.B && nWeight > backwardMax)
+                        {
+                            nDir = new Dir(nDir.F, false);
+                            if (nDir._val == 0)
+                            {
+                                continue;
+                            }
+                        }
+
+                        var nPoiner = pathTree.AddSettledVertex(nVertex, nWeight, nDir, cHops, cVertex);
                         pointerHeap.Push(nPoiner, nWeight);
                     }
                 }
 
-                lock (witnessGraph)
+                if (witnesses.Count > 0)
                 {
-                    foreach (var witness in witnesses)
+                    lock (witnessGraph)
                     {
-                        //witnessGraph.AddOrUpdateEdge(witness.Item1, witness.Item2, witness.Item3.Forward,
-                        //        witness.Item3.Backward);
-                        witnessGraph.AddOrUpdateEdge(witness.Vertex1, witness.Vertex2,
-                            witness.Forward, witness.Backward);
+                        foreach (var witness in witnesses)
+                        {
+                            //witnessGraph.AddOrUpdateEdge(witness.Item1, witness.Item2, witness.Item3.Forward,
+                            //        witness.Item3.Backward);
+                            witnessGraph.AddOrUpdateEdge(witness.Vertex1, witness.Vertex2,
+                                witness.Forward, witness.Backward);
+                        }
                     }
                 }
             }

@@ -76,22 +76,14 @@ namespace Itinero.Algorithms.Contracted.Dual
             _logger.Log(TraceEventType.Information, "Initializing witness graph...");
 
             _witnessGraph = new DirectedGraph(2, _graph.VertexCount);
-            //_witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator(
-            //    _graph.Graph);
-            //var witnessCount = 0;
-            System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
+            // System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
+            // {
+            //     WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+            // });
+            for (uint v = 0; v < _graph.VertexCount; v++)
             {
-                var witnessCalculator = WitnessCalculators.Value;
-                witnessCalculator.Run(_graph.Graph, _witnessGraph, (uint)v, null);
-            });
-            //for (uint v = 0; v < _graph.VertexCount; v++)
-            //{
-            //    _witnessCalculator.Run(v, null, (v1, v2, w) =>
-            //    {
-            //        _witnessGraph.AddOrUpdateEdge(v1, v2, w.Forward, w.Backward);
-            //        witnessCount++;
-            //    });
-            //}
+                WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+            }
         }
 
         /// <summary>
@@ -181,25 +173,25 @@ namespace Itinero.Algorithms.Contracted.Dual
                     int totaEdges = 0;
                     int totalUncontracted = 0;
                     int maxCardinality = 0;
-                    //var neighbourCount = new Dictionary<uint, int>();
-                    //for (uint v = 0; v < _graph.VertexCount; v++)
-                    //{
-                    //    if (!_contractedFlags[v])
-                    //    {
-                    //        neighbourCount.Clear();
-                    //        var edges = _graph.GetEdgeEnumerator(v);
-                    //        if (edges != null)
-                    //        {
-                    //            var edgesCount = edges.Count;
-                    //            totaEdges = edgesCount + totaEdges;
-                    //            if (maxCardinality < edgesCount)
-                    //            {
-                    //                maxCardinality = edgesCount;
-                    //            }
-                    //        }
-                    //        totalUncontracted++;
-                    //    }
-                    //}
+                    var neighbourCount = new Dictionary<uint, int>();
+                    for (uint v = 0; v < _graph.VertexCount; v++)
+                    {
+                       if (!_contractedFlags[v])
+                       {
+                           neighbourCount.Clear();
+                           var edges = _graph.GetEdgeEnumerator(v);
+                           if (edges != null)
+                           {
+                               var edgesCount = edges.Count;
+                               totaEdges = edgesCount + totaEdges;
+                               if (maxCardinality < edgesCount)
+                               {
+                                   maxCardinality = edgesCount;
+                               }
+                           }
+                           totalUncontracted++;
+                       }
+                    }
 
                     var density = (double) totaEdges / (double) totalUncontracted;
                     _logger.Log(TraceEventType.Information, "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}",
@@ -391,16 +383,11 @@ namespace Itinero.Algorithms.Contracted.Dual
             {
                 System.Threading.Tasks.Parallel.ForEach(_witnessQueue, (v) =>
                 {
-                    //var witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator();
-                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, _witnessQueue);
                 });
-
                 //foreach (var v in _witnessQueue)
                 //{
-                //    _witnessCalculator.Run(v, _witnessQueue, (v1, v2, w) =>
-                //    {
-                //        _witnessGraph.AddOrUpdateEdge(v1, v2, w.Forward, w.Backward);
-                //    });
+                //    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
                 //}
                 _witnessQueue.Clear();
                 if (_witnessGraph.EdgeSpaceCount > _witnessGraph.EdgeCount * 8)

@@ -39,11 +39,31 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Adds a new settled vertex.
         /// </summary>
+        public static uint AddSettledVertex(this PathTree tree, uint vertex, WeightAndDir<float> weightAndDir, uint hops, uint pPointer)
+        {
+            var hopsAndDirection = hops * 4 + weightAndDir.Direction._val;
+            return tree.Add(vertex, (uint)(weightAndDir.Weight * 10),
+                hopsAndDirection, pPointer);
+        }
+
+        /// <summary>
+        /// Adds a new settled vertex.
+        /// </summary>
         public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops)
         {
             var hopsAndDirection = hops * 4 + dir._val;
             return tree.Add(vertex, (uint)(weight * 10),
                 hopsAndDirection);
+        }
+
+        /// <summary>
+        /// Adds a new settled vertex.
+        /// </summary>
+        public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops, uint pPointer)
+        {
+            var hopsAndDirection = hops * 4 + dir._val;
+            return tree.Add(vertex, (uint)(weight * 10),
+                hopsAndDirection, pPointer);
         }
 
         /// <summary>
