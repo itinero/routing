@@ -19,7 +19,7 @@
 using Itinero.Algorithms.Collections;
 using Itinero.Algorithms.Weights;
 
-namespace Itinero.Algorithms.Contracted.Dual.Witness
+namespace Itinero.Algorithms.Contracted
 {
     /// <summary>
     /// Contains extension methods related to path tree.

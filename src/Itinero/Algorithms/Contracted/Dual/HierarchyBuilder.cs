@@ -32,14 +32,13 @@ namespace Itinero.Algorithms.Contracted.Dual
     public class HierarchyBuilder<T> : AlgorithmBase
         where T : struct
     {
-        protected readonly DirectedMetaGraph _graph;
+        private readonly DirectedMetaGraph _graph;
         private readonly DykstraWitnessCalculator<T> _witnessCalculator;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
-        protected readonly WeightHandler<T> _weightHandler;
+        private readonly WeightHandler<T> _weightHandler;
         private readonly Dictionary<uint, int> _contractionCount;
         private readonly Dictionary<long, int> _depth;
-        protected VertexInfo<T> _vertexInfo;
-        protected Dictionary<uint, VertexInfo<T>> _vertexInfoCache = new Dictionary<uint, VertexInfo<T>>();
+        private readonly VertexInfo<T> _vertexInfo;
         public const float E = 0.1f;
 
         /// <summary>
@@ -64,9 +63,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         }
 
         private BinaryHeap<uint> _queue; // the vertex-queue.
-        protected BitArray32 _contractedFlags; // contains flags for contracted vertices.
-        protected BitArray32 _noWitnessesFlags; // contains flags for vertices without any witnesses.
-        private Dictionary<uint, Dictionary<OriginalEdge, T>> _witnesses;
+        private BitArray32 _contractedFlags; // contains flags for contracted vertices.
 
         /// <summary>
         /// Gets or sets the difference factor.
@@ -86,54 +83,22 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Updates the vertex info object with the given vertex.
         /// </summary>
-        /// <returns>True if witness paths have been found.</returns>
-        private bool UpdateVertexInfo(uint v)
+        private void UpdateVertexInfo(uint v)
         {
-            var contracted = 0;
-            var depth = 0;
-
-            VertexInfo<T> vertexInfo;
-            if (_vertexInfoCache.TryGetValue(v, out vertexInfo))
-            {
-                _vertexInfo = vertexInfo;
-
-                _contractionCount.TryGetValue(v, out contracted);
-                _vertexInfo.ContractedNeighbours = contracted;
-                _depth.TryGetValue(v, out depth);
-                _vertexInfo.Depth = depth;
-
-                return true;
-            }
-            _vertexInfo = new VertexInfo<T>();
-
             // update vertex info.
             _vertexInfo.Clear();
             _vertexInfo.Vertex = v;
+            var contracted = 0;
             _contractionCount.TryGetValue(v, out contracted);
             _vertexInfo.ContractedNeighbours = contracted;
+            var depth = 0;
             _depth.TryGetValue(v, out depth);
             _vertexInfo.Depth = depth;
 
             // calculate shortcuts and witnesses.
             _vertexInfo.AddRelevantEdges(_graph.GetEdgeEnumerator());
             _vertexInfo.BuildShortcuts(_weightHandler);
-            //var witnessed = _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
-            var witnessed = false;
-            if (!_noWitnessesFlags[v])
-            { // we're not sure there are no witnesses, so check by recalculating.
-                //witnessed = _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
-                witnessed = _vertexInfo.Shortcuts.RemoveWitnessed(_weightHandler, v, _witnesses);
-                if (!witnessed)
-                { // there are no witnesses.
-                    _noWitnessesFlags[v] = true;
-                }
-                else
-                { // keep cache when witnesses.
-                    _vertexInfoCache[v] = _vertexInfo.Clone() as VertexInfo<T>;
-                }
-            }
-
-            return witnessed;
+            _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
         }
 
         /// <summary>
@@ -143,42 +108,26 @@ namespace Itinero.Algorithms.Contracted.Dual
         {
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);
-            _noWitnessesFlags = new BitArray32(_graph.VertexCount);
-            uint queueSize = (uint)(_graph.VertexCount / 100 * 25);
             _missesQueue = new Queue<bool>();
 
             // remove all edges that have witness paths, meaning longer than the shortest path
             // between the two ending vertices.
-            this.BuildInitialWitnesses();
+            this.RemoveWitnessedEdges();
 
             // build queue.
-            this.CalculateQueue(queueSize);
+            this.CalculateQueue();
 
-            this.SelectNext(queueSize);
+            this.SelectNext();
             var latestProgress = 0f;
             var current = 0;
             var total = _graph.VertexCount;
-            var toDoCount = total;
-            while (_queue.Count > 0 || 
-                toDoCount > 0)
+            while (_queue.Count > 0)
             {
-                if (_queue.Count == 0)
-                {
-                    this.CalculateQueue(queueSize);
-                }
-
                 // contract...
                 this.Contract();
 
                 // ... and select next.
-                this.SelectNext(queueSize);
-
-                toDoCount = total - current;
-                if (toDoCount > queueSize / 3 &&
-                    _queue.Count < queueSize / 3)
-                {
-                    this.CalculateQueue(queueSize);
-                }
+                this.SelectNext();
 
                 // calculate and log progress.
                 var progress = (float)(System.Math.Floor(((double)current / (double)total) * 10000) / 100.0);
@@ -224,69 +173,117 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Calculates the entire queue.
         /// </summary>
-        private void CalculateQueue(uint size)
+        private void CalculateQueue()
         {
             _logger.Log(TraceEventType.Information, "Calculating queue...");
 
-            long witnessed = 0;
-            long total = 0;
             _queue.Clear();
             for (uint v = 0; v < _graph.VertexCount; v++)
             {
                 if (!_contractedFlags[v])
                 {
                     // update vertex info.
-                    if (this.UpdateVertexInfo(v))
-                    {
-                        witnessed++;
-                    }
-                    total++;
+                    this.UpdateVertexInfo(v);
 
                     // calculate priority.
                     var priority = _vertexInfo.Priority(_graph, _weightHandler, this.DifferenceFactor, this.ContractedFactor, this.DepthFactor);
 
                     // queue vertex.
                     _queue.Push(v, priority);
-
-                    if (_queue.Count >= size)
-                    {
-                        break;
-                    }
                 }
             }
-            _logger.Log(TraceEventType.Information, "Queue calculated: {0}/{1} have witnesses.",
-                witnessed, total);
         }
 
         /// <summary>
         /// Remove all witnessed edges.
         /// </summary>
-        private void BuildInitialWitnesses()
+        private void RemoveWitnessedEdges()
         {
-            _witnesses = new Dictionary<uint, Dictionary<OriginalEdge, T>>();
-            for (uint v = 0; v < _graph.VertexCount; v++)
-            {
-                _vertexInfo = new VertexInfo<T>();
+            //_logger.Log(TraceEventType.Information, "Removing witnessed edges...");
 
-                // update vertex info.
-                _vertexInfo.Clear();
-                _vertexInfo.Vertex = v;
-                _contractionCount.TryGetValue(v, out int contracted);
-                _vertexInfo.ContractedNeighbours = contracted;
-                _depth.TryGetValue(v, out int depth);
-                _vertexInfo.Depth = depth;
+            //var enumerator = _graph.GetEdgeEnumerator();
+            //for (uint v = 0; v < _graph.VertexCount; v++)
+            //{
+            //    // update vertex info.
+            //    _vertexInfo.Clear();
+            //    _vertexInfo.Vertex = v;
 
-                // calculate shortcuts and witnesses.
-                _vertexInfo.AddRelevantEdges(_graph.GetEdgeEnumerator());
-                _vertexInfo.BuildShortcuts(_weightHandler);
+            //    // add edges.
+            //    _vertexInfo.AddRelevantEdges(enumerator);
 
-                // build witnesses.
-                var witnesses = _vertexInfo.Shortcuts.BuildWitnesses(v, _witnessCalculator);
-                if (witnesses.Count > 0)
-                {
-                    _witnesses[v] = witnesses;
-                }
-            }
+            //    // add 'shortcuts' from this vertex to it's neighbours.
+            //    for (var e = 0; e < _vertexInfo.Count; e++)
+            //    {
+            //        var edge = _vertexInfo[e];
+            //        var edgeWeight = _weightHandler.GetEdgeWeight(edge);
+            //        var originalEdge = new OriginalEdge(v, edge.Neighbour);
+
+            //        var shortcut = new Shortcut<T>()
+            //        {
+            //            Forward = edgeWeight.Weight,
+            //            Backward = edgeWeight.Weight
+            //        };
+            //        if (!edgeWeight.Direction.F)
+            //        {
+            //            shortcut.Forward = _weightHandler.Zero;
+            //        }
+            //        if (!edgeWeight.Direction.B)
+            //        {
+            //            shortcut.Backward = _weightHandler.Zero;
+            //        }
+
+            //        _vertexInfo.Shortcuts.AddOrUpdate(originalEdge, shortcut, _weightHandler);
+            //    }
+
+            //    // remove unneeded shortcuts, or in other words keep shortest paths to all neighbours in this case.
+            //    _vertexInfo.Shortcuts.RemoveWitnessed(v, _witnessCalculator);
+
+            //    // remove witnessed neighbours.
+            //    for (var e = 0; e < _vertexInfo.Count; e++)
+            //    {
+            //        var edge = _vertexInfo[e];
+            //        var edgeWeight = _weightHandler.GetEdgeWeight(edge);
+            //        var originalEdge = new OriginalEdge(v, edge.Neighbour);
+
+            //        var shortcut = new Shortcut<float>()
+            //        {
+            //            Forward = _weightHandler.GetMetric(edgeWeight.Weight),
+            //            Backward = _weightHandler.GetMetric(edgeWeight.Weight)
+            //        };
+            //        if (!edgeWeight.Direction.F)
+            //        {
+            //            shortcut.Forward = 0;
+            //        }
+            //        if (!edgeWeight.Direction.B)
+            //        {
+            //            shortcut.Backward = 0;
+            //        }
+
+            //        var witnessedShortcut = _vertexInfo.Shortcuts[originalEdge];
+            //        var witnessedShortcutForward = _weightHandler.GetMetric(witnessedShortcut.Forward);
+            //        var witnessedShortcutBackward = _weightHandler.GetMetric(witnessedShortcut.Backward);
+            //        if ((shortcut.Forward == 0 || witnessedShortcutForward < shortcut.Forward) &&
+            //            (shortcut.Backward == 0 || witnessedShortcutBackward < shortcut.Backward))
+            //        { // edge is useless.
+            //            _graph.RemoveEdge(v, originalEdge.Vertex2);
+            //        }
+            //        else
+            //        {
+            //            if (witnessedShortcutForward < shortcut.Forward)
+            //            { // edge is useless in the forward direction
+            //                _graph.RemoveEdge(v, originalEdge.Vertex2);
+            //                _weightHandler.AddEdge(_graph, v, originalEdge.Vertex2, Constants.NO_VERTEX,
+            //                    false, edgeWeight.Weight);
+            //            }
+            //            if (witnessedShortcutBackward < shortcut.Backward)
+            //            { // edge is useless in backward direction.
+            //                _graph.RemoveEdge(v, originalEdge.Vertex2);
+            //                _weightHandler.AddEdge(_graph, v, originalEdge.Vertex2, Constants.NO_VERTEX,
+            //                    true, edgeWeight.Weight);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private int _k = 80; // The amount of queue 'misses' to recalculated.
@@ -297,7 +294,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// Select the next vertex to contract.
         /// </summary>
         /// <returns></returns>
-        protected virtual void SelectNext(uint queueSize)
+        private void SelectNext()
         {
             // first check the first of the current queue.
             while (_queue.Count > 0)
@@ -335,21 +332,21 @@ namespace Itinero.Algorithms.Contracted.Dual
                 // if the misses are _k
                 if (_misses == _k)
                 { // recalculation.
-                    this.CalculateQueue(queueSize);
+                    this.CalculateQueue();
 
                     // clear misses.
                     _missesQueue.Clear();
                     _misses = 0;
                 }
                 else
-                { // recalculation.
+                { // no recalculation.
                     if (priority != queuedPriority)
                     { // re-enqueue.
                         _queue.Pop();
                         _queue.Push(first, priority);
                     }
                     else
-                    { // selection succeeded.
+                    { // try to select another.
                         _queue.Pop();
                         return;
                     }
@@ -361,9 +358,10 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Contracts the given vertex.
         /// </summary>
-        protected virtual void Contract()
+        private void Contract()
         {
             var vertex = _vertexInfo.Vertex;
+            var enumerator = _graph.GetEdgeEnumerator();
 
             // remove 'downward' edge to vertex.
             var i = 0;
@@ -373,9 +371,6 @@ namespace Itinero.Algorithms.Contracted.Dual
 
                 _graph.RemoveEdge(edge.Neighbour, vertex);
                 i++;
-
-                //_noWitnessesFlags[edge.Neighbour] = false; // this could lead to new witnesses.
-                _vertexInfoCache.Remove(edge.Neighbour);
             }
 
             // add shortcuts.
@@ -394,10 +389,6 @@ namespace Itinero.Algorithms.Contracted.Dual
                             vertex, null, shortcut.Forward);
                     _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
                             vertex, null, shortcut.Backward);
-                    _vertexInfoCache.Remove(edge.Vertex1);
-                    _vertexInfoCache.Remove(edge.Vertex2);
-                    _noWitnessesFlags[edge.Vertex1] = false; // this could lead to new witnesses.
-                    _noWitnessesFlags[edge.Vertex2] = false; // this could lead to new witnesses.
                 }
                 else
                 {
@@ -407,10 +398,6 @@ namespace Itinero.Algorithms.Contracted.Dual
                             vertex, true, shortcut.Forward);
                         _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
                             vertex, false, shortcut.Forward);
-                        _vertexInfoCache.Remove(edge.Vertex1);
-                        _vertexInfoCache.Remove(edge.Vertex2);
-                        _noWitnessesFlags[edge.Vertex1] = false; // this could lead to new witnesses.
-                        _noWitnessesFlags[edge.Vertex2] = false; // this could lead to new witnesses.
                     }
                     if (backwardMetric > 0 && backwardMetric < float.MaxValue)
                     {
@@ -418,10 +405,6 @@ namespace Itinero.Algorithms.Contracted.Dual
                             vertex, false, shortcut.Backward);
                         _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
                             vertex, true, shortcut.Backward);
-                        _vertexInfoCache.Remove(edge.Vertex1);
-                        _vertexInfoCache.Remove(edge.Vertex2);
-                        _noWitnessesFlags[edge.Vertex1] = false; // this could lead to new witnesses.
-                        _noWitnessesFlags[edge.Vertex2] = false; // this could lead to new witnesses.
                     }
                 }
             }
@@ -429,9 +412,6 @@ namespace Itinero.Algorithms.Contracted.Dual
             _contractedFlags[vertex] = true;
             this.NotifyContracted(vertex);
         }
-
-
-        private DirectedMetaGraph.EdgeEnumerator _edgeEnumerator = null;
 
         /// <summary>
         /// Notifies this calculator that the given vertex was contracted.
@@ -442,11 +422,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             _contractionCount.Remove(vertex);
 
             // loop over all neighbours.
-            if (_edgeEnumerator == null)
-            {
-                _edgeEnumerator = _graph.GetEdgeEnumerator();
-            }
-            _edgeEnumerator.MoveTo(vertex);
+            var edgeEnumerator = _graph.GetEdgeEnumerator(vertex);
 
             int vertexDepth = 0;
             _depth.TryGetValue(vertex, out vertexDepth);
@@ -454,10 +430,10 @@ namespace Itinero.Algorithms.Contracted.Dual
             vertexDepth++;
 
             // store the depth.
-            _edgeEnumerator.Reset();
-            while (_edgeEnumerator.MoveNext())
+            edgeEnumerator.Reset();
+            while (edgeEnumerator.MoveNext())
             {
-                var neighbour = _edgeEnumerator.Neighbour;
+                var neighbour = edgeEnumerator.Neighbour;
 
                 int depth = 0;
                 _depth.TryGetValue(neighbour, out depth);
@@ -477,8 +453,6 @@ namespace Itinero.Algorithms.Contracted.Dual
                     _contractionCount[neighbour] = count;
                 }
             }
-
-            _vertexInfoCache.Remove(vertex);
         }
     }
 
@@ -495,65 +469,5 @@ namespace Itinero.Algorithms.Contracted.Dual
         {
 
         }
-
-        ///// <summary>
-        ///// Contracts the given vertex.
-        ///// </summary>
-        //protected override void Contract()
-        //{
-        //    var vertex = _vertexInfo.Vertex;
-
-        //    // remove 'downward' edge to vertex.
-        //    var i = 0;
-        //    while (i < _vertexInfo.Count)
-        //    {
-        //        var edge = _vertexInfo[i];
-
-        //        _graph.RemoveEdge(edge.Neighbour, vertex);
-        //        i++;
-
-        //        _noWitnessesFlags[edge.Neighbour] = false; // this could lead to new witnesses.
-        //        _vertexInfoCache.Remove(edge.Neighbour);
-        //    }
-
-        //    // add shortcuts.
-        //    foreach (var s in _vertexInfo.Shortcuts)
-        //    {
-        //        var shortcut = s.Value;
-        //        var edge = s.Key;
-        //        var forwardMetric = shortcut.Forward;
-        //        var backwardMetric = shortcut.Backward;
-
-        //        if (forwardMetric > 0 && forwardMetric < float.MaxValue &&
-        //            backwardMetric > 0 && backwardMetric < float.MaxValue &&
-        //            System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)
-        //        { // forward and backward and identical weights.
-        //            _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
-        //                    vertex, null, shortcut.Forward);
-        //            _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
-        //                    vertex, null, shortcut.Backward);
-        //        }
-        //        else
-        //        {
-        //            if (forwardMetric > 0 && forwardMetric < float.MaxValue)
-        //            {
-        //                _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
-        //                    vertex, true, shortcut.Forward);
-        //                _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
-        //                    vertex, false, shortcut.Forward);
-        //            }
-        //            if (backwardMetric > 0 && backwardMetric < float.MaxValue)
-        //            {
-        //                _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
-        //                    vertex, false, shortcut.Backward);
-        //                _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
-        //                    vertex, true, shortcut.Backward);
-        //            }
-        //        }
-        //    }
-
-        //    _contractedFlags[vertex] = true;
-        //    this.NotifyContracted(vertex);
-        //}
     }
 }

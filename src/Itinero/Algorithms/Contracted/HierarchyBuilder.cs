@@ -39,6 +39,7 @@ namespace Itinero.Algorithms.Contracted
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
         private readonly WeightHandler<T> _weightHandler;
         private readonly RestrictionCollection _restrictions;
+        public const float E = 0.1f;
 
         /// <summary>
         /// Creates a new hierarchy builder.

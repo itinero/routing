@@ -46,70 +46,25 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            //GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
+            GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
 
-            // var sourcePBF = @"/home/xivk/work/data/OSM/germany-latest.osm.pbf"; //Download.LuxembourgLocal;
-            // var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
-            //    Osm.Vehicles.Vehicle.Car,
-            //    Osm.Vehicles.Vehicle.Bicycle,
-            //    Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+            var sourcePBF = Download.LuxembourgLocal;
+            var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
+                Osm.Vehicles.Vehicle.Car,
+                Osm.Vehicles.Vehicle.Bicycle,
+                Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
 
             // GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
 
-            RouterDb routerDb;
-            using(var stream = File.OpenRead("luxembourg.c.cf.opt.routerdb"))
-            {
-                routerDb = RouterDb.Deserialize(stream);
-            }
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
 
-            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            var weightHandler = profile.DefaultWeightHandlerCached(routerDb);
-            var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                weightHandler.MetaSize);
-            var restrictions = routerDb.GetRestrictions(profile);
-            var dualGraphBuilder = new DualGraphBuilder<float>(routerDb.Network.GeometricGraph.Graph, contracted,
-                weightHandler, restrictions);
-            dualGraphBuilder.Run();
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
+            GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
+            GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
 
-            // var witnessGraph = new DirectedGraph(1, contracted.VertexCount);
-            // var witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator(
-            //     contracted.Graph);
-            // var witnessCount = 0;
-            // for (uint v = 0; v < contracted.VertexCount; v++)
-            // {
-            //     witnessCalculator.Run(v, null, (v1, v2, w) => 
-            //     {
-            //         Console.WriteLine("{0}->{1}:{2}", v1, v2, w);
-            //         if (w.Forward != float.MaxValue)
-            //         {
-            //             witnessGraph.AddEdge(v1, v2, ContractedEdgeDataSerializer.SerializeDistance(w.Forward));
-            //         }
-            //         if (w.Backward != float.MaxValue)
-            //         {
-            //             witnessGraph.AddEdge(v2, v1, ContractedEdgeDataSerializer.SerializeDistance(w.Backward));
-            //         }
-            //         witnessCount++;
-            //     });
-            // }
-            // Console.WriteLine("{0} witnesses", witnessCount);
-
-            Action a = () =>
-            {
-                var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder<float>(contracted, weightHandler);
-                hierarchyBuilder.Run();
-            };
-            a.TestPerf("Fact hier builder.");
-            Console.ReadLine();
-
-            // routerDb = GetTestSerializeDeserialize(routerDb, "belgium.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
-
-            // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
-            // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
-
-            // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
-            // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car", 1);
-
-            //routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
+            routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
 
             return routerDb;
         }
@@ -206,6 +161,17 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 routerDb.AddContracted(profile, forceEdgeBased);
+            };
+        }
+
+        /// <summary>
+        /// Tests adding a contracted graph.
+        /// </summary>
+        public static Action GetTestAddContractedFast(RouterDb routerDb, Profiles.Profile profile, bool forceEdgeBased)
+        {
+            return () =>
+            {
+                routerDb.AddContractedFast(profile, forceEdgeBased);
             };
         }
 

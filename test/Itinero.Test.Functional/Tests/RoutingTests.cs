@@ -103,6 +103,7 @@ namespace Itinero.Test.Functional.Tests
 #if DEBUG
                         var startJson = list[i].ToGeoJson(router.Db);
                         var endJson = list[i + 1].ToGeoJson(router.Db);
+                        var routeJson = route.Value.ToGeoJson();
 #endif
                         success++;
                     }

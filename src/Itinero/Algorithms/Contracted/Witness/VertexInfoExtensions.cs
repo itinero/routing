@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 
-namespace Itinero.Algorithms.Contracted.Dual.Witness
+namespace Itinero.Algorithms.Contracted.Witness
 {
     /// <summary>
     /// Contains extension methods related to the vertex info data structure.
@@ -125,7 +125,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 int localAdded, localRemoved;
                 if (shortcutForward > 0 && shortcutForward < float.MaxValue &&
                     shortcutBackward > 0 && shortcutBackward < float.MaxValue &&
-                    System.Math.Abs(shortcutForward - shortcutBackward) < HierarchyBuilder.E)
+                    System.Math.Abs(shortcutForward - shortcutBackward) < HierarchyBuilder<float>.E)
                 { // add two bidirectional edges.
                     graph.TryAddOrUpdateEdge(shortcut.Key.Vertex1, shortcut.Key.Vertex2, shortcutForward, null, vertex, 
                         out localAdded, out localRemoved);
