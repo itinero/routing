@@ -22,6 +22,7 @@ using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks.Analytics.Isochrones
 {
@@ -55,7 +56,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var tiles = new Dictionary<TileIndex, RoutingTile>();
             _polygons = new List<Polygon>();
@@ -88,7 +89,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
 
                 return false;
             };
-            _edgeVisitor.Run();
+            _edgeVisitor.Run(cancellationToken);
             
             var tileList = tiles.Values.ToList();
             tileList = UpdateForWalking(tileList, _level, _walkingSpeed, _limits.Max());

@@ -20,6 +20,7 @@ using Itinero.Attributes;
 using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Routes
 {
@@ -59,7 +60,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Exectes the actual run of the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             if (_route.Shape == null || 
                 _route.Shape.Length == 0 ||

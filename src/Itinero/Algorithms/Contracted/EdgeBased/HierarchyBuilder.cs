@@ -27,6 +27,7 @@ using Itinero.Data.Contracted.Edges;
 using Itinero.Algorithms.Restrictions;
 using System.Linq;
 using Itinero.Algorithms.Weights;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.EdgeBased
 {
@@ -66,7 +67,7 @@ namespace Itinero.Algorithms.Contracted.EdgeBased
         /// <summary>
         /// Excutes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);

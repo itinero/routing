@@ -23,6 +23,7 @@ using Itinero.Graphs.Geometric.Shapes;
 using Itinero.Navigation.Directions;
 using Itinero.Data.Network;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Search.Hilbert
@@ -636,6 +637,17 @@ namespace Itinero.Algorithms.Search.Hilbert
         public static uint SearchClosestEdge(this GeometricGraph graph, float latitude, float longitude,
             float latitudeOffset, float longitudeOffset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk)
         {
+            return graph.SearchClosestEdge(latitude, longitude, latitudeOffset, longitudeOffset, maxDistanceMeter, isOk, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Searches for the closest edge.
+        /// </summary>
+        /// <returns></returns>
+        public static uint SearchClosestEdge(this GeometricGraph graph, float latitude, float longitude,
+            float latitudeOffset, float longitudeOffset, float maxDistanceMeter, Func<GeometricEdge, bool> isOk,
+            CancellationToken cancellationToken)
+        {
             var coordinate = new Coordinate(latitude, longitude);
 
             // find vertices within bounding box delta.
@@ -653,6 +665,8 @@ namespace Itinero.Algorithms.Search.Hilbert
             // TODO: sort vertices with the first vertices first.
             foreach(var vertex in vertices)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var vertexLocation = graph.GetVertex(vertex);
                 var distance = Coordinate.DistanceEstimateInMeter(
                     vertexLocation, new Coordinate(latitude, longitude));
@@ -682,6 +696,8 @@ namespace Itinero.Algorithms.Search.Hilbert
             var checkedEdges = new HashSet<uint>();
             foreach (var vertex in vertices)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var sourceLocation = graph.GetVertex(vertex);
                 if (!edgeEnumerator.MoveTo(vertex) ||
                    !edgeEnumerator.HasData)

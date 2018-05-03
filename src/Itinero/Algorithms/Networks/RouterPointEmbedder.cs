@@ -21,6 +21,7 @@ using Itinero.LocalGeo;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -69,7 +70,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var allSuccess = false;
 

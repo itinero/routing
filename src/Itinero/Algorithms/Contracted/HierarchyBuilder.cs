@@ -24,6 +24,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using Itinero.Logging;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted
 {
@@ -61,7 +62,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Excutes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _queue = new BinaryHeap<uint>((uint)_graph.VertexCount);
             _contractedFlags = new BitArray32(_graph.VertexCount);

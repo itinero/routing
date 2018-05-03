@@ -22,6 +22,7 @@ using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
 {
@@ -58,7 +59,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         /// <summary>
         /// Executes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // put in default weights, all are infinite.
             // EXPLANATION: a path between two identical vertices has to contain at least one edge.
@@ -82,7 +83,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 {
                     return this.ForwardVertexFound(i, v, w);
                 };
-                forward.Run();
+                forward.Run(cancellationToken);
             }
 
             // do backward searches into buckets.
@@ -93,7 +94,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 {
                     return this.BackwardVertexFound(i, v, w);
                 };
-                backward.Run();
+                backward.Run(cancellationToken);
             }
 
             this.HasSucceeded = true;

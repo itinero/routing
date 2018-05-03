@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Itinero.Algorithms.Shortcuts;
 using Itinero.Data.Shortcuts;
-using System;
+using System.Threading;
 
 namespace Itinero.Algorithms.Routes
 {
@@ -60,7 +60,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             if (_path.Count == 0)
             { // an empty path.
@@ -108,7 +108,7 @@ namespace Itinero.Algorithms.Routes
                     var i = 0;
                     for (i = 0; i < _path.Count - 2; i++)
                     {
-                        this.Add(_path[i], _path[i + 1], _path[i + 2]);
+                        this.Add(_path[i], _path[i + 1], _path[i + 2], cancellationToken);
                     }
                     this.Add(_path[i], _path[i + 1]);
                     this.HasSucceeded = true;
@@ -284,7 +284,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Adds the shape point between from and to and the target location itself.
         /// </summary>
-        private void Add(uint from, uint to, uint next)
+        private void Add(uint from, uint to, uint next, CancellationToken cancellationToken)
         {
             if (from == Constants.NO_VERTEX &&
                 _source.IsVertex())
@@ -352,7 +352,7 @@ namespace Itinero.Algorithms.Routes
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
                 direction = !edge.DataInverted;
-                if (this.AddShorcut(edge))
+                if (this.AddShorcut(edge, cancellationToken))
                 {
                     return;
                 }
@@ -407,7 +407,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Add shortcut if the current edge is one.
         /// </summary>
-        private bool AddShorcut(RoutingEdge edge)
+        private bool AddShorcut(RoutingEdge edge, CancellationToken cancellationToken)
         {
             // when both are just regular vertices, this could be a shortcut.
             var edgeProfile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);
@@ -425,7 +425,7 @@ namespace Itinero.Algorithms.Routes
                         var route = CompleteRouteBuilder.Build(_routerDb, shortcutProfile,
                             _routerDb.CreateRouterPointForVertex(shortcut[0], shortcutProfile, _profile),
                             _routerDb.CreateRouterPointForVertex(shortcut[shortcut.Length - 1], shortcutProfile, _profile),
-                                new List<uint>(shortcut));
+                                new List<uint>(shortcut), cancellationToken);
                         if (shortcutMeta == null)
                         {
                             shortcutMeta = new AttributeCollection();
@@ -472,7 +472,15 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<float> path)
         {
-            return CompleteRouteBuilder.TryBuild(db, profile, source, target, path).Value;
+            return CompleteRouteBuilder.Build(db, profile, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<float> path, CancellationToken cancellationToken)
+        {
+            return CompleteRouteBuilder.TryBuild(db, profile, source, target, path, cancellationToken).Value;
         }
 
         /// <summary>
@@ -480,9 +488,17 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Result<Route> TryBuild<T>(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<T> path)
         {
+            return CompleteRouteBuilder.TryBuild(db, profile, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild<T>(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
+        {
             var pathList = new List<uint>();
             path.AddToListAsVertices(pathList);
-            return CompleteRouteBuilder.TryBuild(db, profile, source, target, pathList);
+            return CompleteRouteBuilder.TryBuild(db, profile, source, target, pathList, cancellationToken);
         }
 
         /// <summary>
@@ -490,7 +506,15 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
         {
-            return CompleteRouteBuilder.TryBuild(db, profile, source, target, path).Value;
+            return CompleteRouteBuilder.Build(db, profile, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Route Build(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken)
+        {
+            return CompleteRouteBuilder.TryBuild(db, profile, source, target, path, cancellationToken).Value;
         }
 
         /// <summary>
@@ -498,8 +522,16 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path)
         {
+            return CompleteRouteBuilder.TryBuild(db, profile, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken)
+        {
             var routeBuilder = new CompleteRouteBuilder(db, profile, source, target, path);
-            routeBuilder.Run();
+            routeBuilder.Run(cancellationToken);
             if(!routeBuilder.HasSucceeded)
             {
                 return new Result<Route>(
