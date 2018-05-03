@@ -106,16 +106,13 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         /// Calculates the priority of this vertex.
         /// </summary>
         public static float Priority<T>(this VertexInfo<T> vertexInfo, DirectedMetaGraph graph, WeightHandler<T> weightHandler, float differenceFactor, float contractedFactor, 
-            float depthFactor, float weightDiffFactor = 1)
+            float depthFactor, float weightDiffFactor = .25f)
             where T : struct
         {
             var vertex = vertexInfo.Vertex;
 
             var removed = vertexInfo.Count;
             var added = 0;
-
-            //var removedWeight = 0f;
-            //var addedWeight = 0f;
 
             foreach (var shortcut in vertexInfo.Shortcuts)
             {
@@ -135,10 +132,6 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                         out localAdded, out localRemoved);
                     added += localAdded;
                     removed += localRemoved;
-
-                    //added += 2;
-                    //addedWeight += shortcutForward;
-                    //addedWeight += shortcutBackward;
                 }
                 else
                 {
@@ -152,10 +145,6 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                             out localAdded, out localRemoved);
                         added += localAdded;
                         removed += localRemoved;
-
-                        //added += 2;
-                        //addedWeight += shortcutForward;
-                        //addedWeight += shortcutForward;
                     }
                     if (shortcutBackward > 0 && shortcutBackward < float.MaxValue)
                     {
@@ -167,39 +156,12 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                             out localAdded, out localRemoved);
                         added += localAdded;
                         removed += localRemoved;
-
-                        //added += 2;
-                        //addedWeight += shortcutBackward;
-                        //addedWeight += shortcutBackward;
                     }
                 }
             }
-
-            //for (var e = 0; e < vertexInfo.Count; e++)
-            //{
-            //    var w = weightHandler.GetEdgeWeight(vertexInfo[e]);
-            //    var wMetric = weightHandler.GetMetric(w.Weight);
-
-            //    if (w.Direction.F)
-            //    {
-            //        removedWeight += wMetric;
-            //    }
-            //    if (w.Direction.B)
-            //    {
-            //        removedWeight += wMetric;
-            //    }
-            //}
-
-            var weigthDiff = 1f;
-            //if (removedWeight != 0)
-            //{
-            //    weigthDiff = removedWeight;
-            //}
             
-            // return ((differenceFactor * (2 * added - 3 * removed)) / 2 + (depthFactor * vertexInfo.Depth) +
-            //     (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
-            return (differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
-                (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
+            return ((differenceFactor * (2 * added - 4 * removed)) / 2 + (depthFactor * vertexInfo.Depth) +
+                (contractedFactor * vertexInfo.ContractedNeighbours));// * (weigthDiff * weightDiffFactor);
         }
         
         public static bool RemoveShortcuts<T>(this VertexInfo<T> vertexInfo, DirectedGraph witnessGraph, WeightHandler<T> weightHandler)

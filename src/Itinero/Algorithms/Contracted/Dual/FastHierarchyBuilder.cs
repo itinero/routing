@@ -11,7 +11,7 @@ using Itinero.Logging;
 namespace Itinero.Algorithms.Contracted.Dual
 {
     public class FastHierarchyBuilder<T> : AlgorithmBase
-    where T : struct
+        where T : struct
     {
         protected readonly DirectedMetaGraph _graph;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
@@ -21,7 +21,6 @@ namespace Itinero.Algorithms.Contracted.Dual
         protected VertexInfo<T> _vertexInfo;
         public const float E = 0.1f;
 
-        // Thread-Local variable that yields a name for a thread
         ThreadLocal<NeighbourWitnessCalculator> WitnessCalculators = new ThreadLocal<NeighbourWitnessCalculator>(() =>
         {
             return new NeighbourWitnessCalculator();
@@ -353,7 +352,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             return; // all nodes have been contracted.
         }
 
-        private HashSet<uint> _witnessQueue = new HashSet<uint>();
+        protected HashSet<uint> _witnessQueue = new HashSet<uint>();
 
         /// <summary>
         /// Contracts the given vertex.
@@ -505,6 +504,91 @@ namespace Itinero.Algorithms.Contracted.Dual
             {
                 _witnessGraph.RemoveEdges(vertex);
             }
+        }
+    }
+
+    public sealed class FastHierarchyBuilder : FastHierarchyBuilder<float>
+    {
+        /// <summary>
+        /// Creates a new hierarchy builder.
+        /// </summary>
+        public FastHierarchyBuilder(DirectedMetaGraph graph,
+            WeightHandler<float> weightHandler)
+            : base(graph, weightHandler)
+        {
+
+        }
+
+        /// <summary>
+        /// Contracts the given vertex.
+        /// </summary>
+        protected override void Contract()
+        {
+            var vertex = _vertexInfo.Vertex;
+
+            // remove 'downward' edge to vertex.
+            var i = 0;
+            while (i < _vertexInfo.Count)
+            {
+                var edge = _vertexInfo[i];
+
+                _graph.RemoveEdge(edge.Neighbour, vertex);
+                i++;
+
+                // TOOD: what to do when stuff is only removed, is nothing ok?
+                //_witnessQueue.Add(edge.Neighbour);
+            }
+
+            // add shortcuts.
+            foreach (var s in _vertexInfo.Shortcuts)
+            {
+                var shortcut = s.Value;
+                var edge = s.Key;
+
+                if (edge.Vertex1 == edge.Vertex2)
+                { // TODO: figure out how this is possible, it shouldn't!
+                    continue;
+                }
+
+                var forwardMetric = shortcut.Forward;
+                var backwardMetric = shortcut.Backward;
+
+                if (forwardMetric > 0 && forwardMetric < float.MaxValue &&
+                    backwardMetric > 0 && backwardMetric < float.MaxValue &&
+                    System.Math.Abs(backwardMetric - forwardMetric) < HierarchyBuilder<float>.E)
+                { // forward and backward and identical weights.
+                    _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
+                        vertex, null, shortcut.Forward);
+                    _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
+                        vertex, null, shortcut.Backward);
+                    _witnessQueue.Add(edge.Vertex1);
+                    _witnessQueue.Add(edge.Vertex2);
+                }
+                else
+                {
+                    if (forwardMetric > 0 && forwardMetric < float.MaxValue)
+                    {
+                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
+                            vertex, true, shortcut.Forward);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
+                            vertex, false, shortcut.Forward);
+                        _witnessQueue.Add(edge.Vertex1);
+                        _witnessQueue.Add(edge.Vertex2);
+                    }
+                    if (backwardMetric > 0 && backwardMetric < float.MaxValue)
+                    {
+                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex1, edge.Vertex2,
+                            vertex, false, shortcut.Backward);
+                        _weightHandler.AddOrUpdateEdge(_graph, edge.Vertex2, edge.Vertex1,
+                            vertex, true, shortcut.Backward);
+                        _witnessQueue.Add(edge.Vertex1);
+                        _witnessQueue.Add(edge.Vertex2);
+                    }
+                }
+            }
+
+            _contractedFlags[vertex] = true;
+            this.NotifyContracted(vertex);
         }
     }
 

@@ -80,10 +80,10 @@ namespace Itinero
                         weightHandler, restrictions);
                     dualGraphBuilder.Run();
 
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder<float>(contracted, weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 8;
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler);
+                    hierarchyBuilder.DifferenceFactor = 5;
                     hierarchyBuilder.DepthFactor = 14;
-                    hierarchyBuilder.ContractedFactor = 1; //0 original
+                    hierarchyBuilder.ContractedFactor = 1;
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, true);
