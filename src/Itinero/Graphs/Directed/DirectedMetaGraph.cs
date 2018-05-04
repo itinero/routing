@@ -88,6 +88,19 @@ namespace Itinero.Graphs.Directed
         }
 
         /// <summary>
+        /// Returns true if this graph is readonly.
+        /// </summary>
+        /// <returns></returns>
+        public bool IsReadonly
+        {
+            get
+            {
+                return _graph.IsReadonly ||
+                    !_edgeData.CanResize;
+            }
+        }
+
+        /// <summary>
         /// Switched two edges.
         /// </summary>
         private void SwitchEdge(uint oldId, uint newId)
@@ -199,9 +212,17 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public void Compress(bool toReadonly)
         {
+            if (this.IsReadonly)
+            {
+                return;
+            }
+            
             long maxEdgeId;
             _graph.Compress(toReadonly, out maxEdgeId);
-            _edgeData.Resize(maxEdgeId * _edgeDataSize);
+            if (_edgeData.CanResize)
+            {
+                _edgeData.Resize(maxEdgeId * _edgeDataSize);
+            }
         }
 
         /// <summary>
@@ -209,9 +230,17 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public void Trim()
         {
+            if (this.IsReadonly)
+            {
+                return;
+            }
+
             long maxEdgeId;
             _graph.Trim(out maxEdgeId);
-            _edgeData.Resize(maxEdgeId * _edgeDataSize);
+            if (_edgeData.CanResize)
+            {
+                _edgeData.Resize(maxEdgeId * _edgeDataSize);
+            }
         }
 
         /// <summary>

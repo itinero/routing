@@ -16,20 +16,20 @@
  *  limitations under the License.
  */
 
-using NUnit.Framework;
-using Itinero.LocalGeo;
-using Itinero.Graphs.Directed;
-using System.IO;
-using Itinero.Attributes;
-using System.Linq;
-using Itinero.Data.Network.Restrictions;
-using Itinero.Data.Contracted;
-using System.Collections.Generic;
-using Itinero.Algorithms.Search.Hilbert;
-using Itinero.Data;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Itinero.Algorithms.Search.Hilbert;
+using Itinero.Attributes;
+using Itinero.Data;
+using Itinero.Data.Contracted;
+using Itinero.Data.Network.Restrictions;
 using Itinero.Elevation;
+using Itinero.Graphs.Directed;
+using Itinero.LocalGeo;
 using Itinero.LocalGeo.Elevation;
+using NUnit.Framework;
 
 namespace Itinero.Test
 {
@@ -64,7 +64,7 @@ namespace Itinero.Test
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network1.geojson"));
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -105,7 +105,7 @@ namespace Itinero.Test
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -156,11 +156,11 @@ namespace Itinero.Test
             // add elevation.
             ElevationHandler.GetElevation = (lat, lon) =>
             {
-                return (short)(((lat * lon) % 2000) - 100);
+                return (short) (((lat * lon) % 2000) - 100);
             };
             routerDb.AddElevation();
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -203,7 +203,7 @@ namespace Itinero.Test
             var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
             Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -262,7 +262,7 @@ namespace Itinero.Test
             // add contracted version.
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -309,7 +309,7 @@ namespace Itinero.Test
             // add contracted version.
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -362,7 +362,7 @@ namespace Itinero.Test
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -396,6 +396,17 @@ namespace Itinero.Test
 
             var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
             Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+
+            // test contracted networks.
+            ContractedDb contracted;
+            Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
+            Assert.IsNotNull(contracted.NodeBasedGraph);
+            Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+            Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
+            Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), out contracted));
+            Assert.IsNotNull(contracted.NodeBasedGraph);
+            Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+            Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
         }
 
         /// <summary>
@@ -415,7 +426,7 @@ namespace Itinero.Test
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -448,6 +459,17 @@ namespace Itinero.Test
 
                 var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
                 Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+
+                // test contracted networks.
+                ContractedDb contracted;
+                Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
+                Assert.IsNotNull(contracted.NodeBasedGraph);
+                Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+                Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
+                Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), out contracted));
+                Assert.IsNotNull(contracted.NodeBasedGraph);
+                Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+                Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
             }
         }
 
@@ -468,7 +490,7 @@ namespace Itinero.Test
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -525,7 +547,7 @@ namespace Itinero.Test
             routerDb.Meta.AddOrReplace("name", "test-network-2");
             routerDb.Meta.AddOrReplace("date", "30-11-2015");
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -551,7 +573,7 @@ namespace Itinero.Test
             // add contracted version.
             routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.SerializeContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), stream);
                 routerDb.RemoveContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
@@ -569,9 +591,9 @@ namespace Itinero.Test
 
                 stream.Seek(0, SeekOrigin.Begin);
                 Assert.Catch(() =>
-                    {
-                        routerDb.DeserializeAndAddContracted(stream);
-                    });
+                {
+                    routerDb.DeserializeAndAddContracted(stream);
+                });
             }
         }
 
@@ -587,7 +609,7 @@ namespace Itinero.Test
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network4.geojson"));
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -672,7 +694,7 @@ namespace Itinero.Test
             Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4,\"node_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3,\"edge_id\":5}}]}",
                 json);
         }
-        
+
         /// <summary>
         /// Tests saving and then loading test network4.
         /// </summary>
@@ -685,7 +707,7 @@ namespace Itinero.Test
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network4.geojson"));
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -699,7 +721,7 @@ namespace Itinero.Test
             Assert.IsTrue(routerDb.VertexData.TryGet("node_id", out nodeIds));
             Assert.AreEqual(4, nodeIds.Count);
         }
-        
+
         /// <summary>
         /// Tests saving and then loading test network4.
         /// </summary>
@@ -712,7 +734,7 @@ namespace Itinero.Test
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network4.geojson"));
 
-            using (var stream = new MemoryStream())
+            using(var stream = new MemoryStream())
             {
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
@@ -725,6 +747,86 @@ namespace Itinero.Test
             MetaCollection<long> edgeIds;
             Assert.IsTrue(routerDb.EdgeData.TryGet("edge_id", out edgeIds));
             Assert.AreEqual(3, edgeIds.Count);
+        }
+
+        /// <summary>
+        /// Tests saving and then loading test network2 with two contracted graphs using the default profile.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork2SaveMappedNetwork()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Pedestrian);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network2.geojson"));
+
+            // add contracted version.
+            routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+
+            using(var stream1 = new MemoryStream())
+            using(var stream2 = new MemoryStream())
+            {
+                routerDb.Serialize(stream1);
+                stream1.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream1, RouterDbProfile.Default);
+
+                // test contracted networks.
+                ContractedDb contracted;
+                Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
+                Assert.IsNotNull(contracted.NodeBasedGraph);
+                Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+                Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
+                Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), out contracted));
+                Assert.IsNotNull(contracted.NodeBasedGraph);
+                Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+                Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
+
+                // an extra step, load and serialize again.
+                routerDb.Serialize(stream2);
+                stream2.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream2);
+
+                // test contracted networks.
+                Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), out contracted));
+                Assert.IsNotNull(contracted.NodeBasedGraph);
+                Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+                Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
+                Assert.IsTrue(routerDb.TryGetContracted(Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), out contracted));
+                Assert.IsNotNull(contracted.NodeBasedGraph);
+                Assert.AreEqual(4, contracted.NodeBasedGraph.VertexCount);
+                Assert.AreEqual(3, contracted.NodeBasedGraph.EdgeCount);
+
+                Assert.AreEqual(4, routerDb.Network.VertexCount);
+                Assert.AreEqual(3, routerDb.Network.EdgeCount);
+
+                var vertex0 = routerDb.Network.GetVertex(0);
+                Assert.AreEqual(4.460974931716918, vertex0.Longitude, 0.00001);
+                Assert.AreEqual(51.2296492895387, vertex0.Latitude, 0.00001);
+
+                var vertex1 = routerDb.Network.GetVertex(1);
+                Assert.AreEqual(4.463168978691101, vertex1.Longitude, 0.00001);
+                Assert.AreEqual(51.2296224159235, vertex1.Latitude, 0.00001);
+
+                var vertex2 = routerDb.Network.GetVertex(2);
+                Assert.AreEqual(4.465247690677643, vertex2.Longitude, 0.00001);
+                Assert.AreEqual(51.22962073632204, vertex2.Latitude, 0.00001);
+
+                var vertex3 = routerDb.Network.GetVertex(3);
+                Assert.AreEqual(4.46317434310913, vertex3.Longitude, 0.00001);
+                Assert.AreEqual(51.23092072952097, vertex3.Latitude, 0.00001);
+
+                var edge1 = routerDb.Network.GetEdgeEnumerator(0).First(x => x.To == 1);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex0, vertex1), edge1.Data.Distance, 1);
+
+                var edge2 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 2);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex2), edge2.Data.Distance, 1);
+
+                var edge3 = routerDb.Network.GetEdgeEnumerator(1).First(x => x.To == 3);
+                Assert.AreEqual(Coordinate.DistanceEstimateInMeter(vertex1, vertex3), edge3.Data.Distance, 1);
+            }
         }
     }
 }

@@ -55,22 +55,22 @@ namespace Itinero.Test.Functional.Tests
             //     Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
 
             RouterDb routerDb;
-            using(var stream = File.OpenRead("belgium.c.cf.opt.routerdb"))
+            using(var stream = File.OpenRead("luxembourg.c.routerdb"))
             {
-                routerDb = RouterDb.Deserialize(stream);
+                routerDb = RouterDb.Deserialize(stream, RouterDbProfile.NoCache);
+
+                // GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
+
+                // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
+                // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
+
+                // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
+                // GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
+                // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
+                GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
+
+                routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
             }
-
-            // GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
-
-            // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
-            // GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
-
-            // GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
-            // GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
-            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
-            GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
-
-            //routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
 
             return routerDb;
         }

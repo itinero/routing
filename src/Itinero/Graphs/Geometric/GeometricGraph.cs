@@ -482,9 +482,16 @@ namespace Itinero.Graphs.Geometric
                 updateEdgeId(originalId, newId);
                 _shapes.Switch(originalId, newId);
             });
-            _shapes.Resize(_graph.EdgeCount);
-            _coordinates.Resize(_graph.VertexCapacity * 2);
-            if (_elevation != null)
+            if (_shapes.CanResize)
+            {
+                _shapes.Resize(_graph.EdgeCount);
+            }
+            if (_coordinates.CanResize)
+            {
+                _coordinates.Resize(_graph.VertexCapacity * 2);
+            }
+            if (_elevation != null &&
+                _elevation.CanResize)
             {
                 _elevation.Resize(_graph.VertexCapacity);
             }
@@ -499,9 +506,16 @@ namespace Itinero.Graphs.Geometric
                 {
                     _shapes.Switch(originalId, newId);
                 });
-            _shapes.Resize(_graph.EdgeCount);
-            _coordinates.Resize(_graph.VertexCapacity * 2);
-            if (_elevation != null)
+            if (_shapes.CanResize)
+            {
+                _shapes.Resize(_graph.EdgeCount);
+            }
+            if (_coordinates.CanResize)
+            {
+                _coordinates.Resize(_graph.VertexCapacity * 2);
+            }
+            if (_elevation != null &&
+                _elevation.CanResize)
             {
                 _elevation.Resize(_graph.VertexCapacity);
             }
@@ -514,12 +528,19 @@ namespace Itinero.Graphs.Geometric
         {
             _graph.Trim();
 
-            _coordinates.Resize(_graph.VertexCount * 2);
-            if (_elevation != null)
+            if (_coordinates.CanResize)
+            {
+                _coordinates.Resize(_graph.VertexCount * 2);
+            }
+            if (_elevation != null &&
+                _elevation.CanResize)
             {
                 _elevation.Resize(_graph.VertexCount);
             }
-            _shapes.Resize(_graph.EdgeCount);
+            if (_shapes.CanResize)
+            {
+                _shapes.Resize(_graph.EdgeCount);
+            }
         }
 
         /// <summary>

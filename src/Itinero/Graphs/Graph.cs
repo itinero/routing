@@ -799,7 +799,10 @@ namespace Itinero.Graphs
         {
             // resize edges.
             var edgeSize = _nextEdgeId;
-            _edges.Resize(edgeSize);
+            if (_edges.CanResize)
+            {
+                _edges.Resize(edgeSize);
+            }
 
             // remove all vertices that are unset.
             var size = _vertices.Length;
@@ -807,7 +810,10 @@ namespace Itinero.Graphs
             {
                 size--;
             }
-            _vertices.Resize(size);
+            if (_vertices.CanResize)
+            {
+                _vertices.Resize(size);
+            }
         }
 
         /// <summary>

@@ -488,9 +488,15 @@ namespace Itinero.Data.Network.Restrictions
 
             // write actual data, same order [hashes, index, restrictions]
             size += _hashes.CopyTo(stream);
-            _index.Resize(_nextIndexPointer);
+            if (_index.CanResize)
+            {
+                _index.Resize(_nextIndexPointer);
+            }
             size += _index.CopyTo(stream);
-            _restrictions.Resize(_nextRestrictionPointer);
+            if (_restrictions.CanResize)
+            {
+                _restrictions.Resize(_nextRestrictionPointer);
+            }
             size += _restrictions.CopyTo(stream);
 
             return size;

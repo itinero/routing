@@ -111,7 +111,7 @@ namespace Itinero.Graphs.Directed
             _edgeCount = edgeCount;
             _vertices = vertices;
             _edges = edges;
-            _nextEdgePointer = (uint)(edges.Length / _edgeSize);
+            _nextEdgePointer = (uint)(edges.Length);
         }
 
         /// <summary>
@@ -581,7 +581,10 @@ namespace Itinero.Graphs.Directed
                     maxVertexId = i;
                 }
             }
-            _vertices.Resize((maxVertexId + 1) * VERTEX_SIZE);
+            if (_vertices.CanResize)
+            {
+                _vertices.Resize((maxVertexId + 1) * VERTEX_SIZE);
+            }
 
             // resize edges.
             var edgesLength = _nextEdgePointer;
@@ -589,7 +592,10 @@ namespace Itinero.Graphs.Directed
             { // keep minimum room for one edge.
                 edgesLength = (uint)_edgeSize;
             }
-            _edges.Resize(edgesLength);
+            if (_edges.CanResize)
+            {
+                _edges.Resize(edgesLength);
+            }
 
             // store the max edge id.
             maxEdgeId = _edges.Length / (uint)_edgeSize;
@@ -612,69 +618,72 @@ namespace Itinero.Graphs.Directed
             // trim first.
             this.Trim();
 
-            // build a list of all vertices sorted by their first position.
-            var sortedVertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_vertices.Length / VERTEX_SIZE);
-            for (uint i = 0; i < sortedVertices.Length; i++)
+            if (_edges.CanResize)
             {
-                sortedVertices[i] = i;
-            }
-
-            // sort vertices and coordinates.
-            QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * sortedVertices.Length +
-                    sortedVertices[i],
-                (i, j) =>
-                    {
-                        var tempRef = sortedVertices[i];
-                        sortedVertices[i] = sortedVertices[j];
-                        sortedVertices[j] = tempRef;
-                    }, 0, this.VertexCount - 1);
-
-            // move data down.
-            uint pointer = 0;
-            for (uint i = 0; i < sortedVertices.Length; i++)
-            {
-                // move data.
-                var vertexPointer = sortedVertices[i] * VERTEX_SIZE;
-                var count = _vertices[vertexPointer + EDGE_COUNT];
-                var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
-                _vertices[vertexPointer + FIRST_EDGE] = pointer / (uint)_edgeSize;
-                for (uint e = 0; e < count * (uint)_edgeSize; e += (uint)_edgeSize)
+                // build a list of all vertices sorted by their first position.
+                var sortedVertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(_vertices.Length / VERTEX_SIZE);
+                for (uint i = 0; i < sortedVertices.Length; i++)
                 {
-                    if (pointer != edgePointer)
-                    {
-                        _edges[pointer + e] = _edges[edgePointer + e];
-                        for (var j = 0; j < _edgeDataSize; j++)
-                        {
-                            _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
-                                _edges[edgePointer + e + MINIMUM_EDGE_SIZE + j];
-                        }
+                    sortedVertices[i] = i;
+                }
 
-                        // report on the move.
-                        if (_switchEdge != null)
+                // sort vertices and coordinates.
+                QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * sortedVertices.Length +
+                        sortedVertices[i],
+                    (i, j) =>
                         {
-                            _switchEdge((uint)((edgePointer + e) / _edgeSize),
-                                (uint)((pointer + e) / _edgeSize));
+                            var tempRef = sortedVertices[i];
+                            sortedVertices[i] = sortedVertices[j];
+                            sortedVertices[j] = tempRef;
+                        }, 0, this.VertexCount - 1);
+
+                // move data down.
+                uint pointer = 0;
+                for (uint i = 0; i < sortedVertices.Length; i++)
+                {
+                    // move data.
+                    var vertexPointer = sortedVertices[i] * VERTEX_SIZE;
+                    var count = _vertices[vertexPointer + EDGE_COUNT];
+                    var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+                    _vertices[vertexPointer + FIRST_EDGE] = pointer / (uint)_edgeSize;
+                    for (uint e = 0; e < count * (uint)_edgeSize; e += (uint)_edgeSize)
+                    {
+                        if (pointer != edgePointer)
+                        {
+                            _edges[pointer + e] = _edges[edgePointer + e];
+                            for (var j = 0; j < _edgeDataSize; j++)
+                            {
+                                _edges[pointer + e + MINIMUM_EDGE_SIZE + j] =
+                                    _edges[edgePointer + e + MINIMUM_EDGE_SIZE + j];
+                            }
+
+                            // report on the move.
+                            if (_switchEdge != null)
+                            {
+                                _switchEdge((uint)((edgePointer + e) / _edgeSize),
+                                    (uint)((pointer + e) / _edgeSize));
+                            }
                         }
                     }
-                }
 
-                if (!toReadonly && count > 2 && !((count & (count - 1)) == 0))
-                { // next power of 2, don't do this on readonly to save space.
-                    count |= count >> 1;
-                    count |= count >> 2;
-                    count |= count >> 4;
-                    count |= count >> 8;
-                    count |= count >> 16;
-                    count++;
-                }
+                    if (!toReadonly && count > 2 && !((count & (count - 1)) == 0))
+                    { // next power of 2, don't do this on readonly to save space.
+                        count |= count >> 1;
+                        count |= count >> 2;
+                        count |= count >> 4;
+                        count |= count >> 8;
+                        count |= count >> 16;
+                        count++;
+                    }
 
-                pointer += count * (uint)_edgeSize;
+                    pointer += count * (uint)_edgeSize;
+                }
+                _nextEdgePointer = pointer;
+                _readonly = toReadonly;
+
+                // store the max edge id.
+                _edges.Resize(_nextEdgePointer);
             }
-            _nextEdgePointer = pointer;
-            _readonly = toReadonly;
-
-            // store the max edge id.
-            _edges.Resize(_nextEdgePointer);
             maxEdgeId = _edges.Length / (uint)_edgeSize;
         }
 
@@ -889,7 +898,8 @@ namespace Itinero.Graphs.Directed
         {
             get
             {
-                return _readonly;
+                return _readonly ||
+                    !_edges.CanResize;
             }
         }
 
@@ -909,7 +919,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public long Serialize(System.IO.Stream stream, bool compress)
         {
-            if (compress)
+            if (compress && !this.IsReadonly)
             {
                 this.Compress();
             }
@@ -954,10 +964,10 @@ namespace Itinero.Graphs.Directed
             var bytes = new byte[8];
             stream.Read(bytes, 0, 8);
             size = size + 8;
-            var vertexLength = BitConverter.ToInt64(bytes, 0);
+            var vertexCount = BitConverter.ToInt64(bytes, 0);
             stream.Read(bytes, 0, 8);
             size = size + 8;
-            var edgeLength = BitConverter.ToInt64(bytes, 0);
+            var edgesCount = BitConverter.ToInt64(bytes, 0);
             stream.Read(bytes, 0, 4);
             size = size + 4;
             var vertexSize = BitConverter.ToInt32(bytes, 0);
@@ -969,29 +979,29 @@ namespace Itinero.Graphs.Directed
             ArrayBase<uint> edges;
             if (profile == null)
             { // just create arrays and read the data.
-                vertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(vertexLength * vertexSize);
+                vertices = Context.ArrayFactory.CreateMemoryBackedArray<uint>(vertexCount * vertexSize);
                 vertices.CopyFrom(stream);
-                size += vertexLength * vertexSize * 4;
-                edges = Context.ArrayFactory.CreateMemoryBackedArray<uint>(edgeLength * edgeSize);
+                size += vertexCount * vertexSize * 4;
+                edges = Context.ArrayFactory.CreateMemoryBackedArray<uint>(edgesCount * edgeSize);
                 edges.CopyFrom(stream);
-                size += edgeLength * edgeSize * 4;
+                size += edgesCount * edgeSize * 4;
             }
             else
             { // create accessors over the exact part of the stream that represents vertices/edges.
                 var position = stream.Position;
-                var map1 = new MemoryMapStream(new CappedStream(stream, position, vertexLength * vertexSize * 4));
-                vertices = new Array<uint>(map1.CreateUInt32(vertexLength * vertexSize), profile.VertexProfile);
-                size += vertexLength * vertexSize * 4;
-                var map2 = new MemoryMapStream(new CappedStream(stream, position + vertexLength * vertexSize * 4,
-                    edgeLength * edgeSize * 4));
-                edges = new Array<uint>(map2.CreateUInt32(edgeLength * edgeSize), profile.EdgeProfile);
-                size += edgeLength * edgeSize * 4;
+                var map1 = new MemoryMapStream(new CappedStream(stream, position, vertexCount * vertexSize * 4));
+                vertices = new Array<uint>(map1.CreateUInt32(vertexCount * vertexSize), profile.VertexProfile);
+                size += vertexCount * vertexSize * 4;
+                var map2 = new MemoryMapStream(new CappedStream(stream, position + vertexCount * vertexSize * 4,
+                    edgesCount * edgeSize * 4));
+                edges = new Array<uint>(map2.CreateUInt32(edgesCount * edgeSize), profile.EdgeProfile);
+                size += edgesCount * edgeSize * 4;
             }
 
             // make sure stream is positioned at the correct location.
             stream.Seek(initialPosition + size, System.IO.SeekOrigin.Begin);
 
-            return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, edgeLength, vertices, edges);
+            return new DirectedGraph(edgeSize - MINIMUM_EDGE_SIZE, edgesCount, vertices, edges);
         }
 
         #endregion

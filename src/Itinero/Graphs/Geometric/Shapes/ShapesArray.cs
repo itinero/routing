@@ -233,6 +233,10 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// </summary>
         public sealed override void Resize(long size)
         {
+            if (_index.Length == size)
+            {
+                return;
+            }
             if (!this.CanResize) { throw new InvalidOperationException("Cannot resize a fixed-sized array."); }
 
             _index.Resize(size);
