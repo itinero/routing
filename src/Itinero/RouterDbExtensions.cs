@@ -101,7 +101,7 @@ namespace Itinero
                     var hierarchyBuilder = new FastHierarchyBuilder<float>(contracted, weightHandler);
                     hierarchyBuilder.DifferenceFactor = 8;
                     hierarchyBuilder.DepthFactor = 14;
-                    hierarchyBuilder.ContractedFactor = 0;
+                    hierarchyBuilder.ContractedFactor = 1;
                     hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, false);

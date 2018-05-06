@@ -17,7 +17,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
         {
             _hopLimit = hopLimit;
             _maxSettles = maxSettles;
-        }
+        } 
 
         protected Dictionary<uint, float> forwardSettled = new Dictionary<uint, float>();
         protected Dictionary<uint, float> backwardSettled = new Dictionary<uint, float>();

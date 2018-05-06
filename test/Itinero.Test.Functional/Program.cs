@@ -46,14 +46,41 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-            // download and extract test-data if not already there.
-            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
-            Download.DownloadLuxembourgAll();
 
-            // test building a routerdb.
-            _logger.Log(TraceEventType.Information, "Starting tests...");
-            var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
+            var routerDb = new RouterDb();
+            // routerDb.LoadOsmData(File.OpenRead(@"/home/xivk/work/data/OSM/germany-latest.osm.pbf"), 
+            //     Itinero.Osm.Vehicles.Vehicle.Bicycle);
+
+            // using (var stream = File.Open("germany.b.routerdb", FileMode.Create))
+            // {
+            //     routerDb.Serialize(stream);
+            // }
+
+            using (var stream = File.OpenRead("germany.b.routerdb"))
+            {
+                routerDb = RouterDb.Deserialize(stream);
+            }
+
+            Action old = () => 
+            {
+                routerDb.AddContracted(Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest());
+            };
+            old.TestPerf("testing old");
+
+            // Action act = () => 
+            // {
+            //     routerDb.AddContractedFast(Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest());
+            // };
+            // act.TestPerf("testing");
+
+            // // download and extract test-data if not already there.
+            // _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
+            // Download.DownloadLuxembourgAll();
+
+            // // test building a routerdb.
+            // _logger.Log(TraceEventType.Information, "Starting tests...");
+            // var routerDb = RouterDbBuildingTests.Run();
+            // var router = new Router(routerDb);
 
             // // test some routerdb extensions.
             // RouterDbExtensionsTests.Run(routerDb);
@@ -95,7 +122,7 @@ namespace Itinero.Test.Functional
                 {
                     return;
                 }
-                Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
+                Console.WriteLine(string.Format("[{3}-{0}] {1} - {2}", o, level, message, DateTime.Now.ToString()));
             };
             Itinero.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
@@ -103,7 +130,7 @@ namespace Itinero.Test.Functional
                 {
                     return;
                 }
-                Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
+                Console.WriteLine(string.Format("[{3}-{0}] {1} - {2}", o, level, message, DateTime.Now.ToString()));
             };
         }
     }

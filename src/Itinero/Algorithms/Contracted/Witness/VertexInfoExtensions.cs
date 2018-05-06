@@ -197,7 +197,9 @@ namespace Itinero.Algorithms.Contracted.Witness
             //}
             
             return (differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
-                (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
+                 (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
+            //return ((differenceFactor * (2 * added - 4 * removed)) / 2 + (depthFactor * vertexInfo.Depth) +
+             //   (contractedFactor * vertexInfo.ContractedNeighbours));// * (weigthDiff * weightDiffFactor);
         }
         
         public static bool RemoveShortcuts<T>(this VertexInfo<T> vertexInfo, DirectedGraph witnessGraph, WeightHandler<T> weightHandler)
@@ -253,13 +255,13 @@ namespace Itinero.Algorithms.Contracted.Witness
                 // check forward.
                 var hasUpdates = false;
                 if (shortcutForward > 0 && shortcutForward < float.MaxValue &&
-                    shortcutForward - FastHierarchyBuilder<float>.E > witnessedForward)
+                    shortcutForward > witnessedForward)
                 {
                     shortcut.Forward = weightHandler.Infinite;
                     hasUpdates = true;
                 }
                 if (shortcutBackward > 0 && shortcutBackward < float.MaxValue &&
-                    shortcutBackward - FastHierarchyBuilder<float>.E > witnessedBackward)
+                    shortcutBackward > witnessedBackward)
                 {
                     shortcut.Backward = weightHandler.Infinite;
                     hasUpdates = true;

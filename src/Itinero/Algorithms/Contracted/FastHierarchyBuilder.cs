@@ -50,7 +50,7 @@ namespace Itinero.Algorithms.Contracted
         private BinaryHeap<uint> _queue; // the vertex-queue.
         private DirectedGraph _witnessGraph; // the graph with all the witnesses.
         protected BitArray32 _contractedFlags; // contains flags for contracted vertices.
-        private int _k = 80; // The amount of queue 'misses' before recalculation of queue.
+        private int _k = 10; // The amount of queue 'misses' before recalculation of queue.
         private int _misses; // Holds a counter of all misses.
         private Queue<bool> _missesQueue; // Holds the misses queue.
 
@@ -255,25 +255,25 @@ namespace Itinero.Algorithms.Contracted
                     int totaEdges = 0;
                     int totalUncontracted = 0;
                     int maxCardinality = 0;
-                    //var neighbourCount = new Dictionary<uint, int>();
-                    //for (uint v = 0; v < _graph.VertexCount; v++)
-                    //{
-                    //    if (!_contractedFlags[v])
-                    //    {
-                    //        neighbourCount.Clear();
-                    //        var edges = _graph.GetEdgeEnumerator(v);
-                    //        if (edges != null)
-                    //        {
-                    //            var edgesCount = edges.Count;
-                    //            totaEdges = edgesCount + totaEdges;
-                    //            if (maxCardinality < edgesCount)
-                    //            {
-                    //                maxCardinality = edgesCount;
-                    //            }
-                    //        }
-                    //        totalUncontracted++;
-                    //    }
-                    //}
+                    var neighbourCount = new Dictionary<uint, int>();
+                    for (uint v = 0; v < _graph.VertexCount; v++)
+                    {
+                       if (!_contractedFlags[v])
+                       {
+                           neighbourCount.Clear();
+                           var edges = _graph.GetEdgeEnumerator(v);
+                           if (edges != null)
+                           {
+                               var edgesCount = edges.Count;
+                               totaEdges = edgesCount + totaEdges;
+                               if (maxCardinality < edgesCount)
+                               {
+                                   maxCardinality = edgesCount;
+                               }
+                           }
+                           totalUncontracted++;
+                       }
+                    }
 
                     var density = (double) totaEdges / (double) totalUncontracted;
                     _logger.Log(TraceEventType.Information, "Preprocessing... {0}% [{1}/{2}] {3}q #{4} max {5}",
@@ -465,8 +465,7 @@ namespace Itinero.Algorithms.Contracted
             {
                 System.Threading.Tasks.Parallel.ForEach(_witnessQueue, (v) =>
                 {
-                    //var witnessCalculator = new Itinero.Algorithms.Contracted.Dual.Witness.NeighbourWitnessCalculator();
-                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+                    WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, _witnessQueue);
                 });
 
                 //foreach (var v in _witnessQueue)
