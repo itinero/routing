@@ -1,3 +1,7 @@
 - Rework the edge-based neighbour witness calculate to remove the 'E' variable.
   - Perhaps also make the distance calculations more accurate.
   - Also save the witnessed vertex.
+  
+  
+- reduce allocations.
+- use witnessed flags and remove witness graph again.
