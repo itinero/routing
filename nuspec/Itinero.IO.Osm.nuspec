@@ -19,20 +19,20 @@
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="Microsoft.Net.Http" version="[2.2.29)" />
+                <dependency id="Microsoft.Net.Http" version="[2.2.29, )" />
                 <dependency id="OsmSharp" version="[6, )" />
             </group>
             <group targetFramework=".NETPortable4.0-Profile147">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="Microsoft.Bcl.Async" version="[1.0.168)" exclude="Build,Analyzers" />
-                <dependency id="Microsoft.Net.Http" version="[2.2.29)" />
+                <dependency id="Microsoft.Bcl.Async" version="[1.0.168, )" />
+                <dependency id="Microsoft.Net.Http" version="[2.2.29, )" />
                 <dependency id="OsmSharp" version="[6, )" />
             </group>
             <group targetFramework=".NETStandard1.6">
                 <dependency id="Itinero" version="$version$" />
                 <dependency id="NETStandard.Library" version="1.6.1" />
                 <dependency id="OsmSharp" version="[6, )" />
-                <dependency id="System.Xml.XmlSerializer" version="[4.0.11)" />
+                <dependency id="System.Xml.XmlSerializer" version="[4.0.11, )" />
             </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Itinero" version="$version$" />
