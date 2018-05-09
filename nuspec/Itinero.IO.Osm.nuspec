@@ -17,13 +17,40 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-          <dependency id="OsmSharp" version="[6, )" />
-          <dependency id="Itinero" version="$version$" />
+            <group targetFramework=".NETFramework4.5">
+                <dependency id="Itinero" version="$version$" />
+                <dependency id="Microsoft.Net.Http" version="[2.2.29)" />
+                <dependency id="OsmSharp" version="[6, )" />
+            </group>
+            <group targetFramework=".NETPortable4.0-Profile147">
+                <dependency id="Itinero" version="$version$" />
+                <dependency id="Microsoft.Bcl.Async" version="[1.0.168)" exclude="Build,Analyzers" />
+                <dependency id="Microsoft.Net.Http" version="[2.2.29)" />
+                <dependency id="OsmSharp" version="[6, )" />
+            </group>
+            <group targetFramework=".NETStandard1.6">
+                <dependency id="Itinero" version="$version$" />
+                <dependency id="NETStandard.Library" version="1.6.1" />
+                <dependency id="OsmSharp" version="[6, )" />
+                <dependency id="System.Xml.XmlSerializer" version="[4.0.11)" />
+            </group>
+            <group targetFramework=".NETStandard2.0">
+                <dependency id="Itinero" version="$version$" />
+                <dependency id="OsmSharp" version="[6, )" />
+            </group>
         </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5, .NETPortable4.0-Profile147" />
+            <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.5, .NETPortable4.0-Profile147" />
+            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETPortable4.0-Profile147" />
+            <frameworkAssembly assemblyName="System.Xml.Serialization" targetFramework=".NETPortable4.0-Profile147" />
+        </frameworkAssemblies>
     </metadata>
     <files>
       <file src="src\Itinero.IO.Osm\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.IO.Osm.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.IO.Osm.dll" />
       <file src="src\Itinero.IO.Osm\bin\Release\net45\Itinero.IO.Osm.dll" target="lib\net45\Itinero.IO.Osm.dll" />
       <file src="src\Itinero.IO.Osm\bin\Release\netstandard1.6\Itinero.IO.Osm.dll" target="lib\netstandard1.6\Itinero.IO.Osm.dll" />
+      <file src="src\Itinero.IO.Osm\bin\Release\netstandard2.0\Itinero.IO.Osm.dll" target="lib\netstandard2.0\Itinero.IO.Osm.dll" />
     </files>
 </package>
