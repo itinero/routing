@@ -92,29 +92,15 @@ namespace Itinero
                 }
                 else
                 { // vertex-based is ok when no complex restrictions found.
-                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an vertex-based graph for profile {0}...",
-                        profile.FullName);
-
-                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
-                    var directedGraphBuilder = new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run();
-
-                    // contract the graph.
-                    var hierarchyBuilder = new FastHierarchyBuilder<float>(contracted, weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 8;
-                    hierarchyBuilder.DepthFactor = 14;
-                    hierarchyBuilder.ContractedFactor = 1;
-                    hierarchyBuilder.Run();
-
-                    contractedDb = new ContractedDb(contracted, false);
+                    throw new NotImplementedException();
                 }
             }
 
             // add the graph.
-            lock (db)
-            {
-                db.AddContracted(profile, contractedDb);
-            }
+            // lock (db)
+            // {
+            //     db.AddContracted(profile, contractedDb);
+            // }
         }
 
         /// <summary>
@@ -175,17 +161,14 @@ namespace Itinero
 
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run(cancellationToken);
+                    directedGraphBuilder.Run();
 
                     // contract the graph.
-                    var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
-                        new DykstraWitnessCalculator(int.MaxValue));
-                    priorityCalculator.DifferenceFactor = 5;
-                    priorityCalculator.DepthFactor = 5;
-                    priorityCalculator.ContractedFactor = 8;
-                    var hierarchyBuilder = new HierarchyBuilder<float>(contracted, db.GetRestrictions(profile), priorityCalculator,
-                            new DykstraWitnessCalculator(int.MaxValue), weightHandler);
-                    hierarchyBuilder.Run(cancellationToken);
+                    var hierarchyBuilder = new FastHierarchyBuilder<float>(contracted, weightHandler);
+                    hierarchyBuilder.DifferenceFactor = 8;
+                    hierarchyBuilder.DepthFactor = 14;
+                    hierarchyBuilder.ContractedFactor = 1;
+                    hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, false);
                 }
