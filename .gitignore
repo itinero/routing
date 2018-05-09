@@ -46,3 +46,5 @@ TestResult*.xml
 
 islands_*.geojson
 *.hgt.zip
+
+.idea/*

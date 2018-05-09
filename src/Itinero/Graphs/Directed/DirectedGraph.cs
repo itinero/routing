@@ -849,6 +849,11 @@ namespace Itinero.Graphs.Directed
             public bool MoveTo(uint vertex)
             {
                 var vertexId = vertex * VERTEX_SIZE;
+                var edgeCountPointer = vertexId + EDGE_COUNT;
+                if (edgeCountPointer >= _graph._vertices.Length)
+                { // vertex doesn't exist.
+                    return false;
+                }
                 _startEdgeId = _graph._vertices[vertexId + FIRST_EDGE] * (uint)_graph._edgeSize;
                 _count = _graph._vertices[vertexId + EDGE_COUNT];
                 _neighbour = 0;
