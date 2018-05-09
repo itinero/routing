@@ -161,7 +161,6 @@ namespace Itinero.Algorithms.Contracted.Witness
                     if (forwardSettled.Count > _maxSettles ||
                         backwardSettled.Count > _maxSettles)
                     { // over settled count.
-                        Console.WriteLine("Max Settles reached.");
                         break;
                     }
 
