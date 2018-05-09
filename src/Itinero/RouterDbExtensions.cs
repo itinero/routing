@@ -52,60 +52,6 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContractedFast(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
-        {
-            var weightHandler = profile.DefaultWeightHandlerCached(db);
-
-            // create the raw directed graph.
-            ContractedDb contractedDb = null;
-
-            if (!forceEdgeBased)
-            { // check if there are complex restrictions in the routerdb forcing edge-based contraction.
-                if (db.HasComplexRestrictions(profile))
-                { // there are complex restrictions, use edge-based contraction, the only way to support these in a contracted graph.
-                    forceEdgeBased = true;
-                }
-            }
-
-            lock (db) // TODO: reevaluate this lock, not needed around this entire block!
-            {
-                if (forceEdgeBased)
-                { // edge-based is needed when complex restrictions found.
-                    throw new NotImplementedException();
-                    // Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an edge-based graph for profile {0}...", 
-                    //     profile.FullName);
-
-                    // var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                    //     weightHandler.MetaSize);
-                    // var restrictions = db.GetRestrictions(profile);
-                    // var dualGraphBuilder = new DualGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted,
-                    //     weightHandler, restrictions);
-                    // dualGraphBuilder.Run();
-
-                    // var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler);
-                    // hierarchyBuilder.DifferenceFactor = 5;
-                    // hierarchyBuilder.DepthFactor = 14;
-                    // hierarchyBuilder.ContractedFactor = 1;
-                    // hierarchyBuilder.Run();
-
-                    // contractedDb = new ContractedDb(contracted, true);
-                }
-                else
-                { // vertex-based is ok when no complex restrictions found.
-                    throw new NotImplementedException();
-                }
-            }
-
-            // add the graph.
-            // lock (db)
-            // {
-            //     db.AddContracted(profile, contractedDb);
-            // }
-        }
-
-        /// <summary>
-        /// Creates a new contracted graph and adds it to the router db for the given profile.
-        /// </summary>
         public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
         {
             db.AddContracted(profile, forceEdgeBased, CancellationToken.None);
@@ -141,16 +87,13 @@ namespace Itinero
                     var restrictions = db.GetRestrictions(profile);
                     var dualGraphBuilder = new DualGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted,
                         weightHandler, restrictions);
-                    dualGraphBuilder.Run(cancellationToken);
+                    dualGraphBuilder.Run();
 
-                    // contract the graph.
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
-                        new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph, weightHandler,
-                            5, 4096), weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 8;
+                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler);
+                    hierarchyBuilder.DifferenceFactor = 5;
                     hierarchyBuilder.DepthFactor = 14;
                     hierarchyBuilder.ContractedFactor = 1;
-                    hierarchyBuilder.Run(cancellationToken);
+                    hierarchyBuilder.Run();
 
                     contractedDb = new ContractedDb(contracted, true);
                 }

@@ -71,9 +71,9 @@ namespace Itinero.Test.Functional
             InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-// #if DEBUG
+#if DEBUG
             Console.ReadLine();
-// #endif
+#endif
         }
 
         private static void EnableLogging()
