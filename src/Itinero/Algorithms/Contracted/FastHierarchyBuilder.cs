@@ -84,8 +84,7 @@ namespace Itinero.Algorithms.Contracted
              {
                  WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);
              });
-#endif
-#if PCL
+#elif PCL
             for (uint v = 0; v < _graph.VertexCount; v++)
             {
                 WitnessCalculators.Run(_graph.Graph, _witnessGraph, (uint)v, null);
@@ -473,8 +472,7 @@ namespace Itinero.Algorithms.Contracted
                 {
                     WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, _witnessQueue);
                 });
-#endif
-#if PCL
+#elif PCL
                 for (uint v = 0; v < _graph.VertexCount; v++)
                 {
                     WitnessCalculators.Run(_graph.Graph, _witnessGraph, (uint)v, null);
