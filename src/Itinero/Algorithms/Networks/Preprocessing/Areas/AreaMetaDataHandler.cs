@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Itinero.Data.Network;
 using Itinero.Graphs;
 using Itinero.LocalGeo;
@@ -82,7 +83,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             const long INTERSECTION = -1;
             var vertexCountAtStart = _routerDb.Network.VertexCount;

@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17151901-eafa-4384-b8f8-32a94289472a" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Itinero/.idea/contentModel.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Itinero/.idea/contentModel.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Itinero.IO.Osm/Itinero.IO.Osm.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Itinero.IO.Osm/Itinero.IO.Osm.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nuspec/Itinero.IO.Osm.nuspec" beforeDir="false" afterPath="$PROJECT_DIR$/nuspec/Itinero.IO.Osm.nuspec" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nuspec/Itinero.nuspec" beforeDir="false" afterPath="$PROJECT_DIR$/nuspec/Itinero.nuspec" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/PolygonArea.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/PolygonArea.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Itinero/Itinero.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/src/Itinero/Itinero.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test/Itinero.Test/Itinero.Test.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/test/Itinero.Test/Itinero.Test.csproj" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,432 +15,20 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="AreaMetaDataHandler.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs">
+      <file leaf-file-name="Itinero.nuspec" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/nuspec/Itinero.nuspec">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4">
-              <caret line="201" column="73" selection-start-line="201" selection-start-column="73" selection-end-line="201" selection-end-column="73" />
-              <folding>
-                <marker date="1526321637038" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-                <marker date="1526321637038" expanded="true" signature="812:979" ph="..." />
-                <marker date="1526321637038" expanded="true" signature="1038:12853" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="1045:1130" ph="/// Adds meta-data to all edges in a given area. ... " />
-                <marker date="1526321637038" expanded="true" signature="1183:12851" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="1282:1464" ph="/// Creates a new area mapper. ... " />
-                <marker date="1526321637038" expanded="true" signature="1530:1610" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="1620:1781" ph="/// A delegate to notify listeners of a new vertex. ... " />
-                <marker date="1526321637038" expanded="true" signature="1865:1976" ph="/// Gets or sets a listener to listen to new vertex notifications. ... " />
-                <marker date="1526321637038" expanded="true" signature="2043:2352" ph="/// A delegate to notifiy listeners of a new edge. ... " />
-                <marker date="1526321637038" expanded="true" signature="2448:2555" ph="/// Gets or sets a listener to listen to new edge nofications. ... " />
-                <marker date="1526321637038" expanded="true" signature="2618:2791" ph="/// A delegate to notify listeners that an edge was found inside the area. ... " />
-                <marker date="1526321637038" expanded="true" signature="2871:2983" ph="/// Gets or sets a listener to listen to edge inside notifications. ... " />
-                <marker date="1526321637038" expanded="true" signature="3052:3131" ph="/// Executes the actual algorithm. ... " />
-                <marker date="1526321637038" expanded="true" signature="3171:12068" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="3510:12019" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="3569:3665" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="3713:3779" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="3989:12005" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="4054:4165" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="4231:4351" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="4829:4983" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="5127:6610" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="5206:6588" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="5530:6223" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="5723:6193" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="5860:6100" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="6311:6511" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="6948:7530" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="7117:7508" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="7230:7431" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="7602:7809" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="8016:8135" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="8297:8474" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="8799:10898" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="9136:9322" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="9383:9864" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="9410:9520" ph="/* this needs to become a new vertex and we need a new edge. ... */" />
-                <marker date="1526321637038" expanded="true" signature="10143:10281" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="10520:10618" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="11055:11448" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="11120:11259" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="11288:11426" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="11778:11987" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="11843:11965" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="12105:12845" ph="{...}" />
-                <marker date="1526321637038" expanded="true" signature="12128:12251" ph="/// The location of this 'vertex'. ... " />
-                <marker date="1526321637038" expanded="true" signature="12318:12455" ph="/// True if the next segment is inside the area; ... " />
-                <marker date="1526321637038" expanded="true" signature="12514:12790" ph="/// Holds the future status: ... " />
-              </folding>
+            <state relative-caret-position="498">
+              <caret line="35" column="92" selection-start-line="35" selection-start-column="92" selection-end-line="35" selection-end-column="92" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PolygonArea.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/PolygonArea.cs">
+      <file leaf-file-name="Itinero.IO.Osm.nuspec" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/nuspec/Itinero.IO.Osm.nuspec">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="57" selection-start-line="57" selection-end-line="57" />
-              <folding>
-                <marker date="1526321330876" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-                <marker date="1526321330876" expanded="false" signature="812:848" ph="..." />
-                <marker date="1526321330876" expanded="true" signature="907:2395" ph="{...}" />
-                <marker date="1526321330876" expanded="true" signature="914:1003" ph="/// An area implemenation based on a simple polygon. ... " />
-                <marker date="1526321330876" expanded="true" signature="1040:2393" ph="{...}" />
-                <marker date="1526321330876" expanded="true" signature="1134:1264" ph="/// Creates a new polygon area. ... " />
-                <marker date="1526321330876" expanded="true" signature="1308:1507" ph="{...}" />
-                <marker date="1526321330876" expanded="true" signature="1517:1683" ph="/// Returns the location(s) the given line intersects with the area's boundary. Returns null if there is no inter ... " />
-                <marker date="1526321330876" expanded="true" signature="1791:2116" ph="{...}" />
-                <marker date="1526321330876" expanded="true" signature="1915:1972" ph="{...}" />
-                <marker date="1526321330876" expanded="true" signature="2126:2231" ph="/// Returns true if the given coordinate is inside the area. ... " />
-                <marker date="1526321330876" expanded="true" signature="2293:2387" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="WorkItem.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D3911BEA-211C-4184-933A-E820A39CD382/5c/4ce0abb9/WorkItem.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="881">
-              <caret line="120" column="6" selection-start-line="120" selection-start-column="6" selection-end-line="120" selection-end-column="6" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="CompositeWorkItem.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D3911BEA-211C-4184-933A-E820A39CD382/61/511fc7e5/CompositeWorkItem.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="217" column="12" selection-start-line="217" selection-start-column="12" selection-end-line="217" selection-end-column="12" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="RoutingNetwork.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero/Data/Network/RoutingNetwork.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="235">
-              <caret line="393" column="16" selection-start-line="393" selection-start-column="16" selection-end-line="393" selection-end-column="16" />
-              <folding>
-                <marker date="1520539710605" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-                <marker date="1520539710605" expanded="false" signature="812:1080" ph="..." />
-                <marker date="1520539710605" expanded="true" signature="1112:19410" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="1119:1189" ph="/// Represents a routing network. ... " />
-                <marker date="1520539710605" expanded="true" signature="1221:19408" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="1434:1513" ph="/// Creates a new routing network. ... " />
-                <marker date="1520539710605" expanded="true" signature="1601:1823" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="1842:1921" ph="/// Creates a new routing network. ... " />
-                <marker date="1520539710605" expanded="true" signature="2037:2264" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="2274:2353" ph="/// Creates a new routing network. ... " />
-                <marker date="1520539710605" expanded="true" signature="2500:3004" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="2591:2756" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="2773:2994" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="3014:3093" ph="/// Creates a new routing network. ... " />
-                <marker date="1520539710605" expanded="true" signature="3216:3421" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="3431:3510" ph="/// Creates a new routing network. ... " />
-                <marker date="1520539710605" expanded="true" signature="3648:3853" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="3863:3961" ph="/// Creates a new routing network from existing data. ... " />
-                <marker date="1520539710605" expanded="true" signature="4111:4241" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="4251:4334" ph="/// Returns the maximum edge distance. ... " />
-                <marker date="1520539710605" expanded="true" signature="4371:4476" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="4397:4466" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="4486:4563" ph="/// Returns the geometric graph. ... " />
-                <marker date="1520539710605" expanded="true" signature="4608:4703" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="4634:4693" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="4721:4881" ph="/// Returns true if this network is simple (max one edge between any two vertices). ... " />
-                <marker date="1520539710605" expanded="true" signature="4910:5014" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="4936:5004" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="5024:5091" ph="/// Adds a new vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="5167:5246" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="5256:5323" ph="/// Adds a new vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="5417:5507" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="5517:5582" ph="/// Gets the vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="5631:5696" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="5706:5803" ph="/// Gets the vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="5887:5981" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="5991:6088" ph="/// Gets the vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="6134:6202" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="6220:6317" ph="/// Adds a new edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="6405:6849" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="6859:6956" ph="/// Updates the data associated with the given edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="7019:7372" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="7073:7183" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="7382:7495" ph="/// Gets the edge with the given id. ... " />
-                <marker date="1520539710605" expanded="true" signature="7543:8031" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="7758:7914" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="8041:8165" ph="/// Removes all edges from/to the given vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="8209:8276" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="8286:8390" ph="/// Removes the given edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="8434:8500" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="8510:8614" ph="/// Removes the given edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="8673:8750" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="8760:8835" ph="/// Switches the two vertices. ... " />
-                <marker date="1520539710605" expanded="true" signature="8890:9013" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="9023:9134" ph="/// Gets an empty edge enumerator. ... " />
-                <marker date="1520539710605" expanded="true" signature="9184:9277" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="9287:9413" ph="/// Gets an edge enumerator for the given vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="9474:9573" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="9583:9691" ph="/// Relocates data internally in the most compact way possible. ... " />
-                <marker date="1520539710605" expanded="true" signature="9722:9941" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="9783:9881" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="9951:10059" ph="/// Relocates data internally in the most compact way possible. ... " />
-                <marker date="1520539710605" expanded="true" signature="10121:10488" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="10182:10428" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="10309:10410" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="10498:10616" ph="/// Resizes the internal data structures to their smallest size possible. ... " />
-                <marker date="1520539710605" expanded="true" signature="10643:10738" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="10748:10842" ph="/// Returns the number of vertices in this graph. ... " />
-                <marker date="1520539710605" expanded="true" signature="10874:10981" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="10900:10971" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="10991:11082" ph="/// Returns the number of edges in this graph. ... " />
-                <marker date="1520539710605" expanded="true" signature="11112:11177" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="11195:11253" ph="/// Disposes. ... " />
-                <marker date="1520539710605" expanded="true" signature="11283:11366" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="11376:11444" ph="/// An edge enumerator. ... " />
-                <marker date="1520539710605" expanded="true" signature="11533:16239" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="11772:11878" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="11892:11992" ph="/// Returns true if there is at least one edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="12024:12156" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12058:12142" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12170:12262" ph="/// Returns the id of the current edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="12289:12416" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12323:12402" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12430:12523" ph="/// Returns the vertex at the beginning. ... " />
-                <marker date="1520539710605" expanded="true" signature="12552:12681" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12586:12667" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12695:12782" ph="/// Returns the vertex at the end. ... " />
-                <marker date="1520539710605" expanded="true" signature="12809:12936" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12843:12922" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="12950:13029" ph="/// Returns the edge data. ... " />
-                <marker date="1520539710605" expanded="true" signature="13062:13548" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="13096:13534" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="13310:13515" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="13562:13672" ph="/// Returns true if the edge data is inverted by default. ... " />
-                <marker date="1520539710605" expanded="true" signature="13709:13846" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="13743:13832" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="13860:13932" ph="/// Gets the shape. ... " />
-                <marker date="1520539710605" expanded="true" signature="13967:14098" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="14001:14084" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="14112:14231" ph="/// Moves to the given vertex. ... " />
-                <marker date="1520539710605" expanded="true" signature="14275:14354" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="14368:14485" ph="/// Moves to the given edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="14533:14609" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="14623:14705" ph="/// Returns the current edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="14744:14826" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="14840:14922" ph="/// Returns the current edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="14980:15053" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="15067:15183" ph="/// Moves to the next edge. ... " />
-                <marker date="1520539710605" expanded="true" signature="15218:15293" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="15307:15387" ph="/// Resets this enumerator. ... " />
-                <marker date="1520539710605" expanded="true" signature="15419:15484" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="15498:15564" ph="/// Disposes. ... " />
-                <marker date="1520539710605" expanded="true" signature="15598:15665" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="15679:15792" ph="/// Gets the enumerator. ... " />
-                <marker date="1520539710605" expanded="true" signature="15852:15939" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="15953:16066" ph="/// Gets the enumerator. ... " />
-                <marker date="1520539710605" expanded="true" signature="16156:16229" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="16249:16321" ph="/// Serializes to a stream. ... " />
-                <marker date="1520539710605" expanded="true" signature="16376:16445" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="16456:16528" ph="/// Serializes to a stream. ... " />
-                <marker date="1520539710605" expanded="true" signature="16616:17246" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="16750:16819" ph="/* write the version ##. ... */" />
-                <marker date="1520539710605" expanded="true" signature="17256:17332" ph="/// Deserializes from a stream. ... " />
-                <marker date="1520539710605" expanded="true" signature="17427:19402" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="17511:17680" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="17928:18106" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="18457:18722" ph="{...}" />
-                <marker date="1520539710605" expanded="true" signature="18739:19188" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AreaMetaDataHandlerTests.cs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandlerTests.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="206">
-              <caret line="120" selection-start-line="120" selection-end-line="120" />
-              <folding>
-                <marker date="1526321422130" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-                <marker date="1526321422130" expanded="true" signature="812:969" ph="..." />
-                <marker date="1526321422130" expanded="true" signature="1033:6089" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="1040:1127" ph="/// Contains tests for the area meta data handler. ... " />
-                <marker date="1526321422130" expanded="true" signature="1187:6087" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="1202:1297" ph="/// Tests the case where one edge is not included. ... " />
-                <marker date="1526321422130" expanded="true" signature="1354:2654" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="1705:1812" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="1881:2304" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="1968:2289" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="2672:2763" ph="/// Tests the case where one edge is included. ... " />
-                <marker date="1526321422130" expanded="true" signature="2820:4094" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="3159:3266" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="3335:3758" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="3422:3743" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="4112:4207" ph="/// Tests the case where one edge is split in two. ... " />
-                <marker date="1526321422130" expanded="true" signature="4266:6081" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="4614:4722" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="4791:5214" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="4878:5199" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="5424:5611" ph="{...}" />
-                <marker date="1526321422130" expanded="true" signature="5690:5946" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Extensions.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="522" column="8" selection-start-line="522" selection-start-column="8" selection-end-line="522" selection-end-column="8" />
-              <folding>
-                <marker date="1526310636574" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-                <marker date="1526310636574" expanded="false" signature="812:853" ph="..." />
-                <marker date="1526310636574" expanded="true" signature="881:23650" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="888:973" ph="/// Extension methods for the local geo objects. ... " />
-                <marker date="1526310636574" expanded="true" signature="1008:23648" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="1023:1122" ph="/// Converts the coordinates to a double double array. ... " />
-                <marker date="1526310636574" expanded="true" signature="1204:1560" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="1328:1523" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="1399:1508" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="1570:1763" ph="/// Simplify the specified points using epsilon. ... " />
-                <marker date="1526310636574" expanded="true" signature="1855:1957" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="1967:2187" ph="/// Simplifies the specified points using episilon. ... " />
-                <marker date="1526310636574" expanded="true" signature="2292:2733" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="2339:2397" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="2448:2697" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="2608:2683" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="2743:3028" ph="/// Simplify the specified points using epsilon. ... " />
-                <marker date="1526310636574" expanded="true" signature="3156:5200" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="3574:5099" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="3904:4275" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="4067:4257" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="4344:5085" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="4783:4876" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="4940:5032" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="5210:5495" ph="/// Simplify the specified points using epsilon. ... " />
-                <marker date="1526310636574" expanded="true" signature="5615:7659" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="6033:7580" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="6363:6734" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="6526:6716" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="6803:7566" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="7239:7334" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="7399:7513" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="7669:7748" ph="/// Converts the box to a polygon. ... " />
-                <marker date="1526310636574" expanded="true" signature="7802:8293" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="7858:8282" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="7945:8267" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="8303:8652" ph="/// Returns true if the given point lies within the polygon. ... " />
-                <marker date="1526310636574" expanded="true" signature="8724:9302" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="8888:8946" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="9071:9267" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="9183:9253" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="9312:9414" ph="/// Returns true if the given point lies within the ring. ... " />
-                <marker date="1526310636574" expanded="true" signature="9490:14706" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="9704:10010" ph="/* Some preprocessing. If the polygon crosses the antemeridian, we have some troubles and and 360 to all the nega ... */" />
-                <marker date="1526310636574" expanded="true" signature="10301:11201" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="10488:11187" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="11215:11391" ph="/* As we now have a neat bounding box laying around, it would be a pity not to use this ... */" />
-                <marker date="1526310636574" expanded="true" signature="11500:11558" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="11572:11814" ph="/* The basic, actual algorithm ... */" />
-                <marker date="1526310636574" expanded="true" signature="11966:14668" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="12380:12493" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="12511:12825" ph="/* The raycast is from west to east - thus at the same latitude level of the point ... */" />
-                <marker date="1526310636574" expanded="true" signature="12946:13012" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="13030:13473" ph="/* Here, we know that: the latitude of the point falls between the latitudes of the end points of the segment ... */" />
-                <marker date="1526310636574" expanded="true" signature="13533:13637" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="13655:13835" ph="/* Analogously, at least one point of the segments should be on the right (east) of the point; ... */" />
-                <marker date="1526310636574" expanded="true" signature="13898:13964" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="13982:14127" ph="/* we calculate the longitude on the segment for the latitude of the point ... */" />
-                <marker date="1526310636574" expanded="true" signature="14310:14500" ph="/* If the longitude lays on the right of the point AND lays within the segment (only right bound is needed to che ... */" />
-                <marker date="1526310636574" expanded="true" signature="14580:14654" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="14716:14935" ph="/// Calculates a bounding box for the polygon. ... " />
-                <marker date="1526310636574" expanded="true" signature="15062:15171" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="15181:15269" ph="/// Calculates a bounding box for the ring. ... " />
-                <marker date="1526310636574" expanded="true" signature="15405:16203" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="15657:16193" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="15752:15828" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="15869:15945" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="15986:16062" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="16103:16179" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="16213:16443" ph="/// If the longitude is smaller then 0, add 360. ... " />
-                <marker date="1526310636574" expanded="true" signature="16496:16609" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="16537:16599" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="16619:17001" ph="/// Returns the location along the line at the given offset distance in meter. ... " />
-                <marker date="1526310636574" expanded="true" signature="17107:17356" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="17142:17260" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="17366:17757" ph="/// Returns the location between the two coordinates at the given offset distance in meter. ... " />
-                <marker date="1526310636574" expanded="true" signature="17874:18048" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="18058:18567" ph="/// Returns the location between the two coordinates at the given offset distance in meter. ... " />
-                <marker date="1526310636574" expanded="true" signature="18707:19017" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="19027:19213" ph="/// Returns intersection points with the given polygon. ... " />
-                <marker date="1526310636574" expanded="true" signature="19373:21697" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="19553:19729" ph="/* REMARK: yes, this can be way way faster but it's only used in preprocessing. ... */" />
-                <marker date="1526310636574" expanded="true" signature="19929:20027" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="20075:20461" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="20154:20447" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="20307:20429" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="20742:21647" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="20854:20936" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="21319:21633" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="21835:23642" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="22097:22380" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="22234:22366" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="22429:23597" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="22597:23074" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="22909:23056" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="23167:23583" ph="{...}" />
-                <marker date="1526310636574" expanded="true" signature="23316:23565" ph="{...}" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Itinero.csproj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero/Itinero.csproj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="337">
-              <caret line="38" column="18" lean-forward="true" selection-start-line="38" selection-start-column="18" selection-end-line="38" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Itinero.IO.Osm.csproj" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero.IO.Osm/Itinero.IO.Osm.csproj">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="472">
-              <caret line="45" column="18" lean-forward="true" selection-start-line="45" selection-start-column="18" selection-end-line="45" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="AlgorithmBase.cs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/AlgorithmBase.cs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="467">
-              <caret line="87" column="12" selection-start-line="87" selection-start-column="12" selection-end-line="87" selection-end-column="12" />
-              <folding>
-                <marker date="1520539710561" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-                <marker date="1520539710561" expanded="true" signature="849:2839" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="856:937" ph="/// Abstract representation of an algorithm. ... " />
-                <marker date="1520539710561" expanded="true" signature="990:2837" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="1005:1100" ph="/// Returns true if this instance has run already. ... " />
-                <marker date="1520539710561" expanded="true" signature="1127:1191" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="1201:1310" ph="/// Returns true if this instance has run and it was succesfull. ... " />
-                <marker date="1520539710561" expanded="true" signature="1343:1407" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="1417:1529" ph="/// Returns an error message when the algorithm was not successful. ... " />
-                <marker date="1520539710561" expanded="true" signature="1564:1628" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="1638:1742" ph="/// Checks if HasRun is true and throw an exception if not. ... " />
-                <marker date="1520539710561" expanded="true" signature="1776:1943" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="1816:1933" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="1953:2072" ph="/// Checks if HasRun and HasSucceeded is true and throws exception if not. ... " />
-                <marker date="1520539710561" expanded="true" signature="2121:2330" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="2200:2320" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="2340:2408" ph="/// Runs the algorithm. ... " />
-                <marker date="1520539710561" expanded="true" signature="2434:2690" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="2473:2622" ph="{...}" />
-                <marker date="1520539710561" expanded="true" signature="2700:2790" ph="/// Executes the actual run of the algorithm. ... " />
-              </folding>
+            <state relative-caret-position="315">
+              <caret line="21" column="23" lean-forward="true" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -454,19 +39,16 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/MaxDistanceSplitterTests.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/SimpleGraphConverterTest.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/PolygonArea.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Itinero/LocalGeo/Polygon.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D3911BEA-211C-4184-933A-E820A39CD382/5c/4ce0abb9/WorkItem.cs" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/src/Itinero/Algorithms/AlgorithmBase.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D3911BEA-211C-4184-933A-E820A39CD382/61/511fc7e5/CompositeWorkItem.cs" root0="SKIP_INSPECTION" />
-    <setting file="file://$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandlerTests.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/test/Itinero.Test/RouterDbTests.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/src/Itinero/Data/Network/RoutingNetwork.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
@@ -476,7 +58,10 @@
         <option value="$PROJECT_DIR$/src/Itinero.IO.Osm/Itinero.IO.Osm.csproj" />
         <option value="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/PolygonArea.cs" />
         <option value="$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandlerTests.cs" />
+        <option value="$PROJECT_DIR$/src/Itinero/Data/Network/RoutingNetwork.cs" />
         <option value="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" />
+        <option value="$PROJECT_DIR$/nuspec/Itinero.nuspec" />
+        <option value="$PROJECT_DIR$/nuspec/Itinero.IO.Osm.nuspec" />
       </list>
     </option>
   </component>
@@ -511,58 +96,17 @@
             <path>
               <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
               <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="src" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="nuspec" type="977d5f41:SolutionExplorerNodeRider" />
             </path>
             <path>
               <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
               <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
               <item name="src" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Itinero" type="977d5f41:SolutionExplorerNodeRider" />
             </path>
             <path>
               <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
               <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
               <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Algorithms" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Algorithms" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Networks" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Algorithms" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Networks" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Preprocessing" type="977d5f41:SolutionExplorerNodeRider" />
-            </path>
-            <path>
-              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
-              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Algorithms" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Networks" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Preprocessing" type="977d5f41:SolutionExplorerNodeRider" />
-              <item name="Areas" type="977d5f41:SolutionExplorerNodeRider" />
             </path>
           </expand>
           <select />
@@ -604,6 +148,7 @@
       <option name="PROJECT_WORKING_DIRECTORY_TRACKING" value="1" />
       <option name="PROJECT_KIND" value="None" />
       <option name="PROJECT_TFM" value="" />
+      <browser url="http://localhost:5000" />
     </configuration>
     <list>
       <item itemvalue=".NET Project.Default" />
@@ -620,12 +165,12 @@
       <option name="presentableId" value="Default" />
       <updated>1526310041094</updated>
       <workItem from="1526310044359" duration="137000" />
-      <workItem from="1526312242596" duration="5193000" />
+      <workItem from="1526312242596" duration="5935000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5330000" />
+    <option name="totallyTimeSpent" value="6072000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -638,16 +183,15 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="65" y="-4" width="1855" height="1204" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="right" id="Errors In Solution" order="3" />
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
-      <window_info anchor="bottom" id="Unit Tests" order="7" weight="0.32991612" />
+      <window_info active="true" anchor="bottom" id="Unit Tests" order="7" visible="true" weight="0.36346692" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Run" order="2" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32991612" />
-      <window_info anchor="bottom" id="Terminal" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="7" weight="0.45945945" />
       <window_info anchor="bottom" id="NuGet" order="7" weight="0.32991612" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.22609176" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
@@ -655,7 +199,7 @@
       <window_info anchor="right" id="Database" order="3" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32991612" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.39888164" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39888164" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -676,18 +220,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs</url>
-          <line>58</line>
-          <properties documentPath="$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs" initialLine="58">
-            <startOffsets>
-              <startOffset value="2146" />
-            </startOffsets>
-            <endOffsets>
-              <endOffset value="2280" />
-            </endOffsets>
-          </properties>
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs</url>
           <line>109</line>
           <properties documentPath="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" initialLine="107">
@@ -700,19 +232,6 @@
           </properties>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs</url>
-          <line>216</line>
-          <properties documentPath="$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" initialLine="216">
-            <startOffsets>
-              <startOffset value="8846" />
-            </startOffsets>
-            <endOffsets>
-              <endOffset value="8870" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
       </breakpoints>
       <option name="time" value="7" />
     </breakpoint-manager>
@@ -722,19 +241,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="675">
           <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
-          <folding>
-            <marker date="1526311838906" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526311838906" expanded="false" signature="812:1002" ph="..." />
-            <marker date="1526311838906" expanded="true" signature="1035:5117" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="1042:1125" ph="/// Contains tests for the intersections code. ... " />
-            <marker date="1526311838906" expanded="true" signature="1178:5115" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="1193:1332" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
-            <marker date="1526311838906" expanded="true" signature="1389:2390" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="2400:2539" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
-            <marker date="1526311838906" expanded="true" signature="2591:3539" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="3549:3666" ph="/// Tests an intersection with a line segment for a polygon with a hole. ... " />
-            <marker date="1526311838906" expanded="true" signature="3717:5109" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -742,57 +248,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="645">
           <caret line="46" column="9" lean-forward="true" selection-start-line="46" selection-start-column="9" selection-end-line="46" selection-end-column="9" />
-          <folding>
-            <marker date="1526321637038" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526321637038" expanded="true" signature="812:979" ph="..." />
-            <marker date="1526321637038" expanded="true" signature="1038:12853" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="1045:1130" ph="/// Adds meta-data to all edges in a given area. ... " />
-            <marker date="1526321637038" expanded="true" signature="1183:12851" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="1282:1464" ph="/// Creates a new area mapper. ... " />
-            <marker date="1526321637038" expanded="true" signature="1530:1610" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="1620:1781" ph="/// A delegate to notify listeners of a new vertex. ... " />
-            <marker date="1526321637038" expanded="true" signature="1865:1976" ph="/// Gets or sets a listener to listen to new vertex notifications. ... " />
-            <marker date="1526321637038" expanded="true" signature="2043:2352" ph="/// A delegate to notifiy listeners of a new edge. ... " />
-            <marker date="1526321637038" expanded="true" signature="2448:2555" ph="/// Gets or sets a listener to listen to new edge nofications. ... " />
-            <marker date="1526321637038" expanded="true" signature="2618:2791" ph="/// A delegate to notify listeners that an edge was found inside the area. ... " />
-            <marker date="1526321637038" expanded="true" signature="2871:2983" ph="/// Gets or sets a listener to listen to edge inside notifications. ... " />
-            <marker date="1526321637038" expanded="true" signature="3052:3131" ph="/// Executes the actual algorithm. ... " />
-            <marker date="1526321637038" expanded="true" signature="3171:12068" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3510:12019" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3569:3665" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3713:3779" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3989:12005" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="4054:4165" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="4231:4351" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="4829:4983" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5127:6610" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5206:6588" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5530:6223" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5723:6193" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5860:6100" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="6311:6511" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="6948:7530" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="7117:7508" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="7230:7431" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="7602:7809" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="8016:8135" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="8297:8474" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="8799:10898" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="9136:9322" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="9383:9864" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="9410:9520" ph="/* this needs to become a new vertex and we need a new edge. ... */" />
-            <marker date="1526321637038" expanded="true" signature="10143:10281" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="10520:10618" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11055:11448" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11120:11259" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11288:11426" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11778:11987" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11843:11965" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="12105:12845" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="12128:12251" ph="/// The location of this 'vertex'. ... " />
-            <marker date="1526321637038" expanded="true" signature="12318:12455" ph="/// True if the next segment is inside the area; ... " />
-            <marker date="1526321637038" expanded="true" signature="12514:12790" ph="/// Holds the future status: ... " />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -800,19 +255,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret line="52" selection-start-line="52" selection-end-line="52" />
-          <folding>
-            <marker date="1526311838906" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526311838906" expanded="false" signature="812:1002" ph="..." />
-            <marker date="1526311838906" expanded="true" signature="1035:5117" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="1042:1125" ph="/// Contains tests for the intersections code. ... " />
-            <marker date="1526311838906" expanded="true" signature="1178:5115" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="1193:1332" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
-            <marker date="1526311838906" expanded="true" signature="1389:2390" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="2400:2539" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
-            <marker date="1526311838906" expanded="true" signature="2591:3539" ph="{...}" />
-            <marker date="1526311838906" expanded="true" signature="3549:3666" ph="/// Tests an intersection with a line segment for a polygon with a hole. ... " />
-            <marker date="1526311838906" expanded="true" signature="3717:5109" ph="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -892,84 +334,212 @@
         <state relative-caret-position="255">
           <caret line="17" selection-start-line="17" selection-end-line="18" selection-end-column="22" />
           <folding>
-            <marker date="1520602982968" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1520602982968" expanded="true" signature="812:1185" ph="..." />
-            <marker date="1520602982968" expanded="true" signature="1209:35487" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="1216:1290" ph="/// Contains tests for the router db. ... " />
-            <marker date="1520602982968" expanded="true" signature="1339:35485" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="1354:1442" ph="/// Tests testing for a supportest profile. ... " />
-            <marker date="1520602982968" expanded="true" signature="1499:1766" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="1776:1869" ph="/// Tests saving and then loading test network1. ... " />
-            <marker date="1520602982968" expanded="true" signature="1927:3604" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="2314:2499" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="3614:3707" ph="/// Tests saving and then loading test network2. ... " />
-            <marker date="1520602982968" expanded="true" signature="3765:5882" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="4152:4337" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="5892:6000" ph="/// Tests saving and then loading test network2 with elevation. ... " />
-            <marker date="1520602982968" expanded="true" signature="6071:11335" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="6494:6582" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="6673:6858" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="8974:11325" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="11345:11462" ph="/// Tests saving and then loading test network1 with a contracted graph. ... " />
-            <marker date="1520602982968" expanded="true" signature="11533:13482" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="12040:12225" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="13492:13609" ph="/// Tests saving and then loading test network1 with a contracted graph. ... " />
-            <marker date="1520602982968" expanded="true" signature="13680:15917" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="14187:14372" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="15927:16047" ph="/// Tests saving and then loading test network2 with two contracted graphs. ... " />
-            <marker date="1520602982968" expanded="true" signature="16123:18530" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="16800:16985" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="18540:18686" ph="/// Tests saving and then loading test network2 with two contracted graphs using the default profile. ... " />
-            <marker date="1520602982968" expanded="true" signature="18776:21282" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="19453:21272" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="21292:21438" ph="/// Tests saving and then loading test network2 with two contracted graphs using the default profile. ... " />
-            <marker date="1520602982968" expanded="true" signature="21528:24034" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="22205:24024" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="24044:24189" ph="/// Tests saving and then loading test network2 with some tags describing what the network is about. ... " />
-            <marker date="1520602982968" expanded="true" signature="24251:25460" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="25087:25450" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="25470:25575" ph="/// Tests saving and then loading a contracted network only. ... " />
-            <marker date="1520602982968" expanded="true" signature="25650:27276" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="26157:27266" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="27136:27250" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="27286:27379" ph="/// Tests saving and then loading test network4. ... " />
-            <marker date="1520602982968" expanded="true" signature="27437:30445" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="27824:28009" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="30455:30534" ph="/// Tests adding a restriction db. ... " />
-            <marker date="1520602982968" expanded="true" signature="30592:30857" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="30867:30960" ph="/// Tests saving and then loading test network6. ... " />
-            <marker date="1520602982968" expanded="true" signature="31018:32237" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="32255:32348" ph="/// Tests saving and then loading test network4. ... " />
-            <marker date="1520602982968" expanded="true" signature="32419:33293" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="32806:32991" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="33311:33404" ph="/// Tests saving and then loading test network4. ... " />
-            <marker date="1520602982968" expanded="true" signature="33473:34345" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="33860:34045" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="34355:34483" ph="/// Tests saving and then loading test network6 and then checking if it's writable. ... " />
-            <marker date="1520602982968" expanded="true" signature="34567:35479" ph="{...}" />
-            <marker date="1520602982968" expanded="true" signature="34983:35168" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+            <marker date="1526322094909" expanded="true" signature="812:1185" ph="..." />
+            <marker date="1526322094909" expanded="true" signature="1209:35487" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="1216:1290" ph="/// Contains tests for the router db. ... " />
+            <marker date="1526322094909" expanded="true" signature="1339:35485" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="1354:1442" ph="/// Tests testing for a supportest profile. ... " />
+            <marker date="1526322094909" expanded="true" signature="1499:1766" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="1776:1869" ph="/// Tests saving and then loading test network1. ... " />
+            <marker date="1526322094909" expanded="true" signature="1927:3604" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="2314:2499" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="3614:3707" ph="/// Tests saving and then loading test network2. ... " />
+            <marker date="1526322094909" expanded="true" signature="3765:5882" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="4152:4337" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="5892:6000" ph="/// Tests saving and then loading test network2 with elevation. ... " />
+            <marker date="1526322094909" expanded="true" signature="6071:11335" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="6494:6582" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="6673:6858" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="8974:11325" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="11345:11462" ph="/// Tests saving and then loading test network1 with a contracted graph. ... " />
+            <marker date="1526322094909" expanded="true" signature="11533:13482" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="12040:12225" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="13492:13609" ph="/// Tests saving and then loading test network1 with a contracted graph. ... " />
+            <marker date="1526322094909" expanded="true" signature="13680:15917" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="14187:14372" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="15927:16047" ph="/// Tests saving and then loading test network2 with two contracted graphs. ... " />
+            <marker date="1526322094909" expanded="true" signature="16123:18530" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="16800:16985" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="18540:18686" ph="/// Tests saving and then loading test network2 with two contracted graphs using the default profile. ... " />
+            <marker date="1526322094909" expanded="true" signature="18776:21282" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="19453:21272" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="21292:21438" ph="/// Tests saving and then loading test network2 with two contracted graphs using the default profile. ... " />
+            <marker date="1526322094909" expanded="true" signature="21528:24034" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="22205:24024" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="24044:24189" ph="/// Tests saving and then loading test network2 with some tags describing what the network is about. ... " />
+            <marker date="1526322094909" expanded="true" signature="24251:25460" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="25087:25450" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="25470:25575" ph="/// Tests saving and then loading a contracted network only. ... " />
+            <marker date="1526322094909" expanded="true" signature="25650:27276" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="26157:27266" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="27136:27250" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="27286:27379" ph="/// Tests saving and then loading test network4. ... " />
+            <marker date="1526322094909" expanded="true" signature="27437:30445" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="27824:28009" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="30455:30534" ph="/// Tests adding a restriction db. ... " />
+            <marker date="1526322094909" expanded="true" signature="30592:30857" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="30867:30960" ph="/// Tests saving and then loading test network6. ... " />
+            <marker date="1526322094909" expanded="true" signature="31018:32237" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="32255:32348" ph="/// Tests saving and then loading test network4. ... " />
+            <marker date="1526322094909" expanded="true" signature="32419:33293" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="32806:32991" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="33311:33404" ph="/// Tests saving and then loading test network4. ... " />
+            <marker date="1526322094909" expanded="true" signature="33473:34345" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="33860:34045" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="34355:34483" ph="/// Tests saving and then loading test network6 and then checking if it's writable. ... " />
+            <marker date="1526322094909" expanded="true" signature="34567:35479" ph="{...}" />
+            <marker date="1526322094909" expanded="true" signature="34983:35168" ph="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Itinero/Itinero.csproj">
+    <entry file="file://$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="337">
-          <caret line="38" column="18" lean-forward="true" selection-start-line="38" selection-start-column="18" selection-end-line="38" selection-end-column="18" />
+        <state relative-caret-position="221">
+          <caret line="522" column="8" selection-start-line="522" selection-start-column="8" selection-end-line="522" selection-end-column="8" />
+          <folding>
+            <marker date="1526322094905" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+            <marker date="1526322094905" expanded="false" signature="812:853" ph="..." />
+            <marker date="1526322094905" expanded="true" signature="881:23650" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="888:973" ph="/// Extension methods for the local geo objects. ... " />
+            <marker date="1526322094905" expanded="true" signature="1008:23648" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="1023:1122" ph="/// Converts the coordinates to a double double array. ... " />
+            <marker date="1526322094905" expanded="true" signature="1204:1560" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="1328:1523" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="1399:1508" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="1570:1763" ph="/// Simplify the specified points using epsilon. ... " />
+            <marker date="1526322094905" expanded="true" signature="1855:1957" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="1967:2187" ph="/// Simplifies the specified points using episilon. ... " />
+            <marker date="1526322094905" expanded="true" signature="2292:2733" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="2339:2397" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="2448:2697" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="2608:2683" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="2743:3028" ph="/// Simplify the specified points using epsilon. ... " />
+            <marker date="1526322094905" expanded="true" signature="3156:3524" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="3574:5099" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="3904:4275" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="4067:4257" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="4344:5085" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="4783:4876" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="4940:5032" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="5210:5495" ph="/// Simplify the specified points using epsilon. ... " />
+            <marker date="1526322094905" expanded="true" signature="5615:7659" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="6033:7580" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="6363:6734" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="6526:6716" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="6803:7566" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="7239:7334" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="7399:7513" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="7669:7748" ph="/// Converts the box to a polygon. ... " />
+            <marker date="1526322094905" expanded="true" signature="7802:8293" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="7858:8282" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="7945:8267" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="8303:8652" ph="/// Returns true if the given point lies within the polygon. ... " />
+            <marker date="1526322094905" expanded="true" signature="8724:9302" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="8888:8946" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="9071:9267" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="9183:9253" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="9312:9414" ph="/// Returns true if the given point lies within the ring. ... " />
+            <marker date="1526322094905" expanded="true" signature="9490:14706" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="9704:10010" ph="/* Some preprocessing. If the polygon crosses the antemeridian, we have some troubles and and 360 to all the nega ... */" />
+            <marker date="1526322094905" expanded="true" signature="10301:11201" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="10488:11187" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="11215:11391" ph="/* As we now have a neat bounding box laying around, it would be a pity not to use this ... */" />
+            <marker date="1526322094905" expanded="true" signature="11500:11558" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="11572:11814" ph="/* The basic, actual algorithm ... */" />
+            <marker date="1526322094905" expanded="true" signature="11966:14668" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="12380:12493" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="12511:12825" ph="/* The raycast is from west to east - thus at the same latitude level of the point ... */" />
+            <marker date="1526322094905" expanded="true" signature="12946:13012" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="13030:13473" ph="/* Here, we know that: the latitude of the point falls between the latitudes of the end points of the segment ... */" />
+            <marker date="1526322094905" expanded="true" signature="13533:13637" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="13655:13835" ph="/* Analogously, at least one point of the segments should be on the right (east) of the point; ... */" />
+            <marker date="1526322094905" expanded="true" signature="13898:13964" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="13982:14127" ph="/* we calculate the longitude on the segment for the latitude of the point ... */" />
+            <marker date="1526322094905" expanded="true" signature="14310:14500" ph="/* If the longitude lays on the right of the point AND lays within the segment (only right bound is needed to che ... */" />
+            <marker date="1526322094905" expanded="true" signature="14580:14654" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="14716:14935" ph="/// Calculates a bounding box for the polygon. ... " />
+            <marker date="1526322094905" expanded="true" signature="15062:15171" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="15181:15269" ph="/// Calculates a bounding box for the ring. ... " />
+            <marker date="1526322094905" expanded="true" signature="15405:16203" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="15657:16193" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="15752:15828" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="15869:15945" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="15986:16062" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="16103:16179" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="16213:16443" ph="/// If the longitude is smaller then 0, add 360. ... " />
+            <marker date="1526322094905" expanded="true" signature="16496:16609" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="16537:16599" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="16619:17001" ph="/// Returns the location along the line at the given offset distance in meter. ... " />
+            <marker date="1526322094905" expanded="true" signature="17107:17356" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="17142:17260" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="17366:17757" ph="/// Returns the location between the two coordinates at the given offset distance in meter. ... " />
+            <marker date="1526322094905" expanded="true" signature="17874:18048" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="18058:18567" ph="/// Returns the location between the two coordinates at the given offset distance in meter. ... " />
+            <marker date="1526322094905" expanded="true" signature="18707:19017" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="19027:19213" ph="/// Returns intersection points with the given polygon. ... " />
+            <marker date="1526322094905" expanded="true" signature="19373:21697" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="19553:19729" ph="/* REMARK: yes, this can be way way faster but it's only used in preprocessing. ... */" />
+            <marker date="1526322094905" expanded="true" signature="19929:20027" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="20075:20461" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="20154:20447" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="20307:20429" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="20742:21647" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="20854:20936" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="21319:21633" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="23631:23642" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="22097:22380" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="22234:22366" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="22429:23597" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="22597:23074" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="22909:23056" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="23167:23583" ph="{...}" />
+            <marker date="1526322094905" expanded="true" signature="23316:23565" ph="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Itinero.IO.Osm/Itinero.IO.Osm.csproj">
+    <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/AlgorithmBase.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="472">
-          <caret line="45" column="18" lean-forward="true" selection-start-line="45" selection-start-column="18" selection-end-line="45" selection-end-column="18" />
+        <state relative-caret-position="497">
+          <caret line="89" column="8" selection-start-line="89" selection-start-column="8" selection-end-line="89" selection-end-column="8" />
+          <folding>
+            <marker date="1526322127921" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+            <marker date="1526322127921" expanded="true" signature="3110:3120" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="856:937" ph="/// Abstract representation of an algorithm. ... " />
+            <marker date="1526322127921" expanded="true" signature="3110:3118" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="1005:1100" ph="/// Returns true if this instance has run already. ... " />
+            <marker date="1526322127921" expanded="true" signature="1127:1191" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="1201:1310" ph="/// Returns true if this instance has run and it was succesfull. ... " />
+            <marker date="1526322127921" expanded="true" signature="1343:1407" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="1417:1529" ph="/// Returns an error message when the algorithm was not successful. ... " />
+            <marker date="1526322127921" expanded="true" signature="1564:1628" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="1638:1742" ph="/// Checks if HasRun is true and throw an exception if not. ... " />
+            <marker date="1526322127921" expanded="true" signature="1776:1943" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="1816:1933" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="1953:2072" ph="/// Checks if HasRun and HasSucceeded is true and throws exception if not. ... " />
+            <marker date="1526322127921" expanded="true" signature="2121:2330" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="2200:2320" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="2340:2408" ph="/// Runs the algorithm. ... " />
+            <marker date="1526322127921" expanded="true" signature="2434:2690" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="2473:2622" ph="{...}" />
+            <marker date="1526322127921" expanded="true" signature="2700:2790" ph="/// Executes the actual run of the algorithm. ... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandlerTests.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="572">
+          <caret line="157" column="9" lean-forward="true" selection-start-line="157" selection-start-column="9" selection-end-line="157" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Itinero/Data/Network/RoutingNetwork.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="235">
-          <caret line="393" column="16" selection-start-line="393" selection-start-column="16" selection-end-line="393" selection-end-column="16" />
+        <state relative-caret-position="265">
+          <caret line="395" lean-forward="true" selection-start-line="395" selection-end-line="395" />
           <folding>
             <marker date="1520539710605" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
             <marker date="1520539710605" expanded="false" signature="812:1080" ph="..." />
@@ -1110,141 +680,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/AlgorithmBase.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="467">
-          <caret line="87" column="12" selection-start-line="87" selection-start-column="12" selection-end-line="87" selection-end-column="12" />
-          <folding>
-            <marker date="1520539710561" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1520539710561" expanded="true" signature="849:2839" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="856:937" ph="/// Abstract representation of an algorithm. ... " />
-            <marker date="1520539710561" expanded="true" signature="990:2837" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="1005:1100" ph="/// Returns true if this instance has run already. ... " />
-            <marker date="1520539710561" expanded="true" signature="1127:1191" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="1201:1310" ph="/// Returns true if this instance has run and it was succesfull. ... " />
-            <marker date="1520539710561" expanded="true" signature="1343:1407" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="1417:1529" ph="/// Returns an error message when the algorithm was not successful. ... " />
-            <marker date="1520539710561" expanded="true" signature="1564:1628" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="1638:1742" ph="/// Checks if HasRun is true and throw an exception if not. ... " />
-            <marker date="1520539710561" expanded="true" signature="1776:1943" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="1816:1933" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="1953:2072" ph="/// Checks if HasRun and HasSucceeded is true and throws exception if not. ... " />
-            <marker date="1520539710561" expanded="true" signature="2121:2330" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="2200:2320" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="2340:2408" ph="/// Runs the algorithm. ... " />
-            <marker date="1520539710561" expanded="true" signature="2434:2690" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="2473:2622" ph="{...}" />
-            <marker date="1520539710561" expanded="true" signature="2700:2790" ph="/// Executes the actual run of the algorithm. ... " />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="522" column="8" selection-start-line="522" selection-start-column="8" selection-end-line="522" selection-end-column="8" />
-          <folding>
-            <marker date="1526310636574" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526310636574" expanded="false" signature="812:853" ph="..." />
-            <marker date="1526310636574" expanded="true" signature="881:23650" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="888:973" ph="/// Extension methods for the local geo objects. ... " />
-            <marker date="1526310636574" expanded="true" signature="1008:23648" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="1023:1122" ph="/// Converts the coordinates to a double double array. ... " />
-            <marker date="1526310636574" expanded="true" signature="1204:1560" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="1328:1523" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="1399:1508" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="1570:1763" ph="/// Simplify the specified points using epsilon. ... " />
-            <marker date="1526310636574" expanded="true" signature="1855:1957" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="1967:2187" ph="/// Simplifies the specified points using episilon. ... " />
-            <marker date="1526310636574" expanded="true" signature="2292:2733" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="2339:2397" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="2448:2697" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="2608:2683" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="2743:3028" ph="/// Simplify the specified points using epsilon. ... " />
-            <marker date="1526310636574" expanded="true" signature="3156:5200" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="3574:5099" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="3904:4275" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="4067:4257" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="4344:5085" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="4783:4876" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="4940:5032" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="5210:5495" ph="/// Simplify the specified points using epsilon. ... " />
-            <marker date="1526310636574" expanded="true" signature="5615:7659" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="6033:7580" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="6363:6734" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="6526:6716" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="6803:7566" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="7239:7334" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="7399:7513" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="7669:7748" ph="/// Converts the box to a polygon. ... " />
-            <marker date="1526310636574" expanded="true" signature="7802:8293" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="7858:8282" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="7945:8267" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="8303:8652" ph="/// Returns true if the given point lies within the polygon. ... " />
-            <marker date="1526310636574" expanded="true" signature="8724:9302" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="8888:8946" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="9071:9267" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="9183:9253" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="9312:9414" ph="/// Returns true if the given point lies within the ring. ... " />
-            <marker date="1526310636574" expanded="true" signature="9490:14706" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="9704:10010" ph="/* Some preprocessing. If the polygon crosses the antemeridian, we have some troubles and and 360 to all the nega ... */" />
-            <marker date="1526310636574" expanded="true" signature="10301:11201" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="10488:11187" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="11215:11391" ph="/* As we now have a neat bounding box laying around, it would be a pity not to use this ... */" />
-            <marker date="1526310636574" expanded="true" signature="11500:11558" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="11572:11814" ph="/* The basic, actual algorithm ... */" />
-            <marker date="1526310636574" expanded="true" signature="11966:14668" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="12380:12493" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="12511:12825" ph="/* The raycast is from west to east - thus at the same latitude level of the point ... */" />
-            <marker date="1526310636574" expanded="true" signature="12946:13012" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="13030:13473" ph="/* Here, we know that: the latitude of the point falls between the latitudes of the end points of the segment ... */" />
-            <marker date="1526310636574" expanded="true" signature="13533:13637" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="13655:13835" ph="/* Analogously, at least one point of the segments should be on the right (east) of the point; ... */" />
-            <marker date="1526310636574" expanded="true" signature="13898:13964" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="13982:14127" ph="/* we calculate the longitude on the segment for the latitude of the point ... */" />
-            <marker date="1526310636574" expanded="true" signature="14310:14500" ph="/* If the longitude lays on the right of the point AND lays within the segment (only right bound is needed to che ... */" />
-            <marker date="1526310636574" expanded="true" signature="14580:14654" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="14716:14935" ph="/// Calculates a bounding box for the polygon. ... " />
-            <marker date="1526310636574" expanded="true" signature="15062:15171" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="15181:15269" ph="/// Calculates a bounding box for the ring. ... " />
-            <marker date="1526310636574" expanded="true" signature="15405:16203" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="15657:16193" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="15752:15828" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="15869:15945" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="15986:16062" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="16103:16179" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="16213:16443" ph="/// If the longitude is smaller then 0, add 360. ... " />
-            <marker date="1526310636574" expanded="true" signature="16496:16609" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="16537:16599" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="16619:17001" ph="/// Returns the location along the line at the given offset distance in meter. ... " />
-            <marker date="1526310636574" expanded="true" signature="17107:17356" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="17142:17260" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="17366:17757" ph="/// Returns the location between the two coordinates at the given offset distance in meter. ... " />
-            <marker date="1526310636574" expanded="true" signature="17874:18048" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="18058:18567" ph="/// Returns the location between the two coordinates at the given offset distance in meter. ... " />
-            <marker date="1526310636574" expanded="true" signature="18707:19017" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="19027:19213" ph="/// Returns intersection points with the given polygon. ... " />
-            <marker date="1526310636574" expanded="true" signature="19373:21697" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="19553:19729" ph="/* REMARK: yes, this can be way way faster but it's only used in preprocessing. ... */" />
-            <marker date="1526310636574" expanded="true" signature="19929:20027" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="20075:20461" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="20154:20447" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="20307:20429" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="20742:21647" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="20854:20936" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="21319:21633" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="21835:23642" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="22097:22380" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="22234:22366" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="22429:23597" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="22597:23074" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="22909:23056" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="23167:23583" ph="{...}" />
-            <marker date="1526310636574" expanded="true" signature="23316:23565" ph="{...}" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/D3911BEA-211C-4184-933A-E820A39CD382/5c/4ce0abb9/WorkItem.cs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="881">
@@ -1254,111 +689,94 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/PolygonArea.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
+        <state relative-caret-position="467">
           <caret line="57" selection-start-line="57" selection-end-line="57" />
-          <folding>
-            <marker date="1526321330876" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526321330876" expanded="false" signature="812:848" ph="..." />
-            <marker date="1526321330876" expanded="true" signature="907:2395" ph="{...}" />
-            <marker date="1526321330876" expanded="true" signature="914:1003" ph="/// An area implemenation based on a simple polygon. ... " />
-            <marker date="1526321330876" expanded="true" signature="1040:2393" ph="{...}" />
-            <marker date="1526321330876" expanded="true" signature="1134:1264" ph="/// Creates a new polygon area. ... " />
-            <marker date="1526321330876" expanded="true" signature="1308:1507" ph="{...}" />
-            <marker date="1526321330876" expanded="true" signature="1517:1683" ph="/// Returns the location(s) the given line intersects with the area's boundary. Returns null if there is no inter ... " />
-            <marker date="1526321330876" expanded="true" signature="1791:2116" ph="{...}" />
-            <marker date="1526321330876" expanded="true" signature="1915:1972" ph="{...}" />
-            <marker date="1526321330876" expanded="true" signature="2126:2231" ph="/// Returns true if the given coordinate is inside the area. ... " />
-            <marker date="1526321330876" expanded="true" signature="2293:2387" ph="{...}" />
-          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Itinero/Itinero.csproj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="337">
+          <caret line="38" column="18" lean-forward="true" selection-start-line="38" selection-start-column="18" selection-end-line="38" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Itinero.IO.Osm/Itinero.IO.Osm.csproj">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="472">
+          <caret line="45" column="18" lean-forward="true" selection-start-line="45" selection-start-column="18" selection-end-line="45" selection-end-column="18" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4">
-          <caret line="201" column="73" selection-start-line="201" selection-start-column="73" selection-end-line="201" selection-end-column="73" />
+        <state relative-caret-position="463">
+          <caret line="101" column="17" lean-forward="true" selection-start-line="101" selection-start-column="17" selection-end-line="101" selection-end-column="17" />
           <folding>
-            <marker date="1526321637038" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526321637038" expanded="true" signature="812:979" ph="..." />
-            <marker date="1526321637038" expanded="true" signature="1038:12853" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="1045:1130" ph="/// Adds meta-data to all edges in a given area. ... " />
-            <marker date="1526321637038" expanded="true" signature="1183:12851" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="1282:1464" ph="/// Creates a new area mapper. ... " />
-            <marker date="1526321637038" expanded="true" signature="1530:1610" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="1620:1781" ph="/// A delegate to notify listeners of a new vertex. ... " />
-            <marker date="1526321637038" expanded="true" signature="1865:1976" ph="/// Gets or sets a listener to listen to new vertex notifications. ... " />
-            <marker date="1526321637038" expanded="true" signature="2043:2352" ph="/// A delegate to notifiy listeners of a new edge. ... " />
-            <marker date="1526321637038" expanded="true" signature="2448:2555" ph="/// Gets or sets a listener to listen to new edge nofications. ... " />
-            <marker date="1526321637038" expanded="true" signature="2618:2791" ph="/// A delegate to notify listeners that an edge was found inside the area. ... " />
-            <marker date="1526321637038" expanded="true" signature="2871:2983" ph="/// Gets or sets a listener to listen to edge inside notifications. ... " />
-            <marker date="1526321637038" expanded="true" signature="3052:3131" ph="/// Executes the actual algorithm. ... " />
-            <marker date="1526321637038" expanded="true" signature="3171:12068" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3510:12019" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3569:3665" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3713:3779" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="3989:12005" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="4054:4165" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="4231:4351" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="4829:4983" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5127:6610" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5206:6588" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5530:6223" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5723:6193" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="5860:6100" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="6311:6511" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="6948:7530" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="7117:7508" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="7230:7431" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="7602:7809" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="8016:8135" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="8297:8474" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="8799:10898" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="9136:9322" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="9383:9864" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="9410:9520" ph="/* this needs to become a new vertex and we need a new edge. ... */" />
-            <marker date="1526321637038" expanded="true" signature="10143:10281" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="10520:10618" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11055:11448" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11120:11259" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11288:11426" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11778:11987" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="11843:11965" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="12105:12845" ph="{...}" />
-            <marker date="1526321637038" expanded="true" signature="12128:12251" ph="/// The location of this 'vertex'. ... " />
-            <marker date="1526321637038" expanded="true" signature="12318:12455" ph="/// True if the next segment is inside the area; ... " />
-            <marker date="1526321637038" expanded="true" signature="12514:12790" ph="/// Holds the future status: ... " />
+            <marker date="1526322241343" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+            <marker date="1526322241343" expanded="false" signature="812:1003" ph="..." />
+            <marker date="1526322241343" expanded="true" signature="1062:12912" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="1069:1154" ph="/// Adds meta-data to all edges in a given area. ... " />
+            <marker date="1526322241343" expanded="true" signature="1207:12910" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="1306:1488" ph="/// Creates a new area mapper. ... " />
+            <marker date="1526322241343" expanded="true" signature="1554:1634" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="1644:1805" ph="/// A delegate to notify listeners of a new vertex. ... " />
+            <marker date="1526322241343" expanded="true" signature="1889:2000" ph="/// Gets or sets a listener to listen to new vertex notifications. ... " />
+            <marker date="1526322241343" expanded="true" signature="2067:2376" ph="/// A delegate to notifiy listeners of a new edge. ... " />
+            <marker date="1526322241343" expanded="true" signature="2472:2579" ph="/// Gets or sets a listener to listen to new edge nofications. ... " />
+            <marker date="1526322241343" expanded="true" signature="2642:2815" ph="/// A delegate to notify listeners that an edge was found inside the area. ... " />
+            <marker date="1526322241343" expanded="true" signature="2895:3007" ph="/// Gets or sets a listener to listen to edge inside notifications. ... " />
+            <marker date="1526322241343" expanded="true" signature="3076:3155" ph="/// Executes the actual algorithm. ... " />
+            <marker date="1526322241343" expanded="true" signature="3230:12127" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="3569:12078" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="3628:3724" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="3772:3838" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="4048:12064" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="4113:4224" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="4290:4410" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="4888:5042" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="5186:6669" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="5265:6647" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="5589:6282" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="5782:6252" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="5919:6159" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="6370:6570" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="7007:7589" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="7176:7567" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="7289:7490" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="7661:7868" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="8075:8194" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="8356:8533" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="8858:10957" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="9195:9381" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="9442:9923" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="9469:9579" ph="/* this needs to become a new vertex and we need a new edge. ... */" />
+            <marker date="1526322241343" expanded="true" signature="10202:10340" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="10579:10677" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="11114:11507" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="11179:11318" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="11347:11485" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="11837:12046" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="11902:12024" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="12164:12904" ph="{...}" />
+            <marker date="1526322241343" expanded="true" signature="12187:12310" ph="/// The location of this 'vertex'. ... " />
+            <marker date="1526322241343" expanded="true" signature="12377:12514" ph="/// True if the next segment is inside the area; ... " />
+            <marker date="1526322241343" expanded="true" signature="12573:12849" ph="/// Holds the future status: ... " />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/Itinero.Test/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandlerTests.cs">
+    <entry file="file://$PROJECT_DIR$/nuspec/Itinero.nuspec">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="206">
-          <caret line="120" selection-start-line="120" selection-end-line="120" />
-          <folding>
-            <marker date="1526321422130" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
-            <marker date="1526321422130" expanded="true" signature="812:969" ph="..." />
-            <marker date="1526321422130" expanded="true" signature="1033:6089" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="1040:1127" ph="/// Contains tests for the area meta data handler. ... " />
-            <marker date="1526321422130" expanded="true" signature="1187:6087" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="1202:1297" ph="/// Tests the case where one edge is not included. ... " />
-            <marker date="1526321422130" expanded="true" signature="1354:2654" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="1705:1812" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="1881:2304" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="1968:2289" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="2672:2763" ph="/// Tests the case where one edge is included. ... " />
-            <marker date="1526321422130" expanded="true" signature="2820:4094" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="3159:3266" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="3335:3758" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="3422:3743" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="4112:4207" ph="/// Tests the case where one edge is split in two. ... " />
-            <marker date="1526321422130" expanded="true" signature="4266:6081" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="4614:4722" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="4791:5214" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="4878:5199" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="5424:5611" ph="{...}" />
-            <marker date="1526321422130" expanded="true" signature="5690:5946" ph="{...}" />
-          </folding>
+        <state relative-caret-position="498">
+          <caret line="35" column="92" selection-start-line="35" selection-start-column="92" selection-end-line="35" selection-end-column="92" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/nuspec/Itinero.IO.Osm.nuspec">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" column="23" lean-forward="true" selection-start-line="21" selection-start-column="23" selection-end-line="21" selection-end-column="23" />
         </state>
       </provider>
     </entry>

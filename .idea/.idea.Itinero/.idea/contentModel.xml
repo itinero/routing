@@ -979,6 +979,7 @@
             <e p="IntersectionTests.cs" t="Include" />
             <e p="LineTests.cs" t="Include" />
             <e p="PointInPolygonTest.cs" t="Include" />
+            <e p="ToolsTests.cs" t="Include" />
           </e>
           <e p="Mocks" t="Include">
             <e p="StreamMock.cs" t="Include" />
@@ -1010,6 +1011,7 @@
           <e p="RouterDbExtractAreaTests.cs" t="Include" />
           <e p="RouterDbTestDbExtensions.cs" t="Include" />
           <e p="RouterDbTests.cs" t="Include" />
+          <e p="RouterDirectedTests.cs" t="Include" />
           <e p="RouterManyToManyTests.cs" t="Include" />
           <e p="RouterMock.cs" t="Include" />
           <e p="RouterPointTests.cs" t="Include" />
