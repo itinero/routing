@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Threading;
 
 namespace Itinero.Algorithms
 {
@@ -81,17 +82,25 @@ namespace Itinero.Algorithms
         /// </summary>
         public void Run()
         {
+            this.Run(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Runs the algorithm.
+        /// </summary>
+        public void Run(CancellationToken cancellationToken)
+        {
             if (this.HasRun)
             {
                 throw new Exception("Algorithm has run already, use a new instance for each run. Use HasRun to check.");
             }
-            this.DoRun();
+            this.DoRun(cancellationToken);
             this.HasRun = true;
         }
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
-        protected abstract void DoRun();
+        protected abstract void DoRun(CancellationToken cancellationToken);
     }
 }

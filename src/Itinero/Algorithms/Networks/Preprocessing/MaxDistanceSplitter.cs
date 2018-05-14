@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Edges;
 using Itinero.Graphs.Geometric.Shapes;
@@ -50,7 +51,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var edgeEnumerator = _network.GetEdgeEnumerator();
             var shape = new List<Coordinate>();
@@ -64,7 +65,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                 while (edgeEnumerator.MoveNext())
                 {
                     var data = edgeEnumerator.Data;
-                    if (data.Distance <= _maxDistance)
+                    if (data.Distance < _maxDistance)
                     { // edge is within bounds.
                         continue;
                     }
@@ -81,7 +82,6 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                     { // cannot invert data so invert the rest.
                         vertex1 = edgeEnumerator.To;
                         vertex2 = v;
-                        shape.Reverse();
                     }
 
                     // remove the duplicate.

@@ -20,6 +20,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default.EdgeBased
 {
@@ -50,7 +51,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(null, null, _weightHandler.Infinite);
             _maxForward = _weightHandler.Zero;

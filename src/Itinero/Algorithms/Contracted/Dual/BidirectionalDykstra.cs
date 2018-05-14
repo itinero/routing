@@ -22,6 +22,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted.Dual
 {
@@ -66,7 +67,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Executes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // keep settled vertices.
             _pathTree = new PathTree();

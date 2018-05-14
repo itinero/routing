@@ -16,13 +16,13 @@
  *  limitations under the License.
  */
 
-using System;
-using Itinero.Algorithms.Weights;
+ using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 using Itinero.Graphs;
 using Itinero.Algorithms.Restrictions;
 using Itinero.Data.Edges;
 using Itinero.Profiles;
+using System.Threading;
 
 namespace Itinero.Algorithms.Dual
 {
@@ -52,7 +52,7 @@ namespace Itinero.Algorithms.Dual
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             float distance;
             ushort edgeProfile;

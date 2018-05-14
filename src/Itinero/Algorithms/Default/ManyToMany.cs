@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Weights;
 using Itinero.Profiles;
 using System;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default
 {
@@ -52,14 +53,14 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // search sources.
             _sourceSearches = new OneToMany<T>[_sources.Length];
             for (var i = 0; i < _sources.Length; i++)
             {
                 _sourceSearches[i] = new OneToMany<T>(_routerDb, _weightHandler, _sources[i], _targets, _maxSearch);
-                _sourceSearches[i].Run();
+                _sourceSearches[i].Run(cancellationToken);
             }
 
             this.HasSucceeded = true;

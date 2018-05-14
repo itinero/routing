@@ -16,16 +16,16 @@
  *  limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 using Itinero.Attributes;
 using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
 using Itinero.Navigation.Instructions;
 using Itinero.Navigation.Language;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml.Serialization;
-using System.Xml;
 
 namespace Itinero
 {
@@ -33,7 +33,7 @@ namespace Itinero
     /// Contains extensions for the route object.
     /// </summary>
     public static class RouteExtensions
-    {        
+    {
         /// <summary>
         /// Concatenates two routes.
         /// </summary>
@@ -105,8 +105,8 @@ namespace Itinero
                     stops.Add(new Route.Stop()
                     {
                         Attributes = new AttributeCollection(stop.Attributes),
-                        Coordinate = stop.Coordinate,
-                        Shape = stop.Shape
+                            Coordinate = stop.Coordinate,
+                            Shape = stop.Shape
                     });
                 }
             }
@@ -129,8 +129,8 @@ namespace Itinero
                     stops.Add(new Route.Stop()
                     {
                         Attributes = new AttributeCollection(stop.Attributes),
-                        Coordinate = stop.Coordinate,
-                        Shape = stop.Shape + shapeoffset
+                            Coordinate = stop.Coordinate,
+                            Shape = stop.Shape + shapeoffset
                     });
                     stops[stops.Count - 1].Distance = stop.Distance + distanceoffset;
                     stops[stops.Count - 1].Time = stop.Time + timeoffset;
@@ -220,7 +220,7 @@ namespace Itinero
                         route.Shape[i + 1].Elevation.HasValue)
                     {
                         var diffElev = route.Shape[i + 1].Elevation.Value - route.Shape[i].Elevation.Value;
-                        elevation = (short)(route.Shape[i].Elevation.Value + diffElev * (segmentDistance / currentDistance));
+                        elevation = (short) (route.Shape[i].Elevation.Value + diffElev * (segmentDistance / currentDistance));
                         return new Coordinate(lat, lon, elevation.Value);
                     }
                     return new Coordinate(lat, lon);
@@ -298,14 +298,14 @@ namespace Itinero
             }
             var distanceToShape = 0f;
             var distanceOfSegment = 0f;
-            for(var i = segmentStart; i < segmentEnd; i++)
+            for (var i = segmentStart; i < segmentEnd; i++)
             {
                 if (i == shape)
                 {
                     distanceToShape = distanceOfSegment;
                 }
                 distanceOfSegment += Coordinate.DistanceEstimateInMeter(
-                    route.Shape[i].Latitude, route.Shape[i].Longitude, 
+                    route.Shape[i].Latitude, route.Shape[i].Longitude,
                     route.Shape[i + 1].Latitude, route.Shape[i + 1].Longitude);
             }
             var ratio = distanceToShape / distanceOfSegment;
@@ -359,7 +359,6 @@ namespace Itinero
             return;
         }
 
-
         /// <summary>
         /// Calculates the closest point on the route relative to the given coordinate.
         /// </summary>
@@ -372,7 +371,7 @@ namespace Itinero
             int shape;
             float distanceToProjectedInMeter;
             float timeToProjectedInSeconds;
-            return route.ProjectOn(coordinate, out projected, out shape, out distanceToProjectedInMeter, 
+            return route.ProjectOn(coordinate, out projected, out shape, out distanceToProjectedInMeter,
                 out timeToProjectedInSeconds);
         }
 
@@ -385,11 +384,11 @@ namespace Itinero
         /// <param name="distanceToProjectedInMeter">The distance in meter to the projected point from the start of the route.</param>
         /// <param name="timeToProjectedInSeconds">The time in seconds to the projected point from the start of the route.</param>
         /// <returns></returns>
-        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, 
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected,
             out float distanceToProjectedInMeter, out float timeToProjectedInSeconds)
         {
             int shape;
-            return route.ProjectOn(coordinate, out projected, out shape, out distanceToProjectedInMeter, 
+            return route.ProjectOn(coordinate, out projected, out shape, out distanceToProjectedInMeter,
                 out timeToProjectedInSeconds);
         }
 
@@ -418,7 +417,7 @@ namespace Itinero
         /// <param name="timeToProjectedInSeconds">The time in seconds to the projected point from the start of the route.</param>
         /// <param name="shape">The shape segment of the route the point was projected on to.</param>
         /// <returns></returns>
-        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, out int shape, 
+        public static bool ProjectOn(this Route route, Coordinate coordinate, out Coordinate projected, out int shape,
             out float distanceFromStartInMeter, out float timeFromStartInSeconds)
         {
             return route.ProjectOn(0, coordinate, out projected, out shape, out distanceFromStartInMeter, out timeFromStartInSeconds);
@@ -435,7 +434,7 @@ namespace Itinero
         /// <param name="timeToProjectedInSeconds">The time in seconds to the projected point from the start of the route.</param>
         /// <param name="shape">The shape segment of the route the point was projected on to.</param>
         /// <returns></returns>
-        public static bool ProjectOn(this Route route, int startShape, Coordinate coordinate, out Coordinate projected, out int shape, 
+        public static bool ProjectOn(this Route route, int startShape, Coordinate coordinate, out Coordinate projected, out int shape,
             out float distanceFromStartInMeter, out float timeFromStartInSeconds)
         {
             float distance = float.MaxValue;
@@ -448,7 +447,7 @@ namespace Itinero
             {
                 return false;
             }
-            
+
             Coordinate currentProjected;
             float currentDistanceFromStart = 0;
             float currentDistance;
@@ -514,7 +513,7 @@ namespace Itinero
                             segmentStartShape = route.ShapeMeta[metaIdx - 1].Shape;
                             segmentStartTime = route.ShapeMeta[metaIdx - 1].Time;
                         }
-                        
+
                         var segmentDistance = 0f;
                         var segmentDistanceOffset = 0f;
                         for (var s = startShape; s < meta.Shape; s++)
@@ -528,7 +527,7 @@ namespace Itinero
                             else if (s == shape)
                             {
                                 segmentDistanceOffset += Coordinate.DistanceEstimateInMeter(
-                                route.Shape[s], projected);
+                                    route.Shape[s], projected);
                             }
                             segmentDistance += d;
                         }
@@ -537,7 +536,7 @@ namespace Itinero
                         {
                             break;
                         }
-                        timeFromStartInSeconds = segmentStartTime + (meta.Time - 
+                        timeFromStartInSeconds = segmentStartTime + (meta.Time -
                             segmentStartTime) * (segmentDistanceOffset / segmentDistance);
                         break;
                     }
@@ -545,7 +544,7 @@ namespace Itinero
             }
             return true;
         }
-        
+
         /// <summary>
         /// Returns the turn direction for the shape point at the given index.
         /// </summary>
@@ -558,15 +557,15 @@ namespace Itinero
                 throw new ArgumentOutOfRangeException("i", "It's not possible to calculate a relative direction for the first or last segment.");
             }
 
-            var h = i - 1; 
+            var h = i - 1;
             while (h > 0 && Coordinate.DistanceEstimateInMeter(route.Shape[h].Latitude, route.Shape[h].Longitude,
-                route.Shape[i].Latitude ,route.Shape[i].Longitude) < toleranceInMeters)
+                    route.Shape[i].Latitude, route.Shape[i].Longitude) < toleranceInMeters)
             { // work backward from i to make sure we don't use an identical coordinate or one that's too close to be useful.
                 h--;
             }
-            var j = i + 1; 
+            var j = i + 1;
             while (j < route.Shape.Length - 1 && Coordinate.DistanceEstimateInMeter(route.Shape[j].Latitude, route.Shape[j].Longitude,
-                route.Shape[i].Latitude ,route.Shape[i].Longitude) < toleranceInMeters)
+                    route.Shape[i].Latitude, route.Shape[i].Longitude) < toleranceInMeters)
             { // work forward from i to make sure we don't use an identical coordinate or one that's too close to be useful.
                 j++;
             }
@@ -626,7 +625,7 @@ namespace Itinero
             {
                 jsonWriter.WritePropertyName("Shape");
                 jsonWriter.WriteArrayOpen();
-                for(var i = 0; i < route.Shape.Length; i++)
+                for (var i = 0; i < route.Shape.Length; i++)
                 {
                     jsonWriter.WriteArrayOpen();
                     jsonWriter.WriteArrayValue(route.Shape[i].Longitude.ToInvariantString());
@@ -640,7 +639,7 @@ namespace Itinero
             {
                 jsonWriter.WritePropertyName("ShapeMeta");
                 jsonWriter.WriteArrayOpen();
-                for(var i = 0; i < route.ShapeMeta.Length; i++)
+                for (var i = 0; i < route.ShapeMeta.Length; i++)
                 {
                     var meta = route.ShapeMeta[i];
 
@@ -652,7 +651,7 @@ namespace Itinero
                     {
                         jsonWriter.WritePropertyName("Attributes");
                         jsonWriter.WriteOpen();
-                        foreach(var attribute in meta.Attributes)
+                        foreach (var attribute in meta.Attributes)
                         {
                             jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                         }
@@ -756,7 +755,7 @@ namespace Itinero
             var settings = new XmlWriterSettings();
             settings.Indent = false;
             settings.NewLineHandling = NewLineHandling.None;
-            
+
             using(var xmlWriter = XmlWriter.Create(writer))
             {
                 var ser = new XmlSerializer(typeof(Route));
@@ -777,40 +776,58 @@ namespace Itinero
         /// <summary>
         /// Returns this route as geojson.
         /// </summary>
-        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static string ToGeoJson(this Route route, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
             var stringWriter = new StringWriter();
-            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops, groupByShapeMeta);
+            route.WriteGeoJson(stringWriter, includeShapeMeta, includeStops, groupByShapeMeta, attributesCallback);
             return stringWriter.ToInvariantString();
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static void WriteGeoJson(this Route route, Stream stream, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
-            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops, groupByShapeMeta);
+            route.WriteGeoJson(new StreamWriter(stream), includeShapeMeta, includeStops, groupByShapeMeta, attributesCallback);
         }
 
         /// <summary>
         /// Writes the route as geojson.
         /// </summary>
-        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true)
+        public static void WriteGeoJson(this Route route, TextWriter writer, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
 
+            var jsonWriter = new IO.Json.JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            route.WriteGeoJsonFeatures(jsonWriter, includeShapeMeta, includeStops, groupByShapeMeta, attributesCallback);
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+        }
+
+        /// <summary>
+        /// Writes the route as geojson.
+        /// </summary>
+        public static void WriteGeoJsonFeatures(this Route route, IO.Json.JsonWriter jsonWriter, bool includeShapeMeta = true, bool includeStops = true, bool groupByShapeMeta = true,
+            Action<IAttributeCollection> attributesCallback = null)
+        {
+            if (route == null) { throw new ArgumentNullException("route"); }
+            if (jsonWriter == null) { throw new ArgumentNullException("jsonWriter"); }
+
             if (groupByShapeMeta)
             { // group by shape meta.
-                var jsonWriter = new IO.Json.JsonWriter(writer);
-                jsonWriter.WriteOpen();
-                jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
-                jsonWriter.WritePropertyName("features", false);
-                jsonWriter.WriteArrayOpen();
-
                 if (route.Shape != null && route.ShapeMeta != null)
                 {
-                    for(var i = 0; i < route.ShapeMeta.Length; i++)
+                    for (var i = 0; i < route.ShapeMeta.Length; i++)
                     {
                         var shapeMeta = route.ShapeMeta[i];
                         var lowerShape = -1;
@@ -864,7 +881,13 @@ namespace Itinero
                             jsonWriter.WriteOpen();
                             if (shapeMeta.Attributes != null)
                             {
-                                foreach (var attribute in shapeMeta.Attributes)
+                                var attributes = shapeMeta.Attributes;
+                                if (attributesCallback != null)
+                                {
+                                    attributes = new AttributeCollection(attributes);
+                                    attributesCallback(attributes);
+                                }
+                                foreach (var attribute in attributes)
                                 {
                                     jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                                 }
@@ -906,7 +929,13 @@ namespace Itinero
                         jsonWriter.WriteOpen();
                         if (stop.Attributes != null)
                         {
-                            foreach (var attribute in stop.Attributes)
+                            var attributes = stop.Attributes;
+                            if (attributesCallback != null)
+                            {
+                                attributes = new AttributeCollection(attributes);
+                                attributesCallback(attributes);
+                            }
+                            foreach (var attribute in attributes)
                             {
                                 jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                             }
@@ -916,18 +945,9 @@ namespace Itinero
                         jsonWriter.WriteClose();
                     }
                 }
-
-                jsonWriter.WriteArrayClose();
-                jsonWriter.WriteClose();
             }
             else
             { // include shape meta as points if requested.
-                var jsonWriter = new IO.Json.JsonWriter(writer);
-                jsonWriter.WriteOpen();
-                jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
-                jsonWriter.WritePropertyName("features", false);
-                jsonWriter.WriteArrayOpen();
-
                 if (route.Shape != null)
                 {
                     jsonWriter.WriteOpen();
@@ -937,7 +957,6 @@ namespace Itinero
                     jsonWriter.WriteOpen();
                     jsonWriter.WriteClose();
                     jsonWriter.WritePropertyName("geometry", false);
-
 
                     jsonWriter.WriteOpen();
                     jsonWriter.WriteProperty("type", "LineString", true, false);
@@ -956,6 +975,19 @@ namespace Itinero
                     }
                     jsonWriter.WriteArrayClose();
                     jsonWriter.WriteClose();
+
+                    if (attributesCallback != null)
+                    {
+                        jsonWriter.WritePropertyName("properties");
+                        jsonWriter.WriteOpen();
+                        var attributes = new AttributeCollection();
+                        attributesCallback(attributes);
+                        foreach (var attribute in attributes)
+                        {
+                            jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                        }
+                        jsonWriter.WriteClose();
+                    }
 
                     jsonWriter.WriteClose();
                 }
@@ -990,13 +1022,21 @@ namespace Itinero
 
                         jsonWriter.WritePropertyName("properties");
                         jsonWriter.WriteOpen();
+
                         if (meta.Attributes != null)
                         {
-                            foreach (var attribute in meta.Attributes)
+                            var attributes = meta.Attributes;
+                            if (attributesCallback != null)
+                            {
+                                attributes = new AttributeCollection(attributes);
+                                attributesCallback(attributes);
+                            }
+                            foreach (var attribute in attributes)
                             {
                                 jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                             }
                         }
+
                         jsonWriter.WriteClose();
 
                         jsonWriter.WriteClose();
@@ -1033,7 +1073,13 @@ namespace Itinero
                         jsonWriter.WriteOpen();
                         if (stop.Attributes != null)
                         {
-                            foreach (var attribute in stop.Attributes)
+                            var attributes = stop.Attributes;
+                            if (attributesCallback != null)
+                            {
+                                attributes = new AttributeCollection(attributes);
+                                attributesCallback(attributes);
+                            }
+                            foreach (var attribute in attributes)
                             {
                                 jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
                             }
@@ -1043,12 +1089,9 @@ namespace Itinero
                         jsonWriter.WriteClose();
                     }
                 }
-
-                jsonWriter.WriteArrayClose();
-                jsonWriter.WriteClose();
             }
         }
-        
+
         /// <summary>
         /// Returns true if this route has multiple profiles.
         /// </summary>

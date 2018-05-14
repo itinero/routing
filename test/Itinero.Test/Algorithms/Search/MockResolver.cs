@@ -18,6 +18,7 @@
 
 using Itinero.Algorithms;
 using Itinero.Algorithms.Search;
+using System.Threading;
 
 namespace Itinero.Test.Algorithms.Search
 {
@@ -38,7 +39,7 @@ namespace Itinero.Test.Algorithms.Search
             get { return _result; }
         }
 
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             if(_result != null)
             {

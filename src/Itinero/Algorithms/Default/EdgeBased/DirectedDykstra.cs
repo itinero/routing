@@ -22,6 +22,7 @@ using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default.EdgeBased
 {
@@ -71,7 +72,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // initialize stuff.
             this.Initialize();

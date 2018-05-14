@@ -21,6 +21,7 @@ using Itinero.Data.Network;
 using System.Collections.Generic;
 using Itinero.Algorithms.Restrictions;
 using System;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -54,7 +55,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var edges = new List<RoutingEdge>();
             for (uint vertex = 0; vertex < _network.VertexCount; vertex++)

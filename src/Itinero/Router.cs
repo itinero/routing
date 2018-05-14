@@ -16,19 +16,20 @@
  *  limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using Itinero.Algorithms;
 using Itinero.Algorithms.Default;
 using Itinero.Algorithms.Routes;
 using Itinero.Algorithms.Search;
-using Itinero.Exceptions;
-using Itinero.Graphs.Geometric;
-using Itinero.Data.Network;
-using Itinero.Profiles;
-using System;
-using System.Collections.Generic;
-using Itinero.Data.Contracted;
-using Itinero.Algorithms;
 using Itinero.Algorithms.Weights;
 using Itinero.Data;
+using Itinero.Data.Contracted;
+using Itinero.Data.Network;
+using Itinero.Exceptions;
+using Itinero.Graphs.Geometric;
+using Itinero.Profiles;
 
 namespace Itinero
 {
@@ -76,7 +77,8 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<RouterPoint> TryResolve(IProfileInstance[] profileInstances, float latitude, float longitude,
-            Func<RoutingEdge, bool> isBetter, float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null)
+            Func<RoutingEdge, bool> isBetter, float maxSearchDistance, ResolveSettings settings,
+            CancellationToken cancellationToken)
         {
             if (settings == null)
             {
@@ -172,13 +174,13 @@ namespace Itinero
                     // create resolver.
                     resolver = new ResolveAlgorithm(_db.Network.GeometricGraph, latitude, longitude,
                         _db.Network.MaxEdgeDistance / 2,
-                            maxSearchDistance, isAcceptable, isBetterGeometric);
+                        maxSearchDistance, isAcceptable, isBetterGeometric);
                 }
                 else
                 { // create the custom resolver algorithm.
                     resolver = this.CreateCustomResolver(latitude, longitude, isAcceptable, isBetter);
                 }
-                resolver.Run();
+                resolver.Run(cancellationToken);
                 if (!resolver.HasSucceeded)
                 { // something went wrong.
                     return new Result<RouterPoint>(resolver.ErrorMessage, (message) =>
@@ -199,7 +201,7 @@ namespace Itinero
         /// </summary>
         /// <param name="radiusInMeter">The radius metric, that's always a distance in meters.</param>
         /// <returns></returns>
-        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward = null)
+        public sealed override Result<bool> TryCheckConnectivity(IProfileInstance profileInstance, RouterPoint point, float radiusInMeter, bool? forward, CancellationToken cancellationToken)
         {
             try
             {
@@ -220,14 +222,14 @@ namespace Itinero
                     {
                         return new Factor()
                         {
-                            Direction = factor.Direction,
-                            Value = 0
+                        Direction = factor.Direction,
+                        Value = 0
                         };
                     }
                     return new Factor()
                     {
                         Direction = factor.Direction,
-                        Value = 1
+                            Value = 1
                     };
                 };
                 var weightHandler = new DefaultWeightHandler(getShortestFactor);
@@ -237,9 +239,9 @@ namespace Itinero
 
                 if (checkForward)
                 { // build and run forward dykstra search.
-                    var dykstra = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                    var dykstra = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler,
                         _db.GetGetRestrictions(profileInstance.Profile, true), point.ToEdgePaths(_db, weightHandler, true), radiusInMeter, false);
-                    dykstra.Run();
+                    dykstra.Run(cancellationToken);
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
                     { // something went wrong or max not reached.
@@ -249,9 +251,9 @@ namespace Itinero
 
                 if (checkBackward)
                 { // build and run backward dykstra search.
-                    var dykstra = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler, 
+                    var dykstra = new Algorithms.Default.EdgeBased.Dykstra(_db.Network.GeometricGraph.Graph, weightHandler,
                         _db.GetGetRestrictions(profileInstance.Profile, false), point.ToEdgePaths(_db, weightHandler, false), radiusInMeter, true);
-                    dykstra.Run();
+                    dykstra.Run(cancellationToken);
                     if (!dykstra.HasSucceeded ||
                         !dykstra.MaxReached)
                     { // something went wrong or max not reached.
@@ -271,7 +273,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target,
-            RoutingSettings<T> settings)
+            RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -318,14 +320,14 @@ namespace Itinero
                 }
 
                 if (useContracted)
-                {  // use the contracted graph.
+                { // use the contracted graph.
                     List<uint> vertexPath = null;
 
                     if (contracted.HasEdgeBasedGraph)
                     { // use edge-based routing.
                         var bidirectionalSearch = new Itinero.Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
                             source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false), _db.GetGetRestrictions(profileInstance.Profile, null));
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
                         if (!bidirectionalSearch.HasSucceeded)
                         {
                             if (path == null)
@@ -342,7 +344,7 @@ namespace Itinero
                         }
                     }
                     else if (contracted.NodeBasedIsEdgedBased)
-                    {// use vertex-based graph for edge-based routing.
+                    { // use vertex-based graph for edge-based routing.
                         var sourceDirectedId1 = new DirectedEdgeId(source.EdgeId, true);
                         var sourceDirectedId2 = new DirectedEdgeId(source.EdgeId, false);
                         var targetDirectedId1 = new DirectedEdgeId(target.EdgeId, true);
@@ -351,7 +353,7 @@ namespace Itinero
                         var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, null, weightHandler,
                             new EdgePath<T>[] { new EdgePath<T>(sourceDirectedId1.Raw), new EdgePath<T>(sourceDirectedId2.Raw) },
                             new EdgePath<T>[] { new EdgePath<T>(targetDirectedId1.Raw), new EdgePath<T>(targetDirectedId2.Raw) });
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
 
                         if (bidirectionalSearch.HasSucceeded)
                         {
@@ -365,14 +367,14 @@ namespace Itinero
                             {
                                 var e = new DirectedEdgeId()
                                 {
-                                    Raw = directedEdgePath[i]
+                                Raw = directedEdgePath[i]
                                 };
 
                                 enumerator.MoveToEdge(e.EdgeId);
                                 var original = new OriginalEdge(enumerator.From, enumerator.To);
                                 if (!e.Forward)
                                 {
-                                    original = original.Reverse();
+                                original = original.Reverse();
                                 }
                                 edge.Add(original);
                                 if (vertexPath.Count == 0)
@@ -385,7 +387,7 @@ namespace Itinero
                             vertexPath[0] = Constants.NO_VERTEX;
                             vertexPath[vertexPath.Count - 1] = Constants.NO_VERTEX;
                         }
-                        else if(path == null)
+                        else if (path == null)
                         {
                             return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
                             {
@@ -394,10 +396,10 @@ namespace Itinero
                         }
                     }
                     else
-                    {  // use node-based routing.
+                    { // use node-based routing.
                         var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, _db.GetRestrictions(profileInstance.Profile), weightHandler,
                             source.ToEdgePaths(_db, weightHandler, true), target.ToEdgePaths(_db, weightHandler, false));
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
                         if (!bidirectionalSearch.HasSucceeded)
                         {
                             if (path == null)
@@ -437,7 +439,7 @@ namespace Itinero
                             _db.GetGetRestrictions(profileInstance.Profile, false), target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                         var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
                         if (!bidirectionalSearch.HasSucceeded)
                         {
                             if (path == null)
@@ -457,11 +459,11 @@ namespace Itinero
                     {
                         var sourceSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, _db.GetGetSimpleRestrictions(profileInstance.Profile), weightHandler,
                             source.ToEdgePaths(_db, weightHandler, true), maxSearch, false);
-                        var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, _db.GetGetSimpleRestrictions(profileInstance.Profile) , weightHandler,
+                        var targetSearch = new Dykstra<T>(_db.Network.GeometricGraph.Graph, _db.GetGetSimpleRestrictions(profileInstance.Profile), weightHandler,
                             target.ToEdgePaths(_db, weightHandler, false), maxSearch, true);
 
                         var bidirectionalSearch = new BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
                         if (!bidirectionalSearch.HasSucceeded)
                         {
                             if (path == null)
@@ -501,7 +503,7 @@ namespace Itinero
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, long sourceDirectedEdge, 
-            long targetDirectedEdge, RoutingSettings<T> settings)
+            long targetDirectedEdge, RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -566,7 +568,7 @@ namespace Itinero
                 }
 
                 if (useContracted)
-                {  // use the contracted graph.
+                { // use the contracted graph.
                     path = null;
 
                     List<uint> vertexPath = null;
@@ -575,7 +577,7 @@ namespace Itinero
                     { // use edge-based routing.
                         var bidirectionalSearch = new Algorithms.Contracted.EdgeBased.BidirectionalDykstra<T>(contracted.EdgeBasedGraph, weightHandler,
                             new EdgePath<T>[] { sourcePath }, new EdgePath<T>[] { targetPath }, _db.GetGetRestrictions(profileInstance.Profile, null));
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
                         if (!bidirectionalSearch.HasSucceeded)
                         {
                             return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
@@ -594,7 +596,7 @@ namespace Itinero
                         var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, null, weightHandler,
                             new EdgePath<T>[] { new EdgePath<T>(sourceDirectedId.Raw) },
                             new EdgePath<T>[] { new EdgePath<T>(targetDirectedId.Raw) });
-                        bidirectionalSearch.Run();
+                        bidirectionalSearch.Run(cancellationToken);
 
                         if (!bidirectionalSearch.HasSucceeded)
                         {
@@ -613,14 +615,14 @@ namespace Itinero
                         {
                             var e = new DirectedEdgeId()
                             {
-                                Raw = directedEdgePath[i]
+                            Raw = directedEdgePath[i]
                             };
 
                             enumerator.MoveToEdge(e.EdgeId);
                             var original = new OriginalEdge(enumerator.From, enumerator.To);
                             if (!e.Forward)
                             {
-                                original = original.Reverse();
+                            original = original.Reverse();
                             }
                             if (vertexPath.Count == 0)
                             {
@@ -647,7 +649,7 @@ namespace Itinero
                         _db.GetGetRestrictions(profileInstance.Profile, false), new EdgePath<T>[] { targetPath }, maxSearch, true);
 
                     var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
-                    bidirectionalSearch.Run();
+                    bidirectionalSearch.Run(cancellationToken);
                     if (!bidirectionalSearch.HasSucceeded)
                     {
                         return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
@@ -667,11 +669,272 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Calculates a route between the two directed edges. The route starts in the direction of the edge and ends with an arrive in the direction of the target edge.
+        /// </summary>
+        /// <returns></returns>
+        public sealed override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool? sourceForward,
+            RouterPoint target, bool? targetForward, RoutingSettings<T> settings, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (!_db.Supports(profileInstance.Profile))
+                { // profile is not supported.
+                    return new Result<EdgePath<T>>("Routing profile is not supported.", (message) =>
+                    {
+                        return new Exception(message);
+                    });
+                }
+
+                var maxSearch = weightHandler.Infinite;
+                if (settings != null)
+                { // create default settings.
+                    if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
+                    {
+                        maxSearch = weightHandler.Infinite;
+                    }
+                }
+
+                if (sourceForward.HasValue && sourceForward.Value)
+                { // check source and it's associated direction for validity
+                    var sourceDirectedEdge = new DirectedEdgeId(source.EdgeId, sourceForward.Value);
+                    var sourcePath = _db.GetPathForEdge(weightHandler, sourceDirectedEdge, true);
+                    if (sourcePath == null)
+                    { // cannot be routed in the requested direction, 
+                        if (settings.DirectionAbsolute)
+                        {
+                            return new Result<EdgePath<T>>("Source edge cannot be routed along in the requested direction.");
+                        }
+
+                        // reset the direction, and try both.
+                        sourceForward = null;
+                    }
+                }
+                if (targetForward.HasValue && targetForward.Value)
+                {
+                    var targetDirectedEdge = new DirectedEdgeId(target.EdgeId, targetForward.Value);
+                    var targetPath = _db.GetPathForEdge(weightHandler, targetDirectedEdge, false);
+                    if (targetPath == null)
+                    { // cannot be routed in the requested direction, 
+                        if (settings.DirectionAbsolute)
+                        {
+                            return new Result<EdgePath<T>>("Target edge cannot be routed along in the requested direction.");
+                        }
+
+                        // reset the direction, and try both.
+                        targetForward = null;
+                    }
+                }
+
+                if (!sourceForward.HasValue && !targetForward.HasValue)
+                { // no direction information is relevation, use default routing implementation.
+                    return this.TryCalculateRaw(profileInstance, weightHandler, source, target, settings, cancellationToken);
+                }
+
+                // get an appropriate contracted db if possible.
+                ContractedDb contracted;
+                bool useContracted = false;
+                if (_db.TryGetContracted(profileInstance.Profile, out contracted))
+                { // contracted calculation.
+                    useContracted = true;
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) &&
+                        (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
+                    { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
+                        Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                            "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
+                        useContracted = false;
+                    }
+                    if (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased)
+                    {
+                        Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                            "There is a vertex-based contracted graph but it cannot be used to calculate routes with a start and end edge in a specific direction.");
+                        useContracted = false;
+                    }
+                }
+
+                EdgePath<T> path = null;
+                if (source.EdgeId == target.EdgeId)
+                { // check for a path on the same edge.
+                    var edgePath = source.EdgePathTo(_db, weightHandler, sourceForward, target, targetForward);
+                    if (edgePath != null)
+                    {
+                        path = edgePath;
+                    }
+                }
+
+                if (useContracted)
+                { // use the contracted graph.
+                    List<uint> vertexPath = null;
+
+                    if (contracted.HasEdgeBasedGraph)
+                    { // use edge-based routing.
+                        throw new NotImplementedException("An edge-based contracted graph is not supported anymore, recontract the routerdb.");
+                    }
+                    else if (contracted.NodeBasedIsEdgedBased)
+                    { // use vertex-based graph for edge-based routing.
+                        var sourceDirectedId1 = new DirectedEdgeId(source.EdgeId, true);
+                        var sourceDirectedId2 = new DirectedEdgeId(source.EdgeId, false);
+                        var targetDirectedId1 = new DirectedEdgeId(target.EdgeId, true);
+                        var targetDirectedId2 = new DirectedEdgeId(target.EdgeId, false);
+
+                        var sourcePaths = new EdgePath<T>[]
+                        {
+                            new EdgePath<T>(sourceDirectedId1.Raw),
+                            new EdgePath<T>(sourceDirectedId2.Raw)
+                        };
+                        if (sourceForward != null)
+                        {
+                            if (sourceForward.Value)
+                            {
+                                sourcePaths = new EdgePath<T>[]
+                                {
+                                    sourcePaths[0]
+                                };
+                            }
+                            else
+                            {
+                                sourcePaths = new EdgePath<T>[]
+                                {
+                                    sourcePaths[1]
+                                };
+                            }
+                        }
+                        var targetPaths = new EdgePath<T>[]
+                        {
+                            new EdgePath<T>(targetDirectedId1.Raw),
+                            new EdgePath<T>(targetDirectedId2.Raw)
+                        };
+                        if (targetForward != null)
+                        {
+                            if (targetForward.Value)
+                            {
+                                targetPaths = new EdgePath<T>[]
+                                {
+                                    targetPaths[0]
+                                };
+                            }
+                            else
+                            {
+                                targetPaths = new EdgePath<T>[]
+                                {
+                                    targetPaths[1]
+                                };
+                            }
+                        }
+
+                        var bidirectionalSearch = new Itinero.Algorithms.Contracted.BidirectionalDykstra<T>(contracted.NodeBasedGraph, null, weightHandler,
+                            sourcePaths, targetPaths);
+                        bidirectionalSearch.Run(cancellationToken);
+                        if (bidirectionalSearch.HasSucceeded)
+                        {
+                            var directedEdgePath = Algorithms.Dual.BidirectionalDykstraExtensions.GetDualPath(bidirectionalSearch);
+
+                            // convert directed edge-path to an original vertex path.
+                            var enumerator = _db.Network.GetEdgeEnumerator();
+                            vertexPath = new List<uint>();
+                            var edge = new List<OriginalEdge>();
+                            for (var i = 0; i < directedEdgePath.Count; i++)
+                            {
+                                var e = new DirectedEdgeId()
+                                {
+                                Raw = directedEdgePath[i]
+                                };
+
+                                enumerator.MoveToEdge(e.EdgeId);
+                                var original = new OriginalEdge(enumerator.From, enumerator.To);
+                                if (!e.Forward)
+                                {
+                                original = original.Reverse();
+                                }
+                                edge.Add(original);
+                                if (vertexPath.Count == 0)
+                                {
+                                    vertexPath.Add(original.Vertex1);
+                                }
+                                vertexPath.Add(original.Vertex2);
+                            }
+
+                            vertexPath[0] = Constants.NO_VERTEX;
+                            vertexPath[vertexPath.Count - 1] = Constants.NO_VERTEX;
+                        }
+                        else if (path == null)
+                        {
+                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Cannot use vertex-based contracted graph for edge-based calculations.");
+                    }
+
+                    // expand vertex path using the regular graph.
+                    if (vertexPath != null)
+                    {
+                        var localPath = _db.BuildEdgePath(weightHandler, source, target, vertexPath);
+                        if (path == null ||
+                            weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
+                        {
+                            path = localPath;
+                        }
+                    }
+                }
+                else
+                { // use the regular graph.
+                    EdgePath<T> localPath = null;
+
+                    if (targetForward.HasValue)
+                    { // the dykstra calculate expects this flag the other way around.
+                        targetForward = !targetForward.Value;
+                    }
+
+                    var sourceSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
+                        _db.GetGetRestrictions(profileInstance.Profile, true), source.ToEdgePaths(_db, weightHandler, true, sourceForward), maxSearch, false);
+                    var targetSearch = new Algorithms.Default.EdgeBased.Dykstra<T>(_db.Network.GeometricGraph.Graph, weightHandler,
+                        _db.GetGetRestrictions(profileInstance.Profile, false), target.ToEdgePaths(_db, weightHandler, false, targetForward), maxSearch, true);
+
+                    var bidirectionalSearch = new Algorithms.Default.EdgeBased.BidirectionalDykstra<T>(sourceSearch, targetSearch, weightHandler);
+                    bidirectionalSearch.Run(cancellationToken);
+                    if (!bidirectionalSearch.HasSucceeded)
+                    {
+                        if (path == null)
+                        {
+                            return new Result<EdgePath<T>>(bidirectionalSearch.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        localPath = bidirectionalSearch.GetPath();
+                    }
+
+                    // choose best path.
+                    if (localPath != null)
+                    {
+                        if (path == null ||
+                            weightHandler.IsSmallerThan(localPath.Weight, path.Weight))
+                        {
+                            path = localPath;
+                        }
+                    }
+                }
+                return new Result<EdgePath<T>>(path);
+            }
+            catch (Exception ex)
+            {
+                return new Result<EdgePath<T>>(ex.Message, (m) => ex);
+            }
+        }
+
+        /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public sealed override Result<EdgePath<T>[][]> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            RoutingSettings<T> settings)
+            RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -721,7 +984,7 @@ namespace Itinero
                     { // use edge-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
                             return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
@@ -747,7 +1010,7 @@ namespace Itinero
                         var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexAlgorithm<T>(contracted.NodeBasedGraph, weightHandler,
                             Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(sources, _db, weightHandler, true),
                             Itinero.Algorithms.Contracted.Dual.RouterPointExtensions.ToDualDykstraSources(targets, _db, weightHandler, false), maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
 
                         if (!algorithm.HasSucceeded)
                         {
@@ -777,7 +1040,7 @@ namespace Itinero
                     { // use node-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
                             return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
@@ -803,7 +1066,7 @@ namespace Itinero
                 {
                     // use non-contracted calculation.
                     var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
-                    algorithm.Run();
+                    algorithm.Run(cancellationToken);
                     if (!algorithm.HasSucceeded)
                     {
                         return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
@@ -829,14 +1092,14 @@ namespace Itinero
             {
                 return new Result<EdgePath<T>[][]>(ex.Message, (m) => ex);
             }
-}
+        }
 
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
         public sealed override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
-            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
             {
@@ -864,7 +1127,7 @@ namespace Itinero
                 if (_db.TryGetContracted(profileInstance.Profile, out contracted))
                 { // contracted calculation.
                     useContracted = true;
-                    if (_db.HasComplexRestrictions(profileInstance.Profile) && 
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) &&
                         (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
                     { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
                         Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
@@ -886,7 +1149,7 @@ namespace Itinero
                     { // use edge-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
                             return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
@@ -900,13 +1163,13 @@ namespace Itinero
                         contracted.NodeBasedIsEdgedBased)
                     { // use vertex-based graph for edge-based routing.
                         weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted, _db, profileInstance.Profile,
-                            weightHandler, sources, targets, maxSearch).Value;
+                            weightHandler, sources, targets, maxSearch, cancellationToken).Value;
                     }
                     else
                     { // use node-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
                             return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
@@ -922,7 +1185,7 @@ namespace Itinero
                     if (_db.HasComplexRestrictions(profileInstance.Profile))
                     {
                         var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profileInstance.Profile, true), sources, targets, maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
                             return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
@@ -935,7 +1198,7 @@ namespace Itinero
                     else
                     {
                         var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
-                        algorithm.Run();
+                        algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
                             return new Result<T[][]>(algorithm.ErrorMessage, (message) =>
@@ -984,7 +1247,7 @@ namespace Itinero
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public override sealed Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
+        public override sealed Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
         {
             try
             {
@@ -994,7 +1257,7 @@ namespace Itinero
                 }
 
                 // use the default.
-                return CompleteRouteBuilder.TryBuild(_db, profileInstance.Profile, source, target, path);
+                return CompleteRouteBuilder.TryBuild(_db, profileInstance.Profile, source, target, path, cancellationToken);
             }
             catch (Exception ex)
             {

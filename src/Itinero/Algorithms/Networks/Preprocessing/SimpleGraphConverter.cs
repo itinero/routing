@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Edges;
 using Itinero.Graphs.Geometric.Shapes;
@@ -50,7 +51,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
         /// <summary>
         /// Excutes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var edgeEnumerator = _network.GetEdgeEnumerator();
             var neighbours = new HashSet<uint>();
@@ -84,7 +85,6 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                         { // cannot invert data so invert the rest.
                             vertex1 = edgeEnumerator.To;
                             vertex2 = v;
-                            shape.Reverse();
                         }
                         
                         // remove the duplicate.
@@ -143,6 +143,11 @@ namespace Itinero.Algorithms.Networks.Preprocessing
 
             var distance = Coordinate.DistanceEstimateInMeter(_network.GetVertex(vertex1), 
                 shape[0]);
+            if (distance > _network.MaxEdgeDistance)
+            {
+                throw new Exception(string.Format("Edge deteted that's too long in: {0}->{1}",
+                        vertex1, newVertex));
+            }
             var newEdgeId = _network.AddEdge(vertex1, newVertex, new EdgeData()
             {
                 Profile = data.Profile,
@@ -152,11 +157,17 @@ namespace Itinero.Algorithms.Networks.Preprocessing
             _edgeSplit(originalEdgeId, newEdgeId);
             shape.RemoveAt(0);
 
+            distance = System.Math.Max(data.Distance - distance, 0);
+            if (distance > _network.MaxEdgeDistance)
+            {
+                throw new Exception(string.Format("Edge deteted that's too long in: {0}->{1}",
+                        newVertex, vertex2));
+            }
             newEdgeId = _network.AddEdge(newVertex, vertex2, new EdgeData()
             {
                 Profile = data.Profile,
                 MetaId = data.MetaId,
-                Distance = System.Math.Max(data.Distance - distance, 0)
+                Distance = distance
             }, shape);
             _edgeSplit(originalEdgeId, newEdgeId);
         }
