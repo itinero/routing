@@ -121,7 +121,7 @@ namespace Itinero.LocalGeo
         /// 
         /// Returns null if the lines have the same direction or don't intersect.
         /// 
-        /// Assumes the given line is not a segement and this line is a segment.
+        /// Assumes the given line is not a segment and this line is a segment.
         /// </summary>
         public Coordinate? Intersect(Line line)
         {

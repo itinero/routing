@@ -472,7 +472,7 @@ namespace Itinero.LocalGeo
             var line = new Line(new Coordinate(latitude1, longitude1), new Coordinate(latitude2, longitude2));
 
             // REMARK: yes, this can be way way faster but it's only used in preprocessing.
-            // use a real geo library like NTS if you an this faster or submit a pull request.
+            // use a real geo library like NTS if you want this faster or submit a pull request.
             var sortedList = new SortedList<float, Coordinate>();
             var intersections = polygon.ExteriorRing.IntersectInternal(line);
             foreach (var intersection in intersections)
@@ -484,7 +484,7 @@ namespace Itinero.LocalGeo
             {
                 foreach (var innerRing in polygon.InteriorRings)
                 {
-                    intersections = polygon.ExteriorRing.IntersectInternal(line);
+                    intersections = innerRing.IntersectInternal(line);
                     foreach (var intersection in intersections)
                     {
                         sortedList.Add(intersection.Key, intersection.Value);
@@ -545,7 +545,12 @@ namespace Itinero.LocalGeo
                 if (projected != null)
                 {
                     var dist = Coordinate.DistanceEstimateInMeter(projected.Value, line.Coordinate1);
-                    intersections.Add(new KeyValuePair<float, Coordinate>(dist, projected.Value));
+                    var dist2 = Coordinate.DistanceEstimateInMeter(projected.Value, line.Coordinate2);
+                    if (dist < lineLength &&
+                        dist2 < lineLength)
+                    {
+                        intersections.Add(new KeyValuePair<float, Coordinate>(dist, projected.Value));
+                    }
                 }
 
                 projected = line.ProjectOn(ring[s]);

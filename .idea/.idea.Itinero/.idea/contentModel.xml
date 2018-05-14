@@ -1,0 +1,1113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="$USER_HOME$/.Rider2018.1/system/resharper-host/local/Transient/ReSharperHost/v12/SolutionCaches/_Itinero.1256277549.00" t="ExcludeRecursive" />
+    <e p="$USER_HOME$/.nuget/packages/microsoft.diasymreader.native/1.4.0-rc2/runtimes/win/native/Microsoft.DiaSymReader.Native.amd64.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/microsoft.diasymreader.native/1.4.0-rc2/runtimes/win/native/Microsoft.DiaSymReader.Native.x86.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/nunit3testadapter/3.9.0/build/netcoreapp1.0/Mono.Cecil.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/nunit3testadapter/3.9.0/build/netcoreapp1.0/NUnit3.TestAdapter.dll" t="Include" />
+    <e p="$USER_HOME$/.nuget/packages/nunit3testadapter/3.9.0/build/netcoreapp1.0/nunit.engine.netstandard.dll" t="Include" />
+    <e p="$PROJECT_DIR$" t="IncludeFlat">
+      <e p=".gitignore" t="Include" />
+      <e p="CONTRIBUTING.md" t="Include" />
+      <e p="Itinero.sln" t="IncludeFlat" />
+      <e p="LICENSE.md" t="Include" />
+      <e p="NOTICE.md" t="Include" />
+      <e p="README.md" t="Include" />
+      <e p="SharedAssemblyVersion.cs" t="Include" />
+      <e p="Solution Items" t="Include" />
+      <e p="docs/releasenotes/itinero-1.1.0.md" t="Include" />
+      <e p="docs/releasenotes/itinero-1.1.1.md" t="Include" />
+      <e p="docs/releasenotes/itinero-1.2.0.md" t="Include" />
+      <e p="docs/releasenotes/itinero-1.3.0.md" t="Include" />
+      <e p="docs/releasenotes/itinero-1.3.1.md" t="Include" />
+      <e p="docs/releasenotes/itinero-1.3.2.md" t="Include" />
+      <e p="nuspec" t="Include">
+        <e p="Itinero.IO.Osm.nuspec" t="Include" />
+        <e p="Itinero.nuspec" t="Include" />
+      </e>
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="releasenotes" t="Include" />
+      <e p="samples" t="Include">
+        <e p="Sample.Basic" t="IncludeRecursive">
+          <e p="Download.cs" t="Include" />
+          <e p="Program.cs" t="Include" />
+          <e p="Sample.Basic.csproj" t="IncludeRecursive" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp2.0" t="Include">
+                <e p="Sample.Basic.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="Sample.Elevation" t="IncludeRecursive">
+          <e p="Download.cs" t="Include" />
+          <e p="Program.cs" t="Include" />
+          <e p="Sample.Elevation.csproj" t="IncludeRecursive" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp2.0" t="Include">
+                <e p="Sample.Elevation.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="Sample.Matrix" t="IncludeRecursive">
+          <e p="Download.cs" t="Include" />
+          <e p="Program.cs" t="Include" />
+          <e p="Sample.Matrix.csproj" t="IncludeRecursive" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp2.0" t="Include">
+                <e p="Sample.Matrix.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="src" t="Include">
+        <e p="Itinero" t="IncludeRecursive">
+          <e p="Algorithms" t="Include">
+            <e p="AlgorithmBase.cs" t="Include" />
+            <e p="Collections" t="Include">
+              <e p="BinaryHeap.cs" t="Include" />
+              <e p="BitArray32.cs" t="Include" />
+              <e p="HugeDictionary.cs" t="Include" />
+              <e p="PathTree.cs" t="Include" />
+              <e p="SortedSet.cs" t="Include" />
+              <e p="SparseBitArray32.cs" t="Include" />
+              <e p="SparseLongIndex.cs" t="Include" />
+              <e p="Stack.cs" t="Include" />
+            </e>
+            <e p="Contracted" t="Include">
+              <e p="BidirectionalDykstra.cs" t="Include" />
+              <e p="BidirectionalDykstraExtensions.cs" t="Include" />
+              <e p="DirectedGraphBuilder.cs" t="Include" />
+              <e p="DirectedMetaGraphExtensions.cs" t="Include" />
+              <e p="Dual" t="Include">
+                <e p="BidirectionalDykstra.cs" t="Include" />
+                <e p="Dykstra.cs" t="Include" />
+                <e p="DykstraSource.cs" t="Include" />
+                <e p="EdgeDifferencePriorityCalculator.cs" t="Include" />
+                <e p="HierarchyBuilder.cs" t="Include" />
+                <e p="IPriorityCalculator.cs" t="Include" />
+                <e p="ManyToMany" t="Include">
+                  <e p="VertexToVertexAlgorithm.cs" t="Include" />
+                  <e p="VertexToVertexWeightAlgorithm.cs" t="Include" />
+                </e>
+                <e p="RouterExtensions.cs" t="Include" />
+                <e p="RouterPointExtensions.cs" t="Include" />
+                <e p="VertexToVertexAlgorithm.cs" t="Include" />
+                <e p="Witness" t="Include">
+                  <e p="DykstraWitnessCalculator.cs" t="Include" />
+                  <e p="PathTreeExtensions.cs" t="Include" />
+                  <e p="Shortcut.cs" t="Include" />
+                  <e p="Shortcuts.cs" t="Include" />
+                  <e p="ShortcutsExtensions.cs" t="Include" />
+                  <e p="VertexInfo.cs" t="Include" />
+                  <e p="VertexInfoExtensions.cs" t="Include" />
+                </e>
+              </e>
+              <e p="Dykstra.cs" t="Include" />
+              <e p="EdgeBased" t="Include">
+                <e p="BidirectionalDykstra.cs" t="Include" />
+                <e p="DirectedDynamicGraphExtensions.cs" t="Include" />
+                <e p="DirectedGraphBuilder.cs" t="Include" />
+                <e p="Dykstra.cs" t="Include" />
+                <e p="EdgeDifferencePriorityCalculator.cs" t="Include" />
+                <e p="EdgePathExtensions.cs" t="Include" />
+                <e p="HierarchyBuilder.cs" t="Include" />
+                <e p="IPriorityCalculator.cs" t="Include" />
+                <e p="ManyToManyBidirectionalDykstra.cs" t="Include" />
+                <e p="ManyToManyWeightsBidirectionalDykstra.cs" t="Include" />
+                <e p="Witness" t="Include">
+                  <e p="DykstraWitnessCalculator.cs" t="Include" />
+                  <e p="IWitnessCalculator.cs" t="Include" />
+                </e>
+              </e>
+              <e p="EdgeDifferencePriorityCalculator.cs" t="Include" />
+              <e p="HierarchyBuilder.cs" t="Include" />
+              <e p="IPriorityCalculator.cs" t="Include" />
+              <e p="ManyToManyBidirectionalDykstra.cs" t="Include" />
+              <e p="ManyToManyWeightsBidirectionalDykstra.cs" t="Include" />
+              <e p="Witness" t="Include">
+                <e p="DykstraWitnessCalculator.cs" t="Include" />
+                <e p="IWitnessCalculator.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Default" t="Include">
+              <e p="BidirectionalDykstra.cs" t="Include" />
+              <e p="Dykstra.cs" t="Include" />
+              <e p="EdgeBased" t="Include">
+                <e p="BidirectionalDykstra.cs" t="Include" />
+                <e p="DirectedDykstra.cs" t="Include" />
+                <e p="DirectedDykstraSource.cs" t="Include" />
+                <e p="DirectedManyToMany.cs" t="Include" />
+                <e p="DirectedManyToManyWeights.cs" t="Include" />
+                <e p="DirectedOneToMany.cs" t="Include" />
+                <e p="DirectedOneToManyWeights.cs" t="Include" />
+                <e p="Dykstra.cs" t="Include" />
+                <e p="ManyToMany.cs" t="Include" />
+                <e p="OneToMany.cs" t="Include" />
+                <e p="RouterPointExtensions.cs" t="Include" />
+              </e>
+              <e p="ManyToMany.cs" t="Include" />
+              <e p="OneToMany.cs" t="Include" />
+            </e>
+            <e p="DirectedEdgeId.cs" t="Include" />
+            <e p="DirectedEdgeIdExtensions.cs" t="Include" />
+            <e p="Dual" t="Include">
+              <e p="BidirectionalDykstraExtensions.cs" t="Include" />
+              <e p="DualGraphBuilder.cs" t="Include" />
+            </e>
+            <e p="EdgePath.cs" t="Include" />
+            <e p="EdgePathExtensions.cs" t="Include" />
+            <e p="Extensions.cs" t="Include" />
+            <e p="IAlgorithm.cs" t="Include" />
+            <e p="Matrices" t="Include">
+              <e p="DirectedWeightMatrixAlgorithm.cs" t="Include" />
+              <e p="Extensions.cs" t="Include" />
+              <e p="IDirectedWeightMatrixAlgorithm.cs" t="Include" />
+              <e p="IWeightMatrixAlgorithm.cs" t="Include" />
+              <e p="RouterPointError.cs" t="Include" />
+              <e p="RouterPointErrorCode.cs" t="Include" />
+              <e p="WeightMatrixAlgorithm.cs" t="Include" />
+            </e>
+            <e p="Networks" t="Include">
+              <e p="Analytics" t="Include">
+                <e p="Heatmaps" t="Include">
+                  <e p="HeatmapResult.cs" t="Include" />
+                  <e p="RouterExtensions.cs" t="Include" />
+                  <e p="TileBasedHeatmapBuilder.cs" t="Include" />
+                </e>
+                <e p="IEdgeVisitor.cs" t="Include" />
+                <e p="Isochrones" t="Include">
+                  <e p="RouterExtensions.cs" t="Include" />
+                  <e p="TileBasedIsochroneBuilder.cs" t="Include" />
+                  <e p="TilesToPolygon.cs" t="Include" />
+                </e>
+                <e p="Trees" t="Include">
+                  <e p="Models" t="Include">
+                    <e p="Tree.cs" t="Include" />
+                    <e p="TreeEdge.cs" t="Include" />
+                  </e>
+                  <e p="RouterExtension.cs" t="Include" />
+                  <e p="TreeBuilder.cs" t="Include" />
+                </e>
+              </e>
+              <e p="Islands" t="Include">
+                <e p="IslandDetector.cs" t="Include" />
+              </e>
+              <e p="NetworkOptimizer.cs" t="Include" />
+              <e p="Preprocessing" t="Include">
+                <e p="Areas" t="Include">
+                  <e p="AreaMetaDataHandler.cs" t="Include" />
+                  <e p="IArea.cs" t="Include" />
+                  <e p="PolygonArea.cs" t="Include" />
+                </e>
+                <e p="MaxDistanceSplitter.cs" t="Include" />
+                <e p="SimpleGraphConverter.cs" t="Include" />
+              </e>
+              <e p="RouterDbExtensions.cs" t="Include" />
+              <e p="RouterPointEmbedder.cs" t="Include" />
+              <e p="ZeroLengthLinksOptimizer.cs" t="Include" />
+            </e>
+            <e p="OriginalEdge.cs" t="Include" />
+            <e p="Restrictions" t="Include">
+              <e p="Restriction.cs" t="Include" />
+              <e p="RestrictionCollection.cs" t="Include" />
+              <e p="RestrictionExtensions.cs" t="Include" />
+            </e>
+            <e p="Routes" t="Include">
+              <e p="CompleteRouteBuilder.cs" t="Include" />
+              <e p="FastRouteBuilder.cs" t="Include" />
+              <e p="IRouteBuilder.cs" t="Include" />
+              <e p="RouteBuilderExtensions.cs" t="Include" />
+              <e p="RouteSegmentAggregator.cs" t="Include" />
+            </e>
+            <e p="Search" t="Include">
+              <e p="Hilbert" t="Include">
+                <e p="HilbertCurve.cs" t="Include" />
+                <e p="HilbertExtensions.cs" t="Include" />
+              </e>
+              <e p="IMassResolvingAlgorithm.cs" t="Include" />
+              <e p="IResolveExtensions.cs" t="Include" />
+              <e p="IResolver.cs" t="Include" />
+              <e p="MassResolvingAlgorithm.cs" t="Include" />
+              <e p="PathSegment.cs" t="Include" />
+              <e p="ResolveAlgorithm.cs" t="Include" />
+              <e p="ResolveMultipleAlgorithm.cs" t="Include" />
+              <e p="ResolveSettings.cs" t="Include" />
+              <e p="ResolveVertexAlgorithm.cs" t="Include" />
+            </e>
+            <e p="Shortcuts" t="Include">
+              <e p="RouterDbExtensions.cs" t="Include" />
+              <e p="ShortcutBuilder.cs" t="Include" />
+              <e p="ShortcutExtensions.cs" t="Include" />
+              <e p="ShortcutSpecs.cs" t="Include" />
+            </e>
+            <e p="Sorting" t="Include">
+              <e p="QuickSort.cs" t="Include" />
+            </e>
+            <e p="Tiles" t="Include">
+              <e p="RoutingTile.cs" t="Include" />
+              <e p="TileHelper.cs" t="Include" />
+              <e p="TileIndex.cs" t="Include" />
+              <e p="TileRange.cs" t="Include" />
+            </e>
+            <e p="Turn.cs" t="Include" />
+            <e p="Weights" t="Include">
+              <e p="DefaultWeightHandler.cs" t="Include" />
+              <e p="Dir.cs" t="Include" />
+              <e p="Extensions.cs" t="Include" />
+              <e p="VertexAndWeight.cs" t="Include" />
+              <e p="Weight.cs" t="Include" />
+              <e p="WeightAndDir.cs" t="Include" />
+              <e p="WeightHandler.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Attributes" t="Include">
+            <e p="Attribute.cs" t="Include" />
+            <e p="AttributeCollection.cs" t="Include" />
+            <e p="AttributesIndex.cs" t="Include" />
+            <e p="AttributesIndexExtensions.cs" t="Include" />
+            <e p="IAttributeCollection.cs" t="Include" />
+            <e p="IAttributeCollectionExtension.cs" t="Include" />
+            <e p="IReadonlyAttributeCollection.cs" t="Include" />
+            <e p="MappedAttributesIndex.cs" t="Include" />
+            <e p="MappedAttributesIndexProfile.cs" t="Include" />
+          </e>
+          <e p="Constants.cs" t="Include" />
+          <e p="Context.cs" t="Include" />
+          <e p="Data" t="Include">
+            <e p="Contracted" t="Include">
+              <e p="ContractedDb.cs" t="Include" />
+              <e p="ContractedDbProfile.cs" t="Include" />
+              <e p="Edges" t="Include">
+                <e p="ContractedEdgeData.cs" t="Include" />
+                <e p="ContractedEdgeDataSerializer.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Edges" t="Include">
+              <e p="EdgeData.cs" t="Include" />
+              <e p="EdgeDataSerializer.cs" t="Include" />
+            </e>
+            <e p="Meta" t="Include">
+              <e p="MetaCollection.cs" t="Include" />
+              <e p="MetaCollectionsDb.cs" t="Include" />
+            </e>
+            <e p="Network" t="Include">
+              <e p="Edges" t="Include">
+                <e p="EdgeData.cs" t="Include" />
+              </e>
+              <e p="Restrictions" t="Include">
+                <e p="RestrictionsDb.cs" t="Include" />
+                <e p="RestrictionsDbExtensions.cs" t="Include" />
+                <e p="RestrictionsDbMeta.cs" t="Include" />
+                <e p="RestrictionsDbProfile.cs" t="Include" />
+              </e>
+              <e p="RoutingEdge.cs" t="Include" />
+              <e p="RoutingNetwork.cs" t="Include" />
+              <e p="RoutingNetworkExtensions.cs" t="Include" />
+              <e p="RoutingNetworkProfile.cs" t="Include" />
+            </e>
+            <e p="Shortcuts" t="Include">
+              <e p="ShortcutsDb.cs" t="Include" />
+            </e>
+          </e>
+          <e p="DebugExtensions.cs" t="Include" />
+          <e p="DefaultArrayFactory.cs" t="Include" />
+          <e p="Elevation" t="Include">
+            <e p="RouterDbExtensions.cs" t="Include" />
+          </e>
+          <e p="Exceptions" t="Include">
+            <e p="ResolveFailedException.cs" t="Include" />
+            <e p="RouteBuildFailedException.cs" t="Include" />
+            <e p="RouteNotFoundException.cs" t="Include" />
+          </e>
+          <e p="Extensions.cs" t="Include" />
+          <e p="Graphs" t="Include">
+            <e p="Directed" t="Include">
+              <e p="DirectedDynamicGraph.cs" t="Include" />
+              <e p="DirectedDynamicGraphExtensions.cs" t="Include" />
+              <e p="DirectedGraph.cs" t="Include" />
+              <e p="DirectedGraphProfile.cs" t="Include" />
+              <e p="DirectedMetaGraph.cs" t="Include" />
+              <e p="DirectedMetaGraphExtensions.cs" t="Include" />
+              <e p="DirectedMetaGraphProfile.cs" t="Include" />
+              <e p="DynamicEdge.cs" t="Include" />
+              <e p="Edge.cs" t="Include" />
+              <e p="Extensions.cs" t="Include" />
+              <e p="MetaEdge.cs" t="Include" />
+            </e>
+            <e p="Edge.cs" t="Include" />
+            <e p="EdgeExtensions.cs" t="Include" />
+            <e p="Geometric" t="Include">
+              <e p="GeometricEdge.cs" t="Include" />
+              <e p="GeometricGraph.cs" t="Include" />
+              <e p="GeometricGraphExtensions.cs" t="Include" />
+              <e p="GeometricGraphProfile.cs" t="Include" />
+              <e p="Shapes" t="Include">
+                <e p="Shape.cs" t="Include" />
+                <e p="ShapeBase.cs" t="Include" />
+                <e p="ShapeEnumerable.cs" t="Include" />
+                <e p="ShapesArray.cs" t="Include" />
+                <e p="ShapesArrayExtensions.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Graph.cs" t="Include" />
+            <e p="GraphExtensions.cs" t="Include" />
+            <e p="GraphProfile.cs" t="Include" />
+          </e>
+          <e p="IArrayFactory.cs" t="Include" />
+          <e p="IO" t="Include">
+            <e p="Json" t="Include">
+              <e p="JsonTools.cs" t="Include" />
+              <e p="JsonWriter.cs" t="Include" />
+            </e>
+            <e p="Xml" t="Include">
+              <e p="Route.Xml.cs" t="Include" />
+              <e p="XmlExtensions.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Itinero.csproj" t="IncludeRecursive" />
+          <e p="LocalGeo" t="Include">
+            <e p="Box.cs" t="Include" />
+            <e p="Coordinate.cs" t="Include" />
+            <e p="Elevation" t="Include">
+              <e p="ElevationHandler.cs" t="Include" />
+            </e>
+            <e p="Extensions.cs" t="Include" />
+            <e p="IO" t="Include">
+              <e p="GeoJsonExtension.cs" t="Include" />
+            </e>
+            <e p="Line.cs" t="Include" />
+            <e p="Polygon.cs" t="Include" />
+            <e p="Tools.cs" t="Include" />
+          </e>
+          <e p="Logging" t="Include">
+            <e p="Logger.cs" t="Include" />
+            <e p="TraceEventType.cs" t="Include" />
+          </e>
+          <e p="Navigation" t="Include">
+            <e p="Directions" t="Include">
+              <e p="DirectionCalculator.cs" t="Include" />
+              <e p="DirectionEnum.cs" t="Include" />
+              <e p="RelativeDirection.cs" t="Include" />
+              <e p="RelativeDirectionEnum.cs" t="Include" />
+            </e>
+            <e p="Instructions" t="Include">
+              <e p="DynamicUnimodalInstructionGenerator.cs" t="Include" />
+              <e p="IUnimodalInstructionGenerator.cs" t="Include" />
+              <e p="Instruction.cs" t="Include" />
+              <e p="InstructionExtensions.cs" t="Include" />
+              <e p="UnimodalInstructionGenerator.cs" t="Include" />
+            </e>
+            <e p="Language" t="Include">
+              <e p="DefaultLanguageReference.cs" t="Include" />
+              <e p="ILanguageReference.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Osm" t="Include">
+            <e p="Vehicles" t="Include">
+              <e p="Vehicle.cs" t="Include" />
+              <e p="VehicleExtensions.cs" t="Include" />
+              <e p="bicycle.lua" t="Include" />
+              <e p="bigtruck.lua" t="Include" />
+              <e p="bus.lua" t="Include" />
+              <e p="car.lua" t="Include" />
+              <e p="moped.lua" t="Include" />
+              <e p="motorcycle.lua" t="Include" />
+              <e p="pedestrian.lua" t="Include" />
+              <e p="smalltruck.lua" t="Include" />
+            </e>
+          </e>
+          <e p="Profiles" t="Include">
+            <e p="Constraint.cs" t="Include" />
+            <e p="ConstraintExtensions.cs" t="Include" />
+            <e p="DynamicProfile.cs" t="Include" />
+            <e p="DynamicVehicle.cs" t="Include" />
+            <e p="Factor.cs" t="Include" />
+            <e p="FactorAndSpeed.cs" t="Include" />
+            <e p="IProfileInstance.cs" t="Include" />
+            <e p="IProfileInstanceExtensions.cs" t="Include" />
+            <e p="Lua" t="Include">
+              <e p="Compatibility" t="Include">
+                <e p="Attributes.cs" t="Include" />
+                <e p="Framework.cs" t="Include" />
+                <e p="Frameworks" t="Include">
+                  <e p="Base" t="Include">
+                    <e p="FrameworkBase.cs" t="Include" />
+                    <e p="FrameworkClrBase.cs" t="Include" />
+                    <e p="FrameworkCoreBase.cs" t="Include" />
+                    <e p="FrameworkReflectionBase.cs" t="Include" />
+                  </e>
+                  <e p="FrameworkCLR.cs" t="Include" />
+                  <e p="FrameworkCore.cs" t="Include" />
+                  <e p="FrameworkPCL.cs" t="Include" />
+                  <e p="FrameworkWin8.cs" t="Include" />
+                </e>
+                <e p="Stopwatch.cs" t="Include" />
+              </e>
+              <e p="CoreLib" t="Include">
+                <e p="BasicModule.cs" t="Include" />
+                <e p="Bit32Module.cs" t="Include" />
+                <e p="CoroutineModule.cs" t="Include" />
+                <e p="DynamicModule.cs" t="Include" />
+                <e p="ErrorHandlingModule.cs" t="Include" />
+                <e p="JsonModule.cs" t="Include" />
+                <e p="LoadModule.cs" t="Include" />
+                <e p="MathModule.cs" t="Include" />
+                <e p="MetaTableModule.cs" t="Include" />
+                <e p="OsTimeModule.cs" t="Include" />
+                <e p="StringLib" t="Include">
+                  <e p="KopiLua_StrLib.cs" t="Include" />
+                  <e p="StringRange.cs" t="Include" />
+                </e>
+                <e p="StringModule.cs" t="Include" />
+                <e p="TableIteratorsModule.cs" t="Include" />
+                <e p="TableModule.cs" t="Include" />
+              </e>
+              <e p="DataStructs" t="Include">
+                <e p="Extension_Methods.cs" t="Include" />
+                <e p="FastStack.cs" t="Include" />
+                <e p="FastStackDynamic.cs" t="Include" />
+                <e p="LinkedListIndex.cs" t="Include" />
+                <e p="MultiDictionary.cs" t="Include" />
+                <e p="ReferenceEqualityComparer.cs" t="Include" />
+                <e p="Slice.cs" t="Include" />
+              </e>
+              <e p="DataTypes" t="Include">
+                <e p="CallbackArguments.cs" t="Include" />
+                <e p="CallbackFunction.cs" t="Include" />
+                <e p="Closure.cs" t="Include" />
+                <e p="Coroutine.cs" t="Include" />
+                <e p="CoroutineState.cs" t="Include" />
+                <e p="DataType.cs" t="Include" />
+                <e p="DynValue.cs" t="Include" />
+                <e p="IScriptPrivateResource.cs" t="Include" />
+                <e p="RefIdObject.cs" t="Include" />
+                <e p="ScriptFunctionDelegate.cs" t="Include" />
+                <e p="SymbolRef.cs" t="Include" />
+                <e p="SymbolRefType.cs" t="Include" />
+                <e p="Table.cs" t="Include" />
+                <e p="TablePair.cs" t="Include" />
+                <e p="TailCallData.cs" t="Include" />
+                <e p="TypeValidationFlags.cs" t="Include" />
+                <e p="UserData.cs" t="Include" />
+                <e p="WellKnownSymbols.cs" t="Include" />
+                <e p="YieldRequest.cs" t="Include" />
+              </e>
+              <e p="Debugging" t="Include">
+                <e p="DebugService.cs" t="Include" />
+                <e p="DebuggerAction.cs" t="Include" />
+                <e p="DebuggerCaps.cs" t="Include" />
+                <e p="IDebugger.cs" t="Include" />
+                <e p="SourceCode.cs" t="Include" />
+                <e p="SourceRef.cs" t="Include" />
+                <e p="WatchItem.cs" t="Include" />
+                <e p="WatchType.cs" t="Include" />
+              </e>
+              <e p="Diagnostics" t="Include">
+                <e p="PerformanceCounter.cs" t="Include" />
+                <e p="PerformanceCounterType.cs" t="Include" />
+                <e p="PerformanceCounters" t="Include">
+                  <e p="DummyPerformanceStopwatch.cs" t="Include" />
+                  <e p="GlobalPerformanceStopwatch.cs" t="Include" />
+                  <e p="IPerformanceStopwatch.cs" t="Include" />
+                  <e p="PerformanceStopwatch.cs" t="Include" />
+                </e>
+                <e p="PerformanceResult.cs" t="Include" />
+                <e p="PerformanceStatistics.cs" t="Include" />
+              </e>
+              <e p="Errors" t="Include">
+                <e p="DynamicExpressionException.cs" t="Include" />
+                <e p="InternalErrorException.cs" t="Include" />
+                <e p="InterpreterException.cs" t="Include" />
+                <e p="ScriptRuntimeException.cs" t="Include" />
+                <e p="SyntaxErrorException.cs" t="Include" />
+              </e>
+              <e p="Execution" t="Include">
+                <e p="DynamicExpression.cs" t="Include" />
+                <e p="InstructionFieldUsage.cs" t="Include" />
+                <e p="Scopes" t="Include">
+                  <e p="BuildTimeScope.cs" t="Include" />
+                  <e p="BuildTimeScopeBlock.cs" t="Include" />
+                  <e p="BuildTimeScopeFrame.cs" t="Include" />
+                  <e p="ClosureContext.cs" t="Include" />
+                  <e p="IClosureBuilder.cs" t="Include" />
+                  <e p="LoopTracker.cs" t="Include" />
+                  <e p="RuntimeScopeBlock.cs" t="Include" />
+                  <e p="RuntimeScopeFrame.cs" t="Include" />
+                </e>
+                <e p="ScriptExecutionContext.cs" t="Include" />
+                <e p="ScriptLoadingContext.cs" t="Include" />
+                <e p="VM" t="Include">
+                  <e p="ByteCode.cs" t="Include" />
+                  <e p="CallStackItem.cs" t="Include" />
+                  <e p="CallStackItemFlags.cs" t="Include" />
+                  <e p="ExecutionState.cs" t="Include" />
+                  <e p="Instruction.cs" t="Include" />
+                  <e p="OpCode.cs" t="Include" />
+                  <e p="OpCodeMetadataType.cs" t="Include" />
+                  <e p="Processor" t="Include">
+                    <e p="DebugContext.cs" t="Include" />
+                    <e p="Processor.cs" t="Include" />
+                    <e p="Processor_BinaryDump.cs" t="Include" />
+                    <e p="Processor_Coroutines.cs" t="Include" />
+                    <e p="Processor_Debugger.cs" t="Include" />
+                    <e p="Processor_Errors.cs" t="Include" />
+                    <e p="Processor_IExecutionContext.cs" t="Include" />
+                    <e p="Processor_InstructionLoop.cs" t="Include" />
+                    <e p="Processor_Scope.cs" t="Include" />
+                    <e p="Processor_UtilityFunctions.cs" t="Include" />
+                  </e>
+                </e>
+              </e>
+              <e p="Interop" t="Include">
+                <e p="Attributes" t="Include">
+                  <e p="MoonSharpHiddenAttribute.cs" t="Include" />
+                  <e p="MoonSharpHideMemberAttribute.cs" t="Include" />
+                  <e p="MoonSharpPropertyAttribute.cs" t="Include" />
+                  <e p="MoonSharpUserDataAttribute.cs" t="Include" />
+                  <e p="MoonSharpUserDataMetamethodAttribute.cs" t="Include" />
+                  <e p="MoonSharpVisibleAttribute.cs" t="Include" />
+                </e>
+                <e p="BasicDescriptors" t="Include">
+                  <e p="DispatchingUserDataDescriptor.cs" t="Include" />
+                  <e p="IMemberDescriptor.cs" t="Include" />
+                  <e p="IOptimizableDescriptor.cs" t="Include" />
+                  <e p="IOverloadableMemberDescriptor.cs" t="Include" />
+                  <e p="MemberDescriptorAccess.cs" t="Include" />
+                  <e p="ParameterDescriptor.cs" t="Include" />
+                </e>
+                <e p="Converters" t="Include">
+                  <e p="ClrToScriptConversions.cs" t="Include" />
+                  <e p="NumericConversions.cs" t="Include" />
+                  <e p="ScriptToClrConversions.cs" t="Include" />
+                  <e p="StringConversions.cs" t="Include" />
+                  <e p="TableConversions.cs" t="Include" />
+                </e>
+                <e p="CustomConvertersCollection.cs" t="Include" />
+                <e p="DescriptorHelpers.cs" t="Include" />
+                <e p="IGeneratorUserDataDescriptor.cs" t="Include" />
+                <e p="IUserDataDescriptor.cs" t="Include" />
+                <e p="IUserDataMemberDescriptor.cs" t="Include" />
+                <e p="IUserDataType.cs" t="Include" />
+                <e p="IWireableDescriptor.cs" t="Include" />
+                <e p="InteropAccessMode.cs" t="Include" />
+                <e p="InteropRegistrationPolicy.cs" t="Include" />
+                <e p="LuaStateInterop" t="Include">
+                  <e p="CharPtr.cs" t="Include" />
+                  <e p="LuaBase.cs" t="Include" />
+                  <e p="LuaBase_CLib.cs" t="Include" />
+                  <e p="LuaLBuffer.cs" t="Include" />
+                  <e p="LuaState.cs" t="Include" />
+                  <e p="Tools.cs" t="Include" />
+                </e>
+                <e p="PredefinedUserData" t="Include">
+                  <e p="AnonWrapper.cs" t="Include" />
+                  <e p="EnumerableWrapper.cs" t="Include" />
+                </e>
+                <e p="PropertyTableAssigner.cs" t="Include" />
+                <e p="ProxyObjects" t="Include">
+                  <e p="DelegateProxyFactory.cs" t="Include" />
+                  <e p="IProxyFactory.cs" t="Include" />
+                </e>
+                <e p="ReflectionSpecialNames.cs" t="Include" />
+                <e p="RegistrationPolicies" t="Include">
+                  <e p="AutomaticRegistrationPolicy.cs" t="Include" />
+                  <e p="DefaultRegistrationPolicy.cs" t="Include" />
+                  <e p="IRegistrationPolicy.cs" t="Include" />
+                  <e p="PermanentRegistrationPolicy.cs" t="Include" />
+                </e>
+                <e p="StandardDescriptors" t="Include">
+                  <e p="AutoDescribingUserDataDescriptor.cs" t="Include" />
+                  <e p="CompositeUserDataDescriptor.cs" t="Include" />
+                  <e p="EventFacade.cs" t="Include" />
+                  <e p="HardwiredDescriptors" t="Include">
+                    <e p="DefaultValue.cs" t="Include" />
+                    <e p="HardwiredMemberDescriptor.cs" t="Include" />
+                    <e p="HardwiredMethodMemberDescriptor.cs" t="Include" />
+                    <e p="HardwiredUserDataDescriptor.cs" t="Include" />
+                  </e>
+                  <e p="MemberDescriptors" t="Include">
+                    <e p="ArrayMemberDescriptor.cs" t="Include" />
+                    <e p="DynValueMemberDescriptor.cs" t="Include" />
+                    <e p="FunctionMemberDescriptorBase.cs" t="Include" />
+                    <e p="ObjectCallbackMemberDescriptor.cs" t="Include" />
+                  </e>
+                  <e p="ProxyUserDataDescriptor.cs" t="Include" />
+                  <e p="ReflectionMemberDescriptors" t="Include">
+                    <e p="EventMemberDescriptor.cs" t="Include" />
+                    <e p="FieldMemberDescriptor.cs" t="Include" />
+                    <e p="MethodMemberDescriptor.cs" t="Include" />
+                    <e p="OverloadedMethodMemberDescriptor.cs" t="Include" />
+                    <e p="PropertyMemberDescriptor.cs" t="Include" />
+                    <e p="ValueTypeDefaultCtorMemberDescriptor.cs" t="Include" />
+                  </e>
+                  <e p="StandardEnumUserDataDescriptor.cs" t="Include" />
+                  <e p="StandardGenericsUserDataDescriptor.cs" t="Include" />
+                  <e p="StandardUserDataDescriptor.cs" t="Include" />
+                </e>
+                <e p="UserDataMemberType.cs" t="Include" />
+                <e p="UserDataRegistries" t="Include">
+                  <e p="ExtensionMethodsRegistry.cs" t="Include" />
+                  <e p="TypeDescriptorRegistry.cs" t="Include" />
+                </e>
+              </e>
+              <e p="ItineroLib" t="Include">
+                <e p="ItineroModule.cs" t="Include" />
+              </e>
+              <e p="LinqHelpers.cs" t="Include" />
+              <e p="LuaExtensions.cs" t="Include" />
+              <e p="Modules" t="Include">
+                <e p="CoreModules.cs" t="Include" />
+                <e p="ModuleRegister.cs" t="Include" />
+                <e p="MoonSharpModuleAttribute.cs" t="Include" />
+                <e p="MoonSharpModuleConstantAttribute.cs" t="Include" />
+                <e p="MoonSharpModuleMethodAttribute.cs" t="Include" />
+              </e>
+              <e p="Options" t="Include">
+                <e p="ColonOperatorBehaviour.cs" t="Include" />
+              </e>
+              <e p="Script.cs" t="Include" />
+              <e p="ScriptGlobalOptions.cs" t="Include" />
+              <e p="ScriptOptions.cs" t="Include" />
+              <e p="Tree" t="Include">
+                <e p="Expression_.cs" t="Include" />
+                <e p="Expressions" t="Include">
+                  <e p="AdjustmentExpression.cs" t="Include" />
+                  <e p="BinaryOperatorExpression.cs" t="Include" />
+                  <e p="DynamicExprExpression.cs" t="Include" />
+                  <e p="ExprListExpression.cs" t="Include" />
+                  <e p="FunctionCallExpression.cs" t="Include" />
+                  <e p="FunctionDefinitionExpression.cs" t="Include" />
+                  <e p="IndexExpression.cs" t="Include" />
+                  <e p="LiteralExpression.cs" t="Include" />
+                  <e p="SymbolRefExpression.cs" t="Include" />
+                  <e p="TableConstructor.cs" t="Include" />
+                  <e p="UnaryOperatorExpression.cs" t="Include" />
+                </e>
+                <e p="Fast_Interface" t="Include">
+                  <e p="Loader_Fast.cs" t="Include" />
+                </e>
+                <e p="IVariable.cs" t="Include" />
+                <e p="Lexer" t="Include">
+                  <e p="Lexer.cs" t="Include" />
+                  <e p="LexerUtils.cs" t="Include" />
+                  <e p="Token.cs" t="Include" />
+                  <e p="TokenType.cs" t="Include" />
+                </e>
+                <e p="Loop.cs" t="Include" />
+                <e p="NodeBase.cs" t="Include" />
+                <e p="Statement.cs" t="Include" />
+                <e p="Statements" t="Include">
+                  <e p="AssignmentStatement.cs" t="Include" />
+                  <e p="BreakStatement.cs" t="Include" />
+                  <e p="ChunkStatement.cs" t="Include" />
+                  <e p="CompositeStatement.cs" t="Include" />
+                  <e p="EmptyStatement.cs" t="Include" />
+                  <e p="ForEachLoopStatement.cs" t="Include" />
+                  <e p="ForLoopStatement.cs" t="Include" />
+                  <e p="FunctionCallStatement.cs" t="Include" />
+                  <e p="FunctionDefinitionStatement.cs" t="Include" />
+                  <e p="GotoStatement.cs" t="Include" />
+                  <e p="IfStatement.cs" t="Include" />
+                  <e p="LabelStatement.cs" t="Include" />
+                  <e p="RepeatStatement.cs" t="Include" />
+                  <e p="ReturnStatement.cs" t="Include" />
+                  <e p="ScopeBlockStatement.cs" t="Include" />
+                  <e p="WhileStatement.cs" t="Include" />
+                </e>
+              </e>
+            </e>
+            <e p="Profile.cs" t="Include" />
+            <e p="ProfileExtensions.cs" t="Include" />
+            <e p="ProfileFactorAndSpeedCache.cs" t="Include" />
+            <e p="ProfileMetric.cs" t="Include" />
+            <e p="Speed.cs" t="Include" />
+            <e p="Vehicle.cs" t="Include" />
+            <e p="VehicleCache.cs" t="Include" />
+            <e p="VehicleExtensions.cs" t="Include" />
+            <e p="Whitelist.cs" t="Include" />
+          </e>
+          <e p="Properties" t="Include">
+            <e p="AssemblyInfo.cs" t="Include" />
+          </e>
+          <e p="Result.cs" t="Include" />
+          <e p="ResultExtensions.cs" t="Include" />
+          <e p="Route.cs" t="Include" />
+          <e p="RouteExtensions.cs" t="Include" />
+          <e p="Router.cs" t="Include" />
+          <e p="RouterBase.cs" t="Include" />
+          <e p="RouterBaseExtensions.cs" t="Include" />
+          <e p="RouterDb.cs" t="Include" />
+          <e p="RouterDbExtensions.cs" t="Include" />
+          <e p="RouterDbProfile.cs" t="Include" />
+          <e p="RouterPoint.cs" t="Include" />
+          <e p="RouterPointExtensions.cs" t="Include" />
+          <e p="RoutingSettings.cs" t="Include" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="net40" t="Include">
+                <e p="Itinero.AssemblyInfo.cs" t="Include" />
+              </e>
+              <e p="net45" t="Include">
+                <e p="Itinero.AssemblyInfo.cs" t="Include" />
+              </e>
+              <e p="netstandard1.3" t="Include">
+                <e p="Itinero.AssemblyInfo.cs" t="Include" />
+              </e>
+              <e p="portable40-net403+sl5+win8+wp8" t="Include">
+                <e p="Itinero.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+        <e p="Itinero.IO.Osm" t="IncludeRecursive">
+          <e p="Extensions.cs" t="Include" />
+          <e p="Itinero.IO.Osm.csproj" t="IncludeRecursive" />
+          <e p="LoadSettings.cs" t="Include" />
+          <e p="Nodes" t="Include">
+            <e p="DynamicVehicleNodeTagProcessor.cs" t="Include" />
+          </e>
+          <e p="Normalizer" t="Include">
+            <e p="AttributeCollectionExtensions.cs" t="Include" />
+            <e p="DefaultTagNormalizer.cs" t="Include" />
+            <e p="ITagNormalizer.cs" t="Include" />
+          </e>
+          <e p="Overpass" t="Include">
+            <e p="Download.cs" t="Include" />
+            <e p="OverpassQueryBuilder.cs" t="Include" />
+            <e p="OverpassSourceStream.cs" t="Include" />
+          </e>
+          <e p="Properties" t="Include">
+            <e p="AssemblyInfo.cs" t="Include" />
+          </e>
+          <e p="Relations" t="Include">
+            <e p="DynamicVehicleRelationTagProcessor.cs" t="Include" />
+            <e p="RelationTagProcessor.cs" t="Include" />
+          </e>
+          <e p="Restrictions" t="Include">
+            <e p="Helper.cs" t="Include" />
+            <e p="RestrictionProcessor.cs" t="Include" />
+          </e>
+          <e p="RouterDbExtensions.cs" t="Include" />
+          <e p="Streams" t="Include">
+            <e p="ITwoPassProcessor.cs" t="Include" />
+            <e p="NodeIndex.cs" t="Include" />
+            <e p="RouterDbStreamTarget.cs" t="Include" />
+            <e p="UniqueIdMap.cs" t="Include" />
+            <e p="UnsignedNodeIndex.cs" t="Include" />
+          </e>
+          <e p="TagAttributeCollection.cs" t="Include" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="net45" t="Include">
+                <e p="Itinero.IO.Osm.AssemblyInfo.cs" t="Include" />
+              </e>
+              <e p="netstandard1.6" t="Include">
+                <e p="Itinero.IO.Osm.AssemblyInfo.cs" t="Include" />
+              </e>
+              <e p="portable40-net403+sl5+win8+wp8" t="Include">
+                <e p="Itinero.IO.Osm.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+      </e>
+      <e p="test" t="Include">
+        <e p="Itinero.Test" t="IncludeRecursive">
+          <e p="Algorithms" t="Include">
+            <e p="Collections" t="Include">
+              <e p="SparseBitArray32Tests.cs" t="Include" />
+            </e>
+            <e p="Contracted" t="Include">
+              <e p="BidirectionalDykstraTests.cs" t="Include" />
+              <e p="DirectedGraphBuilderTests.cs" t="Include" />
+              <e p="DirectedGraphExtensionsTests.cs" t="Include" />
+              <e p="Dual" t="Include">
+                <e p="BidirectionalDykstraTests.cs" t="Include" />
+                <e p="DykstraTests.cs" t="Include" />
+                <e p="HierarchyBuilderTests.cs" t="Include" />
+              </e>
+              <e p="DykstraTests.cs" t="Include" />
+              <e p="DykstraWitnessCalculatorTests.cs" t="Include" />
+              <e p="EdgeBased" t="Include">
+                <e p="BidirectionalDykstraTests.cs" t="Include" />
+                <e p="DirectedGraphBuilderTests.cs" t="Include" />
+                <e p="DirectedGraphExtensionsTests.cs" t="Include" />
+                <e p="DykstraTests.cs" t="Include" />
+                <e p="DykstraWitnessCalculatorTests.cs" t="Include" />
+                <e p="EdgeDifferencePriorityCalculatorTests.cs" t="Include" />
+                <e p="EdgePathExtensionsTests.cs" t="Include" />
+                <e p="HierarchyBuilderTests.cs" t="Include" />
+                <e p="ManyToManyWeightsTests.cs" t="Include" />
+                <e p="MockPriorityCalculator.cs" t="Include" />
+                <e p="RouterDbExtensions.cs" t="Include" />
+                <e p="WitnessCalculatorMock.cs" t="Include" />
+              </e>
+              <e p="EdgeDifferencePriorityCalculatorTests.cs" t="Include" />
+              <e p="HierarchyBuilderTests.cs" t="Include" />
+              <e p="ManyToManyWeightsTests.cs" t="Include" />
+              <e p="MockPriorityCalculator.cs" t="Include" />
+              <e p="WitnessCalculatorMock.cs" t="Include" />
+            </e>
+            <e p="Default" t="Include">
+              <e p="BidirectionalDykstraTests.cs" t="Include" />
+              <e p="DykstraTests.cs" t="Include" />
+              <e p="EdgeBased" t="Include">
+                <e p="BidirectionalDykstraTests.cs" t="Include" />
+                <e p="DirectedDykstraTests.cs" t="Include" />
+                <e p="DykstraTests.cs" t="Include" />
+                <e p="ManyToManyTests.cs" t="Include" />
+                <e p="OneToManyTests.cs" t="Include" />
+              </e>
+              <e p="ManyToManyTests.cs" t="Include" />
+              <e p="OneToManyTests.cs" t="Include" />
+            </e>
+            <e p="EdgePathTests.cs" t="Include" />
+            <e p="Matrices" t="Include">
+              <e p="DirectedWeightMatrixAlgorithmTests.cs" t="Include" />
+              <e p="WeightMatrixAlgorithmTests.cs" t="Include" />
+            </e>
+            <e p="Networks" t="Include">
+              <e p="Islands" t="Include">
+                <e p="IslandDetectorTests.cs" t="Include" />
+              </e>
+              <e p="NetworkOptimizerTests.cs" t="Include" />
+              <e p="Preprocessing" t="Include">
+                <e p="MaxDistanceSplitterTests.cs" t="Include" />
+                <e p="SimpleGraphConverterTest.cs" t="Include" />
+              </e>
+              <e p="RouterDbExtensionTests.cs" t="Include" />
+            </e>
+            <e p="Restrictions" t="Include">
+              <e p="RestrictionExtensionTests.cs" t="Include" />
+            </e>
+            <e p="Routes" t="Include">
+              <e p="CompleteRouteBuilderTests.cs" t="Include" />
+              <e p="RouteSegmentAggregatorTests.cs" t="Include" />
+            </e>
+            <e p="Search" t="Include">
+              <e p="HibertTests.cs" t="Include" />
+              <e p="MassResolvingAlgorithmTests.cs" t="Include" />
+              <e p="MockResolver.cs" t="Include" />
+              <e p="ResolveAlgorithmTests.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Attributes" t="Include">
+            <e p="AttributesIndexTests.cs" t="Include" />
+            <e p="MappedAttributesIndexTests.cs" t="Include" />
+          </e>
+          <e p="ContextTests.cs" t="Include" />
+          <e p="Data" t="Include">
+            <e p="Contracted" t="Include">
+              <e p="Edges" t="Include">
+                <e p="ContractedEdgeDataSerializerTests.cs" t="Include" />
+              </e>
+            </e>
+            <e p="Edges" t="Include">
+              <e p="EdgeDataSerializerTests.cs" t="Include" />
+            </e>
+            <e p="Meta" t="Include">
+              <e p="MetaCollectionTests.cs" t="Include" />
+              <e p="MetaCollectionsDbTests.cs" t="Include" />
+            </e>
+            <e p="Network" t="Include">
+              <e p="Restrictions" t="Include">
+                <e p="RestrictionsDbTests.cs" t="Include" />
+              </e>
+              <e p="RoutingNetworkTests.cs" t="Include" />
+            </e>
+            <e p="Shortcuts" t="Include">
+              <e p="ShortcutsDbTests.cs" t="Include" />
+            </e>
+          </e>
+          <e p="ExtensionTests.cs" t="Include" />
+          <e p="Geo" t="Include">
+            <e p="CoordinateTests.cs" t="Include" />
+            <e p="LineTests.cs" t="Include" />
+            <e p="ToolTests.cs" t="Include" />
+          </e>
+          <e p="Graphs" t="Include">
+            <e p="Directed" t="Include">
+              <e p="DirectedDynamicGraphTests.cs" t="Include" />
+              <e p="DirectedGraphTests.cs" t="Include" />
+              <e p="DirectedMetaGraphTests.cs" t="Include" />
+            </e>
+            <e p="Geometric" t="Include">
+              <e p="GeometricGraphTests.cs" t="Include" />
+              <e p="Shapes" t="Include">
+                <e p="ShapesArrayTests.cs" t="Include" />
+              </e>
+            </e>
+            <e p="GraphTests.cs" t="Include" />
+          </e>
+          <e p="IO" t="Include">
+            <e p="Osm" t="Include">
+              <e p="Normalizer" t="Include">
+                <e p="AttributeCollectionExtensionsTests.cs" t="Include" />
+              </e>
+              <e p="Overpass" t="Include">
+                <e p="OverpassQueryBuilderTests.cs" t="Include" />
+              </e>
+              <e p="Relations" t="Include">
+                <e p="RelationTagsProcessorTests.cs" t="Include" />
+              </e>
+              <e p="Restrictions" t="Include">
+                <e p="RestrictionProcessorTests.cs" t="Include" />
+              </e>
+              <e p="RouterTests.cs" t="Include" />
+              <e p="Streams" t="Include">
+                <e p="NodeIndexTests.cs" t="Include" />
+                <e p="RouterDbStreamTargetTests.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="Itinero.Test.csproj" t="IncludeRecursive" />
+          <e p="LocalGeo" t="Include">
+            <e p="BoxTests.cs" t="Include" />
+            <e p="ExtensionTests.cs" t="Include" />
+            <e p="IO" t="Include">
+              <e p="GeoJsonExtensionTests.cs" t="Include" />
+            </e>
+            <e p="IntersectionTests.cs" t="Include" />
+            <e p="LineTests.cs" t="Include" />
+            <e p="PointInPolygonTest.cs" t="Include" />
+          </e>
+          <e p="Mocks" t="Include">
+            <e p="StreamMock.cs" t="Include" />
+          </e>
+          <e p="Navigation" t="Include">
+            <e p="Directions" t="Include">
+              <e p="DirectionCalculatorTests.cs" t="Include" />
+            </e>
+            <e p="InstructionGeneratorTests.cs" t="Include" />
+            <e p="Language" t="Include">
+              <e p="MockLanguageReference.cs" t="Include" />
+            </e>
+            <e p="Osm" t="Include">
+              <e p="InstructionGenerationTests.cs" t="Include" />
+            </e>
+          </e>
+          <e p="Osm" t="Include">
+            <e p="RouterTests.cs" t="Include" />
+            <e p="VehicleTests.cs" t="Include" />
+          </e>
+          <e p="Profiles" t="Include">
+            <e p="DynamicVehicleTests.cs" t="Include" />
+            <e p="VehicleMock.cs" t="Include" />
+          </e>
+          <e p="Properties" t="Include" />
+          <e p="RouteTests.cs" t="Include" />
+          <e p="RouterDbAddIslandsTests.cs" t="Include" />
+          <e p="RouterDbDeserializationTests.cs" t="Include" />
+          <e p="RouterDbExtractAreaTests.cs" t="Include" />
+          <e p="RouterDbTestDbExtensions.cs" t="Include" />
+          <e p="RouterDbTests.cs" t="Include" />
+          <e p="RouterManyToManyTests.cs" t="Include" />
+          <e p="RouterMock.cs" t="Include" />
+          <e p="RouterPointTests.cs" t="Include" />
+          <e p="RouterResolveTests.cs" t="Include" />
+          <e p="RouterTests.cs" t="Include" />
+          <e p="TestExtensions.cs" t="Include" />
+          <e p="TestNetworkBuilder.cs" t="Include" />
+          <e p="TestNetworkBuilderTests.cs" t="Include" />
+          <e p="TestRouteBuilder.cs" t="Include" />
+          <e p="WeightHandlerMock.cs" t="Include" />
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp2.0" t="Include">
+                <e p="Itinero.Test.AssemblyInfo.cs" t="Include" />
+                <e p="Itinero.Test.Program.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+          <e p="test-data" t="Include">
+            <e p="networks" t="Include">
+              <e p="network1.geojson" t="Include" />
+              <e p="network10-meta.geojson" t="Include" />
+              <e p="network10.osm" t="Include" />
+              <e p="network11-meta.geojson" t="Include" />
+              <e p="network11.osm" t="Include" />
+              <e p="network12.geojson" t="Include" />
+              <e p="network13.geojson" t="Include" />
+              <e p="network14.geojson" t="Include" />
+              <e p="network15.geojson" t="Include" />
+              <e p="network16.geojson" t="Include" />
+              <e p="network17.geojson" t="Include" />
+              <e p="network18.geojson" t="Include" />
+              <e p="network2.geojson" t="Include" />
+              <e p="network3.geojson" t="Include" />
+              <e p="network4.geojson" t="Include" />
+              <e p="network5.geojson" t="Include" />
+              <e p="network6.geojson" t="Include" />
+              <e p="network7.geojson" t="Include" />
+              <e p="network8.geojson" t="Include" />
+              <e p="network9.geojson" t="Include" />
+            </e>
+            <e p="profiles" t="Include">
+              <e p="osm" t="Include">
+                <e p="car.lua" t="Include" />
+              </e>
+              <e p="shape" t="Include">
+                <e p="car.lua" t="Include" />
+              </e>
+            </e>
+            <e p="routerdbs" t="Include">
+              <e p="db.1.4.0.v8.routerdb" t="Include" />
+            </e>
+            <e p="routes" t="Include">
+              <e p="route1.xml" t="Include" />
+            </e>
+          </e>
+        </e>
+        <e p="Itinero.Test.Functional" t="IncludeRecursive">
+          <e p="Extensions.cs" t="Include" />
+          <e p="Itinero.Test.Functional.csproj" t="IncludeRecursive" />
+          <e p="PerformanceInfoConsumer.cs" t="Include" />
+          <e p="PerformanceInfoConsumerExtensions.cs" t="Include" />
+          <e p="Program.cs" t="Include" />
+          <e p="Properties" t="Include">
+            <e p="AssemblyInfo.cs" t="Include" />
+          </e>
+          <e p="Staging" t="Include">
+            <e p="BuildRouterDb.cs" t="Include" />
+            <e p="Download.cs" t="Include" />
+          </e>
+          <e p="Tests" t="Include">
+            <e p="Belgium" t="Include">
+              <e p="resolve1.geojson" t="Include" />
+              <e p="shortcuts1.geojson" t="Include" />
+            </e>
+            <e p="InstructionTests.cs" t="Include" />
+            <e p="ResolvingTests.cs" t="Include" />
+            <e p="RouterDbBuildingTests.cs" t="Include" />
+            <e p="RouterDbExtensionsTests.cs" t="Include" />
+            <e p="RoutingTests.cs" t="Include" />
+            <e p="Runner.cs" t="Include" />
+            <e p="WeightMatrixTests.cs" t="Include" />
+            <e p="fictional.osm" t="Include" />
+          </e>
+          <e p="bin" t="ExcludeRecursive" />
+          <e p="obj" t="ExcludeRecursive">
+            <e p="Debug" t="Include">
+              <e p="netcoreapp2.0" t="Include">
+                <e p="Itinero.Test.Functional.AssemblyInfo.cs" t="Include" />
+              </e>
+            </e>
+          </e>
+        </e>
+      </e>
+    </e>
+  </component>
+</project>

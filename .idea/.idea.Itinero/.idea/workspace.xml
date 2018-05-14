@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="17151901-eafa-4384-b8f8-32a94289472a" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="IntersectionTests.cs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
+              <folding>
+                <marker date="1526309489861" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+                <marker date="1526309489861" expanded="false" signature="812:1002" ph="..." />
+                <marker date="1526309489861" expanded="true" signature="1035:5122" ph="{...}" />
+                <marker date="1526309489861" expanded="true" signature="1042:1125" ph="/// Contains tests for the intersections code. ... " />
+                <marker date="1526309489861" expanded="true" signature="1178:5120" ph="{...}" />
+                <marker date="1526309489861" expanded="true" signature="1193:1332" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
+                <marker date="1526309489861" expanded="true" signature="1389:2390" ph="{...}" />
+                <marker date="1526309489861" expanded="true" signature="2400:2539" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
+                <marker date="1526309489861" expanded="true" signature="2591:3539" ph="{...}" />
+                <marker date="1526309489861" expanded="true" signature="3549:3666" ph="/// Tests an intersection with a line segment for a polygon with a hole. ... " />
+                <marker date="1526309489861" expanded="true" signature="3717:5114" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AreaMetaDataHandler.cs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="510">
+              <caret line="46" column="9" lean-forward="true" selection-start-line="46" selection-start-column="9" selection-end-line="46" selection-end-column="9" />
+              <folding>
+                <marker date="1520609309036" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+                <marker date="1520609309036" expanded="false" signature="812:905" ph="..." />
+                <marker date="1520609309036" expanded="true" signature="964:12280" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="971:1056" ph="/// Adds meta-data to all edges in a given area. ... " />
+                <marker date="1520609309036" expanded="true" signature="1109:12278" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="1273:1539" ph="/// Creates a new area mapper. ... " />
+                <marker date="1520609309036" expanded="true" signature="1656:1784" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="1794:2014" ph="/// A delegate to notifiy an edge that has split. ... " />
+                <marker date="1520609309036" expanded="true" signature="2121:2265" ph="/// Gets or sets a function to notify about an edge that was split. ... " />
+                <marker date="1520609309036" expanded="true" signature="2344:2581" ph="/// A delegate to notify listeners when there is a new edge. ... " />
+                <marker date="1520609309036" expanded="true" signature="2669:2748" ph="/// Executes the actual algorithm. ... " />
+                <marker date="1520609309036" expanded="true" signature="2788:11495" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="3112:11485" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="3171:3267" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="3315:3381" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="3591:11471" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="3656:3767" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="3833:3953" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="4424:4578" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="4722:6205" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="4801:6183" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="5125:5818" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="5318:5788" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="5455:5695" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="5906:6106" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="6543:7132" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="6712:7110" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="6825:7033" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="7204:7411" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="7618:7696" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="8006:8497" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="8226:8439" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="8820:11018" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="9157:9333" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="9384:9858" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="9411:9521" ph="/* this needs to become a new vertex and we need a new edge. ... */" />
+                <marker date="1520609309036" expanded="true" signature="10119:10257" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="10310:10480" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="11142:11264" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="11532:12272" ph="{...}" />
+                <marker date="1520609309036" expanded="true" signature="11555:11678" ph="/// The location of this 'vertex'. ... " />
+                <marker date="1520609309036" expanded="true" signature="11745:11882" ph="/// True if the next segment is inside the area; ... " />
+                <marker date="1520609309036" expanded="true" signature="11941:12217" ph="/// Holds the future status: ... " />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/src/Itinero/LocalGeo/Extensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="65" />
+    <option name="y" value="-4" />
+    <option name="width" value="1855" />
+    <option name="height" value="1084" />
+  </component>
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="SolutionExplorer" proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="SolutionExplorer">
+        <subPane>
+          <expand>
+            <path>
+              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
+              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
+            </path>
+            <path>
+              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
+              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
+            </path>
+            <path>
+              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
+              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
+            </path>
+            <path>
+              <item name="" type="13324e5d:SolutionExplorerViewPane$ProjectViewPaneTreeStructure$createRoot$1" />
+              <item name="Itinero (7 projects)" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="test" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="Itinero.Test" type="977d5f41:SolutionExplorerNodeRider" />
+              <item name="Geo" type="977d5f41:SolutionExplorerNodeRider" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+        <option name="show-file-system" value="false" />
+        <option name="show-all-items" value="false" />
+      </pane>
+      <pane id="Scratches" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="Rider.ProjectViewActivator.IsNotFirstRun" value="true" />
+    <property name="RiderUnitTestDiagnosticHelper.HiddenWarnings.Microsoft.NET.Test.Sdk/Itinero.Test.Functional" value="true" />
+    <property name="RiderUnitTestDiagnosticHelper.HiddenWarnings.NUnit3TestAdapter/Itinero.Test.Functional" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager">
+    <configuration name="Default" type="DotNetProject" factoryName=".NET Project">
+      <option name="EXE_PATH" value="" />
+      <option name="PROGRAM_PARAMETERS" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <option name="USE_MONO" value="0" />
+      <option name="PROJECT_PATH" value="" />
+      <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
+      <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
+      <option name="PROJECT_WORKING_DIRECTORY_TRACKING" value="1" />
+      <option name="PROJECT_KIND" value="None" />
+      <option name="PROJECT_TFM" value="" />
+    </configuration>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="17151901-eafa-4384-b8f8-32a94289472a" name="Default" comment="" />
+      <created>1526310041094</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1526310041094</updated>
+      <workItem from="1526310044359" duration="137000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="137000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="65" y="-4" width="1855" height="1204" extended-state="6" />
+    <layout>
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="right" id="Errors In Solution" />
+      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info anchor="bottom" id="Unit Tests" weight="0.32991612" />
+      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Version Control" weight="0.32991612" />
+      <window_info anchor="bottom" id="Terminal" />
+      <window_info anchor="bottom" id="NuGet" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2498618" />
+      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
+      <window_info active="true" anchor="bottom" id="Build" visible="true" weight="0.32991612" />
+      <window_info anchor="right" id="Database" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info id="Favorites" side_tool="true" />
+      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="UnityProjectConfiguration" isUnityUI="false" />
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs</url>
+          <line>58</line>
+          <properties documentPath="$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs" initialLine="58">
+            <startOffsets>
+              <startOffset value="2146" />
+            </startOffsets>
+            <endOffsets>
+              <endOffset value="2280" />
+            </endOffsets>
+          </properties>
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="1" />
+    </breakpoint-manager>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/test/Itinero.Test/LocalGeo/IntersectionTests.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="52" lean-forward="true" selection-start-line="52" selection-end-line="52" />
+          <folding>
+            <marker date="1526309489861" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+            <marker date="1526309489861" expanded="false" signature="812:1002" ph="..." />
+            <marker date="1526309489861" expanded="true" signature="1035:5122" ph="{...}" />
+            <marker date="1526309489861" expanded="true" signature="1042:1125" ph="/// Contains tests for the intersections code. ... " />
+            <marker date="1526309489861" expanded="true" signature="1178:5120" ph="{...}" />
+            <marker date="1526309489861" expanded="true" signature="1193:1332" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
+            <marker date="1526309489861" expanded="true" signature="1389:2390" ph="{...}" />
+            <marker date="1526309489861" expanded="true" signature="2400:2539" ph="/// Tests an intersection with a line segment that has one point inside and one point outside. ... " />
+            <marker date="1526309489861" expanded="true" signature="2591:3539" ph="{...}" />
+            <marker date="1526309489861" expanded="true" signature="3549:3666" ph="/// Tests an intersection with a line segment for a polygon with a hole. ... " />
+            <marker date="1526309489861" expanded="true" signature="3717:5114" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Itinero/Algorithms/Networks/Preprocessing/Areas/AreaMetaDataHandler.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="46" column="9" lean-forward="true" selection-start-line="46" selection-start-column="9" selection-end-line="46" selection-end-column="9" />
+          <folding>
+            <marker date="1520609309036" expanded="true" signature="0:804" ph="/* Licensed to SharpSoftware under one or more contributor ... */" />
+            <marker date="1520609309036" expanded="false" signature="812:905" ph="..." />
+            <marker date="1520609309036" expanded="true" signature="964:12280" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="971:1056" ph="/// Adds meta-data to all edges in a given area. ... " />
+            <marker date="1520609309036" expanded="true" signature="1109:12278" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="1273:1539" ph="/// Creates a new area mapper. ... " />
+            <marker date="1520609309036" expanded="true" signature="1656:1784" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="1794:2014" ph="/// A delegate to notifiy an edge that has split. ... " />
+            <marker date="1520609309036" expanded="true" signature="2121:2265" ph="/// Gets or sets a function to notify about an edge that was split. ... " />
+            <marker date="1520609309036" expanded="true" signature="2344:2581" ph="/// A delegate to notify listeners when there is a new edge. ... " />
+            <marker date="1520609309036" expanded="true" signature="2669:2748" ph="/// Executes the actual algorithm. ... " />
+            <marker date="1520609309036" expanded="true" signature="2788:11495" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="3112:11485" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="3171:3267" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="3315:3381" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="3591:11471" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="3656:3767" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="3833:3953" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="4424:4578" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="4722:6205" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="4801:6183" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="5125:5818" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="5318:5788" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="5455:5695" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="5906:6106" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="6543:7132" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="6712:7110" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="6825:7033" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="7204:7411" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="7618:7696" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="8006:8497" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="8226:8439" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="8820:11018" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="9157:9333" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="9384:9858" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="9411:9521" ph="/* this needs to become a new vertex and we need a new edge. ... */" />
+            <marker date="1520609309036" expanded="true" signature="10119:10257" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="10310:10480" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="11142:11264" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="11532:12272" ph="{...}" />
+            <marker date="1520609309036" expanded="true" signature="11555:11678" ph="/// The location of this 'vertex'. ... " />
+            <marker date="1520609309036" expanded="true" signature="11745:11882" ph="/// True if the next segment is inside the area; ... " />
+            <marker date="1520609309036" expanded="true" signature="11941:12217" ph="/// Holds the future status: ... " />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
