@@ -32,7 +32,7 @@ using System.Linq;
 
 namespace Itinero.Test.Functional
 {
-    public class Program
+    public static class Program
     {
         private static Logger _logger;
 
@@ -71,9 +71,9 @@ namespace Itinero.Test.Functional
             InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-// #if DEBUG
-//             Console.ReadLine();
-// #endif
+#if DEBUG
+             Console.ReadLine();
+#endif
         }
 
         private static void EnableLogging()
