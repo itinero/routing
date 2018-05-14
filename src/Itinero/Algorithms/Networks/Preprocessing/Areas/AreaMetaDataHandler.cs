@@ -19,7 +19,9 @@
 using System;
 using System.Collections.Generic;
 using Itinero.Data.Network;
+using Itinero.Graphs;
 using Itinero.LocalGeo;
+using Itinero.Profiles.Lua.Interop.LuaStateInterop;
 
 namespace Itinero.Algorithms.Networks.Preprocessing.Areas
 {
@@ -30,51 +32,62 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
     {
         private readonly RouterDb _routerDb;
         private readonly IArea _area;
-        private readonly NotifyNewEdgeDelegate _newEdgeCallback;
 
         /// <summary>
         /// Creates a new area mapper.
         /// </summary>
         /// <param name="routerDb">The router db.</param>
         /// <param name="area">The area.</param>
-        /// <param name="newEdgeCallback">The callback to handle new edges.</param>
-        public AreaMetaDataHandler(RouterDb routerDb, IArea area,
-            NotifyNewEdgeDelegate newEdgeCallback)
+        public AreaMetaDataHandler(RouterDb routerDb, IArea area)
         {
             _routerDb = routerDb;
             _area = area;
-            _newEdgeCallback = newEdgeCallback;
         }
 
         /// <summary>
-        /// A delegate to notifiy an edge that has split.
+        /// A delegate to notify listeners of a new vertex.
         /// </summary>
-        /// <param name="edgeId">The edge id.</param>
-        /// <param name="vertices">The vertices being inserted.</param>
-        public delegate void NotifyEdgeSplitDelegate(uint edgeId, IReadOnlyList<uint> vertices);
+        /// <param name="newVertexId">The new vertex id.</param>
+        public delegate void NewVertexDelegate(uint newVertexId);
+        
+        /// <summary>
+        /// Gets or sets a listener to listen to new vertex notifications.
+        /// </summary>
+        public NewVertexDelegate NewVertex { get; set; }
 
         /// <summary>
-        /// Gets or sets a function to notify about an edge that was split.
+        /// A delegate to notifiy listeners of a new edge.
         /// </summary>
-        /// <returns></returns>
-        public NotifyEdgeSplitDelegate NotifyEdgeSplit { get; set; }
+        /// <param name="oldEdgeId">The old id.</param>
+        /// <param name="newEdgeId">The new edge id, a part of the old edge.</param>
+        /// <remarks>A this time both old and new edges exist.</remarks>
+        public delegate void NewEdgeDelegate(uint oldEdgeId, uint newEdgeId);
+        
+        /// <summary>
+        /// Gets or sets a listener to listen to new edge nofications.
+        /// </summary>
+        public NewEdgeDelegate NewEdge { get; set; }
 
         /// <summary>
-        /// A delegate to notify listeners when there is a new edge.
+        /// A delegate to notify listeners that an edge was found inside the area.
         /// </summary>
         /// <param name="edgeId">The edge id.</param>
-        /// <param name="inside">True if the edge is inside the area.</param>
-        public delegate void NotifyNewEdgeDelegate(uint edgeId, bool inside);
+        public delegate void EdgeInsideDelegate(uint edgeId);
+        
+        /// <summary>
+        /// Gets or sets a listener to listen to edge inside notifications.
+        /// </summary>
+        public EdgeInsideDelegate EdgeInside { get; set; }
 
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
         protected override void DoRun()
         {
+            const long INTERSECTION = -1;
             var vertexCountAtStart = _routerDb.Network.VertexCount;
 
-            var currentShape = new List<Coordinate>();
-            var newVertices = new List<uint>();
+            var newEdges = new List<long>(); // > 0 is inside, < 0 outside.
 
             var edgeEnumerator = _routerDb.Network.GetEdgeEnumerator();
             for (uint v = 0; v < _routerDb.Network.VertexCount; v++)
@@ -103,7 +116,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                         continue;
                     }
 
-                    newVertices.Clear();
+                    newEdges.Clear();
 
                     var edgeData = edgeEnumerator.Data;
 
@@ -111,7 +124,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     var hasIntersections = false;
                     Coordinate[] intersections;
                     var tLocation = _routerDb.Network.GetVertex(edgeEnumerator.To);
-                    var status = new List<VertexStatus>(currentShape.Count);
+                    var status = new List<VertexStatus>(new List<Coordinate>().Count);
                     var previous = new VertexStatus()
                     {
                         Location = fLocation,
@@ -164,7 +177,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                             previous = new VertexStatus()
                             {
                                 Location = intersection,
-                                Vertex = Constants.NO_VERTEX,
+                                Vertex = INTERSECTION,
                                 Inside = !previous.Inside
                             };
                             status.Add(previous);
@@ -182,31 +195,21 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     // continue to the next edge if nothing is to be done.
                     if (!hasIntersections &&
                         !status[0].Inside)
-                    {
+                    { // edge not inside and no intersections.
                         continue;
                     }
-
-                    // build the new meta-data for inside segments.
-                    uint metaId = 0;
-                    ushort profileId = 0;
 
                     // handle the easy case, no intersections but inside.
                     if (!hasIntersections &&
                         status[0].Inside)
                     { // just update edge meta data.
-                        _routerDb.Network.UpdateEdgeData(edgeEnumerator.Id,
-                            new Data.Network.Edges.EdgeData()
-                            {
-                                MetaId = metaId,
-                                    Profile = profileId,
-                                    Distance = edgeEnumerator.Data.Distance
-                            });
+                        this.EdgeInside?.Invoke(edgeEnumerator.Id);
                         continue;
                     }
 
-                    // loop over all status pairs and if inside add meta-data.
-                    currentShape.Clear();
-                    newVertices.Clear();
+                    // loop over all status pairs and if inside do stuff.
+                    new List<Coordinate>().Clear();
+                    newEdges.Clear();
                     var previousRelevant = status[0];
                     var previousDistance = 0f;
                     for (var s = 1; s < status.Count; s++)
@@ -219,54 +222,69 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
 
                         if (current.Vertex == Constants.NO_VERTEX)
                         { // just a shapepoint.
-                            currentShape.Add(current.Location);
+                            new List<Coordinate>().Add(current.Location);
                             continue;
                         }
 
-                        if (current.Vertex == -1)
+                        if (current.Vertex == INTERSECTION)
                         { // this needs to become a new vertex and we need a new edge.
                             // add the new verex.
                             current.Vertex = _routerDb.Network.VertexCount;
-                            newVertices.Add((uint) current.Vertex);
                             _routerDb.Network.AddVertex((uint) current.Vertex, current.Location.Latitude,
                                 current.Location.Longitude);
+                            this.NewVertex?.Invoke((uint) current.Vertex);
                         }
 
-                        // add the new edge for the segment.
+                        // add the new edge for the segment.                  
                         var newEdgeData = edgeData;
                         newEdgeData.Distance = previousDistance;
                         if (previousDistance > _routerDb.Network.MaxEdgeDistance)
                         {
                             newEdgeData.Distance = _routerDb.Network.MaxEdgeDistance;
                         }
-                        if (previousRelevant.Inside)
+                        long edgeId = _routerDb.Network.AddEdge((uint) previousRelevant.Vertex, (uint) current.Vertex,
+                            newEdgeData, new List<Coordinate>());
+                        if (!previousRelevant.Inside)
                         {
-                            newEdgeData.MetaId = metaId;
-                            newEdgeData.Profile = profileId;
+                            edgeId = -edgeId;
                         }
-                        var edgeId = _routerDb.Network.AddEdge((uint) previousRelevant.Vertex, (uint) current.Vertex,
-                            newEdgeData, currentShape);
-
-                        // notify listeners about the new edge.
-                        _newEdgeCallback(edgeId, previousRelevant.Inside);
+                        newEdges.Add(edgeId);
 
                         // prepare for the next segment.
-                        currentShape.Clear();
+                        new List<Coordinate>().Clear();
                         previousRelevant = current;
                         previousDistance = 0;
                     }
 
-                    // notify edge was split if anyone is listening.
-                    if (this.NotifyEdgeSplit != null)
+                    // notify listeners on all new edges now that we still have the old one around.
+                    foreach (var newEdgeId in newEdges)
                     {
-                        this.NotifyEdgeSplit(edgeEnumerator.Id, newVertices);
+                        if (newEdgeId < 0)
+                        {
+                            this.NewEdge?.Invoke(edgeEnumerator.Id, (uint)-newEdgeId);
+                        }
+                        else
+                        {
+                            this.NewEdge?.Invoke(edgeEnumerator.Id, (uint)newEdgeId);
+                        }
                     }
 
                     // remove the old edge.
                     _routerDb.Network.RemoveEdge(edgeEnumerator.Id);
                     edgeEnumerator.Reset(); // don't use after this point.
+                    
+                    // notify listeners about the edges inside.
+                    foreach (var newEdgeId in newEdges)
+                    {
+                        if (newEdgeId > 0)
+                        {
+                            this.EdgeInside?.Invoke((uint)newEdgeId);
+                        }
+                    }
                 }
             }
+
+            this.HasSucceeded = true;
         }
 
         private struct VertexStatus

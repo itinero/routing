@@ -764,9 +764,6 @@
               <e p="netstandard1.3" t="Include">
                 <e p="Itinero.AssemblyInfo.cs" t="Include" />
               </e>
-              <e p="portable40-net403+sl5+win8+wp8" t="Include">
-                <e p="Itinero.AssemblyInfo.cs" t="Include" />
-              </e>
             </e>
           </e>
         </e>
@@ -814,9 +811,6 @@
                 <e p="Itinero.IO.Osm.AssemblyInfo.cs" t="Include" />
               </e>
               <e p="netstandard1.6" t="Include">
-                <e p="Itinero.IO.Osm.AssemblyInfo.cs" t="Include" />
-              </e>
-              <e p="portable40-net403+sl5+win8+wp8" t="Include">
                 <e p="Itinero.IO.Osm.AssemblyInfo.cs" t="Include" />
               </e>
             </e>
@@ -884,6 +878,9 @@
               </e>
               <e p="NetworkOptimizerTests.cs" t="Include" />
               <e p="Preprocessing" t="Include">
+                <e p="Areas" t="Include">
+                  <e p="AreaMetaDataHandlerTests.cs" t="Include" />
+                </e>
                 <e p="MaxDistanceSplitterTests.cs" t="Include" />
                 <e p="SimpleGraphConverterTest.cs" t="Include" />
               </e>
@@ -1099,6 +1096,7 @@
             <e p="fictional.osm" t="Include" />
           </e>
           <e p="bin" t="ExcludeRecursive" />
+          <e p="luxembourg-latest.osm.pbf" t="Include" />
           <e p="obj" t="ExcludeRecursive">
             <e p="Debug" t="Include">
               <e p="netcoreapp2.0" t="Include">

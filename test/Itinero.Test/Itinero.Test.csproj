@@ -1,11 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-
   <ItemGroup>
     <None Remove="test-data\networks\network1.geojson" />
     <None Remove="test-data\networks\network10-meta.geojson" />
@@ -30,7 +27,6 @@
     <None Remove="test-data\profiles\osm\car.lua" />
     <None Remove="test-data\profiles\shape\car.lua" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="test-data\networks\network1.geojson" />
     <EmbeddedResource Include="test-data\networks\network10-meta.geojson" />
@@ -56,7 +52,6 @@
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
     <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
@@ -66,14 +61,11 @@
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="Itinero.Geo" Version="1.4.0-pre18" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
-
 </Project>
