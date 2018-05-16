@@ -31,17 +31,17 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
     /// </summary>
     public class AreaMetaDataHandler : AlgorithmBase
     {
-        private readonly RouterDb _routerDb;
+        private readonly RoutingNetwork _network;
         private readonly IArea _area;
 
         /// <summary>
         /// Creates a new area mapper.
         /// </summary>
-        /// <param name="routerDb">The router db.</param>
+        /// <param name="network">The network.</param>
         /// <param name="area">The area.</param>
-        public AreaMetaDataHandler(RouterDb routerDb, IArea area)
+        public AreaMetaDataHandler(RoutingNetwork network, IArea area)
         {
-            _routerDb = routerDb;
+            _network = network;
             _area = area;
         }
 
@@ -86,12 +86,13 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
         protected override void DoRun(CancellationToken cancellationToken)
         {
             const long INTERSECTION = -1;
-            var vertexCountAtStart = _routerDb.Network.VertexCount;
+            var vertexCountAtStart = _network.VertexCount;
 
             var newEdges = new List<long>(); // > 0 is inside, < 0 outside.
+            var currentShape = new List<Coordinate>();
 
-            var edgeEnumerator = _routerDb.Network.GetEdgeEnumerator();
-            for (uint v = 0; v < _routerDb.Network.VertexCount; v++)
+            var edgeEnumerator = _network.GetEdgeEnumerator();
+            for (uint v = 0; v < _network.VertexCount; v++)
             {
                 if (v >= vertexCountAtStart)
                 { // all new vertices from now on.
@@ -103,12 +104,12 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     continue;
                 }
 
-                var fLocation = _routerDb.Network.GetVertex(v);
+                var fLocation = _network.GetVertex(v);
                 var fLocationInside = _area.Overlaps(fLocation.Latitude, fLocation.Longitude);
                 while (edgeEnumerator.MoveNext())
                 {
-                    if (v > edgeEnumerator.To)
-                    { // consider each edge only once.
+                    if (edgeEnumerator.DataInverted)
+                    { // consider each edge only once and only in the forward direction.
                         continue;
                     }
 
@@ -124,7 +125,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     // build status.
                     var hasIntersections = false;
                     Coordinate[] intersections;
-                    var tLocation = _routerDb.Network.GetVertex(edgeEnumerator.To);
+                    var tLocation = _network.GetVertex(edgeEnumerator.To);
                     var status = new List<VertexStatus>(new List<Coordinate>().Count);
                     var previous = new VertexStatus()
                     {
@@ -149,7 +150,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                                     previous = new VertexStatus()
                                     {
                                         Location = intersection,
-                                        Vertex = Constants.NO_VERTEX,
+                                        Vertex = INTERSECTION,
                                         Inside = !previous.Inside
                                     };
                                     status.Add(previous);
@@ -187,7 +188,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
 
                     previous = new VertexStatus()
                     {
-                        Location = _routerDb.Network.GetVertex(edgeEnumerator.To),
+                        Location = _network.GetVertex(edgeEnumerator.To),
                         Vertex = edgeEnumerator.To,
                         Inside = previous.Inside
                     };
@@ -209,7 +210,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     }
 
                     // loop over all status pairs and if inside do stuff.
-                    new List<Coordinate>().Clear();
+                    currentShape.Clear();
                     newEdges.Clear();
                     var previousRelevant = status[0];
                     var previousDistance = 0f;
@@ -223,15 +224,15 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
 
                         if (current.Vertex == Constants.NO_VERTEX)
                         { // just a shapepoint.
-                            new List<Coordinate>().Add(current.Location);
+                            currentShape.Add(current.Location);
                             continue;
                         }
 
                         if (current.Vertex == INTERSECTION)
                         { // this needs to become a new vertex and we need a new edge.
                             // add the new verex.
-                            current.Vertex = _routerDb.Network.VertexCount;
-                            _routerDb.Network.AddVertex((uint) current.Vertex, current.Location.Latitude,
+                            current.Vertex = _network.VertexCount;
+                            _network.AddVertex((uint) current.Vertex, current.Location.Latitude,
                                 current.Location.Longitude);
                             this.NewVertex?.Invoke((uint) current.Vertex);
                         }
@@ -239,12 +240,12 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                         // add the new edge for the segment.                  
                         var newEdgeData = edgeData;
                         newEdgeData.Distance = previousDistance;
-                        if (previousDistance > _routerDb.Network.MaxEdgeDistance)
+                        if (previousDistance > _network.MaxEdgeDistance)
                         {
-                            newEdgeData.Distance = _routerDb.Network.MaxEdgeDistance;
+                            newEdgeData.Distance = _network.MaxEdgeDistance;
                         }
-                        long edgeId = _routerDb.Network.AddEdge((uint) previousRelevant.Vertex, (uint) current.Vertex,
-                            newEdgeData, new List<Coordinate>());
+                        long edgeId = _network.AddEdge((uint) previousRelevant.Vertex, (uint) current.Vertex,
+                            newEdgeData, currentShape);
                         if (!previousRelevant.Inside)
                         {
                             edgeId = -edgeId;
@@ -252,7 +253,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                         newEdges.Add(edgeId);
 
                         // prepare for the next segment.
-                        new List<Coordinate>().Clear();
+                        currentShape.Clear();
                         previousRelevant = current;
                         previousDistance = 0;
                     }
@@ -271,7 +272,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     }
 
                     // remove the old edge.
-                    _routerDb.Network.RemoveEdge(edgeEnumerator.Id);
+                    _network.RemoveEdge(edgeEnumerator.Id);
                     edgeEnumerator.Reset(); // don't use after this point.
                     
                     // notify listeners about the edges inside.
@@ -310,6 +311,12 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
             /// </summary>
             /// <returns></returns>
             public long Vertex { get; set; }
+
+            public override string ToString()
+            {
+                return string.Format("{0}-{1} @ {2}",
+                    this.Vertex, this.Inside, this.Location);
+            }
         }
     }
 }

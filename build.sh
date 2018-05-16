@@ -1,7 +1,7 @@
 dotnet build ./src/Itinero -f netstandard1.3
 dotnet build ./src/Itinero.IO.Osm -f netstandard1.6
 
-# Waiting to port to .NET core.
+# Test projects.
 dotnet build ./test/Itinero.Test
 dotnet build ./test/Itinero.Test.Functional
 
