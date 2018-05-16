@@ -83,13 +83,13 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
-        /// Copies whatever data is in item2 to item1.
+        /// Copies whatever data is in 'from' to 'to'.
         /// </summary>
-        public void Copy(uint item1, uint item2)
+        public void Copy(uint to, uint from)
         {
             foreach(var collection in _collections)
             {
-                collection.Value.Copy(item1, item2);
+                collection.Value.Copy(to, from);
             }
         }
 

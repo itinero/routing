@@ -16,7 +16,26 @@
  *  limitations under the License.
  */
 
-using System.Reflection;
-
-[assembly: AssemblyVersion("1.4.0")]
-[assembly: AssemblyInformationalVersion("1.4.0-pre50")]
+namespace Itinero.IO.Osm
+{
+    /// <summary>
+    /// Holds constants.
+    /// </summary>
+    public static class Constants
+    {
+        /// <summary>
+        /// Holds the name of vertex meta data collection keeping node id's.
+        /// </summary>
+        public static string NODE_ID_META_NAME = "node_id";
+        
+        /// <summary>
+        /// Holds the name of edge meta data collection keeping way id's.
+        /// </summary>
+        public static string WAY_ID_META_NAME = "way_id";
+        
+        /// <summary>
+        /// Holds the name of edge meta data collection keeping starting node index in way's.
+        /// </summary>
+        public static string WAY_NODE_IDX_META_NAME = "way_node_idx";
+    }
+}

@@ -173,13 +173,13 @@ namespace Itinero.IO.Osm.Streams
             
             if (this.KeepNodeIds)
             {
-                _nodeData = _db.VertexData.AddInt64("node_id");
+                _nodeData = _db.VertexData.AddInt64(Itinero.IO.Osm.Constants.NODE_ID_META_NAME);
             }
 
             if (this.KeepWayIds)
             {
-                _wayIds = _db.EdgeData.AddInt64("way_id");
-                _wayNodeIndices = _db.EdgeData.AddUInt16("way_node_idx");
+                _wayIds = _db.EdgeData.AddInt64(Itinero.IO.Osm.Constants.WAY_ID_META_NAME);
+                _wayNodeIndices = _db.EdgeData.AddUInt16(Itinero.IO.Osm.Constants.WAY_NODE_IDX_META_NAME);
             }
         }
 
