@@ -18,6 +18,8 @@
 
 using NUnit.Framework;
 using Itinero.Algorithms.Networks;
+using System.Linq;
+using Itinero.Data.Network.Edges;
 
 namespace Itinero.Test.Algorithms.Networks
 {
@@ -31,7 +33,7 @@ namespace Itinero.Test.Algorithms.Networks
         /// Tests optimizing network 9.
         /// </summary>
         [Test]
-        public void TestOptimizeNetwork()
+        public void TestOptimizeNetwork9()
         {
             // build and load network.
             var routerDb = new RouterDb();
@@ -41,11 +43,138 @@ namespace Itinero.Test.Algorithms.Networks
 
             routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
 
-            // optimize.
+            // optimize but not possible because of edge meta.
+            Assert.AreEqual(10, routerDb.Network.EdgeCount);
+            routerDb.OptimizeNetwork();
+            routerDb.Network.Compress();
+            Assert.AreEqual(10, routerDb.Network.EdgeCount);
+        }
+        
+        /// <summary>
+        /// Tests optimizing network 9.
+        /// </summary>
+        [Test]
+        public void TestOptimizeNetwork9WithoutMeta()
+        {
+            // build and load network.
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network9.geojson"));
+
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.EdgeData.Clear();
+
+            // optimize but not possible because of edge meta.
             Assert.AreEqual(10, routerDb.Network.EdgeCount);
             routerDb.OptimizeNetwork();
             routerDb.Network.Compress();
             Assert.AreEqual(6, routerDb.Network.EdgeCount);
+        }
+        
+        /// <summary>
+        /// Tests two identical edges.
+        /// </summary>
+        [Test]
+        public void TestTwoIdenticalEdges()
+        {
+            // create graph with one vertex and start adding 2.
+            var routerDb = new RouterDb();
+            var graph = routerDb.Network;
+
+            // make sure to add 1 and 2.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            graph.AddVertex(2, 2, 2);
+            graph.AddEdge(0, 1, new EdgeData() { Profile = 1, MetaId = 1, Distance = 10 }, null);
+            graph.AddEdge(1, 2, new EdgeData() { Profile = 1, MetaId = 1, Distance = 20 }, null);
+
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+
+            // optimize.
+            routerDb.OptimizeNetwork();
+            routerDb.Network.Compress();
+            Assert.AreEqual(1, routerDb.Network.EdgeCount);
+
+            // check result.
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Data.Profile);
+            Assert.AreEqual(1, edges.First().Data.MetaId);
+            Assert.AreEqual(30, edges.First().Data.Distance);
+            var shape = edges.Shape;
+            Assert.IsNotNull(shape);
+            Assert.AreEqual(1, shape.Count);
+            Assert.AreEqual(1, shape.First().Latitude);
+            Assert.AreEqual(1, shape.First().Longitude);
+        }
+        
+        /// <summary>
+        /// Tests two identical edges with different edge meta (can't merge them).
+        /// </summary>
+        [Test]
+        public void TestTwoIdenticalEdgesWithDifferentEdgeMEta()
+        {
+            // create graph with one vertex and start adding 2.
+            var routerDb = new RouterDb();
+            var graph = routerDb.Network;
+
+            // make sure to add 1 and 2.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            graph.AddVertex(2, 2, 2);
+            var e1 = graph.AddEdge(0, 1, new EdgeData() { Profile = 1, MetaId = 1, Distance = 10 }, null);
+            var e2 = graph.AddEdge(1, 2, new EdgeData() { Profile = 1, MetaId = 1, Distance = 20 }, null);
+            var someData = routerDb.EdgeData.AddInt16("some-data");
+            someData[e1] = 0;
+            someData[e2] = 1;
+
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+
+            // optimize.
+            routerDb.OptimizeNetwork();
+            routerDb.Network.Compress();
+            Assert.AreEqual(2, routerDb.Network.EdgeCount);
+        }
+        
+        /// <summary>
+        /// Tests two identical edges with identical edge meta (they should merge fine).
+        /// </summary>
+        [Test]
+        public void TestTwoIdenticalEdgesWithIdenticalEdgeMEta()
+        {
+            // create graph with one vertex and start adding 2.
+            var routerDb = new RouterDb();
+            var graph = routerDb.Network;
+
+            // make sure to add 1 and 2.
+            graph.AddVertex(0, 0, 0);
+            graph.AddVertex(1, 1, 1);
+            graph.AddVertex(2, 2, 2);
+            var e1 = graph.AddEdge(0, 1, new EdgeData() { Profile = 1, MetaId = 1, Distance = 10 }, null);
+            var e2 = graph.AddEdge(1, 2, new EdgeData() { Profile = 1, MetaId = 1, Distance = 20 }, null);
+            var someData = routerDb.EdgeData.AddInt16("some-data");
+            someData[e1] = 10;
+            someData[e2] = 10;
+
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+
+            // optimize.
+            routerDb.OptimizeNetwork();
+            routerDb.Network.Compress();
+            Assert.AreEqual(1, routerDb.Network.EdgeCount);
+            var edges = graph.GetEdgeEnumerator(0);
+            Assert.AreEqual(1, edges.Count());
+            Assert.AreEqual(1, edges.First().Data.Profile);
+            Assert.AreEqual(1, edges.First().Data.MetaId);
+            Assert.AreEqual(30, edges.First().Data.Distance);
+            var shape = edges.Shape;
+            Assert.IsNotNull(shape);
+            Assert.AreEqual(1, shape.Count);
+            Assert.AreEqual(1, shape.First().Latitude);
+            Assert.AreEqual(1, shape.First().Longitude);
+            
+            Assert.AreEqual(10, routerDb.EdgeData.Get<short>("some-data")[edges.First().Id]);
         }
     }
 }

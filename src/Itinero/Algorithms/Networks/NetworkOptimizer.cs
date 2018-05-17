@@ -36,7 +36,32 @@ namespace Itinero.Algorithms.Networks
         private readonly float _simplifyEpsilonInMeter;
 
         /// <summary>
-        /// A delegate to control the merging of two edges.
+        /// A delegate to verify if anything external is blocking the merging of the given edges.
+        /// </summary>
+        /// <param name="edgeId1">The first edge.</param>
+        /// <param name="edgeId2">The second edge.</param>
+        public delegate bool CanMergeDelegate(uint edgeId1, uint edgeId2);
+        
+        /// <summary>
+        /// Gets or sets a listener to verify if edge can be merged or not.
+        /// </summary>
+        public CanMergeDelegate CanMerge { get; set; }
+
+        /// <summary>
+        /// A delegate to notifiy listeners of a new edge.
+        /// </summary>
+        /// <param name="oldEdgeId">The old id.</param>
+        /// <param name="newEdgeId">The new edge id, a part of the old edge.</param>
+        /// <remarks>A this time both old and new edges exist.</remarks>
+        public delegate void NewEdgeDelegate(uint oldEdgeId, uint newEdgeId);
+        
+        /// <summary>
+        /// Gets or sets a listener to listen to new edge nofications.
+        /// </summary>
+        public NewEdgeDelegate NewEdge { get; set; }
+
+        /// <summary>
+        /// A delegate to control how to merging two edges.
         /// </summary>
         public delegate bool MergeDelegate(Data.Network.Edges.EdgeData edgeData1, bool inverted1,
             Data.Network.Edges.EdgeData edgeData2, bool inverted2, out Data.Network.Edges.EdgeData mergedEdgeData, out bool mergedInverted);
@@ -71,57 +96,63 @@ namespace Itinero.Algorithms.Networks
                     
                     bool inverted;
                     Data.Network.Edges.EdgeData edgeData;
-                    if (edges[0].To != edges[1].To &&
-                        _merge(edges[0].Data, !edges[0].DataInverted, edges[1].Data, edges[1].DataInverted,
-                            out edgeData, out inverted))
-                    { // targets can be merged.
-                        if (edgeData.Distance < _network.MaxEdgeDistance &&
-                            !_network.ContainsEdge(edges[0].To, edges[1].To))
-                        { // network does not contain edge yet and new edge < MAX_DISTANCE.
-                            var shape = new List<Coordinate>();
-                            var shape1 = edges[0].Shape;
-                            if (shape1 != null)
-                            { // add coordinates of first shape.
-                                if (!edges[0].DataInverted)
-                                { // data is not inverted.
-                                    shape.AddRange(shape1.Reverse());
-                                }
-                                else
-                                { // data is inverted.
-                                    shape.AddRange(shape1);
-                                }
-                            }
-                            shape.Add(_network.GetVertex(vertex));
-                            var shape2 = edges[1].Shape;
-                            if (shape2 != null)
-                            { // add coordinates of first shape.
-                                if (!edges[1].DataInverted)
-                                { // data is not inverted.
-                                    shape.AddRange(shape2);
-                                }
-                                else
-                                { // data is inverted.
-                                    shape.AddRange(shape2.Reverse());
-                                }
-                            }
+                    if (edges[0].To == edges[1].To ||
+                        (this.CanMerge != null && !this.CanMerge(edges[0].Id, edges[1].Id)) || !_merge(edges[0].Data,
+                            !edges[0].DataInverted, edges[1].Data, edges[1].DataInverted,
+                            out edgeData, out inverted)) continue; // targets cannot be merged.
 
-                            // remove edges.
-                            _network.RemoveEdges(vertex);
-
-                            // add edges.
-                            if (!inverted)
-                            { // just add 0->1
-                                _network.AddEdge(edges[0].To, edges[1].To, edgeData, shape.Simplify(_simplifyEpsilonInMeter));
+                    if (edgeData.Distance < _network.MaxEdgeDistance &&
+                        !_network.ContainsEdge(edges[0].To, edges[1].To))
+                    { // network does not contain edge yet and new edge < MAX_DISTANCE.
+                        var shape = new List<Coordinate>();
+                        var shape1 = edges[0].Shape;
+                        if (shape1 != null)
+                        { // add coordinates of first shape.
+                            if (!edges[0].DataInverted)
+                            { // data is not inverted.
+                                shape.AddRange(shape1.Reverse());
                             }
                             else
-                            { // add the reverse 1->0
-                                shape.Reverse();
-                                _network.AddEdge(edges[1].To, edges[0].To, edgeData, shape.Simplify(_simplifyEpsilonInMeter));
+                            { // data is inverted.
+                                shape.AddRange(shape1);
                             }
                         }
+                        shape.Add(_network.GetVertex(vertex));
+                        var shape2 = edges[1].Shape;
+                        if (shape2 != null)
+                        { // add coordinates of first shape.
+                            if (!edges[1].DataInverted)
+                            { // data is not inverted.
+                                shape.AddRange(shape2);
+                            }
+                            else
+                            { // data is inverted.
+                                shape.AddRange(shape2.Reverse());
+                            }
+                        }
+
+                        // add edges.
+                        if (!inverted)
+                        { // just add 0->1
+                            var newEdgeId = _network.AddEdge(edges[0].To, edges[1].To, edgeData, shape.Simplify(_simplifyEpsilonInMeter));
+                            this.NewEdge?.Invoke(edges[0].Id, newEdgeId);
+                            this.NewEdge?.Invoke(edges[1].Id, newEdgeId);
+                        }
+                        else
+                        { // add the reverse 1->0
+                            shape.Reverse();
+                            var newEdgeId = _network.AddEdge(edges[1].To, edges[0].To, edgeData, shape.Simplify(_simplifyEpsilonInMeter));
+                            this.NewEdge?.Invoke(edges[0].Id, newEdgeId);
+                            this.NewEdge?.Invoke(edges[1].Id, newEdgeId);
+                        }
+
+                        // remove edges.
+                        _network.RemoveEdges(vertex);
                     }
                 }
             }
+
+            this.HasSucceeded = true;
         }
     }
 }

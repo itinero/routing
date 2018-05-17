@@ -126,7 +126,7 @@ namespace Itinero.IO.Osm.Nodes
                 attributes.Count > 0)
             {
                 var vertex = _markCore(node);
-                if (vertex != Constants.NO_VERTEX)
+                if (vertex != Itinero.Constants.NO_VERTEX)
                 {
                     _routerDb.VertexMeta[vertex] = attributes;
                 }

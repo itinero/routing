@@ -118,7 +118,7 @@ namespace Itinero.IO.Osm.Streams
                         var index = _nodeIndex.TryGetIndex(node.Id.Value);
                         if (index == long.MaxValue)
                         { // node is not a vertex.
-                            return Constants.NO_VERTEX;
+                            return Itinero.Constants.NO_VERTEX;
                         }
                         return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
                     }));
@@ -142,7 +142,7 @@ namespace Itinero.IO.Osm.Streams
                     var index = _nodeIndex.TryGetIndex(node.Id.Value);
                     if (index == long.MaxValue)
                     { // node is not a vertex.
-                        return Constants.NO_VERTEX;
+                        return Itinero.Constants.NO_VERTEX;
                     }
                     return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
                 },
@@ -152,8 +152,7 @@ namespace Itinero.IO.Osm.Streams
                     {
                         vehicleType = string.Empty;
                     }
-                    RestrictionsDb restrictions;
-                    if (!_db.TryGetRestrictions(vehicleType, out restrictions))
+                    if (!_db.TryGetRestrictions(vehicleType, out var restrictions))
                     {
                         restrictions = new RestrictionsDb();
                         _db.AddRestrictions(vehicleType, restrictions);

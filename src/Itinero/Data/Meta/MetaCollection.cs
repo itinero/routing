@@ -81,6 +81,11 @@ namespace Itinero.Data
         public abstract void Switch(uint item1, uint item2);
 
         /// <summary>
+        /// Returns true if the data in the two given items is identical.
+        /// </summary>
+        public abstract bool Equal(uint item1, uint item2);
+
+        /// <summary>
         /// Copies whatever data is in 'from' to 'to'.
         /// </summary>
         public abstract void Copy(uint to, uint from);
@@ -377,6 +382,15 @@ namespace Itinero.Data
                     this[item2] = _empty;
                 }
             }
+        }
+
+        /// <summary>
+        /// Returns true if the data in the two given items is identical.
+        /// </summary>
+        public override bool Equal(uint item1, uint item2)
+        {
+            if (item1 >= this.Count || item2 >= this.Count) return false;
+            return EqualityComparer<T>.Default.Equals(this[item1], this[item2]);
         }
 
         /// <summary>

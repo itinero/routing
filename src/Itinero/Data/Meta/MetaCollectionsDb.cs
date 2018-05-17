@@ -59,6 +59,14 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
+        /// Removes all data.
+        /// </summary>
+        public void Clear()
+        {
+            _collections.Clear();
+        }
+
+        /// <summary>
         /// Gets the type of the collection with the given name.
         /// </summary>
         public Type GetType(string name)
