@@ -242,5 +242,14 @@ namespace Itinero.Profiles
         {
             return _profiles.Values;
         }
+
+        /// <summary>
+        /// Gets a description of this profile.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return this.FullName;
+        }
     }
 }

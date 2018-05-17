@@ -250,5 +250,14 @@ namespace Itinero.Profiles
             get;
             set;
         }
+
+        /// <summary>
+        /// Gets a description of this vehicle.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }
