@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Itinero.Profiles.Lua.Tree.Statements;
+using Itinero.LocalGeo;
 
 namespace Itinero.Algorithms.Default
 {
@@ -9,61 +9,79 @@ namespace Itinero.Algorithms.Default
     /// </summary>
     public class ConvexHull
     {
-        private float[] lats;
-        private float[] lons;
-        private int[] points;
+        private readonly float[] _lats;
+        private readonly float[] _lons;
 
         public ConvexHull(float[] lats, float[] lons)
         {
-            this.lats = lats;
-            this.lons = lons;
-            points = new int[lats.Length];
-            for (int i = 0; i < points.Length; i++)
+            _lats = lats;
+            _lons = lons;
+            Points = new int[lats.Length];
+            for (var i = 0; i < Points.Length; i++)
             {
-                points[i] = i;
+                Points[i] = i;
             }
         }
 
+        public int[] Points { get; }
+
         /// <summary>
-        /// The quickhull algorithm, with extra options and params for testing
-        ///
-        /// Does not work well with the antemeridian
+        /// The quickhull algorithm in a convenient coordinate format.
+        /// Contains all you need
         /// </summary>
-        /// <param name="lats">The latitudes of the points</param>
-        /// <param name="lons">The longitutdes of the points</param>
-        /// <param name="iterations">The number of iterations needed to calculate the convex hull. This parameter is only usefull for testing</param>
-        /// <param name="considerPoints">Only consider these points in the quickhull algo. Used in the recursive steps</param>
-        /// <returns>A list of indices. These points make up the hull</returns>
-        public int quickhull_raw()
+        /// <param name="coors"></param>
+        /// <returns></returns>
+        public static List<Coordinate> Quickhull(List<Coordinate> coors)
+        {
+            var lats = new float[coors.Count];
+            var lons = new float[coors.Count];
+
+            var cv = new ConvexHull(lats, lons);
+
+            var cutoff = cv.Quickhull();
+
+            var results = new List<Coordinate>();
+            foreach (var i in cv.Points)
+            {
+                results.Add(coors[i]);
+            }
+
+            return results;
+        }
+
+        /// <summary>
+        /// Reoorders the points in 'Points' so that the elements of the quickhull are in front (the hull will be in order),
+        /// Returns the number of quickhull elements 
+        /// </summary>
+        public int Quickhull()
         {
             // Get the two outer most points
             CalculateMinMaxX(out var pointA, out var pointB);
-            var l = lats.Length;
+            var l = _lats.Length;
 
-            // Save those points in the total beginning and end of the array
-            points[pointA] = 0;
-            points[0] = pointA;
+            // Save pointA in the total beginning and end of the array
+            SwapP(pointA, 0);
 
-            points[pointB] = l - 1;
-            points[l-1] = pointB;
+            // Move pointB out of the way to the end
+            SwapP(pointB, l - 1);
 
-            var hull = new List<int>();
+            // Split the resting set into a left and right partition...
+            var split = PartitionLeftRight(pointA, pointB, 1, l - 1);
+            // ...And calculate the hull on the left
+            var cutoff1 = FindHull(pointA, pointB, 1, split);
 
-            var split = PartitionLeftRight(pointA, pointB, 1, l-1);
-            
-            var cutoff1 = FindHull(pointA, pointB, 2, split);
-            var cutoff2 = FindHull(pointB, pointA, split, l - 1);
-
-            points[cutoff1] = pointB;
+            // Move pointB just after this hull
+            SwapP(cutoff1, l - 1);
             cutoff1++;
 
-            for (var i = split; i < cutoff2; i++)
-            {
-                points[cutoff1] = points[i];
-                cutoff1++;
-            }
+            // split might equal cutoff1; in that case:
+            split = Math.Max(cutoff1, split);
 
-            return cutoff1;
+            // And calculate the second part of the hull
+            var cutoff2 = FindHull(pointB, pointA, split, l);
+
+
+            return MergeP(cutoff1, split, cutoff2) - 1;
         }
 
         /// <summary>
@@ -80,68 +98,65 @@ namespace Itinero.Algorithms.Default
         {
             if (start == stop)
             {
-                // Just a single points here
+                // No points here: return a negative value
                 return start;
             }
-            
-            // Search for the furthest point on this side of the line
-            var pointCInd = longestDistance(pointA, pointB, start, stop);
-            var pointC = points[pointCInd];
-            points[pointCInd] = points[start]; // Point C is an element of the hull -> Save it at the startpoint
 
-            // We have a triangle. Exclude everything in the triangle (thus shorten the array)
-            stop = PartitionInTriangle(pointA, pointB, pointC,start, stop);
-
-            // Every element left of A-C will be right of B-C too
-            var split = PartitionLeftRight(pointA, pointC, start, stop);
-            // The only points left in our set are now:
-            // Left of A-C and left of C-B
-            // We can use convex hull again on these parts
-
-
-            var convexHullEls = FindHull(pointA, pointC, start, split);
-
-            var convexHulLElsR = FindHull(pointC, pointB, split, stop);
-
-            points[start] = pointC;
-
-            // Add the point C after the 
-            var h = points[convexHullEls];
-            points[convexHullEls] = pointC;
-            points[pointC] = h;
-
-            for (var i = split; i < convexHulLElsR; i++)
+            if (start + 1 == stop)
             {
-                // Copy all the points from the right run over to the left -> Thats where all the convex hull elements are stored
-                h = points[convexHullEls];
-                points[convexHullEls] = points[i];
-                points[i] = h;
-                convexHullEls++;
+                // only a single point here -> part of the hull
+                return start + 1;
             }
 
+            // Search for the furthest point on this side of the line
+            var pointCInd = LongestDistance(pointA, pointB, start, stop);
+            var pointC = Points[pointCInd];
 
+            // Move pointC out of the way to the end
+            SwapP(stop - 1, pointCInd);
 
-            return convexHullEls;
+            // We have a triangle. Exclude everything in the triangle (thus shorten the array)
+            // Everything between start and stop should still be considered for the convexhull
+            var split = PartitionInTriangle(pointA, pointB, pointC, start, stop - 1);
 
+            // Now we find which points are on one side, and which on another
+            // Every element left of A-C will be right of B-C too
+            split = PartitionLeftRight(pointA, pointC, start, split);
+
+            // The only points left in our set are now:
+            // Left of A-C and left of C-B
+
+            // We can use quick hull again on these parts
+            var convexHullEls = FindHull(pointA, pointC, start, split);
+
+            // Swap pointC to the middle of the hulls
+            SwapP(convexHullEls, stop - 1);
+            convexHullEls++;
+
+            split = Math.Max(convexHullEls, split);
+
+            var convexHulLElsR = FindHull(pointC, pointB, split, stop); // no stop-1 here
+
+            return MergeP(convexHullEls, split, convexHulLElsR);
         }
 
         /// <summary>
         /// Calculates the point in the set which has the biggest distance to the given line
         /// </summary>
         /// <returns>The _index_ of the furhtest point</returns>
-        public int longestDistance(int pointA, int pointB, int start, int stop)
+        public int LongestDistance(int pointA, int pointB, int start, int stop)
         {
-            var maxInd = start;
-            var ax = lons[pointA];
-            var ay = lats[pointA];
-            var bx = lons[pointB];
-            var by = lats[pointB];
+            var maxInd = -1;
+            var ax = _lons[pointA];
+            var ay = _lats[pointA];
+            var bx = _lons[pointB];
+            var by = _lats[pointB];
             var maxDist = 0f;
 
-            for (int i = start; i < stop; i++)
+            for (var i = start; i < stop; i++)
             {
-                var x = lons[points[i]];
-                var y = lats[points[i]];
+                var x = _lons[Points[i]];
+                var y = _lats[Points[i]];
                 // If we needed the actual euclidian distance, we'd also have to calculate by some squarerootstuff
                 // However, this is constant if point A/B stay constant, so we just drop it
                 var d = Math.Abs((by - ay) * x - (bx - ax) * y + bx * ay - by * ax);
@@ -168,12 +183,12 @@ namespace Itinero.Algorithms.Default
         /// <returns>The new endpoint</returns>
         public int PartitionInTriangle(int pointA, int pointB, int pointC, int start, int stop)
         {
-            var ax = lons[pointA];
-            var ay = lats[pointA];
-            var bx = lons[pointB];
-            var by = lats[pointB];
-            var cx = lons[pointC];
-            var cy = lats[pointC];
+            var ax = _lons[pointA];
+            var ay = _lats[pointA];
+            var bx = _lons[pointB];
+            var by = _lats[pointB];
+            var cx = _lons[pointC];
+            var cy = _lats[pointC];
 
             // a and b are already tested
             // a 
@@ -190,15 +205,15 @@ namespace Itinero.Algorithms.Default
 
             var cutOff = start;
             var i = start;
-            var last = stop - 1;
+            var last = stop - 1; // Last index = stop - 1;
 
-            while (i <= stop)
+            while (i <= last)
             {
                 // We only keep outsiders... A point is on the outide if it is on the right of B->C or C->A
                 // It is on the right if the position is negative
-                var p = points[i];
-                var x = lons[p];
-                var y = lats[p];
+                var p = Points[i];
+                var x = _lons[p];
+                var y = _lats[p];
 
                 position = (cx - bx) * (y - by) - (cy - by) * (x - bx);
                 if (position < 0)
@@ -222,8 +237,8 @@ namespace Itinero.Algorithms.Default
 
                 // this point is an insider, we'll wont need it anymore
                 // move it to the back
-                points[i] = points[last];
-                points[last] = p;
+                Points[i] = Points[last];
+                Points[last] = p;
 
                 last--;
                 // No increase of the counter!
@@ -247,21 +262,21 @@ namespace Itinero.Algorithms.Default
         {
             // Note that, if a point is perfectly on the line between A and B, this is not a problem - it'll be eliminated earlier
 
-            var ax = lons[pointA];
-            var ay = lats[pointA];
-            var bx = lons[pointB];
-            var by = lats[pointB];
+            var ax = _lons[pointA];
+            var ay = _lats[pointA];
+            var bx = _lons[pointB];
+            var by = _lats[pointB];
 
             var cutOff = start;
             var last = stop - 1;
             var i = start; // current index
             while (i <= last)
             {
-                var p = points[i];
-                var x = lons[p];
-                var y = lats[p];
+                var p = Points[i];
+                var x = _lons[p];
+                var y = _lats[p];
                 var position = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
-                if (position < 0)
+                if (position > 0)
                 {
                     // on the left
                     // we leave the point where it is, but move the cutoff and the current point to consider
@@ -272,8 +287,7 @@ namespace Itinero.Algorithms.Default
                 {
                     // on the right
                     // we swap the point with the rightmost location (and won't visit that point anymore)
-                    points[i] = points[last];
-                    points[last] = p;
+                    SwapP(i, last);
                     last--; // mark last as being visited
                     // do not move the point to consider! (thus do not increment i)
                 }
@@ -294,24 +308,62 @@ namespace Itinero.Algorithms.Default
             minIndex = 0;
             maxIndex = 0;
 
-            var minVal = lats[0];
-            var maxVal = lats[0];
+            var minVal = _lats[0];
+            var maxVal = _lats[0];
 
 
-            for (var i = 1; i < lats.Length; i++)
+            for (var i = 1; i < _lats.Length; i++)
             {
-                if (minVal > lats[i])
+                if (minVal > _lats[i])
                 {
                     minIndex = i;
-                    minVal = lats[i];
+                    minVal = _lats[i];
                 }
 
-                if (maxVal < lats[i])
+                if (maxVal < _lats[i])
                 {
                     maxIndex = i;
-                    maxVal = lats[i];
+                    maxVal = _lats[i];
                 }
             }
+        }
+
+        /// <summary>
+        /// Swaps the contents of [copyStart..copyStop[ just behind 'appendAfter'
+        /// </summary>
+        /// <param name="array">The array that where the copying takes place</param>
+        /// <param name="appendAfter">The index where swapping will start</param>
+        /// <param name="copyStart">Where to start the swapping</param>
+        /// <param name="copyStop">Where to stop swapping</param>
+        /// <returns>The index (+1) of the last changed element. Should equal (appendAfter + copyStop - copyStart)</returns>
+        public static int Merge(int[] array, int appendAfter, int copyStart, int copyStop)
+        {
+            for (var i = copyStart; i < copyStop; i++)
+            {
+                var h = array[appendAfter];
+                array[appendAfter] = array[i];
+                array[i] = h;
+                appendAfter++;
+            }
+
+            return appendAfter;
+        }
+
+        public int MergeP(int appendAfter, int copyStart, int copyStop)
+        {
+            return Merge(Points, appendAfter, copyStart, copyStop);
+        }
+
+        public static void Swap(int[] array, int a, int b)
+        {
+            var h = array[a];
+            array[a] = array[b];
+            array[b] = h;
+        }
+
+        public void SwapP(int a, int b)
+        {
+            Swap(Points, a, b);
         }
     }
 }
