@@ -36,18 +36,127 @@ namespace Itinero.Algorithms.Default
             var lats = new float[coors.Count];
             var lons = new float[coors.Count];
 
+            for (var i = 0; i < coors.Count; i++)
+            {
+                lats[i] = coors[i].Latitude;
+                lons[i] = coors[i].Longitude;
+            }
+            
+
             var cv = new ConvexHull(lats, lons);
 
             var cutoff = cv.Quickhull();
 
             var results = new List<Coordinate>();
-            foreach (var i in cv.Points)
+            for (var i = 0; i < cutoff; i++)
             {
-                results.Add(coors[i]);
+                results.Add(coors[cv.Points[i]]);
             }
 
             return results;
         }
+
+
+        /// <summary>
+        /// Removes all given points from allPoints, and checks if any are in the hull.
+        /// If so, a new hull is calculated.
+        /// </summary>
+        /// <param name="allPoints"></param>
+        /// <param name="hull"></param>
+        /// <param name="pointsToRemove"></param>
+        public static List<Coordinate> RemoveFromHull(List<Coordinate> allPoints, List<Coordinate> hull,
+            List<Coordinate> pointsToRemove)
+        {
+            var hullBreach = false;
+            foreach (var toRemove in pointsToRemove)
+            {
+                allPoints.Remove(toRemove);
+                hullBreach = hullBreach || hull.Remove(toRemove);
+            }
+            // There might be points in allPoints which were not part of the hull, but will be now
+            // For correctness, we have to recalculate from scratch
+            return hullBreach ? Quickhull(allPoints) : hull;
+        }
+
+        /// <summary>
+        /// Checks if newPoint is contained within the hull.
+        /// If not, the element is added to the hull-list, at the appropriate position to maintain a with-the-clock order.
+        /// (If inOrder is disabled, the point is just appended as last element)
+        /// The point of insertion is returned
+        /// </summary>
+        /// <param name="hull"></param>
+        /// <param name="newPoint"></param>
+        /// <param name="inOrder"></param>
+        /// <returns></returns>
+        public static int UpdateHull(List<Coordinate> hull, Coordinate newPoint, bool inOrder = true)
+        {
+            if (PointInPolygon.PointLiesWithin(
+                hull, newPoint))
+            {
+                // Point is neatly contained within the polygon; nothing to do here
+                return -1;
+            }
+
+            if (hull.Contains(newPoint))
+            {
+                return -1;
+            }
+
+
+            if (!inOrder)
+            {
+                // No need to figure out where exactly the point should be. Just slap it in the end
+                hull.Add(newPoint);
+                return hull.Count - 1;
+            }
+
+
+            var i = 0;
+            while (i < hull.Count)
+            {
+                // When the newPoint is on the LEFT of hull[i] -> hull[i+1]; it falls outside of the hull and should be added there.
+                // If the point is still left of hull[i+1] -> hull[i+2], it means that hull[i+1] is now absorbed into the hull and can be dropped
+
+                var nxt = (i + 1) % hull.Count;
+
+                // Neatly on the right, as it is supposed to be.. Continue to the next point
+                if (!LeftOfLine(hull[i], hull[nxt], newPoint))
+                {
+                    i++;
+                    continue;
+                }
+
+
+                // Point is on the left of hull[i] - hull[i+1]. It should be inserted!
+                // There is a catch though: the current point (i) might be shadowed now
+                // We detect this by checking with the previouis point (i-1)
+                // If the new point is on the left of that point as well, we can simply remove point i
+
+                var prev = (hull.Count + i - 1) % hull.Count;
+                if (LeftOfLine(hull[prev], hull[i], newPoint))
+                {
+                    // Current point i is shadowed
+                    // Remove it and continue at the current position, as if pointI never existed
+                    hull.RemoveAt(i);
+                    continue;
+                }
+
+                // When added, it might shadow the next points as well...
+                var nxtnxt = (nxt + 1) % hull.Count;
+                while (LeftOfLine(hull[nxt], hull[nxtnxt], newPoint))
+                {
+                    hull.RemoveAt(nxt);
+                    nxt %= hull.Count;
+                    nxtnxt %= hull.Count;
+                }
+
+                hull.Insert(i+1, newPoint);
+                return i+1;
+            }
+
+            return -1;
+        }
+
 
         /// <summary>
         /// Reoorders the points in 'Points' so that the elements of the quickhull are in front (the hull will be in order),
@@ -294,6 +403,27 @@ namespace Itinero.Algorithms.Default
             }
 
             return cutOff;
+        }
+
+        /// <summary>
+        /// Returns true if (x, y) lies on the left of the line from A to B
+        /// </summary>
+        /// <param name="ax"></param>
+        /// <param name="ay"></param>
+        /// <param name="bx"></param>
+        /// <param name="by"></param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        private static bool LeftOfLine(float ax, float ay, float bx, float by, float x, float y)
+        {
+            var position = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
+            return position > 0;
+        }
+
+        private static bool LeftOfLine(Coordinate a, Coordinate b, Coordinate x)
+        {
+            return LeftOfLine(a.Longitude, a.Latitude, b.Longitude, b.Latitude, x.Longitude, x.Latitude);
         }
 
 
