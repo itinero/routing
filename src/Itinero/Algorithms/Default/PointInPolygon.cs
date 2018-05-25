@@ -19,7 +19,6 @@
 using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
-using Reminiscence.Arrays;
 
 namespace Itinero.Algorithms.Default
 {
@@ -31,17 +30,17 @@ namespace Itinero.Algorithms.Default
     {
 
 
-        public static Boolean PointLiesWithin(this Polygon poly, Coordinate point){
+        public static bool PointLiesWithin(this Polygon poly, Coordinate point){
             // For startes, the point should lie within the outer
 
-            Boolean inOuter = PointLiesWithin(poly.ExteriorRing, point);
+            var inOuter = PointLiesWithin(poly.ExteriorRing, point);
             if(!inOuter){
                 return false;
             }
 
             // and it should *not* lay within any inner ring
-            for(int i = 0; i < poly.InteriorRings.Count; i++){
-                Boolean inInner = PointLiesWithin(poly.InteriorRings[i], point);
+            for(var i = 0; i < poly.InteriorRings.Count; i++){
+                var inInner = PointLiesWithin(poly.InteriorRings[i], point);
                 if(inInner){
                     return false;
                 }
@@ -53,16 +52,16 @@ namespace Itinero.Algorithms.Default
         The algorithm is based on the ray casting algorthm, where the point moves horizontally
         If an even number of intersections are counted, the point lies outside of the polygon
         */
-        public static Boolean PointLiesWithin(List<Coordinate> polygon, Coordinate point)
+        public static bool PointLiesWithin(List<Coordinate> polygon, Coordinate point)
         {
             // no intersections passed yet -> not within the polygon
-            Boolean result = false;
+            var result = false;
 
 
-            for (int i = 0; i < polygon.Count; i++)
+            for (var i = 0; i < polygon.Count; i++)
             {
-                Coordinate start = polygon[i];
-                Coordinate end = polygon[(i + 1) % polygon.Count];
+                var start = polygon[i];
+                var end = polygon[(i + 1) % polygon.Count];
 
                 // The raycast is from west to east - thus at the same latitude level of the point
                 // Thus, if the longitude is not between the longitude of the segments, we skip the segment
@@ -92,7 +91,7 @@ namespace Itinero.Algorithms.Default
 
                 // we calculate the longitude on the segment for the latitude of the point
                 // x = y_p * (x1 - x2)/(y1 - y2) + (x2y1-x1y1)/(y1-y2)
-                float longit = point.Latitude * (start.Longitude - end.Longitude) + //
+                var longit = point.Latitude * (start.Longitude - end.Longitude) + //
                                 (end.Longitude * start.Latitude - start.Longitude * end.Latitude);
                 longit /= (start.Latitude - end.Latitude);
 

@@ -55,54 +55,30 @@ namespace Itinero.Test.Algorithms.Default
 
             var cutoff = cv0.PartitionLeftRight(0, 1, 2, 4);
             var pts = cv0.Points;
-            Log("" + cutoff + "\n");
-            foreach (var f in pts)
-            {
-                Log(f + " ");
-            }
 
-            Log("\n");
-
+            Assert.AreEqual(cutoff, 3);
+            Assert.AreEqual(pts, new[]{0,1,3,2,4});
             // In the right partition, search longest
             var furthestInd = cv0.LongestDistance(0, 1, cutoff, 5);
-            Log("Furhtest: > " + cv0.Points[furthestInd] + "(index " + furthestInd + ")\n");
 
             Assert.AreEqual(furthestInd, 3);
             Assert.AreEqual(pts[furthestInd], 2);
 
             // Line = pt0 and pt1; start-index = 2 (ignore first two = pt0;pt1); end index = 3 (only consider
             cutoff = cv0.PartitionInTriangle(0, 1, 2, 2, 4);
-            Log("" + cutoff + "\n");
-            foreach (var f in pts)
-            {
-                Log(f + " ");
-            }
-
-            Log("\n");
-
-
+            Assert.AreEqual(cutoff, 2);
+            Assert.AreEqual(pts, new[]{0,1,2,3,4});
+   
             cutoff = cv0.FindHull(0, 1, 2, 5);
-            Log("\nFindhull> " + cutoff + "\n");
-            foreach (var f in pts)
-            {
-                Log(f + " ");
-            }
-
-            Log("\n");
+            Assert.AreEqual(cutoff, 5);
+            Assert.AreEqual(pts, new[]{0,1,2,3,4});
+   
+            
             cv0 = CreateTestSet0();
             cutoff = cv0.Quickhull();
 
-            Log("\n\n> " + cutoff + "\n");
-            foreach (var f in cv0.Points)
-            {
-                Log(f + " ");
-            }
-
-            Log("\n");
-
             Assert.AreEqual(new[] {0, 3, 1, 2, 4}, cv0.Points);
             Assert.AreEqual(cutoff, 4);
-            Log("Done");
         }
 
 
@@ -112,48 +88,20 @@ namespace Itinero.Test.Algorithms.Default
             var tp = TestPoints();
             var hull = ConvexHull.Quickhull(tp);
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
                 // Adding already known points shouldn't have any effect
                 var ind = ConvexHull.UpdateHull(hull, tp[i]);
                 Assert.AreEqual(-1, ind);
             }
 
-
-            Log("\n");
-            foreach (var pt in hull)
-            {
-                Log(pt.ToString()+"    ");
-            }
-            Log("\n");
-
             var index = ConvexHull.UpdateHull(hull, new Coordinate(0.5f, -0.5f));
-
-            Log("\n");
-            foreach (var pt in hull)
-            {
-                Log(pt.ToString()+"    ");
-            }
-            Log("\n");
             Assert.AreEqual(1, index);
             
             
             index = ConvexHull.UpdateHull(hull, new Coordinate(2f, 2f));
-
             Assert.AreEqual(3, index);
-            Log("DONE");
             
-        }
-
-
-        private static void Log(string msg)
-        {
-            File.AppendAllText("/home/pietervdvn/Desktop/log.txt", msg);
-        }
-
-        private static void Clearlog()
-        {
-            File.WriteAllText("/home/pietervdvn/Desktop/log.txt", "");
         }
     }
 }
