@@ -21,6 +21,7 @@ using Itinero.Algorithms.Search.Hilbert;
 using System;
 using System.Collections.Generic;
 using Itinero.LocalGeo;
+using System.Threading;
 
 namespace Itinero.Algorithms.Search
 {
@@ -55,7 +56,7 @@ namespace Itinero.Algorithms.Search
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _results = new List<RouterPoint>();
 

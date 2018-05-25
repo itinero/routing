@@ -58,6 +58,7 @@ namespace Itinero.Test.Graphs.Geometric
         public void TestAddEdge()
         {
             var graph = new GeometricGraph(1, 100);
+            graph.Graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0, 0, 0);
@@ -817,6 +818,7 @@ namespace Itinero.Test.Graphs.Geometric
         public void TestEdgeCount()
         {
             var graph = new GeometricGraph(1, 100);
+            graph.Graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0, 0, 0);
@@ -825,6 +827,7 @@ namespace Itinero.Test.Graphs.Geometric
             Assert.AreEqual(1, graph.EdgeCount);
 
             graph = new GeometricGraph(1, 100);
+            graph.Graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0, 0, 0);

@@ -19,6 +19,7 @@
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -31,6 +32,14 @@ namespace Itinero.Algorithms.Networks
         /// Optimizes the network by removing irrelevant vertex.
         /// </summary>
         public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter = Constants.DEFAULT_SIMPL_E)
+        {
+            routerDb.OptimizeNetwork(simplifyEpsilonInMeter, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Optimizes the network by removing irrelevant vertex.
+        /// </summary>
+        public static void OptimizeNetwork(this RouterDb routerDb, float simplifyEpsilonInMeter, CancellationToken cancellationToken)
         {
             var router = new Router(routerDb);
 
@@ -58,8 +67,9 @@ namespace Itinero.Algorithms.Networks
                     { // different meta data, do not merge.
                         return false;
                     }
+
                     if (inverted1 != inverted2)
-                    { // directions are the same.
+                    { // directions are the different.
                         foreach (var factorFunction in factorFunctions)
                         {
                             var edge1Factor = factorFunction(edgeData1.Profile);
@@ -75,7 +85,7 @@ namespace Itinero.Algorithms.Networks
                                 {
                                     return false;
                                 }
-                                else if (edgeData2.Distance == 2)
+                                else if (edge2Factor.Direction == 2)
                                 {
                                     return false;
                                 }
@@ -115,7 +125,103 @@ namespace Itinero.Algorithms.Networks
                     }
                     return true;
                 }, simplifyEpsilonInMeter);
-            algorithm.Run();
+            var edgeMetaDb = routerDb.EdgeData;
+            var edgeMetaKeys = edgeMetaDb.Names;
+            algorithm.CanMerge = (edgeId1, edgeId2) =>
+            {
+                foreach (var key in edgeMetaKeys)
+                {
+                    var edgeMeta = edgeMetaDb.Get(key);
+                    return edgeMeta.Equal(edgeId1, edgeId2);
+                }
+                return true;
+            };
+            algorithm.NewEdge = (oldEdgeId, newEdgeId) =>
+            {
+                foreach (var key in edgeMetaKeys)
+                {
+                    var edgeMeta = edgeMetaDb.Get(key);
+                    if (oldEdgeId >= edgeMeta.Count)
+                    {
+                        continue;
+                    }
+
+                    edgeMeta.Copy(newEdgeId, oldEdgeId);
+                }
+            };
+            
+            algorithm.Run(cancellationToken);
+            algorithm.CheckHasRunAndHasSucceeded();
+        }
+
+        /// <summary>
+        /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
+        /// </summary>
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex = null)
+        {
+            db.SplitLongEdges(newVertex, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Runs the max distance splitter algorithm to make edge comply with the max distance setting in the routerdb.
+        /// </summary>
+        public static void SplitLongEdges(this RouterDb db, Action<uint> newVertex, CancellationToken cancellationToken)
+        {
+            var splitter = new Preprocessing.MaxDistanceSplitter(db.Network, (originalEdgeId, newEdgeId) => 
+            {
+                if (newEdgeId == Constants.NO_EDGE)
+                { // original edge was removed.
+                    db.EdgeData.SetEmpty(originalEdgeId);
+                    return;
+                }
+
+                // the edge was split so copy meta-data.
+                db.EdgeData.Copy(newEdgeId, originalEdgeId);
+            },db.Network.MaxEdgeDistance, (v) => {
+                db.VertexData.SetEmpty(v);
+                if (newVertex != null)
+                {
+                    newVertex(v);
+                }
+            });
+            splitter.Run(cancellationToken);
+
+            splitter.CheckHasRunAndHasSucceeded();
+        }
+
+        /// <summary>
+        /// Runs the algorithm to make sure the loaded graph is a 'simple' graph.
+        /// </summary>
+        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex = null)
+        {
+            db.ConvertToSimple(newVertex, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Runs the algorithm to make sure the loaded graph is a 'simple' graph.
+        /// </summary>
+        public static void ConvertToSimple(this RouterDb db, Action<uint> newVertex, CancellationToken cancellationToken)
+        {
+            var converter = new Preprocessing.SimpleGraphConverter(db.Network, (originalEdgeId, newEdgeId) => 
+            {
+                if (newEdgeId == Constants.NO_EDGE)
+                { // original edge was removed.
+                    db.EdgeData.SetEmpty(originalEdgeId);
+                    return;
+                }
+
+                // the edge was split so copy meta-data.
+                db.EdgeData.Copy(newEdgeId, originalEdgeId);
+            }, (v) => {
+                db.VertexData.SetEmpty(v);
+                if (newVertex != null)
+                {
+                    newVertex(v);
+                }
+            });
+            converter.Run(cancellationToken);
+
+            converter.CheckHasRunAndHasSucceeded();
         }
     }
 }

@@ -19,6 +19,7 @@
 using Itinero.Algorithms;
 using Itinero.Navigation.Language;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Navigation.Instructions
 {
@@ -70,7 +71,7 @@ namespace Itinero.Navigation.Instructions
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _instructions = new List<Instruction>();
             _instructionIndexes = new List<int>();

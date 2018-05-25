@@ -17,6 +17,7 @@
  */
 
 using System.Collections.Generic;
+using System.Threading;
 using Itinero.Algorithms.Networks.Analytics.Trees.Models;
 using Itinero.Graphs.Geometric;
 
@@ -48,7 +49,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _edges = new HashSet<uint>();
             _treeEdges = new List<TreeEdge>();
@@ -118,7 +119,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
 
                 return false;
             };
-            _edgeVisitor.Run();
+            _edgeVisitor.Run(cancellationToken);
 
             _tree = new Tree()
             {

@@ -24,6 +24,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using Itinero.Algorithms.Networks.Analytics;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default
 {
@@ -62,7 +63,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // initialize stuff.
             this.Initialize();

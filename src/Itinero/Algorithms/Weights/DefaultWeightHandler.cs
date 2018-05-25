@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Weights
         {
             _getFactor = getFactor;
         }
-        
+
         /// <summary>
         /// Returns the weight that represents 'zero'.
         /// </summary>
@@ -53,7 +53,7 @@ namespace Itinero.Algorithms.Weights
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// Returns the weight that represents 'infinite'.
         /// </summary>
@@ -196,7 +196,7 @@ namespace Itinero.Algorithms.Weights
         {
             return Data.Contracted.Edges.ContractedEdgeDataSerializer.Deserialize(edge.Data[0]);
         }
-        
+
         /// <summary>
         /// Adds a vertex to the path tree.
         /// </summary>

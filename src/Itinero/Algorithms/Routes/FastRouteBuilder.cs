@@ -23,6 +23,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Itinero.Algorithms.Routes
 {
@@ -59,7 +60,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             if (_path.Count == 0)
             { // an empty path.
@@ -393,7 +394,16 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path)
         {
-            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path).Value;
+            return FastRouteBuilder.Build(db, profile, getFactor, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path,
+            CancellationToken cancellationToken)
+        {
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path, cancellationToken).Value;
         }
 
         /// <summary>
@@ -401,9 +411,18 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path)
         {
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, EdgePath<float> path,
+            CancellationToken cancellationToken)
+        {
             var pathList = new List<uint>();
             path.AddToListAsVertices(pathList);
-            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, pathList);
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, pathList, cancellationToken);
         }
 
         /// <summary>
@@ -411,17 +430,35 @@ namespace Itinero.Algorithms.Routes
         /// </summary>
         public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, List<uint> path)
         {
-            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path).Value;
+            return FastRouteBuilder.Build(db, profile, getFactor, source, target, path, CancellationToken.None);
         }
 
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, 
+        public static Route Build(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor, RouterPoint source, RouterPoint target, List<uint> path,
+            CancellationToken cancellationToken)
+        {
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path, cancellationToken).Value;
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor,
             RouterPoint source, RouterPoint target, List<uint> path)
         {
+            return FastRouteBuilder.TryBuild(db, profile, getFactor, source, target, path, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Builds a route.
+        /// </summary>
+        public static Result<Route> TryBuild(RouterDb db, Profile profile, Func<ushort, Profiles.Factor> getFactor,
+            RouterPoint source, RouterPoint target, List<uint> path, CancellationToken cancellationToken)
+        {
             var routeBuilder = new FastRouteBuilder(db, profile, getFactor, source, target, path);
-            routeBuilder.Run();
+            routeBuilder.Run(cancellationToken);
             if (!routeBuilder.HasSucceeded)
             {
                 return new Result<Route>(

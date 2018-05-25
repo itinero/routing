@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default.EdgeBased
 {
@@ -55,7 +56,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _paths = new EdgePath<T>[_sources.Length][];
 
@@ -64,7 +65,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             for (var i = 0; i < _sources.Length; i++)
             {
                 var oneToMany = new DirectedOneToMany<T>(_graph, _weightHandler, _restrictions, _sources[i], _targets, _maxSearch);
-                oneToMany.Run();
+                oneToMany.Run(cancellationToken);
 
                 _paths[i] = oneToMany.Paths;
             }

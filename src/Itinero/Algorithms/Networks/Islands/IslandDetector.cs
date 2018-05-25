@@ -24,6 +24,7 @@ using Itinero.Data.Edges;
 using System.Collections.Generic;
 using Itinero.Algorithms.PriorityQueues;
 using Reminiscence.Arrays;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -75,7 +76,7 @@ namespace Itinero.Algorithms.Networks
         /// <summary>
         /// Runs the island detection.
         /// </summary>
-		protected override void DoRun()
+		protected override void DoRun(CancellationToken cancellationToken)
         {
             _onStack = new SparseLongIndex();
             var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;

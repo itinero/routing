@@ -37,6 +37,7 @@ namespace Itinero.IO.Osm
             this.NetworkSimplificationEpsilon = 1;
             this.OptimizeNetwork = false;
             this.KeepNodeIds = false;
+            this.KeepWayIds = false;
         }
 
         /// <summary>
@@ -69,5 +70,10 @@ namespace Itinero.IO.Osm
         /// Gets or sets the flag to keep node id's.
         /// </summary>
         public bool KeepNodeIds { get; set; }
+
+        /// <summary>
+        /// Gets or sets the flag to keep way id's.
+        /// </summary>
+        public bool KeepWayIds { get; set; }
     }
 }

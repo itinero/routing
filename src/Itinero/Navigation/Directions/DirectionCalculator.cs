@@ -39,6 +39,11 @@ namespace Itinero.Navigation.Directions
             var v1size = System.Math.Sqrt(v11 * v11 + v10 * v10);
             var v2size = System.Math.Sqrt(v21 * v21 + v20 * v20);
 
+            if (v1size == 0 || v2size == 0)
+            {
+                return float.NaN;
+            }
+
             // filter out the vectors that are parallel.
             if (v10 == v20 && 
                 v11 == v21)
@@ -48,17 +53,17 @@ namespace Itinero.Navigation.Directions
             else if (v10 == v20 && 
                 v11 == -v21)
             {
-                return (float)(System.Math.PI / 2.0f);
+                return (float)(System.Math.PI);
             }
             else if (v10 == -v20 &&
                 v11 == v21)
             {
-                return (float)(-System.Math.PI / 2.0f);
+                return (float)(-System.Math.PI);
             }
             else if (v10 == -v20 &&
                 v11 == -v21)
             {
-                return (float)System.Math.PI;
+                return (float)(2 * System.Math.PI);
             }
 
             var dot = (double)(v11 * v21 + v10 * v20);

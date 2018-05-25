@@ -26,3 +26,9 @@ Check the [documentation website](http://docs.itinero.tech/docs/index.html) for 
 - [geo](https://github.com/itinero/geo): A collection of extensions to Itinero to work with NTS.
 - [idp](https://github.com/itinero/idp): The data processing project, a CLI tool to process data into routerdb's.
 - [routing-api](https://github.com/itinero/routing-api): A routing server that can load routerdb's and accept routing requests over HTTP.
+
+### Contributions
+
+Contributions are **always** appreciated, especially if they match what's on our [roadmap](http://docs.itinero.tech/docs/itinero/development/index.html) or it fixes a [bug](https://github.com/itinero/routing/issues). Also check the [contribution guidelines](https://github.com/itinero/routing/issues) before planning anything big. Thanks to past contributions by @Chaz6, @bertt, @jbelien, @pietervdvn, @ironromeo, @jerryfaust and @airbreather. 
+
+If you like routing, OpenStreetMap & Itinero [get in touch](http://www.itinero.tech/#contact), we may have a job for you!

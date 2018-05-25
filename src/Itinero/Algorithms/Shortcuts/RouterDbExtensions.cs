@@ -18,6 +18,7 @@
 
 using Itinero.Profiles;
 using System;
+using System.Threading;
 using System.Collections.Generic;
 
 namespace Itinero.Algorithms.Shortcuts
@@ -31,6 +32,14 @@ namespace Itinero.Algorithms.Shortcuts
         /// Adds multiple shortcut db's at the same time.
         /// </summary>
         public static void AddShortcuts(this RouterDb routerDb, params ShortcutSpecs[] shortcutSpecs)
+        {
+            routerDb.AddShortcuts(shortcutSpecs, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Adds multiple shortcut db's at the same time.
+        /// </summary>
+        public static void AddShortcuts(this RouterDb routerDb, ShortcutSpecs[] shortcutSpecs, CancellationToken cancellationToken)
         {
             // check all specs.
             if (shortcutSpecs == null) { throw new ArgumentNullException(); }
@@ -59,7 +68,7 @@ namespace Itinero.Algorithms.Shortcuts
                 profiles.AddRange(specs.TransitionProfiles);
 
                 var routerPointEmbedder = new Itinero.Algorithms.Networks.RouterPointEmbedder(routerDb, profiles.ToArray(), specs.Locations);
-                routerPointEmbedder.Run();
+                routerPointEmbedder.Run(cancellationToken);
             }
 
             for(var i = 0; i < shortcutSpecs.Length; i++)
@@ -70,7 +79,7 @@ namespace Itinero.Algorithms.Shortcuts
 
                 var shortcutBuilder = new Itinero.Algorithms.Shortcuts.ShortcutBuilder(routerDb, specs.Profile, specs.Name, specs.Locations,
                     specs.LocationsMeta, specs.TransferTime, specs.MinTravelTime, specs.MaxShortcutDuration);
-                shortcutBuilder.Run();
+                shortcutBuilder.Run(cancellationToken);
 
                 routerDb.AddShortcuts(specs.Name, shortcutBuilder.ShortcutsDb);
             }

@@ -21,6 +21,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks.Analytics.Isochrones
 {
@@ -34,14 +35,30 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
         /// </summary>
         public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, Coordinate origin, List<float> limits, int zoom = 16)
         {
+            return router.CalculateIsochrones(profile, origin, limits, zoom, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates isochrones for the given profile based on the given limits.
+        /// </summary>
+        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, Coordinate origin, List<float> limits, int zoom, CancellationToken cancellationToken)
+        {
             var routerOrigin = router.Resolve(profile, origin);
-            return router.CalculateIsochrones(profile, routerOrigin, limits, zoom);
+            return router.CalculateIsochrones(profile, routerOrigin, limits, zoom, cancellationToken);
         }
 
         /// <summary>
         /// Calculates isochrones for the given profile based on the given limits.
         /// </summary>
         public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom = 16)
+        {
+            return router.CalculateIsochrones(profile, origin, limits, zoom, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates isochrones for the given profile based on the given limits.
+        /// </summary>
+        public static List<LocalGeo.Polygon> CalculateIsochrones(this RouterBase router, Profile profile, RouterPoint origin, List<float> limits, int zoom, CancellationToken cancellationToken)
         {
             if (profile.Metric != ProfileMetric.TimeInSeconds)
             {
@@ -58,7 +75,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Isochrones
                 new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
                     weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), limits.Max() * 1.1f, false), 
                 limits, zoom);
-            isochrone.Run();
+            isochrone.Run(cancellationToken);
 
             return isochrone.Polygons;
         }

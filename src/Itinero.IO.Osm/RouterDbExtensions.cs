@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Networks;
 using Itinero.Algorithms.Search.Hilbert;
 using Itinero.IO.Osm.Streams;
+using Itinero.LocalGeo;
 using OsmSharp;
 using OsmSharp.Streams;
 using OsmSharp.Streams.Filters;
@@ -205,6 +206,23 @@ namespace Itinero.IO.Osm
         }
 
         /// <summary>
+        /// Loads a routing network from OSM data downloaded from Overpass API.
+        /// </summary>
+        public static void LoadOsmDataFromOverpass(this RouterDb db, Box box, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            db.LoadOsmDataFromOverpass(box.ToPolygon(), vehicles);
+        }
+
+        /// <summary>
+        /// Loads a routing network from OSM data downloaded from Overpass API.
+        /// </summary>
+        public static void LoadOsmDataFromOverpass(this RouterDb db, Polygon polygon, params Itinero.Profiles.Vehicle[] vehicles)
+        {
+            var stream = new Overpass.OverpassSourceStream(Overpass.OverpassQueryBuilder.BuildQueryForPolygon(polygon));
+            db.LoadOsmData(stream, vehicles);
+        }
+
+        /// <summary>
         /// Loads a routing network created from OSM data.
         /// </summary>
         public static void LoadOsmData(this RouterDb db, OsmStreamSource[] sources, LoadSettings settings, params Itinero.Profiles.Vehicle[] vehicles)
@@ -244,13 +262,21 @@ namespace Itinero.IO.Osm
                 source = progress;
             }
 
+            // make sure the routerdb can handle multiple edges.
+            db.Network.GeometricGraph.Graph.MarkAsMulti();
+
             // load the data.
             var target = new Streams.RouterDbStreamTarget(db,
                 vehicles, settings.AllCore, processRestrictions: settings.ProcessRestrictions, processors: settings.Processors,
                     simplifyEpsilonInMeter: settings.NetworkSimplificationEpsilon);
             target.KeepNodeIds = settings.KeepNodeIds;
+            target.KeepWayIds = settings.KeepWayIds;
             target.RegisterSource(source);
             target.Pull();
+
+            // optimize the network for routing.
+            db.SplitLongEdges();
+            db.ConvertToSimple();
 
             // sort the network.
             db.Sort();
@@ -262,7 +288,7 @@ namespace Itinero.IO.Osm
             }
 
             // compress the network.
-            db.Network.Compress();
+            db.Compress();
         }
     }
 }

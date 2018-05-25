@@ -42,9 +42,9 @@ namespace Itinero
         private readonly AttributesIndex _meta;
         private readonly MappedAttributesIndex _metaVertex;
         private readonly MetaCollectionDb _vertexData;
+        private readonly MetaCollectionDb _edgeData;
         private readonly IAttributeCollection _dbMeta;
         private Guid _guid;
-
         private readonly Dictionary<string, ContractedDb> _contracted;
         private readonly Dictionary<string, Vehicle> _supportedVehicles;
         private readonly Dictionary<string, Profile> _supportedProfiles;
@@ -62,6 +62,7 @@ namespace Itinero
             _meta = new AttributesIndex(AttributesIndexMode.ReverseStringIndexKeysOnly);
             _metaVertex = new MappedAttributesIndex();
             _vertexData = new MetaCollectionDb();
+            _edgeData = new MetaCollectionDb();
             _dbMeta = new AttributeCollection();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
@@ -84,6 +85,7 @@ namespace Itinero
             _meta = new AttributesIndex(map, AttributesIndexMode.ReverseStringIndexKeysOnly);
             _metaVertex = new MappedAttributesIndex();
             _vertexData = new MetaCollectionDb();
+            _edgeData = new MetaCollectionDb();
             _dbMeta = new AttributeCollection();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
@@ -105,6 +107,7 @@ namespace Itinero
                 AttributesIndexMode.ReverseCollectionIndex | AttributesIndexMode.ReverseStringIndex);
             _metaVertex = new MappedAttributesIndex();
             _vertexData = new MetaCollectionDb();
+            _edgeData = new MetaCollectionDb();
             _meta = new AttributesIndex(map);
             _dbMeta = new AttributeCollection();
 
@@ -130,6 +133,7 @@ namespace Itinero
 
             _metaVertex = new MappedAttributesIndex();
             _vertexData = new MetaCollectionDb();
+            _edgeData = new MetaCollectionDb();
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
             _supportedProfiles = new Dictionary<string, Profile>();
@@ -151,8 +155,8 @@ namespace Itinero
         /// <summary>
         /// Creates a new router database.
         /// </summary>
-        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, MappedAttributesIndex metaVertex, MetaCollectionDb vertexData,
-            IAttributeCollection dbMeta, Profiles.Vehicle[] supportedVehicles)
+        private RouterDb(Guid guid, RoutingNetwork network, AttributesIndex profiles, AttributesIndex meta, MappedAttributesIndex metaVertex, 
+            MetaCollectionDb vertexData, MetaCollectionDb edgeData, IAttributeCollection dbMeta, Profiles.Vehicle[] supportedVehicles)
         {
             _guid = guid;
             _network = network;
@@ -160,6 +164,7 @@ namespace Itinero
             _meta = meta;
             _metaVertex = metaVertex;
             _vertexData = vertexData;
+            _edgeData = edgeData;
             _dbMeta = dbMeta;
 
             _supportedVehicles = new Dictionary<string, Vehicle>();
@@ -334,6 +339,17 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets or sets the edge data.
+        /// </summary>
+        public MetaCollectionDb EdgeData
+        {
+            get
+            {
+                return _edgeData;
+            }
+        }
+
+        /// <summary>
         /// Returns the vertex meta-date index.
         /// </summary>
         public MappedAttributesIndex VertexMeta
@@ -432,12 +448,12 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets all the names of the shortcuts databases.
+        /// Gets the names of the restricted vehicle types.
         /// </summary>
         /// <returns></returns>
         public IEnumerable<string> GetRestrictedVehicleTypes()
         {
-            return _shortcutsDbs.Select(x => x.Key);
+            return _restrictionDbs.Select(x => x.Key);
         }
 
         /// <summary>
@@ -479,6 +495,28 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Removes the restrictions for the given vehicle type.
+        /// </summary>
+        public bool RemoveRestrictions(string vehicleType)
+        {
+            return _restrictionDbs.Remove(vehicleType);
+        }
+
+        /// <summary>
+        /// Compresses the network and rearranges all id's as needed.
+        /// </summary>
+        public void Compress()
+        {
+            _network.Compress((originalId, newId) => 
+            {
+                if (_edgeData != null)
+                {
+                    _edgeData.Switch(originalId, newId);
+                }
+            });
+        }
+
+        /// <summary>
         /// Writes this database to the given stream.
         /// </summary>
         public long Serialize(Stream stream)
@@ -501,8 +539,10 @@ namespace Itinero
             // version5: Added new dual edge-based contracted graph.
             // version6: Added vertex meta-data.
             // version7: Added support for shorts in vertex meta-data.
+            // version8: Added edge meta-data.
+            // version9: Writable attribute indexes.
             long size = 1;
-            stream.WriteByte(7);
+            stream.WriteByte(9);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -560,8 +600,18 @@ namespace Itinero
             size += _vertexData.Serialize(stream);
             stream.Seek(position + size, SeekOrigin.Begin);
 
+            // serialize edge data.
+            size += _edgeData.Serialize(stream);
+            stream.Seek(position + size, SeekOrigin.Begin);
+
             // serialize network.
-            size += _network.Serialize(new LimitedStream(stream));
+            size += _network.Serialize(new LimitedStream(stream), (originalId, newId) => 
+            {
+                if (_edgeData != null)
+                {
+                    _edgeData.Switch(originalId, newId);
+                }
+            });
             stream.Seek(position + size, System.IO.SeekOrigin.Begin);
 
             // serialize all shortcut dbs.
@@ -658,8 +708,11 @@ namespace Itinero
             // version5: Added new dual edge-based contracted graph.
             // version6: Added vertex meta-data.
             // version7: Added support for shorts in vertex meta-data.
+            // version8: Added edge meta-data.
+            // version9: Writable attribute indexes.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6 && version != 7)
+            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6 && 
+                version != 7 && version != 8 && version != 9)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }
@@ -695,7 +748,6 @@ namespace Itinero
                 {
                     var vehicle = Vehicle.Deserialize(stream);
                     supportedVehicleInstances.Add(vehicle);
-                    vehicle.Register();
                 }
             }
             
@@ -722,10 +774,15 @@ namespace Itinero
                 metaVertex = MappedAttributesIndex.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexMetaProfile);
                 vertexData = MetaCollectionDb.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexDataProfile);
             }
+            MetaCollectionDb edgeData = null;
+            if (version >= 8)
+            {
+                edgeData = MetaCollectionDb.Deserialize(new LimitedStream(stream), profile == null ? null : profile.VertexDataProfile);
+            }
             var network = RoutingNetwork.Deserialize(stream, profile == null ? null : profile.RoutingNetworkProfile);
 
             // create router db.
-            var routerDb = new RouterDb(guid, network, profiles, meta, metaVertex, vertexData, metaDb, supportedVehicleInstances.ToArray());
+            var routerDb = new RouterDb(guid, network, profiles, meta, metaVertex, vertexData, edgeData, metaDb, supportedVehicleInstances.ToArray());
 
             // read all shortcut dbs.
             for (var i = 0; i < shorcutsCount; i++)

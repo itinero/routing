@@ -21,6 +21,7 @@ using Itinero.Algorithms.Weights;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default
 {
@@ -52,7 +53,7 @@ namespace Itinero.Algorithms.Default
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _bestVertex = uint.MaxValue;
             _bestWeight = _weightHandler.Infinite;

@@ -19,6 +19,7 @@
 using Itinero.LocalGeo;
 using Itinero.Profiles;
 using System;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
 {
@@ -32,6 +33,14 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// </summary>
         public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, Coordinate origin, int limitInSeconds, int zoom = 16)
         {
+            return router.CalculateHeatmap(profile, origin, limitInSeconds, zoom, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates heatmap for the given profile.
+        /// </summary>
+        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, Coordinate origin, int limitInSeconds, int zoom, CancellationToken cancellationToken)
+        {
             if (!router.SupportsAll(profile))
             {
                 throw new ArgumentException(string.Format("Profile {0} not supported.",
@@ -39,13 +48,21 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             }
 
             var routerOrigin = router.Resolve(profile, origin);
-            return router.CalculateHeatmap(profile, routerOrigin, limitInSeconds, zoom);
+            return router.CalculateHeatmap(profile, routerOrigin, limitInSeconds, zoom, cancellationToken);
         }
 
         /// <summary>
         /// Calculates heatmap for the given profile.
         /// </summary>
         public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, RouterPoint origin, int limitInSeconds, int zoom = 16)
+        {
+            return router.CalculateHeatmap(profile, origin, limitInSeconds, zoom, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates heatmap for the given profile.
+        /// </summary>
+        public static HeatmapResult CalculateHeatmap(this RouterBase router, Profile profile, RouterPoint origin, int limitInSeconds, int zoom, CancellationToken cancellationToken)
         {
             if (!router.SupportsAll(profile))
             {
@@ -67,7 +84,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
             var isochrone = new TileBasedHeatmapBuilder(router.Db.Network.GeometricGraph,
                 new Algorithms.Default.Dykstra(router.Db.Network.GeometricGraph.Graph,
                     weightHandler, null, origin.ToEdgePaths<float>(router.Db, weightHandler, true), limitInSeconds, false), zoom);
-            isochrone.Run();
+            isochrone.Run(cancellationToken);
 
             var result = isochrone.Result;
             result.MaxMetric = profile.Metric.ToInvariantString();

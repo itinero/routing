@@ -18,32 +18,25 @@
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
           <group targetFramework=".NETFramework4.0">
-            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
+            <dependency id="Reminiscence" version="[1.2.0-pre06, )" />
           </group>
           <group targetFramework=".NETFramework4.5">
-            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
-          </group>
-          <group targetFramework=".NETPortable4.0-Profile147">
-            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
+            <dependency id="Reminiscence" version="[1.2.0-pre06, )" />
           </group>
           <group targetFramework=".NETStandard1.3">
             <dependency id="NETStandard.Library" version="[1.6.0, )" />
             <dependency id="System.Reflection" version="[4.1.0, )" />
             <dependency id="System.Reflection.TypeExtensions" version="[4.1.0, )" />
             <dependency id="System.Xml.XmlSerializer" version="[4.0.11, )" />
-            <dependency id="Reminiscence" version="[1.1.0-pre02, )" />
+            <dependency id="Reminiscence" version="[1.2.0-pre06, )" />
           </group>
         </dependencies>
         <frameworkAssemblies>
           <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.0" />
           <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.5" />
-          <frameworkAssembly assemblyName="System" targetFramework=".NETPortable4.0-Profile147" />
-          <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETPortable4.0-Profile147" />
-          <frameworkAssembly assemblyName="System.Xml.Serialization" targetFramework=".NETPortable4.0-Profile147" />
         </frameworkAssemblies>
     </metadata>
     <files>
-      <file src="src\Itinero\bin\Release\portable40-net403+sl5+win8+wp8\Itinero.dll" target="lib\portable-net40+sl4+win8+wp7\Itinero.dll" />
       <file src="src\Itinero\bin\Release\net40\Itinero.dll" target="lib\net40\Itinero.dll" />
       <file src="src\Itinero\bin\Release\net45\Itinero.dll" target="lib\net45\Itinero.dll" />
       <file src="src\Itinero\bin\Release\netstandard1.3\Itinero.dll" target="lib\netstandard1.3\Itinero.dll" />

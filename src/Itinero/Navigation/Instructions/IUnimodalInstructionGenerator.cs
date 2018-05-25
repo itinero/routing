@@ -18,6 +18,7 @@
 
 using Itinero.Navigation.Language;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Navigation.Instructions
 {
@@ -30,5 +31,10 @@ namespace Itinero.Navigation.Instructions
         /// Generates instructions for the given route using the given language reference.
         /// </summary>
         IList<Instruction> Generate(Route route, ILanguageReference languageReference);
+
+        /// <summary>
+        /// Generates instructions for the given route using the given language reference.
+        /// </summary>
+        IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken);
     }
 }
