@@ -16,11 +16,11 @@
  *  limitations under the License.
  */
 
-using NUnit.Framework;
 using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
+using NUnit.Framework;
 
-namespace Itinero.Test.Geo
+namespace Itinero.Test.LocalGeo
 {
     /// <summary>
     /// Contains tests for the local simple coordinate class.

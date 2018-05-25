@@ -36,7 +36,7 @@ namespace Itinero.Test.Functional
     {
         private static Logger _logger;
 
-        public static void Main(string[] args)
+        public static void MainTest(string[] args)
         {
             // enable logging.
             EnableLogging();
