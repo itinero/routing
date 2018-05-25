@@ -150,7 +150,7 @@ namespace Itinero.IO.Osm.Restrictions
                 node.Tags.Contains("barrier", "bollard"))
             {
                 var vertex = _markCore(node);
-                if (vertex != Constants.NO_VERTEX)
+                if (vertex != Itinero.Constants.NO_VERTEX)
                 {
                     var r = new List<uint>();
                     r.Add(vertex);

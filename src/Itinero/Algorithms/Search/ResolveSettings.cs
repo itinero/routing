@@ -24,8 +24,13 @@ namespace Itinero.Algorithms.Search
     public class ResolveSettings
     {
         /// <summary>
+        /// The default minimum island size in vertices.
+        /// </summary>
+        public static int DefaultMinIslandSize = 1024;
+
+        /// <summary>
         /// The minimum island size in vertices.
         /// </summary>
-        public int MinIslandSize { get; set; } = 1024;
+        public int MinIslandSize { get; set; } = DefaultMinIslandSize;
     }
 }

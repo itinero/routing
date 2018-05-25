@@ -75,7 +75,7 @@ namespace Itinero.Test.Functional.Tests
             using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))
             {
                 var jsonReader = new JsonTextReader(stream);
-                var geoJsonSerializer = new NetTopologySuite.IO.GeoJsonSerializer();
+                var geoJsonSerializer = NetTopologySuite.IO.GeoJsonSerializer.Create();
                 featureCollection = geoJsonSerializer.Deserialize(jsonReader) as FeatureCollection;
             }
             TestResolve(router, featureCollection, resolve);

@@ -58,6 +58,7 @@ namespace Itinero.Test.Data.Network
         public void TestAddEdge()
         {
             var graph = new RoutingNetwork(new Itinero.Graphs.Geometric.GeometricGraph(1, 100));
+            graph.GeometricGraph.Graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0, 0, 0);
@@ -648,6 +649,7 @@ namespace Itinero.Test.Data.Network
             Assert.AreEqual(1, graph.EdgeCount);
 
             graph = new RoutingNetwork(new Itinero.Graphs.Geometric.GeometricGraph(1, 100));
+            graph.GeometricGraph.Graph.MarkAsMulti();
 
             // add edge.
             graph.AddVertex(0, 0, 0);

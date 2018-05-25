@@ -134,6 +134,18 @@ namespace Itinero.Data.Network
                 return _graph;
             }
         }
+        
+        /// <summary>
+        /// Returns true if this network is simple (max one edge between any two vertices).
+        /// </summary>
+        /// <returns></returns>
+        public bool IsSimple
+        {
+            get
+            {
+                return _graph.IsSimple;
+            }
+        }
 
         /// <summary>
         /// Adds a new vertex.
@@ -288,6 +300,23 @@ namespace Itinero.Data.Network
             _graph.Compress((originalId, newId) =>
                 {
                     _edgeData[newId] = _edgeData[originalId];
+                });
+            _edgeData.Resize(_graph.EdgeCount);
+        }
+
+        /// <summary>
+        /// Relocates data internally in the most compact way possible.
+        /// </summary>
+        public void Compress(Action<uint, uint> updateEdgeId)
+        {
+            _graph.Compress((originalId, newId) =>
+                {
+                    _edgeData[newId] = _edgeData[originalId];
+
+                    if (updateEdgeId != null)
+                    {
+                        updateEdgeId(originalId, newId);
+                    }
                 });
             _edgeData.Resize(_graph.EdgeCount);
         }
@@ -511,7 +540,15 @@ namespace Itinero.Data.Network
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
-            this.Compress();
+            return this.Serialize(stream, null);
+        } 
+
+        /// <summary>
+        /// Serializes to a stream.
+        /// </summary>
+        public long Serialize(System.IO.Stream stream, Action<uint, uint> updateEdgeId)
+        {
+            this.Compress(updateEdgeId);
 
             // serialize geometric graph.
             long size = 1;

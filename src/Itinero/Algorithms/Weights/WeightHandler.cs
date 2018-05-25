@@ -108,7 +108,7 @@ namespace Itinero.Algorithms.Weights
         /// <summary>
         /// Adds a new edge to a graph with the given direction and weight.
         /// </summary>
-        public abstract void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId, 
+        public abstract void AddEdge(DirectedMetaGraph graph, uint vertex1, uint vertex2, uint contractedId,
             bool? direction, T weight);
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Itinero.Algorithms.Weights
         /// Adds or updates an edge.
         /// </summary>
         public abstract void AddOrUpdateEdge(DirectedDynamicGraph graph, uint vertex1, uint vertex2, uint contractedId, bool? direction, T weight, uint[] s1, uint[] s2);
-        
+
         /// <summary>
         /// Gets the weight from a meta-edge.
         /// </summary>

@@ -22,6 +22,7 @@ using Itinero.Profiles.Lua;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Itinero.Navigation.Instructions
 {
@@ -220,8 +221,15 @@ namespace Itinero.Navigation.Instructions
             {
                 var table = new Table(_script);
                 var direction = position.RelativeDirection();
-                table["angle"] = direction.Angle.ToInvariantString();
-                table["direction"] = direction.Direction.ToInvariantString().ToLowerInvariant();
+                if (direction == null)
+                {
+                    table["direction"] = "unknown";
+                }
+                else
+                {
+                    table["angle"] = direction.Angle.ToInvariantString();
+                    table["direction"] = direction.Direction.ToInvariantString().ToLowerInvariant();
+                }
                 return table;
             });
             positionTable["has_branches"] = (Func<bool>)(() =>
@@ -337,6 +345,14 @@ namespace Itinero.Navigation.Instructions
         /// </summary>
         public IList<Instruction> Generate(Route route, ILanguageReference languageReference)
         {
+            return this.Generate(route, languageReference, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Generates instructions for the given route assuming it's using the profile in this generator.
+        /// </summary>
+        public IList<Instruction> Generate(Route route, ILanguageReference languageReference, CancellationToken cancellationToken)
+        {
             if (route.IsMultimodal())
             {
                 throw new ArgumentException("Cannot use a unimodal instruction generator on multimodal route.");
@@ -348,7 +364,7 @@ namespace Itinero.Navigation.Instructions
             }
 
             var instructionGenerator = new UnimodalInstructionGenerator(route, _getInstructionFunctions, languageReference);
-            instructionGenerator.Run();
+            instructionGenerator.Run(cancellationToken);
             if (!instructionGenerator.HasSucceeded)
             {
                 throw new Exception(string.Format("Failed to generate instructions: {0}", instructionGenerator.ErrorMessage));

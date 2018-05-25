@@ -122,10 +122,44 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
+        /// Returns true if the given box overlaps with this one. Partial overlaps also return true.
+        /// </summary>
+        /// <param name="box">The other box.</param>
+        /// <returns>True if any parts of the two boxes overlap.</returns>
+        public bool Overlaps(Box box)
+        {
+            var thisCenter = this.Center;
+            if (box.Overlaps(thisCenter.Latitude, thisCenter.Latitude))
+            {
+                return true;
+            }
+            var otherCenter = box.Center;
+            if (this.Overlaps(otherCenter.Latitude, otherCenter.Latitude))
+            {
+                return true;
+            }
+            return this.IntersectsPotentially(box.MinLon, box.MinLat, box.MaxLon, box.MaxLat);
+        }
+
+        /// <summary>
+        /// Expands this box (if needed) to incluce the given coordinate.
+        /// </summary>
+        public Box ExpandWith(float lat, float lon)
+        {
+            if (this.Overlaps(lat, lon))
+            { // assume this happens in most cases.
+                return this;
+            }
+
+            return new Box(System.Math.Min(this.MinLat, lat), System.Math.Min(this.MinLon, lon),
+                System.Math.Max(this.MaxLat, lat), System.Math.Max(this.MaxLon, lon));
+        }
+
+        /// <summary>
         /// Returns true if the line potentially intersects with this box.
         /// </summary>
         public bool IntersectsPotentially(float longitude1, float latitude1, float longitude2, float latitude2)
-        {
+        { // TODO: auwch, switch longitude and latitude, this is very very bad!
             if (longitude1 > _maxLon && longitude2 > _maxLon)
             {
                 return false;

@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Tiles;
 using Itinero.Graphs.Geometric;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
 {
@@ -48,7 +49,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             var tiles = new Dictionary<TileIndex, RoutingTile>();
 
@@ -95,7 +96,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Heatmaps
 
                 return false;
             };
-            _edgeVisitor.Run();
+            _edgeVisitor.Run(cancellationToken);
 
             _result = new HeatmapResult();
             _result.Data = new HeatmapSample[tiles.Count];

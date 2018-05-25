@@ -20,6 +20,7 @@ using NUnit.Framework;
 using Itinero.LocalGeo;
 using Itinero.Attributes;
 using System.Collections.Generic;
+using Itinero.Navigation.Directions;
 
 namespace Itinero.Test
 {
@@ -559,6 +560,159 @@ namespace Itinero.Test
             };
 
             var geojson = route.ToGeoJson();
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
+                geojson);
+        }
+
+        /// <summary>
+        /// Tests writing a route as geojson with the raw callback option.
+        /// </summary>
+        [Test]
+        public void TestWriteGeoJsonRaw()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Distance = 100,
+                        Time = 60,
+                    }
+                },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("address", "Pastorijstraat 102, 2275 Wechelderzande")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Branches = new Route.Branch[]
+                {
+                    new Route.Branch()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            var geojson = route.ToGeoJson(isRaw: (k, v) => k == "time" || k == "distance");
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\",\"distance\":100,\"time\":60}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
+                geojson);
+        }
+
+        /// <summary>
+        /// Tests writing a route as geojson.
+        /// </summary>
+        [Test]
+        public void TestWriteGeoJsonWithAttributesCallback()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                    }
+                },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("address", "Pastorijstraat 102, 2275 Wechelderzande")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Branches = new Route.Branch[]
+                {
+                    new Route.Branch()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            var geojson = route.ToGeoJson(attributesCallback: (att) => { att.AddOrReplace("extra", "attributes"); });
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\",\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
+                geojson);
+            geojson = route.ToGeoJson(attributesCallback: (att) => { att.AddOrReplace("extra", "attributes"); }, includeShapeMeta: false, groupByShapeMeta: false);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
+                geojson);
         }
 
         /// <summary>
@@ -747,6 +901,113 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Test projecting points on the route.
+        /// </summary>
+        [Test]
+        public void TestProjectOne()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.268977112538806f,
+                        Longitude = 4.800424575805664f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26830584177533f,
+                        Longitude = 4.8006391525268555f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.267768818104585f,
+                        Longitude = 4.801325798034667f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26674845584085f,
+                        Longitude = 4.801068305969238f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26551325015766f,
+                        Longitude = 4.801154136657715f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 2,
+                        Distance = 100,
+                        Time = 60
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 4,
+                        Distance = 200,
+                        Time = 120
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 200,
+                TotalTime = 120
+            };
+
+            // calculate actual distance/times.
+            Route.Meta previousMeta = null;
+            foreach (var meta in route.ShapeMeta)
+            {
+                meta.Distance = 0;
+                meta.Time = 0;
+
+                if (previousMeta != null)
+                {
+                    for (var s = previousMeta.Shape; s < meta.Shape; s++)
+                    {
+                        meta.Distance = meta.Distance + Coordinate.DistanceEstimateInMeter(
+                            route.Shape[s], route.Shape[s + 1]);
+                    }
+
+                    meta.Time = meta.Distance / 16.6667f; // 60km/h
+                }
+
+                previousMeta = meta;
+            }
+            route.TotalDistance = route.ShapeMeta[route.ShapeMeta.Length - 1].Distance;
+            route.TotalTime = route.ShapeMeta[route.ShapeMeta.Length - 1].Time;
+
+            float time, distance;
+            int shape;
+            Coordinate projected;
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26856092582056f, 4.800623059272766f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(0, shape);
+            Assert.IsTrue(time > route.ShapeMeta[0].Time);
+            Assert.IsTrue(time < route.ShapeMeta[1].Time);
+
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26795342069926f, 4.801229238510132f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(1, shape);
+            Assert.IsTrue(time > route.ShapeMeta[0].Time);
+            Assert.IsTrue(time < route.ShapeMeta[1].Time);
+
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26712438141587f, 4.801207780838013f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(2, shape);
+            Assert.IsTrue(time > route.ShapeMeta[1].Time);
+            Assert.IsTrue(time < route.ShapeMeta[2].Time);
+
+            Assert.IsTrue(route.ProjectOn(new Coordinate(51.26610064830449f, 4.801395535469055f), out projected, out shape, out distance, out time));
+            Assert.AreEqual(3, shape);
+            Assert.IsTrue(time > route.ShapeMeta[1].Time);
+            Assert.IsTrue(time < route.ShapeMeta[2].Time);
+        }
+
+        /// <summary>
         /// Test distance and time at a shape.
         /// </summary>
         [Test]
@@ -822,6 +1083,141 @@ namespace Itinero.Test
             route.DistanceAndTimeAt(4, out distance, out time);
             Assert.AreEqual(200, distance, 1);
             Assert.AreEqual(120, time, 1);
+        }
+
+        /// <summary>
+        /// Tests relative direction at.
+        /// </summary>
+        [Test]
+        public void TestRelativeDirectionAt()
+        {
+            var offset = 0.001f;
+            var middle = new Coordinate(51.16917253319145f, 4.476456642150879f);
+            var top = new Coordinate(middle.Latitude + offset, middle.Longitude);
+            var right = new Coordinate(middle.Latitude, middle.Longitude + offset);
+            var bottom = new Coordinate(middle.Latitude - offset, middle.Longitude);
+            var left = new Coordinate(middle.Latitude, middle.Longitude - offset);
+            
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    top,
+                    middle, 
+                    bottom
+                }
+            };
+            
+            var dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
+            Assert.AreEqual(180, dir.Angle, 1);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    bottom,
+                    middle, 
+                    right
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.Right, dir.Direction);
+            Assert.AreEqual(90, dir.Angle, 1);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    bottom,
+                    middle, 
+                    left
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.Left, dir.Direction);
+            Assert.AreEqual(270, dir.Angle, 1);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    bottom,
+                    middle, 
+                    bottom
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.TurnBack, dir.Direction);
+            Assert.AreEqual(0, dir.Angle, 1);
+        }
+
+        /// <summary>
+        /// Tests relative direction at.
+        /// </summary>
+        [Test]
+        public void TestRelativeDirectionAtShapeWithIdenticalPoint()
+        {
+            var offset = 0.001f;
+            var middle = new Coordinate(51.16917253319145f, 4.476456642150879f);
+            var top = new Coordinate(middle.Latitude + offset, middle.Longitude);
+            var right = new Coordinate(middle.Latitude, middle.Longitude + offset);
+            var bottom = new Coordinate(middle.Latitude - offset, middle.Longitude);
+            var left = new Coordinate(middle.Latitude, middle.Longitude - offset);
+            
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    top,
+                    middle, 
+                    middle,
+                    bottom
+                }
+            };
+            
+            var dir = route.RelativeDirectionAt(1);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
+            Assert.AreEqual(180, dir.Angle, 1);
+            dir = route.RelativeDirectionAt(2);
+            Assert.IsNotNull(dir);
+            Assert.AreEqual(RelativeDirectionEnum.StraightOn, dir.Direction);
+            Assert.AreEqual(180, dir.Angle, 1);
+            
+            // test a few impossible calculations.
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    middle, 
+                    middle,
+                    bottom
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNull(dir);
+            
+            route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    top,
+                    middle, 
+                    middle
+                }
+            };
+            
+            dir = route.RelativeDirectionAt(1);
+            Assert.IsNull(dir);
         }
     }
 }

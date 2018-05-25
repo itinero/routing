@@ -32,7 +32,7 @@ using System.Linq;
 
 namespace Itinero.Test.Functional
 {
-    public class Program
+    public static class Program
     {
         private static Logger _logger;
 
@@ -72,7 +72,7 @@ namespace Itinero.Test.Functional
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG
-            Console.ReadLine();
+             Console.ReadLine();
 #endif
         }
 
@@ -106,15 +106,6 @@ namespace Itinero.Test.Functional
                 }
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
-        }
-
-        private static string ToJson(FeatureCollection featureCollection)
-        {
-            var jsonSerializer = new NetTopologySuite.IO.GeoJsonSerializer();
-            var jsonStream = new StringWriter();
-            jsonSerializer.Serialize(jsonStream, featureCollection);
-            var json = jsonStream.ToInvariantString();
-            return json;
         }
     }
 }

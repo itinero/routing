@@ -25,6 +25,7 @@ using Itinero.Algorithms.Weights;
 using System;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Search;
+using System.Threading;
 
 namespace Itinero.Test
 {
@@ -58,22 +59,27 @@ namespace Itinero.Test
         }
 
         public override Result<EdgePath<T>[][]> TryCalculateRaw<T>(Itinero.Profiles.IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets, 
-            RoutingSettings<T> settings)
+            RoutingSettings<T> settings, CancellationToken token)
         {
             throw new System.NotImplementedException();
         }
 
-        public override Result<EdgePath<T>> TryCalculateRaw<T>(Itinero.Profiles.IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, RoutingSettings<T> settings)
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(Itinero.Profiles.IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, RoutingSettings<T> settings, CancellationToken token)
         {
             return new Result<EdgePath<T>>(new EdgePath<T>());
         }
 
-        public override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge, RoutingSettings<T> settings)
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profile, WeightHandler<T> weightHandler, long sourceDirectedEdge, long targetDirectedEdge, RoutingSettings<T> settings, CancellationToken token)
         {
             return new Result<EdgePath<T>>(new EdgePath<T>());
         }
 
-        public override Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path)
+        public override Result<EdgePath<T>> TryCalculateRaw<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, bool? sourceForward, RouterPoint target, bool? targetForward, RoutingSettings<T> settings, CancellationToken cancellationToken)
+        {
+            return new Result<EdgePath<T>>(new EdgePath<T>());
+        }
+
+        public override Result<Route> BuildRoute<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
         {
             var route = new Route();
             route.Shape = new Coordinate[]
@@ -85,7 +91,7 @@ namespace Itinero.Test
         }
 
         public override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profile, WeightHandler<T> weightHandler,
-            RouterPoint[] sources, RouterPoint[] targets, ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings)
+            RouterPoint[] sources, RouterPoint[] targets, ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken token)
         {
             var weights = new T[sources.Length][];
             for (var s = 0; s < sources.Length; s++)
@@ -108,14 +114,14 @@ namespace Itinero.Test
             return new Result<T[][]>(weights);
         }
 
-        public override Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeters, bool? forward = null)
+        public override Result<bool> TryCheckConnectivity(IProfileInstance profile, RouterPoint point, float radiusInMeters, bool? forward, CancellationToken token)
         {
             throw new System.NotImplementedException();
         }
 
         public override Result<RouterPoint> TryResolve(IProfileInstance[] profiles,
             float latitude, float longitude, System.Func<RoutingEdge, bool> isBetter,
-                float maxSearchDistance = Constants.SearchDistanceInMeter, ResolveSettings settings = null)
+                float maxSearchDistance, ResolveSettings settings, CancellationToken token)
         {
             if (latitude < -90 || latitude > 90 ||
                 longitude < -180 || longitude > 180)

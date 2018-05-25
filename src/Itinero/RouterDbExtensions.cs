@@ -40,6 +40,7 @@ using Itinero.Data.Network.Edges;
 using Itinero.Algorithms.Networks;
 using Itinero.Graphs.Geometric;
 using Itinero.LocalGeo.IO;
+using System.Threading;
 
 namespace Itinero
 {
@@ -52,6 +53,14 @@ namespace Itinero
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
         public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased = false)
+        {
+            db.AddContracted(profile, forceEdgeBased, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Creates a new contracted graph and adds it to the router db for the given profile.
+        /// </summary>
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased, CancellationToken cancellationToken)
         {
             var weightHandler = profile.DefaultWeightHandlerCached(db);
 
@@ -78,7 +87,7 @@ namespace Itinero
                     var restrictions = db.GetRestrictions(profile);
                     var dualGraphBuilder = new DualGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted,
                         weightHandler, restrictions);
-                    dualGraphBuilder.Run();
+                    dualGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<float>(contracted,
@@ -87,7 +96,7 @@ namespace Itinero
                     hierarchyBuilder.DifferenceFactor = 8;
                     hierarchyBuilder.DepthFactor = 14;
                     hierarchyBuilder.ContractedFactor = 1;
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, true);
                 }
@@ -98,7 +107,7 @@ namespace Itinero
 
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run();
+                    directedGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
@@ -108,7 +117,7 @@ namespace Itinero
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new HierarchyBuilder<float>(contracted, db.GetRestrictions(profile), priorityCalculator,
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, false);
                 }
@@ -125,6 +134,15 @@ namespace Itinero
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
         public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased = false)
+            where T : struct
+        {
+            db.AddContracted(profile, weightHandler, forceEdgeBased, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Creates a new contracted graph and adds it to the router db for the given profile.
+        /// </summary>
+        public static void AddContracted<T>(this RouterDb db, Profiles.Profile profile, WeightHandler<T> weightHandler, bool forceEdgeBased, CancellationToken cancellationToken)
             where T : struct
         {
             // create the raw directed graph.
@@ -150,7 +168,7 @@ namespace Itinero
                     var restrictions = db.GetRestrictions(profile);
                     var dualGraphBuilder = new DualGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted,
                         weightHandler, restrictions);
-                    dualGraphBuilder.Run();
+                    dualGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<T>(contracted,
@@ -159,7 +177,7 @@ namespace Itinero
                     hierarchyBuilder.DifferenceFactor = 5;
                     hierarchyBuilder.DepthFactor = 5;
                     hierarchyBuilder.ContractedFactor = 8;
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     //// contract the graph.
                     //var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
@@ -180,7 +198,7 @@ namespace Itinero
 
                     var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
                     var directedGraphBuilder = new DirectedGraphBuilder<T>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run();
+                    directedGraphBuilder.Run(cancellationToken);
 
                     // contract the graph.
                     var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
@@ -190,7 +208,7 @@ namespace Itinero
                     priorityCalculator.ContractedFactor = 8;
                     var hierarchyBuilder = new HierarchyBuilder<T>(contracted, db.GetRestrictions(profile), priorityCalculator,
                             new DykstraWitnessCalculator(int.MaxValue), weightHandler);
-                    hierarchyBuilder.Run();
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, false);
                 }
@@ -832,6 +850,17 @@ namespace Itinero
         /// <summary>
         /// Generates an edge path for the given edge.
         /// </summary>
+        public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, DirectedEdgeId directedEdgeId, bool asSource)
+            where T : struct
+        {
+            var edge = routerDb.Network.GetEdge(directedEdgeId.EdgeId);
+
+            return routerDb.GetPathForEdge(weightHandler, edge, directedEdgeId.Forward, asSource);
+        }
+
+        /// <summary>
+        /// Generates an edge path for the given edge.
+        /// </summary>
         public static EdgePath<T> GetPathForEdge<T>(this RouterDb routerDb, WeightHandler<T> weightHandler, long directedEdgeId, bool asSource)
             where T : struct
         {
@@ -1065,6 +1094,24 @@ namespace Itinero
             jsonWriter.WritePropertyName("properties");
             jsonWriter.WriteOpen();
             jsonWriter.WriteProperty("id", vertex.ToInvariantString());
+
+            if (db.VertexData != null)
+            {
+                foreach (var dataName in db.VertexData.Names)
+                {
+                    var dataCollection = db.VertexData.Get(dataName);
+                    if (vertex >= dataCollection.Count)
+                    {
+                        continue;
+                    }
+                    var data = dataCollection.GetRaw(vertex);
+                    if (data != null)
+                    {
+                        jsonWriter.WriteProperty(dataName, data.ToInvariantString());
+                    }
+                }
+            }
+
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
@@ -1112,6 +1159,25 @@ namespace Itinero
             jsonWriter.WriteProperty("edgeid", edgeEnumerator.Id.ToInvariantString());
             jsonWriter.WriteProperty("vertex1", edgeEnumerator.From.ToInvariantString());
             jsonWriter.WriteProperty("vertex2", edgeEnumerator.To.ToInvariantString());
+
+            if (db.EdgeData != null)
+            {
+                foreach (var dataName in db.EdgeData.Names)
+                {
+                    var edgeId = edgeEnumerator.Id;
+                    var dataCollection = db.EdgeData.Get(dataName);
+                    if (edgeId >= dataCollection.Count)
+                    {
+                        continue;
+                    }
+                    var data = dataCollection.GetRaw(edgeId);
+                    if (data != null)
+                    {
+                        jsonWriter.WriteProperty(dataName, data.ToInvariantString());
+                    }
+                }
+            }
+
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
@@ -1257,13 +1323,13 @@ namespace Itinero
                     }
 
                     // build edge data, only keep meta for copied edges.
-                    var edgeData = edgeEnumerator.Data;
+                    var currentEdgeData = edgeEnumerator.Data;
                     var newEdgeData = new EdgeData()
                     {
-                        Distance = edgeData.Distance,
-                        Profile = edgeData.Profile,
+                        Distance = currentEdgeData.Distance,
+                        Profile = currentEdgeData.Profile,
                         MetaId = newDb.EdgeMeta.Add(
-                            db.EdgeMeta.Get(edgeData.MetaId))
+                            db.EdgeMeta.Get(currentEdgeData.MetaId))
                     };
                     var shape = edgeEnumerator.Shape;
                     uint newEdgeId;
@@ -1291,25 +1357,49 @@ namespace Itinero
 
             // copy over all vertex meta.
             var vertexData = db.VertexData;
-            var vertexDataNames = db.VertexData.Names;
-            foreach (var name in vertexDataNames)
+            if (vertexData != null)
             {
-                var collection = db.VertexData.Get(name);
-                var newCollection = newDb.VertexData.Add(name, collection.ElementType);
+                var vertexDataNames = db.VertexData.Names;
+                foreach (var name in vertexDataNames)
+                {
+                    var collection = db.VertexData.Get(name);
+                    var newCollection = newDb.VertexData.Add(name, collection.ElementType);
 
-                for (uint v = 0; v < db.Network.VertexCount; v++)
+                    for (uint v = 0; v < db.Network.VertexCount; v++)
+                    {
+                        if (idMap.TryGetValue(v, out newV))
+                        {
+                            newCollection.CopyFrom(collection, newV, v);
+                        }
+                    }
+                }
+                foreach (var v in db.VertexMeta)
                 {
                     if (idMap.TryGetValue(v, out newV))
                     {
-                        newCollection.CopyFrom(collection, newV, v);
+                        newDb.VertexMeta[newV] = db.VertexMeta[v];
                     }
                 }
             }
-            foreach (var v in db.VertexMeta)
+
+            // copy over all edge data.
+            var edgeData = db.EdgeData;
+            if (edgeData != null)
             {
-                if (idMap.TryGetValue(v, out newV))
+                var edgeDataNames = db.EdgeData.Names;
+                foreach (var name in edgeDataNames)
                 {
-                    newDb.VertexMeta[newV] = db.VertexMeta[v];
+                    var collection = db.EdgeData.Get(name);
+                    var newCollection = newDb.EdgeData.Add(name, collection.ElementType);
+
+                    for (uint e = 0; e < db.Network.EdgeCount; e++)
+                    {
+                        uint newEdgeId;
+                        if (edgeIdMap.TryGetValue(e, out newEdgeId))
+                        {
+                            newCollection.CopyFrom(collection, newEdgeId, e);
+                        }
+                    }
                 }
             }
 
@@ -1559,25 +1649,48 @@ namespace Itinero
 
             // copy over all vertex meta.
             var vertexData = db.VertexData;
-            var vertexDataNames = db.VertexData.Names;
-            foreach (var name in vertexDataNames)
+            if (vertexData != null)
             {
-                var collection = db.VertexData.Get(name);
-                var newCollection = newDb.VertexData.Add(name, collection.ElementType);
+                var vertexDataNames = db.VertexData.Names;
+                foreach (var name in vertexDataNames)
+                {
+                    var collection = db.VertexData.Get(name);
+                    var newCollection = newDb.VertexData.Add(name, collection.ElementType);
 
-                for (uint v = 0; v < db.Network.VertexCount; v++)
+                    for (uint v = 0; v < db.Network.VertexCount; v++)
+                    {
+                        if (idMap.TryGetValue(v, out newV))
+                        {
+                            newCollection.CopyFrom(collection, newV, v);
+                        }
+                    }
+                }
+                foreach (var v in db.VertexMeta)
                 {
                     if (idMap.TryGetValue(v, out newV))
                     {
-                        newCollection.CopyFrom(collection, newV, v);
+                        newDb.VertexMeta[newV] = db.VertexMeta[v];
                     }
                 }
             }
-            foreach (var v in db.VertexMeta)
+
+            // copy over all edge data.
+            if (db.EdgeData != null)
             {
-                if (idMap.TryGetValue(v, out newV))
+                var edgeDataNames = db.EdgeData.Names;
+                foreach (var name in edgeDataNames)
                 {
-                    newDb.VertexMeta[newV] = db.VertexMeta[v];
+                    var collection = db.EdgeData.Get(name);
+                    var newCollection = newDb.EdgeData.Add(name, collection.ElementType);
+
+                    for (uint e = 0; e < db.Network.EdgeCount; e++)
+                    {
+                        uint newEdgeId;
+                        if (edgeIdMap.TryGetValue(e, out newEdgeId))
+                        {
+                            newCollection.CopyFrom(collection, newEdgeId, e);
+                        }
+                    }
                 }
             }
 
@@ -1690,6 +1803,22 @@ namespace Itinero
         /// </summary>
         public static void AddIslandData(this RouterDb db, Profile profile)
         {
+            db.AddIslandData(profile, false, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Adds and detects island data to improve resolving.
+        /// </summary>
+        public static void AddIslandData(this RouterDb db, Profile profile, bool buildEdgeMeta)
+        {
+            db.AddIslandData(profile, buildEdgeMeta, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Adds and detects island data to improve resolving.
+        /// </summary>
+        public static void AddIslandData(this RouterDb db, Profile profile, bool buildEdgeMeta, CancellationToken cancellationToken)
+        {
             if (!db.Supports(profile))
             {
                 throw new ArgumentException(string.Format("Cannot build island data for an unsupported profile: {0}", profile.FullName));
@@ -1701,7 +1830,7 @@ namespace Itinero
             var islandDetector = new IslandDetector(db,
                 new Func<ushort, Factor>[] { router.GetDefaultGetFactor(profile) },
                     db.GetRestrictions(profile));
-            islandDetector.Run();
+            islandDetector.Run(cancellationToken);
 
             // properly format islands.
             var islands = islandDetector.Islands;
@@ -1743,6 +1872,57 @@ namespace Itinero
                     }
                 }
             }
+
+            if (buildEdgeMeta)
+            { // also add edge-meta.
+                var edgeMeta = db.EdgeData.AddUInt16(name);
+
+                var enumerator = db.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+                for (uint v = 0; v < db.Network.VertexCount; v++)
+                {
+                    if (!enumerator.MoveTo(v))
+                    {
+                        continue;
+                    }
+
+                    var vCount = meta[v];
+                    var vIsland = false;
+                    if (vCount < Algorithms.Search.ResolveSettings.DefaultMinIslandSize &&
+                        vCount != 0 && vCount != Constants.ISLAND_RESTRICTED)
+                    { 
+                        vIsland = true;
+                    }
+
+                    while (enumerator.MoveNext())
+                    {
+                        if (v > enumerator.To)
+                        { // do every edge once.
+                            continue;
+                        }
+
+                        var to = enumerator.To;
+                        var toCount = meta[to];
+                        var toIsland = false;
+                        if (toCount < Algorithms.Search.ResolveSettings.DefaultMinIslandSize &&
+                            toCount != 0 && toCount != Constants.ISLAND_RESTRICTED)
+                        {
+                            toIsland = true;
+                        }
+
+                        if ((toIsland || vIsland) ||
+                            (toCount == Constants.ISLAND_RESTRICTED && 
+                            vCount == Constants.ISLAND_RESTRICTED))
+                        {
+                            edgeMeta[enumerator.Id] = (ushort)System.Math.Max(Constants.ISLAND_RESTRICTED,
+                                System.Math.Max(vCount, toCount));
+                        }
+                        else
+                        {
+                            edgeMeta[enumerator.Id] = 0;
+                        }
+                    }
+                }
+            }
         }
         
         /// <summary>
@@ -1750,34 +1930,7 @@ namespace Itinero
         /// </summary>
         public static Coordinate LocationOnNetwork(this RouterDb db, uint edgeId, ushort offset)
         {
-            var geometricEdge = db.Network.GeometricGraph.GetEdge(edgeId);
-            var shape = db.Network.GeometricGraph.GetShape(geometricEdge);
-            var length = db.Network.GeometricGraph.Length(geometricEdge);
-            var currentLength = 0.0;
-            var targetLength = length * (offset / (double)ushort.MaxValue);
-            for (var i = 1; i < shape.Count; i++)
-            {
-                var segmentLength = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
-                if (segmentLength + currentLength > targetLength)
-                {
-                    var segmentOffsetLength = segmentLength + currentLength - targetLength;
-                    var segmentOffset = 1 - (segmentOffsetLength / segmentLength);
-                    short? elevation = null;
-                    if (shape[i - 1].Elevation.HasValue && 
-                        shape[i].Elevation.HasValue)
-                    {
-                        elevation = (short)(shape[i - 1].Elevation.Value + (segmentOffset * (shape[i].Elevation.Value - shape[i - 1].Elevation.Value)));
-                    }
-                    return new Coordinate()
-                    {
-                        Latitude = (float)(shape[i - 1].Latitude + (segmentOffset * (shape[i].Latitude - shape[i - 1].Latitude))),
-                        Longitude = (float)(shape[i - 1].Longitude + (segmentOffset * (shape[i].Longitude - shape[i - 1].Longitude))),
-                        Elevation = elevation
-                    };
-                }
-                currentLength += segmentLength;
-            }
-            return shape[shape.Count - 1];
+            return db.Network.LocationOnNetwork(edgeId, offset);
         }
     }
 }

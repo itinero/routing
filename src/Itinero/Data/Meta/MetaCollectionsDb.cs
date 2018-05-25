@@ -59,6 +59,14 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
+        /// Removes all data.
+        /// </summary>
+        public void Clear()
+        {
+            _collections.Clear();
+        }
+
+        /// <summary>
         /// Gets the type of the collection with the given name.
         /// </summary>
         public Type GetType(string name)
@@ -72,13 +80,35 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
-        /// Switches the two vertices around.
+        /// Switches the two items around.
         /// </summary>
-        public void Switch(uint vertex1, uint vertex2)
+        public void Switch(uint item1, uint item2)
         {
             foreach(var collection in _collections)
             {
-                collection.Value.Switch(vertex1, vertex2);
+                collection.Value.Switch(item1, item2);
+            }
+        }
+
+        /// <summary>
+        /// Copies whatever data is in 'from' to 'to'.
+        /// </summary>
+        public void Copy(uint to, uint from)
+        {
+            foreach(var collection in _collections)
+            {
+                collection.Value.Copy(to, from);
+            }
+        }
+
+        /// <summary>
+        /// Sets the item to the default empty value.
+        /// </summary>
+        public void SetEmpty(uint item)
+        {
+            foreach(var collection in _collections)
+            {
+                collection.Value.SetEmpty(item);
             }
         }
 

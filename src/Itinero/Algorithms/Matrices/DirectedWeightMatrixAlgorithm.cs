@@ -25,6 +25,7 @@ using Itinero.LocalGeo;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Matrices
 {
@@ -103,12 +104,12 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected sealed override void DoRun()
+        protected sealed override void DoRun(CancellationToken cancellationToken)
         {
             // run mass resolver if needed.
             if (!_massResolver.HasRun)
             {
-                _massResolver.Run();
+                _massResolver.Run(cancellationToken);
             }
 
             // create error and resolved point management data structures.
@@ -199,11 +200,11 @@ namespace Itinero.Algorithms.Matrices
             // run the actual calculations.
             if (_graph != null)
             {
-                this.DoEdgeBased();
+                this.DoEdgeBased(cancellationToken);
             }
             else
             {
-                this.DoDualBased();
+                this.DoDualBased(cancellationToken);
             }
 
             // check for invalids.
@@ -265,7 +266,7 @@ namespace Itinero.Algorithms.Matrices
             this.HasSucceeded = true;
         }
 
-        private void DoEdgeBased()
+        private void DoEdgeBased(CancellationToken cancellationToken)
         {
 
             // do forward searches into buckets.
@@ -281,7 +282,7 @@ namespace Itinero.Algorithms.Matrices
                         forward.TryGetVisits(foundPath.Vertex, out visits);
                         return this.ForwardVertexFound(i, foundPath.Vertex, visits);
                     };
-                    forward.Run();
+                    forward.Run(cancellationToken);
                 }
             }
 
@@ -298,12 +299,12 @@ namespace Itinero.Algorithms.Matrices
                         backward.TryGetVisits(foundPath.Vertex, out visits);
                         return this.BackwardVertexFound(i, foundPath.Vertex, visits);
                     };
-                    backward.Run();
+                    backward.Run(cancellationToken);
                 }
             }
         }
 
-        private void DoDualBased()
+        private void DoDualBased(CancellationToken cancellationToken)
         {
             var uniqueSet = new HashSet<DirectedEdgeId>();
             var sources = new List<DirectedEdgeId>(_correctedResolvedPoints.Count * 2);
@@ -322,7 +323,7 @@ namespace Itinero.Algorithms.Matrices
             var dykstraTargets = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
             var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexWeightAlgorithm<T>(_dualGraph, _weightHandler,
                 dykstraSources, dykstraTargets, _max);
-            algorithm.Run();
+            algorithm.Run(cancellationToken);
 
             var map = new Dictionary<uint, int>();
             for (var i = 0; i < sources.Count; i += 2)

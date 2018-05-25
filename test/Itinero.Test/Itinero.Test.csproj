@@ -50,6 +50,7 @@
     <EmbeddedResource Include="test-data\networks\network9.geojson" />
     <EmbeddedResource Include="test-data\profiles\osm\car.lua" />
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
+    <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />

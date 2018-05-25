@@ -20,6 +20,7 @@ using Itinero.Algorithms.Restrictions;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Default.EdgeBased
 {
@@ -56,7 +57,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Executes the actual algorithm.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             _paths = new EdgePath<T>[_targets.Length];
 
@@ -152,7 +153,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
 
                 return false;
             };
-            dykstra.Run();
+            dykstra.Run(cancellationToken);
 
             this.HasSucceeded = true;
         }

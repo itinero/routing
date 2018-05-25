@@ -33,7 +33,7 @@ namespace Itinero.LocalGeo
         {
             var array = new double[coordinates.Count][];
 
-            for(var i = 0; i < coordinates.Count; i++)
+            for (var i = 0; i < coordinates.Count; i++)
             {
                 array[i] = new double[]
                 {
@@ -94,7 +94,7 @@ namespace Itinero.LocalGeo
                 throw new ArgumentOutOfRangeException("epsilon");
             if (first > last)
                 throw new ArgumentException(string.Format("first[{0}] must be smaller or equal than last[{1}]!",
-                                                          first, last));
+                    first, last));
 
             if (first + 1 != last)
             {
@@ -151,7 +151,7 @@ namespace Itinero.LocalGeo
                 throw new ArgumentOutOfRangeException("epsilon");
             if (first > last)
                 throw new ArgumentException(string.Format("first[{0}] must be smaller or equal than last[{1}]!",
-                                                          first, last));
+                    first, last));
 
             if (first + 1 != last)
             {
@@ -207,8 +207,365 @@ namespace Itinero.LocalGeo
                     new Coordinate(box.MaxLat, box.MaxLon),
                     new Coordinate(box.MinLat, box.MaxLon),
                     new Coordinate(box.MinLat, box.MinLon)
-                })
+                    })
             };
+        }
+
+        /// <summary>
+        /// Returns true if the given point lies within the polygon.
+        /// 
+        /// Note that polygons spanning a pole, without a point at the pole itself, will fail to detect points within the polygon;
+        /// (e.g. Polygon=[(lat=80°, 0), (80, 90), (80, 180)] will *not* detect the point (85, 90))
+        /// </summary>
+        public static bool PointIn(this Polygon poly, Coordinate point)
+        {
+            // For startes, the point should lie within the outer
+
+            var inOuter = PointIn(poly.ExteriorRing, point);
+            if (!inOuter)
+            {
+                return false;
+            }
+
+            // and it should *not* lay within any inner ring
+            for (int i = 0; i < poly.InteriorRings.Count; i++)
+            {
+                var inInner = PointIn(poly.InteriorRings[i], point);
+                if (inInner)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Returns true if the given point lies within the ring.
+        /// </summary>
+        public static bool PointIn(List<Coordinate> ring, Coordinate point)
+        {
+
+            // Coordinate of the point. Longitude might be changed in the antemeridian-crossing case
+            var longitude = point.Longitude;
+            var latitude = point.Latitude;
+
+            /*
+            Some preprocessing. If the polygon crosses the antemeridian, we have some troubles and and 360 to all the negative longitudes.
+            This crossing is detected by using the bounding box. If there are longitudes between [+90..-90], we know that the antemeridian is crossed
+            */
+
+            float bbNorth;
+            float bbEast;
+            float bbSouth;
+            float bbWest;
+
+            BoundingBox(ring, out bbNorth, out bbEast, out bbSouth, out bbWest);
+
+            var antemeridianCrossed = false;
+            if (Math.Sign(bbEast) != Math.Sign(bbWest))
+            {
+                // opposite signs: we either cross the prime meridian or antemeridian
+                if (Math.Min(bbEast, bbWest) <= -90 && Math.Max(bbEast, bbWest) >= 90)
+                {
+                    // The lowest longitude is really low, the highest really high => We probably cross the antemeridian
+                    antemeridianCrossed = true;
+                    // We flip the bounding box to be entirely between [0, 360]
+                    Flip(ref bbWest);
+                    Flip(ref bbEast);
+                    // this means we have to swap the east and west sides of the bounding box
+                    float x = bbWest;
+                    bbWest = bbEast;
+                    bbEast = x;
+                    // We might have to update the point as well, to this new coordinate system
+                    Flip(ref longitude);
+                }
+            }
+
+            // As we now have a neat bounding box laying around, it would be a pity not to use this
+            // If the point is not within the BB, it certainly is not within the polygon
+            if (!(bbWest <= longitude && bbNorth >= latitude && bbEast >= longitude && bbSouth <= latitude))
+            {
+                return false;
+            }
+
+            /* The basic, actual algorithm
+            The algorithm is based on the ray casting algorthm, where the point moves horizontally
+            If an even number of intersections are counted, the point lies outside of the polygon
+            */
+
+            // no intersections passed yet -> not within the polygon
+            var result = false;
+
+            for (int i = 0; i < ring.Count; i++)
+            {
+                var start = ring[i];
+                var end = ring[(i + 1) % ring.Count];
+
+                // Again, longitudes might be changed in the ante-meridian-crossing case
+                var stLat = start.Latitude;
+                var stLong = start.Longitude;
+                var endLat = end.Latitude;
+                var endLong = end.Longitude;
+                if (antemeridianCrossed)
+                {
+                    Flip(ref stLong);
+                    Flip(ref endLong);
+                }
+
+                // The raycast is from west to east - thus at the same latitude level of the point
+                // Thus, if the latitude of the point is not between the latitudes of the segment ends, we can skip the segment
+                // Note that this fails for polygons spanning a pole (but that's okay, it's documented)
+                if (!(Math.Min(stLat, endLat) < latitude &&
+                        latitude < Math.Max(stLat, endLat)))
+                {
+                    continue;
+                }
+
+                // Here, we know that: the latitude of the point falls between the latitudes of the end points of the segment
+
+                // If both ends of the segment fall to the right, the line will intersect: we toggle our switch and continue with the next segment
+                // The following code however misses the case that the segment crosses the ante-primemeridian (longitude=180=-180)
+                // We take care of that in the next if
+                if (Math.Min(stLong, endLong) >= longitude)
+                {
+                    result = !result;
+                    continue;
+                }
+
+                // Analogously, at least one point of the segments should be on the right (east) of the point;
+                // otherwise, no intersection is possible (as the raycast goes right)
+                if (!(Math.Max(stLong, endLong) >= longitude))
+                {
+                    continue;
+                }
+
+                // we calculate the longitude on the segment for the latitude of the point
+                // x = y_p * (x1 - x2)/(y1 - y2) + (x2y1-x1y1)/(y1-y2)
+                var longit = latitude * (stLong - endLong) + //
+                    (endLong * stLat - stLong * endLat);
+                longit /= (stLat - endLat);
+
+                // If the longitude lays on the right of the point AND lays within the segment (only right bound is needed to check)
+                // the segment intersects the raycast and we flip the bit
+                if (longit >= longitude && longit <= Math.Max(stLong, endLong))
+                {
+                    result = !result;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calculates a bounding box for the polygon.
+        /// TODO: if this is needed a lot, we should cache it in the polygon, see https://github.com/itinero/routing/issues/138
+        /// </summary>
+        public static void BoundingBox(this Polygon polygon, out float north, out float east, out float south, out float west)
+        {
+            BoundingBox(polygon.ExteriorRing, out north, out east, out south, out west);
+        }
+
+        /// <summary>
+        /// Calculates a bounding box for the ring.
+        /// </summary>
+        public static void BoundingBox(List<Coordinate> exteriorRing, out float north, out float east, out float south, out float west)
+        {
+            east = exteriorRing[0].Longitude;
+            west = exteriorRing[0].Longitude;
+            north = exteriorRing[0].Latitude;
+            south = exteriorRing[0].Latitude;
+
+            for (int i = 1; i < exteriorRing.Count; i++)
+            {
+                var c = exteriorRing[i];
+                if (c.Longitude < west)
+                {
+                    west = c.Longitude;
+                }
+
+                if (c.Longitude > east)
+                {
+                    east = c.Longitude;
+                }
+
+                if (c.Latitude < south)
+                {
+                    south = c.Latitude;
+                }
+
+                if (c.Latitude > north)
+                {
+                    north = c.Latitude;
+                }
+            }
+        }
+
+        /// <summary>
+        /// If the longitude is smaller then 0, add 360.
+        /// Usefull when coordinates are near the antemeridian
+        /// </summary>
+        /// <param name="longitude">The paramater that is flipped</param>
+        public static void Flip(ref float longitude)
+        {
+            if (longitude < 0)
+            {
+                longitude += 360;
+            }
+        }
+
+        /// <summary>
+        /// Returns the location along the line at the given offset distance in meter.
+        /// </summary>
+        /// <param name="line">The line.</param>
+        /// <param name="offset">The offset in meter.</param>
+        /// <param name="forward">When true the offset starts at the first location, otherwise the second..</param>
+        /// <returns></returns>
+        public static Coordinate LocationAfterDistance(this Line line, float offset, bool forward = true)
+        {
+            if (forward)
+            {
+                return LocationAfterDistance(line.Coordinate1, line.Coordinate2, offset);
+            }
+            return LocationAfterDistance(line.Coordinate2, line.Coordinate1, offset);
+        }
+
+        /// <summary>
+        /// Returns the location between the two coordinates at the given offset distance in meter.
+        /// </summary>
+        /// <param name="coordinate1">The first coordinate.</param>
+        /// <param name="coordinate2">The second coordinate.</param>
+        /// <param name="offset">The offset in meter starting at coordinate1.</param>
+        /// <returns></returns>
+        public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float offset)
+        {
+            return LocationAfterDistance(coordinate1, coordinate2, Coordinate.DistanceEstimateInMeter(coordinate1, coordinate2),
+                offset);
+        }
+
+        /// <summary>
+        /// Returns the location between the two coordinates at the given offset distance in meter.
+        /// </summary>
+        /// <param name="coordinate1">The first coordinate.</param>
+        /// <param name="coordinate2">The second coordinate.</param>
+        /// <param name="distanceBetween">The distance between the two, when we already calculated it before.</param>
+        /// <param name="offset">The offset in meter starting at coordinate1.</param>
+        /// <returns></returns>
+        public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float distanceBetween, float offset)
+        {
+            var ratio = offset / distanceBetween;
+            return new Coordinate(
+                (coordinate2.Latitude - coordinate1.Latitude) * ratio + coordinate1.Latitude,
+                (coordinate2.Longitude - coordinate1.Longitude) * ratio + coordinate1.Longitude
+            );
+        }
+
+        /// <summary>
+        /// Returns intersection points with the given polygon.
+        /// </summary>
+        /// <param name="polygon">The polygon</param>
+        /// <returns></returns>
+        public static IEnumerable<Coordinate> Intersect(this Polygon polygon, float latitude1, float longitude1,
+            float latitude2, float longitude2)
+        {
+            var E = 0.001f; // this is 1mm.
+
+            var line = new Line(new Coordinate(latitude1, longitude1), new Coordinate(latitude2, longitude2));
+
+            // REMARK: yes, this can be way way faster but it's only used in preprocessing.
+            // use a real geo library like NTS if you want this faster or submit a pull request.
+            var sortedList = new SortedList<float, Coordinate>();
+            var intersections = polygon.ExteriorRing.IntersectInternal(line);
+            foreach (var intersection in intersections)
+            {
+                sortedList.Add(intersection.Key, intersection.Value);
+            }
+
+            if (polygon.InteriorRings != null)
+            {
+                foreach (var innerRing in polygon.InteriorRings)
+                {
+                    intersections = innerRing.IntersectInternal(line);
+                    foreach (var intersection in intersections)
+                    {
+                        sortedList.Add(intersection.Key, intersection.Value);
+                    }
+                }
+            }
+
+            var previousDistance = 0f;
+            var previous = new Coordinate(latitude1, longitude1);
+            var previousInside = polygon.PointIn(previous);
+
+            var cleanIntersections = new List<Coordinate>();
+            foreach (var intersection in sortedList)
+            {
+                var offset = intersection.Key - previousDistance;
+                if (offset < E)
+                { // just over on
+                    continue;
+                }
+
+                // calculate in or out.
+                var middle = new Coordinate((previous.Latitude + intersection.Value.Latitude) / 2,
+                    (previous.Longitude + intersection.Value.Longitude) / 2);
+                var middleInside = polygon.PointIn(middle);
+                if (previousInside != middleInside ||
+                    cleanIntersections.Count == 0)
+                { // in or out change or this is the first intersection.
+                    cleanIntersections.Add(intersection.Value);
+                    previousDistance = intersection.Key;
+                    previous = intersection.Value;
+                    previousInside = middleInside;
+                }
+            }
+
+            return cleanIntersections;
+        }
+
+        private static IEnumerable<KeyValuePair<float, Coordinate>> IntersectInternal(this List<Coordinate> ring,
+            Line line)
+        {
+            var intersections = new List<KeyValuePair<float, Coordinate>>();
+            var lineLength = line.Length;
+
+            var E = 0.001f; // this is 1mm.
+            var projected = line.ProjectOn(ring[0]);
+            if (projected != null)
+            {
+                var dist = Coordinate.DistanceEstimateInMeter(projected.Value, ring[0]);
+                if (dist < E / 2)
+                {
+                    intersections.Add(new KeyValuePair<float, Coordinate>(0, projected.Value));
+                }
+            }
+            for (var s = 1; s < ring.Count; s++)
+            {
+                var segment = new Line(ring[s - 1], ring[s]);
+                projected = segment.Intersect(line);
+                if (projected != null)
+                {
+                    var dist = Coordinate.DistanceEstimateInMeter(projected.Value, line.Coordinate1);
+                    var dist2 = Coordinate.DistanceEstimateInMeter(projected.Value, line.Coordinate2);
+                    if (dist < lineLength &&
+                        dist2 < lineLength)
+                    {
+                        intersections.Add(new KeyValuePair<float, Coordinate>(dist, projected.Value));
+                    }
+                }
+
+                projected = line.ProjectOn(ring[s]);
+                if (projected != null)
+                {
+                    var dist = Coordinate.DistanceEstimateInMeter(projected.Value, ring[s]);
+                    if (dist < E / 2)
+                    {
+                        dist = Coordinate.DistanceEstimateInMeter(projected.Value, line.Coordinate1);
+                        intersections.Add(new KeyValuePair<float, Coordinate>(dist, projected.Value));
+                    }
+                }
+            }
+
+            return intersections;
         }
     }
 }

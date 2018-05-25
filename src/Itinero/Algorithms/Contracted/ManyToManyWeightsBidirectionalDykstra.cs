@@ -22,6 +22,7 @@ using Itinero.Graphs.Directed;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace Itinero.Algorithms.Contracted
 {
@@ -73,7 +74,7 @@ namespace Itinero.Algorithms.Contracted
         /// <summary>
         /// Executes the actual run.
         /// </summary>
-        protected override void DoRun()
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // put in default weights and weights for one-edge-paths.
             _weights = new T[_sources.Length][];
@@ -105,7 +106,7 @@ namespace Itinero.Algorithms.Contracted
                     {
                         return this.ForwardVertexFound(i, path.Vertex, path.Weight);
                     };
-                forward.Run();
+                forward.Run(cancellationToken);
             }
 
             // do backward searches into buckets.
@@ -116,7 +117,7 @@ namespace Itinero.Algorithms.Contracted
                     {
                         return this.BackwardVertexFound(i, path.Vertex, path.Weight);
                     };
-                backward.Run();
+                backward.Run(cancellationToken);
             }
             this.HasSucceeded = true;
         }
