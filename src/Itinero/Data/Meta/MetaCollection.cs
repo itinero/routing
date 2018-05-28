@@ -81,9 +81,14 @@ namespace Itinero.Data
         public abstract void Switch(uint item1, uint item2);
 
         /// <summary>
-        /// Copies whatever data is in item2 to item1.
+        /// Returns true if the data in the two given items is identical.
         /// </summary>
-        public abstract void Copy(uint item1, uint item2);
+        public abstract bool Equal(uint item1, uint item2);
+
+        /// <summary>
+        /// Copies whatever data is in 'from' to 'to'.
+        /// </summary>
+        public abstract void Copy(uint to, uint from);
 
         /// <summary>
         /// Sets the item to the default empty value.
@@ -380,17 +385,26 @@ namespace Itinero.Data
         }
 
         /// <summary>
-        /// Copies whatever data is in item2 to item1.
+        /// Returns true if the data in the two given items is identical.
         /// </summary>
-        public override void Copy(uint item1, uint item2)
+        public override bool Equal(uint item1, uint item2)
         {
-            if (item2 < this.Count)
+            if (item1 >= this.Count || item2 >= this.Count) return false;
+            return EqualityComparer<T>.Default.Equals(this[item1], this[item2]);
+        }
+
+        /// <summary>
+        /// Copies whatever data is in 'from' to 'to'.
+        /// </summary>
+        public override void Copy(uint to, uint from)
+        {
+            if (from < this.Count)
             {
-                this[item1] = this[item2];
+                this[to] = this[from];
             }
             else
             { // item2 considered empty.
-                this[item1] = _empty;
+                this[to] = _empty;
             }
         }
 

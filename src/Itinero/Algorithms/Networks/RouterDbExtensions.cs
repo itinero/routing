@@ -67,8 +67,9 @@ namespace Itinero.Algorithms.Networks
                     { // different meta data, do not merge.
                         return false;
                     }
+
                     if (inverted1 != inverted2)
-                    { // directions are the same.
+                    { // directions are the different.
                         foreach (var factorFunction in factorFunctions)
                         {
                             var edge1Factor = factorFunction(edgeData1.Profile);
@@ -84,7 +85,7 @@ namespace Itinero.Algorithms.Networks
                                 {
                                     return false;
                                 }
-                                else if (edgeData2.Distance == 2)
+                                else if (edge2Factor.Direction == 2)
                                 {
                                     return false;
                                 }
@@ -124,7 +125,33 @@ namespace Itinero.Algorithms.Networks
                     }
                     return true;
                 }, simplifyEpsilonInMeter);
+            var edgeMetaDb = routerDb.EdgeData;
+            var edgeMetaKeys = edgeMetaDb.Names;
+            algorithm.CanMerge = (edgeId1, edgeId2) =>
+            {
+                foreach (var key in edgeMetaKeys)
+                {
+                    var edgeMeta = edgeMetaDb.Get(key);
+                    return edgeMeta.Equal(edgeId1, edgeId2);
+                }
+                return true;
+            };
+            algorithm.NewEdge = (oldEdgeId, newEdgeId) =>
+            {
+                foreach (var key in edgeMetaKeys)
+                {
+                    var edgeMeta = edgeMetaDb.Get(key);
+                    if (oldEdgeId >= edgeMeta.Count)
+                    {
+                        continue;
+                    }
+
+                    edgeMeta.Copy(newEdgeId, oldEdgeId);
+                }
+            };
+            
             algorithm.Run(cancellationToken);
+            algorithm.CheckHasRunAndHasSucceeded();
         }
 
         /// <summary>

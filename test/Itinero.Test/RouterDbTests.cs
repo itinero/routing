@@ -726,5 +726,32 @@ namespace Itinero.Test
             Assert.IsTrue(routerDb.EdgeData.TryGet("edge_id", out edgeIds));
             Assert.AreEqual(3, edgeIds.Count);
         }
+
+        /// <summary>
+        /// Tests saving and then loading test network6 and then checking if it's writable.
+        /// </summary>
+        [Test]
+        public void TestSaveLoadNetwork6WritableAfterSerialization()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network6.geojson"));
+            routerDb.Sort();
+
+            using (var stream = new MemoryStream())
+            {
+                routerDb.Serialize(stream);
+                stream.Seek(0, SeekOrigin.Begin);
+                routerDb = RouterDb.Deserialize(stream, null);
+            } 
+
+            routerDb.EdgeProfiles.Add(new AttributeCollection(
+                new Itinero.Attributes.Attribute("highway", "unknown")));
+
+            routerDb.EdgeMeta.Add(new AttributeCollection(
+                new Itinero.Attributes.Attribute("name", "Some roadname, never ever used before!")));
+        }
     }
 }

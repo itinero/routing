@@ -16,13 +16,13 @@
  *  limitations under the License.
  */
 
+using System;
+using System.Collections;
 using Itinero.Algorithms.Collections;
 using Reminiscence.Arrays;
 using Reminiscence.Indexes;
 using Reminiscence.IO;
 using Reminiscence.IO.Streams;
-using System;
-using System.Collections;
 
 namespace Itinero.Attributes
 {
@@ -39,14 +39,14 @@ namespace Itinero.Attributes
         private const uint NULL_ATTRIBUTES = 0;
         private const uint EMPTY_ATTRIBUTES = 1;
 
-        private readonly System.Collections.Generic.IDictionary<string, int> _stringReverseIndex; // Holds all strings and their id.
-        private readonly System.Collections.Generic.IDictionary<int[], uint> _collectionReverseIndex; // Holds all tag collections and their reverse index.
-        
+        private System.Collections.Generic.IDictionary<string, int> _stringReverseIndex; // Holds all strings and their id.
+        private System.Collections.Generic.IDictionary<int[], uint> _collectionReverseIndex; // Holds all tag collections and their reverse index.
+
         /// <summary>
         /// Creates a new empty index.
         /// </summary>
-        public AttributesIndex(AttributesIndexMode mode = AttributesIndexMode.ReverseCollectionIndex |  
-                AttributesIndexMode.ReverseStringIndex)
+        public AttributesIndex(AttributesIndexMode mode = AttributesIndexMode.ReverseCollectionIndex |
+            AttributesIndexMode.ReverseStringIndex)
         {
             _stringIndex = new Index<string>();
             _collectionIndex = new Index<int[]>();
@@ -100,9 +100,9 @@ namespace Itinero.Attributes
         /// <summary>
         /// Creates a new index.
         /// </summary>
-        public AttributesIndex(MemoryMap map, 
-            AttributesIndexMode mode = AttributesIndexMode.ReverseCollectionIndex |  
-                AttributesIndexMode.ReverseStringIndex)
+        public AttributesIndex(MemoryMap map,
+            AttributesIndexMode mode = AttributesIndexMode.ReverseCollectionIndex |
+            AttributesIndexMode.ReverseStringIndex)
         {
             if (mode == AttributesIndexMode.None) { throw new ArgumentException("Cannot create a new index without a valid operating mode."); }
 
@@ -127,45 +127,45 @@ namespace Itinero.Attributes
             if ((_mode & AttributesIndexMode.ReverseCollectionIndex) == AttributesIndexMode.ReverseCollectionIndex)
             {
                 _collectionReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(map, 1024 * 16,
-                        new DelegateEqualityComparer<int[]>(
-                            (obj) =>
-                            { // assumed the array is sorted.
-                                var hash = obj.Length.GetHashCode();
-                                for (int idx = 0; idx < obj.Length; idx++)
-                                {
-                                    hash = hash ^ obj[idx].GetHashCode();
-                                }
-                                return hash;
-                            },
-                            (x, y) =>
+                    new DelegateEqualityComparer<int[]>(
+                        (obj) =>
+                        { // assumed the array is sorted.
+                            var hash = obj.Length.GetHashCode();
+                            for (int idx = 0; idx < obj.Length; idx++)
                             {
-                                if (x.Length == y.Length)
+                                hash = hash ^ obj[idx].GetHashCode();
+                            }
+                            return hash;
+                        },
+                        (x, y) =>
+                        {
+                            if (x.Length == y.Length)
+                            {
+                                for (int idx = 0; idx < x.Length; idx++)
                                 {
-                                    for (int idx = 0; idx < x.Length; idx++)
+                                    if (x[idx] != y[idx])
                                     {
-                                        if (x[idx] != y[idx])
-                                        {
-                                            return false;
-                                        }
+                                        return false;
                                     }
-                                    return true;
                                 }
-                                return false;
-                            }));
+                                return true;
+                            }
+                            return false;
+                        }));
             }
         }
 
         /// <summary>
         /// Creates a new index.
         /// </summary>
-        internal AttributesIndex(Index<string> stringIndex, Index<int[]> tagsIndex)
+        internal AttributesIndex(AttributesIndexMode mode, Index<string> stringIndex, Index<int[]> tagsIndex)
         {
             _stringIndex = stringIndex;
             _collectionIndex = tagsIndex;
             _isReadonly = true;
             _index = null;
             _nextId = uint.MaxValue;
-            _mode = AttributesIndexMode.None;
+            _mode = mode;
 
             _stringReverseIndex = null;
             _collectionReverseIndex = null;
@@ -174,14 +174,14 @@ namespace Itinero.Attributes
         /// <summary>
         /// Creates a new index.
         /// </summary>
-        internal AttributesIndex(Index<string> stringIndex, Index<int[]> tagsIndex, ArrayBase<uint> index)
+        internal AttributesIndex(AttributesIndexMode mode, Index<string> stringIndex, Index<int[]> tagsIndex, ArrayBase<uint> index)
         {
             _stringIndex = stringIndex;
             _collectionIndex = tagsIndex;
             _isReadonly = true;
             _index = index;
-            _nextId = (uint)index.Length;
-            _mode = AttributesIndexMode.None;
+            _nextId = (uint) index.Length;
+            _mode = mode;
 
             _stringReverseIndex = null;
             _collectionReverseIndex = null;
@@ -240,15 +240,15 @@ namespace Itinero.Attributes
         /// </summary>
         public IAttributeCollection Get(uint tagsId)
         {
-            if(tagsId == 0)
+            if (tagsId == 0)
             {
                 return null;
             }
-            else if(tagsId == 1)
+            else if (tagsId == 1)
             {
                 return new AttributeCollection();
             }
-            if(_index != null)
+            if (_index != null)
             { // use the index if it's there.
                 tagsId = _index[tagsId - 2];
                 return new InternalAttributeCollection(_stringIndex, _collectionIndex.Get(tagsId));
@@ -261,42 +261,113 @@ namespace Itinero.Attributes
         /// </summary>
         public uint Add(IAttributeCollection tags)
         {
-            if(tags == null)
+            if (tags == null)
             {
                 return NULL_ATTRIBUTES;
             }
-            else if(tags.Count == 0)
+            else if (tags.Count == 0)
             {
                 return EMPTY_ATTRIBUTES;
             }
 
             if (_isReadonly)
             { // this index is readonly.
-                throw new System.InvalidOperationException("This tags index is readonly. Check IsReadonly.");
-            }
-            else
-            { // add new collection.
-                var sortedSet = new SortedSet<long>();
-                foreach(var tag in tags)
-                {
-                    sortedSet.Add((long)this.AddString(tag.Key, true) +
-                        (long)int.MaxValue * (long)this.AddString(tag.Value, false));
+                // TODO: make writeable.
+                // - set nextId.
+                // - create reverse indexes if needed.
+                if (_index != null)
+                { // this should be an increase-one index.
+                    if ((_mode & AttributesIndexMode.IncreaseOne) != AttributesIndexMode.IncreaseOne)
+                    {
+                        throw new Exception("Invalid combination of data: There is an index but mode isn't increase one.");
+                    }
+
+                    _nextId = (uint) _index.Length;
                 }
 
-                // sort keys.
-                var sorted = new int[sortedSet.Count * 2];
-                var idx = 0;
-                foreach (var pair in sortedSet)
+                // build reverse indexes if needed.
+                if ((_mode & AttributesIndexMode.ReverseStringIndex) == AttributesIndexMode.ReverseStringIndex ||
+                    (_mode & AttributesIndexMode.ReverseStringIndexKeysOnly) == AttributesIndexMode.ReverseStringIndexKeysOnly)
                 {
-                    sorted[idx] = (int)(pair % int.MaxValue);
-                    idx++;
-                    sorted[idx] = (int)(pair / int.MaxValue);
-                    idx++;
+                    _stringReverseIndex = new Reminiscence.Collections.Dictionary<string, int>(
+                        new MemoryMapStream(), 1024 * 16);
+
+                    // add existing data.
+                    if ((_mode & AttributesIndexMode.ReverseStringIndex) == AttributesIndexMode.ReverseStringIndex)
+                    { // build reverse index for all data.
+                        foreach (var pair in _stringIndex)
+                        {
+                            _stringReverseIndex[pair.Value] = (int) pair.Key;
+                        }
+                    }
+                    else
+                    { // build reverse index for keys only.
+                        foreach (var collectionPair in _collectionIndex)
+                        {
+                            foreach (var stringId in collectionPair.Value)
+                            {
+                                _stringReverseIndex[_stringIndex.Get(stringId)] = stringId;
+                            }
+                        }
+                    }
                 }
 
-                // add sorted collection.
-                return this.AddCollection(sorted);
+                if ((_mode & AttributesIndexMode.ReverseCollectionIndex) == AttributesIndexMode.ReverseCollectionIndex)
+                {
+                    _collectionReverseIndex = new Reminiscence.Collections.Dictionary<int[], uint>(new MemoryMapStream(), 1024 * 16,
+                        new DelegateEqualityComparer<int[]>(
+                            (obj) =>
+                            { // assumed the array is sorted.
+                                var hash = obj.Length.GetHashCode();
+                                for (int idx = 0; idx < obj.Length; idx++)
+                                {
+                                    hash = hash ^ obj[idx].GetHashCode();
+                                }
+                                return hash;
+                            },
+                            (x, y) =>
+                            {
+                                if (x.Length == y.Length)
+                                {
+                                    for (int idx = 0; idx < x.Length; idx++)
+                                    {
+                                        if (x[idx] != y[idx])
+                                        {
+                                            return false;
+                                        }
+                                    }
+                                    return true;
+                                }
+                                return false;
+                            }));
+                    foreach (var pair in _collectionIndex)
+                    {
+                        _collectionReverseIndex[pair.Value] = (uint)pair.Key;
+                    }
+                }
             }
+
+            // add new collection.
+            var sortedSet = new SortedSet<long>();
+            foreach (var tag in tags)
+            {
+                sortedSet.Add((long) this.AddString(tag.Key, true) +
+                    (long) int.MaxValue * (long) this.AddString(tag.Value, false));
+            }
+
+            // sort keys.
+            var sorted = new int[sortedSet.Count * 2];
+            var i = 0;
+            foreach (var pair in sortedSet)
+            {
+                sorted[i] = (int) (pair % int.MaxValue);
+                i++;
+                sorted[i] = (int) (pair / int.MaxValue);
+                i++;
+            }
+
+            // add sorted collection.
+            return this.AddCollection(sorted);
         }
 
         /// <summary>
@@ -305,17 +376,17 @@ namespace Itinero.Attributes
         private int AddString(string value, bool key)
         {
             int id;
-            if ((_mode & AttributesIndexMode.ReverseStringIndex) == AttributesIndexMode.ReverseStringIndex || 
+            if ((_mode & AttributesIndexMode.ReverseStringIndex) == AttributesIndexMode.ReverseStringIndex ||
                 (((_mode & AttributesIndexMode.ReverseStringIndexKeysOnly) == AttributesIndexMode.ReverseStringIndexKeysOnly) && key))
             {
                 if (!_stringReverseIndex.TryGetValue(value, out id))
                 { // the key doesn't exist yet.
-                    id = (int)_stringIndex.Add(value);
+                    id = (int) _stringIndex.Add(value);
                     _stringReverseIndex.Add(value, id);
                 }
                 return id;
             }
-            return (int)_stringIndex.Add(value);
+            return (int) _stringIndex.Add(value);
         }
 
         /// <summary>
@@ -333,7 +404,7 @@ namespace Itinero.Attributes
                 }
             }
 
-            id = (uint)_collectionIndex.Add(collection);
+            id = (uint) _collectionIndex.Add(collection);
             if (_index != null)
             { // use next id.
                 _index.EnsureMinimumSize(_nextId + 1);
@@ -397,7 +468,7 @@ namespace Itinero.Attributes
                 value = null;
                 return false;
             }
-            
+
             /// <summary>
             /// Removes the attribute with the given key.
             /// </summary>
@@ -490,7 +561,7 @@ namespace Itinero.Attributes
                     return new Attribute()
                     {
                         Key = _stringIndex.Get(_tags[_idx]),
-                        Value = _stringIndex.Get(_tags[_idx + 1])
+                            Value = _stringIndex.Get(_tags[_idx + 1])
                     };
                 }
             }
@@ -505,7 +576,7 @@ namespace Itinero.Attributes
                     return new Attribute()
                     {
                         Key = _stringIndex.Get(_tags[_idx]),
-                        Value = _stringIndex.Get(_tags[_idx + 1])
+                            Value = _stringIndex.Get(_tags[_idx + 1])
                     };
                 }
             }
@@ -544,57 +615,98 @@ namespace Itinero.Attributes
         /// </summary>
         public long Serialize(System.IO.Stream stream)
         {
+            // version history.
+            // version 0-1: unused, fallback to unversioned.
+            // version 2: first version that contains information to make indexed writable again.
+
+            // write version #.
+            long size = 1;
+            stream.WriteByte(2);
+
+            // write index type flags.
+            size++;
+            stream.WriteByte((byte) _mode);
+
+            // write the actual data.
             if (_index == null)
-            {
+            { // this is a regular index.
                 stream.WriteByte(0);
-                var size = _collectionIndex.CopyToWithSize(stream);
-                return _stringIndex.CopyToWithSize(stream) + size + 1;
+                size++;
+                size += _collectionIndex.CopyToWithSize(stream);
+                size += _stringIndex.CopyToWithSize(stream);
             }
             else
-            {
+            { // this is an increase one index.
+                // compress index.
                 _index.Resize(_nextId);
+
                 stream.WriteByte(1);
-                var size = _collectionIndex.CopyToWithSize(stream);
+                size++;
+                size += _collectionIndex.CopyToWithSize(stream);
                 size += _stringIndex.CopyToWithSize(stream);
                 stream.Write(BitConverter.GetBytes(_index.Length), 0, 8);
+                size += 8;
                 size += _index.CopyTo(stream);
-                return size + 8 + 1;
             }
+
+            return size;
         }
 
         /// <summary>
         /// Deserializes a tags index from the given stream.
         /// </summary>
-        public static AttributesIndex Deserialize(System.IO.Stream stream, bool copy = false)
+        public static AttributesIndex Deserialize(System.IO.Stream stream, bool copy = false,
+            AttributesIndexMode defaultIndexMode = AttributesIndexMode.ReverseStringIndexKeysOnly)
         {
-            var type = stream.ReadByte();
-            long size;
-            if (type == 0)
-            {
-                var tagsIndex = Index<int[]>.CreateFromWithSize(stream, out size, !copy);
-                var totalSize = size + 8 + 1;
-                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
-                var limitedStream = new LimitedStream(stream);
-                var stringIndex = Index<string>.CreateFromWithSize(limitedStream, out size, !copy);
-                totalSize += size + 8;
-                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
-                return new AttributesIndex(stringIndex, tagsIndex);
+            // read version byte.
+            long position = 1;
+            var version = stream.ReadByte();
+
+            int type = 0;
+            if (version < 2)
+            { // unversioned version.
+                type = (byte) version;
             }
             else
-            {
+            { // versioned.
+                // read the index mode.
+                var indexModeByte = stream.ReadByte();
+                position++;
+                defaultIndexMode = (AttributesIndexMode) indexModeByte;
+
+                // read the type.
+                type = stream.ReadByte();
+                position++;
+            }
+
+            // read the actual data.
+            long size;
+            if (type == 0)
+            { // regular index.
                 var tagsIndex = Index<int[]>.CreateFromWithSize(stream, out size, !copy);
-                var totalSize = size + 8 + 1;
-                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
+                position += size + 8;
+                stream.Seek(position, System.IO.SeekOrigin.Begin);
                 var limitedStream = new LimitedStream(stream);
                 var stringIndex = Index<string>.CreateFromWithSize(limitedStream, out size, !copy);
-                totalSize += size + 8;
-                stream.Seek(totalSize, System.IO.SeekOrigin.Begin);
+                position += size + 8;
+                stream.Seek(position, System.IO.SeekOrigin.Begin);
+                return new AttributesIndex(defaultIndexMode, stringIndex, tagsIndex);
+            }
+            else
+            { // increase one index.
+                var tagsIndex = Index<int[]>.CreateFromWithSize(stream, out size, !copy);
+                position += size + 8;
+                stream.Seek(position, System.IO.SeekOrigin.Begin);
+                var limitedStream = new LimitedStream(stream);
+                var stringIndex = Index<string>.CreateFromWithSize(limitedStream, out size, !copy);
+                position += size + 8;
+                stream.Seek(position, System.IO.SeekOrigin.Begin);
                 var indexLengthBytes = new byte[8];
                 stream.Read(indexLengthBytes, 0, 8);
                 var indexLength = BitConverter.ToInt64(indexLengthBytes, 0);
                 var index = Context.ArrayFactory.CreateMemoryBackedArray<uint>(indexLength);
                 index.CopyFrom(stream);
-                return new AttributesIndex(stringIndex, tagsIndex, index);
+                return new AttributesIndex(defaultIndexMode, stringIndex, tagsIndex, index);
             }
         }
 

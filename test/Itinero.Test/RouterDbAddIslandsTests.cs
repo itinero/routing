@@ -97,6 +97,61 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Tests on an imperfect network with 2 islands and including edge data.
+        /// </summary>
+        [Test]
+        public void TestAddIslandsWithIslandsAndEdgeData()
+        {
+            // build the routerdb.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network16.geojson"));
+            routerDb.Sort();
+
+            // add island data.
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            routerDb.AddIslandData(profile, true);
+
+            // verify result.
+            var edgeEnumerator = routerDb.Network.GetEdgeEnumerator();
+            Assert.IsTrue(routerDb.VertexData.TryGet("islands_" + profile.FullName, 
+                out MetaCollection<ushort> islands));
+            Assert.IsTrue(routerDb.EdgeData.TryGet("islands_" + profile.FullName, 
+                out MetaCollection<ushort> edgeIslands));
+            for (uint v = 0; v < routerDb.Network.VertexCount; v++)
+            {
+                if (!edgeEnumerator.MoveTo(v))
+                {
+                    continue;
+                }
+
+                while (edgeEnumerator.MoveNext())
+                {
+                    var to = edgeEnumerator.To;
+
+                    var edgeIslandCount = edgeIslands[edgeEnumerator.Id];
+                    if (edgeIslandCount != 0)
+                    {
+                        if (v <= 5 || to <= 5)
+                        {
+                            Assert.AreEqual(ushort.MaxValue, edgeIslandCount);
+                        }
+                        else if (v >= 6 || to >= 6)
+                        {
+                            Assert.AreEqual(13, edgeIslandCount);
+                        }
+                        else
+                        {
+                            Assert.AreEqual(1, edgeIslandCount);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Tests oneway islands and resolving.
         /// </summary>
         [Test]

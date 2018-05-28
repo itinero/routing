@@ -1808,13 +1808,21 @@ namespace Itinero
         /// </summary>
         public static void AddIslandData(this RouterDb db, Profile profile)
         {
-            db.AddIslandData(profile, CancellationToken.None);
+            db.AddIslandData(profile, false, CancellationToken.None);
         }
 
         /// <summary>
         /// Adds and detects island data to improve resolving.
         /// </summary>
-        public static void AddIslandData(this RouterDb db, Profile profile, CancellationToken cancellationToken)
+        public static void AddIslandData(this RouterDb db, Profile profile, bool buildEdgeMeta)
+        {
+            db.AddIslandData(profile, buildEdgeMeta, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Adds and detects island data to improve resolving.
+        /// </summary>
+        public static void AddIslandData(this RouterDb db, Profile profile, bool buildEdgeMeta, CancellationToken cancellationToken)
         {
             if (!db.Supports(profile))
             {
@@ -1866,6 +1874,57 @@ namespace Itinero
                     else
                     { // hmm, there should be at least something here, but no reason to fail on it.
                         meta[i] = 0;
+                    }
+                }
+            }
+
+            if (buildEdgeMeta)
+            { // also add edge-meta.
+                var edgeMeta = db.EdgeData.AddUInt16(name);
+
+                var enumerator = db.Network.GeometricGraph.Graph.GetEdgeEnumerator();
+                for (uint v = 0; v < db.Network.VertexCount; v++)
+                {
+                    if (!enumerator.MoveTo(v))
+                    {
+                        continue;
+                    }
+
+                    var vCount = meta[v];
+                    var vIsland = false;
+                    if (vCount < Algorithms.Search.ResolveSettings.DefaultMinIslandSize &&
+                        vCount != 0 && vCount != Constants.ISLAND_RESTRICTED)
+                    { 
+                        vIsland = true;
+                    }
+
+                    while (enumerator.MoveNext())
+                    {
+                        if (v > enumerator.To)
+                        { // do every edge once.
+                            continue;
+                        }
+
+                        var to = enumerator.To;
+                        var toCount = meta[to];
+                        var toIsland = false;
+                        if (toCount < Algorithms.Search.ResolveSettings.DefaultMinIslandSize &&
+                            toCount != 0 && toCount != Constants.ISLAND_RESTRICTED)
+                        {
+                            toIsland = true;
+                        }
+
+                        if ((toIsland || vIsland) ||
+                            (toCount == Constants.ISLAND_RESTRICTED && 
+                            vCount == Constants.ISLAND_RESTRICTED))
+                        {
+                            edgeMeta[enumerator.Id] = (ushort)System.Math.Max(Constants.ISLAND_RESTRICTED,
+                                System.Math.Max(vCount, toCount));
+                        }
+                        else
+                        {
+                            edgeMeta[enumerator.Id] = 0;
+                        }
                     }
                 }
             }

@@ -3,7 +3,11 @@ dotnet build ./src/Itinero.IO.Osm -f netstandard1.6
 dotnet build ./src/Itinero -f netstandard2.0
 dotnet build ./src/Itinero.IO.Osm -f netstandard2.0
 
+<<<<<<< HEAD
 # these are .net core 2.0 projects.
+=======
+# Test projects.
+>>>>>>> develop
 dotnet build ./test/Itinero.Test
 dotnet build ./test/Itinero.Test.Functional
 

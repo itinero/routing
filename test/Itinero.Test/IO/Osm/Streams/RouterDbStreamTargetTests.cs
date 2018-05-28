@@ -97,6 +97,79 @@ namespace Itinero.Test.IO.Osm.Streams
             Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2), data.Distance, 0.1);
             Assert.IsTrue(profile.Contains("highway", "residential"));
             Assert.AreEqual(new AttributeCollection(), meta);
+        } 
+        
+        /// <summary>
+        /// Tests loading one way.
+        /// </summary>
+        [Test]
+        public void TestOneWayWithAShapePoint()
+        {
+            // build source stream.
+            var location1 = new Coordinate() { Latitude = 49.8355328612026f, Longitude = 5.754808187484741f };
+            var location2 = new Coordinate() { Latitude = 49.83543598213665f, Longitude = 5.755451917648315f };
+            var location3 = new Coordinate() { Latitude = 49.83556054090007f, Longitude = 5.756278038024902f };
+            var source = new OsmGeo[] {
+                new Node()
+                {
+                    Id = 1,
+                    Latitude = location1.Latitude,
+                    Longitude = location1.Longitude
+                },
+                new Node()
+                {
+                    Id = 2,
+                    Latitude = location2.Latitude,
+                    Longitude = location2.Longitude
+                },
+                new Node()
+                {
+                    Id = 3,
+                    Latitude = location3.Latitude,
+                    Longitude = location3.Longitude
+                },
+                new Way()
+                {
+                    Id = 1,
+                    Tags = new TagsCollection(
+                        new Tag("highway", "residential")),
+                    Nodes = new long[] { 1, 2, 3 }
+                }};
+
+            // build db from stream.
+            var routerDb = new RouterDb();
+            var target = new RouterDbStreamTarget(
+                routerDb, new Itinero.Profiles.Vehicle[] {
+                    Vehicle.Car
+                });
+            target.RegisterSource(source);
+            target.Initialize();
+            target.Pull();
+
+            // check result.
+            Assert.AreEqual(2, routerDb.Network.VertexCount);
+            Assert.AreEqual(1, routerDb.Network.EdgeCount);
+
+            var vertex1 = this.FindVertex(routerDb, location1.Latitude, location1.Longitude);
+            Assert.AreNotEqual(uint.MaxValue, vertex1);
+            var vertex2 = this.FindVertex(routerDb, location3.Latitude, location3.Longitude);
+            Assert.AreNotEqual(uint.MaxValue, vertex2);
+
+            // get edge-information.
+            var edges = routerDb.Network.GetEdgeEnumerator(vertex1);
+            var data = edges.First().Data;
+            var profile = routerDb.EdgeProfiles.Get(data.Profile);
+            var meta = routerDb.EdgeMeta.Get(data.MetaId);
+            var shape = edges.First().Shape;
+
+            Assert.AreEqual(Coordinate.DistanceEstimateInMeter(location1, location2) +
+                Coordinate.DistanceEstimateInMeter(location2, location3), data.Distance, 0.1);
+            Assert.IsTrue(profile.Contains("highway", "residential"));
+            Assert.AreEqual(new AttributeCollection(), meta);
+            Assert.IsNotNull(shape);
+            Assert.AreEqual(1, shape.Count);
+            Assert.AreEqual(location2.Latitude, shape[0].Latitude, 0.00001f);
+            Assert.AreEqual(location2.Longitude, shape[0].Longitude, 0.00001f);
         }
 
         /// <summary>

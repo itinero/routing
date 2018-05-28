@@ -23,7 +23,7 @@ namespace Itinero.LocalGeo
     /// </summary>
     public struct Line
     {
-        const double E = 0.0000001;
+        const double E = 0.0000000001;
         private readonly Coordinate _coordinate1;
         private readonly Coordinate _coordinate2;
 
@@ -121,7 +121,7 @@ namespace Itinero.LocalGeo
         /// 
         /// Returns null if the lines have the same direction or don't intersect.
         /// 
-        /// Assumes the given line is not a segement and this line is a segment.
+        /// Assumes the given line is not a segment and this line is a segment.
         /// </summary>
         public Coordinate? Intersect(Line line)
         {

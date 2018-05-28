@@ -44,6 +44,8 @@ TestResult*.xml
 *.dbf
 *.shx
 
+.idea/*
+
 islands_*.geojson
 *.hgt.zip
 

@@ -32,7 +32,7 @@ using System.Linq;
 
 namespace Itinero.Test.Functional
 {
-    public class Program
+    public static class Program
     {
         private static Logger _logger;
 

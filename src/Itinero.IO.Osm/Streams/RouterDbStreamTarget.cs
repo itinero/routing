@@ -118,7 +118,7 @@ namespace Itinero.IO.Osm.Streams
                         var index = _nodeIndex.TryGetIndex(node.Id.Value);
                         if (index == long.MaxValue)
                         { // node is not a vertex.
-                            return Constants.NO_VERTEX;
+                            return Itinero.Constants.NO_VERTEX;
                         }
                         return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
                     }));
@@ -142,7 +142,7 @@ namespace Itinero.IO.Osm.Streams
                     var index = _nodeIndex.TryGetIndex(node.Id.Value);
                     if (index == long.MaxValue)
                     { // node is not a vertex.
-                        return Constants.NO_VERTEX;
+                        return Itinero.Constants.NO_VERTEX;
                     }
                     return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
                 },
@@ -152,8 +152,7 @@ namespace Itinero.IO.Osm.Streams
                     {
                         vehicleType = string.Empty;
                     }
-                    RestrictionsDb restrictions;
-                    if (!_db.TryGetRestrictions(vehicleType, out restrictions))
+                    if (!_db.TryGetRestrictions(vehicleType, out var restrictions))
                     {
                         restrictions = new RestrictionsDb();
                         _db.AddRestrictions(vehicleType, restrictions);
@@ -173,13 +172,13 @@ namespace Itinero.IO.Osm.Streams
             
             if (this.KeepNodeIds)
             {
-                _nodeData = _db.VertexData.AddInt64("node_id");
+                _nodeData = _db.VertexData.AddInt64(Itinero.IO.Osm.Constants.NODE_ID_META_NAME);
             }
 
             if (this.KeepWayIds)
             {
-                _wayIds = _db.EdgeData.AddInt64("way_id");
-                _wayNodeIndices = _db.EdgeData.AddUInt16("way_node_idx");
+                _wayIds = _db.EdgeData.AddInt64(Itinero.IO.Osm.Constants.WAY_ID_META_NAME);
+                _wayNodeIndices = _db.EdgeData.AddUInt16(Itinero.IO.Osm.Constants.WAY_NODE_IDX_META_NAME);
             }
         }
 
@@ -374,11 +373,6 @@ namespace Itinero.IO.Osm.Streams
                     {
                         processor.SecondPass(way);
                     }
-                }
-
-                if (way.Id == 304961389)
-                {
-                    System.Diagnostics.Debug.WriteLine("");
                 }
                 
                 var wayAttributes = way.Tags.ToAttributes();

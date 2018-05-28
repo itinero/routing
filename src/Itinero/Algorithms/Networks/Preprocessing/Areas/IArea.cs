@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Licensed to SharpSoftware under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
@@ -16,7 +16,23 @@
  *  limitations under the License.
  */
 
-using System.Reflection;
+using Itinero.LocalGeo;
 
-[assembly: AssemblyVersion("1.4.0")]
-[assembly: AssemblyInformationalVersion("1.4.0-pre54")]
+namespace Itinero.Algorithms.Networks.Preprocessing.Areas
+{
+    /// <summary>
+    /// Abstract representation of an area.
+    /// </summary>
+    public interface IArea
+    {
+        /// <summary>
+        /// Returns true if the given coordinate is inside the area.
+        /// </summary>
+        bool Overlaps(float latitude, float longitude);
+
+        /// <summary>
+        /// Returns the location(s) the given line intersects with the area's boundary. Returns null if there is no intersection.
+        /// </summary>
+        Coordinate[] Intersect(float latitude1, float longitude1, float latitude2, float longitude2);
+    }
+}

@@ -59,6 +59,14 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
+        /// Removes all data.
+        /// </summary>
+        public void Clear()
+        {
+            _collections.Clear();
+        }
+
+        /// <summary>
         /// Gets the type of the collection with the given name.
         /// </summary>
         public Type GetType(string name)
@@ -83,13 +91,13 @@ namespace Itinero.Data.Network.Edges
         }
 
         /// <summary>
-        /// Copies whatever data is in item2 to item1.
+        /// Copies whatever data is in 'from' to 'to'.
         /// </summary>
-        public void Copy(uint item1, uint item2)
+        public void Copy(uint to, uint from)
         {
             foreach(var collection in _collections)
             {
-                collection.Value.Copy(item1, item2);
+                collection.Value.Copy(to, from);
             }
         }
 

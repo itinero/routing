@@ -540,8 +540,9 @@ namespace Itinero
             // version6: Added vertex meta-data.
             // version7: Added support for shorts in vertex meta-data.
             // version8: Added edge meta-data.
+            // version9: Writable attribute indexes.
             long size = 1;
-            stream.WriteByte(8);
+            stream.WriteByte(9);
 
             // write guid.
             stream.Write(_guid.ToByteArray(), 0, 16);
@@ -708,8 +709,10 @@ namespace Itinero
             // version6: Added vertex meta-data.
             // version7: Added support for shorts in vertex meta-data.
             // version8: Added edge meta-data.
+            // version9: Writable attribute indexes.
             var version = stream.ReadByte();
-            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8)
+            if (version != 1 && version != 2 && version != 3 && version != 4 && version != 5 && version != 6 && 
+                version != 7 && version != 8 && version != 9)
             {
                 throw new Exception(string.Format("Cannot deserialize routing db: Invalid version #: {0}.", version));
             }

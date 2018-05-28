@@ -565,6 +565,80 @@ namespace Itinero.Test
         }
 
         /// <summary>
+        /// Tests writing a route as geojson with the raw callback option.
+        /// </summary>
+        [Test]
+        public void TestWriteGeoJsonRaw()
+        {
+            var route = new Route()
+            {
+                Shape = new Coordinate[]
+                {
+                    new Coordinate()
+                    {
+                        Latitude = 51.267819164340295f,
+                        Longitude = 4.801352620124817f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26821857585588f,
+                        Longitude = 4.801352620124817f
+                    }
+                },
+                ShapeMeta = new Route.Meta[]
+                {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Distance = 100,
+                        Time = 60,
+                    }
+                },
+                Stops = new Route.Stop[]
+                {
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("address", "Pastorijstraat 102, 2275 Wechelderzande")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Branches = new Route.Branch[]
+                {
+                    new Route.Branch()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+                },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            var geojson = route.ToGeoJson(isRaw: (k, v) => k == "time" || k == "distance");
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\",\"distance\":100,\"time\":60}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
+                geojson);
+        }
+
+        /// <summary>
         /// Tests writing a route as geojson.
         /// </summary>
         [Test]
