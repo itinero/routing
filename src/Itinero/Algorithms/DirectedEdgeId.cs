@@ -122,13 +122,7 @@ namespace Itinero.Algorithms
         /// Gets the reverse edge id.
         /// </summary>
         /// <returns></returns>
-        public DirectedEdgeId Reverse
-        {
-            get
-            {
-                return new DirectedEdgeId(this.EdgeId, !this.Forward);
-            }
-        }
+        public DirectedEdgeId Reverse => new DirectedEdgeId(this.EdgeId, !this.Forward);
 
         /// <summary>
         /// Reverse the raw id.
