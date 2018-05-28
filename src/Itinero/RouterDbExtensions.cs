@@ -60,7 +60,8 @@ namespace Itinero
         /// <summary>
         /// Creates a new contracted graph and adds it to the router db for the given profile.
         /// </summary>
-        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased, CancellationToken cancellationToken)
+        public static void AddContracted(this RouterDb db, Profiles.Profile profile, bool forceEdgeBased,
+            CancellationToken cancellationToken)
         {
             var weightHandler = profile.DefaultWeightHandlerCached(db);
 
@@ -68,53 +69,63 @@ namespace Itinero
             ContractedDb contractedDb = null;
 
             if (!forceEdgeBased)
-            { // check if there are complex restrictions in the routerdb forcing edge-based contraction.
+            {
+                // check if there are complex restrictions in the routerdb forcing edge-based contraction.
                 if (db.HasComplexRestrictions(profile))
-                { // there are complex restrictions, use edge-based contraction, the only way to support these in a contracted graph.
+                {
+                    // there are complex restrictions, use edge-based contraction, the only way to support these in a contracted graph.
                     forceEdgeBased = true;
                 }
             }
 
-            lock (db) // TODO: reevaluate this lock, not needed around this entire block!
+            if (forceEdgeBased)
             {
-                if (forceEdgeBased)
-                { // edge-based is needed when complex restrictions found.
-                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an edge-based graph for profile {0}...", 
-                        profile.FullName);
+                // edge-based is needed when complex restrictions found.
+                Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information,
+                    "Contracting into an edge-based graph for profile {0}...",
+                    profile.FullName);
 
-                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
-                        weightHandler.MetaSize);
-                    var restrictions = db.GetRestrictions(profile);
-                    var dualGraphBuilder = new DualGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted,
-                        weightHandler, restrictions);
-                    dualGraphBuilder.Run();
+                var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size,
+                    weightHandler.MetaSize);
+                var restrictions = db.GetRestrictions(profile);
+                var dualGraphBuilder = new DualGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted,
+                    weightHandler, restrictions);
+                dualGraphBuilder.Run(cancellationToken);
 
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 5;
-                    hierarchyBuilder.DepthFactor = 14;
-                    hierarchyBuilder.ContractedFactor = 1;
-                    hierarchyBuilder.Run();
+                var hierarchyBuilder =
+                    new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler)
+                    {
+                        DifferenceFactor = 5,
+                        DepthFactor = 14,
+                        ContractedFactor = 1
+                    };
+                hierarchyBuilder.Run(cancellationToken);
 
-                    contractedDb = new ContractedDb(contracted, true);
-                }
-                else
-                { // vertex-based is ok when no complex restrictions found.
-                    Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information, "Contracting into an vertex-based graph for profile {0}...",
-                        profile.FullName);
+                contractedDb = new ContractedDb(contracted, true);
+            }
+            else
+            {
+                // vertex-based is ok when no complex restrictions found.
+                Itinero.Logging.Logger.Log("RouterDb", Logging.TraceEventType.Information,
+                    "Contracting into an vertex-based graph for profile {0}...",
+                    profile.FullName);
 
-                    var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
-                    var directedGraphBuilder = new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
-                    directedGraphBuilder.Run();
+                var contracted = new DirectedMetaGraph(ContractedEdgeDataSerializer.Size, weightHandler.MetaSize);
+                var directedGraphBuilder =
+                    new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
+                directedGraphBuilder.Run(cancellationToken);
 
-                    // contract the graph.
-                    var hierarchyBuilder = new FastHierarchyBuilder<float>(contracted, weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 8;
-                    hierarchyBuilder.DepthFactor = 14;
-                    hierarchyBuilder.ContractedFactor = 1;
-                    hierarchyBuilder.Run();
+                // contract the graph.
+                var hierarchyBuilder =
+                    new FastHierarchyBuilder<float>(contracted, weightHandler)
+                    {
+                        DifferenceFactor = 8,
+                        DepthFactor = 14,
+                        ContractedFactor = 1
+                    };
+                hierarchyBuilder.Run(cancellationToken);
 
-                    contractedDb = new ContractedDb(contracted, false);
-                }
+                contractedDb = new ContractedDb(contracted, false);
             }
 
             // add the graph.
