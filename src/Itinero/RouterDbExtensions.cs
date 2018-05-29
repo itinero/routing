@@ -1804,6 +1804,18 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Returns true if the routerdb already has island data for the given profile.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        /// <param name="profile">The profile.</param>
+        /// <returns>True if there is island data.</returns>
+        public static bool HasIslandData(this RouterDb db, Profile profile)
+        {
+            var name = "islands_" + profile.FullName;
+            return db.VertexData.TryGet(name, out _);
+        }
+
+        /// <summary>
         /// Adds and detects island data to improve resolving.
         /// </summary>
         public static void AddIslandData(this RouterDb db, Profile profile)

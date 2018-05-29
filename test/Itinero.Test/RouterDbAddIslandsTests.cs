@@ -224,5 +224,30 @@ namespace Itinero.Test
             Assert.IsTrue(Coordinate.DistanceEstimateInMeter(new Coordinate(51.22338f, 4.426911f),
                 point.LocationOnNetwork(routerDb)) < 10);
         }
+        
+        /// <summary>
+        /// Tests has islands.
+        /// </summary>
+        [Test]
+        public void TestHasIslands()
+        {
+            // build the routerdb.
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network14.geojson"));
+            routerDb.Sort();
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+            
+            // has to be false here.
+            Assert.IsFalse(routerDb.HasIslandData(profile));
+
+            // add island data.
+            routerDb.AddIslandData(profile);
+            
+            // has to be true here.
+            Assert.IsTrue(routerDb.HasIslandData(profile));
+        }
     }
 }
