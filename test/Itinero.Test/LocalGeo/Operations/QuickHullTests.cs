@@ -37,6 +37,15 @@ namespace Itinero.Test.LocalGeo.Operations
             return new QuickHull(lats, lons);
         }
 
+        private static QuickHull CreateTestSet1()
+        {
+            var lons = new[] {7.03125f, 7.03125f, 8.7890625f, 13.359375f, 13.0078125f};
+            var lats = new[]
+                {47.517200697839414f, 51.17934297928927f, 47.989921667414194f, 48.45835188280866f, 48.22467264956519f};
+
+            return new QuickHull(lats, lons);
+        }
+
         private static List<Coordinate> TestPoints()
         {
             var lons = new[] {0f, 1f, 1f, 0f, 0.6f};
@@ -48,6 +57,29 @@ namespace Itinero.Test.LocalGeo.Operations
             }
 
             return coors;
+        }
+
+
+        [Test]
+        public void Test2()
+        {
+            var cv = CreateTestSet1();
+            var cutoff = cv.Quickhull();
+
+            // cutoff: 4; 0,1,3,2,4
+            // 0,1,3,2
+            Assert.AreEqual(cutoff, 4);
+            Assert.AreEqual(cv.Points, new[] {0, 1, 3, 4, 2});
+        }
+
+        [Test]
+        public void Test1()
+        {
+            var cv0 = CreateTestSet0();
+            var cutoff = cv0.Quickhull();
+
+            Assert.AreEqual(new[] {0, 3, 1, 2, 4}, cv0.Points);
+            Assert.AreEqual(cutoff, 4);
         }
 
         /// <summary>
@@ -70,7 +102,7 @@ namespace Itinero.Test.LocalGeo.Operations
         /// Runs the quickhull algorithm on the simple case.
         /// </summary>
         [Test]
-        public void TestSimple()
+        public void TestInternals()
         {
             var cv0 = CreateTestSet0();
             cv0.CalculateMinMaxX(out var min, out var max);
@@ -82,7 +114,7 @@ namespace Itinero.Test.LocalGeo.Operations
             var pts = cv0.Points;
 
             Assert.AreEqual(cutoff, 3);
-            Assert.AreEqual(pts, new[]{0,1,3,2,4});
+            Assert.AreEqual(pts, new[] {0, 1, 3, 2, 4});
             // In the right partition, search longest
             var furthestInd = cv0.LongestDistance(0, 1, cutoff, 5);
 
@@ -91,19 +123,12 @@ namespace Itinero.Test.LocalGeo.Operations
 
             // Line = pt0 and pt1; start-index = 2 (ignore first two = pt0;pt1); end index = 3 (only consider
             cutoff = cv0.PartitionInTriangle(0, 1, 2, 2, 4);
-            Assert.AreEqual(cutoff, 2);
-            Assert.AreEqual(pts, new[]{0,1,2,3,4});
-   
-            cutoff = cv0.FindHull(0, 1, 2, 5);
-            Assert.AreEqual(cutoff, 5);
-            Assert.AreEqual(pts, new[]{0,1,2,3,4});
-   
-            
-            cv0 = CreateTestSet0();
-            cutoff = cv0.Quickhull();
+            Assert.AreEqual(cutoff, 3);
+            Assert.AreEqual(pts, new[] {0, 1, 2, 3, 4});
 
-            Assert.AreEqual(new[] {0, 3, 1, 2, 4}, cv0.Points);
-            Assert.AreEqual(cutoff, 4);
+            cutoff = cv0.FindHull(0, 1, 2, 5);
+            Assert.AreEqual(cutoff, 3);
+            Assert.AreEqual(pts, new[] {0, 1, 3, 4, 2});
         }
 
         /// <summary>
@@ -124,8 +149,8 @@ namespace Itinero.Test.LocalGeo.Operations
 
             var index = QuickHull.UpdateHull(hull, new Coordinate(0.5f, -0.5f));
             Assert.AreEqual(1, index);
-            
-            
+
+
             index = QuickHull.UpdateHull(hull, new Coordinate(2f, 2f));
             Assert.AreEqual(3, index);
         }

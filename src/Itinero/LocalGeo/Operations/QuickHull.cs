@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Itinero.Test")]
+
 namespace Itinero.LocalGeo.Operations
 {
     /// <summary>
@@ -29,7 +30,7 @@ namespace Itinero.LocalGeo.Operations
     internal class QuickHull
     {
         // TODO: refactor this without creating a quickhull object.
-        
+
         private readonly float[] _lats;
         private readonly float[] _lons;
 
@@ -72,6 +73,7 @@ namespace Itinero.LocalGeo.Operations
             {
                 results.Add(coors[cv.Points[i]]);
             }
+
             results.Add(coors[cv.Points[0]]);
 
             return results;
@@ -93,6 +95,7 @@ namespace Itinero.LocalGeo.Operations
                 allPoints.Remove(toRemove);
                 hullBreach = hullBreach || hull.Remove(toRemove);
             }
+
             // There might be points in allPoints which were not part of the hull, but will be now
             // For correctness, we have to recalculate from scratch
             return hullBreach ? Quickhull(allPoints) : hull;
@@ -170,8 +173,8 @@ namespace Itinero.LocalGeo.Operations
                     nxtnxt %= hull.Count;
                 }
 
-                hull.Insert(i+1, newPoint);
-                return i+1;
+                hull.Insert(i + 1, newPoint);
+                return i + 1;
             }
 
             return -1;
@@ -202,14 +205,14 @@ namespace Itinero.LocalGeo.Operations
             SwapP(cutoff1, l - 1);
             cutoff1++;
 
-            // split might equal cutoff1; in that case:
+            // split might have equaled cutoff1; in that case, we should use the cutoff1 + 1 value. We use Math.Max for this:
             split = Math.Max(cutoff1, split);
 
             // And calculate the second part of the hull
             var cutoff2 = FindHull(pointB, pointA, split, l);
 
 
-            return MergeP(cutoff1, split, cutoff2) - 1;
+            return MergeP(cutoff1, split, cutoff2);
         }
 
         /// <summary>
@@ -240,30 +243,39 @@ namespace Itinero.LocalGeo.Operations
             var pointCInd = LongestDistance(pointA, pointB, start, stop);
             var pointC = Points[pointCInd];
 
+
+            var pointCStorage = stop - 1;
             // Move pointC out of the way to the end
-            SwapP(stop - 1, pointCInd);
+            SwapP(pointCStorage, pointCInd);
+
 
             // We have a triangle. Exclude everything in the triangle (thus shorten the array)
             // Everything between start and stop should still be considered for the convexhull
-            var split = PartitionInTriangle(pointA, pointB, pointC, start, stop - 1);
+            stop = PartitionInTriangle(pointA, pointB, pointC, start, stop - 1);
 
             // Now we find which points are on one side, and which on another
             // Every element left of A-C will be right of B-C too
-            split = PartitionLeftRight(pointA, pointC, start, split);
+            var split = PartitionLeftRight(pointA, pointC, start, stop);
 
             // The only points left in our set are now:
             // Left of A-C and left of C-B
 
-            // We can use quick hull again on these parts
+            // We can use quick hull again on these parts; if needed
+
             var convexHullEls = FindHull(pointA, pointC, start, split);
 
             // Swap pointC to the middle of the hulls
-            SwapP(convexHullEls, stop - 1);
+            // First make some room for it...
+            SwapP(convexHullEls+1, stop);    
+            SwapP(convexHullEls, convexHullEls+1);
+            stop++;
+            
+            SwapP(convexHullEls, pointCStorage);
             convexHullEls++;
 
             split = Math.Max(convexHullEls, split);
 
-            var convexHulLElsR = FindHull(pointC, pointB, split, stop); // no stop-1 here
+            var convexHulLElsR = FindHull(pointC, pointB, split, stop);
 
             return MergeP(convexHullEls, split, convexHulLElsR);
         }
@@ -322,9 +334,8 @@ namespace Itinero.LocalGeo.Operations
             // a 
 
             // is C on the left side or on the right side of A - B?
-            // We always want it on the LEFT (positive position)
-            var position = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
-            if (position < 0)
+            // We always want it on the LEFT
+            if (!LeftOfLine(ax, ay, bx, by, cx, cy))
             {
                 // seems like C is on the right. Swap direction of A and B...
                 return PartitionInTriangle(pointB, pointA, pointC, start, stop);
@@ -343,20 +354,18 @@ namespace Itinero.LocalGeo.Operations
                 var x = _lons[p];
                 var y = _lats[p];
 
-                position = (cx - bx) * (y - by) - (cy - by) * (x - bx);
-                if (position < 0)
+                if (!LeftOfLine(bx, by, cx, cy, x, y))
                 {
-                    // seems like C is on the right. This is an outsider
+                    // seems like the point is on the right of B -> C. This is an outsider
                     // the point can stay where it is, but we increase the index and cutoffs
                     i++;
                     cutOff++;
                     continue;
                 }
 
-                position = (ax - cx) * (y - cy) - (ay - cy) * (x - cx);
-                if (position < 0)
+                if (!LeftOfLine(cx, cy, ax, ay, x, y))
                 {
-                    // seems like C is on the right. This is an outsider
+                    // seems like the point is on the right of C -> A. This is an outsider
                     // the point can stay where it is, but we increase the index and cutoffs
                     i++;
                     cutOff++;
@@ -365,8 +374,7 @@ namespace Itinero.LocalGeo.Operations
 
                 // this point is an insider, we'll wont need it anymore
                 // move it to the back
-                Points[i] = Points[last];
-                Points[last] = p;
+                SwapP(i, last);
 
                 last--;
                 // No increase of the counter!
@@ -384,7 +392,7 @@ namespace Itinero.LocalGeo.Operations
         /// <param name="pointA"></param>
         /// <param name="pointB"></param>
         /// <param name="start">The startindex in the list to start searching</param>
-        /// <param name="stop">The endindex of points to search</param>
+        /// <param name="stop">The end of points to search (points[stop] is _not_searched)</param>
         /// <returns>The border between the left and right partitions</returns>
         internal int PartitionLeftRight(int pointA, int pointB, int start, int stop)
         {
