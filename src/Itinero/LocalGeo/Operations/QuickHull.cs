@@ -1,18 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using Itinero.LocalGeo;
+﻿/*
+ *  Licensed to SharpSoftware under one or more contributor
+ *  license agreements. See the NOTICE file distributed with this work for 
+ *  additional information regarding copyright ownership.
+ * 
+ *  SharpSoftware licenses this file to you under the Apache License, 
+ *  Version 2.0 (the "License"); you may not use this file except in 
+ *  compliance with the License. You may obtain a copy of the License at
+ * 
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 
-namespace Itinero.Algorithms.Default
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Itinero.Test")]
+
+namespace Itinero.LocalGeo.Operations
 {
     /// <summary>
-    /// Class implementing a convex hull algorithm, based on quickhull
+    /// Implementation of the quickhull algorithm.
     /// </summary>
-    public class ConvexHull
+    internal class QuickHull
     {
+        // TODO: refactor this without creating a quickhull object.
+
         private readonly float[] _lats;
         private readonly float[] _lons;
 
-        public ConvexHull(float[] lats, float[] lons)
+        internal QuickHull(float[] lats, float[] lons)
         {
             _lats = lats;
             _lons = lons;
@@ -23,7 +45,7 @@ namespace Itinero.Algorithms.Default
             }
         }
 
-        public int[] Points { get; }
+        internal int[] Points { get; }
 
         /// <summary>
         /// The quickhull algorithm in a convenient coordinate format.
@@ -31,7 +53,7 @@ namespace Itinero.Algorithms.Default
         /// </summary>
         /// <param name="coors"></param>
         /// <returns></returns>
-        public static List<Coordinate> Quickhull(List<Coordinate> coors)
+        internal static List<Coordinate> Quickhull(List<Coordinate> coors)
         {
             var lats = new float[coors.Count];
             var lons = new float[coors.Count];
@@ -41,9 +63,8 @@ namespace Itinero.Algorithms.Default
                 lats[i] = coors[i].Latitude;
                 lons[i] = coors[i].Longitude;
             }
-            
 
-            var cv = new ConvexHull(lats, lons);
+            var cv = new QuickHull(lats, lons);
 
             var cutoff = cv.Quickhull();
 
@@ -53,9 +74,10 @@ namespace Itinero.Algorithms.Default
                 results.Add(coors[cv.Points[i]]);
             }
 
+            results.Add(coors[cv.Points[0]]);
+
             return results;
         }
-
 
         /// <summary>
         /// Removes all given points from allPoints, and checks if any are in the hull.
@@ -64,7 +86,7 @@ namespace Itinero.Algorithms.Default
         /// <param name="allPoints"></param>
         /// <param name="hull"></param>
         /// <param name="pointsToRemove"></param>
-        public static List<Coordinate> RemoveFromHull(List<Coordinate> allPoints, List<Coordinate> hull,
+        internal static List<Coordinate> RemoveFromHull(List<Coordinate> allPoints, List<Coordinate> hull,
             List<Coordinate> pointsToRemove)
         {
             var hullBreach = false;
@@ -73,6 +95,7 @@ namespace Itinero.Algorithms.Default
                 allPoints.Remove(toRemove);
                 hullBreach = hullBreach || hull.Remove(toRemove);
             }
+
             // There might be points in allPoints which were not part of the hull, but will be now
             // For correctness, we have to recalculate from scratch
             return hullBreach ? Quickhull(allPoints) : hull;
@@ -88,9 +111,9 @@ namespace Itinero.Algorithms.Default
         /// <param name="newPoint"></param>
         /// <param name="inOrder"></param>
         /// <returns></returns>
-        public static int UpdateHull(List<Coordinate> hull, Coordinate newPoint, bool inOrder = true)
+        internal static int UpdateHull(List<Coordinate> hull, Coordinate newPoint, bool inOrder = true)
         {
-            if (PointInPolygon.PointLiesWithin(
+            if (PointInPolygon.PointIn(
                 hull, newPoint))
             {
                 // Point is neatly contained within the polygon; nothing to do here
@@ -150,19 +173,18 @@ namespace Itinero.Algorithms.Default
                     nxtnxt %= hull.Count;
                 }
 
-                hull.Insert(i+1, newPoint);
-                return i+1;
+                hull.Insert(i + 1, newPoint);
+                return i + 1;
             }
 
             return -1;
         }
 
-
         /// <summary>
         /// Reoorders the points in 'Points' so that the elements of the quickhull are in front (the hull will be in order),
         /// Returns the number of quickhull elements 
         /// </summary>
-        public int Quickhull()
+        internal int Quickhull()
         {
             // Get the two outer most points
             CalculateMinMaxX(out var pointA, out var pointB);
@@ -183,14 +205,14 @@ namespace Itinero.Algorithms.Default
             SwapP(cutoff1, l - 1);
             cutoff1++;
 
-            // split might equal cutoff1; in that case:
+            // split might have equaled cutoff1; in that case, we should use the cutoff1 + 1 value. We use Math.Max for this:
             split = Math.Max(cutoff1, split);
 
             // And calculate the second part of the hull
             var cutoff2 = FindHull(pointB, pointA, split, l);
 
 
-            return MergeP(cutoff1, split, cutoff2) - 1;
+            return MergeP(cutoff1, split, cutoff2);
         }
 
         /// <summary>
@@ -203,7 +225,7 @@ namespace Itinero.Algorithms.Default
         /// <param name="start"></param>
         /// <param name="stop"></param>
         /// <returns>The cutoff of convex hull elements</returns>
-        public int FindHull(int pointA, int pointB, int start, int stop)
+        internal int FindHull(int pointA, int pointB, int start, int stop)
         {
             if (start == stop)
             {
@@ -221,30 +243,39 @@ namespace Itinero.Algorithms.Default
             var pointCInd = LongestDistance(pointA, pointB, start, stop);
             var pointC = Points[pointCInd];
 
+
+            var pointCStorage = stop - 1;
             // Move pointC out of the way to the end
-            SwapP(stop - 1, pointCInd);
+            SwapP(pointCStorage, pointCInd);
+
 
             // We have a triangle. Exclude everything in the triangle (thus shorten the array)
             // Everything between start and stop should still be considered for the convexhull
-            var split = PartitionInTriangle(pointA, pointB, pointC, start, stop - 1);
+            stop = PartitionInTriangle(pointA, pointB, pointC, start, stop - 1);
 
             // Now we find which points are on one side, and which on another
             // Every element left of A-C will be right of B-C too
-            split = PartitionLeftRight(pointA, pointC, start, split);
+            var split = PartitionLeftRight(pointA, pointC, start, stop);
 
             // The only points left in our set are now:
             // Left of A-C and left of C-B
 
-            // We can use quick hull again on these parts
+            // We can use quick hull again on these parts; if needed
+
             var convexHullEls = FindHull(pointA, pointC, start, split);
 
             // Swap pointC to the middle of the hulls
-            SwapP(convexHullEls, stop - 1);
+            // First make some room for it...
+            SwapP(convexHullEls+1, stop);    
+            SwapP(convexHullEls, convexHullEls+1);
+            stop++;
+            
+            SwapP(convexHullEls, pointCStorage);
             convexHullEls++;
 
             split = Math.Max(convexHullEls, split);
 
-            var convexHulLElsR = FindHull(pointC, pointB, split, stop); // no stop-1 here
+            var convexHulLElsR = FindHull(pointC, pointB, split, stop);
 
             return MergeP(convexHullEls, split, convexHulLElsR);
         }
@@ -253,7 +284,7 @@ namespace Itinero.Algorithms.Default
         /// Calculates the point in the set which has the biggest distance to the given line
         /// </summary>
         /// <returns>The _index_ of the furhtest point</returns>
-        public int LongestDistance(int pointA, int pointB, int start, int stop)
+        internal int LongestDistance(int pointA, int pointB, int start, int stop)
         {
             var maxInd = -1;
             var ax = _lons[pointA];
@@ -290,7 +321,7 @@ namespace Itinero.Algorithms.Default
         /// <param name="start"></param>
         /// <param name="stop"></param>
         /// <returns>The new endpoint</returns>
-        public int PartitionInTriangle(int pointA, int pointB, int pointC, int start, int stop)
+        internal int PartitionInTriangle(int pointA, int pointB, int pointC, int start, int stop)
         {
             var ax = _lons[pointA];
             var ay = _lats[pointA];
@@ -303,9 +334,8 @@ namespace Itinero.Algorithms.Default
             // a 
 
             // is C on the left side or on the right side of A - B?
-            // We always want it on the LEFT (positive position)
-            var position = (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
-            if (position < 0)
+            // We always want it on the LEFT
+            if (!LeftOfLine(ax, ay, bx, by, cx, cy))
             {
                 // seems like C is on the right. Swap direction of A and B...
                 return PartitionInTriangle(pointB, pointA, pointC, start, stop);
@@ -324,20 +354,18 @@ namespace Itinero.Algorithms.Default
                 var x = _lons[p];
                 var y = _lats[p];
 
-                position = (cx - bx) * (y - by) - (cy - by) * (x - bx);
-                if (position < 0)
+                if (!LeftOfLine(bx, by, cx, cy, x, y))
                 {
-                    // seems like C is on the right. This is an outsider
+                    // seems like the point is on the right of B -> C. This is an outsider
                     // the point can stay where it is, but we increase the index and cutoffs
                     i++;
                     cutOff++;
                     continue;
                 }
 
-                position = (ax - cx) * (y - cy) - (ay - cy) * (x - cx);
-                if (position < 0)
+                if (!LeftOfLine(cx, cy, ax, ay, x, y))
                 {
-                    // seems like C is on the right. This is an outsider
+                    // seems like the point is on the right of C -> A. This is an outsider
                     // the point can stay where it is, but we increase the index and cutoffs
                     i++;
                     cutOff++;
@@ -346,8 +374,7 @@ namespace Itinero.Algorithms.Default
 
                 // this point is an insider, we'll wont need it anymore
                 // move it to the back
-                Points[i] = Points[last];
-                Points[last] = p;
+                SwapP(i, last);
 
                 last--;
                 // No increase of the counter!
@@ -365,9 +392,9 @@ namespace Itinero.Algorithms.Default
         /// <param name="pointA"></param>
         /// <param name="pointB"></param>
         /// <param name="start">The startindex in the list to start searching</param>
-        /// <param name="stop">The endindex of points to search</param>
+        /// <param name="stop">The end of points to search (points[stop] is _not_searched)</param>
         /// <returns>The border between the left and right partitions</returns>
-        public int PartitionLeftRight(int pointA, int pointB, int start, int stop)
+        internal int PartitionLeftRight(int pointA, int pointB, int start, int stop)
         {
             // Note that, if a point is perfectly on the line between A and B, this is not a problem - it'll be eliminated earlier
 
@@ -433,7 +460,7 @@ namespace Itinero.Algorithms.Default
         /// <param name="minIndex">The index of the most sourthern point</param>
         /// <param name="maxIndex">The index of the most northern point</param>
         /// <returns></returns>
-        public void CalculateMinMaxX(out int minIndex, out int maxIndex)
+        internal void CalculateMinMaxX(out int minIndex, out int maxIndex)
         {
             minIndex = 0;
             maxIndex = 0;
@@ -466,7 +493,7 @@ namespace Itinero.Algorithms.Default
         /// <param name="copyStart">Where to start the swapping</param>
         /// <param name="copyStop">Where to stop swapping</param>
         /// <returns>The index (+1) of the last changed element. Should equal (appendAfter + copyStop - copyStart)</returns>
-        public static int Merge(int[] array, int appendAfter, int copyStart, int copyStop)
+        internal static int Merge(int[] array, int appendAfter, int copyStart, int copyStop)
         {
             for (var i = copyStart; i < copyStop; i++)
             {
@@ -479,19 +506,20 @@ namespace Itinero.Algorithms.Default
             return appendAfter;
         }
 
-        public int MergeP(int appendAfter, int copyStart, int copyStop)
+        private int MergeP(int appendAfter, int copyStart, int copyStop)
         {
             return Merge(Points, appendAfter, copyStart, copyStop);
         }
 
-        public static void Swap(int[] array, int a, int b)
+        // TODO: isn't there a generic .NET method for this?
+        internal static void Swap(int[] array, int a, int b)
         {
             var h = array[a];
             array[a] = array[b];
             array[b] = h;
         }
 
-        public void SwapP(int a, int b)
+        private void SwapP(int a, int b)
         {
             Swap(Points, a, b);
         }

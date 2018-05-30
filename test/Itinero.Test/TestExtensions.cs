@@ -17,8 +17,12 @@
  */
 
 using System;
+using System.Collections.Generic;
+using System.IO;
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
+using NetTopologySuite.Features;
+using NetTopologySuite.Geometries;
 
 namespace Itinero.Test
 {
@@ -59,6 +63,37 @@ namespace Itinero.Test
                     Profile = 0,
                     MetaId = 0
                 });
+        }
+        
+        /// <summary>
+        /// Loads a set of test points.
+        /// </summary>
+        public static IEnumerable<Coordinate> LoadTestPoints(this Stream stream)
+        {
+            using (var streamReader = new StreamReader(stream))
+            {
+                return LoadTestPoints(streamReader.ReadToEnd());
+            }
+        }
+
+        /// <summary>
+        /// Loads a test network from geojson.
+        /// </summary>
+        private static IEnumerable<Coordinate> LoadTestPoints(string geoJson)
+        {
+            var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
+            var features = geoJsonReader.Read<FeatureCollection>(geoJson);
+
+            foreach (var feature in features.Features)
+            {
+                var point = feature.Geometry as Point;
+                if (point == null)
+                {
+                    continue;;
+                }
+                
+                yield return new Coordinate((float)point.Coordinate.Y, (float)point.Coordinate.X);
+            }
         }
     }
 }

@@ -51,6 +51,8 @@
     <EmbeddedResource Include="test-data\profiles\osm\car.lua" />
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
     <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
+    <None Remove="test-data\points\points1.geojson" />
+    <EmbeddedResource Include="test-data\points\points1.geojson" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
@@ -67,8 +69,5 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>
