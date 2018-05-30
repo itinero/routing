@@ -152,7 +152,7 @@ namespace Itinero.Test.LocalGeo.Operations
 
             cutoff = cv0.FindHull(0, 1, 2, 5);
             Assert.AreEqual(cutoff, 3);
-            Assert.AreEqual(pts, new[] {0, 1, 3, 4, 2});
+            Assert.AreEqual(pts, new[] {0, 1, 2, 4, 3});
         }
 
         /// <summary>
