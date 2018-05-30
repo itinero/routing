@@ -29,131 +29,88 @@ namespace Itinero.Test.LocalGeo.Operations
     [TestFixture]
     public class QuickHullTests
     {
-        private static QuickHull CreateTestSet0()
+        private static List<Coordinate> asList(float[] lat, float[] lon)
         {
-            var lons = new[] {0f, 1f, 1f, 0f, 0.6f};
-            var lats = new[] {0f, 1f, 0f, 1f, 0.5f};
-
-            return new QuickHull(lats, lons);
-        }
-
-        private static QuickHull CreateTestSet1()
-        {
-            var lons = new[] {7.03125f, 7.03125f, 8.7890625f, 13.359375f, 13.0078125f};
-            var lats = new[]
-                {47.517200697839414f, 51.17934297928927f, 47.989921667414194f, 48.45835188280866f, 48.22467264956519f};
-
-            return new QuickHull(lats, lons);
-        }
-
-        
-        private static QuickHull CreateTestSet2()
-        {
-            var lons = new[] {7.03125f, 7.03125f, 8.7890625f, 13.359375f, 13.0078125f, 9.6385f};
-            var lats = new[]
-                {47.517200697839414f, 51.17934297928927f, 47.989921667414194f, 48.45835188280866f, 48.22467264956519f, 49.686f};
-
-            return new QuickHull(lats, lons);
-        }
-        
-        
-        private static List<Coordinate> TestPoints()
-        {
-            var lons = new[] {0f, 1f, 1f, 0f, 0.6f};
-            var lats = new[] {0f, 1f, 0f, 1f, 0.5f};
             var coors = new List<Coordinate>();
-            for (var i = 0; i < lons.Length; i++)
+            for (var i = 0; i < lat.Length; i++)
             {
-                coors.Add(new Coordinate(lats[i], lons[i]));
+                coors.Add(new Coordinate(lat[i], lon[i]));
             }
 
             return coors;
         }
 
+        private static List<Coordinate> CreateTestSet0()
+        {
+            var lons = new[] {0f, 1f, 1f, 0f, 0.6f};
+            var lats = new[] {0f, 1f, 0f, 1f, 0.5f};
+            return asList(lats, lons);
+        }
+
+        private static List<Coordinate> CreateTestSet1()
+        {
+            var lons = new[] {7.03125f, 7.03125f, 8.7890625f, 13.359375f, 13.0078125f};
+            var lats = new[]
+                {47.517200697839414f, 51.17934297928927f, 47.989921667414194f, 48.45835188280866f, 48.22467264956519f};
+            return asList(lats, lons);
+        }
+
+
+        private static List<Coordinate> CreateTestSet2()
+        {
+            var lons = new[] {7.03125f, 7.03125f, 8.7890625f, 13.359375f, 13.0078125f, 9.6385f};
+            var lats = new[]
+            {
+                47.517200697839414f, 51.17934297928927f, 47.989921667414194f, 48.45835188280866f, 48.22467264956519f,
+                49.686f
+            };
+            return asList(lats, lons);
+        }
+
+
+        private static List<Coordinate> SelectPoints(List<Coordinate> points, int[] indices)
+        {
+            var result = new List<Coordinate>();
+
+            for (var i = 0; i < indices.Length; i++)
+            {
+                result.Add(points[indices[i]]);
+            }
+
+            return result;
+        }
 
         [Test]
-        public void Test2()
+        public void Test0()
         {
-            var cv = CreateTestSet1();
-            var cutoff = cv.Quickhull();
+            var points = CreateTestSet0();
+            var hull = points.Convexhull();
 
-            // cutoff: 4; 0,1,3,2,4
-            // 0,1,3,2
-            Assert.AreEqual(cutoff, 4);
-            Assert.AreEqual(cv.Points, new[] {0, 1, 3, 4, 2});
+            var expected = SelectPoints(points, new[] {0, 3, 1, 2, 0});
+            Assert.AreEqual(expected, hull);
         }
-        
-        
-        [Test]
-        public void Test3()
-        {
-            var cv = CreateTestSet2();
-            var cutoff = cv.Quickhull();
 
-            // cutoff: 4; 0,1,3,2,4
-            // 0,1,3,2
-            Assert.AreEqual(cutoff, 4);
-            Assert.AreEqual(cv.Points, new[] {0, 1, 3, 4, 2, 5});
-        }
 
         [Test]
         public void Test1()
         {
-            var cv0 = CreateTestSet0();
-            var cutoff = cv0.Quickhull();
+            var points = CreateTestSet1();
+            var hull = points.Convexhull();
 
-            Assert.AreEqual(new[] {0, 3, 1, 2, 4}, cv0.Points);
-            Assert.AreEqual(cutoff, 4);
+            var expected = SelectPoints(points, new[] {0, 1, 3, 4, 0});
+            Assert.AreEqual(expected, hull);
         }
 
-        /// <summary>
-        /// Tests the swap method.
-        /// </summary>
         [Test]
-        public void TestSwap()
+        public void Test2()
         {
-            var arr = new[] {0, 1, 2, 3, 4};
-            QuickHull.Swap(arr, 1, 3);
-            Assert.AreEqual(arr, new[] {0, 3, 2, 1, 4});
+            var points = CreateTestSet2();
+            var hull = points.Convexhull();
 
-
-            arr = new[] {0, 1, 9, 8, 2, 3, 7, 6};
-            QuickHull.Merge(arr, 2, 4, 6);
-            Assert.AreEqual(arr, new[] {0, 1, 2, 3, 9, 8, 7, 6});
+            var expected = SelectPoints(points, new[] {0, 1, 3, 4, 0});
+            Assert.AreEqual(expected, hull);
         }
 
-        /// <summary>
-        /// Runs the quickhull algorithm on the simple case.
-        /// </summary>
-        [Test]
-        public void TestInternals()
-        {
-            var cv0 = CreateTestSet0();
-            cv0.CalculateMinMaxX(out var min, out var max);
-
-            Assert.AreEqual(min, 0);
-            Assert.AreEqual(max, 1);
-
-            var cutoff = cv0.PartitionLeftRight(0, 1, 2, 4);
-            var pts = cv0.Points;
-
-            Assert.AreEqual(cutoff, 3);
-            Assert.AreEqual(pts, new[] {0, 1, 3, 2, 4});
-            // In the right partition, search longest
-            var furthestInd = cv0.LongestDistance(0, 1, cutoff, 5);
-
-            Assert.AreEqual(furthestInd, 3);
-            Assert.AreEqual(pts[furthestInd], 2);
-
-            // Line = pt0 and pt1; start-index = 2 (ignore first two = pt0;pt1); end index = 3 (only consider
-            cutoff = cv0.PartitionInTriangle(0, 1, 2, 2, 4);
-            Assert.AreEqual(cutoff, 3);
-            Assert.AreEqual(pts, new[] {0, 1, 2, 3, 4});
-
-            cutoff = cv0.FindHull(0, 1, 2, 5);
-            Assert.AreEqual(cutoff, 3);
-            Assert.AreEqual(pts, new[] {0, 1, 2, 4, 3});
-        }
 
         /// <summary>
         /// Test updating a hull.
@@ -161,21 +118,21 @@ namespace Itinero.Test.LocalGeo.Operations
         [Test]
         public void TestUpdate()
         {
-            var tp = TestPoints();
-            var hull = QuickHull.Quickhull(tp);
+            var tp = CreateTestSet0();
+            var hull = tp.Convexhull();
 
             for (var i = 0; i < 5; i++)
             {
                 // Adding already known points shouldn't have any effect
-                var ind = QuickHull.UpdateHull(hull, tp[i]);
+                var ind = hull.UpdateHull(tp[i]);
                 Assert.AreEqual(-1, ind);
             }
 
-            var index = QuickHull.UpdateHull(hull, new Coordinate(0.5f, -0.5f));
+            var index = hull.UpdateHull(new Coordinate(0.5f, -0.5f));
             Assert.AreEqual(1, index);
 
 
-            index = QuickHull.UpdateHull(hull, new Coordinate(2f, 2f));
+            index = hull.UpdateHull(new Coordinate(2f, 2f));
             Assert.AreEqual(3, index);
         }
     }

@@ -23,6 +23,7 @@ using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 namespace Itinero.Test
 {
@@ -56,7 +57,7 @@ namespace Itinero.Test
             var vertex2 = routerDb.Network.VertexCount;
             routerDb.Network.AddVertex(vertex2, latitude2, longitude2);
 
-            return routerDb.Network.AddEdge(vertex1, vertex2, 
+            return routerDb.Network.AddEdge(vertex1, vertex2,
                 new Itinero.Data.Network.Edges.EdgeData()
                 {
                     Distance = Coordinate.DistanceEstimateInMeter(latitude1, longitude1, latitude2, longitude2),
@@ -64,7 +65,7 @@ namespace Itinero.Test
                     MetaId = 0
                 });
         }
-        
+
         /// <summary>
         /// Loads a set of test points.
         /// </summary>
@@ -89,11 +90,22 @@ namespace Itinero.Test
                 var point = feature.Geometry as Point;
                 if (point == null)
                 {
-                    continue;;
+                    continue;
+                    ;
                 }
-                
-                yield return new Coordinate((float)point.Coordinate.Y, (float)point.Coordinate.X);
+
+                yield return new Coordinate((float) point.Coordinate.Y, (float) point.Coordinate.X);
             }
+        }
+
+        /// <summary>
+        /// Loads a test file.
+        /// </summary>
+        /// <param name="path">A path in the format of "Itinero.Test.test_data.points.geojson"</param>
+        public static Stream LoadAsStream(this string path)
+        {
+            return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                path);
         }
     }
 }

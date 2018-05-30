@@ -332,7 +332,7 @@ namespace Itinero.LocalGeo
         {
             return new Polygon()
             {
-                ExteriorRing = Itinero.LocalGeo.Operations.QuickHull.Quickhull(points.ToList())
+                ExteriorRing = points.Convexhull()
             };
         }
     }

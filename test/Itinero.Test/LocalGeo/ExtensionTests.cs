@@ -16,8 +16,10 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
 using Itinero.LocalGeo;
 using Itinero.LocalGeo.IO;
+using Itinero.LocalGeo.Operations;
 using NUnit.Framework;
 
 namespace Itinero.Test.LocalGeo
@@ -86,19 +88,31 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(total - 250, Coordinate.DistanceEstimateInMeter(location2, location), E);
         }
 
-        /// <summary>
-        /// Tests convex hull calculation on a set of locations.
-        /// </summary>
+        
+        
         [Test]
-        public void TestConvexHull1()
+        public void TestData1()
         {
-            var points1 = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
-                "Itinero.Test.test_data.points.points1.geojson").LoadTestPoints();
+            var coors = "Itinero.Test.test_data.points.points1.geojson".LoadAsStream().LoadTestPoints();
+            var hull = coors.Convexhull();
 
-            var hull = points1.ConvexHull();
-            var hullGeoJson = hull.ToGeoJson();
-
-            // TODO: check result once fixed.
+            var hullGeoJson = new Polygon(){ExteriorRing = hull}.ToGeoJson();
+           // System.IO.File.WriteAllText("/home/pietervdvn/Desktop/Result.geojson", hullGeoJson);
+            var expected = "Itinero.Test.test_data.points.points1.hull.geojson".LoadAsStream().ReadToEnd();
+            Assert.AreEqual(expected, hullGeoJson);
         }
+
+        [Test]
+        public void TestData2()
+        { var coors = "Itinero.Test.test_data.points.points2.geojson".LoadAsStream().LoadTestPoints();
+            var hull = coors.Convexhull();
+
+            var hullGeoJson = new Polygon(){ExteriorRing = hull}.ToGeoJson();
+          //  System.IO.File.WriteAllText("/home/pietervdvn/Desktop/Result.geojson", hullGeoJson);
+            var expected = "Itinero.Test.test_data.points.points2.hull.geojson".LoadAsStream().ReadToEnd();
+            Assert.AreEqual(expected, hullGeoJson);
+        }
+
+
     }
 }
