@@ -34,5 +34,9 @@ namespace Itinero.LocalGeo
         /// The interior rings.
         /// </summary>
         public List<List<Coordinate>> InteriorRings { get; set; } = new List<List<Coordinate>>();
+
+
+
+        
     }
 }
