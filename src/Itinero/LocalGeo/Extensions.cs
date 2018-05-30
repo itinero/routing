@@ -335,5 +335,21 @@ namespace Itinero.LocalGeo
                 ExteriorRing = Itinero.LocalGeo.Operations.QuickHull.Quickhull(points.ToList())
             };
         }
+
+        /// <summary>
+        /// Calculates the area of the polygon
+        /// </summary>
+        /// <param name="poly"></param>
+        /// <returns></returns>
+        public static float SurfaceArea(this Polygon poly)
+        {
+            var internalArea = 0f;
+            foreach (var ring in poly.InteriorRings)
+            {
+                internalArea += ring.SurfaceArea();
+            }
+
+            return poly.ExteriorRing.SurfaceArea() - internalArea;
+        }
     }
 }
