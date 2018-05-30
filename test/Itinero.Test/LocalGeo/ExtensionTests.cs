@@ -98,7 +98,8 @@ namespace Itinero.Test.LocalGeo
             var hull = points1.ConvexHull();
             var hullGeoJson = hull.ToGeoJson();
 
-            // TODO: check result once fixed.
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[7.03125,47.5172],[7.03125,51.17934],[13.35938,48.45835],[13.00781,48.22467],[7.03125,47.5172]]]}}]}",
+                hullGeoJson);
         }
     }
 }
