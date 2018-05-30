@@ -46,6 +46,17 @@ namespace Itinero.Test.LocalGeo.Operations
             return new QuickHull(lats, lons);
         }
 
+        
+        private static QuickHull CreateTestSet2()
+        {
+            var lons = new[] {7.03125f, 7.03125f, 8.7890625f, 13.359375f, 13.0078125f, 9.6385f};
+            var lats = new[]
+                {47.517200697839414f, 51.17934297928927f, 47.989921667414194f, 48.45835188280866f, 48.22467264956519f, 49.686f};
+
+            return new QuickHull(lats, lons);
+        }
+        
+        
         private static List<Coordinate> TestPoints()
         {
             var lons = new[] {0f, 1f, 1f, 0f, 0.6f};
@@ -70,6 +81,19 @@ namespace Itinero.Test.LocalGeo.Operations
             // 0,1,3,2
             Assert.AreEqual(cutoff, 4);
             Assert.AreEqual(cv.Points, new[] {0, 1, 3, 4, 2});
+        }
+        
+        
+        [Test]
+        public void Test3()
+        {
+            var cv = CreateTestSet2();
+            var cutoff = cv.Quickhull();
+
+            // cutoff: 4; 0,1,3,2,4
+            // 0,1,3,2
+            Assert.AreEqual(cutoff, 4);
+            Assert.AreEqual(cv.Points, new[] {0, 1, 3, 4, 2, 5});
         }
 
         [Test]
