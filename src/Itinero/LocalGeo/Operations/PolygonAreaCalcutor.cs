@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Itinero.Test")]
 
 namespace Itinero.LocalGeo.Operations
 {
@@ -12,19 +16,19 @@ namespace Itinero.LocalGeo.Operations
         /// </summary>
         /// <param name="points"></param>
         /// <returns></returns>
-        internal static float surfaceOf(this List<Coordinate> points)
+        internal static float SurfaceArea(this List<Coordinate> points)
         {
             var l = points.Count;
             var area = 0f;
             for (var i = 1; i < l+1; i++)
             {
-                var p = points[i];
+                var p = points[i % l];
                 var pi = points[(i + 1) % l];
                 var pm = points[(i - 1)];
                 area += p.Longitude * (pi.Latitude - pm.Latitude);
             }
 
-            return area / 2;
+            return Math.Abs(area / 2);
         }
     }
 }
