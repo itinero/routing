@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Licensed to SharpSoftware under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;
 
-namespace Itinero.Algorithms.Contracted.Dual.Witness
+namespace Itinero.Algorithms.Contracted.Witness
 {
     /// <summary>
     /// Contains extension methods related to the vertex info data structure.
@@ -125,7 +125,7 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
                 int localAdded, localRemoved;
                 if (shortcutForward > 0 && shortcutForward < float.MaxValue &&
                     shortcutBackward > 0 && shortcutBackward < float.MaxValue &&
-                    System.Math.Abs(shortcutForward - shortcutBackward) < HierarchyBuilder.E)
+                    System.Math.Abs(shortcutForward - shortcutBackward) < FastHierarchyBuilder<float>.E)
                 { // add two bidirectional edges.
                     graph.TryAddOrUpdateEdge(shortcut.Key.Vertex1, shortcut.Key.Vertex2, shortcutForward, null, vertex, 
                         out localAdded, out localRemoved);
@@ -197,9 +197,11 @@ namespace Itinero.Algorithms.Contracted.Dual.Witness
             //}
             
             return (differenceFactor * (added - removed) + (depthFactor * vertexInfo.Depth) +
-                (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
+                 (contractedFactor * vertexInfo.ContractedNeighbours)) * (weigthDiff * weightDiffFactor);
+            //return ((differenceFactor * (2 * added - 4 * removed)) / 2 + (depthFactor * vertexInfo.Depth) +
+             //   (contractedFactor * vertexInfo.ContractedNeighbours));// * (weigthDiff * weightDiffFactor);
         }
-
+        
         public static bool RemoveShortcuts<T>(this VertexInfo<T> vertexInfo, DirectedGraph witnessGraph, WeightHandler<T> weightHandler)
             where T : struct
         {

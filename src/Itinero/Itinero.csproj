@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.3;net40;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;netstandard2.0;net40;net45</TargetFrameworks>
     <AssemblyName>Itinero</AssemblyName>
     <PackageId>Itinero</PackageId>
     <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.3' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
@@ -33,14 +33,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\SharedAssemblyVersion.cs" Link="Properties\SharedAssemblyVersion.cs" />
     <EmbeddedResource Include="Osm\Vehicles\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <DefineConstants>$(DefineConstants);NET40</DefineConstants>
   </PropertyGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Compile Include="..\..\SharedAssemblyVersion.cs" />
+  </ItemGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Compile Include="..\..\SharedAssemblyVersion.cs" />
+  </ItemGroup>
 </Project>

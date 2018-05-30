@@ -42,7 +42,7 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
+            // GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
 
             var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
@@ -56,10 +56,11 @@ namespace Itinero.Test.Functional.Tests
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
 
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
+            //GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
+            //GetTestAddContractedFast(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
 
             routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
-
 
             return routerDb;
         }

@@ -1,4 +1,4 @@
-﻿/*
+/*
  *  Licensed to SharpSoftware under one or more contributor
  *  license agreements. See the NOTICE file distributed with this work for 
  *  additional information regarding copyright ownership.
@@ -16,7 +16,31 @@
  *  limitations under the License.
  */
 
-using System.Reflection;
+namespace Itinero.Algorithms.Contracted.Witness
+{
+    /// <summary>
+    /// Represents a (potential) shortcut with a forward and backward weight.
+    /// </summary>
+    public struct Shortcut<T>
+    {
+        /// <summary>
+        /// Gets or sets the forward weight.
+        /// </summary>
+        public T Forward { get; set; }
 
-[assembly: AssemblyVersion("1.4.0")]
-[assembly: AssemblyInformationalVersion("1.4.0-pre55")]
+        /// <summary>
+        /// Gets or sets the backward weight.
+        /// </summary>
+        public T Backward { get; set; }
+
+        /// <summary>
+        /// Gets a description of this struct.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("{0}F {1}B", this.Forward.ToInvariantString(),
+                this.Backward.ToInvariantString());
+        }
+    }
+}
