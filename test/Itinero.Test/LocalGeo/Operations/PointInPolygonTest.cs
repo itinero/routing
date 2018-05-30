@@ -16,18 +16,14 @@
  *  limitations under the License.
  */
 
-using NUnit.Framework;
-using Itinero.Test.Profiles;
-using Itinero.Data.Network;
-using Itinero.LocalGeo;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using Itinero.LocalGeo;
+using NUnit.Framework;
 
-namespace Itinero.Test.LocalGeo
+namespace Itinero.Test.LocalGeo.Operations
 {
     /// <summary>
-    /// Executes tests
+    /// Contains tests related to the point in polygon algorithm.
     /// </summary>
     [TestFixture]
     class PointInPolygonTest

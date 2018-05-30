@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Itinero.Test.Functional</AssemblyName>
@@ -11,26 +10,24 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <StartupObject />
   </PropertyGroup>
-
   <ItemGroup>
     <Content Include="Tests\fictional.osm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
-
   <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0-preview-20180510-03" />
     <PackageReference Include="NetTopologySuite" Version="1.15.0-pre027" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre027" />
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-2" />
     <PackageReference Include="NUnit" Version="3.9.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.10.0" />
     <PackageReference Include="SRTM" Version="0.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
-
 </Project>

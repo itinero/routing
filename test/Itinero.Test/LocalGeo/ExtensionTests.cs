@@ -17,7 +17,7 @@
  */
 
 using Itinero.LocalGeo;
-using Itinero.Navigation.Directions;
+using Itinero.LocalGeo.IO;
 using NUnit.Framework;
 
 namespace Itinero.Test.LocalGeo
@@ -84,6 +84,21 @@ namespace Itinero.Test.LocalGeo
             location = Itinero.LocalGeo.Extensions.LocationAfterDistance(location1, location2, 250);
             Assert.AreEqual(250, Coordinate.DistanceEstimateInMeter(location1, location), E);
             Assert.AreEqual(total - 250, Coordinate.DistanceEstimateInMeter(location2, location), E);
+        }
+
+        /// <summary>
+        /// Tests convex hull calculation on a set of locations.
+        /// </summary>
+        [Test]
+        public void TestConvexHull1()
+        {
+            var points1 = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                "Itinero.Test.test_data.points.points1.geojson").LoadTestPoints();
+
+            var hull = points1.ConvexHull();
+            var hullGeoJson = hull.ToGeoJson();
+
+            // TODO: check result once fixed.
         }
     }
 }
