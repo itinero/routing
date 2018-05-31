@@ -23,6 +23,7 @@ using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.IO;
 
 namespace Itinero.Test
 {
@@ -97,6 +98,10 @@ namespace Itinero.Test
             }
         }
 
+        /// <summary>
+        /// Loads a test file.
+        /// </summary>
+        /// <param name="path">A path in the format of "Itinero.Test.test_data.points.geojson"</param>
         public static Stream LoadAsStream(this string path)
         {
             return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
