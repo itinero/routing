@@ -48,6 +48,9 @@
     <EmbeddedResource Include="test-data\networks\network7.geojson" />
     <EmbeddedResource Include="test-data\networks\network8.geojson" />
     <EmbeddedResource Include="test-data\networks\network9.geojson" />
+    <EmbeddedResource Include="test-data\points\polyArea.hull.geojson" />
+    <EmbeddedResource Include="test-data\points\polyArea1.hull.geojson" />
+    <EmbeddedResource Include="test-data\points\polyArea2.hull.geojson" />
     <EmbeddedResource Include="test-data\profiles\osm\car.lua" />
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
     <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
