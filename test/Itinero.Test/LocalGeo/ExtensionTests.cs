@@ -97,7 +97,6 @@ namespace Itinero.Test.LocalGeo
             var hull = coors.Convexhull();
 
             var hullGeoJson = new Polygon(){ExteriorRing = hull}.ToGeoJson();
-           // System.IO.File.WriteAllText("/home/pietervdvn/Desktop/Result.geojson", hullGeoJson);
             var expected = "Itinero.Test.test_data.points.points1.hull.geojson".LoadAsStream().ReadToEnd();
             Assert.AreEqual(expected, hullGeoJson);
         }
@@ -112,7 +111,5 @@ namespace Itinero.Test.LocalGeo
             var expected = "Itinero.Test.test_data.points.points2.hull.geojson".LoadAsStream().ReadToEnd();
             Assert.AreEqual(expected, hullGeoJson);
         }
-
-
     }
 }
