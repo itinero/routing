@@ -53,6 +53,12 @@
     <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
     <None Remove="test-data\points\points1.geojson" />
     <EmbeddedResource Include="test-data\points\points1.geojson" />
+    <None Remove="test-data\points\points1.hull.geojson" />
+    <EmbeddedResource Include="test-data\points\points1.hull.geojson" />
+    <None Remove="test-data\points\points2.geojson.json" />
+    <None Remove="test-data\points\points2.geojson" />
+    <EmbeddedResource Include="test-data\points\points2.geojson" />
+    <EmbeddedResource Include="test-data\points\points2.hull.geojson" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
