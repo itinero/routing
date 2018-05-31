@@ -87,9 +87,10 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(250, Coordinate.DistanceEstimateInMeter(location1, location), E);
             Assert.AreEqual(total - 250, Coordinate.DistanceEstimateInMeter(location2, location), E);
         }
-
         
-        
+        /// <summary>
+        /// A real-world convex-hull test.
+        /// </summary>
         [Test]
         public void TestData1()
         {
@@ -101,6 +102,9 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(expected, hullGeoJson);
         }
 
+        /// <summary>
+        /// A real-world convex-hull test.
+        /// </summary>
         [Test]
         public void TestData2()
         { var coors = "Itinero.Test.test_data.points.points2.geojson".LoadAsStream().LoadTestPoints();
