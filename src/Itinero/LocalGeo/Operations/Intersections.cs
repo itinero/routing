@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using System;
 using System.Collections.Generic;
 
 namespace Itinero.LocalGeo.Operations
@@ -25,6 +26,9 @@ namespace Itinero.LocalGeo.Operations
     /// </summary>
     internal static class Intersections
     {
+
+
+
         /// <summary>
         /// Returns intersection points with the given polygon.
         /// </summary>
@@ -37,9 +41,25 @@ namespace Itinero.LocalGeo.Operations
         internal static IEnumerable<Coordinate> Intersect(this Polygon polygon, float latitude1, float longitude1,
             float latitude2, float longitude2)
         {
+            var line = new Line(new Coordinate(latitude1, longitude1), new Coordinate(latitude2, longitude2));
+            List<Coordinate> intersectionsNoLine = new Li
+            return polygon.IntersectWithLines(line);
+        }
+
+
+        /// <summary>
+        /// Returns intersection points with the given polygon.
+        /// </summary>
+        /// <param name="polygon">The polygon</param>
+        /// <param name="latitude1"></param>
+        /// <param name="longitude1"></param>
+        /// <param name="latitude2"></param>
+        /// <param name="longitude2"></param>
+        /// <returns></returns>
+        internal static IEnumerable<Coordinate> IntersectWithLines(this Polygon polygon, Line line)
+        {
             var E = 0.001f; // this is 1mm.
 
-            var line = new Line(new Coordinate(latitude1, longitude1), new Coordinate(latitude2, longitude2));
 
             // REMARK: yes, this can be way way faster but it's only used in preprocessing.
             // use a real geo library like NTS if you want this faster or submit a pull request.
@@ -63,7 +83,7 @@ namespace Itinero.LocalGeo.Operations
             }
 
             var previousDistance = 0f;
-            var previous = new Coordinate(latitude1, longitude1);
+            var previous = line.Coordinate1;
             var previousInside = polygon.PointIn(previous);
 
             var cleanIntersections = new List<Coordinate>();
@@ -92,6 +112,12 @@ namespace Itinero.LocalGeo.Operations
             return cleanIntersections;
         }
 
+        /// <summary>
+        /// Returns the intersection points of a ring and a line
+        /// </summary>
+        /// <param name="ring"></param>
+        /// <param name="line"></param>
+        /// <returns></returns>
         private static IEnumerable<KeyValuePair<float, Coordinate>> IntersectInternal(this List<Coordinate> ring,
             Line line)
         {

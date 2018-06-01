@@ -60,7 +60,7 @@ namespace Itinero.Algorithms.PriorityQueues
         }
 
         /// <summary>
-        /// Enqueues a given item.
+        /// Enqueues a given item. The lower the value, the higher the priority.
         /// </summary>
         public void Push(T item, float priority)
         {

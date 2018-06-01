@@ -17,6 +17,7 @@
  */
 
 using System;
+using System.Resources;
 using Itinero.Navigation.Directions;
 
 namespace Itinero.LocalGeo
@@ -72,34 +73,36 @@ namespace Itinero.LocalGeo
 
             var oldLat = this.Latitude.ToRadians();
             var oldLon = this.Longitude.ToRadians();
-            var bearing = ((double)(int)direction).ToRadians();
+            var bearing = ((double) (int) direction).ToRadians();
 
             var newLatitude = System.Math.Asin(
-                                     System.Math.Sin(oldLat) *
-                                     System.Math.Cos(ratioInRadians) +
-                                     System.Math.Cos(oldLat) *
-                                     System.Math.Sin(ratioInRadians) *
-                                     System.Math.Cos(bearing));
+                System.Math.Sin(oldLat) *
+                System.Math.Cos(ratioInRadians) +
+                System.Math.Cos(oldLat) *
+                System.Math.Sin(ratioInRadians) *
+                System.Math.Cos(bearing));
 
             var newLongitude = oldLon + System.Math.Atan2(
-                                      System.Math.Sin(bearing) *
-                                      System.Math.Sin(ratioInRadians) *
-                                      System.Math.Cos(oldLat),
-                                      System.Math.Cos(ratioInRadians) -
-                                      System.Math.Sin(oldLat) *
-                                      System.Math.Sin(newLatitude));
-            
+                                   System.Math.Sin(bearing) *
+                                   System.Math.Sin(ratioInRadians) *
+                                   System.Math.Cos(oldLat),
+                                   System.Math.Cos(ratioInRadians) -
+                                   System.Math.Sin(oldLat) *
+                                   System.Math.Sin(newLatitude));
+
             var newLat = newLatitude.ToDegrees();
             if (newLat > 180)
             {
                 newLat = newLat - 360;
             }
+
             var newLon = newLongitude.ToDegrees();
             if (newLon > 180)
             {
                 newLon = newLon - 360;
             }
-            return new Coordinate((float)newLat, (float)newLon);
+
+            return new Coordinate((float) newLat, (float) newLon);
         }
 
         /// <summary>
@@ -116,7 +119,8 @@ namespace Itinero.LocalGeo
         /// Returns an estimate of the distance between the two given coordinates.
         /// </summary>
         /// <remarks>Accuraccy decreases with distance.</remarks>
-        public static float DistanceEstimateInMeter(float latitude1, float longitude1, float latitude2, float longitude2)
+        public static float DistanceEstimateInMeter(float latitude1, float longitude1, float latitude2,
+            float longitude2)
         {
             var lat1Rad = (latitude1 / 180d) * System.Math.PI;
             var lon1Rad = (longitude1 / 180d) * System.Math.PI;
@@ -128,7 +132,7 @@ namespace Itinero.LocalGeo
 
             var m = System.Math.Sqrt(x * x + y * y) * RadiusOfEarth;
 
-            return (float)m;
+            return (float) m;
         }
 
         /// <summary>
@@ -137,12 +141,24 @@ namespace Itinero.LocalGeo
         public static float DistanceEstimateInMeter(System.Collections.Generic.List<Coordinate> coordinates)
         {
             var length = 0f;
-            for(var i = 1; i < coordinates.Count; i++)
+            for (var i = 1; i < coordinates.Count; i++)
             {
                 length += Coordinate.DistanceEstimateInMeter(coordinates[i - 1].Latitude, coordinates[i - 1].Longitude,
                     coordinates[i].Latitude, coordinates[i].Longitude);
             }
+
             return length;
+        }
+
+        /// <summary>
+        /// Return how much degrees the coordinate is away from b
+        /// </summary>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public float DistanceInDegrees(Coordinate b)
+        {
+            return (float) Math.Sqrt((Latitude - b.Latitude) * (Latitude - b.Latitude) +
+                             ((Longitude - b.Longitude) * (Longitude - b.Longitude)));
         }
 
         /// <summary>
@@ -160,7 +176,7 @@ namespace Itinero.LocalGeo
             return new Coordinate(this.Latitude + (meter / latDistance) * 0.1f,
                 this.Longitude + (meter / lonDistance) * 0.1f);
         }
-        
+
         /// <summary>
         /// Returns a description of this object.
         /// </summary>
@@ -168,10 +184,22 @@ namespace Itinero.LocalGeo
         {
             if (this.Elevation.HasValue)
             {
-                return string.Format("{0},{1}@{2}m", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString(),
+                return string.Format("{0},{1}@{2}m", this.Latitude.ToInvariantString(),
+                    this.Longitude.ToInvariantString(),
                     this.Elevation.Value.ToInvariantString());
             }
+
             return string.Format("{0},{1}", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString());
+        }
+
+        public static Coordinate operator -(Coordinate a, Coordinate b)
+        {
+            return new Coordinate() {Latitude = a.Latitude - b.Latitude, Longitude = a.Longitude - b.Latitude};
+        }
+
+        public static float DotProduct(Coordinate a, Coordinate b)
+        {
+            return a.Latitude * b.Latitude + a.Longitude * b.Longitude;
         }
     }
 }
