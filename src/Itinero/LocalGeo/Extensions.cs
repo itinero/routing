@@ -347,7 +347,7 @@ namespace Itinero.LocalGeo
         {
             return new Polygon()
             {
-                ExteriorRing = Itinero.LocalGeo.Operations.QuickHull.Quickhull(points.ToList())
+                ExteriorRing = points.Convexhull()
             };
         }
 
@@ -388,10 +388,27 @@ namespace Itinero.LocalGeo
         {
             return p.AngleSum() > 0;
         }
-        
+
         public static bool IsClockwise(this List<Coordinate> p)
         {
             return p.AngleSum() > 0;
+        }
+
+
+        /// <summary>
+        /// Calculates the area of the polygon
+        /// </summary>
+        /// <param name="poly"></param>
+        /// <returns></returns>
+        public static float SurfaceArea(this Polygon poly)
+        {
+            var internalArea = 0f;
+            foreach (var ring in poly.InteriorRings)
+            {
+                internalArea += ring.SurfaceArea();
+            }
+
+            return poly.ExteriorRing.SurfaceArea() - internalArea;
         }
     }
 }

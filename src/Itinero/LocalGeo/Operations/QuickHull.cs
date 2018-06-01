@@ -27,58 +27,8 @@ namespace Itinero.LocalGeo.Operations
     /// <summary>
     /// Implementation of the quickhull algorithm.
     /// </summary>
-    internal class QuickHull
+    internal static class QuickHull
     {
-        // TODO: refactor this without creating a quickhull object.
-
-        private readonly float[] _lats;
-        private readonly float[] _lons;
-
-        internal QuickHull(float[] lats, float[] lons)
-        {
-            _lats = lats;
-            _lons = lons;
-            Points = new int[lats.Length];
-            for (var i = 0; i < Points.Length; i++)
-            {
-                Points[i] = i;
-            }
-        }
-
-        internal int[] Points { get; }
-
-        /// <summary>
-        /// The quickhull algorithm in a convenient coordinate format.
-        /// Contains all you need
-        /// </summary>
-        /// <param name="coors"></param>
-        /// <returns></returns>
-        internal static List<Coordinate> Quickhull(List<Coordinate> coors)
-        {
-            var lats = new float[coors.Count];
-            var lons = new float[coors.Count];
-
-            for (var i = 0; i < coors.Count; i++)
-            {
-                lats[i] = coors[i].Latitude;
-                lons[i] = coors[i].Longitude;
-            }
-
-            var cv = new QuickHull(lats, lons);
-
-            var cutoff = cv.Quickhull();
-
-            var results = new List<Coordinate>();
-            for (var i = 0; i < cutoff; i++)
-            {
-                results.Add(coors[cv.Points[i]]);
-            }
-
-            results.Add(coors[cv.Points[0]]);
-
-            return results;
-        }
-
         /// <summary>
         /// Removes all given points from allPoints, and checks if any are in the hull.
         /// If so, a new hull is calculated.
@@ -86,8 +36,8 @@ namespace Itinero.LocalGeo.Operations
         /// <param name="allPoints"></param>
         /// <param name="hull"></param>
         /// <param name="pointsToRemove"></param>
-        internal static List<Coordinate> RemoveFromHull(List<Coordinate> allPoints, List<Coordinate> hull,
-            List<Coordinate> pointsToRemove)
+        internal static List<Coordinate> RemoveFromHull(HashSet<Coordinate> allPoints, List<Coordinate> hull,
+            IEnumerable<Coordinate> pointsToRemove)
         {
             var hullBreach = false;
             foreach (var toRemove in pointsToRemove)
@@ -98,7 +48,7 @@ namespace Itinero.LocalGeo.Operations
 
             // There might be points in allPoints which were not part of the hull, but will be now
             // For correctness, we have to recalculate from scratch
-            return hullBreach ? Quickhull(allPoints) : hull;
+            return hullBreach ? allPoints.Quickhull() : hull;
         }
 
         /// <summary>
@@ -111,7 +61,7 @@ namespace Itinero.LocalGeo.Operations
         /// <param name="newPoint"></param>
         /// <param name="inOrder"></param>
         /// <returns></returns>
-        internal static int UpdateHull(List<Coordinate> hull, Coordinate newPoint, bool inOrder = true)
+        internal static int UpdateHull(this List<Coordinate> hull, Coordinate newPoint, bool inOrder = true)
         {
             if (PointInPolygon.PointIn(
                 hull, newPoint))
@@ -180,348 +130,226 @@ namespace Itinero.LocalGeo.Operations
             return -1;
         }
 
-        /// <summary>
-        /// Reoorders the points in 'Points' so that the elements of the quickhull are in front (the hull will be in order),
-        /// Returns the number of quickhull elements 
-        /// </summary>
-        internal int Quickhull()
+        internal static List<Coordinate> Convexhull(this IEnumerable<Coordinate> points)
         {
-            // Get the two outer most points
-            CalculateMinMaxX(out var pointA, out var pointB);
-            var l = _lats.Length;
-
-            // Save pointA in the total beginning and end of the array
-            SwapP(pointA, 0);
-
-            // Move pointB out of the way to the end
-            SwapP(pointB, l - 1);
-
-            // Split the resting set into a left and right partition...
-            var split = PartitionLeftRight(pointA, pointB, 1, l - 1);
-            // ...And calculate the hull on the left
-            var cutoff1 = FindHull(pointA, pointB, 1, split);
-
-            // Move pointB just after this hull
-            SwapP(cutoff1, l - 1);
-            cutoff1++;
-
-            // split might have equaled cutoff1; in that case, we should use the cutoff1 + 1 value. We use Math.Max for this:
-            split = Math.Max(cutoff1, split);
-
-            // And calculate the second part of the hull
-            var cutoff2 = FindHull(pointB, pointA, split, l);
-
-
-            return MergeP(cutoff1, split, cutoff2);
+            return new HashSet<Coordinate>(points).Quickhull();
         }
 
         /// <summary>
-        /// The recursive part of the convex hull algo
-        /// It starts with a line and points only on the left side of that line.
-        /// 
+        /// Calculates the convex hull of the given points. The hull will be closed.
         /// </summary>
-        /// <param name="pointA"></param>
-        /// <param name="pointB"></param>
-        /// <param name="start"></param>
-        /// <param name="stop"></param>
-        /// <returns>The cutoff of convex hull elements</returns>
-        internal int FindHull(int pointA, int pointB, int start, int stop)
+        /// <param name="points"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        internal static List<Coordinate> Quickhull(this HashSet<Coordinate> points)
         {
-            if (start == stop)
+            var hull = new List<Coordinate>();
+            // Get the two outer most points
+            points.CalculateMinMaxX(out var aNullable, out var bNullable);
+            if (aNullable == null || bNullable == null)
             {
-                // No points here: return a negative value
-                return start;
+                throw new InvalidOperationException("A hull should at least contain three elements");
             }
 
-            if (start + 1 == stop)
+            var a = (Coordinate) aNullable;
+            var b = (Coordinate) bNullable;
+
+            points.Remove(a);
+            points.Remove(b);
+            
+            // Split the resting set into a left and right partition...
+            points.PartitionLeftRight(a, b, out var leftSet, out var rightSet);
+
+            hull.Add(a);
+            FindHull(leftSet, hull, a, b);
+            hull.Add(b);
+            FindHull(rightSet, hull, b, a);
+            hull.Add(a); // Close the loop
+
+            return hull;
+        }
+
+        /// <summary>
+        /// Finds the hull for a part of the points
+        /// </summary>
+        internal static void FindHull(this HashSet<Coordinate> points, List<Coordinate> hull, Coordinate a,
+            Coordinate b)
+        {
+            // ReSharper disable once ConvertIfStatementToSwitchStatement
+            if (points.Count == 0)
             {
-                // only a single point here -> part of the hull
-                return start + 1;
+                return;
             }
+
+            if (points.Count == 1)
+            {
+                foreach (var p in points)
+                {
+                    hull.Add(p);
+                }
+
+                return;
+            }
+
 
             // Search for the furthest point on this side of the line
-            var pointCInd = LongestDistance(pointA, pointB, start, stop);
-            var pointC = Points[pointCInd];
+            var cNullable = LongestDistance(points, a, b);
+            if (cNullable == null)
+            {
+                throw new InvalidOperationException("Not enough elements in longest distance, should not happen");
+            }
 
+            var c = (Coordinate) cNullable;
+            points.Remove(c);
 
-            var pointCStorage = stop - 1;
-            // Move pointC out of the way to the end
-            SwapP(pointCStorage, pointCInd);
-
-
-            // We have a triangle. Exclude everything in the triangle (thus shorten the array)
-            // Everything between start and stop should still be considered for the convexhull
-            stop = PartitionInTriangle(pointA, pointB, pointC, start, stop - 1);
+            // We have a triangle. Exclude everything in the triangle
+            points = RemoveInTriangle(points, a, b, c);
 
             // Now we find which points are on one side, and which on another
             // Every element left of A-C will be right of B-C too
-            var split = PartitionLeftRight(pointA, pointC, start, stop);
+            PartitionLeftRight(points, a, c, out var leftSet, out var rightSet);
 
-            // The only points left in our set are now:
-            // Left of A-C and left of C-B
 
-            // We can use quick hull again on these parts; if needed
+            // We can use quick hull again on these parts
 
-            var convexHullEls = FindHull(pointA, pointC, start, split);
-
-            // Swap pointC to the middle of the hulls
-            // First make some room for it...
-            SwapP(convexHullEls+1, stop);    
-            SwapP(convexHullEls, convexHullEls+1);
-            stop++;
-            
-            SwapP(convexHullEls, pointCStorage);
-            convexHullEls++;
-
-            split = Math.Max(convexHullEls, split);
-
-            var convexHulLElsR = FindHull(pointC, pointB, split, stop);
-
-            return MergeP(convexHullEls, split, convexHulLElsR);
+            FindHull(leftSet, hull, a, c);
+            hull.Add(c);
+            FindHull(rightSet, hull, c, b);
         }
 
         /// <summary>
         /// Calculates the point in the set which has the biggest distance to the given line
         /// </summary>
         /// <returns>The _index_ of the furhtest point</returns>
-        internal int LongestDistance(int pointA, int pointB, int start, int stop)
+        internal static Coordinate? LongestDistance(this HashSet<Coordinate> coors, Coordinate a, Coordinate b)
         {
-            var maxInd = -1;
-            var ax = _lons[pointA];
-            var ay = _lats[pointA];
-            var bx = _lons[pointB];
-            var by = _lats[pointB];
-            var maxDist = 0f;
+            var ax = a.Longitude;
+            var ay = a.Latitude;
+            var bx = b.Longitude;
+            var by = b.Latitude;
+            var maxDist = float.MinValue;
+            Coordinate? max = null;
 
-            for (var i = start; i < stop; i++)
+
+            foreach (var p in coors)
             {
-                var x = _lons[Points[i]];
-                var y = _lats[Points[i]];
+                var x = p.Longitude;
+                var y = p.Latitude;
+
                 // If we needed the actual euclidian distance, we'd also have to calculate by some squarerootstuff
                 // However, this is constant if point A/B stay constant, so we just drop it
                 var d = Math.Abs((by - ay) * x - (bx - ax) * y + bx * ay - by * ax);
                 if (maxDist < d)
                 {
                     maxDist = d;
-                    maxInd = i;
+                    max = p;
                 }
             }
 
-            return maxInd;
+            return max;
         }
 
 
         /// <summary>
-        /// Will partition the points[] array so that all elements not in the triangle will be placed left in the array.
-        /// Expects the given point to be on one side of the line A-B, namely the same side as C!
+        /// Gives a new hashset containing all elements not within the triange a - b - c.
         /// </summary>
-        /// <param name="pointA"></param>
-        /// <param name="pointB"></param>
-        /// <param name="pointC"></param>
-        /// <param name="start"></param>
-        /// <param name="stop"></param>
-        /// <returns>The new endpoint</returns>
-        internal int PartitionInTriangle(int pointA, int pointB, int pointC, int start, int stop)
+        /// <param name="points"></param>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <param name="c"></param>
+        /// <returns></returns>
+        internal static HashSet<Coordinate> RemoveInTriangle(this HashSet<Coordinate> points, Coordinate a,
+            Coordinate b,
+            Coordinate c)
         {
-            var ax = _lons[pointA];
-            var ay = _lats[pointA];
-            var bx = _lons[pointB];
-            var by = _lats[pointB];
-            var cx = _lons[pointC];
-            var cy = _lats[pointC];
-
-            // a and b are already tested
-            // a 
-
-            // is C on the left side or on the right side of A - B?
-            // We always want it on the LEFT
-            if (!LeftOfLine(ax, ay, bx, by, cx, cy))
+            if (!LeftOfLine(a, b, c))
             {
-                // seems like C is on the right. Swap direction of A and B...
-                return PartitionInTriangle(pointB, pointA, pointC, start, stop);
+                // Corner case
+                return points.RemoveInTriangle(b, a, c);
             }
 
 
-            var cutOff = start;
-            var i = start;
-            var last = stop - 1; // Last index = stop - 1;
-
-            while (i <= last)
+            var outsiders = new HashSet<Coordinate>();
+            foreach (var p in points)
             {
-                // We only keep outsiders... A point is on the outide if it is on the right of B->C or C->A
-                // It is on the right if the position is negative
-                var p = Points[i];
-                var x = _lons[p];
-                var y = _lats[p];
-
-                if (!LeftOfLine(bx, by, cx, cy, x, y))
+                if (!(LeftOfLine(a, b, p) && LeftOfLine(b, c, p) && LeftOfLine(c, a, p)))
                 {
-                    // seems like the point is on the right of B -> C. This is an outsider
-                    // the point can stay where it is, but we increase the index and cutoffs
-                    i++;
-                    cutOff++;
-                    continue;
+                    // Left of all the lines: element of the triangle -> we remove it
+                    outsiders.Add(p);
                 }
-
-                if (!LeftOfLine(cx, cy, ax, ay, x, y))
-                {
-                    // seems like the point is on the right of C -> A. This is an outsider
-                    // the point can stay where it is, but we increase the index and cutoffs
-                    i++;
-                    cutOff++;
-                    continue;
-                }
-
-                // this point is an insider, we'll wont need it anymore
-                // move it to the back
-                SwapP(i, last);
-
-                last--;
-                // No increase of the counter!
             }
 
-            return cutOff;
+            return outsiders;
         }
 
         /// <summary>
-        /// Shuffles the array "points[0..lengthToConsider]" in such a way that all points in the start are on the left of the line
-        /// and all visits in the end are on the right. The cutoff point between the two is given by the return value
-        ///
-        /// points[start..cutOff[ are on the left, points[cutoff..lengthToConsider[ are on the right
+        /// Partitions the points in two parts, one set left of the line; one right off the line-
         /// </summary>
-        /// <param name="pointA"></param>
-        /// <param name="pointB"></param>
-        /// <param name="start">The startindex in the list to start searching</param>
-        /// <param name="stop">The end of points to search (points[stop] is _not_searched)</param>
-        /// <returns>The border between the left and right partitions</returns>
-        internal int PartitionLeftRight(int pointA, int pointB, int start, int stop)
+        internal static void PartitionLeftRight(this HashSet<Coordinate> points, Coordinate a, Coordinate b,
+            out HashSet<Coordinate> pointsLeft, out HashSet<Coordinate> pointsRight)
         {
             // Note that, if a point is perfectly on the line between A and B, this is not a problem - it'll be eliminated earlier
 
-            var ax = _lons[pointA];
-            var ay = _lats[pointA];
-            var bx = _lons[pointB];
-            var by = _lats[pointB];
-
-            var cutOff = start;
-            var last = stop - 1;
-            var i = start; // current index
-            while (i <= last)
+            pointsLeft = new HashSet<Coordinate>();
+            pointsRight = new HashSet<Coordinate>();
+            foreach (var p in points)
             {
-                var p = Points[i];
-                var x = _lons[p];
-                var y = _lats[p];
-                var position = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
-                if (position > 0)
+                if (LeftOfLine(a, b, p))
                 {
-                    // on the left
-                    // we leave the point where it is, but move the cutoff and the current point to consider
-                    cutOff++;
-                    i++;
+                    pointsLeft.Add(p);
                 }
                 else
                 {
-                    // on the right
-                    // we swap the point with the rightmost location (and won't visit that point anymore)
-                    SwapP(i, last);
-                    last--; // mark last as being visited
-                    // do not move the point to consider! (thus do not increment i)
+                    pointsRight.Add(p);
                 }
             }
-
-            return cutOff;
         }
 
         /// <summary>
-        /// Returns true if (x, y) lies on the left of the line from A to B
+        /// Returns true if 'p' lies on the left of the line from A to B
         /// </summary>
-        /// <param name="ax"></param>
-        /// <param name="ay"></param>
-        /// <param name="bx"></param>
-        /// <param name="by"></param>
-        /// <param name="x"></param>
-        /// <param name="y"></param>
-        /// <returns></returns>
-        private static bool LeftOfLine(float ax, float ay, float bx, float by, float x, float y)
+        /// <returns>If the point lies on the left</returns>
+        private static bool LeftOfLine(Coordinate a, Coordinate b, Coordinate p)
         {
+            var ax = a.Longitude;
+            var ay = a.Latitude;
+
+            var bx = b.Longitude;
+            var by = b.Latitude;
+
+            var x = p.Longitude;
+            var y = p.Latitude;
             var position = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
             return position > 0;
         }
 
-        private static bool LeftOfLine(Coordinate a, Coordinate b, Coordinate x)
-        {
-            return LeftOfLine(a.Longitude, a.Latitude, b.Longitude, b.Latitude, x.Longitude, x.Latitude);
-        }
-
-
         /// <summary>
         /// Calculates the (index of) the northernmost and southernmost point (using latitude).
         /// </summary>
-        /// <param name="minIndex">The index of the most sourthern point</param>
-        /// <param name="maxIndex">The index of the most northern point</param>
-        /// <returns></returns>
-        internal void CalculateMinMaxX(out int minIndex, out int maxIndex)
+        internal static void CalculateMinMaxX(this IEnumerable<Coordinate> coors, out Coordinate? minPoint,
+            out Coordinate? maxPoint)
         {
-            minIndex = 0;
-            maxIndex = 0;
+            var minVal = float.MaxValue;
+            var maxVal = float.MinValue;
 
-            var minVal = _lats[0];
-            var maxVal = _lats[0];
+            minPoint = null;
+            maxPoint = null;
 
-
-            for (var i = 1; i < _lats.Length; i++)
+            foreach (var coor in coors)
             {
-                if (minVal > _lats[i])
+                if (minVal > coor.Latitude)
                 {
-                    minIndex = i;
-                    minVal = _lats[i];
+                    minPoint = coor;
+                    minVal = coor.Latitude;
                 }
 
-                if (maxVal < _lats[i])
+                // ReSharper disable once InvertIf
+                if (maxVal < coor.Latitude)
                 {
-                    maxIndex = i;
-                    maxVal = _lats[i];
+                    maxPoint = coor;
+                    maxVal = coor.Latitude;
                 }
             }
-        }
-
-        /// <summary>
-        /// Swaps the contents of [copyStart..copyStop[ just behind 'appendAfter'
-        /// </summary>
-        /// <param name="array">The array that where the copying takes place</param>
-        /// <param name="appendAfter">The index where swapping will start</param>
-        /// <param name="copyStart">Where to start the swapping</param>
-        /// <param name="copyStop">Where to stop swapping</param>
-        /// <returns>The index (+1) of the last changed element. Should equal (appendAfter + copyStop - copyStart)</returns>
-        internal static int Merge(int[] array, int appendAfter, int copyStart, int copyStop)
-        {
-            for (var i = copyStart; i < copyStop; i++)
-            {
-                var h = array[appendAfter];
-                array[appendAfter] = array[i];
-                array[i] = h;
-                appendAfter++;
-            }
-
-            return appendAfter;
-        }
-
-        private int MergeP(int appendAfter, int copyStart, int copyStop)
-        {
-            return Merge(Points, appendAfter, copyStart, copyStop);
-        }
-
-        // TODO: isn't there a generic .NET method for this?
-        internal static void Swap(int[] array, int a, int b)
-        {
-            var h = array[a];
-            array[a] = array[b];
-            array[b] = h;
-        }
-
-        private void SwapP(int a, int b)
-        {
-            Swap(Points, a, b);
         }
     }
 }
