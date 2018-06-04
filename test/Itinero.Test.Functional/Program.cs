@@ -29,6 +29,7 @@ using System.IO;
 using NUnit.Framework;
 using Itinero.LocalGeo;
 using System.Linq;
+using Itinero.Algorithms.Networks.Islands;
 
 namespace Itinero.Test.Functional
 {
