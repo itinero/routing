@@ -34,14 +34,14 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         /// Tests island detection on network 1 with profile pedestrian.
         /// </summary>
         [Test]
-        public void TestEdgeBasedIslandNetwork1_PedestrianIsConnected()
+        public void TestEdgeBasedIslandNetwork01_PedestrianIsConnected()
         {
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network1.geojson"));
-            routerDb.Network.Sort();
-            routerDb.Network.Compress();
+            routerDb.Sort();
+            routerDb.Compress();
             var profile = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
 
             var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
@@ -64,14 +64,14 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         /// Tests island detection on network 2 with profile pedestrian.
         /// </summary>
         [Test]
-        public void TestEdgeBasedIslandNetwork2_PedestrianIsConnected()
+        public void TestEdgeBasedIslandNetwork02_PedestrianIsConnected()
         {
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network2.geojson"));
-            routerDb.Network.Sort();
-            routerDb.Network.Compress();
+            routerDb.Sort();
+            routerDb.Compress();
             var profile = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
 
             var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
@@ -96,14 +96,14 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         /// Tests island detection on network 3 with profile pedestrian.
         /// </summary>
         [Test]
-        public void TestEdgeBasedIslandNetwork3_PedestrianIsConnected()
+        public void TestEdgeBasedIslandNetwork03_PedestrianIsConnected()
         {
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network3.geojson"));
-            routerDb.Network.Sort();
-            routerDb.Network.Compress();
+            routerDb.Sort();
+            routerDb.Compress();
             var profile = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
 
             var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
@@ -129,14 +129,14 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         /// Tests island detection on network 3 with profile car.
         /// </summary>
         [Test]
-        public void TestEdgeBasedIslandNetwork3_CarIsConnected_WithNoAccess()
+        public void TestEdgeBasedIslandNetwork03_CarIsConnected_WithNoAccess()
         {
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network3.geojson"));
-            routerDb.Network.Sort();
-            routerDb.Network.Compress();
+            routerDb.Sort();
+            routerDb.Compress();
             var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
 
             var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
@@ -176,8 +176,8 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network19.geojson"));
-            routerDb.Network.Sort();
-            routerDb.Network.Compress();
+            routerDb.Sort();
+            routerDb.Compress();
             var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
 
             var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
@@ -203,14 +203,14 @@ namespace Itinero.Test.Algorithms.Networks.Islands
         /// Tests island detection on network 5 with profile car.
         /// </summary>
         [Test]
-        public void TestEdgeBasedIslandNetwork5_PedestrianIsConnected()
+        public void TestEdgeBasedIslandNetwork05_CarIsConnected()
         {
             var routerDb = new RouterDb();
             routerDb.LoadTestNetwork(
                 System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                     "Itinero.Test.test_data.networks.network5.geojson"));
-            routerDb.Network.Sort();
-            routerDb.Network.Compress();
+            routerDb.Sort();
+            routerDb.Compress();
             var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
 
             var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
@@ -235,6 +235,40 @@ namespace Itinero.Test.Algorithms.Networks.Islands
             }
         }
         
-        // TODO: test with network 18, it has a turn-restriction causing an island.
+        /// <summary>
+        /// Tests island detection on network 18 with profile car.
+        /// </summary>
+        [Test]
+        public void TestEdgeBasedIslandNetwork18_CarIsConnected()
+        {
+            var routerDb = new RouterDb();
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network18.geojson"));
+            routerDb.Sort();
+            routerDb.Compress();
+            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
+
+            var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, (p) =>
+            {
+                var edgeProfile = routerDb.EdgeProfiles.Get(p);
+                return profile.Factor(edgeProfile);
+            }, routerDb.GetRestrictions(profile));
+            islandDetector.Run();
+            
+            Assert.IsTrue(islandDetector.HasRun);
+            Assert.IsTrue(islandDetector.HasSucceeded);
+            var labels = islandDetector.IslandLabels;
+            Assert.IsNotNull(labels);
+            Assert.AreEqual(routerDb.Network.EdgeCount, labels.Count);
+            for (uint i = 0; i < 7; i++)
+            {
+                Assert.AreEqual(0, labels[i]);
+            }
+            for (uint i = 7; i < labels.Count; i++)
+            {
+                Assert.AreEqual(7, labels[i]);
+            }
+        }
     }
 }

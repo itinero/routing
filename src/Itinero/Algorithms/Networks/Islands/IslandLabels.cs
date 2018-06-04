@@ -41,7 +41,7 @@ namespace Itinero.Algorithms.Networks.Islands
         /// <summary>
         /// Creates a new island labels data structure.
         /// </summary>
-        public IslandLabels()
+        internal IslandLabels()
         {
             _labels = new MemoryArray<uint>(1);
         }
@@ -61,7 +61,7 @@ namespace Itinero.Algorithms.Networks.Islands
 
                 return _labels[id];
             }
-            set
+            internal set
             {
                 if (id >= _labels.Length)
                 {
@@ -86,7 +86,7 @@ namespace Itinero.Algorithms.Networks.Islands
         /// Updates the label of this id and all labels along the way to their lowest equivalent.
         /// </summary>
         /// <param name="id"></param>
-        public uint UpdateLowest(uint id)
+        internal uint UpdateLowest(uint id)
         {
             var label = this[id];
 

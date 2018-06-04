@@ -22,9 +22,9 @@ namespace Itinero.Algorithms.Networks.Islands
         /// <summary>
         /// Creates a new island label graph.
         /// </summary>
-        public IslandLabelGraph()
+        internal IslandLabelGraph()
         {
-            _graph = new DirectedGraph(0);
+            _graph = new DirectedGraph(0, 0);
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace Itinero.Algorithms.Networks.Islands
         /// </summary>
         /// <param name="label1">The first label.</param>
         /// <param name="label2">The second label.</param>
-        public void Connect(uint label1, uint label2)
+        internal void Connect(uint label1, uint label2)
         {
             if (label1 == label2)
             {
@@ -45,7 +45,7 @@ namespace Itinero.Algorithms.Networks.Islands
         /// Gets the edge enumerator.
         /// </summary>
         /// <returns></returns>
-        public DirectedGraph.EdgeEnumerator GetEdgeEnumerator()
+        internal DirectedGraph.EdgeEnumerator GetEdgeEnumerator()
         {
             return _graph.GetEdgeEnumerator();
         }
@@ -53,14 +53,14 @@ namespace Itinero.Algorithms.Networks.Islands
         /// <summary>
         /// Gets the label count.
         /// </summary>
-        public uint LabelCount => _graph.VertexCount;
+        internal uint LabelCount => _graph.VertexCount;
 
         /// <summary>
         /// Finds loops and merges them together.
         /// </summary>
         /// <param name="maxSettles">The maximum labels to settle.</param>
         /// <param name="updateLabel">A callback to update label.</param>
-        public void FindLoops(uint maxSettles, IslandLabels islandLabels, Action<uint, uint> updateLabel)
+        internal void FindLoops(uint maxSettles, IslandLabels islandLabels, Action<uint, uint> updateLabel)
         {
             // TODO: it's probably better to call reduce here when too much has changed.
             
@@ -206,7 +206,7 @@ namespace Itinero.Algorithms.Networks.Islands
         /// Removes all islands that are not roots and updates all edges.
         /// </summary>
         /// <param name="islandLabels">The current labels.</param>
-        public long Reduce(IslandLabels islandLabels)
+        internal long Reduce(IslandLabels islandLabels)
         {
             // remove vertices that aren't originals.
             var neighbours = new HashSet<uint>();

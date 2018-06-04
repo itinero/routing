@@ -22,6 +22,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using Itinero.Algorithms.Contracted;
 using Itinero.Algorithms.Networks.Analytics.Heatmaps;
+using Itinero.Algorithms.Restrictions;
 using Itinero.Data.Network;
 using Itinero.Data.Network.Edges;
 using Itinero.Graphs;
@@ -40,16 +41,20 @@ namespace Itinero.Algorithms.Networks.Islands
     {
         private readonly RoutingNetwork _network;
         private readonly Func<ushort, Factor> _profile;
+        private readonly RestrictionCollection _restrictions;
 
         /// <summary>
         /// Creates a new island detector.
         /// </summary>
         /// <param name="network">The network.</param>
         /// <param name="profile">The profile.</param>
-        public EdgeBasedIslandDetector(RoutingNetwork network, Func<ushort, Factor> profile)
+        /// <param name="restrictions">The restrictions.</param>
+        public EdgeBasedIslandDetector(RoutingNetwork network, Func<ushort, Factor> profile, 
+            RestrictionCollection restrictions = null)
         {
             _network = network;
             _profile = profile;
+            _restrictions = restrictions;
         }
         
         private IslandLabels _islandLabels; // island id's per edge id.
@@ -74,9 +79,13 @@ namespace Itinero.Algorithms.Networks.Islands
                     continue;
                 }
 
+                // update restrictions.
+                _restrictions?.Update(currentVertex);
+
                 // log all connections.
                 bestLabels.Clear();
                 var incomingOneWayEdge = -1L;
+                uint incomingVertex = 0;
                 var edges = 0;
                 while (edgeEnumerator1.MoveNext())
                 {
@@ -99,6 +108,7 @@ namespace Itinero.Algorithms.Networks.Islands
                                 if (incomingOneWayEdge < 0)
                                 { // keep edge.
                                     incomingOneWayEdge = edgeEnumerator1.Id;
+                                    incomingVertex = edgeEnumerator1.To;
                                 }
                                 else
                                 { // oeps, a second incoming edge, don't keep.
@@ -124,6 +134,8 @@ namespace Itinero.Algorithms.Networks.Islands
 
                         bestLabels[edgeEnumerator1.Id] = edge1Label;
                     }
+                    
+                    var turn = new Turn(new OriginalEdge(edgeEnumerator1.To, currentVertex), Constants.NO_VERTEX);
 
                     // evaluate neighbours.
                     edgeEnumerator2.MoveTo(currentVertex);
@@ -146,6 +158,16 @@ namespace Itinero.Algorithms.Networks.Islands
                         {
                             // only consider bidirectional edges in this first step.
                             continue;
+                        }
+                        
+                        // check restrictions if needed.
+                        if (_restrictions != null)
+                        {
+                            turn.Vertex3 = edgeEnumerator2.To;
+                            if (turn.IsRestrictedBy(_restrictions))
+                            { // turn is restricted.
+                                continue;
+                            }
                         }
 
                         // get label or provisionally set label to own id.
@@ -195,6 +217,8 @@ namespace Itinero.Algorithms.Networks.Islands
                         bestLabels[edge1Id] = edge1Label;
                     }
 
+                    var turn = new Turn(new OriginalEdge(incomingVertex, currentVertex), Constants.NO_VERTEX);
+
                     // evaluate neighbours.
                     edgeEnumerator2.MoveTo(currentVertex);
                     while (edgeEnumerator2.MoveNext())
@@ -218,6 +242,16 @@ namespace Itinero.Algorithms.Networks.Islands
                         { // REMARK: no need to check for bidirectionals, already done above.
                             // only consider outgoing oneway edges.
                             continue;
+                        }
+                        
+                        // check restrictions if needed.
+                        if (_restrictions != null)
+                        {
+                            turn.Vertex3 = edgeEnumerator2.To;
+                            if (turn.IsRestrictedBy(_restrictions))
+                            { // turn is restricted.
+                                continue;
+                            }
                         }
 
                         // get label or provisionally set label to own id.
@@ -291,6 +325,9 @@ namespace Itinero.Algorithms.Networks.Islands
                     continue;
                 }
                 
+                // update restrictions.
+                _restrictions?.Update(currentVertex);
+                
                 // log all connections.
                 while (edgeEnumerator1.MoveNext())
                 {
@@ -308,6 +345,8 @@ namespace Itinero.Algorithms.Networks.Islands
                         // wrong direction, this edge is oneway away from current vertex.
                         continue;
                     }
+                    
+                    var turn = new Turn(new OriginalEdge(edgeEnumerator1.To, currentVertex), Constants.NO_VERTEX);
 
                     // get label or set to own id.
                     var edge1Label = _islandLabels[edgeEnumerator1.Id];
@@ -339,6 +378,16 @@ namespace Itinero.Algorithms.Networks.Islands
                         {
                             // wrong direction, this edge is oneway away from current vertex.
                             continue;
+                        }
+                        
+                        // check restrictions if needed.
+                        if (_restrictions != null)
+                        {
+                            turn.Vertex3 = edgeEnumerator2.To;
+                            if (turn.IsRestrictedBy(_restrictions))
+                            { // turn is restricted.
+                                continue;
+                            }
                         }
 
                         // get label or set to own id.
