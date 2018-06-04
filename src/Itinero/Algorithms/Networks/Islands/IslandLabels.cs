@@ -17,22 +17,26 @@
  */
 
 using System;
+using System.Runtime.CompilerServices;
 using Itinero.Algorithms.Networks.Analytics.Heatmaps;
 using Itinero.Profiles.Lua.Tree;
 using Reminiscence;
 using Reminiscence.Arrays;
 
+[assembly: InternalsVisibleTo("Itinero.Test")]
 namespace Itinero.Algorithms.Networks.Islands
 {
     /// <summary>
     /// Holds island labels for each edge.
     /// </summary>
-    internal class IslandLabels
+    public class IslandLabels
     {
         private readonly MemoryArray<uint> _labels;
 
         public const uint NotSet = uint.MaxValue;
         public const uint NoAccess = uint.MaxValue - 1;
+
+        private uint _count = 0;
 
         /// <summary>
         /// Creates a new island labels data structure.
@@ -62,11 +66,16 @@ namespace Itinero.Algorithms.Networks.Islands
                 if (id >= _labels.Length)
                 {
                     var l = _labels.Length;
-                    _labels.EnsureMinimumSize(id);
+                    _labels.EnsureMinimumSize(id + 1);
                     for (var i = l; i < _labels.Length; i++)
                     {
                         _labels[i] = NotSet;
                     }
+                }
+
+                if (id > _count)
+                {
+                    _count = id;
                 }
 
                 _labels[id] = value;
@@ -105,6 +114,6 @@ namespace Itinero.Algorithms.Networks.Islands
         /// <summary>
         /// Returns the # of labels.
         /// </summary>
-        public long Count => _labels.Length;
+        public uint Count => _count + 1;
     }
 }

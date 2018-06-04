@@ -29,6 +29,7 @@ using System.IO;
 using NUnit.Framework;
 using Itinero.LocalGeo;
 using System.Linq;
+using Itinero.Algorithms.Networks.Islands;
 
 namespace Itinero.Test.Functional
 {
@@ -46,29 +47,78 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-            // download and extract test-data if not already there.
-            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
-            Download.DownloadLuxembourgAll();
+//            // download and extract test-data if not already there.
+//            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
+//            Download.DownloadLuxembourgAll();
+//
+//            // test building a routerdb.
+//            _logger.Log(TraceEventType.Information, "Starting tests...");
+//            var routerDb = RouterDbBuildingTests.Run();
+//            var router = new Router(routerDb);
 
-            // test building a routerdb.
-            _logger.Log(TraceEventType.Information, "Starting tests...");
-            var routerDb = RouterDbBuildingTests.Run();
+//            var routerDb = new RouterDb();
+//            routerDb.LoadOsmData(File.OpenRead(@"luxembourg-latest.osm.pbf"), Itinero.Osm.Vehicles.Vehicle.Pedestrian,
+//                Itinero.Osm.Vehicles.Vehicle.Bicycle, Itinero.Osm.Vehicles.Vehicle.Car);
+//
+//            using (var stream = File.Open("luxembourg.routerdb", FileMode.Create))
+//            {
+//                routerDb.Serialize(stream);
+//            }
+
+ //           return;
+
+            RouterDb routerDb;
+            using (var stream = File.OpenRead("belgium.routerdb"))
+            {
+                routerDb = RouterDb.Deserialize(stream);
+            }
             var router = new Router(routerDb);
 
-            // test some routerdb extensions.
-            RouterDbExtensionsTests.Run(routerDb);
+            Action addPedestrianIslands = () =>
+            {
+                var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, router.GetDefaultGetFactor(
+                    routerDb.GetSupportedProfile("pedestrian")));
+                islandDetector.Run();
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+                var meta = routerDb.EdgeData.AddUInt32("pedestrian-edge-based-islands");
+                for (uint e = 0; e < islandDetector.IslandLabels.Count; e++)
+                {
+                    meta[e] = islandDetector.IslandLabels[e];
+                }
+            };
+            addPedestrianIslands.TestPerf("Adding pedestrian islands.");
 
-            // test routing.
-            RoutingTests.Run(routerDb);
+            Action addCarIslands = () =>
+            {
+                var islandDetector = new EdgeBasedIslandDetector(routerDb.Network, router.GetDefaultGetFactor(
+                    routerDb.GetSupportedProfile("car")));
+                islandDetector.Run();
 
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
-
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+                var meta = routerDb.EdgeData.AddUInt32("car-edge-based-islands");
+                for (uint e = 0; e < islandDetector.IslandLabels.Count; e++)
+                {
+                    meta[e] = islandDetector.IslandLabels[e];
+                }
+            };
+            addCarIslands.TestPerf("Adding car islands.");
+            
+            File.WriteAllText("belgium.geojson", routerDb.GetGeoJson(true, false));
+//            var router = new Router(routerDb);
+//
+//            // test some routerdb extensions.
+//            RouterDbExtensionsTests.Run(routerDb);
+//
+//            // test resolving.
+//            ResolvingTests.Run(routerDb);
+//
+//            // test routing.
+//            RoutingTests.Run(routerDb);
+//
+//            // tests calculate weight matrices.
+//            WeightMatrixTests.Run(routerDb);
+//
+//            // test instruction generation.
+//            InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

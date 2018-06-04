@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Security;
+using Itinero.Algorithms.Collections;
+using Itinero.Algorithms.Networks.Analytics.Heatmaps;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Graphs;
 using Itinero.Graphs.Directed;
+using Itinero.Profiles.Lua.Tree;
 
 namespace Itinero.Algorithms.Networks.Islands
 {
@@ -13,14 +17,14 @@ namespace Itinero.Algorithms.Networks.Islands
     /// </summary>
     internal class IslandLabelGraph
     {
-        private readonly Graph _graph;
+        private readonly DirectedGraph _graph;
 
         /// <summary>
         /// Creates a new island label graph.
         /// </summary>
         public IslandLabelGraph()
         {
-            _graph = new Graph(1);
+            _graph = new DirectedGraph(0);
         }
 
         /// <summary>
@@ -30,43 +34,75 @@ namespace Itinero.Algorithms.Networks.Islands
         /// <param name="label2">The second label.</param>
         public void Connect(uint label1, uint label2)
         {
-            _graph.UpdateEdgeData();
+            if (label1 == label2)
+            {
+                return;
+            }
             _graph.AddEdge(label1, label2);
         }
 
         /// <summary>
-        /// Try to reduce the graph using the given updated labels.
+        /// Gets the edge enumerator.
         /// </summary>
-        /// <param name="updated">The updated labels.</param>
-        public void Reduce(HashSet<uint> updated)
+        /// <returns></returns>
+        public DirectedGraph.EdgeEnumerator GetEdgeEnumerator()
         {
-            var enumerator = _graph.GetEdgeEnumerator();
-            while (updated.Count > 0)
-            {
-                // do a dykstra search starting at the first.
-                var current = updated.First();
-                var first = current;
-                updated.Remove(current);
-                
-                var settled = new Dictionary<uint, uint>();
-                var queue = new Queue<KeyValuePair<uint, uint>>();
-                queue.Enqueue(new KeyValuePair<uint, uint>(current, Constants.NO_VERTEX));
+            return _graph.GetEdgeEnumerator();
+        }
 
-                var triggeredMerge = false;
-                while (queue.Count > 0)
+        /// <summary>
+        /// Gets the label count.
+        /// </summary>
+        public uint LabelCount => _graph.VertexCount;
+
+        /// <summary>
+        /// Finds loops and merges them together.
+        /// </summary>
+        /// <param name="maxSettles">The maximum labels to settle.</param>
+        /// <param name="updateLabel">A callback to update label.</param>
+        public void FindLoops(uint maxSettles, IslandLabels islandLabels, Action<uint, uint> updateLabel)
+        {
+            // TODO: it's probably better to call reduce here when too much has changed.
+            
+            var pathTree = new PathTree();
+            var enumerator = _graph.GetEdgeEnumerator();
+            var settled = new HashSet<uint>();
+            var queue = new Queue<uint>();
+            var loop = new HashSet<uint>(); // keeps all with a path back to label, initially only label.
+            uint label = 0;
+            while (label < _graph.VertexCount)
+            {
+                if (!enumerator.MoveTo(label))
                 {
-                    // dequeue next.
-                    var dequeued = queue.Dequeue();
-                    current = dequeued.Key;
-                    
-                    if (settled.ContainsKey(current))
-                    { // already settled.
+                    label++;
+                    continue;
+                }
+
+                if (islandLabels[label] != label)
+                {
+                    label++;
+                    continue;
+                }
+
+                queue.Clear();
+                pathTree.Clear();
+                settled.Clear();
+
+                loop.Add(label);
+                queue.Enqueue(pathTree.Add(label, uint.MaxValue));
+
+                while (queue.Count > 0 &&
+                       settled.Count < maxSettles)
+                {
+                    var pointer = queue.Dequeue();
+                    pathTree.Get(pointer, out var current, out var previous);
+
+                    if (settled.Contains(current))
+                    {
                         continue;
                     }
 
-                    // mark as settled.
-                    var previous = dequeued.Value;
-                    settled[current] = previous;
+                    settled.Add(current);
 
                     if (!enumerator.MoveTo(current))
                     {
@@ -75,43 +111,46 @@ namespace Itinero.Algorithms.Networks.Islands
 
                     while (enumerator.MoveNext())
                     {
-                        var neighbour = enumerator.Neighbour;
-                        if (settled.ContainsKey(neighbour))
+                        var n = enumerator.Neighbour;
+                        
+                        n = islandLabels[n];
+                        
+                        if (loop.Contains(n))
+                        {
+                            // yay, a loop!
+                            loop.Add(current);
+                            while (previous != uint.MaxValue)
+                            {
+                                pathTree.Get(previous, out current, out previous);
+                                loop.Add(current);
+                            }
+                        }
+                        if (settled.Contains(n))
                         {
                             continue;
                         }
-
-                        if (neighbour == first)
-                        { // we found a loop!
-                            var toMerge = new List<uint>();
-                            toMerge.Add(neighbour);
-                            toMerge.Add(current);
-                            while (settled.TryGetValue(current, out previous))
-                            {
-                                if (previous == Constants.NO_VERTEX)
-                                {
-                                    break;;
-                                }
-                                toMerge.Add(previous);
-                                current = previous;
-                            }
-                            
-                            queue.Clear(); // stop the search.
-                            this.Merge(toMerge);
-                            break;
-                        }
                         
-                        queue.Enqueue(new KeyValuePair<uint, uint>(neighbour, current));
+                        queue.Enqueue(pathTree.Add(n, pointer));
                     }
                 }
+
+                if (loop.Count > 0)
+                {
+                    this.Merge(loop, updateLabel);
+                }
+                loop.Clear();
+
+                // move to the next label.
+                label++;
             }
         }
-
+        
         /// <summary>
         /// Merge all the given labels into one.
         /// </summary>
         /// <param name="labels">The labels to merge.</param>
-        private void Merge(IEnumerable<uint> labels)
+        /// <param name="updateLabel">A callback to update label.</param>
+        private void Merge(HashSet<uint> labels, Action<uint, uint> updateLabel)
         {
             var edgeEnumerator = _graph.GetEdgeEnumerator();
             var bestLabel = uint.MaxValue;
@@ -130,7 +169,11 @@ namespace Itinero.Algorithms.Networks.Islands
 
                 while (edgeEnumerator.MoveNext())
                 {
-                    neighbours.Add(edgeEnumerator.Neighbour);
+                    var n = edgeEnumerator.Neighbour;
+                    if (!labels.Contains(n))
+                    {
+                        neighbours.Add(n);
+                    }
                 }
 
                 _graph.RemoveEdges(label);
@@ -143,10 +186,79 @@ namespace Itinero.Algorithms.Networks.Islands
             
             foreach (var neighbour in neighbours)
             {
+                //_graph.RemoveEdge(bestLabel, neighbour);
                 _graph.AddEdge(bestLabel, neighbour);
-
-                
             }
+            foreach (var label in labels)
+            {
+                if (label == bestLabel)
+                {
+                    continue;
+                }
+                
+                updateLabel(label, bestLabel);
+                //_graph.RemoveEdge(label, bestLabel);
+                //_graph.AddEdge(label, bestLabel);
+            }
+        }
+
+        /// <summary>
+        /// Removes all islands that are not roots and updates all edges.
+        /// </summary>
+        /// <param name="islandLabels">The current labels.</param>
+        public long Reduce(IslandLabels islandLabels)
+        {
+            // remove vertices that aren't originals.
+            var neighbours = new HashSet<uint>();
+            var edgeEnumerator = _graph.GetEdgeEnumerator();
+            var edgeEnumerator2 = _graph.GetEdgeEnumerator();
+            var nonNullLabels = 0;
+            for (uint label = 0; label < _graph.VertexCount; label++)
+            {
+                var minimal = islandLabels[label];
+                if (!edgeEnumerator.MoveTo(label))
+                {
+                    _graph.RemoveEdges(label);
+                    continue;
+                }
+
+                neighbours.Clear();
+                while (edgeEnumerator.MoveNext())
+                {
+                    var n = edgeEnumerator.Neighbour;
+                    n = islandLabels[n];
+                    if (n == IslandLabels.NoAccess ||
+                        n == IslandLabels.NotSet ||
+                        n == minimal)
+                    {
+                        continue;
+                    }
+                    
+                    // remove dead-ends.
+                    if (!edgeEnumerator2.MoveTo(n))
+                    { // this edge has no targets.
+                        continue;
+                    }
+
+                    neighbours.Add(n);
+                }
+
+                _graph.RemoveEdges(label);
+                if (neighbours.Count == 0)
+                {
+                    continue;
+                }
+
+                nonNullLabels++;
+                foreach (var n in neighbours)
+                {
+                    _graph.RemoveEdge(minimal, n);
+                    _graph.AddEdge(minimal, n);
+                }
+            }
+
+            _graph.Compress();
+            return nonNullLabels;
         }
     }
 }

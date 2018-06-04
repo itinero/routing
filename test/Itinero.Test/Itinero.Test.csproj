@@ -51,6 +51,9 @@
     <EmbeddedResource Include="test-data\profiles\osm\car.lua" />
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
     <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
+    <None Remove="test-data\networks\network19.geojson" />
+    <EmbeddedResource Include="test-data\networks\network19.geojson" />
+    <None Remove="test-data\networks\network20.geojson" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="nunit" Version="3.9.0" />
