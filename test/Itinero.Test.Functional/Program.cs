@@ -26,7 +26,6 @@ using OsmSharp.Streams;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NUnit.Framework;
 using Itinero.LocalGeo;
 using System.Linq;
 using Itinero.Algorithms.Networks.Islands;
@@ -37,7 +36,7 @@ namespace Itinero.Test.Functional
     {
         private static Logger _logger;
 
-        public static void MainTest(string[] args)
+        public static void Main(string[] args)
         {
             // enable logging.
             EnableLogging();
@@ -67,7 +66,7 @@ namespace Itinero.Test.Functional
 
             // tests calculate weight matrices.
             WeightMatrixTests.Run(routerDb);
-
+            
             // test instruction generation.
             InstructionTests.Run(routerDb);
 
