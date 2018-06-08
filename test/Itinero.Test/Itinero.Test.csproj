@@ -65,6 +65,8 @@
     <None Remove="test-data\networks\network19.geojson" />
     <EmbeddedResource Include="test-data\networks\network19.geojson" />
     <None Remove="test-data\networks\network20.geojson" />
+    <None Remove="test-data\routes\route2.json" />
+    <EmbeddedResource Include="test-data\routes\route2.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />

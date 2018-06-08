@@ -41,8 +41,6 @@ namespace Itinero.Test.Functional
             // enable logging.
             EnableLogging();
             _logger = new Logger("Default");
-
-            Itinero.Osm.Vehicles.Vehicle.RegisterVehicles();
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif

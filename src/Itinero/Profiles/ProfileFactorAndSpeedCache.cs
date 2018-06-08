@@ -84,6 +84,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Calculates for all registered profiles.
         /// </summary>
+        [Obsolete]
         public void CalculateForAll()
         {
             this.CalculateFor(Profile.GetRegistered().ToArray());

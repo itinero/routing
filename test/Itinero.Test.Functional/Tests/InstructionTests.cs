@@ -66,7 +66,7 @@ namespace Itinero.Test.Functional.Tests
             {
                 foreach (var route in routes)
                 {
-                    var instructions = route.GenerateInstructions();
+                    var instructions = route.GenerateInstructions(profile);
                 }
             };
         }
