@@ -22,12 +22,6 @@
                 <dependency id="Microsoft.Net.Http" version="[2.2.29, )" />
                 <dependency id="OsmSharp" version="[6, )" />
             </group>
-            <group targetFramework=".NETPortable4.0-Profile147">
-                <dependency id="Itinero" version="$version$" />
-                <dependency id="Microsoft.Bcl.Async" version="[1.0.168, )" />
-                <dependency id="Microsoft.Net.Http" version="[2.2.29, )" />
-                <dependency id="OsmSharp" version="[6, )" />
-            </group>
             <group targetFramework=".NETStandard1.6">
                 <dependency id="Itinero" version="$version$" />
                 <dependency id="NETStandard.Library" version="1.6.1" />
@@ -41,10 +35,8 @@
         </dependencies>
         <frameworkAssemblies>
             <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.5" />
-            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5, .NETPortable4.0-Profile147" />
-            <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.5, .NETPortable4.0-Profile147" />
-            <frameworkAssembly assemblyName="System.Core" targetFramework=".NETPortable4.0-Profile147" />
-            <frameworkAssembly assemblyName="System.Xml.Serialization" targetFramework=".NETPortable4.0-Profile147" />
+            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+            <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.5" />
         </frameworkAssemblies>
     </metadata>
     <files>
