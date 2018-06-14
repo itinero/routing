@@ -42,7 +42,6 @@ namespace Itinero.LocalGeo.Operations
             float latitude2, float longitude2)
         {
             var line = new Line(new Coordinate(latitude1, longitude1), new Coordinate(latitude2, longitude2));
-            List<Coordinate> intersectionsNoLine = new Li
             return polygon.IntersectWithLines(line);
         }
 

@@ -24,6 +24,7 @@ using Itinero.LocalGeo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using NetTopologySuite.IO;
+using Polygon = Itinero.LocalGeo.Polygon;
 
 namespace Itinero.Test
 {
@@ -77,6 +78,11 @@ namespace Itinero.Test
             }
         }
 
+        public static Polygon LoadTestPolygon(this Stream stream)
+        {
+            return new Polygon() {ExteriorRing = new List<Coordinate>(stream.LoadTestPoints())};
+        }
+
         /// <summary>
         /// Loads a test network from geojson.
         /// </summary>
@@ -106,6 +112,11 @@ namespace Itinero.Test
         {
             return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                 path);
+        }
+        
+        public static Stream LoadTestStream(this string path)
+        {
+            return ("Itinero.Test.test_data." + path).LoadAsStream();
         }
     }
 }

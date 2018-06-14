@@ -374,8 +374,8 @@ namespace Itinero.LocalGeo
             var sum = 0f;
             for (var i = 1; i < l + 1; i++)
             {
+                var cur = ring[i % l];
                 var prev = ring[i - 1];
-                var cur = ring[i];
                 var nxt = ring[(i + 1) % l];
                 sum += (float) Math.Acos(Coordinate.DotProduct(prev - cur, cur - nxt) /
                                          (prev.DistanceInDegrees(cur) * cur.DistanceInDegrees(nxt)));
@@ -409,6 +409,20 @@ namespace Itinero.LocalGeo
             }
 
             return poly.ExteriorRing.SurfaceArea() - internalArea;
+        }
+
+        public static List<Polygon> IntersectionsWith(this Polygon a, Polygon b)
+        {
+            if (!a.IsClockwise())
+            {
+                a.ExteriorRing.Reverse();
+            }
+
+            if (!b.IsClockwise())
+            {
+                b.ExteriorRing.Reverse();
+            }
+            return a.Intersect(b);
         }
     }
 }

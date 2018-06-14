@@ -5,7 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Itinero.LocalGeo.Operations
 {
-    public static class Intersection
+    public static class PolygonIntersection
     {
         /// <summary>
         /// Produces an intersection of the given two polygons.
@@ -106,7 +106,7 @@ namespace Itinero.LocalGeo.Operations
                 {
                     // Not each border point is part of each polygon
                     // This is an outer line polygon
-                    break;=
+                    break;
                 }
                 
                 result.Add(new Polygon() {ExteriorRing = p});
