@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using System;
 using Itinero.Attributes;
 using Itinero.Profiles;
 using Itinero.Profiles.Lua;
@@ -72,6 +73,7 @@ namespace Itinero.Osm.Vehicles
         /// <summary>
         /// Registers all default vehicles.
         /// </summary>
+        [Obsolete]
         public static void RegisterVehicles()
         {
             Car.Register();

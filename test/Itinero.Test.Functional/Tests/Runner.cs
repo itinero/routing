@@ -33,7 +33,7 @@ using Itinero.Algorithms.Networks.Analytics.Trees;
 using Itinero.Algorithms;
 using Itinero.Profiles;
 using System.Linq;
-using NUnit.Framework;
+
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -42,14 +42,6 @@ namespace Itinero.Test.Functional.Tests
     /// </summary>
     public static class Runner
     {
-        ///// <summary>
-        ///// Default resolver test function.
-        ///// </summary>
-        //public static Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> Default = (router, coordinate) =>
-        //    {
-        //        return router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), coordinate);
-        //    };
-
         /// <summary>
         /// Tests resolving all points in the given feature collection.
         /// </summary>

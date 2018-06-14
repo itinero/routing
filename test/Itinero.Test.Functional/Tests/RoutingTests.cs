@@ -19,7 +19,6 @@
 using Itinero.Algorithms;
 using Itinero.IO.Osm;
 using Itinero.LocalGeo;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;

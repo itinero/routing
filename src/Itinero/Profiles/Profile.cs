@@ -213,6 +213,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Registers a profile.
         /// </summary>
+        [Obsolete]
         public static void Register(Profile profile)
         {
             _profiles[profile.FullName] = profile;
@@ -221,14 +222,25 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets a registered profiles.
         /// </summary>
+        [Obsolete]
         public static Profile GetRegistered(string name)
         {
             return _profiles[name.ToLowerInvariant()];
         }
 
         /// <summary>
+        /// Clears all registered profiles.
+        /// </summary>
+        [Obsolete]
+        public static void ClearRegistered()
+        {
+            _profiles.Clear();
+        }
+
+        /// <summary>
         /// Tries to get a registred profile.
         /// </summary>
+        [Obsolete]
         public static bool TryGet(string name, out Profile value)
         {
             return _profiles.TryGetValue(name.ToLowerInvariant(), out value);
@@ -238,6 +250,7 @@ namespace Itinero.Profiles
         /// Gets all registered profiles.
         /// </summary>
         /// <returns></returns>
+        [Obsolete]
         public static IEnumerable<Profile> GetRegistered()
         {
             return _profiles.Values;

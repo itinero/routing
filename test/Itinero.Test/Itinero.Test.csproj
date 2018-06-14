@@ -64,6 +64,11 @@
     <EmbeddedResource Include="test-data\points\points2.hull.geojson" />
     <EmbeddedResource Include="test-data\points\polygon1.geojson" />
     <EmbeddedResource Include="test-data\points\polygon2.geojson" />
+    <None Remove="test-data\networks\network19.geojson" />
+    <EmbeddedResource Include="test-data\networks\network19.geojson" />
+    <None Remove="test-data\networks\network20.geojson" />
+    <None Remove="test-data\routes\route2.json" />
+    <EmbeddedResource Include="test-data\routes\route2.json" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
@@ -74,7 +79,6 @@
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre027" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="Itinero.Geo" Version="1.4.0-pre18" />
-    <PackageReference Include="xunit" Version="2.4.0-beta.1.build3958" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0-beta.1.build3958" />
   </ItemGroup>
   <ItemGroup>

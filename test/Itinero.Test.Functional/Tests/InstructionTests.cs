@@ -64,10 +64,10 @@ namespace Itinero.Test.Functional.Tests
 
             return () =>
             {
-                System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
+                foreach (var route in routes)
                 {
-                    var instructions = routes[x].GenerateInstructions();
-                });
+                    var instructions = route.GenerateInstructions(profile);
+                }
             };
         }
     }

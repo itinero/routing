@@ -22,7 +22,6 @@ using Itinero.LocalGeo;
 using System;
 using Itinero;
 using System.Collections.Generic;
-using NUnit.Framework;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -69,7 +68,6 @@ namespace Itinero.Test.Functional.Tests
             {
                 var invalids = new HashSet<int>();
                 var weights = router.CalculateWeight(profile, massResolver.RouterPoints.ToArray(), invalids);
-                //Assert.IsTrue(matrix.HasSucceeded);
             };
         }
 

@@ -1,0 +1,857 @@
+{
+  "Attributes": {
+    "profile": "car"
+  },
+  "Shape": [
+    [
+      9.021791,
+      50.02275
+    ],
+    [
+      9.021921,
+      50.02299
+    ],
+    [
+      9.022198,
+      50.02343
+    ],
+    [
+      9.022442,
+      50.02376
+    ],
+    [
+      9.022937,
+      50.02443
+    ],
+    [
+      9.023466,
+      50.02518
+    ],
+    [
+      9.023709,
+      50.02543
+    ],
+    [
+      9.023983,
+      50.02563
+    ],
+    [
+      9.023703,
+      50.02585
+    ],
+    [
+      9.023621,
+      50.02591
+    ],
+    [
+      9.023464,
+      50.02604
+    ],
+    [
+      9.022927,
+      50.02646
+    ],
+    [
+      9.023749,
+      50.02678
+    ],
+    [
+      9.024148,
+      50.02696
+    ],
+    [
+      9.024197,
+      50.02702
+    ],
+    [
+      9.024119,
+      50.02708
+    ],
+    [
+      9.024689,
+      50.02733
+    ],
+    [
+      9.025504,
+      50.02768
+    ],
+    [
+      9.025842,
+      50.02782
+    ],
+    [
+      9.025875,
+      50.02849
+    ],
+    [
+      9.025847,
+      50.02875
+    ],
+    [
+      9.025952,
+      50.03004
+    ],
+    [
+      9.025957,
+      50.03019
+    ],
+    [
+      9.02597,
+      50.03059
+    ],
+    [
+      9.025972,
+      50.03067
+    ],
+    [
+      9.02599,
+      50.03122
+    ],
+    [
+      9.025992,
+      50.03129
+    ],
+    [
+      9.026002,
+      50.03138
+    ],
+    [
+      9.026002,
+      50.03138
+    ],
+    [
+      9.026003,
+      50.03152
+    ],
+    [
+      9.026003,
+      50.03156
+    ],
+    [
+      9.026012,
+      50.03198
+    ],
+    [
+      9.026009,
+      50.03236
+    ],
+    [
+      9.025971,
+      50.03302
+    ],
+    [
+      9.025949,
+      50.03347
+    ],
+    [
+      9.025916,
+      50.03371
+    ],
+    [
+      9.025881,
+      50.03392
+    ],
+    [
+      9.025771,
+      50.03455
+    ],
+    [
+      9.025716,
+      50.03484
+    ],
+    [
+      9.025696,
+      50.03493
+    ],
+    [
+      9.025678,
+      50.03497
+    ],
+    [
+      9.02562,
+      50.03505
+    ],
+    [
+      9.025579,
+      50.03508
+    ],
+    [
+      9.025418,
+      50.03515
+    ],
+    [
+      9.025226,
+      50.03523
+    ],
+    [
+      9.02498,
+      50.03533
+    ],
+    [
+      9.023735,
+      50.03584
+    ],
+    [
+      9.023665,
+      50.03587
+    ],
+    [
+      9.023551,
+      50.03592
+    ],
+    [
+      9.023273,
+      50.03603
+    ],
+    [
+      9.022711,
+      50.03625
+    ],
+    [
+      9.019183,
+      50.03769
+    ],
+    [
+      9.018909,
+      50.0378
+    ],
+    [
+      9.018842,
+      50.03783
+    ],
+    [
+      9.018293,
+      50.03805
+    ],
+    [
+      9.016994,
+      50.03858
+    ],
+    [
+      9.016894,
+      50.03862
+    ],
+    [
+      9.016343,
+      50.03885
+    ],
+    [
+      9.015778,
+      50.03908
+    ],
+    [
+      9.01573,
+      50.0391
+    ],
+    [
+      9.015681,
+      50.03912
+    ],
+    [
+      9.015058,
+      50.03942
+    ],
+    [
+      9.012918,
+      50.04049
+    ]
+  ],
+  "ShapeMeta": [
+    {
+      "Shape": 0,
+      "Attributes": {
+        "profile": "car"
+      }
+    },
+    {
+      "Shape": 1,
+      "Attributes": {
+        "name": "Seestraße"
+      }
+    },
+    {
+      "Shape": 3,
+      "Attributes": {
+        "name": "Seestraße"
+      }
+    },
+    {
+      "Shape": 4,
+      "Attributes": {
+        "name": "Seestraße"
+      }
+    },
+    {
+      "Shape": 5,
+      "Attributes": {
+        "name": "Seestraße"
+      }
+    },
+    {
+      "Shape": 7,
+      "Attributes": {
+        "name": "Seestraße"
+      }
+    },
+    {
+      "Shape": 8,
+      "Attributes": {
+        "name": "Am Sportplatz"
+      }
+    },
+    {
+      "Shape": 10,
+      "Attributes": {
+        "name": "Am Sportplatz"
+      }
+    },
+    {
+      "Shape": 11,
+      "Attributes": {
+        "name": "Am Sportplatz"
+      }
+    },
+    {
+      "Shape": 14,
+      "Attributes": {
+        "name": "Zellhäuser Straße"
+      }
+    },
+    {
+      "Shape": 15,
+      "Attributes": {
+        "name": "Freiheitsstraße"
+      }
+    },
+    {
+      "Shape": 16,
+      "Attributes": {
+        "name": "Zellhäuser Straße"
+      }
+    },
+    {
+      "Shape": 18,
+      "Attributes": {
+        "name": "Zellhäuser Straße"
+      }
+    },
+    {
+      "Shape": 20,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 21,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 22,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 23,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 24,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 27,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 29,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 31,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 32,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 33,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 36,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 37,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 39,
+      "Attributes": {
+        "name": "Brüder-Grimm-Straße"
+      }
+    },
+    {
+      "Shape": 44,
+      "Attributes": {
+        "name": "Klein-Welzheimer-Straße"
+      }
+    },
+    {
+      "Shape": 47,
+      "Attributes": {
+        "name": "Klein-Welzheimer-Straße"
+      }
+    },
+    {
+      "Shape": 48,
+      "Attributes": {
+        "name": "Klein-Welzheimer-Straße"
+      }
+    },
+    {
+      "Shape": 49,
+      "Attributes": {
+        "name": "Klein-Welzheimer-Straße"
+      }
+    },
+    {
+      "Shape": 50,
+      "Attributes": {
+        "name": "Klein-Welzheimer-Straße"
+      }
+    },
+    {
+      "Shape": 52,
+      "Attributes": {
+        "highway": "tertiary"
+      }
+    },
+    {
+      "Shape": 54,
+      "Attributes": {
+        "highway": "tertiary"
+      }
+    },
+    {
+      "Shape": 56,
+      "Attributes": {
+        "highway": "tertiary"
+      }
+    },
+    {
+      "Shape": 59,
+      "Attributes": {
+        "highway": "tertiary"
+      }
+    },
+    {
+      "Shape": 60,
+      "Attributes": {
+        "name": "Mainflinger Straße"
+      }
+    },
+    {
+      "Shape": 62,
+      "Attributes": {
+        "name": "Mainflinger Straße"
+      }
+    }
+  ],
+  "Stops": [
+    {
+      "Shape": 0,
+      "Coordinates": [
+        9.02177,
+        50.02276
+      ],
+      "Attributes": {
+        "distance": "0"
+      }
+    },
+    {
+      "Shape": 62,
+      "Coordinates": [
+        9.01293,
+        50.04052
+      ],
+      "Attributes": {
+        "distance": "2641.219"
+      }
+    }
+  ],
+  "Branches": [
+    {
+      "Shape": 1,
+      "Coordinates": [
+        9.021395,
+        50.02308
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 3,
+      "Coordinates": [
+        9.025228,
+        50.02344
+      ],
+      "Attributes": {
+        "highway": "track"
+      }
+    },
+    {
+      "Shape": 4,
+      "Coordinates": [
+        9.025862,
+        50.02417
+      ],
+      "Attributes": {
+        "name": "Odenwaldstraße"
+      }
+    },
+    {
+      "Shape": 5,
+      "Coordinates": [
+        9.024651,
+        50.02505
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 7,
+      "Coordinates": [
+        9.024258,
+        50.02559
+      ],
+      "Attributes": {
+        "name": "Seestraße"
+      }
+    },
+    {
+      "Shape": 8,
+      "Coordinates": [
+        9.023648,
+        50.02582
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 11,
+      "Coordinates": [
+        9.022821,
+        50.02654
+      ],
+      "Attributes": {
+        "name": "Am Sportplatz"
+      }
+    },
+    {
+      "Shape": 14,
+      "Coordinates": [
+        9.024723,
+        50.02702
+      ],
+      "Attributes": {
+        "name": "Freiheitsstraße"
+      }
+    },
+    {
+      "Shape": 15,
+      "Coordinates": [
+        9.023641,
+        50.02687
+      ],
+      "Attributes": {
+        "name": "Zellhäuser Straße"
+      }
+    },
+    {
+      "Shape": 16,
+      "Coordinates": [
+        9.024702,
+        50.02721
+      ],
+      "Attributes": {
+        "name": "Karl-Liebknecht-Straße"
+      }
+    },
+    {
+      "Shape": 16,
+      "Coordinates": [
+        9.024576,
+        50.02757
+      ],
+      "Attributes": {
+        "name": "Karl-Liebknecht-Straße"
+      }
+    },
+    {
+      "Shape": 18,
+      "Coordinates": [
+        9.025794,
+        50.02765
+      ],
+      "Attributes": {
+        "name": "Dieselstraße"
+      }
+    },
+    {
+      "Shape": 18,
+      "Coordinates": [
+        9.026458,
+        50.02806
+      ],
+      "Attributes": {
+        "name": "Zellhäuser Straße"
+      }
+    },
+    {
+      "Shape": 20,
+      "Coordinates": [
+        9.026113,
+        50.02873
+      ],
+      "Attributes": {
+        "name": "Lessingstraße"
+      }
+    },
+    {
+      "Shape": 20,
+      "Coordinates": [
+        9.02547,
+        50.02877
+      ],
+      "Attributes": {
+        "name": "Lessingstraße"
+      }
+    },
+    {
+      "Shape": 21,
+      "Coordinates": [
+        9.02572,
+        50.03004
+      ],
+      "Attributes": {
+        "name": "Ludwigstraße"
+      }
+    },
+    {
+      "Shape": 22,
+      "Coordinates": [
+        9.02641,
+        50.03018
+      ],
+      "Attributes": {
+        "name": "Ludwigstraße"
+      }
+    },
+    {
+      "Shape": 23,
+      "Coordinates": [
+        9.026459,
+        50.03059
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 24,
+      "Coordinates": [
+        9.026038,
+        50.03067
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 27,
+      "Coordinates": [
+        9.025876,
+        50.03138
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 29,
+      "Coordinates": [
+        9.025877,
+        50.03152
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 31,
+      "Coordinates": [
+        9.025767,
+        50.03198
+      ],
+      "Attributes": {
+        "name": "Martinstraße"
+      }
+    },
+    {
+      "Shape": 31,
+      "Coordinates": [
+        9.026251,
+        50.03198
+      ],
+      "Attributes": {
+        "name": "Martinstraße"
+      }
+    },
+    {
+      "Shape": 32,
+      "Coordinates": [
+        9.025356,
+        50.03239
+      ],
+      "Attributes": {
+        "name": "Spessartstraße"
+      }
+    },
+    {
+      "Shape": 33,
+      "Coordinates": [
+        9.025271,
+        50.03301
+      ],
+      "Attributes": {
+        "name": "Kantstraße"
+      }
+    },
+    {
+      "Shape": 36,
+      "Coordinates": [
+        9.025629,
+        50.0339
+      ],
+      "Attributes": {
+        "name": "Seligenstädter Straße"
+      }
+    },
+    {
+      "Shape": 36,
+      "Coordinates": [
+        9.026352,
+        50.03395
+      ],
+      "Attributes": {
+        "name": "Seligenstädter Straße"
+      }
+    },
+    {
+      "Shape": 39,
+      "Coordinates": [
+        9.025861,
+        50.03493
+      ],
+      "Attributes": {
+        "name": "Klein-Welzheimer-Straße"
+      }
+    },
+    {
+      "Shape": 47,
+      "Coordinates": [
+        9.023917,
+        50.03613
+      ],
+      "Attributes": {
+        "name": "Erwin-Grimm-Ring"
+      }
+    },
+    {
+      "Shape": 52,
+      "Coordinates": [
+        9.018788,
+        50.03769
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 52,
+      "Coordinates": [
+        9.019027,
+        50.03792
+      ],
+      "Attributes": {
+        "highway": "track"
+      }
+    },
+    {
+      "Shape": 54,
+      "Coordinates": [
+        9.018235,
+        50.03795
+      ],
+      "Attributes": {
+        "highway": "service"
+      }
+    },
+    {
+      "Shape": 60,
+      "Coordinates": [
+        9.015058,
+        50.03942
+      ],
+      "Attributes": {
+        "name": "Mainflinger Straße"
+      }
+    },
+    {
+      "Shape": 60,
+      "Coordinates": [
+        9.015057,
+        50.03865
+      ],
+      "Attributes": {
+        "name": "Wacholderweg"
+      }
+    },
+    {
+      "Shape": 60,
+      "Coordinates": [
+        9.015881,
+        50.03938
+      ],
+      "Attributes": {
+        "name": "Hohe Anwand"
+      }
+    }
+  ]
+}

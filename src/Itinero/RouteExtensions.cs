@@ -26,6 +26,7 @@ using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
 using Itinero.Navigation.Instructions;
 using Itinero.Navigation.Language;
+using Itinero.Profiles;
 
 namespace Itinero
 {
@@ -616,11 +617,22 @@ namespace Itinero
         /// </summary>
         public static void WriteJson(this Route route, TextWriter writer)
         {
-            if (route == null) { throw new ArgumentNullException("route"); }
-            if (writer == null) { throw new ArgumentNullException("writer"); }
+            if (route == null) { throw new ArgumentNullException(nameof(route)); }
+            if (writer == null) { throw new ArgumentNullException(nameof(writer)); }
 
             var jsonWriter = new IO.Json.JsonWriter(writer);
             jsonWriter.WriteOpen();
+            if (route.Attributes != null)
+            {
+                jsonWriter.WritePropertyName("Attributes");
+                jsonWriter.WriteOpen();
+                foreach (var attribute in route.Attributes)
+                {
+                    jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
+                }
+
+                jsonWriter.WriteClose();
+            }
             if (route.Shape != null)
             {
                 jsonWriter.WritePropertyName("Shape");
@@ -1109,25 +1121,97 @@ namespace Itinero
         {
             return string.IsNullOrWhiteSpace(route.Profile);
         }
-
+        
         /// <summary>
         /// Generates instructions for the given route.
         /// </summary>
+        /// <param name="route">The route.</param>
+        /// <returns>A list of instructions.</returns>
+        [Obsolete]
         public static IList<Instruction> GenerateInstructions(this Route route)
         {
             return route.GenerateInstructions(new DefaultLanguageReference());
         }
-
+        
         /// <summary>
         /// Generates instructions for the given route.
         /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="routerDb">The route db used to generate the route.</param>
+        /// <returns>A list of instructions.</returns>
+        public static IList<Instruction> GenerateInstructions(this Route route, RouterDb routerDb)
+        {
+            return route.GenerateInstructions(routerDb, new DefaultLanguageReference());
+        }
+        
+        /// <summary>
+        /// Generates instructions for the given route.
+        /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="languageReference">The language reference.</param>
+        /// <returns>A list of instructions.</returns>
+        [Obsolete]
         public static IList<Instruction> GenerateInstructions(this Route route, ILanguageReference languageReference)
         {
             if (route.IsMultimodal())
             {
                 throw new NotSupportedException("Generate instruction for multimodal routes is not supported.");
             }
-            var profile = Profiles.Profile.GetRegistered(route.Profile);
+            if (!Profiles.Profile.TryGet(route.Profile, out var profile))
+            {
+                throw new Exception($"Cannot generate instructions because the profile '{route.Profile}' wasn't found. " +
+                                    $"Use the {nameof(RouterDb)} or explicitly provide the {nameof(Profile)}.");
+            }
+
+            return route.GenerateInstructions(profile, languageReference);
+        }
+        
+        /// <summary>
+        /// Generates instructions for the given route.
+        /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="routerDb">The route db used to generate the route.</param>
+        /// <param name="languageReference">The language reference.</param>
+        /// <returns>A list of instructions.</returns>
+        public static IList<Instruction> GenerateInstructions(this Route route, RouterDb routerDb, ILanguageReference languageReference)
+        {
+            if (route.IsMultimodal())
+            {
+                throw new NotSupportedException("Generate instruction for multimodal routes is not supported.");
+            }
+            if (!routerDb.SupportProfile(route.Profile))
+            {
+                throw new Exception($"Cannot generate instructions for an unsupported profile.");
+            }
+
+            return route.GenerateInstructions(routerDb.GetSupportedProfile(route.Profile), languageReference);
+        }
+        
+        /// <summary>
+        /// Generates instructions for the given route.
+        /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="profile">The profile.</param>
+        /// <returns>A list of instructions.</returns>
+        public static IList<Instruction> GenerateInstructions(this Route route, Profile profile)
+        {
+            return route.GenerateInstructions(profile, new DefaultLanguageReference());
+        }
+        
+        /// <summary>
+        /// Generates instructions for the given route.
+        /// </summary>
+        /// <param name="route">The route.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="languageReference">The language reference.</param>
+        /// <returns>A list of instructions.</returns>
+        public static IList<Instruction> GenerateInstructions(this Route route, Profile profile, ILanguageReference languageReference)
+        {
+            if (route.Profile != profile.FullName)
+            {
+                throw new Exception($"Cannot generate instructions for a route calculate with profile {route.Profile} using profile {profile.FullName}.");
+            }
+            
             return profile.InstructionGenerator.Generate(route, languageReference);
         }
     }

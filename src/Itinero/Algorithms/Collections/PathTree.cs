@@ -38,6 +38,23 @@ namespace Itinero.Algorithms.Collections
         /// Adds a new segment.
         /// </summary>
         /// <returns></returns>
+        public uint Add(uint data0, uint data1)
+        {
+            var id = _pointer;
+            if (_data.Length <= _pointer + 2)
+            {
+                System.Array.Resize(ref _data, _data.Length * 2);
+            }
+            _data[_pointer + 0] = data0;
+            _data[_pointer + 1] = data1;
+            _pointer += 2;
+            return id;
+        }
+
+        /// <summary>
+        /// Adds a new segment.
+        /// </summary>
+        /// <returns></returns>
         public uint Add(uint data0, uint data1, uint data2)
         {
             var id = _pointer;
@@ -132,6 +149,15 @@ namespace Itinero.Algorithms.Collections
             _data[_pointer + 6] = data6;
             _pointer += 7;
             return id;
+        }
+
+        /// <summary>
+        /// Gets the data at the given pointer.
+        /// </summary>
+        public void Get(uint pointer, out uint data0, out uint data1)
+        {
+            data0 = _data[pointer + 0];
+            data1 = _data[pointer + 1];
         }
 
         /// <summary>

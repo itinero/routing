@@ -146,6 +146,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Registers this vehicle.
         /// </summary>
+        [Obsolete]
         public virtual void Register()
         {
             Vehicle.Register(this);
@@ -161,6 +162,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Registers a vehicle.
         /// </summary>
+        [Obsolete]
         public static void Register(Vehicle vehicle)
         {
             _vehicles[vehicle.Name.ToLowerInvariant()] = vehicle;
@@ -169,6 +171,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets a registered vehicle.
         /// </summary>
+        [Obsolete]
         public static Vehicle Get(string name)
         {
             return _vehicles[name.ToLowerInvariant()];
@@ -177,6 +180,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Tries to get a registred vehicle.
         /// </summary>
+        [Obsolete]
         public static bool TryGet(string name, out Vehicle value)
         {
             return _vehicles.TryGetValue(name.ToLowerInvariant(), out value);
@@ -186,6 +190,7 @@ namespace Itinero.Profiles
         /// Gets all registered vehicles.
         /// </summary>
         /// <returns></returns>
+        [Obsolete]
         public static IEnumerable<Vehicle> GetRegistered()
         {
             return _vehicles.Values;
