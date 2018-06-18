@@ -3,7 +3,7 @@
   "features": [
     {
       "type": "Feature",
-      "properties": {},
+      "properties": {"marker-color":"#ffff00"},
       "geometry": {
         "type": "Point",
         "coordinates": [
@@ -14,7 +14,7 @@
     },
     {
       "type": "Feature",
-      "properties": {},
+      "properties": {"marker-color":"#ffff00"},
       "geometry": {
         "type": "Point",
         "coordinates": [
@@ -25,7 +25,7 @@
     },
     {
       "type": "Feature",
-      "properties": {},
+      "properties": {"marker-color":"#ffff00"},
       "geometry": {
         "type": "Point",
         "coordinates": [
@@ -36,7 +36,7 @@
     },
     {
       "type": "Feature",
-      "properties": {},
+      "properties": {"marker-color":"#ffff00"},
       "geometry": {
         "type": "Point",
         "coordinates": [
@@ -47,7 +47,7 @@
     },
     {
       "type": "Feature",
-      "properties": {},
+      "properties": {"marker-color":"#ffff00"},
       "geometry": {
         "type": "Point",
         "coordinates": [

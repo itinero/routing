@@ -191,6 +191,11 @@ namespace Itinero.LocalGeo
 
             return string.Format("{0},{1}", this.Latitude.ToInvariantString(), this.Longitude.ToInvariantString());
         }
+        
+        public static Coordinate operator +(Coordinate a, Coordinate b)
+        {
+            return new Coordinate(){Latitude = a.Latitude + b.Latitude, Longitude = a.Longitude + b.Longitude};;
+        }
 
         public static Coordinate operator -(Coordinate a, Coordinate b)
         {
@@ -205,6 +210,23 @@ namespace Itinero.LocalGeo
         public static float DotProduct(Coordinate a, Coordinate b)
         {
             return a.Latitude * b.Latitude + a.Longitude * b.Longitude;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var coor = obj as Coordinate?;
+            if (coor == null)
+            {
+                return false;
+            }
+
+            var c = (Coordinate) coor;
+            return this.Latitude == c.Latitude && this.Longitude == c.Longitude;
+        }
+
+        public override int GetHashCode()
+        {
+            return Latitude.GetHashCode() + Longitude.GetHashCode();
         }
     }
 }
