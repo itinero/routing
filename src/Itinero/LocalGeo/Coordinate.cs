@@ -194,7 +194,12 @@ namespace Itinero.LocalGeo
 
         public static Coordinate operator -(Coordinate a, Coordinate b)
         {
-            return new Coordinate() {Latitude = a.Latitude - b.Latitude, Longitude = a.Longitude - b.Latitude};
+            return new Coordinate() {Latitude = a.Latitude - b.Latitude, Longitude = a.Longitude - b.Longitude};
+        }
+
+        public static Coordinate operator /(Coordinate a, float b)
+        {
+            return new Coordinate(a.Latitude / b, a.Longitude / b);
         }
 
         public static float DotProduct(Coordinate a, Coordinate b)

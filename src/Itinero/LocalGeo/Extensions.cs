@@ -365,20 +365,23 @@ namespace Itinero.LocalGeo
         /// <summary>
         /// Calculates the sum of the angles. Is positive if the polygon points are saved clockwise
         /// Only considers the outer hull!
+        /// The polygon should be closed
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
         public static float AngleSum(this List<Coordinate> ring)
         {
             var l = ring.Count;
+            var n = l - 1;
             var sum = 0f;
-            for (var i = 1; i < l + 1; i++)
+            for (var i = 1; i < n + 1; i++) // the polygon should be closed
             {
-                var cur = ring[i % l];
+                var cur = ring[i % n];
                 var prev = ring[i - 1];
-                var nxt = ring[(i + 1) % l];
-                sum += (float) Math.Acos(Coordinate.DotProduct(prev - cur, cur - nxt) /
-                                         (prev.DistanceInDegrees(cur) * cur.DistanceInDegrees(nxt)));
+                var nxt = ring[(i + 1) % n]; // ignore that last element, the closing of the loop
+                var prod1 = (prev - cur) / prev.DistanceInDegrees(cur);
+                var prod2 = (cur - nxt) / cur.DistanceInDegrees(nxt);
+                sum += (float) Math.Acos(Coordinate.DotProduct(prod1,prod2));
             }
 
             return sum;
@@ -390,7 +393,7 @@ namespace Itinero.LocalGeo
         }
 
         public static bool IsClockwise(this List<Coordinate> p)
-        {
+        { 
             return p.AngleSum() > 0;
         }
 

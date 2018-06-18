@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NetTopologySuite.Features;
@@ -80,8 +81,27 @@ namespace Itinero.Test
 
         public static Polygon LoadTestPolygon(this Stream stream)
         {
-            return new Polygon() {ExteriorRing = new List<Coordinate>(stream.LoadTestPoints())};
+            var points = new List<Coordinate>(stream.LoadTestPoints());
+
+            if (!points.Last().Equals(points[0]))
+            {
+                // Polygon is not closed yet
+                points.Add(points[0]);
+            }
+            
+            var poly = new Polygon() {ExteriorRing = points};
+            
+            if (poly.ExteriorRing.Count <= 2)
+            {
+                throw new ArgumentException($"Too little elements in the exterior ring of the polygon (only {poly.ExteriorRing.Count} found)");
+            }
+            if (!poly.IsClockwise())
+            {
+                poly.ExteriorRing.Reverse();
+            }
+            return poly;
         }
+        
 
         /// <summary>
         /// Loads a test network from geojson.
@@ -97,7 +117,6 @@ namespace Itinero.Test
                 if (point == null)
                 {
                     continue;
-                    ;
                 }
 
                 yield return new Coordinate((float) point.Coordinate.Y, (float) point.Coordinate.X);

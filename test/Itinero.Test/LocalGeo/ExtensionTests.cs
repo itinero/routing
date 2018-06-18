@@ -52,7 +52,7 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(shape[0].Longitude, simplified[0].Longitude);
             Assert.AreEqual(shape[shape.Length - 1].Latitude, simplified[simplified.Length - 1].Latitude);
             Assert.AreEqual(shape[shape.Length - 1].Longitude, simplified[simplified.Length - 1].Longitude);
-            
+
             simplified = shape.Simplify(0.0000001f);
             Assert.IsNotNull(simplified);
             Assert.AreEqual(5, simplified.Length);
@@ -87,7 +87,29 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(250, Coordinate.DistanceEstimateInMeter(location1, location), E);
             Assert.AreEqual(total - 250, Coordinate.DistanceEstimateInMeter(location2, location), E);
         }
-        
+
+        [Test]
+        public void TestAngleSum()
+        {
+            var points = new List<Coordinate>
+            {
+                new Coordinate(0, 1),
+                new Coordinate(1, 1),
+                new Coordinate(1, 0),
+                new Coordinate(0, 1) // closed polygon
+            };
+            Assert.AreEqual(points.AngleSum(), 6.28318548f);
+
+            points = new List<Coordinate>
+            {
+                new Coordinate(0, 0.00001f),
+                new Coordinate(0.00001f, 0.00001f),
+                new Coordinate(0.00001f, 0),
+                new Coordinate(0, 0.00001f) //Closed polygon
+            };
+            Assert.AreEqual(points.AngleSum(), 6.28318548f);
+        }
+
         /// <summary>
         /// A real-world convex-hull test.
         /// </summary>
@@ -97,7 +119,7 @@ namespace Itinero.Test.LocalGeo
             var coors = "Itinero.Test.test_data.points.points1.geojson".LoadAsStream().LoadTestPoints();
             var hull = coors.Convexhull();
 
-            var hullGeoJson = new Polygon(){ExteriorRing = hull}.ToGeoJson();
+            var hullGeoJson = new Polygon() {ExteriorRing = hull}.ToGeoJson();
             var expected = "Itinero.Test.test_data.points.points1.hull.geojson".LoadAsStream().ReadToEnd();
             Assert.AreEqual(expected, hullGeoJson);
         }
@@ -107,11 +129,12 @@ namespace Itinero.Test.LocalGeo
         /// </summary>
         [Test]
         public void TestData2()
-        { var coors = "Itinero.Test.test_data.points.points2.geojson".LoadAsStream().LoadTestPoints();
+        {
+            var coors = "Itinero.Test.test_data.points.points2.geojson".LoadAsStream().LoadTestPoints();
             var hull = coors.Convexhull();
 
-            var hullGeoJson = new Polygon(){ExteriorRing = hull}.ToGeoJson();
-          //  System.IO.File.WriteAllText("/home/pietervdvn/Desktop/Result.geojson", hullGeoJson);
+            var hullGeoJson = new Polygon() {ExteriorRing = hull}.ToGeoJson();
+            //  System.IO.File.WriteAllText("/home/pietervdvn/Desktop/Result.geojson", hullGeoJson);
             var expected = "Itinero.Test.test_data.points.points2.hull.geojson".LoadAsStream().ReadToEnd();
             Assert.AreEqual(expected, hullGeoJson);
         }
