@@ -24,7 +24,6 @@ using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 using Polygon = Itinero.LocalGeo.Polygon;
 
 namespace Itinero.Test
@@ -94,10 +93,6 @@ namespace Itinero.Test
             if (poly.ExteriorRing.Count <= 2)
             {
                 throw new ArgumentException($"Too little elements in the exterior ring of the polygon (only {poly.ExteriorRing.Count} found)");
-            }
-            if (!poly.IsClockwise())
-            {
-                poly.ExteriorRing.Reverse();
             }
             return poly;
         }

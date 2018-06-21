@@ -63,7 +63,7 @@ namespace Itinero.LocalGeo.Operations
         /// <returns></returns>
         internal static int UpdateHull(this List<Coordinate> hull, Coordinate newPoint, bool inOrder = true)
         {
-            if (PointInPolygon.PointIn(
+            if (PointInPolygon.ContainsPoint(
                 hull, newPoint))
             {
                 // Point is neatly contained within the polygon; nothing to do here

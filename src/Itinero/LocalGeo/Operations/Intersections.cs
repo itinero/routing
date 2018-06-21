@@ -83,7 +83,7 @@ namespace Itinero.LocalGeo.Operations
 
             var previousDistance = 0f;
             var previous = line.Coordinate1;
-            var previousInside = polygon.PointIn(previous);
+            var previousInside = polygon.ContainsPoint(previous);
 
             var cleanIntersections = new List<Coordinate>();
             foreach (var intersection in sortedList)
@@ -97,7 +97,7 @@ namespace Itinero.LocalGeo.Operations
                 // calculate in or out.
                 var middle = new Coordinate((previous.Latitude + intersection.Value.Latitude) / 2,
                     (previous.Longitude + intersection.Value.Longitude) / 2);
-                var middleInside = polygon.PointIn(middle);
+                var middleInside = polygon.ContainsPoint(middle);
                 if (previousInside != middleInside ||
                     cleanIntersections.Count == 0)
                 { // in or out change or this is the first intersection.

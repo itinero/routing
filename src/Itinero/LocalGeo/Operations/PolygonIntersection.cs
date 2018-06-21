@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
+using Itinero.Algorithms.Contracted.EdgeBased.Witness;
 
 namespace Itinero.LocalGeo.Operations
 {
     public static class PolygonIntersection
     {
-        /// <summary>
-        /// Produces an intersection of the given two polygons.
-        /// Polygons should be closed and saved in a clockwise fashion.
-        ///
-        /// For now, interior rings are note supported as well
-        /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        internal static List<Polygon> Intersect(this Polygon a, Polygon b)
+        ///  <summary>
+        ///  Produces an intersection of the given two polygons.
+        ///  Polygons should be closed and saved in a clockwise fashion.
+        /// 
+        ///  For now, interior rings are note supported as well
+        ///  </summary>
+        ///  <param name="a">The first polygon</param>
+        /// <param name="b">The second polygon</param>
+        /// <param name="union">The out parameter, which will contain the union ring afterwards. Might be null</param>
+        /// <param name="differences">Set to true if you want the differences between the polygons instead of the intersecion</param>
+        internal static List<Polygon> Intersect(this Polygon a, Polygon b, out Polygon union, bool differences = false)
         {
             // yes, this is not a state of the art algorithm. 
             if (!a.IsClockwise() || !b.IsClockwise())
@@ -28,23 +31,24 @@ namespace Itinero.LocalGeo.Operations
                 throw new InvalidOperationException("Polygons with holes are not supported for intersections");
             }
 
-
-            var result = new List<Polygon>();
-
-
-
+            if (differences)
             {
-            // quick bbox test
-                a.BoundingBox(out var na, out var ea, out var sa, out var wa);
-                b.BoundingBox(out var nb, out var eb, out var sb, out var wb);
-
-                if (na < sb || nb < sa || ea < wb || eb < wa)
-                {
-                    // bounding boxes do not overlap - no overlap is possible at all
-                    return result;
-                }
+                // Walking is suddenly inversed
+                a.ExteriorRing.Reverse();
             }
 
+            var result = new List<Polygon>();
+            union = null;
+
+            // quick bbox test
+            a.BoundingBox(out var na, out var ea, out var sa, out var wa);
+            b.BoundingBox(out var nb, out var eb, out var sb, out var wb);
+
+            if (na < sb || nb < sa || ea < wb || eb < wa)
+            {
+                // bounding boxes do not overlap - no overlap is possible at all
+                return result;
+            }
             // How are the intersecting polygons calculated?
             // Calculate the intersecting points, and the indices of the lines in each polygon
             // Take an interecting point, and start walking from it, following the line of polygon a
@@ -58,9 +62,57 @@ namespace Itinero.LocalGeo.Operations
 
             var intersections = IntersectionsBetween(a.ExteriorRing, b.ExteriorRing);
 
+            PrepareIntersectionMatrix(intersections, out var aIntersections, out var bIntersections);
 
-            var aIntersections = new Dictionary<int, SortedList<int, Coordinate>>();
-            var bIntersections = new Dictionary<int, SortedList<int, Coordinate>>();
+
+            // Bounding box of polygons a | b
+            var n = Math.Max(na, nb);
+            var e = Math.Max(ea, eb);
+            var s = Math.Min(sa, sb);
+            var w = Math.Min(wa, wb);
+
+            // We keep track of the northern-most point of each polygon
+            // This is a trick to keep out duplicate polygons
+            var excludedPoints = new HashSet<Coordinate>();
+
+            foreach (var intersection in intersections)
+            {
+                var p = WalkIntersection(intersection, aIntersections, bIntersections, a, b);
+                if (!p.IsClockwise()) continue; // The polygon is a hole between a & b
+
+                // One polygon will also be the result of walking along the outer edges of both a & b
+                // In other words, the union of the polygons
+                // We just take the bbox of the polygon. If this polygon encompasses both other polygons, we're pretty sure its the union
+                p.BoundingBox(out var pn, out var pe, out var ps, out var pw);
+                var poly = new Polygon() {ExteriorRing = p};
+                if (pn == n && pe == e && ps == s && pw == w)
+                {
+                    // This is the union polygon. 
+                    union = poly;
+                }
+                else
+                {
+                    var northernMost = poly.NorthernMost();
+                    if (excludedPoints.Contains(northernMost))
+                    {
+                        // This polygon has already been discovered previously
+                        continue;
+                    }
+                    excludedPoints.Add(northernMost);
+                    result.Add(poly);
+                }
+            }
+
+           return result;
+        }
+
+        // TODO Make internal
+        public static void PrepareIntersectionMatrix(List<Tuple<int, int, Coordinate>> intersections,
+            out Dictionary<int, SortedList<int, Coordinate>> aIntersections,
+            out Dictionary<int, SortedList<int, Coordinate>> bIntersections)
+        {
+            aIntersections = new Dictionary<int, SortedList<int, Coordinate>>();
+            bIntersections = new Dictionary<int, SortedList<int, Coordinate>>();
 
 
             // Preprocessing of the intersections: build an easily accessible data structure, bit of a sparse matrix
@@ -82,42 +134,10 @@ namespace Itinero.LocalGeo.Operations
                 aIntersections[i][j] = coor;
                 bIntersections[j][i] = coor;
             }
-
-            foreach (var intersection in intersections)
-            {
-                var p = WalkIntersection(intersection, aIntersections, bIntersections, a, b);
-                if (!p.IsClockwise()) continue; // The polygon is a hole between a & b
-
-                // The polygon might also be the result of walking along the outer edges of both a & b
-                // This is the case if one of the points is not in one of the polygons
-
-                var allValid = true;
-                foreach (var coordinate in p)
-                {
-                    var inBoth = a.PointIn(coordinate) && b.PointIn(coordinate);
-                    if (!inBoth)
-                    {
-                        allValid = false;
-                        break;
-                    }
-                }
-
-                if (!allValid)
-                {
-                    // Not each border point is part of each polygon
-                    // This is an outer line polygon
-                    break;
-                }
-
-                result.Add(new Polygon() {ExteriorRing = p});
-            }
-
-
-            return result;
         }
 
 
-        private static List<Coordinate> WalkIntersection(Tuple<int, int, Coordinate> Intersection,
+        public static List<Coordinate> WalkIntersection(Tuple<int, int, Coordinate> intersection,
             Dictionary<int, SortedList<int, Coordinate>> aIntersections,
             Dictionary<int, SortedList<int, Coordinate>> bIntersections,
             Polygon a, Polygon b)
@@ -127,8 +147,8 @@ namespace Itinero.LocalGeo.Operations
             var curPolyIsA = true;
 
 
-            var startI = Intersection.Item1;
-            var startJ = Intersection.Item2;
+            var startI = intersection.Item1;
+            var startJ = intersection.Item2;
 
             var i = startI;
             var j = startJ;
@@ -151,38 +171,80 @@ namespace Itinero.LocalGeo.Operations
 
                     curPolyIsA = true;
                 }
-            } while (startI != i && startJ != j);
+            } while (!(startI == i && startJ == j));
 
-
+            if (!newPolygon[0].Equals(newPolygon[newPolygon.Count - 1]))
+            {
+                newPolygon.Add(newPolygon[0]);
+            }
+            
             return newPolygon;
         }
 
         /// <summary>
         /// Follows a polygon until another intersection is met
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="startIndex">The startindex of the line (element of poly A) which causes this intersection</param>
-        /// <param name="intersection"></param>
-        internal static Tuple<int, int> FollowAlong(List<Coordinate> route, Polygon a, int i, int j,
+        /// <param name="i">The segment causing the intersection in the passed polygon (in the passed matrix)</param>
+        /// <param name="j">The segment causing the intersection in the other polygon</param>
+        public static Tuple<int, int> FollowAlong(List<Coordinate> route, Polygon a, int i, int j,
             Dictionary<int, SortedList<int, Coordinate>> aIntersections)
         {
+            if (i == 0 && j == 1)
+            {
+                i = i;
+            }
+
             // We start at given intersection point. This will be part of the route
             route.Add(aIntersections[i][j]);
-
-            var neighbour = aIntersections[i].NeighbourOf(j);
-            if (neighbour != j)
+            
+            
+            // Then, we check if the intersection point we landed on is the only intersection
+            if (aIntersections[i].Keys.Count != 1)
             {
-                // This intersection is followed by another intersection
-                // Return which line cause this intersection
-                return Tuple.Create(i, j);
+                // Multiple intersections on the segment we have to walk
+                // We'd better calculate the direction in which we have to go
+                // We can't really make assumptions about clockwise/counterclockwise
+                // So: we take the point to which we are walking from the polygon
+                // And have a look to next/previous neighbour and their distances
+                var walkingTo = (i + 1) % a.ExteriorRing.Count;
+                var walkingToCoor = a.ExteriorRing[walkingTo];
+
+
+                var inters = aIntersections[i];
+                // We get both neighbours...
+                var n1 = inters.NeighbourOf(j);
+                var n2 = inters.PrevNeighbourOf(j);
+
+                var d1 = walkingToCoor.DistanceInDegrees(inters[n1]);
+                var d2 = walkingToCoor.DistanceInDegrees(inters[n2]);
+                
+                var n = n1;
+                var d = d1;
+                // ...and we get the neighbour closest to the edge point
+                if (d2 < d1)
+                {
+                    n = n2;
+                    d = d2;
+                }
+                
+                
+                // We have found the closest neighbour
+                // One special edge case remains: what if the current intersection point (i,j) is closer to the point we are walking to then the closest neighbour?
+                // For this, we check that the new intersection point is closer to our distance
+                if (d < walkingToCoor.DistanceInDegrees(inters[j]))
+                {
+                    return Tuple.Create (i, n);
+                }
+                // If not, we just continue with walking along our polygon... (The loop below, out of the if)
             }
+            
 
 
             while (true)
             {
                 // No intersection for the rest of this segment
                 // The next point is the element following on the startIndex
-                i = (i + 1) % a.ExteriorRing.Count;
+                i = (i + 1) % (a.ExteriorRing.Count - 1); // -1 to avoid the point closing the element
 
                 var coor = a.ExteriorRing[i];
                 route.Add(coor);
@@ -190,8 +252,8 @@ namespace Itinero.LocalGeo.Operations
 
                 // Does this new line i intersect?
 
+                // if no intersections. Just continue the loop until we get to one
                 if (!aIntersections.ContainsKey(i)) continue;
-                // no intersections. Just continue the loop until we get to one
 
 
                 // yes, there are intersections
@@ -220,10 +282,20 @@ namespace Itinero.LocalGeo.Operations
             }
         }
 
-
         internal static TKey NeighbourOf<TKey, TValue>(this SortedList<TKey, TValue> list, TKey k)
         {
             return list.Keys[(list.IndexOfKey(k) + 1) % list.Count];
+        }
+
+        internal static TKey PrevNeighbourOf<TKey, TValue>(this SortedList<TKey, TValue> list, TKey k)
+        {
+            var key = list.IndexOfKey(k) - 1;
+            if (key < 0)
+            {
+                key = list.Keys.Count - 1;
+            }
+
+            return list.Keys[key];
         }
 
 

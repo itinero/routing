@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Itinero.LocalGeo.Operations;
+using Itinero.Profiles.Lua.Tree.Statements;
 
 namespace Itinero.LocalGeo
 {
@@ -327,7 +328,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public static bool PointIn(this Polygon poly, Coordinate point)
         {
-            return PointInPolygon.PointIn(poly, point);
+            return PointInPolygon.ContainsPoint(poly, point);
         }
 
         /// <summary>
@@ -335,7 +336,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public static bool PointIn(List<Coordinate> ring, Coordinate point)
         {
-            return PointInPolygon.PointIn(ring, point);
+            return PointInPolygon.ContainsPoint(ring, point);
         }
 
         /// <summary>
@@ -363,7 +364,7 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
-        /// Calculates the sum of the angles. Is positive if the polygon points are saved clockwise
+        /// Calculates the sum of the angles. Always returns a positive result. Use with caution, it doesn't always work as intended
         /// Only considers the outer hull!
         /// The polygon should be closed
         /// </summary>
@@ -381,7 +382,9 @@ namespace Itinero.LocalGeo
                 var nxt = ring[(i + 1) % n]; // ignore that last element, the closing of the loop
                 var prod1 = (prev - cur) / prev.DistanceInDegrees(cur);
                 var prod2 = (cur - nxt) / cur.DistanceInDegrees(nxt);
-                sum += (float) Math.Acos(Coordinate.DotProduct(prod1,prod2));
+                var dotProd = Coordinate.DotProduct(prod1, prod2);
+                var sign = Math.Sign(Math.Asin(dotProd));
+                sum += (float) Math.Acos(dotProd) * sign;
             }
 
             return sum;
@@ -389,12 +392,12 @@ namespace Itinero.LocalGeo
 
         public static bool IsClockwise(this Polygon p)
         {
-            return p.AngleSum() > 0;
+            return p.ExteriorRing.IsClockwise();
         }
 
         public static bool IsClockwise(this List<Coordinate> p)
-        { 
-            return p.AngleSum() > 0;
+        {
+            return p.SignedSurfaceArea() > 0;
         }
 
 
@@ -425,7 +428,92 @@ namespace Itinero.LocalGeo
             {
                 b.ExteriorRing.Reverse();
             }
-            return a.Intersect(b);
+
+            return a.Intersect(b, out var union);
+        }
+
+        public static Polygon UnionWith(this Polygon a, Polygon b)
+        {
+            if (!a.IsClockwise())
+            {
+                a.ExteriorRing.Reverse();
+            }
+
+            if (!b.IsClockwise())
+            {
+                b.ExteriorRing.Reverse();
+            }
+
+            a.Intersect(b, out var union);
+            return union;
+        }
+
+        public static List<Polygon> DifferencesWith(this Polygon a, Polygon b)
+        {
+            if (!a.IsClockwise())
+            {
+                a.ExteriorRing.Reverse();
+            }
+
+            if (!b.IsClockwise())
+            {
+                b.ExteriorRing.Reverse();
+            }
+
+            return a.Intersect(b, out var union, true);
+        }
+
+        public static Coordinate NorthernMost(this Polygon a)
+        {
+            var min = 0;
+            var northernMost = a.ExteriorRing[0];
+            for (var i = 1; i < a.ExteriorRing.Count - 1; i++)
+            {
+                var coor = a.ExteriorRing[i];
+                if (northernMost.Latitude == coor.Latitude)
+                {
+                    if (northernMost.Longitude > coor.Longitude)
+                    {
+                        northernMost = coor;
+                        min = i;
+                    }
+                }
+                else if (northernMost.Latitude < coor.Latitude)
+                {
+                    northernMost = coor;
+                    min = i;
+                }
+            }
+
+            return northernMost;
+        }
+
+        /// <summary>
+        /// Will rotate the exterior ring so that 'i' is the new start (and end, in case of a closed polygon).
+        /// Result will always be closed
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="newStart"></param>
+        public static void RotateExteriorRing(this Polygon a, int newStart)
+        {
+
+            if (a.IsClosed())
+            {
+                a.ExteriorRing.RemoveAt(a.ExteriorRing.Count);
+            }
+
+            var newExterior = new List<Coordinate>();
+            for (var i = newStart; i < a.ExteriorRing.Count; i++)
+            {
+                newExterior.Add(a.ExteriorRing[i]);
+            }
+            
+            for (var i = 0; i < newStart; i++)
+            {
+                newExterior.Add(a.ExteriorRing[i]);
+            }
+            newExterior.Add(newExterior[0]);
+            a.ExteriorRing = newExterior;
         }
     }
 }

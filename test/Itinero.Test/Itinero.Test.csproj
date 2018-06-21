@@ -51,6 +51,13 @@
     <EmbeddedResource Include="test-data\points\polyArea.hull.geojson" />
     <EmbeddedResource Include="test-data\points\polyArea1.hull.geojson" />
     <EmbeddedResource Include="test-data\points\polyArea2.hull.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Intersections_Polygon1_Polygon2.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Intersect_1_2.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon1.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon2.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon3.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon4.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon5.geojson" />
     <EmbeddedResource Include="test-data\profiles\osm\car.lua" />
     <EmbeddedResource Include="test-data\profiles\shape\car.lua" />
     <EmbeddedResource Include="test-data\routerdbs\*.routerdb" />
@@ -62,15 +69,30 @@
     <None Remove="test-data\points\points2.geojson" />
     <EmbeddedResource Include="test-data\points\points2.geojson" />
     <EmbeddedResource Include="test-data\points\points2.hull.geojson" />
-    <EmbeddedResource Include="test-data\points\polygon1.geojson" />
-    <EmbeddedResource Include="test-data\points\polygon2.geojson" />
     <None Remove="test-data\networks\network19.geojson" />
     <EmbeddedResource Include="test-data\networks\network19.geojson" />
     <None Remove="test-data\networks\network20.geojson" />
     <None Remove="test-data\routes\route2.json" />
     <EmbeddedResource Include="test-data\routes\route2.json" />
     <None Remove="test-data\points\Intersections_Polygon1_Polygon2.geojson" />
-    <EmbeddedResource Include="test-data\points\Intersections_Polygon1_Polygon2.geojson" />
+    <None Remove="test-data\points\polygon3.geojson" />
+    <None Remove="test-data\points\polygon4.geojson" />
+    <None Remove="test-data\points\Intersect_1_2.geojson" />
+    <None Remove="test-data\points\polygon5.geojson" />
+    <None Remove="test-data\polygons\polygon6.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon6.geojson" />
+    <None Remove="test-data\polygons\polygon7.geojson" />
+    <EmbeddedResource Include="test-data\polygons\polygon7.geojson" />
+    <None Remove="test-data\polygons\Intersect_6_7.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Intersect_6_7.geojson" />
+    <None Remove="test-data\polygons\Union_6_7.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Union_6_7.geojson" />
+    <None Remove="test-data\polygons\Union1_2.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Union1_2.geojson" />
+    <None Remove="test-data\polygons\Intersect_4_5.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Intersect_4_5.geojson" />
+    <None Remove="test-data\polygons\Union_4_5.geojson" />
+    <EmbeddedResource Include="test-data\polygons\Union_4_5.geojson" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
