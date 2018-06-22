@@ -30,7 +30,7 @@
             <dependency id="Reminiscence" version="[1.2.0-pre06, )" />
           </group>
           <group targetFramework=".NETStandard2.0">
-            <dependency id="Reminiscence" version="[1.1.0, )" />
+            <dependency id="Reminiscence" version="[1.2.0-pre06, )" />
           </group>
         </dependencies>
         <frameworkAssemblies>
