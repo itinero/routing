@@ -116,7 +116,7 @@ namespace Itinero.Test.Functional.Tests
                     }
                     else
                     {
-                        var instructions = route.Value.GenerateInstructions();
+                        var instructions = route.Value.GenerateInstructions(router.Db);
                     }
                 });
                 Itinero.Logging.Logger.Log("Runner", Logging.TraceEventType.Information, "{0}/{1} routes failed.", errors, count);
@@ -128,7 +128,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Action GetTestIslandDetection(RouterDb routerDb)
         {
-            Func<ushort, Profiles.Factor> profile = (p) =>
+            Factor Profile(ushort p)
             {
                 var prof = routerDb.EdgeProfiles.Get(p);
                 if (prof != null)
@@ -136,8 +136,7 @@ namespace Itinero.Test.Functional.Tests
                     var highway = string.Empty;
                     if (prof.TryGetValue("highway", out highway))
                     {
-                        if (highway == "motorway" ||
-                            highway == "motorway_link")
+                        if (highway == "motorway" || highway == "motorway_link")
                         {
                             return new Profiles.Factor()
                             {
@@ -147,18 +146,19 @@ namespace Itinero.Test.Functional.Tests
                         }
                     }
                 }
+
                 return new Profiles.Factor()
                 {
                     Direction = 0,
                     Value = 0
                 };
-            };
+            }
 
             return () =>
             {
                 var islandDetector = new Itinero.Algorithms.Networks.IslandDetector(routerDb, new Func<ushort, Profiles.Factor>[]
                 {
-                    profile
+                    Profile
                 });
                 islandDetector.Run();
             };
@@ -169,11 +169,8 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Func<List<LocalGeo.Polygon>> GetTestIsochroneCalculation(Router router)
         {
-            return () =>
-            {
-                return router.CalculateIsochrones(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
-                    new List<float>() { 900, 1800 }, 18);
-            };
+            return () => router.CalculateIsochrones(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
+                new List<float>() { 900, 1800 }, 18);
         }
 
         /// <summary>
@@ -181,10 +178,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Func<HeatmapResult> GetTestHeatmapCalculation(Router router)
         {
-            return () =>
-            {
-                return router.CalculateHeatmap(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
-            };
+            return () => router.CalculateHeatmap(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
         }
 
         /// <summary>
