@@ -163,25 +163,29 @@ namespace Itinero.Algorithms.Matrices
                 return _correctedResolvedPoints;
             }
         }
-
+        
         /// <summary>
-        /// Returns the corrected index, the index in the weight matrix, given the original location index (after resolving).
+        /// Returns the corrected index, or the index in the weight matrix for the given routerpoint index.
         /// </summary>
-        public int CorrectedIndexOf(int originalIdx)
+        /// <param name="resolvedIdx">The index of the resolved point.</param>
+        /// <returns>The index in the weight matrix, -1 if this point is in error.</returns>
+        public int CorrectedIndexOf(int resolvedIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _correctedIndices.IndexOf(originalIdx);
+            return _correctedIndices.IndexOf(resolvedIdx);
         }
-
+        
         /// <summary>
-        /// Returns the original location index (after resolving) of the given weight matrix index.
+        /// Returns the routerpoint index that represents the given weight in the weight matrix.
         /// </summary>
-        public int OriginalIndexOf(int routerPointIdx)
+        /// <param name="weightIdx">The index in the weight matrix.</param>
+        /// <returns>The routerpoint index, always exists and always returns a proper value.</returns>
+        public int OriginalIndexOf(int weightIdx)
         {
             this.CheckHasRunAndHasSucceeded();
 
-            return _correctedIndices[routerPointIdx];
+            return _correctedIndices[weightIdx];
         }
 
         /// <summary>

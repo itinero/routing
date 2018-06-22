@@ -41,16 +41,20 @@ namespace Itinero.Algorithms.Matrices
         /// Gets the weights between all valid router points.
         /// </summary>
         T[][] Weights { get; }
+        
+        /// <summary>
+        /// Returns the routerpoint index that represents the given weight in the weight matrix.
+        /// </summary>
+        /// <param name="weightIdx">The index in the weight matrix.</param>
+        /// <returns>The routerpoint index, always exists and always returns a proper value.</returns>
+        int OriginalIndexOf(int weightIdx);
 
         /// <summary>
-        /// Returns the original location index (after resolving) of the given weight matrix index.
+        /// Returns the corrected index, or the index in the weight matrix for the given routerpoint index.
         /// </summary>
-        int OriginalIndexOf(int matrixIdx);
-
-        /// <summary>
-        /// Returns the corrected index, the index in the weight matrix, given the original location index (after resolving).
-        /// </summary>
-        int CorrectedIndexOf(int originalIdx);
+        /// <param name="resolvedIdx">The index of the resolved point.</param>
+        /// <returns>The index in the weight matrix, -1 if this point is in error.</returns>
+        int CorrectedIndexOf(int resolvedIdx);
 
         /// <summary>
         /// Gets the router.
