@@ -296,7 +296,6 @@ namespace Itinero.Profiles
         public static DynamicVehicle Load(string script)
         {
             var vehicle = new DynamicVehicle(script);
-            vehicle.Register();
             return vehicle;
         }
 
