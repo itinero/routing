@@ -121,14 +121,14 @@ namespace Itinero.LocalGeo
             var l1 = this.Normalize();
            l2 = l2.Normalize();
             
-            if (useBoundingBoxChecks && (l1.MinLon() > l2.MaxLon() || l1.MaxLon() < l2.MinLon()))
+            if (useBoundingBoxChecks && (l1.MinLon() - l2.MaxLon() > E|| l1.MaxLon() - l2.MinLon() < E))
             {
                 // No intersection possible
                 return null;
             }
 
 
-            if (useBoundingBoxChecks && (l1.MinLat() > l2.MaxLat() || l1.MaxLat() < l2.MinLat()))
+            if (useBoundingBoxChecks && (l1.MinLat() - l2.MaxLat() > E || l1.MaxLat() - l2.MinLat() < E))
             {
                 // No intersection possible
                 return null;
@@ -363,7 +363,7 @@ namespace Itinero.LocalGeo
 
         public bool InBBox(Coordinate c)
         {
-            return MinLat() < c.Latitude && c.Latitude < MaxLat() && MinLon() < c.Longitude && c.Longitude < MaxLon();
+            return MinLat() <= c.Latitude && c.Latitude <= MaxLat() && MinLon() <= c.Longitude && c.Longitude <= MaxLon();
         }
 
         /// <inheritdoc />
