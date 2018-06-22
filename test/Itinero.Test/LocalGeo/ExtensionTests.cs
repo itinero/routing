@@ -88,28 +88,6 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(total - 250, Coordinate.DistanceEstimateInMeter(location2, location), E);
         }
 
-        [Test]
-        public void TestAngleSum()
-        {
-            var points = new List<Coordinate>
-            {
-                new Coordinate(0, 1),
-                new Coordinate(1, 1),
-                new Coordinate(1, 0),
-                new Coordinate(0, 1) // closed polygon
-            };
-            Assert.AreEqual(points.AngleSum(), 6.28318548f);
-
-            points = new List<Coordinate>
-            {
-                new Coordinate(0, 0.00001f),
-                new Coordinate(0.00001f, 0.00001f),
-                new Coordinate(0.00001f, 0),
-                new Coordinate(0, 0.00001f) //Closed polygon
-            };
-            Assert.AreEqual(points.AngleSum(), 6.28318548f);
-        }
-
         /// <summary>
         /// A real-world convex-hull test.
         /// </summary>

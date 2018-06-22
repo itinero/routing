@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using Itinero.Algorithms.Contracted.EdgeBased.Witness;
 
+using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("Itinero.Test.LocalGeo.Operations")]
 namespace Itinero.LocalGeo.Operations
 {
-    public static class PolygonIntersection
+     public static class PolygonIntersection
     {
         ///  <summary>
         ///  Produces an intersection of the given two polygons.
@@ -106,8 +107,7 @@ namespace Itinero.LocalGeo.Operations
            return result;
         }
 
-        // TODO Make internal
-        public static void PrepareIntersectionMatrix(List<Tuple<int, int, Coordinate>> intersections,
+        internal static void PrepareIntersectionMatrix(List<Tuple<int, int, Coordinate>> intersections,
             out Dictionary<int, SortedList<int, Coordinate>> aIntersections,
             out Dictionary<int, SortedList<int, Coordinate>> bIntersections)
         {
@@ -137,7 +137,7 @@ namespace Itinero.LocalGeo.Operations
         }
 
 
-        public static List<Coordinate> WalkIntersection(Tuple<int, int, Coordinate> intersection,
+        internal static List<Coordinate> WalkIntersection(Tuple<int, int, Coordinate> intersection,
             Dictionary<int, SortedList<int, Coordinate>> aIntersections,
             Dictionary<int, SortedList<int, Coordinate>> bIntersections,
             Polygon a, Polygon b)
@@ -186,7 +186,7 @@ namespace Itinero.LocalGeo.Operations
         /// </summary>
         /// <param name="i">The segment causing the intersection in the passed polygon (in the passed matrix)</param>
         /// <param name="j">The segment causing the intersection in the other polygon</param>
-        public static Tuple<int, int> FollowAlong(List<Coordinate> route, Polygon a, int i, int j,
+        internal static Tuple<int, int> FollowAlong(List<Coordinate> route, Polygon a, int i, int j,
             Dictionary<int, SortedList<int, Coordinate>> aIntersections)
         {
             if (i == 0 && j == 1)

@@ -2,8 +2,6 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using Itinero.Geo;
 using Itinero.LocalGeo;
 using Itinero.LocalGeo.IO;
 using Itinero.LocalGeo.Operations;
