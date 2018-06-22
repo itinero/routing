@@ -29,6 +29,7 @@ namespace Itinero.LocalGeo
     {
         const double E = 0.0000000001;
         private readonly Coordinate _coordinate1;
+        private readonly Coordinate _coordinate2;
 
         /// <summary>
         /// Creates a new line.
@@ -36,7 +37,7 @@ namespace Itinero.LocalGeo
         public Line(Coordinate coordinate1, Coordinate coordinate2)
         {
             _coordinate1 = coordinate1;
-            Coordinate2 = coordinate2;
+            _coordinate2 = coordinate2;
         }
 
         /// <summary>
@@ -44,7 +45,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public float A
         {
-            get { return Coordinate2.Latitude - _coordinate1.Latitude; }
+            get { return _coordinate2.Latitude - _coordinate1.Latitude; }
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public float B
         {
-            get { return _coordinate1.Longitude - Coordinate2.Longitude; }
+            get { return _coordinate1.Longitude - _coordinate2.Longitude; }
         }
 
         /// <summary>
@@ -70,12 +71,16 @@ namespace Itinero.LocalGeo
         {
             get { return _coordinate1; }
         }
-
+        
         /// <summary>
         /// Gets the second coordinate.
         /// </summary>
-        public Coordinate Coordinate2 { get; }
+        public Coordinate Coordinate2
+        {
+            get { return _coordinate2; }
+        }
 
+       
         /// <summary>
         /// Gets the middle of this line.
         /// </summary>
@@ -95,7 +100,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public float Length
         {
-            get { return Coordinate.DistanceEstimateInMeter(_coordinate1, Coordinate2); }
+            get { return Coordinate.DistanceEstimateInMeter(_coordinate1, _coordinate2); }
         }
 
 
@@ -106,7 +111,7 @@ namespace Itinero.LocalGeo
         /// 
         /// Assumes the given line is not a segment and this line is a segment.
         /// </summary>
-        public Coordinate? Intersect(Line l2)
+        public Coordinate? Intersect(Line l2, bool useBoundingBoxChecks = true)
         {
             // We get two lines and try to calculate the intersection between them
             // We are only interested in intersections that are actually between the two coordinates
@@ -114,16 +119,16 @@ namespace Itinero.LocalGeo
             // In order to do this, we do some normalization of the lines first
 
             var l1 = this.Normalize();
-            l2 = l2.Normalize();
+           l2 = l2.Normalize();
             
-            if (l1.MinLon() - l2.MaxLon() > E || l1.MaxLon() - l2.MinLon() < E)
+            if (useBoundingBoxChecks && (l1.MinLon() > l2.MaxLon() || l1.MaxLon() < l2.MinLon()))
             {
                 // No intersection possible
                 return null;
             }
 
 
-            if (l1.MinLat() - l2.MaxLat() > E || l1.MaxLat() - l2.MinLat() < E)
+            if (useBoundingBoxChecks && (l1.MinLat() > l2.MaxLat() || l1.MaxLat() < l2.MinLat()))
             {
                 // No intersection possible
                 return null;
@@ -147,7 +152,7 @@ namespace Itinero.LocalGeo
 
             
             // It the point the within the bounding box of both lines?
-            if (!l1.InBBox(coordinate) || !l2.InBBox(coordinate))
+            if (useBoundingBoxChecks && !(l1.InBBox(coordinate) && l2.InBBox(coordinate)))
             {
                 return null;
             }
@@ -220,8 +225,8 @@ namespace Itinero.LocalGeo
             }
 
             // get direction vector.
-            var diffLat = ((double) Coordinate2.Latitude - (double) _coordinate1.Latitude) * 100.0;
-            var diffLon = ((double) Coordinate2.Longitude - (double) _coordinate1.Longitude) * 100.0;
+            var diffLat = ((double) _coordinate2.Latitude - (double) _coordinate1.Latitude) * 100.0;
+            var diffLon = ((double) _coordinate2.Longitude - (double) _coordinate1.Longitude) * 100.0;
 
             // increase this line in length if needed.
             var thisLine = this;
@@ -244,7 +249,7 @@ namespace Itinero.LocalGeo
             var line = new Line(coordinate, second);
 
             // calculate intersection.
-            var projected = thisLine.Intersect(line);
+            var projected = thisLine.Intersect(line, useBoundingBoxChecks:false);
 
             // check if coordinate is on this line.
             if (!projected.HasValue)
@@ -263,7 +268,7 @@ namespace Itinero.LocalGeo
                     return null;
                 }
 
-                var line2 = new Line(projected.Value, Coordinate2);
+                var line2 = new Line(projected.Value, _coordinate2);
                 var distTo2 = line2.A * line2.A + line2.B * line2.B;
                 if (distTo2 > dist)
                 {

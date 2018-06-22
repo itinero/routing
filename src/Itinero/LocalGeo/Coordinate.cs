@@ -211,7 +211,7 @@ namespace Itinero.LocalGeo
         {
             return a.Latitude * b.Latitude + a.Longitude * b.Longitude;
         }
-
+/*
         public override bool Equals(object obj)
         {
             var coor = obj as Coordinate?;
@@ -227,6 +227,6 @@ namespace Itinero.LocalGeo
         public override int GetHashCode()
         {
             return Latitude.GetHashCode() + Longitude.GetHashCode();
-        }
+        }*/
     }
 }
