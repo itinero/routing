@@ -157,6 +157,25 @@ namespace Itinero.LocalGeo
                 return null;
             }
 
+            if (!useBoundingBoxChecks)
+            {
+                // Keep the old behaviour
+                // check if the coordinate is on this line.
+                var dist = this.A * this.A + this.B * this.B;
+                var line1 = new Line(coordinate, _coordinate1);
+                var distTo1 = line1.A * line1.A + line1.B * line1.B;
+                if (distTo1 > dist)
+                {
+                    return null;
+                }
+                var line2 = new Line(coordinate, _coordinate2);
+                var distTo2 = line2.A * line2.A + line2.B * line2.B;
+                if (distTo2 > dist)
+                {
+                    return null;
+                }
+            }
+
             if (!l1.Coordinate1.Elevation.HasValue || !l1.Coordinate2.Elevation.HasValue)
             {
                 // No elevation data. We are done
@@ -249,7 +268,7 @@ namespace Itinero.LocalGeo
             var line = new Line(coordinate, second);
 
             // calculate intersection.
-            var projected = thisLine.Intersect(line, useBoundingBoxChecks:false);
+            var projected = thisLine.Intersect(line, false);
 
             // check if coordinate is on this line.
             if (!projected.HasValue)
