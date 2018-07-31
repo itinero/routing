@@ -49,10 +49,12 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, List<RouterPoint> locations)
-            : this(router, profile, weightHandler, (IMassResolvingAlgorithm)null)
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] locations,
+            List<RouterPoint> resolvedLocations)
+            : this(router, profile, weightHandler, new PresolvedMassResolvingAlgorithm(
+                router, new IProfileInstance[] { profile }, locations, resolvedLocations))
         {
-            _correctedResolvedPoints = locations;
+
         }
 
         /// <summary>
@@ -77,21 +79,13 @@ namespace Itinero.Algorithms.Matrices
         protected sealed override void DoRun(CancellationToken cancellationToken)
         {
             // run mass resolver if needed.
-            if (_massResolver != null)
+            if (!_massResolver.HasRun)
             {
-                if (!_massResolver.HasRun)
-                {
-                    _massResolver.Run(cancellationToken);
-                }
-                _correctedResolvedPoints = _massResolver.RouterPoints;
-            }
-            else if (_correctedResolvedPoints == null)
-            {
-                this.ErrorMessage = string.Format("Invalid setup - need either massresolver or routerpoints");
-                return;
+                _massResolver.Run(cancellationToken);
             }
 
             // create error and resolved point management data structures.
+            _correctedResolvedPoints = _massResolver.RouterPoints;
             _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
             _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
             for (var i = 0; i < _correctedResolvedPoints.Count; i++)
@@ -243,8 +237,8 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, List<RouterPoint> locations)
-            : base(router, profile, profile.DefaultWeightHandler(router), locations)
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, List<RouterPoint> resolvedLocations)
+            : base(router, profile, profile.DefaultWeightHandler(router), locations, resolvedLocations)
         {
 
         }
