@@ -79,7 +79,7 @@ namespace Itinero.Algorithms.Contracted
             _logger.Log(TraceEventType.Information, "Initializing witness graph...");
 
             _witnessGraph = new DirectedGraph(2, _graph.VertexCount);
-#if NETSTANDARD20
+#if NETSTANDARD2_0
              System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
              {
                  WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, null);

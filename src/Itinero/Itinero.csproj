@@ -29,7 +29,10 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD13;NETFX_CORE;DOTNET_CORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Osm\Vehicles\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
