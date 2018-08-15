@@ -1061,13 +1061,18 @@ namespace Itinero
                         {
                             continue;
                         }
+                        
+                        edges.Add(edgeEnumerator.Id);
                         if (edgeEnumerator.DataInverted)
                         {
-                            continue;
+                            edgeEnumerator.MoveToEdge(edgeEnumerator.Id);
+                            db.WriteEdge(jsonWriter, edgeEnumerator);
+                            edgeEnumerator.MoveTo(vertex);
                         }
-                        edges.Add(edgeEnumerator.Id);
-
-                        db.WriteEdge(jsonWriter, edgeEnumerator);
+                        else
+                        {
+                            db.WriteEdge(jsonWriter, edgeEnumerator);
+                        }
                     }
                 }
             }
