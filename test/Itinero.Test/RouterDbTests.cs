@@ -745,13 +745,27 @@ namespace Itinero.Test
                 routerDb.Serialize(stream);
                 stream.Seek(0, SeekOrigin.Begin);
                 routerDb = RouterDb.Deserialize(stream, null);
-            } 
+            }
 
-            routerDb.EdgeProfiles.Add(new AttributeCollection(
-                new Itinero.Attributes.Attribute("highway", "unknown")));
+            for (var i = 0; i < 4096; i++)
+            {
+                var attributes = new AttributeCollection(
+                    new Itinero.Attributes.Attribute("highway", $"unknown_{i}"));
+                var profileId = routerDb.EdgeProfiles.Add(attributes);
+                var profile = routerDb.EdgeProfiles.Get(profileId);
+                Assert.IsNotNull(profile);
+                Assert.AreEqual(attributes, profile);
+            }
 
-            routerDb.EdgeMeta.Add(new AttributeCollection(
-                new Itinero.Attributes.Attribute("name", "Some roadname, never ever used before!")));
+            for (var i = 0; i < 4096; i++)
+            {
+                var attributes = new AttributeCollection(
+                    new Itinero.Attributes.Attribute("name", $"Some roadname {i}, never ever used before!"));
+                var metaId = routerDb.EdgeMeta.Add(attributes);
+                var meta = routerDb.EdgeMeta.Get(metaId);
+                Assert.IsNotNull(meta);
+                Assert.AreEqual(attributes, meta);
+            }
         }
     }
 }

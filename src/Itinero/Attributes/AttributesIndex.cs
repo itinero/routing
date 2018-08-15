@@ -34,7 +34,7 @@ namespace Itinero.Attributes
         private readonly Index<string> _stringIndex;
         private readonly Index<int[]> _collectionIndex;
         private readonly ArrayBase<uint> _index;
-        private readonly bool _isReadonly = false;
+        private bool _isReadonly = false;
         private readonly AttributesIndexMode _mode;
         private const uint NULL_ATTRIBUTES = 0;
         private const uint EMPTY_ATTRIBUTES = 1;
@@ -345,6 +345,8 @@ namespace Itinero.Attributes
                         _collectionReverseIndex[pair.Value] = (uint)pair.Key;
                     }
                 }
+
+                _isReadonly = false;
             }
 
             // add new collection.
