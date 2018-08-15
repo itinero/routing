@@ -340,9 +340,20 @@ namespace Itinero.Attributes
                                 }
                                 return false;
                             }));
-                    foreach (var pair in _collectionIndex)
+                    if (_index != null)
                     {
-                        _collectionReverseIndex[pair.Value] = (uint)pair.Key;
+                        for (uint col = 0; col < _nextId; col++)
+                        {
+                            var pointer = _index[col];
+                            _collectionReverseIndex[_collectionIndex.Get(pointer)] = col;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var pair in _collectionIndex)
+                        {
+                            _collectionReverseIndex[pair.Value] = (uint)pair.Key;
+                        }
                     }
                 }
 
