@@ -112,6 +112,8 @@ namespace Itinero.Graphs.Geometric.Shapes
                 }
                 return e;
             };
+
+            _nextPointer = _coordinates.Length;
         }
 
         private long _nextPointer = 0; // Holds the next idx.
