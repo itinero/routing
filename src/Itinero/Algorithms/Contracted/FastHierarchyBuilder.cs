@@ -466,8 +466,7 @@ namespace Itinero.Algorithms.Contracted
         {
             if (_witnessQueue.Count > 0)
             {
-
-#if NETSTANDARD20
+#if NETSTANDARD2_0
                 System.Threading.Tasks.Parallel.ForEach(_witnessQueue, (v) =>
                 {
                     WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint)v, _witnessQueue);

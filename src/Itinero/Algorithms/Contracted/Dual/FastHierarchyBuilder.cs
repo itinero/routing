@@ -80,7 +80,7 @@ namespace Itinero.Algorithms.Contracted.Dual
 
             _witnessGraph = new DirectedGraph(2, _graph.VertexCount);
 
-#if NETSTANDARD20
+#if NETSTANDARD2_0
             System.Threading.Tasks.Parallel.For(0, _graph.VertexCount, (v) =>
             {
                 WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint) v, null);
@@ -446,7 +446,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             if (_witnessQueue.Count > 0)
             {
 
-#if NETSTANDARD20
+#if NETSTANDARD2_0
                 System.Threading.Tasks.Parallel.ForEach(_witnessQueue, (v) =>
                 {
                     WitnessCalculators.Value.Run(_graph.Graph, _witnessGraph, (uint) v, _witnessQueue);
