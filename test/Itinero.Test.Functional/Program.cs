@@ -44,29 +44,30 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-            // download and extract test-data if not already there.
-            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
-            Download.DownloadLuxembourgAll();
-
-            // test building a routerdb.
-            _logger.Log(TraceEventType.Information, "Starting tests...");
-            var routerDb = RouterDbBuildingTests.Run();
+//            // download and extract test-data if not already there.
+//            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
+//            Download.DownloadLuxembourgAll();
+//
+//            // test building a routerdb.
+//            _logger.Log(TraceEventType.Information, "Starting tests...");
+//            var routerDb = RouterDbBuildingTests.Run();
+            var routerDb = RouterDb.Deserialize(File.OpenRead("luxembourg.c.cf.opt.routerdb"));
             var router = new Router(routerDb);
 
-            // test some routerdb extensions.
-            RouterDbExtensionsTests.Run(routerDb);
-
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+//            // test some routerdb extensions.
+//            RouterDbExtensionsTests.Run(routerDb);
+//
+//            // test resolving.
+//            ResolvingTests.Run(routerDb);
 
             // test routing.
             RoutingTests.Run(routerDb);
-
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
-            
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+//
+//            // tests calculate weight matrices.
+//            WeightMatrixTests.Run(routerDb);
+//            
+//            // test instruction generation.
+//            InstructionTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG

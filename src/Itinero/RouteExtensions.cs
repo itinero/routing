@@ -196,6 +196,28 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Concatenates all the given routes or returns an error when one of the routes cannot be concatenated.
+        /// </summary>
+        /// <param name="routes"></param>
+        /// <returns></returns>
+        public static Result<Route> Concatenate(this IEnumerable<Result<Route>> routes)
+        {
+            Route route = null;
+            var r = 0;
+            foreach (var localRoute in routes)
+            {
+                if (localRoute.IsError)
+                {
+                    return new Result<Route>($"Route at index {r} is in error: {localRoute.ErrorMessage}");
+                }
+                route = route == null ? localRoute.Value : route.Concatenate(localRoute.Value);
+
+                r++;
+            }
+            return new Result<Route>(route);
+        }
+
+        /// <summary>
         /// Calculates the position on the route after the given distance from the starting point.
         /// </summary>
         public static Coordinate? PositionAfter(this Route route, float distanceInMeter)

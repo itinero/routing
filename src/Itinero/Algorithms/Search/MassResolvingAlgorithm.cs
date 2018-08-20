@@ -21,6 +21,7 @@ using Itinero.LocalGeo;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace Itinero.Algorithms.Search
@@ -48,6 +49,20 @@ namespace Itinero.Algorithms.Search
             _matchEdge = matchEdge;
             _maxSearchDistance = maxSearchDistance;
         }
+        
+        /// <summary>
+        /// Creates a new mass-resolving algorithm with pre-resolved locations.
+        /// </summary>
+        public MassResolvingAlgorithm(RouterBase router, IProfileInstance[] profiles, 
+            IEnumerable<RouterPoint> routerPoints)
+        {
+            _router = router;
+            _profiles = profiles;
+            _resolvedPoints = new List<RouterPoint>(routerPoints);
+            
+            _locations = _resolvedPoints.Select(x => x.Location()).ToArray();
+            _matchEdge = null;
+        }
 
         private Dictionary<int, LocationError> _errors; // all errors per original location idx.
         private List<int> _originalLocationIndexes; // the original location per resolved point index.
@@ -58,6 +73,13 @@ namespace Itinero.Algorithms.Search
         /// </summary>
         protected override void DoRun(CancellationToken cancellationToken)
         {
+            if (_resolvedPoints != null)
+            { // points are already available.
+                _errors = new Dictionary<int, LocationError>();
+                this.HasSucceeded = true;
+                return;
+            }
+            
             _errors = new Dictionary<int, LocationError>(_locations.Length);
             _resolvedPoints = new List<RouterPoint>(_locations.Length);
             _originalLocationIndexes = new List<int>(_locations.Length);
@@ -128,6 +150,10 @@ namespace Itinero.Algorithms.Search
         {
             this.CheckHasRunAndHasSucceeded();
 
+            if (_originalLocationIndexes == null)
+            {
+                return locationIdx;
+            }
             return _originalLocationIndexes.IndexOf(locationIdx);
         }
 
@@ -138,6 +164,10 @@ namespace Itinero.Algorithms.Search
         {
             this.CheckHasRunAndHasSucceeded();
 
+            if (_originalLocationIndexes == null)
+            {
+                return routerPointIdx;
+            }
             return _originalLocationIndexes[routerPointIdx];
         }
 

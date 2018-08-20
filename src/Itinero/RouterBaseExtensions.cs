@@ -29,6 +29,8 @@ using System.Text;
 using Itinero.Algorithms;
 using Itinero.Data.Contracted;
 using System.Threading;
+using Itinero.Algorithms.Default.EdgeBased;
+using Itinero.Algorithms.Search;
 
 namespace Itinero
 {
@@ -408,25 +410,7 @@ namespace Itinero
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations, CancellationToken cancellationToken)
         {
-            if (locations.Length < 2)
-            {
-                throw new ArgumentOutOfRangeException("Cannot calculate a routing along less than two locations.");
-            }
-            var route = router.TryCalculate(profile, locations[0], locations[1], cancellationToken);
-            if (route.IsError)
-            {
-                return route;
-            }
-            for (var i = 2; i < locations.Length; i++)
-            {
-                var nextRoute = router.TryCalculate(profile, locations[i - 1], locations[i]);
-                if (nextRoute.IsError)
-                {
-                    return nextRoute;
-                }
-                route = new Result<Route>(route.Value.Concatenate(nextRoute.Value));
-            }
-            return route;
+            return router.TryCalculate(profile, locations, 0, cancellationToken);
         }
 
         /// <summary>
@@ -1073,32 +1057,111 @@ namespace Itinero
         {
             return router.TryCalculate(profile, source.Latitude, source.Longitude, target.Latitude, target.Longitude, cancellationToken);
         }
+        
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="locations">The locations to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations, float turnPenalty, CancellationToken cancellationToken)
+        {
+            return router.TryCalculate(profile, new MassResolvingAlgorithm(router, new[] { profile }, locations), turnPenalty, cancellationToken);
+        }
+
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="resolvingAlgorithm">The resolving algorithm containing the location to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
+            IMassResolvingAlgorithm resolvingAlgorithm, float turnPenalty, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (!resolvingAlgorithm.HasRun)
+            { // run resolver if needed.
+                resolvingAlgorithm.Run(cancellationToken);
+                if (!resolvingAlgorithm.HasSucceeded)
+                {
+                    return new Result<Route>($"Failed to resolve: {resolvingAlgorithm.ErrorMessage}");
+                }
+            }
+
+            if (turnPenalty <= 0)
+            { // no turn penalty define, just route along the locations and concatenate the results.
+                var locations = resolvingAlgorithm.RouterPoints;
+                var route = router.TryCalculate(profile, locations[0], locations[1], cancellationToken);
+                if (route.IsError)
+                {
+                    return route;
+                }
+
+                for (var i = 2; i < locations.Count; i++)
+                {
+                    var nextRoute = router.TryCalculate(profile, locations[i - 1], locations[i],
+                        cancellationToken);
+                    if (nextRoute.IsError)
+                    {
+                        return nextRoute;
+                    }
+
+                    route = new Result<Route>(route.Value.Concatenate(nextRoute.Value));
+                }
+
+                return route;
+            }
+            else
+            { // a more advanced approach, route along all locations but minimize the u-turns taken.
+                var directedSequenceRouter = new DirectedSequenceRouter(resolvingAlgorithm, turnPenalty, null);
+                directedSequenceRouter.Run(cancellationToken);
+                if (!directedSequenceRouter.HasSucceeded)
+                {
+                    return new Result<Route>($"Failed to run {nameof(DirectedSequenceRouter)}: {directedSequenceRouter.ErrorMessage}");
+                }
+
+                var routes = directedSequenceRouter.Routes;
+
+                return routes.Concatenate();
+            }
+        }
+
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="locations">The locations to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
+            RouterPoint[] locations, float turnPenalty, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (locations.Length < 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(locations), 
+                    "Cannot calculate a routing along less than two locations.");
+            }
+            
+            var massResolvingAlgorith = new MassResolvingAlgorithm(router, new[] {profile}, locations);
+            return router.TryCalculate(profile, massResolvingAlgorith, turnPenalty, cancellationToken);
+        }
 
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations, CancellationToken cancellationToken)
         {
-            if (locations.Length < 2)
-            {
-                throw new ArgumentOutOfRangeException("Cannot calculate a routing along less than two locations.");
-            }
-            var resolved = router.TryResolve(profile, locations, 50, cancellationToken);
-            var route = router.TryCalculate(profile, resolved[0].Value, resolved[1].Value, cancellationToken);
-            if (route.IsError)
-            {
-                return route;
-            }
-            for (var i = 2; i < resolved.Length; i++)
-            {
-                var nextRoute = router.TryCalculate(profile, resolved[i - 1].Value, resolved[i].Value, cancellationToken);
-                if (nextRoute.IsError)
-                {
-                    return nextRoute;
-                }
-                route = new Result<Route>(route.Value.Concatenate(nextRoute.Value));
-            }
-            return route;
+            return router.TryCalculate(profile, locations, 0, cancellationToken);
         }
 
         /// <summary>

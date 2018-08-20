@@ -23,6 +23,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
+using Itinero.Test.Functional.Staging;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -38,13 +40,14 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            // just test some random routes.
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random routes");
-            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Pedestrian random routes");
-            GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random directed routes");
-
-            // tests many-to-many route calculation.
-            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating manytomany car routes");
+//            // just test some random routes.
+//            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random routes");
+//            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Pedestrian random routes");
+//            GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random directed routes");
+            GetTestDirectedSequences(router, router.Db.GetSupportedProfile("car"), 1).TestPerf("Car randome directed sequences.");
+//
+//            // tests many-to-many route calculation.
+//            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating manytomany car routes");
         }
 
         /// <summary>
@@ -85,7 +88,6 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 var errors = 0;
-                var success = 0;
                 for (var i = 0; i < list.Count; i += 2)
                 {
                     var route = router.TryCalculate(profile, list[i], list[i + 1]);
@@ -103,7 +105,6 @@ namespace Itinero.Test.Functional.Tests
                         var startJson = list[i].ToGeoJson(router.Db);
                         var endJson = list[i + 1].ToGeoJson(router.Db);
 #endif
-                        success++;
                     }
                 }
 
@@ -134,7 +135,6 @@ namespace Itinero.Test.Functional.Tests
             return () =>
             {
                 var errors = 0;
-                var success = 0;
                 for (var i = 0; i < list.Count; i += 2)
                 {
                     var route = router.TryCalculate(profile, list[i].Item1, list[i].Item2, 
@@ -153,7 +153,42 @@ namespace Itinero.Test.Functional.Tests
                         var startJson = list[i].Item1.ToGeoJson(router.Db);
                         var endJson = list[i + 1].Item1.ToGeoJson(router.Db);
 #endif
-                        success++;
+                    }
+                }
+
+                return string.Format("{0}/{1} routes failed.", errors, count);
+            };
+        }
+
+        /// <summary>
+        /// Tests calculating a number of directed sequences.
+        /// </summary>
+        public static Func<string> GetTestDirectedSequences(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random();
+            var list = new List<RouterPoint[]>();
+
+            var locations = StagingHelper.GetLocations("./Tests/data/sequence1.geojson");
+            var routerpoints = router.Resolve(profile, locations);
+            list.Add(routerpoints);
+
+            return () =>
+            {
+                var errors = 0;
+                for (var i = 0; i < list.Count; i++)
+                {
+                    var route = router.TryCalculate(profile, list[i].ToArray(), 60, CancellationToken.None);
+                    if (route.IsError)
+                    {
+#if DEBUG
+#endif
+                        errors++;
+                    }
+                    else
+                    {
+#if DEBUG
+                        var json = route.Value.ToGeoJson();
+#endif
                     }
                 }
 

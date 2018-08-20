@@ -122,5 +122,22 @@ namespace Itinero
                 return new RouteNotFoundException(m);
             });
         }
+
+        /// <summary>
+        /// Returns a description.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (this.IsError)
+            {
+                return $"Result<{nameof(T)}>: {this.ErrorMessage}";
+            }
+            if (this.Value == null)
+            {
+                return $"Result<{nameof(T)}>: null";
+            }
+            return $"Result<{nameof(T)}>: {this.Value.ToString()}";
+        }
     }
 }
