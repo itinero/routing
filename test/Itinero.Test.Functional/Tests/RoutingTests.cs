@@ -171,6 +171,10 @@ namespace Itinero.Test.Functional.Tests
             var locations = StagingHelper.GetLocations("./Tests/data/sequence1.geojson");
             var routerpoints = router.Resolve(profile, locations);
             list.Add(routerpoints);
+            
+            locations = StagingHelper.GetLocations("./Tests/data/sequence2.geojson");
+            routerpoints = router.Resolve(profile, locations);
+            list.Add(routerpoints);
 
             return () =>
             {
@@ -192,7 +196,7 @@ namespace Itinero.Test.Functional.Tests
                     }
                 }
 
-                return string.Format("{0}/{1} routes failed.", errors, count);
+                return string.Format("{0}/{1} routes failed.", errors, list.Count);
             };
         }
 
