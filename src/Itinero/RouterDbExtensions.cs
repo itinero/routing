@@ -1085,6 +1085,76 @@ namespace Itinero
         /// Gets a geojson containing the given edge and optionally it's neighbours.
         /// </summary>
         /// <param name="db">The router db.</param>
+        /// <param name="vertexIds">The vertices to get.</param>
+        /// <param name="neighbours">Flag to get neighbours or not.</param>
+        public static string GetGeoJsonVertices(this RouterDb db, bool neighbours = false, params uint[] vertexIds)
+        {
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+
+            var writer = new StringWriter();
+
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            // collect all edges and vertices to write.
+            var vertices = new HashSet<uint>();
+            var originalVertices = new HashSet<uint>(vertexIds);
+            var edges = new HashSet<uint>();
+            foreach (var vertex in vertexIds)
+            {
+                vertices.Add(vertex);
+
+                if (neighbours)
+                {
+                    if (edgeEnumerator.MoveTo(vertex))
+                    {
+                        while (edgeEnumerator.MoveNext())
+                        {
+                            vertices.Add(edgeEnumerator.To);
+
+                            edges.Add(edgeEnumerator.Id);
+                        }
+                    }
+                }
+                else
+                {
+                    if (edgeEnumerator.MoveTo(vertex))
+                    {
+                        while (edgeEnumerator.MoveNext())
+                        {
+                            if (originalVertices.Contains(edgeEnumerator.To))
+                            {
+                                edges.Add(edgeEnumerator.Id);
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var edgeId in edges)
+            {
+                edgeEnumerator.MoveToEdge(edgeId);
+                db.WriteEdge(jsonWriter, edgeEnumerator);
+            }
+
+            foreach (var vertex in vertices)
+            {
+                db.WriteVertex(jsonWriter, vertex);
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            return writer.ToString();
+        }
+
+        /// <summary>
+        /// Gets a geojson containing the given edge and optionally it's neighbours.
+        /// </summary>
+        /// <param name="db">The router db.</param>
         /// <param name="edgeIds">The edge id's to get.</param>
         /// <param name="neighbours">Flag to get neighbours or not.</param>
         /// <param name="includeVertices">Flag to get vertices or not.</param>
