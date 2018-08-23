@@ -274,7 +274,8 @@ namespace Itinero.IO.Osm
             target.RegisterSource(source);
             target.Pull();
 
-            // optimize the network for routing.
+            // optimize the network.
+            db.RemoveDuplicateEdges();
             db.SplitLongEdges();
             db.ConvertToSimple();
 
@@ -282,7 +283,7 @@ namespace Itinero.IO.Osm
             db.Sort();
 
             // optimize the network if requested.
-            if (settings.NetworkSimplificationEpsilon != 0)
+            if (settings.NetworkSimplificationEpsilon > 0)
             {
                 db.OptimizeNetwork(settings.NetworkSimplificationEpsilon);
             }
