@@ -80,8 +80,9 @@ namespace Itinero.Test.Functional
             var loggingBlacklist = new HashSet<string>();
 #else
             var loggingBlacklist = new HashSet<string>(
-                new string[] { "StreamProgress",
-                    "RouterDbStreamTarget",
+                new string[] { 
+                    "StreamProgress",
+                    //"RouterDbStreamTarget",
                     "RouterBaseExtensions",
                     "HierarchyBuilder",
                     "RestrictionProcessor",
