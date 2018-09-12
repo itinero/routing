@@ -21,6 +21,7 @@ using Itinero.Data.Network;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Geometric;
 using Itinero.Data.Edges;
@@ -478,8 +479,13 @@ namespace Itinero
                 return result.ConvertError<Route[]>();
             }
 
-            var routes = new Route[result.Value.Length];
-            for (var j = 0; j < result.Value.Length; j++)
+            if (result.Value.Length == 0)
+            {
+                return new Result<Route[]>("No routes found.");
+            }
+            
+            var routes = new Route[result.Value[0].Length];
+            for (var j = 0; j < result.Value[0].Length; j++)
             {
                 routes[j] = result.Value[0][j];
             }

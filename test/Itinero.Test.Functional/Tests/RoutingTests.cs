@@ -43,8 +43,9 @@ namespace Itinero.Test.Functional.Tests
             GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Pedestrian random routes");
             GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random directed routes");
 
-            // tests many-to-many route calculation.
-            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating manytomany car routes");
+            // tests one-to-many & many-to-many route calculation.
+            GetTestOneToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating one-to-many car routes");
+            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating many-to-many car routes");
         }
 
         /// <summary>
@@ -212,9 +213,9 @@ namespace Itinero.Test.Functional.Tests
         }
         
         /// <summary>
-        /// Tests calculating a collection of one to one routes.
+        /// Tests calculating one-to-many routes.
         /// </summary>
-        public static Func<PerformanceTestResult<EdgePath<float>[][]>> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
+        public static Func<PerformanceTestResult<Result<Route[]>>> GetTestOneToManyRoutes(Router router, Profiles.Profile profile, int size)
         {
             var random = new System.Random();
             var list = new List<RouterPoint>();
@@ -232,11 +233,33 @@ namespace Itinero.Test.Functional.Tests
             }
             var resolvedPoints = list.ToArray();
 
-            return () =>
+            return () => new PerformanceTestResult<Result<Route[]>>(
+                router.TryCalculate(profile, resolvedPoints[0], resolvedPoints));
+        }
+        
+        /// <summary>
+        /// Tests calculating many-to-many routes.
+        /// </summary>
+        public static Func<PerformanceTestResult<Result<Route[][]>>> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
+        {
+            var random = new System.Random();
+            var list = new List<RouterPoint>();
+            while (list.Count < size)
             {
-                return new PerformanceTestResult<EdgePath<float>[][]>(
-                    router.TryCalculateRaw(profile, router.GetDefaultWeightHandler(profile), resolvedPoints, resolvedPoints, null).Value);
-            };
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                var resolved = router.TryResolve(profile, f1);
+                if (resolved.IsError)
+                {
+                    continue;
+                }
+                var direction = random.NextDouble() >= 0.5;
+                list.Add(resolved.Value);
+            }
+            var resolvedPoints = list.ToArray();
+
+            return () => new PerformanceTestResult<Result<Route[][]>>(
+                router.TryCalculate(profile, resolvedPoints, resolvedPoints));
         }
     }
 }
