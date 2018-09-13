@@ -45,32 +45,44 @@ namespace Itinero.Test.Functional
 #if DEBUG
             _logger.Log(TraceEventType.Information, "Performance tests are running in Debug, please run in Release mode.");
 #endif
-            // download and extract test-data if not already there.
-            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
-            Download.DownloadLuxembourgAll();
-
-            // test building a routerdb.
-            _logger.Log(TraceEventType.Information, "Starting tests...");
-            var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
-
-            // test some routerdb extensions.
-            RouterDbExtensionsTests.Run(routerDb);
-
-            // test resolving.
-            ResolvingTests.Run(routerDb);
-
-            // test routing.
-            RoutingTests.Run(routerDb);
-
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
+            RouterDb routerDb = null;
+            using (var stream = File.OpenRead(@"C:\ServerRoot\public_ftp\data\itinero\routerdbs\1.4\north-america.c.routerdb"))
+            {
+                routerDb = RouterDb.Deserialize(stream);
+            }
             
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
+            routerDb.AddContracted(routerDb.GetSupportedVehicle("car"));
 
-            // test writing shapefile.
-            ShapeFileWriterTests.Run(routerDb);
+            using (var stream = File.Open("north-america.c.cf.routerdb"))
+            {
+                routerDb.Serialize(stream);
+            }
+//            // download and extract test-data if not already there.
+//            _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
+//            Download.DownloadLuxembourgAll();
+//
+//            // test building a routerdb.
+//            _logger.Log(TraceEventType.Information, "Starting tests...");
+//            var routerDb = RouterDbBuildingTests.Run();
+//            var router = new Router(routerDb);
+//
+//            // test some routerdb extensions.
+//            RouterDbExtensionsTests.Run(routerDb);
+//
+//            // test resolving.
+//            ResolvingTests.Run(routerDb);
+//
+//            // test routing.
+//            RoutingTests.Run(routerDb);
+//
+//            // tests calculate weight matrices.
+//            WeightMatrixTests.Run(routerDb);
+//            
+//            // test instruction generation.
+//            InstructionTests.Run(routerDb);
+//
+//            // test writing shapefile.
+//            ShapeFileWriterTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG
