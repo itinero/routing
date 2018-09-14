@@ -51,9 +51,9 @@ namespace Itinero.Test.Functional
                 routerDb = RouterDb.Deserialize(stream);
             }
             
-            routerDb.AddContracted(routerDb.GetSupportedVehicle("car"));
+            routerDb.AddContracted(routerDb.GetSupportedProfile("car"));
 
-            using (var stream = File.Open("north-america.c.cf.routerdb"))
+            using (var stream = File.Open("north-america.c.cf.routerdb", FileMode.Create))
             {
                 routerDb.Serialize(stream);
             }
@@ -95,15 +95,7 @@ namespace Itinero.Test.Functional
 #if DEBUG
             var loggingBlacklist = new HashSet<string>();
 #else
-            var loggingBlacklist = new HashSet<string>(
-                new string[] { 
-                    "StreamProgress",
-                    //"RouterDbStreamTarget",
-                    "RouterBaseExtensions",
-                    "HierarchyBuilder",
-                    "RestrictionProcessor",
-                    "NodeIndex",
-                    "RouterDb"});
+            var loggingBlacklist = new HashSet<string>();
 #endif
             OsmSharp.Logging.Logger.LogAction = (o, level, message, parameters) =>
             {
