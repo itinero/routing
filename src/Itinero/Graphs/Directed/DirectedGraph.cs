@@ -159,7 +159,7 @@ namespace Itinero.Graphs.Directed
             _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) * VERTEX_SIZE + EDGE_COUNT + 1);
             if (_edgeDataSize != 1) { throw new ArgumentOutOfRangeException("Dimension of data doesn't match."); }
             
-            if ((_nextEdgePointer / _edgeDataSize) > uint.MaxValue) { throw new Exception($"Cannot add another edge, this graph can only handle a max of {uint.MaxValue} edges.");}
+            if ((_nextEdgePointer / _edgeSize) > uint.MaxValue) { throw new Exception($"Cannot add another edge, this graph can only handle a max of {uint.MaxValue} edges.");}
             
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
@@ -254,7 +254,7 @@ namespace Itinero.Graphs.Directed
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) * VERTEX_SIZE + EDGE_COUNT + 1);
             
-            if ((_nextEdgePointer / _edgeDataSize) > uint.MaxValue) { throw new Exception($"Cannot add another edge, this graph can only handle a max of {uint.MaxValue} edges.");}
+            if ((_nextEdgePointer / _edgeSize) > uint.MaxValue) { throw new Exception($"Cannot add another edge, this graph can only handle a max of {uint.MaxValue} edges.");}
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
