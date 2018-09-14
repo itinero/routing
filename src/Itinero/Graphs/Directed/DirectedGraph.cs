@@ -42,7 +42,7 @@ namespace Itinero.Graphs.Directed
         private readonly ArrayBase<uint> _vertices; // Holds all vertices pointing to it's first edge.
         private readonly ArrayBase<uint> _edges;
 
-        private uint _nextEdgePointer;
+        private long _nextEdgePointer;
         private bool _readonly = false;
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace Itinero.Graphs.Directed
             _edgeCount = edgeCount;
             _vertices = vertices;
             _edges = edges;
-            _nextEdgePointer = (uint)(edges.Length / _edgeSize);
+            _nextEdgePointer = (edges.Length / _edgeSize);
         }
 
         /// <summary>
@@ -158,24 +158,26 @@ namespace Itinero.Graphs.Directed
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) * VERTEX_SIZE + EDGE_COUNT + 1);
             if (_edgeDataSize != 1) { throw new ArgumentOutOfRangeException("Dimension of data doesn't match."); }
-
+            
+            if ((_nextEdgePointer / _edgeDataSize) > uint.MaxValue) { throw new Exception($"Cannot add another edge, this graph can only handle a max of {uint.MaxValue} edges.");}
+            
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
-            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * _edgeSize;
             var edgeId = uint.MaxValue;
 
             if (edgeCount == 0)
             { // no edge yet, just add the end.
                 _vertices[vertexPointer + EDGE_COUNT] = 1;
-                _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
-                edgeId = _nextEdgePointer / (uint)_edgeSize;
+                _vertices[vertexPointer + FIRST_EDGE] = (uint)(_nextEdgePointer / _edgeSize);
+                edgeId = (uint)(_nextEdgePointer / _edgeSize);
 
                 // make sure we can add another edge.
                 _edges.EnsureMinimumSize(_nextEdgePointer + (1 * _edgeSize) + 1);
 
                 _edges[_nextEdgePointer] = vertex2;
                 _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + 0] = data;
-                _nextEdgePointer += (uint)(_edgeSize);
+                _nextEdgePointer += _edgeSize;
             }
             else if ((edgeCount & (edgeCount - 1)) == 0)
             { // edgeCount is a power of two, increase space.
@@ -185,18 +187,18 @@ namespace Itinero.Graphs.Directed
                 if (edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
                 { // these edge are at the end of the edge-array, don't copy just increase size.
                     _edges[_nextEdgePointer] = vertex2;
-                    edgeId = _nextEdgePointer / (uint)_edgeSize;
+                    edgeId = (uint)(_nextEdgePointer / _edgeSize);
                     _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + 0] = data;
-                    _nextEdgePointer += (uint)(edgeCount * _edgeSize); // duplicate space for this vertex.
+                    _nextEdgePointer += (edgeCount * _edgeSize); // duplicate space for this vertex.
                     _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
                 }
                 else
                 { // not at the end, copy edges to the end.
-                    _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
+                    _vertices[vertexPointer + FIRST_EDGE] = (uint)(_nextEdgePointer / _edgeSize);
                     _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
 
                     // keep new pointer & duplicate space for this vertex.
-                    var newNextEdgePointer = _nextEdgePointer + (uint)(edgeCount * 2 * _edgeSize);
+                    var newNextEdgePointer = _nextEdgePointer + (edgeCount * 2 * _edgeSize);
 
                     // make sure we can add another edge.
                     _edges.EnsureMinimumSize(_nextEdgePointer + (edgeCount * _edgeSize) + 1);
@@ -212,9 +214,9 @@ namespace Itinero.Graphs.Directed
                         if (_switchEdge != null)
                         { // report on the edge switch.
                             _switchEdge((uint)((edgePointer + (edge * _edgeSize)) / (long)_edgeSize),
-                                _nextEdgePointer / (uint)_edgeSize);
+                                (uint)(_nextEdgePointer / _edgeSize));
                         }
-                        _nextEdgePointer += (uint)_edgeSize;
+                        _nextEdgePointer += _edgeSize;
 
                         // make sure we can add another edge.
                         _edges.EnsureMinimumSize(_nextEdgePointer + 1);
@@ -225,16 +227,16 @@ namespace Itinero.Graphs.Directed
 
                     // add at the end.
                     _edges[_nextEdgePointer] = vertex2;
-                    edgeId = _nextEdgePointer / (uint)_edgeSize;
+                    edgeId = (uint)(_nextEdgePointer / _edgeSize);
                     _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + 0] = data;
                     _nextEdgePointer = newNextEdgePointer;
                 }
             }
             else
             { // just add the edge.
-                _edges[edgePointer + (edgeCount * (uint)_edgeSize)] = vertex2;
-                edgeId = (edgePointer + (edgeCount * (uint)_edgeSize)) / (uint)_edgeSize;
-                _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + 0] = data;
+                _edges[edgePointer + (edgeCount * _edgeSize)] = vertex2;
+                edgeId = (uint)((edgePointer + (edgeCount * _edgeSize)) / _edgeSize);
+                _edges[edgePointer + (edgeCount * _edgeSize) + MINIMUM_EDGE_SIZE + 0] = data;
 
                 _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
             }
@@ -251,6 +253,8 @@ namespace Itinero.Graphs.Directed
             if (_readonly) { throw new Exception("Graph is readonly."); }
             if (vertex1 == vertex2) { throw new ArgumentException("Given vertices must be different."); }
             _vertices.EnsureMinimumSize(Math.Max(vertex1, vertex2) * VERTEX_SIZE + EDGE_COUNT + 1);
+            
+            if ((_nextEdgePointer / _edgeDataSize) > uint.MaxValue) { throw new Exception($"Cannot add another edge, this graph can only handle a max of {uint.MaxValue} edges.");}
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
@@ -260,8 +264,8 @@ namespace Itinero.Graphs.Directed
             if (edgeCount == 0)
             { // no edge yet, just add the end.
                 _vertices[vertexPointer + EDGE_COUNT] = 1;
-                _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
-                edgeId = _nextEdgePointer / (uint)_edgeSize;
+                _vertices[vertexPointer + FIRST_EDGE] = (uint)(_nextEdgePointer / _edgeSize);
+                edgeId = (uint)(_nextEdgePointer / _edgeSize);
 
                 // make sure we can add another edge.
                 _edges.EnsureMinimumSize(_nextEdgePointer + (1 * _edgeSize) + 1);
@@ -272,7 +276,7 @@ namespace Itinero.Graphs.Directed
                     _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
                         data[i];
                 }
-                _nextEdgePointer += (uint)(_edgeSize);
+                _nextEdgePointer += _edgeSize;
             }
             else if ((edgeCount & (edgeCount - 1)) == 0)
             { // edgeCount is a power of two, increase space.
@@ -282,22 +286,22 @@ namespace Itinero.Graphs.Directed
                 if (edgePointer == (_nextEdgePointer - (edgeCount * _edgeSize)))
                 { // these edge are at the end of the edge-array, don't copy just increase size.
                     _edges[_nextEdgePointer] = vertex2;
-                    edgeId = _nextEdgePointer / (uint)_edgeSize;
+                    edgeId = (uint)(_nextEdgePointer / _edgeSize);
                     for (uint i = 0; i < _edgeDataSize; i++)
                     {
                         _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
                             data[i];
                     }
-                    _nextEdgePointer += (uint)(edgeCount * _edgeSize); // duplicate space for this vertex.
+                    _nextEdgePointer += (edgeCount * _edgeSize); // duplicate space for this vertex.
                     _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
                 }
                 else
                 { // not at the end, copy edges to the end.
-                    _vertices[vertexPointer + FIRST_EDGE] = _nextEdgePointer / (uint)_edgeSize;
+                    _vertices[vertexPointer + FIRST_EDGE] = (uint)(_nextEdgePointer / _edgeSize);
                     _vertices[vertexPointer + EDGE_COUNT] = edgeCount + 1;
 
                     // keep new pointer & duplicate space for this vertex.
-                    var newNextEdgePointer = _nextEdgePointer + (uint)(edgeCount * 2 * _edgeSize);
+                    var newNextEdgePointer = _nextEdgePointer + (edgeCount * 2 * _edgeSize);
 
                     // make sure we can add another edge.
                     _edges.EnsureMinimumSize(_nextEdgePointer + (edgeCount * _edgeSize) + 1);
@@ -313,9 +317,9 @@ namespace Itinero.Graphs.Directed
                         if (_switchEdge != null)
                         { // report on the edge switch.
                             _switchEdge((uint)((edgePointer + (edge * _edgeSize)) / (long)_edgeSize),
-                                _nextEdgePointer / (uint)_edgeSize);
+                                (uint)(_nextEdgePointer / _edgeSize));
                         }
-                        _nextEdgePointer += (uint)_edgeSize;
+                        _nextEdgePointer += _edgeSize;
 
                         // make sure we can add another edge.
                         _edges.EnsureMinimumSize(_nextEdgePointer + 1);
@@ -326,7 +330,7 @@ namespace Itinero.Graphs.Directed
 
                     // add at the end.
                     _edges[_nextEdgePointer] = vertex2;
-                    edgeId = _nextEdgePointer / (uint)_edgeSize;
+                    edgeId = (uint)(_nextEdgePointer / _edgeSize);
                     for (uint i = 0; i < _edgeDataSize; i++)
                     {
                         _edges[_nextEdgePointer + MINIMUM_EDGE_SIZE + i] =
@@ -363,8 +367,8 @@ namespace Itinero.Graphs.Directed
 
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
-            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
-            var lastEdgePointer = edgePointer + (edgeCount * (uint)_edgeSize);
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * _edgeSize;
+            var lastEdgePointer = edgePointer + (edgeCount * _edgeSize);
 
             var currentData = new uint[_edgeDataSize];
             while (edgePointer < lastEdgePointer)
@@ -382,10 +386,10 @@ namespace Itinero.Graphs.Directed
                             _edges[edgePointer + MINIMUM_EDGE_SIZE + i] =
                                 data[i];
                         }
-                        return edgePointer / (uint)_edgeSize;
+                        return (uint)(edgePointer / _edgeSize);
                     }
                 }
-                edgePointer += (uint)_edgeSize;
+                edgePointer += _edgeSize;
             }
             return Constants.NO_EDGE;
         }
@@ -405,8 +409,8 @@ namespace Itinero.Graphs.Directed
             {
                 return Constants.NO_EDGE;
             }
-            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
-            var lastEdgePointer = edgePointer + (edgeCount * (uint)_edgeSize);
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * _edgeSize;
+            var lastEdgePointer = edgePointer + (edgeCount * _edgeSize);
 
             var currentData = new uint[_edgeDataSize];
             while (edgePointer < lastEdgePointer)
@@ -425,9 +429,9 @@ namespace Itinero.Graphs.Directed
                                 data[i];
                         }
                     }
-                    return edgePointer / (uint)_edgeSize;
+                    return (uint)(edgePointer / _edgeSize);
                 }
-                edgePointer += (uint)_edgeSize;
+                edgePointer += _edgeSize;
             }
             return Constants.NO_EDGE;
         }
@@ -460,10 +464,10 @@ namespace Itinero.Graphs.Directed
             var removed = 0;
             var vertexPointer = vertex1 * VERTEX_SIZE;
             var edgeCount = _vertices[vertexPointer + EDGE_COUNT];
-            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
+            var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * _edgeSize;
 
             for (var removeEdgePointer = edgePointer; removeEdgePointer < edgePointer + (edgeCount * (uint)_edgeSize);
-                removeEdgePointer += (uint)_edgeSize)
+                removeEdgePointer += _edgeSize)
             {
                 if (_edges[removeEdgePointer] == vertex2)
                 { // edge found, remove it.
@@ -472,27 +476,27 @@ namespace Itinero.Graphs.Directed
 
                     // reduce edge count.
                     edgeCount--;
-                    if (removeEdgePointer == edgePointer + (edgeCount * (uint)_edgeSize))
+                    if (removeEdgePointer == edgePointer + (edgeCount * _edgeSize))
                     { // no need to move data anymore, this is the last edge being removed.
                         break;
                     }
 
                     // move the last edge and overwrite the current edge.
-                    _edges[removeEdgePointer] = _edges[edgePointer + (edgeCount * (uint)_edgeSize)];
+                    _edges[removeEdgePointer] = _edges[edgePointer + (edgeCount * _edgeSize)];
                     for (var i = 0; i < _edgeDataSize; i++)
                     {
                         _edges[removeEdgePointer + MINIMUM_EDGE_SIZE + i] =
-                            _edges[edgePointer + (edgeCount * (uint)_edgeSize) + MINIMUM_EDGE_SIZE + i];
+                            _edges[edgePointer + (edgeCount * _edgeSize) + MINIMUM_EDGE_SIZE + i];
                     }
 
                     // report on the move.
                     if (_switchEdge != null)
                     {
-                        _switchEdge((uint)((edgePointer + (edgeCount * (uint)_edgeSize)) / _edgeSize),
+                        _switchEdge((uint)((edgePointer + (edgeCount * _edgeSize)) / _edgeSize),
                             (uint)(removeEdgePointer / _edgeSize));
                     }
 
-                    removeEdgePointer -= (uint)_edgeSize;
+                    removeEdgePointer -= _edgeSize;
                 }
             }
             _vertices[vertexPointer + EDGE_COUNT] = edgeCount;
@@ -549,8 +553,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public void Trim()
         {
-            long maxEdgeId;
-            this.Trim(out maxEdgeId);
+            this.Trim(out _);
         }
 
         /// <summary>
@@ -583,12 +586,12 @@ namespace Itinero.Graphs.Directed
             var edgesLength = _nextEdgePointer;
             if (edgesLength == 0)
             { // keep minimum room for one edge.
-                edgesLength = (uint)_edgeSize;
+                edgesLength = _edgeSize;
             }
             _edges.Resize(edgesLength);
 
             // store the max edge id.
-            maxEdgeId = _edges.Length / (uint)_edgeSize;
+            maxEdgeId = _edges.Length / _edgeSize;
         }
 
         /// <summary>
@@ -596,8 +599,7 @@ namespace Itinero.Graphs.Directed
         /// </summary>
         public void Compress(bool toReadonly)
         {
-            long maxEdgeId;
-            this.Compress(toReadonly, out maxEdgeId);
+            this.Compress(toReadonly, out _);
         }
 
         /// <summary>
@@ -626,15 +628,15 @@ namespace Itinero.Graphs.Directed
                     }, 0, this.VertexCount - 1);
 
             // move data down.
-            uint pointer = 0;
+            long pointer = 0;
             for (uint i = 0; i < sortedVertices.Length; i++)
             {
                 // move data.
                 var vertexPointer = sortedVertices[i] * VERTEX_SIZE;
                 var count = _vertices[vertexPointer + EDGE_COUNT];
-                var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * (uint)_edgeSize;
-                _vertices[vertexPointer + FIRST_EDGE] = pointer / (uint)_edgeSize;
-                for (uint e = 0; e < count * (uint)_edgeSize; e += (uint)_edgeSize)
+                var edgePointer = _vertices[vertexPointer + FIRST_EDGE] * _edgeSize;
+                _vertices[vertexPointer + FIRST_EDGE] = (uint)(pointer / _edgeSize);
+                for (uint e = 0; e < count * _edgeSize; e += (uint)_edgeSize)
                 {
                     if (pointer != edgePointer)
                     {
@@ -664,14 +666,14 @@ namespace Itinero.Graphs.Directed
                     count++;
                 }
 
-                pointer += count * (uint)_edgeSize;
+                pointer += count * _edgeSize;
             }
             _nextEdgePointer = pointer;
             _readonly = toReadonly;
 
             // store the max edge id.
             _edges.Resize(_nextEdgePointer);
-            maxEdgeId = _edges.Length / (uint)_edgeSize;
+            maxEdgeId = (_edges.Length / _edgeSize);
         }
 
         /// <summary>
@@ -688,9 +690,9 @@ namespace Itinero.Graphs.Directed
         public sealed class EdgeEnumerator : IEnumerable<Edge>, IEnumerator<Edge>
         {
             private readonly DirectedGraph _graph;
-            private uint _currentEdgePointer;
+            private long _currentEdgePointer;
             private int _currentCount;
-            private uint _startEdgeId;
+            private long _startEdgeId;
             private uint _count;
             private uint _neighbour;
 
@@ -705,7 +707,7 @@ namespace Itinero.Graphs.Directed
                 _neighbour = 0;
 
                 // reset.
-                _currentEdgePointer = uint.MaxValue;
+                _currentEdgePointer = long.MaxValue;
                 _currentCount = -1;
             }
 
@@ -722,7 +724,7 @@ namespace Itinero.Graphs.Directed
                 }
                 else
                 {
-                    _currentEdgePointer += (uint)_graph._edgeSize;
+                    _currentEdgePointer += _graph._edgeSize;
                     _currentCount++;
                 }
                 if (_currentCount < _count)
@@ -730,7 +732,7 @@ namespace Itinero.Graphs.Directed
                     while (_neighbour != 0 &&
                         _neighbour != this.Neighbour)
                     {
-                        _currentEdgePointer += (uint)_graph._edgeSize;
+                        _currentEdgePointer += _graph._edgeSize;
                         _currentCount++;
 
                         if (_currentCount >= _count)
@@ -796,7 +798,7 @@ namespace Itinero.Graphs.Directed
             {
                 get
                 {
-                    return _currentEdgePointer / (uint)_graph._edgeSize;
+                    return (uint)(_currentEdgePointer / _graph._edgeSize);
                 }
             }
 
@@ -805,7 +807,7 @@ namespace Itinero.Graphs.Directed
             /// </summary>
             public void Reset()
             {
-                _currentEdgePointer = uint.MaxValue;
+                _currentEdgePointer = long.MaxValue;
                 _currentCount = -1;
             }
 
@@ -854,12 +856,12 @@ namespace Itinero.Graphs.Directed
                 { // vertex doesn't exist.
                     return false;
                 }
-                _startEdgeId = _graph._vertices[vertexId + FIRST_EDGE] * (uint)_graph._edgeSize;
+                _startEdgeId = _graph._vertices[vertexId + FIRST_EDGE] * _graph._edgeSize;
                 _count = _graph._vertices[vertexId + EDGE_COUNT];
                 _neighbour = 0;
 
                 // reset.
-                _currentEdgePointer = uint.MaxValue;
+                _currentEdgePointer = long.MaxValue;
                 _currentCount = -1;
 
                 return _count > 0;
