@@ -19,15 +19,15 @@
         <dependencies>
             <group targetFramework=".NETFramework4.0">
                 <dependency id="Itinero.Geo" version="$version$" />
-                <dependency id="NetTopologySuite.IO.ShapeFile" version="0.0.1-pre002" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.2" exclude="Build,Analyzers"/>
             </group>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="Itinero.Geo" version="$version$" />
-                <dependency id="NetTopologySuite.IO.ShapeFile" version="0.0.1-pre002" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.2" exclude="Build,Analyzers"/>
             </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Itinero.Geo" version="$version$" />
-                <dependency id="NetTopologySuite.IO.ShapeFile" version="0.0.1-pre002" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.2" exclude="Build,Analyzers"/>
             </group>
         </dependencies>
         <frameworkAssemblies>
