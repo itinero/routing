@@ -477,8 +477,14 @@ namespace Itinero.Graphs.Geometric
                 _shapes.Switch(originalId, newId);
             });
             _shapes.Resize(_graph.EdgeCount);
-            _coordinates.Resize(_graph.VertexCapacity * 2);
-            _elevation?.Resize(_graph.VertexCapacity);
+            if (_coordinates.Length > _graph.VertexCapacity * 2)
+            {
+                _coordinates.Resize(_graph.VertexCapacity * 2);
+            }
+            if (_elevation != null && _elevation.Length > _graph.VertexCapacity)
+            {
+                _elevation?.Resize(_graph.VertexCapacity);
+            }
         }
 
         /// <summary>

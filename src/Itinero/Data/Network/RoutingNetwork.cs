@@ -318,7 +318,10 @@ namespace Itinero.Data.Network
                         updateEdgeId(originalId, newId);
                     }
                 });
-            _edgeData.Resize(_graph.EdgeCount);
+            if (_edgeData.Length > _graph.EdgeCount)
+            {
+                _edgeData.Resize(_graph.EdgeCount);
+            }
         }
 
         /// <summary>
