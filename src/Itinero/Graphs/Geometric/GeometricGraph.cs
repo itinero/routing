@@ -171,13 +171,7 @@ namespace Itinero.Graphs.Geometric
         /// Returns true if this graph is simple (max one edge between any two vertices).
         /// </summary>
         /// <returns></returns>
-        public bool IsSimple
-        {
-            get
-            {
-                return _graph.IsSimple;
-            }
-        }
+        public bool IsSimple => _graph.IsSimple;
 
         /// <summary>
         /// Gets the given vertex.
@@ -484,10 +478,7 @@ namespace Itinero.Graphs.Geometric
             });
             _shapes.Resize(_graph.EdgeCount);
             _coordinates.Resize(_graph.VertexCapacity * 2);
-            if (_elevation != null)
-            {
-                _elevation.Resize(_graph.VertexCapacity);
-            }
+            _elevation?.Resize(_graph.VertexCapacity);
         }
 
         /// <summary>
@@ -500,10 +491,13 @@ namespace Itinero.Graphs.Geometric
                     _shapes.Switch(originalId, newId);
                 });
             _shapes.Resize(_graph.EdgeCount);
-            _coordinates.Resize(_graph.VertexCapacity * 2);
-            if (_elevation != null)
+            if (_coordinates.Length > _graph.VertexCapacity * 2)
             {
-                _elevation.Resize(_graph.VertexCapacity);
+                _coordinates.Resize(_graph.VertexCapacity * 2);
+            }
+            if (_elevation != null && _elevation.Length > _graph.VertexCapacity)
+            {
+                _elevation?.Resize(_graph.VertexCapacity);
             }
         }
 
