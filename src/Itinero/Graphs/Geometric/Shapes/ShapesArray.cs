@@ -131,18 +131,12 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// <summary>
         /// Returns true if this array can be resized.
         /// </summary>
-        public override bool CanResize
-        {
-            get { return _index.CanResize && _coordinates.CanResize; }
-        }
+        public override bool CanResize => _index.CanResize && _coordinates.CanResize;
 
         /// <summary>
         /// Gets the length.
         /// </summary>
-        public sealed override long Length
-        {
-            get { return _index.Length; }
-        }
+        public sealed override long Length => _index.Length;
 
         /// <summary>
         /// Returns the size in bytes as if serialized.
@@ -158,9 +152,7 @@ namespace Itinero.Graphs.Geometric.Shapes
                 }
                 for (var i = 0; i < _index.Length; i++)
                 {
-                    long pointer;
-                    int size;
-                    ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                    ShapesArray.ExtractPointerAndSize(_index[i], out _, out var size);
                     if (size > 0)
                     {
                         sizeInBytes += size * 4;
@@ -181,8 +173,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         {
             get
             {
-                ShapeBase shape;
-                if (this.TryGet(id, out shape))
+                if (this.TryGet(id, out var shape))
                 {
                     return shape;
                 }
@@ -204,11 +195,9 @@ namespace Itinero.Graphs.Geometric.Shapes
                 _elevation = _createElevation(_coordinates.Length / 2);
             }
 
-            long pointer;
-            int size;
             for (var i = 0; i < _index.Length; i++)
             {
-                ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                ShapesArray.ExtractPointerAndSize(_index[i], out var pointer, out var size);
                 if (size > 0)
                 {
                     for (var p = 0; p < size; p++)
@@ -235,6 +224,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// </summary>
         public sealed override void Resize(long size)
         {
+            if (_index.Length == size) return;
             if (!this.CanResize) { throw new InvalidOperationException("Cannot resize a fixed-sized array."); }
 
             _index.Resize(size);
@@ -253,19 +243,14 @@ namespace Itinero.Graphs.Geometric.Shapes
                 return;
             }
 
-            long pointer;
-            int size;
-            GetPointerAndSize(id, out pointer, out size);
+            GetPointerAndSize(id, out var pointer, out var size);
             if (pointer < 0 || shape.Count < size)
             { // add the coordinates at the end.
                 SetPointerAndSize(id, _nextPointer, shape.Count);
 
                 // increase the size of the coordinates if needed.
                 _coordinates.EnsureMinimumSize(_nextPointer + (2 * shape.Count));
-                if (_elevation != null)
-                {
-                    _elevation.EnsureMinimumSize((_nextPointer / 2) + shape.Count);
-                }
+                _elevation?.EnsureMinimumSize((_nextPointer / 2) + shape.Count);
 
                 for (var i = 0; i < shape.Count; i++)
                 {
@@ -310,9 +295,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// </summary>
         private bool TryGet(long id, out ShapeBase shape)
         {
-            long index;
-            int size;
-            GetPointerAndSize(id, out index, out size);
+            GetPointerAndSize(id, out var index, out var size);
             if (index >= 0)
             {
                 shape = new Shape(_coordinates, _elevation, index, size);
@@ -404,12 +387,10 @@ namespace Itinero.Graphs.Geometric.Shapes
             {
                 using(var coordinatesStream = new BinaryWriter(new LimitedStream(stream, coordinatesPosition)))
                 {
-                    long pointer;
-                    int size;
                     for(var i = 0; i < _index.Length; i++)
                     {
                         coordinatesStream.SeekBegin(newPointer * 4);
-                        ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                        ShapesArray.ExtractPointerAndSize(_index[i], out var pointer, out var size);
                         if (size > 0)
                         {
                             for (var p = 0; p < size; p++)
@@ -435,12 +416,10 @@ namespace Itinero.Graphs.Geometric.Shapes
                     var elevationPosition = coordinatesPosition + newPointer * 4;
                     using (var elevationStream = new BinaryWriter(new LimitedStream(stream, elevationPosition)))
                     {
-                        long pointer;
-                        int size;
                         for (var i = 0; i < _index.Length; i++)
                         {
                             elevationStream.SeekBegin(elevationNewPointer * 2);
-                            ShapesArray.ExtractPointerAndSize(_index[i], out pointer, out size);
+                            ShapesArray.ExtractPointerAndSize(_index[i], out var pointer, out var size);
                             if (size > 0)
                             {
                                 for (var p = 0; p < size; p++)
@@ -499,8 +478,7 @@ namespace Itinero.Graphs.Geometric.Shapes
         /// </summary>
         public static ShapesArray CreateFrom(Stream stream, bool copy, bool hasElevation = false)
         {
-            long size;
-            return ShapesArray.CreateFrom(stream, copy, out size, hasElevation);
+            return ShapesArray.CreateFrom(stream, copy, out var _, hasElevation);
         }
 
         /// <summary>
