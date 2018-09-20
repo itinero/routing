@@ -59,6 +59,17 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] locations,
+            List<RouterPoint> resolvedLocations, T? max = null)
+            : this(router, profile, weightHandler, new PresolvedMassResolvingAlgorithm(
+                router, new IProfileInstance[] { profile }, locations, resolvedLocations))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
         public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver, T? max = null)
         {
             _router = router;
@@ -611,6 +622,14 @@ namespace Itinero.Algorithms.Matrices
         {
 
         }
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, List<RouterPoint> resolvedLocations, float max = float.MaxValue)
+            : base(router, profile, profile.DefaultWeightHandler(router), locations, resolvedLocations, max)
+        {
+
+        }
 
         protected sealed override bool BackwardVertexFound(int i, uint vertex, LinkedEdgePath<float> backwardVisit)
         {
@@ -694,6 +713,14 @@ namespace Itinero.Algorithms.Matrices
         /// </summary>
         public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, Weight max)
             : base(router, profile, profile.AugmentedWeightHandler(router), locations, max)
+        {
+
+        }
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, List<RouterPoint> resolvedLocations, Weight max)
+            : base(router, profile, profile.AugmentedWeightHandler(router), locations, resolvedLocations, max)
         {
 
         }
