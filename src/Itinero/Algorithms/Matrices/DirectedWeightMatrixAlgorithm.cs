@@ -59,10 +59,9 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, Coordinate[] locations,
-            List<RouterPoint> resolvedLocations, T? max = null)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, List<RouterPoint> resolvedLocations, T? max = null)
             : this(router, profile, weightHandler, new PresolvedMassResolvingAlgorithm(
-                router, new IProfileInstance[] { profile }, locations, resolvedLocations))
+                router, new IProfileInstance[] { profile }, resolvedLocations))
         {
 
         }
@@ -625,8 +624,8 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, List<RouterPoint> resolvedLocations, float max = float.MaxValue)
-            : base(router, profile, profile.DefaultWeightHandler(router), locations, resolvedLocations, max)
+        public DirectedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, List<RouterPoint> resolvedLocations, float max = float.MaxValue)
+            : base(router, profile, profile.DefaultWeightHandler(router), resolvedLocations, max)
         {
 
         }
@@ -719,8 +718,8 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
-        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations, List<RouterPoint> resolvedLocations, Weight max)
-            : base(router, profile, profile.AugmentedWeightHandler(router), locations, resolvedLocations, max)
+        public DirectedAugmentedWeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, List<RouterPoint> resolvedLocations, Weight max)
+            : base(router, profile, profile.AugmentedWeightHandler(router), resolvedLocations, max)
         {
 
         }
