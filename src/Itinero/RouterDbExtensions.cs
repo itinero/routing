@@ -1287,6 +1287,15 @@ namespace Itinero
                 }
             }
 
+            var vertexMeta = db.VertexMeta?[vertex];
+            if (vertexMeta != null)
+            {
+                foreach (var meta in vertexMeta)
+                {
+                    jsonWriter.WriteProperty(meta.Key, meta.Value, true, true);
+                }
+            }
+
             jsonWriter.WriteClose();
 
             jsonWriter.WriteClose();
