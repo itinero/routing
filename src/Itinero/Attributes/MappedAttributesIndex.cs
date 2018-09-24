@@ -307,6 +307,13 @@ namespace Itinero.Attributes
                 return _NO_DATA;
             }
 
+            if (_data == null ||
+                _data.Length == 0)
+            {
+                idx = -1;
+                return _NO_DATA;
+            }
+
             // do binary search.
             var left = 0;
             var right = (_pointer - 2) / 2;
