@@ -82,7 +82,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             var weights = new []
             {
                 new float[] {0, 1, 100,   2,   1,   1, 1, 1},
-                new float[]i {1, 0,   2, 100,   1,   1, 1, 1},
+                new float[] {1, 0,   2, 100,   1,   1, 1, 1},
                 new float[] {1, 1,   0,   1,   1, 200, 1, 1},
                 new float[] {1, 1,   1,   0, 200,   1, 1, 1},
                 new float[] {1, 1,   1,   1,   0,   1, 1, 2},
