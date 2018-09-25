@@ -49,6 +49,17 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler,
+            List<RouterPoint> resolvedLocations)
+            : this(router, profile, weightHandler, new PresolvedMassResolvingAlgorithm(
+                router, new IProfileInstance[] { profile }, resolvedLocations))
+        {
+
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
         public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver)
         {
             _router = router;
@@ -220,6 +231,14 @@ namespace Itinero.Algorithms.Matrices
         /// </summary>
         public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, Coordinate[] locations)
             : base(router, profile, profile.DefaultWeightHandler(router), locations)
+        {
+
+        }
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, List<RouterPoint> resolvedLocations)
+            : base(router, profile, profile.DefaultWeightHandler(router), resolvedLocations)
         {
 
         }

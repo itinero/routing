@@ -39,15 +39,29 @@ namespace Itinero.Test.Functional.Tests
         public static void Run(RouterDb routerDb)
         {
             var router = new Router(routerDb);
-
-//            // just test some random routes.
-//            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random routes");
-//            GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Pedestrian random routes");
-//            GetTestRandomDirectedRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random directed routes");
-            GetTestDirectedSequences(router, router.Db.GetSupportedProfile("car"), 1).TestPerf("Car randome directed sequences.");
-//
-//            // tests many-to-many route calculation.
-//            GetTestManyToManyRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Calculating manytomany car routes");
+            
+            // run some routing tests for the 'car' profile.
+            // normal.
+            var profile = router.Db.GetSupportedProfile("car");
+//            GetTestRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random routes");
+//            GetTestSequences(router, profile, 1).TestPerf($"{profile.FullName} sequences.");
+//            // directed.
+//            GetTestDirecedRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random directed routes");
+            GetTestDirectedSequences(router, profile, 1).TestPerf($"{profile.FullName} directed sequences.");
+//            // one-to-many & many-to-many.
+//            GetTestOneToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} one-to-many routes");
+//            GetTestManyToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} many-to-many routes");
+//            
+//            // run some routing tests for the 'pedestrian' profile.
+//            profile = router.Db.GetSupportedProfile("pedestrian");
+//            GetTestRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random routes");
+//            GetTestSequences(router, profile, 1).TestPerf($"{profile.FullName} sequences.");
+//            // directed (testing 'directed' doesn't make sense here) 
+//            // GetTestDirecedRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random directed routes");
+//            // GetTestDirectedSequences(router, profile, 1).TestPerf($"{profile.FullName} directed sequences.");
+//            // one-to-many & many-to-many.
+//            GetTestOneToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} one-to-many routes");
+//            GetTestManyToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} many-to-many routes");
         }
 
         /// <summary>
@@ -115,7 +129,7 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a number of routes.
         /// </summary>
-        public static Func<string> GetTestRandomDirectedRoutes(Router router, Profiles.Profile profile, int count)
+        public static Func<string> GetTestDirecedRandomRoutes(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
             var list = new List<Tuple<RouterPoint, bool>>();
@@ -157,6 +171,46 @@ namespace Itinero.Test.Functional.Tests
                 }
 
                 return string.Format("{0}/{1} routes failed.", errors, count);
+            };
+        }
+        
+        /// <summary>
+        /// Tests calculating a number of sequences.
+        /// </summary>
+        public static Func<string> GetTestSequences(Router router, Profiles.Profile profile, int count)
+        {
+            var random = new System.Random();
+            var list = new List<RouterPoint[]>();
+
+            var locations = StagingHelper.GetLocations("./Tests/data/sequence1.geojson");
+            var routerpoints = router.Resolve(profile, locations);
+            list.Add(routerpoints);
+            
+            locations = StagingHelper.GetLocations("./Tests/data/sequence2.geojson");
+            routerpoints = router.Resolve(profile, locations);
+            list.Add(routerpoints);
+
+            return () =>
+            {
+                var errors = 0;
+                for (var i = 0; i < list.Count; i++)
+                {
+                    var route = router.TryCalculate(profile, list[i].ToArray(), CancellationToken.None);
+                    if (route.IsError)
+                    {
+#if DEBUG
+#endif
+                        errors++;
+                    }
+                    else
+                    {
+#if DEBUG
+                        var json = route.Value.ToGeoJson();
+#endif
+                    }
+                }
+
+                return string.Format("{0}/{1} routes failed.", errors, list.Count);
             };
         }
 
@@ -251,9 +305,9 @@ namespace Itinero.Test.Functional.Tests
         }
         
         /// <summary>
-        /// Tests calculating a collection of one to one routes.
+        /// Tests calculating one-to-many routes.
         /// </summary>
-        public static Func<PerformanceTestResult<EdgePath<float>[][]>> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
+        public static Func<PerformanceTestResult<Result<Route[]>>> GetTestOneToManyRoutes(Router router, Profiles.Profile profile, int size)
         {
             var random = new System.Random();
             var list = new List<RouterPoint>();
@@ -271,11 +325,33 @@ namespace Itinero.Test.Functional.Tests
             }
             var resolvedPoints = list.ToArray();
 
-            return () =>
+            return () => new PerformanceTestResult<Result<Route[]>>(
+                router.TryCalculate(profile, resolvedPoints[0], resolvedPoints));
+        }
+        
+        /// <summary>
+        /// Tests calculating many-to-many routes.
+        /// </summary>
+        public static Func<PerformanceTestResult<Result<Route[][]>>> GetTestManyToManyRoutes(Router router, Profiles.Profile profile, int size)
+        {
+            var random = new System.Random();
+            var list = new List<RouterPoint>();
+            while (list.Count < size)
             {
-                return new PerformanceTestResult<EdgePath<float>[][]>(
-                    router.TryCalculateRaw(profile, router.GetDefaultWeightHandler(profile), resolvedPoints, resolvedPoints, null).Value);
-            };
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+                var resolved = router.TryResolve(profile, f1);
+                if (resolved.IsError)
+                {
+                    continue;
+                }
+                var direction = random.NextDouble() >= 0.5;
+                list.Add(resolved.Value);
+            }
+            var resolvedPoints = list.ToArray();
+
+            return () => new PerformanceTestResult<Result<Route[][]>>(
+                router.TryCalculate(profile, resolvedPoints, resolvedPoints));
         }
     }
 }

@@ -1082,6 +1082,171 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Gets a geojson containing the given edge and optionally it's neighbours.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        /// <param name="vertexIds">The vertices to get.</param>
+        /// <param name="neighbours">Flag to get neighbours or not.</param>
+        public static string GetGeoJsonVertices(this RouterDb db, bool neighbours = false, params uint[] vertexIds)
+        {
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+
+            var writer = new StringWriter();
+
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            // collect all edges and vertices to write.
+            var vertices = new HashSet<uint>();
+            var originalVertices = new HashSet<uint>(vertexIds);
+            var edges = new HashSet<uint>();
+            foreach (var vertex in vertexIds)
+            {
+                vertices.Add(vertex);
+
+                if (neighbours)
+                {
+                    if (edgeEnumerator.MoveTo(vertex))
+                    {
+                        while (edgeEnumerator.MoveNext())
+                        {
+                            vertices.Add(edgeEnumerator.To);
+
+                            edges.Add(edgeEnumerator.Id);
+                        }
+                    }
+                }
+                else
+                {
+                    if (edgeEnumerator.MoveTo(vertex))
+                    {
+                        while (edgeEnumerator.MoveNext())
+                        {
+                            if (originalVertices.Contains(edgeEnumerator.To))
+                            {
+                                edges.Add(edgeEnumerator.Id);
+                            }
+                        }
+                    }
+                }
+            }
+
+            foreach (var edgeId in edges)
+            {
+                edgeEnumerator.MoveToEdge(edgeId);
+                db.WriteEdge(jsonWriter, edgeEnumerator);
+            }
+
+            foreach (var vertex in vertices)
+            {
+                db.WriteVertex(jsonWriter, vertex);
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+
+            return writer.ToString();
+        }
+
+        /// <summary>
+        /// Gets a geojson containing the given edge and optionally it's neighbours.
+        /// </summary>
+        /// <param name="db">The router db.</param>
+        /// <param name="edgeIds">The edge id's to get.</param>
+        /// <param name="neighbours">Flag to get neighbours or not.</param>
+        /// <param name="includeVertices">Flag to get vertices or not.</param>
+        public static string GetGeoJsonEdges(this RouterDb db, bool neighbours = false,
+            bool includeVertices = true, params uint[] edgeIds)
+        {
+            var edgeEnumerator = db.Network.GetEdgeEnumerator();
+            
+            var writer = new StringWriter();
+            
+            var jsonWriter = new JsonWriter(writer);
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
+            jsonWriter.WritePropertyName("features", false);
+            jsonWriter.WriteArrayOpen();
+
+            // collect all edges and vertices to write.
+            HashSet<uint> vertices = null;
+            var edges = new HashSet<uint>();
+            foreach (var edgeId in edgeIds)
+            {
+                edges.Add(edgeId);
+                
+                if (includeVertices)
+                {
+                    edgeEnumerator.MoveToEdge(edgeId);
+                    if (vertices == null)
+                    {
+                        vertices = new HashSet<uint>();
+                    }
+
+                    vertices.Add(edgeEnumerator.From);
+                    vertices.Add(edgeEnumerator.To);
+                }
+
+                if (!neighbours) continue;
+
+                edgeEnumerator.MoveToEdge(edgeId);
+
+                var from = edgeEnumerator.From;
+                var to = edgeEnumerator.To;
+
+                if (edgeEnumerator.MoveTo(@from))
+                {
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        if (edges.Contains(edgeEnumerator.Id)) continue;
+                        edges.Add(edgeEnumerator.Id);
+
+                        if (!includeVertices) continue;
+                            
+                        vertices.Add(edgeEnumerator.From);
+                        vertices.Add(edgeEnumerator.To);
+                    }
+                }
+
+                if (edgeEnumerator.MoveTo(to))
+                {
+                    while (edgeEnumerator.MoveNext())
+                    {
+                        if (edges.Contains(edgeEnumerator.Id)) continue;
+                        edges.Add(edgeEnumerator.Id);
+
+                        if (!includeVertices) continue;
+                            
+                        vertices.Add(edgeEnumerator.From);
+                        vertices.Add(edgeEnumerator.To);
+                    }
+                }
+            }
+
+            foreach (var edgeId in edges)
+            {
+                edgeEnumerator.MoveToEdge(edgeId);
+                db.WriteEdge(jsonWriter, edgeEnumerator);
+            }
+
+            if (vertices != null)
+            {
+                foreach (var vertex in vertices)
+                {
+                    db.WriteVertex(jsonWriter, vertex);
+                }
+            }
+
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose();
+            
+            return writer.ToString();
+        }
+
+        /// <summary>
         /// Writes a point-geometry for the given vertex.
         /// </summary>
         internal static void WriteVertex(this RouterDb db, JsonWriter jsonWriter, uint vertex)
@@ -1119,6 +1284,15 @@ namespace Itinero
                     {
                         jsonWriter.WriteProperty(dataName, data.ToInvariantString());
                     }
+                }
+            }
+
+            var vertexMeta = db.VertexMeta?[vertex];
+            if (vertexMeta != null)
+            {
+                foreach (var meta in vertexMeta)
+                {
+                    jsonWriter.WriteProperty(meta.Key, meta.Value, true, true);
                 }
             }
 

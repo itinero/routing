@@ -384,15 +384,23 @@ namespace Itinero.IO.Osm.Streams
                     var metaTags = new AttributeCollection();
                     foreach (var tag in way.Tags)
                     {
-                        if (profileWhiteList.Contains(tag.Key) ||
-                            _vehicleCache.Vehicles.IsOnProfileWhiteList(tag.Key))
+                        if (profileWhiteList.Contains(tag.Key))
                         {
                             profileTags.Add(tag);
                         }
-                        if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key))
+                        else if (_vehicleCache.Vehicles.IsOnProfileWhiteList(tag.Key))
                         {
                             metaTags.Add(tag);
                         }
+                        else if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key))
+                        {
+                            metaTags.Add(tag);
+                        }
+                    }
+                    
+                    if (!_vehicleCache.AnyCanTraverse(profileTags))
+                    { // way has some use, add all of it's nodes to the index.
+                        return;
                     }
 
                     // get profile and meta-data id's.

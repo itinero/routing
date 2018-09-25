@@ -248,6 +248,7 @@ function factor_and_speed_networks (attributes, result)
 
 	if attributes.cyclenetwork then
 		result.factor = result.factor / 5
+		result.attributes_to_keep["cyclenetwork"] = true
 	end
 
 end

@@ -30,6 +30,7 @@ using Itinero.Data;
 using System;
 using Itinero.Elevation;
 using Itinero.LocalGeo.Elevation;
+using Edge = NetTopologySuite.Planargraph.Edge;
 
 namespace Itinero.Test
 {
@@ -801,6 +802,69 @@ namespace Itinero.Test
                 Assert.IsNotNull(meta);
                 Assert.AreEqual(attributes, meta);
             }
+        }
+
+        /// <summary>
+        /// Tests getting geojson for edges.
+        /// </summary>
+        [Test]
+        public void TestGetGeoJsonEdges()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network6.geojson"));
+            routerDb.Sort();
+            
+            var router = new Router(routerDb);
+            var resolved = router.Resolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 51.26568779210525f, 4.793654680252075f);
+
+            var json = routerDb.GetGeoJsonEdges(edgeIds: resolved.EdgeId);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":5,\"vertex2\":4,\"edge_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.796669,51.2657]},\"properties\":{\"id\":5,\"node_id\":2}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4,\"node_id\":1}}]}",
+                json);
+            
+            json = routerDb.GetGeoJsonEdges(edgeIds: resolved.EdgeId, includeVertices: false);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":5,\"vertex2\":4,\"edge_id\":3}}]}",
+                json);
+            
+            json = routerDb.GetGeoJsonEdges(edgeIds: resolved.EdgeId, neighbours: true);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":5,\"vertex2\":4,\"edge_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.79948,51.2657]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":1,\"vertex1\":5,\"vertex2\":6,\"edge_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.795725,51.26694],[4.796669,51.2657]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":4,\"vertex1\":2,\"vertex2\":5,\"edge_id\":7}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.787357,51.26565],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":0,\"vertex1\":7,\"vertex2\":4,\"edge_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3,\"edge_id\":5}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.796669,51.2657]},\"properties\":{\"id\":5,\"node_id\":2}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4,\"node_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.79948,51.2657]},\"properties\":{\"id\":6,\"node_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.795725,51.26694]},\"properties\":{\"id\":2,\"node_id\":5}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.787357,51.26565]},\"properties\":{\"id\":7,\"node_id\":0}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.791756,51.26695]},\"properties\":{\"id\":3,\"node_id\":4}}]}",
+                json);
+            
+            json = routerDb.GetGeoJsonEdges(edgeIds: resolved.EdgeId, neighbours: true, includeVertices: false);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":5,\"vertex2\":4,\"edge_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.79948,51.2657]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":1,\"vertex1\":5,\"vertex2\":6,\"edge_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.795725,51.26694],[4.796669,51.2657]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":4,\"vertex1\":2,\"vertex2\":5,\"edge_id\":7}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.787357,51.26565],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":0,\"vertex1\":7,\"vertex2\":4,\"edge_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3,\"edge_id\":5}}]}", 
+                json);
+        }
+
+        /// <summary>
+        /// Tests getting geojson for vertices.
+        /// </summary>
+        [Test]
+        public void TestGetGeoJsonVertices()
+        {
+            var routerDb = new RouterDb();
+            routerDb.AddSupportedVehicle(Itinero.Osm.Vehicles.Vehicle.Car);
+            routerDb.LoadTestNetwork(
+                System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                    "Itinero.Test.test_data.networks.network6.geojson"));
+            routerDb.Sort();
+            
+            var router = new Router(routerDb);
+            var resolved = router.Resolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 51.26568779210525f, 4.793654680252075f);
+            var edge = routerDb.Network.GetEdge(resolved.EdgeId);
+
+            var json = routerDb.GetGeoJsonVertices(vertexIds: edge.From);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.796669,51.2657]},\"properties\":{\"id\":5,\"node_id\":2}}]}", 
+                json);
+            
+            json = routerDb.GetGeoJsonVertices(vertexIds: new [] { edge.From, edge.To });
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":5,\"vertex2\":4,\"edge_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.796669,51.2657]},\"properties\":{\"id\":5,\"node_id\":2}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4,\"node_id\":1}}]}", 
+                json);
+            
+            json = routerDb.GetGeoJsonVertices(vertexIds: new [] { edge.From, edge.To }, neighbours: true);
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.79948,51.2657]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":1,\"vertex1\":5,\"vertex2\":6,\"edge_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.795725,51.26694],[4.796669,51.2657]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":4,\"vertex1\":2,\"vertex2\":5,\"edge_id\":7}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.796669,51.2657],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":5,\"vertex1\":5,\"vertex2\":4,\"edge_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.787357,51.26565],[4.790533,51.26566]]},\"properties\":{\"highway\":\"residential\",\"edgeid\":0,\"vertex1\":7,\"vertex2\":4,\"edge_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.790533,51.26566],[4.791756,51.26695]]},\"properties\":{\"highway\":\"residential\",\"oneway\":\"yes\",\"edgeid\":2,\"vertex1\":4,\"vertex2\":3,\"edge_id\":5}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.796669,51.2657]},\"properties\":{\"id\":5,\"node_id\":2}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.79948,51.2657]},\"properties\":{\"id\":6,\"node_id\":3}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.795725,51.26694]},\"properties\":{\"id\":2,\"node_id\":5}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.790533,51.26566]},\"properties\":{\"id\":4,\"node_id\":1}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.787357,51.26565]},\"properties\":{\"id\":7,\"node_id\":0}},{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.791756,51.26695]},\"properties\":{\"id\":3,\"node_id\":4}}]}",
+                json);
         }
     }
 }

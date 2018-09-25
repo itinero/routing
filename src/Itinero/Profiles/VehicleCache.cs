@@ -19,6 +19,7 @@
 using Itinero.Attributes;
 using Itinero.Profiles;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Profiles
 {
@@ -174,15 +175,19 @@ namespace Itinero.Profiles
                 }
             }
 
-            Whitelist whitelist;
-            if (this.TryGetCached(filtered, out whitelist, false))
+            if (this.TryGetCached(filtered, out var whitelist, out var canTraverse, false))
             {
-                return whitelist.Count > 0;
+                if (whitelist.Count > 0)
+                {
+                    return canTraverse.Contains(true);
+                }
             }
-            bool[] canTraverse;
             if (this.Add(filtered, out whitelist, out canTraverse, false))
             {
-                return whitelist.Count > 0;
+                if (whitelist.Count > 0)
+                {
+                    return canTraverse.Contains(true);
+                }
             }
 
             return false;

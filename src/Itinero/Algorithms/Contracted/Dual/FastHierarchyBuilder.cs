@@ -53,7 +53,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         private BinaryHeap<uint> _queue; // the vertex-queue.
         private DirectedGraph _witnessGraph; // the graph with all the witnesses.
         protected BitArray32 _contractedFlags; // contains flags for contracted vertices.
-        private int _k = 20; // The amount of queue 'misses' before recalculation of queue.
+        private int _k = 200; // The amount of queue 'misses' before recalculation of queue.
         private int _misses; // Holds a counter of all misses.
         private Queue<bool> _missesQueue; // Holds the misses queue.
 

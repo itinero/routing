@@ -27,6 +27,7 @@ using Itinero.Data.Network;
 using Itinero.Data.Network.Edges;
 using Itinero.Graphs;
 using Itinero.Graphs.Directed;
+using Itinero.Logging;
 using Itinero.Profiles;
 using Itinero.Profiles.Lua.Tree;
 using Reminiscence.Arrays;
@@ -407,14 +408,17 @@ namespace Itinero.Algorithms.Networks.Islands
 
                 currentVertex++;
             }
-            System.Console.WriteLine("Built directional graph.");
+            Itinero.Logging.Logger.Log($"{nameof(EdgeBasedIslandDetector)}.{nameof(Run)}", TraceEventType.Verbose,
+                "Built directional graph.");
             
             // calculate all loops with increasing max settle settings until they are unlimited and all loops are removed.
             uint maxSettles = 1;
-            System.Console.WriteLine($"Label graph has {islandLabelGraph.LabelCount} labels.");
+            Itinero.Logging.Logger.Log($"{nameof(EdgeBasedIslandDetector)}.{nameof(Run)}", TraceEventType.Verbose,
+                $"Label graph has {islandLabelGraph.LabelCount} labels.");
             while (true)
             {
-                System.Console.WriteLine($"Running loop detection with {maxSettles}.");
+                Itinero.Logging.Logger.Log($"{nameof(EdgeBasedIslandDetector)}.{nameof(Run)}", TraceEventType.Verbose,
+                    $"Running loop detection with {maxSettles}.");
 
                 var lastRun = maxSettles > islandLabelGraph.LabelCount;
                 
@@ -436,8 +440,9 @@ namespace Itinero.Algorithms.Networks.Islands
                 }
                 
                 // reduce graph.
-                var labelCount = islandLabelGraph.Reduce(_islandLabels);                
-                System.Console.WriteLine($"Label graph now has {labelCount} non-empty labels.");
+                var labelCount = islandLabelGraph.Reduce(_islandLabels);       
+                Itinero.Logging.Logger.Log($"{nameof(EdgeBasedIslandDetector)}.{nameof(Run)}", TraceEventType.Verbose,
+                    $"Label graph now has {labelCount} non-empty labels.");     
                 maxSettles = (uint) _network.EdgeCount;
             }
 

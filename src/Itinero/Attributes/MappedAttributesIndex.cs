@@ -92,8 +92,7 @@ namespace Itinero.Attributes
         {
             get
             {
-                int idx;
-                var p = this.Search(id, out idx);
+                var p = this.Search(id, out _);
                 if (p == _NO_DATA)
                 {
                     return null;
@@ -308,6 +307,13 @@ namespace Itinero.Attributes
                 return _NO_DATA;
             }
 
+            if (_data == null ||
+                _data.Length == 0)
+            {
+                idx = -1;
+                return _NO_DATA;
+            }
+
             // do binary search.
             var left = 0;
             var right = (_pointer - 2) / 2;
@@ -329,7 +335,19 @@ namespace Itinero.Attributes
             {
                 var middle = (left + right) / 2;
                 var middleData = _data[middle * 2];
-                
+
+                if (right - left == 1)
+                {
+                    if (_data[left * 2] == id)
+                    {
+                        right = left;
+                    }
+                    else if (_data[right * 2] == id)
+                    {
+                        left = right;
+                    }
+                    break; // id doesn't exist.
+                }
                 if (id < middleData)
                 {
                     right = middle;

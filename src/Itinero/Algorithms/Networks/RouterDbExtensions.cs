@@ -20,6 +20,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Itinero.Algorithms.Networks.Preprocessing;
 
 namespace Itinero.Algorithms.Networks
 {
@@ -222,6 +223,18 @@ namespace Itinero.Algorithms.Networks
             converter.Run(cancellationToken);
 
             converter.CheckHasRunAndHasSucceeded();
+        }
+
+        /// <summary>
+        /// Removes duplicate edges.
+        /// </summary>
+        /// <param name="db">The routerdb.</param>
+        public static void RemoveDuplicateEdges(this RouterDb db, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var duplicateEdgeRemover = new DuplicateEdgeRemover(db);
+            duplicateEdgeRemover.Run(cancellationToken);
+
+            duplicateEdgeRemover.CheckHasRunAndHasSucceeded();
         }
     }
 }

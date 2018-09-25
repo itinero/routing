@@ -29,6 +29,7 @@ using System.IO;
 using Itinero.LocalGeo;
 using System.Linq;
 using Itinero.Algorithms.Networks.Islands;
+using Itinero.Test.Functional.Tests.IO.Shape;
 
 namespace Itinero.Test.Functional
 {
@@ -69,6 +70,9 @@ namespace Itinero.Test.Functional
 //            // test instruction generation.
 //            InstructionTests.Run(routerDb);
 
+            // test writing shapefile.
+            ShapeFileWriterTests.Run(routerDb);
+
             _logger.Log(TraceEventType.Information, "Testing finished.");
 #if DEBUG
             Console.ReadLine();
@@ -81,8 +85,9 @@ namespace Itinero.Test.Functional
             var loggingBlacklist = new HashSet<string>();
 #else
             var loggingBlacklist = new HashSet<string>(
-                new string[] { "StreamProgress",
-                    "RouterDbStreamTarget",
+                new string[] { 
+                    "StreamProgress",
+                    //"RouterDbStreamTarget",
                     "RouterBaseExtensions",
                     "HierarchyBuilder",
                     "RestrictionProcessor",

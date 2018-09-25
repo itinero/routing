@@ -6,7 +6,9 @@
 [![Apache 2.0 licensed](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/itinero/routing/blob/develop/LICENSE.md)
 
 - Itinero: [![NuGet Badge](https://buildstats.info/nuget/Itinero)](https://www.nuget.org/packages/Itinero/)
+- Itinero.Geo: [![NuGet Badge](https://buildstats.info/nuget/Itinero.Geo)](https://www.nuget.org/packages/Itinero.Geo/)
 - Itinero.IO.Osm: [![NuGet Badge](https://buildstats.info/nuget/Itinero.IO.Osm)](https://www.nuget.org/packages/Itinero.IO.Osm/)
+- Itinero.IO.Shape: [![NuGet Badge](https://buildstats.info/nuget/Itinero.IO.Shape)](https://www.nuget.org/packages/Itinero.IO.Shape/)
 
 **Itinero** is a routing project for .NET/Mono to calculate routes in a road network. By default the routing network is based on OpenStreetMap (OSM) but it's possible to load any road network. The most important features:
 
