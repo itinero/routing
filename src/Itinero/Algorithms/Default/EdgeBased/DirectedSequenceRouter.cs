@@ -101,26 +101,28 @@ namespace Itinero.Algorithms.Default.EdgeBased
             
             // build route.
             var routes = new List<Result<Route>>();
-            for (var p = 1; p < directedWeightMatricAlgorithm.RouterPoints.Count - 1; p++)
+            for (var p = 0; p < directedWeightMatricAlgorithm.RouterPoints.Count - 1; p++)
             {
                 var point1 = directedWeightMatricAlgorithm.RouterPoints[p];
                 var point2 = directedWeightMatricAlgorithm.RouterPoints[p + 1];
 
-                var departureDirection1 = (turns[p] == 1 || turns[p] == 3) ? 1 : 0;
-                var arrivalDirection2 = (turns[p + 1] == 2 || turns[p + 1] == 3) ? 1 : 0;
+                var point1Turn = (turns[p] % 4);
+                var point1Departure = (point1Turn == 1 || point1Turn == 3) ? 1 : 0;
+                var point2Turn = (turns[p + 1] % 4);
+                var point2Arrival = (point2Turn == 2 || point2Turn == 3) ? 1 : 0;
 
-                var path1 = directedWeightMatricAlgorithm.SourcePaths[p * 2 + departureDirection1];
+                var path1 = directedWeightMatricAlgorithm.SourcePaths[p * 2 + point1Departure];
                 if (path1 == null)
                 {
                     routes.Add(new Result<Route>(
-                        $"Raw path was not found between {p}[{departureDirection1}]->{p + 1}[{arrivalDirection2}]: Start location impossible."));
+                        $"Raw path was not found between {p}[{point1Departure}]->{p + 1}[{point2Arrival}]: Start location impossible."));
                     continue;
                 }
-                var path2 = directedWeightMatricAlgorithm.TargetPaths[(p + 1) * 2 + arrivalDirection2];
+                var path2 = directedWeightMatricAlgorithm.TargetPaths[(p + 1) * 2 + point2Arrival];
                 if (path2 == null)
                 {
                     routes.Add(new Result<Route>(
-                        $"Raw path was not found between {p}[{departureDirection1}]->{p + 1}[{arrivalDirection2}]: End location impossible."));
+                        $"Raw path was not found between {p}[{point1Departure}]->{p + 1}[{point2Arrival}]: End location impossible."));
                     continue;
                 }
                 var pairFromEdgeId = router.Db.Network.GetEdges(path1.From.Vertex).First(x => x.To == path1.Vertex).IdDirected();
@@ -130,7 +132,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 if (localRouteRawResult.IsError)
                 {
                     routes.Add(new Result<Route>(
-                        $"Raw path was not found between {p}[{departureDirection1}]->{p + 1}[{arrivalDirection2}]: {localRouteRawResult.ErrorMessage}"));
+                        $"Raw path was not found between {p}[{point1Departure}]->{p + 1}[{point2Arrival}]: {localRouteRawResult.ErrorMessage}"));
                     continue;
                 }
 
@@ -142,7 +144,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 if (localRoute.IsError)
                 {
                     routes.Add(new Result<Route>(
-                        $"Route was not found between {p}[{departureDirection1}]->{p+1}[{arrivalDirection2}]: {localRoute.ErrorMessage}"));
+                        $"Route was not found between {p}[{point1Departure}]->{p+1}[{point2Arrival}]: {localRoute.ErrorMessage}"));
                     continue;
                 }
 

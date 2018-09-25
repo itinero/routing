@@ -220,15 +220,12 @@ namespace Itinero.Test.Functional.Tests
         public static Func<string> GetTestDirectedSequences(Router router, Profiles.Profile profile, int count)
         {
             var random = new System.Random();
-            var list = new List<RouterPoint[]>();
-
-            var locations = StagingHelper.GetLocations("./Tests/data/sequence1.geojson");
-            var routerpoints = router.Resolve(profile, locations);
-            list.Add(routerpoints);
-            
-            locations = StagingHelper.GetLocations("./Tests/data/sequence2.geojson");
-            routerpoints = router.Resolve(profile, locations);
-            list.Add(routerpoints);
+            var list = new List<RouterPoint[]>
+            {
+                router.Resolve(profile, StagingHelper.GetLocations("./Tests/data/sequence1.geojson")),
+                router.Resolve(profile, StagingHelper.GetLocations("./Tests/data/sequence2.geojson")),
+                router.Resolve(profile, StagingHelper.GetLocations("./Tests/data/sequence3.geojson"))
+            };
 
             return () =>
             {
