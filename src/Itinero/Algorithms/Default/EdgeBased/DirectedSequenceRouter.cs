@@ -39,6 +39,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly float _turnPenalty;
         private readonly Tuple<bool?, bool?>[] _fixedTurns = null;
         private readonly IDirectedWeightMatrixAlgorithm<float> _directedWeightMatrixAlgorithm;
+        private const float NonFixedTurnPentalty = 1000f; // a 'big' number that is applied as a penalty to a turn that ignores the fixed turns array.
 
         /// <summary>
         /// Creates a new router.
@@ -181,6 +182,13 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <returns>A sequence of optimal turns.</returns>
         internal static int[] CalculateOptimimal(float[][] directedWeights, float turnPenalty, Tuple<bool?, bool?>[] fixedTurns = null)
         {
+            // on the fixedTurns:
+            // it's possible for the user of this algorithm to request impossible routes.
+            // we respond to this by applying a big penalty to turns that are restricted but 
+            // instad of making them impossible. This way this algorithm still doesn't return restricted
+            // routes when possible but returns a restricted route when the request is impossible.
+            // It also minizes the violated restrictions this way.
+            
             var settled = new HashSet<int>();
             var queue = new BinaryHeap<int>();
             var paths = new Tuple<int, float>[directedWeights.Length * 2]; // (int previous, float cost)[capacity];
@@ -209,8 +217,19 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 p = c;
             }
 
-            queue.Push(0, 0);
-            queue.Push(1, 0);
+            if (fixedTurns?[0].Item2 == null)
+            { // there is no fixed departure turn, consider both options.
+                queue.Push(0, 0);
+                queue.Push(1, 0);
+            }
+            else
+            { // there is fixed turn, only add the relevant turn.
+                if (fixedTurns[0].Item2.Value)
+                { // turn is fixed departure forward.
+                    queue.Push(0, 0);
+                    queue.Push(1, NonFixedTurnPentalty);
+                }
+            }
             var bestLast = -1;
             while (queue.Count > 0)
             {
@@ -240,6 +259,37 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         continue;
                     }
                     var nextArrival =  (nextTurn == 2 || nextTurn == 3) ? 1 : 0;
+                    
+                    // figure out penalty if any.
+                    var fixedTurnPenalty = 0f;
+                    if (fixedTurns?[nextVisit].Item1 != null)
+                    { // there is a fixed arrival turn for this visit.
+                        if (fixedTurns[nextVisit].Item1.Value &&
+                            nextArrival == 1)
+                        { // turn is fixed arrival forward and current turn is arrival backward.
+                            fixedTurnPenalty += NonFixedTurnPentalty;
+                        }
+                        if (!fixedTurns[nextVisit].Item1.Value &&
+                            nextArrival == 0)
+                        { // turn is fixed arrival backward and current turn is arrival forward.
+                            fixedTurnPenalty += NonFixedTurnPentalty;
+                        }
+                    }
+
+                    if (fixedTurns?[nextVisit].Item2 != null)
+                    { // there is a fixed departure turn for this visit.
+                        var nextDeparture =  (nextTurn == 1 || nextTurn == 3) ? 1 : 0;
+                        if (fixedTurns[nextVisit].Item2.Value &&
+                            nextDeparture == 1)
+                        { // turn is fixed departure forward and current turn is departure backward.
+                            fixedTurnPenalty += NonFixedTurnPentalty;
+                        }
+                        if (!fixedTurns[nextVisit].Item2.Value &&
+                            nextDeparture == 0)
+                        { // turn is fixed departure backward and current turn is departure forward.
+                            fixedTurnPenalty += NonFixedTurnPentalty;
+                        }
+                    }
 
                     var w = directedWeights[currentVisit * 2 + currentDeparture][nextVisit * 2 + nextArrival];
                     if (w >= float.MaxValue)
@@ -250,6 +300,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     { // a u-turn.
                         w += turnPenalty;
                     }
+                    w += fixedTurnPenalty;
 
                     if (paths[next].Item2 > w)
                     {

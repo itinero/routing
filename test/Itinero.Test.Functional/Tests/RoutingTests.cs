@@ -219,6 +219,28 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Func<string> GetTestDirectedSequences(Router router, Profiles.Profile profile, int count)
         {
+            var preferredTurns = new []
+            {
+                new Tuple<bool?, bool?>(null, true),
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null), 
+                new Tuple<bool?, bool?>(null, null)
+            };
+            
             var random = new System.Random();
             var list = new List<RouterPoint[]>
             {
@@ -232,7 +254,21 @@ namespace Itinero.Test.Functional.Tests
                 var errors = 0;
                 for (var i = 0; i < list.Count; i++)
                 {
-                    var route = router.TryCalculate(profile, list[i].ToArray(), 60, CancellationToken.None);
+                    var route = router.TryCalculate(profile, list[i].ToArray(), 60);
+                    if (route.IsError)
+                    {
+#if DEBUG
+#endif
+                        errors++;
+                    }
+                    else
+                    {
+#if DEBUG
+                        var json = route.Value.ToGeoJson();
+#endif
+                    }
+                    
+                    route = router.TryCalculate(profile, list[i].ToArray(), 60, preferredTurns);
                     if (route.IsError)
                     {
 #if DEBUG
