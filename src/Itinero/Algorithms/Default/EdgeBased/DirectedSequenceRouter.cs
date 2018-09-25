@@ -39,7 +39,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private readonly float _turnPenalty;
         private readonly Tuple<bool?, bool?>[] _fixedTurns = null;
         private readonly IDirectedWeightMatrixAlgorithm<float> _directedWeightMatrixAlgorithm;
-        private const float NonFixedTurnPentalty = 1000f; // a 'big' number that is applied as a penalty to a turn that ignores the fixed turns array.
+        private const float NonFixedTurnPentalty = 100000f; // a 'big' number that is applied as a penalty to a turn that ignores the fixed turns array.
 
         /// <summary>
         /// Creates a new router.
@@ -224,10 +224,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
             }
             else
             { // there is fixed turn, only add the relevant turn.
-                if (fixedTurns[0].Item2.Value)
+                if (!fixedTurns[0].Item2.Value)
                 { // turn is fixed departure forward.
                     queue.Push(0, 0);
                     queue.Push(1, NonFixedTurnPentalty);
+                }
+                else
+                { // turn is fixed departure backward.
+                    queue.Push(0, NonFixedTurnPentalty);
+                    queue.Push(1, 0);
                 }
             }
             var bestLast = -1;
@@ -264,12 +269,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     var fixedTurnPenalty = 0f;
                     if (fixedTurns?[nextVisit].Item1 != null)
                     { // there is a fixed arrival turn for this visit.
-                        if (fixedTurns[nextVisit].Item1.Value &&
+                        if (!fixedTurns[nextVisit].Item1.Value &&
                             nextArrival == 1)
                         { // turn is fixed arrival forward and current turn is arrival backward.
                             fixedTurnPenalty += NonFixedTurnPentalty;
                         }
-                        if (!fixedTurns[nextVisit].Item1.Value &&
+                        if (fixedTurns[nextVisit].Item1.Value &&
                             nextArrival == 0)
                         { // turn is fixed arrival backward and current turn is arrival forward.
                             fixedTurnPenalty += NonFixedTurnPentalty;
@@ -279,12 +284,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     if (fixedTurns?[nextVisit].Item2 != null)
                     { // there is a fixed departure turn for this visit.
                         var nextDeparture =  (nextTurn == 1 || nextTurn == 3) ? 1 : 0;
-                        if (fixedTurns[nextVisit].Item2.Value &&
+                        if (!fixedTurns[nextVisit].Item2.Value &&
                             nextDeparture == 1)
                         { // turn is fixed departure forward and current turn is departure backward.
                             fixedTurnPenalty += NonFixedTurnPentalty;
                         }
-                        if (!fixedTurns[nextVisit].Item2.Value &&
+                        if (fixedTurns[nextVisit].Item2.Value &&
                             nextDeparture == 0)
                         { // turn is fixed departure backward and current turn is departure forward.
                             fixedTurnPenalty += NonFixedTurnPentalty;

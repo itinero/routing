@@ -862,6 +862,37 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Determines the direction from the given angle, true meaning forward relative to the edge in the routerpoint, false backwards.
+        /// </summary>
+        /// <param name="routerPoint">The router point.</param>
+        /// <param name="routerDb">The router db.</param>
+        /// <param name="angle">The angle in degrees relative to the longitudinal lines.</param>
+        /// <param name="diffLimit">The diff limit when the angle is smaller than this we consider it the same direction.</param>
+        /// <returns>True when forward, false when backward, null when direction couldn't be determined (outside of difflimit for example).</returns>
+        public static bool? DirectionFromAngle(this RouterPoint routerPoint, RouterDb routerDb, float? angle, float diffLimit = 90)
+        {
+            if (diffLimit <= 0 || diffLimit > 90) { throw new ArgumentOutOfRangeException(nameof(diffLimit), "Expected to be in range ]0, 90]."); }
+            if (routerDb == null) { throw new ArgumentNullException(nameof(routerDb)); }
+            if (routerPoint == null) { throw new ArgumentNullException(nameof(routerPoint)); }
+            if (angle == null) return null;
+
+            angle = (float)Tools.NormalizeDegrees(angle.Value);
+            var edgeAngle = routerPoint.Angle(routerDb.Network);
+            if (edgeAngle == null) return null; // no angle could be determined, for example on extremely short edges.
+            
+            var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(angle.Value, edgeAngle.Value));
+            if (diff < diffLimit)
+            { // forward, angle is close to that of the edge.
+                return true;
+            }
+            if (180 - diff < diffLimit)
+            { // backward, angle is close to the anti-direction of the edge.
+                return false;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Returns a geojson description for 
         /// </summary>
         public static string ToGeoJson(this RouterPoint routerPoint, RouterDb routerDb)

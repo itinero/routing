@@ -411,7 +411,7 @@ namespace Itinero
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, RouterPoint[] locations, CancellationToken cancellationToken)
         {
-            return router.TryCalculate(profile, locations, 0, null, cancellationToken);
+            return router.TryCalculate(profile, locations, 0, (Tuple<bool?, bool?>[])null, cancellationToken);
         }
 
         /// <summary>
@@ -1026,6 +1026,23 @@ namespace Itinero
         /// </summary>
         /// <param name="router">The router.</param>
         /// <param name="profile">The profile.</param>
+        /// <param name="resolvingAlgorithm">The resolving algorithm containing the location to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <param name="preferredDirections">The perferred directions in degrees.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Route Calculate(this RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm resolvingAlgorithm, float turnPenalty = 0,
+            float?[] preferredDirections = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return router.TryCalculate(profile, resolvingAlgorithm, turnPenalty, preferredDirections, cancellationToken).Value;
+        }
+
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
         /// <param name="locations">The locations to route along.</param>
         /// <param name="cancellationToken">The cancellation token, if any.</param>
         /// <param name="turnPenalty">The turn penalty, if any.</param>
@@ -1046,6 +1063,23 @@ namespace Itinero
         /// <param name="locations">The locations to route along.</param>
         /// <param name="cancellationToken">The cancellation token, if any.</param>
         /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <param name="preferredDirections">The perferred directions in degrees.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Route Calculate(this RouterBase router, IProfileInstance profile,
+            RouterPoint[] locations, float turnPenalty = 0, float?[] preferredDirections = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return router.TryCalculate(profile, locations, turnPenalty, preferredDirections, cancellationToken).Value;
+        }
+
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="locations">The locations to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
         /// <param name="preferredTurns">The perferred turns. First value for each point is the arrival direction, second value the departure direction.</param>
         /// <returns>A route along all the given locations.</returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -1053,6 +1087,23 @@ namespace Itinero
             Coordinate[] locations, float turnPenalty = 0, Tuple<bool?, bool?>[] preferredTurns = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return router.TryCalculate(profile, locations, turnPenalty, preferredTurns, cancellationToken).Value;
+        }
+
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="locations">The locations to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <param name="preferredDirections">The perferred directions in degrees.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Route Calculate(this RouterBase router, IProfileInstance profile,
+            Coordinate[] locations, float turnPenalty = 0, float?[] preferredDirections = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return router.TryCalculate(profile, locations, turnPenalty, preferredDirections, cancellationToken).Value;
         }
 
         /// <summary>
@@ -1140,12 +1191,37 @@ namespace Itinero
             return router.TryCalculate(profile, massResolvingAlgorith, turnPenalty, preferredTurns, cancellationToken);
         }
 
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="locations">The locations to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <param name="preferredDirections">The perferred directions in degrees.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
+            RouterPoint[] locations, float turnPenalty, float?[] preferredDirections, 
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (locations.Length < 2)
+            {
+                throw new ArgumentOutOfRangeException(nameof(locations), 
+                    "Cannot calculate a routing along less than two locations.");
+            }
+            
+            var massResolvingAlgorith = new MassResolvingAlgorithm(router, new[] {profile}, locations);
+            return router.TryCalculate(profile, massResolvingAlgorith, turnPenalty, preferredDirections, cancellationToken);
+        }
+
         /// <summary>
         /// Calculates a route along the given locations.
         /// </summary>
         public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations, CancellationToken cancellationToken)
         {
-            return router.TryCalculate(profile, locations, 0, null, cancellationToken);
+            return router.TryCalculate(profile, locations, 0, (Tuple<bool?, bool?>[])null, cancellationToken);
         }
         
         /// <summary> 
@@ -1163,6 +1239,23 @@ namespace Itinero
             Tuple<bool?, bool?>[] preferredTurns = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             return router.TryCalculate(profile, new MassResolvingAlgorithm(router, new[] { profile }, locations), turnPenalty, preferredTurns, cancellationToken);
+        }
+        
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="locations">The locations to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <param name="preferredDirections">The perferred directions in degrees.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile, Coordinate[] locations, float turnPenalty = 0, 
+            float?[] preferredDirections = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return router.TryCalculate(profile, new MassResolvingAlgorithm(router, new[] { profile }, locations), turnPenalty, preferredDirections, cancellationToken);
         }
 
         /// <summary> 
@@ -1224,6 +1317,41 @@ namespace Itinero
 
                 return routes.Concatenate();
             }
+        }
+
+        /// <summary> 
+        /// Calculates a route along the given locations.
+        /// </summary>
+        /// <param name="router">The router.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="resolvingAlgorithm">The resolving algorithm containing the location to route along.</param>
+        /// <param name="cancellationToken">The cancellation token, if any.</param>
+        /// <param name="turnPenalty">The turn penalty, if any.</param>
+        /// <param name="preferredDirections">The perferred directions in degrees.</param>
+        /// <returns>A route along all the given locations.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
+        public static Result<Route> TryCalculate(this RouterBase router, IProfileInstance profile,
+            IMassResolvingAlgorithm resolvingAlgorithm, float turnPenalty = 0, float?[] preferredDirections = null, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (preferredDirections == null)
+            {
+                return router.TryCalculate(profile, resolvingAlgorithm, turnPenalty, (Tuple<bool?, bool?>[]) null,
+                    cancellationToken);
+            }
+
+            if (!resolvingAlgorithm.HasRun)
+            {
+                resolvingAlgorithm.Run(cancellationToken);
+            }
+            var preferredTurns = new Tuple<bool?, bool?>[preferredDirections.Length];
+            for (var t = 0; t < preferredTurns.Length && t < resolvingAlgorithm.RouterPoints.Count; t++)
+            {
+                var direction = resolvingAlgorithm.RouterPoints[t]
+                    .DirectionFromAngle(router.Db, preferredDirections[t]);
+                preferredTurns[t] = new Tuple<bool?, bool?>(direction, direction);
+            }
+            return router.TryCalculate(profile, resolvingAlgorithm, turnPenalty, preferredTurns,
+                cancellationToken);
         }
 
         /// <summary>
@@ -1729,40 +1857,8 @@ namespace Itinero
                 targetDirection = (float)Itinero.LocalGeo.Tools.NormalizeDegrees(targetDirection.Value);
             }
 
-            bool? sourceForward = null;
-            if (sourceDirection != null)
-            { // calculate the angle and compare them.
-                var angle = source.Angle(router.Db.Network);
-                if  (angle != null)
-                {
-                    var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(sourceDirection.Value, angle.Value));
-                    if (diff < diffLimit)
-                    {
-                        sourceForward = true;
-                    }
-                    else if (180 - diff < diffLimit)
-                    {
-                        sourceForward = false;
-                    }
-                }
-            }
-            bool? targetForward = null;
-            if (targetDirection != null)
-            { // calculate the angle and compare them.
-                var angle = target.Angle(router.Db.Network);
-                if  (angle != null)
-                {
-                    var diff = System.Math.Abs(Itinero.LocalGeo.Tools.SmallestDiffDegrees(targetDirection.Value, angle.Value));
-                    if (diff < diffLimit)
-                    {
-                        targetForward = true;
-                    }
-                    else if (180 - diff < diffLimit)
-                    {
-                        targetForward = false;
-                    }
-                }
-            }
+            var sourceForward = source.DirectionFromAngle(router.Db, sourceDirection, diffLimit);
+            var targetForward = target.DirectionFromAngle(router.Db, targetDirection, diffLimit);
 
             return router.TryCalculate(profileInstance, weightHandler, source, sourceForward, target, targetForward, settings, cancellationToken);
         }
