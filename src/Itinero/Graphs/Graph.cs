@@ -656,10 +656,10 @@ namespace Itinero.Graphs
             if (_vertices[vertex1] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
             if (_vertices[vertex2] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
 
-            if (!_isSimple)
-            { // it's not supported to sort vertices in a multi-graph.
-                throw new NotSupportedException("It's not supported to switch vertices in a multi-graph.");
-            }
+//            if (!_isSimple)
+//            { // it's not supported to sort vertices in a multi-graph.
+//                throw new NotSupportedException("It's not supported to switch vertices in a multi-graph.");
+//            }
             
             // change things around in the edges of vertex1.
             var pointer = _vertices[vertex1];

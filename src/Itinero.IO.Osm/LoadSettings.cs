@@ -57,7 +57,7 @@ namespace Itinero.IO.Osm
         public IEnumerable<ITwoPassProcessor> Processors { get; set; }
 
         /// <summary>
-        /// Gets or sets the network simplification epsilon (in meter). When zero no network simplifcation is done.
+        /// Gets or sets the network simplification epsilon (in meter). When zero no network simplification is done.
         /// </summary>
         public float NetworkSimplificationEpsilon { get; set; }
 

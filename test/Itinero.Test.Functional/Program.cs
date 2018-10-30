@@ -29,6 +29,8 @@ using System.IO;
 using Itinero.LocalGeo;
 using System.Linq;
 using Itinero.Algorithms.Networks.Islands;
+using Itinero.Algorithms.Search.Hilbert;
+using Itinero.IO.Osm.Streams;
 using Itinero.Test.Functional.Tests.IO.Shape;
 
 namespace Itinero.Test.Functional
@@ -49,26 +51,49 @@ namespace Itinero.Test.Functional
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();
 
-            // test building a routerdb.
-            _logger.Log(TraceEventType.Information, "Starting tests...");
-            var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
+            var routerDb = new RouterDb();
+            using (var stream = File.OpenRead(Download.LuxembourgLocal))
+            {
+                var source = new OsmSharp.Streams.PBFOsmStreamSource(stream);
 
-            // test some routerdb extensions.
-            RouterDbExtensionsTests.Run(routerDb);
+                // make sure the routerdb can handle multiple edges.
+                routerDb.Network.GeometricGraph.Graph.MarkAsMulti();
+                
+                // load the data.
+                var target = new RouterDbStreamTarget(routerDb,
+                    new []
+                    {
+                        Itinero.Osm.Vehicles.Vehicle.Car, 
+                        Itinero.Osm.Vehicles.Vehicle.Bicycle, 
+                        Itinero.Osm.Vehicles.Vehicle.Pedestrian
+                    }, false, processRestrictions: true, processors: null,
+                    simplifyEpsilonInMeter: 1) {KeepNodeIds = true, KeepWayIds = true};
+                target.RegisterSource(source);
+                target.Pull();
 
-            // test resolving.
-            ResolvingTests.Run(routerDb);
+                routerDb.Sort();
+            }
 
-            // test routing.
-            RoutingTests.Run(routerDb);
-
-            // tests calculate weight matrices.
-            WeightMatrixTests.Run(routerDb);
-            
-            // test instruction generation.
-            InstructionTests.Run(routerDb);
-
+//            // test building a routerdb.
+//            _logger.Log(TraceEventType.Information, "Starting tests...");
+//            var routerDb = RouterDbBuildingTests.Run();
+//            var router = new Router(routerDb);
+//
+//            // test some routerdb extensions.
+//            RouterDbExtensionsTests.Run(routerDb);
+//
+//            // test resolving.
+//            ResolvingTests.Run(routerDb);
+//
+//            // test routing.
+//            RoutingTests.Run(routerDb);
+//
+//            // tests calculate weight matrices.
+//            WeightMatrixTests.Run(routerDb);
+//            
+//            // test instruction generation.
+//            InstructionTests.Run(routerDb);
+//
             // test writing shapefile.
             ShapeFileWriterTests.Run(routerDb);
 
