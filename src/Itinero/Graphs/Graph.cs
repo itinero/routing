@@ -23,6 +23,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Itinero.Graphs
 {
@@ -656,6 +657,14 @@ namespace Itinero.Graphs
             if (_vertices[vertex1] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex1)); }
             if (_vertices[vertex2] == Constants.NO_VERTEX) { throw new ArgumentException(string.Format("Vertex {0} does not exist.", vertex2)); }
 
+//            var edges1 = new List<Edge>(this.GetEdgeEnumerator(vertex1));
+//            var edges2 = new List<Edge>(this.GetEdgeEnumerator(vertex2));
+//
+//            if (vertex1 == 205 && vertex2 == 217)
+//            {
+//                Console.WriteLine("Instrumentation");
+//            }
+
 //            if (!_isSimple)
 //            { // it's not supported to sort vertices in a multi-graph.
 //                throw new NotSupportedException("It's not supported to switch vertices in a multi-graph.");
@@ -670,6 +679,10 @@ namespace Itinero.Graphs
                     if (_edges[pointer + NODEB] == vertex2)
                     { // vertex2 was NODEB.
                         _edges[pointer + NODEB] = vertex1;
+                    }
+                    else if (_edges[pointer + NODEB] == vertex1)
+                    { // an edge with same vertices.
+                        _edges[pointer + NODEB] = vertex2;
                     }
                     _edges[pointer + NODEA] = vertex2;
                     pointer = _edges[pointer + NEXTNODEA];
@@ -691,7 +704,13 @@ namespace Itinero.Graphs
             {
                 if (_edges[pointer + NODEA] == vertex2)
                 { // was NODEA.
-                    if (_edges[pointer + NODEB] == vertex1)
+                    if (_edges[pointer + NODEB] == vertex2)
+                    { // ok, both are is now vertex2, meaning this edge has not been changed yet.
+                        _edges[pointer + NODEA] = vertex1;
+                        _edges[pointer + NODEB] = vertex1;
+                        pointer = _edges[pointer + NEXTNODEA];
+                    }
+                    else if (_edges[pointer + NODEB] == vertex1)
                     { // ok, NODEB is now vertex1, meaning it used to be vertex2, this edge has already been changed.
                         pointer = _edges[pointer + NEXTNODEB];
                     }
@@ -719,6 +738,74 @@ namespace Itinero.Graphs
             var vertex1Pointer = _vertices[vertex1];
             _vertices[vertex1] = _vertices[vertex2];
             _vertices[vertex2] = vertex1Pointer;
+            
+//            var edges1After = new List<Edge>(this.GetEdgeEnumerator(vertex2));
+//            for (var i = 0; i < edges1After.Count; i++)
+//            {
+//                var e = edges1After[i];
+//                var from = e.From;
+//                var to = e.To;
+//                if (from == vertex1)
+//                {
+//                    from = vertex2;
+//                }
+//                else if (from == vertex2)
+//                {
+//                    from = vertex1;
+//                }
+//                if (to == vertex1)
+//                {
+//                    to = vertex2;
+//                }
+//                else if (to == vertex2)
+//                {
+//                    to = vertex1;
+//                }
+//
+//                var oe = edges1[i];
+//                if (from != oe.From)
+//                {
+//                    Console.WriteLine(string.Empty);
+//                }
+//                if (to != oe.To)
+//                {
+//                    Console.WriteLine(string.Empty);
+//                }
+//            }
+//            
+//            var edges2After = new List<Edge>(this.GetEdgeEnumerator(vertex1));
+//            for (var i = 0; i < edges2After.Count; i++)
+//            {
+//                var e = edges2After[i];
+//                var from = e.From;
+//                var to = e.To;
+//                if (from == vertex1)
+//                {
+//                    from = vertex2;
+//                }
+//                else if (from == vertex2)
+//                {
+//                    from = vertex1;
+//                }
+//                if (to == vertex1)
+//                {
+//                    to = vertex2;
+//                }
+//                else if (to == vertex2)
+//                {
+//                    to = vertex1;
+//                }
+//
+//                var oe = edges2[i];
+//                if (from != oe.From)
+//                {
+//                    Console.WriteLine(string.Empty);
+//                }
+//                if (to != oe.To)
+//                {
+//                    Console.WriteLine(string.Empty);
+//                }
+//            }
         }
 
         /// <summary>
