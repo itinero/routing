@@ -32,11 +32,8 @@ namespace Itinero.IO.Osm.Streams
     {
         // keeps all coordinates in a form [id, lat * 10.000.000, lon * 10.000.000]
         // assumes coordinates are added from a sorted source: TODO: make sure that the source read by the routerdb is sorted.
-        // TODO: handle negative id's.
-        // TODO: fallback to disk when memory usage becomes too much.
         private readonly ArrayBase<int> _data;
         private readonly ArrayBase<int> _index;
-        private readonly List<long> _overflows;
 
         /// <summary>
         /// Creates a new node coordinates cache.
@@ -45,7 +42,7 @@ namespace Itinero.IO.Osm.Streams
         {
             _index = Context.ArrayFactory.CreateMemoryBackedArray<int>(1024 * 1024);
             _data = Context.ArrayFactory.CreateMemoryBackedArray<int>(0);
-            _overflows = new List<long>();
+            //_overflows = new List<long>();
         }
 
         /// <summary>
@@ -55,9 +52,10 @@ namespace Itinero.IO.Osm.Streams
         {
             _index = new Array<int>(map, 1024 * 1024);
             _data = new Array<int>(map, 0);
-            _overflows = new List<long>();
+            //_overflows = new List<long>();
         }
-
+        
+        private List<long> _overflows = null; // overflows is null before sorting.
         private long _idx = 0;
 
         /// <summary>
@@ -99,6 +97,7 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void SortAndConvertIndex()
         {
+            _overflows = new List<long>();
             _index.Resize(_idx);
 
             Itinero.Logging.Logger.Log("NodeIndex", Logging.TraceEventType.Information, "Sorting node id's...");
@@ -124,12 +123,7 @@ namespace Itinero.IO.Osm.Streams
                 var int2 = _index[i * 2 + 1];
                 var id = doubleInt2long(int1, int2);
 
-                if  (id == 30976106)
-                {
-                    System.Diagnostics.Debug.WriteLine(string.Empty);
-                }
-
-                if (id >= (long)int.MaxValue * (long)(_overflows.Count + 1))
+                while (id >= (long)int.MaxValue * (long)(_overflows.Count + 1))
                 { // nodes are overflowing again.
                     _overflows.Add(i);
                 }
@@ -456,7 +450,7 @@ namespace Itinero.IO.Osm.Streams
                 }
             }
 
-            return _index[index] + (int.MaxValue * (long)overflow);
+            return (long)_index[index] + (long)(int.MaxValue * (long)overflow);
         }
 
         private bool GetLatLon(long index, out float latitude, out float longitude)
