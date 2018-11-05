@@ -16,9 +16,7 @@
  *  limitations under the License.
  */
 
-using Itinero.IO.Osm;
 using Itinero.Logging;
-using Itinero.Profiles;
 using Itinero.Test.Functional.Staging;
 using Itinero.Test.Functional.Tests;
 using NetTopologySuite.Features;

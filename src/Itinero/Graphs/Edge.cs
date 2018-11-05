@@ -98,9 +98,11 @@ namespace Itinero.Graphs
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("{0} - {1}",
-                this.To,
-                this.Data.ToInvariantString());
+            if (this.DataInverted)
+            {
+                return $"{this.From}->{this.To} [{this.Data}]B";
+            }
+            return $"{this.From}->{this.To} [{this.Data}]F";
         }
     }
 }
