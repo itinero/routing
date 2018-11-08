@@ -98,6 +98,7 @@ namespace Itinero.IO.Osm.Streams
 
         private bool _firstPass = true; // flag for first/second pass.
         private MetaCollection<long> _nodeData = null;
+        private MetaCollection<ushort> _nodeVersionData = null;
         private MetaCollection<long> _wayIds = null;
         private MetaCollection<ushort> _wayNodeIndices = null;
 
@@ -120,7 +121,8 @@ namespace Itinero.IO.Osm.Streams
                         { // node is not a vertex.
                             return Itinero.Constants.NO_VERTEX;
                         }
-                        return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
+
+                        return this.AddCoreNode(node.Id.Value, (ushort)node.Version.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
                     }));
                 }
             }
@@ -144,7 +146,7 @@ namespace Itinero.IO.Osm.Streams
                     { // node is not a vertex.
                         return Itinero.Constants.NO_VERTEX;
                     }
-                    return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
+                    return this.AddCoreNode(node.Id.Value, (ushort)node.Version.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
                 },
                 (vehicleType, sequence) =>
                 {
@@ -172,13 +174,14 @@ namespace Itinero.IO.Osm.Streams
             
             if (this.KeepNodeIds)
             {
-                _nodeData = _db.VertexData.AddInt64(Itinero.IO.Osm.Constants.NODE_ID_META_NAME);
+                _nodeData = _db.VertexData.AddInt64(Constants.NODE_ID_META_NAME);
+                _nodeVersionData = _db.VertexData.AddUInt16(Constants.NODE_VERSION_META_NAME);
             }
 
             if (this.KeepWayIds)
             {
-                _wayIds = _db.EdgeData.AddInt64(Itinero.IO.Osm.Constants.WAY_ID_META_NAME);
-                _wayNodeIndices = _db.EdgeData.AddUInt16(Itinero.IO.Osm.Constants.WAY_NODE_IDX_META_NAME);
+                _wayIds = _db.EdgeData.AddInt64(Constants.WAY_ID_META_NAME);
+                _wayNodeIndices = _db.EdgeData.AddUInt16(Constants.WAY_NODE_IDX_META_NAME);
             }
         }
 
@@ -441,7 +444,7 @@ namespace Itinero.IO.Osm.Streams
                         { // an incomplete way, node not in source.
                             return;
                         }
-                        var fromVertex = this.AddCoreNode(way.Nodes[node],
+                        var fromVertex = this.AddCoreNode(way.Nodes[node], ushort.MaxValue,
                             coordinate.Latitude, coordinate.Longitude);
                         var fromNode = way.Nodes[node];
                         var previousCoordinate = coordinate;
@@ -511,20 +514,20 @@ namespace Itinero.IO.Osm.Streams
         /// Adds a core-node.
         /// </summary>
         /// <returns></returns>
-        private uint AddCoreNode(long node, float latitude, float longitude)
+        private uint AddCoreNode(long node, ushort nodeVersion, float latitude, float longitude)
         {
             var vertex = uint.MaxValue;
             if (_nodeIndex.TryGetCoreNode(node, out vertex))
             { // node was already added.
                 return vertex;
             }
-            return this.AddNewCoreNode(node, latitude, longitude);
+            return this.AddNewCoreNode(node, nodeVersion, latitude, longitude);
         }
 
         /// <summary>
         /// Adds a new core-node, doesn't check if there is already a vertex.
         /// </summary>
-        private uint AddNewCoreNode(long node, float latitude, float longitude)
+        private uint AddNewCoreNode(long node, ushort nodeVersion, float latitude, float longitude)
         {
             var vertex = _db.Network.VertexCount;
             _db.Network.AddVertex(vertex, latitude, longitude);
@@ -533,6 +536,7 @@ namespace Itinero.IO.Osm.Streams
             if (_nodeData != null)
             {
                 _nodeData[vertex] = node;
+                _nodeVersionData[vertex] = nodeVersion;
             }
             return vertex;
         }

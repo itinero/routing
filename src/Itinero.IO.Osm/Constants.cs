@@ -29,6 +29,11 @@ namespace Itinero.IO.Osm
         public static string NODE_ID_META_NAME = "node_id";
         
         /// <summary>
+        /// Holds the name of vertex meta data collection keeping node versions.
+        /// </summary>
+        public static string NODE_VERSION_META_NAME = "node_version";
+
+        /// <summary>
         /// Holds the name of edge meta data collection keeping way id's.
         /// </summary>
         public static string WAY_ID_META_NAME = "way_id";
