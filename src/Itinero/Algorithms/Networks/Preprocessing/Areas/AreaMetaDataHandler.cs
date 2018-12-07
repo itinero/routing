@@ -31,18 +31,21 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
     /// </summary>
     public class AreaMetaDataHandler : AlgorithmBase
     {
-        private readonly RoutingNetwork _network;
+        private readonly RouterDb _db;
         private readonly IArea _area;
+        private readonly RoutingNetwork _network;
 
         /// <summary>
         /// Creates a new area mapper.
         /// </summary>
         /// <param name="network">The network.</param>
         /// <param name="area">The area.</param>
-        public AreaMetaDataHandler(RoutingNetwork network, IArea area)
+        public AreaMetaDataHandler(RouterDb network, IArea area)
         {
-            _network = network;
+            _db = network;
             _area = area;
+
+            _network = _db.Network;
         }
 
         /// <summary>
@@ -108,6 +111,10 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                 var fLocationInside = _area.Overlaps(fLocation.Latitude, fLocation.Longitude);
                 while (edgeEnumerator.MoveNext())
                 {
+
+//                    var attributes = _db.GetProfileAndMeta(edgeData.Profile, edgeData.MetaId);
+//                    Console.WriteLine(attributes);
+
                     if (edgeEnumerator.DataInverted)
                     { // consider each edge only once and only in the forward direction.
                         continue;
@@ -117,10 +124,10 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     { // the neighbour is already a new vertex.
                         continue;
                     }
+                    
+                    var edgeData = edgeEnumerator.Data;
 
                     newEdges.Clear();
-
-                    var edgeData = edgeEnumerator.Data;
 
                     // build status.
                     var hasIntersections = false;
@@ -160,7 +167,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                             previous = new VertexStatus()
                             {
                                 Location = shape,
-                                Vertex = Constants.NO_VERTEX,
+                                Vertex = Itinero.Constants.NO_VERTEX,
                                 Inside = previous.Inside
                             };
                             status.Add(previous);
@@ -222,15 +229,15 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                         previousDistance += Coordinate.DistanceEstimateInMeter(previousRelevant.Location,
                             current.Location);
 
-                        if (current.Vertex == Constants.NO_VERTEX)
-                        { // just a shapepoint.
+                        if (current.Vertex == Itinero.Constants.NO_VERTEX)
+                        { // just a shape point.
                             currentShape.Add(current.Location);
                             continue;
                         }
 
                         if (current.Vertex == INTERSECTION)
                         { // this needs to become a new vertex and we need a new edge.
-                            // add the new verex.
+                            // add the new vertex.
                             current.Vertex = _network.VertexCount;
                             _network.AddVertex((uint) current.Vertex, current.Location.Latitude,
                                 current.Location.Longitude);
@@ -274,6 +281,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing.Areas
                     // remove the old edge.
                     _network.RemoveEdge(edgeEnumerator.Id);
                     edgeEnumerator.Reset(); // don't use after this point.
+                    edgeEnumerator.MoveTo(v);
                     
                     // notify listeners about the edges inside.
                     foreach (var newEdgeId in newEdges)

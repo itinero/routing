@@ -58,7 +58,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing.Areas
                 })
             });
 
-            var handler = new AreaMetaDataHandler(network, area);
+            var handler = new AreaMetaDataHandler(routerDb, area);
             handler.NewVertex += id => { Assert.Fail("This should not be called!"); };
             handler.NewEdge += (oldEdgeId, newEdgeId) => { Assert.Fail("This should not be called!"); };
             handler.EdgeInside += id => { Assert.Fail("This should not be called!"); };
@@ -95,7 +95,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing.Areas
                 })
             });
 
-            var handler = new AreaMetaDataHandler(network, area);
+            var handler = new AreaMetaDataHandler(routerDb, area);
             handler.NewVertex += id => { Assert.Fail("This should not be called!"); };
             handler.NewEdge += (oldEdgeId, newEdgeId) => { Assert.Fail("This should not be called!"); };
             handler.EdgeInside += id => { Assert.AreEqual(edgeId, id); };
@@ -133,7 +133,7 @@ namespace Itinero.Test.Algorithms.Networks.Preprocessing.Areas
                 })
             });
 
-            var handler = new AreaMetaDataHandler(network, area);
+            var handler = new AreaMetaDataHandler(routerDb, area);
             var newEdgeCalled = 0;
             var newEdges = new HashSet<uint>();
             handler.NewVertex += id => { Assert.AreEqual(futureNewVertexId, id); };
