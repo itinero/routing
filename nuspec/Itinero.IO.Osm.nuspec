@@ -20,17 +20,17 @@
             <group targetFramework=".NETFramework4.5">
                 <dependency id="Itinero" version="$version$" />
                 <dependency id="Microsoft.Net.Http" version="[2.2.29, )" />
-                <dependency id="OsmSharp" version="[6, )" />
+                <dependency id="OsmSharp" version="[6.1.0, )" />
             </group>
             <group targetFramework=".NETStandard1.6">
                 <dependency id="Itinero" version="$version$" />
                 <dependency id="NETStandard.Library" version="1.6.1" />
-                <dependency id="OsmSharp" version="[6, )" />
+                <dependency id="OsmSharp" version="[6.1.0, )" />
                 <dependency id="System.Xml.XmlSerializer" version="[4.0.11, )" />
             </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="OsmSharp" version="[6, )" />
+                <dependency id="OsmSharp" version="[6.1.0, )" />
             </group>
         </dependencies>
         <frameworkAssemblies>

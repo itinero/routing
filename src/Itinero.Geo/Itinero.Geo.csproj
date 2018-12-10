@@ -11,7 +11,7 @@
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="1.15.0" />
+    <PackageReference Include="NetTopologySuite" Version="1.15.1" />
     <PackageReference Include="NetTopologySuite.Features" Version="1.15.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">

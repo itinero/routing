@@ -19,23 +19,23 @@
         <dependencies>
             <group targetFramework=".NETFramework4.5">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="NetTopologySuite" version="1.15.0" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
                 <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
             </group>
             <group targetFramework=".NETFramework4.0">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="NetTopologySuite" version="1.15.0" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
                 <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
             </group>
             <group targetFramework=".NETStandard1.3">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="NetTopologySuite" version="1.15.0" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
                 <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers"/>
                 <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
             </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Itinero" version="$version$" />
-                <dependency id="NetTopologySuite" version="1.15.0" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
                 <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
             </group>
         </dependencies>

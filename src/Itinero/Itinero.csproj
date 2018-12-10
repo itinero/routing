@@ -12,7 +12,7 @@
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Reminiscence" Version="1.2.0-pre08" />
+    <PackageReference Include="Reminiscence" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
