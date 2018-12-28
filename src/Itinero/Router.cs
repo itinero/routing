@@ -23,6 +23,7 @@ using Itinero.Algorithms;
 using Itinero.Algorithms.Default;
 using Itinero.Algorithms.Routes;
 using Itinero.Algorithms.Search;
+using Itinero.Algorithms.Search.Cache;
 using Itinero.Algorithms.Weights;
 using Itinero.Data;
 using Itinero.Data.Contracted;
@@ -55,6 +56,11 @@ namespace Itinero
         /// Gets or sets the delegate to create a custom resolver.
         /// </summary>
         public IResolveExtensions.CreateResolver CreateCustomResolver { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the resolver cache.
+        /// </summary>
+        public IResolverCache ResolverCache { get; set; }
 
         /// <summary>
         /// Gets or sets the custom route builder.
@@ -93,6 +99,16 @@ namespace Itinero
                     {
                         return new Exceptions.ResolveFailedException(message);
                     });
+                }
+
+                if (this.ResolverCache != null)
+                { // try cache first.
+                    var cachedResult = this.ResolverCache.TryGet(profileInstances, latitude, longitude, isBetter,
+                        maxSearchDistance, settings);
+                    if (!cachedResult.IsError)
+                    {
+                        return cachedResult;
+                    }
                 }
 
                 IResolver resolver = null;
@@ -188,6 +204,12 @@ namespace Itinero
                         return new Exceptions.ResolveFailedException(message);
                     });
                 }
+
+                if (this.ResolverCache != null)
+                { // TODO: also cache failed resolves.
+                    this.ResolverCache.Add(profileInstances, latitude, longitude, isBetter, maxSearchDistance, settings, resolver.Result);
+                }
+                
                 return new Result<RouterPoint>(resolver.Result);
             }
             catch (Exception ex)
