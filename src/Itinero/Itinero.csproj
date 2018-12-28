@@ -36,17 +36,22 @@
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Osm\Vehicles\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+    <EmbeddedResource Remove="Algorithms\Search\Cache\**" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <DefineConstants>$(DefineConstants);NET40</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Compile Include="..\..\SharedAssemblyVersion.cs" />
+    <Compile Remove="Algorithms\Search\Cache\**" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Compile Include="..\..\SharedAssemblyVersion.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Algorithms\Search\Cache\IResolverCache.cs" />
   </ItemGroup>
 </Project>

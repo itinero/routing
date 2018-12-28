@@ -32,5 +32,29 @@ namespace Itinero.Algorithms.Search
         /// The minimum island size in vertices.
         /// </summary>
         public int MinIslandSize { get; set; } = DefaultMinIslandSize;
+
+        /// <summary>
+        /// Serves as the default hash function.
+        /// </summary>
+        /// <returns></returns>
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                var hash = 17;
+                hash = hash * 23 + this.MinIslandSize.GetHashCode();
+                return hash;
+            }
+        }
+
+        /// <summary>
+        /// Returns true if the other object has the same settings in it.
+        /// </summary>
+        /// <param name="obj">The other object.</param>
+        /// <returns>True if the other object has the same settings in it.</returns>
+        public override bool Equals(object obj)
+        {
+            return obj is ResolveSettings other && other.MinIslandSize == this.MinIslandSize;
+        }
     }
 }

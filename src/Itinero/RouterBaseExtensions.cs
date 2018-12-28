@@ -32,6 +32,7 @@ using Itinero.Data.Contracted;
 using System.Threading;
 using Itinero.Algorithms.Default.EdgeBased;
 using Itinero.Algorithms.Search;
+using Itinero.Algorithms.Search.Cache;
 
 namespace Itinero
 {
