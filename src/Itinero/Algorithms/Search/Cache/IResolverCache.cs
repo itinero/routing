@@ -36,22 +36,23 @@ namespace Itinero.Algorithms.Search.Cache
         /// <param name="isBetter">The is better function.</param>
         /// <param name="maxSearchDistance">The maximum search distance.</param>
         /// <param name="settings">The settings, if any.</param>
-        /// <returns></returns>
+        /// <returns>The resulting router point in cache.</returns>
         Result<RouterPoint> TryGet(IProfileInstance[] profileInstances, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter, float maxSearchDistance, ResolveSettings settings);
 
         /// <summary>
         /// Adds to this cache, the closest point on the routing network that's routable for the given profiles.
         /// </summary>
-        /// <param name="profileInstances"></param>
-        /// <param name="latitude"></param>
-        /// <param name="longitude"></param>
-        /// <param name="isBetter"></param>
-        /// <param name="maxSearchDistance"></param>
-        /// <param name="settings"></param>
-        /// <param name="routerPoint"></param>
+        /// <param name="profileInstances">The profile instances.</param>
+        /// <param name="latitude">The latitude.</param>
+        /// <param name="longitude">The longitude.</param>
+        /// <param name="isBetter">The is better function.</param>
+        /// <param name="maxSearchDistance">The maximum search distance.</param>
+        /// <param name="settings">The settings, if any.</param>
+        /// <param name="routerPointResult">The result to keep.</param>
+        /// <returns>The resulting router point in cache.</returns>
         void Add(IProfileInstance[] profileInstances, float latitude, float longitude,
             Func<RoutingEdge, bool> isBetter, float maxSearchDistance, ResolveSettings settings,
-            RouterPoint routerPoint);
+            Result<RouterPoint> routerPointResult);
     }
 }

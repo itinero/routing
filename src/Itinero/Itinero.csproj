@@ -34,16 +34,11 @@
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Osm\Vehicles\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
-    <EmbeddedResource Remove="Algorithms\Search\Cache\**" />
-  </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <DefineConstants>$(DefineConstants);NET40</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
     <Compile Include="..\..\SharedAssemblyVersion.cs" />
-    <Compile Remove="Algorithms\Search\Cache\**" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <DefineConstants>$(DefineConstants);NET45</DefineConstants>
@@ -52,6 +47,29 @@
     <Compile Include="..\..\SharedAssemblyVersion.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\Search\Cache\IResolverCache.cs" />
+    <EmbeddedResource Include="Osm\Vehicles\bicycle.lua">
+      <LogicalName>Itinero.Osm.Vehicles.bicycle.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\bigtruck.lua">
+      <LogicalName>Itinero.Osm.Vehicles.bigtruck.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\bus.lua">
+      <LogicalName>Itinero.Osm.Vehicles.bus.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\car.lua">
+      <LogicalName>Itinero.Osm.Vehicles.car.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\moped.lua">
+      <LogicalName>Itinero.Osm.Vehicles.moped.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\motorcycle.lua">
+      <LogicalName>Itinero.Osm.Vehicles.motorcycle.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\pedestrian.lua">
+      <LogicalName>Itinero.Osm.Vehicles.pedestrian.lua</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\smalltruck.lua">
+      <LogicalName>Itinero.Osm.Vehicles.smalltruck.lua</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 </Project>

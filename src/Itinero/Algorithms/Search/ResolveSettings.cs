@@ -34,6 +34,18 @@ namespace Itinero.Algorithms.Search
         public int MinIslandSize { get; set; } = DefaultMinIslandSize;
 
         /// <summary>
+        /// Creates a deep-copy.
+        /// </summary>
+        /// <returns></returns>
+        public ResolveSettings Clone()
+        {
+            return new ResolveSettings()
+            {
+                MinIslandSize = this.MinIslandSize
+            };
+        }
+
+        /// <summary>
         /// Serves as the default hash function.
         /// </summary>
         /// <returns></returns>

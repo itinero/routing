@@ -101,14 +101,12 @@ namespace Itinero
                     });
                 }
 
-                if (this.ResolverCache != null)
-                { // try cache first.
-                    var cachedResult = this.ResolverCache.TryGet(profileInstances, latitude, longitude, isBetter,
-                        maxSearchDistance, settings);
-                    if (!cachedResult.IsError)
-                    {
-                        return cachedResult;
-                    }
+                // try cache first.
+                var cachedResult = ResolverCache?.TryGet(profileInstances, latitude, longitude, isBetter,
+                    maxSearchDistance, settings);
+                if (cachedResult != null && !cachedResult.IsError)
+                {
+                    return cachedResult;
                 }
 
                 IResolver resolver = null;
@@ -199,16 +197,14 @@ namespace Itinero
                 resolver.Run(cancellationToken);
                 if (!resolver.HasSucceeded)
                 { // something went wrong.
-                    return new Result<RouterPoint>(resolver.ErrorMessage, (message) =>
-                    {
-                        return new Exceptions.ResolveFailedException(message);
-                    });
+                    var result = new Result<RouterPoint>(resolver.ErrorMessage,
+                        (message) => new Exceptions.ResolveFailedException(message));
+                    this.ResolverCache?.Add(profileInstances, latitude, longitude, isBetter, maxSearchDistance, settings, result);
+                    return result;
                 }
 
-                if (this.ResolverCache != null)
-                { // TODO: also cache failed resolves.
-                    this.ResolverCache.Add(profileInstances, latitude, longitude, isBetter, maxSearchDistance, settings, resolver.Result);
-                }
+                // keep result in cache, if there is a cache.
+                this.ResolverCache?.Add(profileInstances, latitude, longitude, isBetter, maxSearchDistance, settings, new Result<RouterPoint>(resolver.Result));
                 
                 return new Result<RouterPoint>(resolver.Result);
             }

@@ -139,7 +139,7 @@ namespace Itinero.Algorithms.Collections
         /// <param name="id"></param>
         public void Remove(TKey id)
         {
-            _data.Remove(id);
+            _data.TryRemove(id, out _);
         }
 
         /// <summary>
