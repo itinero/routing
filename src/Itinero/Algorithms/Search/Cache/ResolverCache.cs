@@ -42,7 +42,7 @@ namespace Itinero.Algorithms.Search.Cache
             _size = size;
         }
 
-        private int _hits = 0;
+        //private int _hits = 0;
         
         /// <summary>
         /// Tries to get from this cache, the closest point on the routing network that's routable for the given profiles.
@@ -69,13 +69,13 @@ namespace Itinero.Algorithms.Search.Cache
                 return null;
             }
 
-            _hits++;
-            Console.WriteLine($"Cache hit: {_hits}");
+            //_hits++;
+            //Console.WriteLine($"Cache hit: {_hits}");
 
             return cachedResult;
         }
 
-        private int _added = 0;
+        //private int _added = 0;
         
         /// <summary>
         /// Adds to this cache, the closest point on the routing network that's routable for the given profiles.
@@ -109,8 +109,8 @@ namespace Itinero.Algorithms.Search.Cache
                 return;
             }
 
-            _added++;
-            Console.WriteLine($"Added: {_added}");
+            //_added++;
+            //Console.WriteLine($"Added: {_added}");
             
             lruCache.Add(location, cachedResult);
         }
