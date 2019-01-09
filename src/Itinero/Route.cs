@@ -143,6 +143,18 @@ namespace Itinero
                     this.Attributes.SetSingle("time", value);
                 }
             }
+
+            /// <summary>
+            /// Returns a description of this stop.
+            /// </summary>
+            public override string ToString()
+            {
+                if (this.Attributes == null)
+                {
+                    return "@" + this.Coordinate.ToString();
+                }
+                return this.Attributes.ToString() + "@" + this.Coordinate.ToString();
+            }
         }
 
         /// <summary>
