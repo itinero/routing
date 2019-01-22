@@ -75,10 +75,6 @@ namespace Itinero.IO.Osm.Relations
         /// </summary>
         public bool FirstPass(Relation relation)
         {
-            if (relation.Id.Value == 3147287)
-            {
-                System.Diagnostics.Debug.WriteLine(string.Empty);
-            }
             if (_relationsAsMembers.Contains(relation.Id.Value) ||
                 IsRelevant(relation))
             {
