@@ -140,13 +140,13 @@ namespace Itinero.IO.Osm.Normalizer
         public static void NormalizeOnewayBicycle(this IAttributeCollection tags, IAttributeCollection profileTags)
         {
             string oneway;
-            if (!tags.TryGetValue("bicycle:oneway", out oneway))
+            if (!tags.TryGetValue("oneway:bicycle", out oneway))
             { // nothing to normalize.
                 return;
             }
             if (oneway == "no")
             {
-                profileTags.AddOrReplace("bicycle:oneway", "no");
+                profileTags.AddOrReplace("oneway:bicycle", "no");
             }
         }
 
