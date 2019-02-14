@@ -57,7 +57,7 @@ namespace Itinero.Test.Navigation.Directions
             Assert.AreEqual(180, DirectionCalculator.Angle(
                 new Coordinate(50.84993f, 4.320437f),
                 new Coordinate(50.85011f, 4.320471f),
-                new Coordinate(50.85029f, 4.320505f)), E);
+                new Coordinate(50.85029f, 4.320505f)).ToDegrees(), E);
         }
 
         /// <summary>
