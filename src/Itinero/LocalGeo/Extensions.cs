@@ -282,6 +282,7 @@ namespace Itinero.LocalGeo
         /// <returns></returns>
         public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float distanceBetween, float offset)
         {
+            if (distanceBetween < 0.05f) return coordinate1; // when line segment < 5cm return first coordinate. 
             var ratio = offset / distanceBetween;
             return new Coordinate(
                 (coordinate2.Latitude - coordinate1.Latitude) * ratio + coordinate1.Latitude,

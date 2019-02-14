@@ -44,28 +44,6 @@ namespace Itinero.Navigation.Directions
                 return float.NaN;
             }
 
-            // filter out the vectors that are parallel.
-            if (v10 == v20 && 
-                v11 == v21)
-            {
-                return 0;
-            }
-            else if (v10 == v20 && 
-                v11 == -v21)
-            {
-                return (float)(System.Math.PI);
-            }
-            else if (v10 == -v20 &&
-                v11 == v21)
-            {
-                return (float)(-System.Math.PI);
-            }
-            else if (v10 == -v20 &&
-                v11 == -v21)
-            {
-                return (float)(2 * System.Math.PI);
-            }
-
             var dot = (double)(v11 * v21 + v10 * v20);
             var cross = (double)(v10 * v21 - v11 * v20);
 
