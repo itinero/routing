@@ -234,11 +234,11 @@ namespace Itinero.Data.Shortcuts
                 throw new Exception(string.Format("Cannot deserialize shortcuts db: Invalid version #: {0}. Try upgrading Itinero or rebuild routing file with older version.", version));
             }
             
-            // read meta-data.
-            var metaDb = stream.ReadWithSizeAttributesCollection();
-            
             // read profile name.
             var profileName = stream.ReadWithSizeString();
+            
+            // read meta-data.
+            var metaDb = stream.ReadWithSizeAttributesCollection();
 
             // read stops and shortcuts data sizes.
             var bytes = new byte[4];
