@@ -98,7 +98,7 @@ namespace Itinero.Algorithms.Shortcuts
             }
 
             // build shortcuts db.
-            _shortcutsDb = new ShortcutsDb(_profile);
+            _shortcutsDb = new ShortcutsDb(_profile.FullName);
             for(var i = 0; i < points.Length; i++)
             {
                 _shortcutsDb.AddStop(points[i].VertexId(_db), _locationsMeta[i]);

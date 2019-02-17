@@ -35,7 +35,7 @@ namespace Itinero.Test.Data.Shortcuts
         [Test]
         public void TestAddStops()
         {
-            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest());
+            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest().FullName);
 
             db.AddStop(10, new AttributeCollection(new Attribute()
             {
@@ -65,7 +65,7 @@ namespace Itinero.Test.Data.Shortcuts
         [Test]
         public void TestGetStop()
         {
-            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest());
+            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest().FullName);
 
             db.AddStop(10, new AttributeCollection(new Attribute()
             {
@@ -99,7 +99,7 @@ namespace Itinero.Test.Data.Shortcuts
         [Test]
         public void TestAddShortcuts()
         {
-            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest());
+            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest().FullName);
 
             db.AddStop(10, null);
             db.AddStop(11, null);
@@ -125,7 +125,7 @@ namespace Itinero.Test.Data.Shortcuts
         [Test]
         public void TestGetShortcut()
         {
-            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest());
+            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest().FullName);
 
             db.AddStop(10, null);
             db.AddStop(11, null);
@@ -158,7 +158,7 @@ namespace Itinero.Test.Data.Shortcuts
         [Test]
         public void TestGetShortcutByVertices()
         {
-            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest());
+            var db = new ShortcutsDb(Vehicle.Bicycle.Fastest().FullName);
 
             db.AddStop(10, null);
             db.AddStop(11, null);

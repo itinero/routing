@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using System;
 using Itinero.Attributes;
 using Itinero.LocalGeo;
 using Itinero.Data.Network;
@@ -417,7 +418,11 @@ namespace Itinero.Algorithms.Routes
                 ShortcutsDb shortcutsDb;
                 if (_routerDb.TryGetShortcuts(shortcutName, out shortcutsDb))
                 {
-                    var shortcutProfile = shortcutsDb.Profile;
+                    var shortcutProfile = _routerDb.GetSupportedProfile(shortcutsDb.ProfileName);
+                    if (shortcutProfile == null)
+                    {
+                        throw new Exception("Inconsistent routerdb: Shortcut profile not found.");
+                    }
                     IAttributeCollection shortcutMeta;
                     var shortcut = shortcutsDb.Get(edge.From, edge.To, out shortcutMeta);
                     if (shortcut != null && shortcut.Length >= 2)

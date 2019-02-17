@@ -39,15 +39,15 @@ namespace Itinero.Data.Shortcuts
         private readonly ArrayBase<uint> _stops;
         private readonly AttributesIndex _shortcutsMeta;
         private readonly ArrayBase<uint> _shortcuts;
-        private readonly Profile _profile;
+        private readonly string _profileName;
 
         /// <summary>
         /// Creates a new shortcuts db.
         /// </summary>
-        public ShortcutsDb(Profile profile)
+        public ShortcutsDb(string profileName)
         {
             _dbMeta = new AttributeCollection();
-            _profile = profile;
+            _profileName = profileName;
 
             _stopsMeta = new AttributesIndex(AttributesIndexMode.ReverseAll);
             _stops = Context.ArrayFactory.CreateMemoryBackedArray<uint>(100);
@@ -58,11 +58,11 @@ namespace Itinero.Data.Shortcuts
         /// <summary>
         /// Creates a new shortcuts db.
         /// </summary>
-        private ShortcutsDb(Profile profile, IAttributeCollection dbMeta, AttributesIndex stopsMeta, ArrayBase<uint> stops, 
+        private ShortcutsDb(string profileName, IAttributeCollection dbMeta, AttributesIndex stopsMeta, ArrayBase<uint> stops, 
             AttributesIndex shortcutsMeta, ArrayBase<uint> shortcuts)
         {
             _dbMeta = dbMeta;
-            _profile = profile;
+            _profileName = profileName;
 
             _stops = stops;
             _stopsMeta = stopsMeta;
@@ -90,11 +90,11 @@ namespace Itinero.Data.Shortcuts
         /// <summary>
         /// Gets the profile that built these shortcuts.
         /// </summary>
-        public Profile Profile
+        public string ProfileName
         {
             get
             {
-                return _profile;
+                return _profileName;
             }
         }
 
@@ -199,7 +199,7 @@ namespace Itinero.Data.Shortcuts
             stream.WriteByte(1);
 
             // write profile name.
-            size += stream.WriteWithSize(_profile.FullName);
+            size += stream.WriteWithSize(_profileName);
 
             // serialize the db-meta.
             size += _dbMeta.WriteWithSize(stream);
@@ -236,6 +236,9 @@ namespace Itinero.Data.Shortcuts
             
             // read meta-data.
             var metaDb = stream.ReadWithSizeAttributesCollection();
+            
+            // read profile name.
+            var profileName = stream.ReadWithSizeString();
 
             // read stops and shortcuts data sizes.
             var bytes = new byte[4];
@@ -254,7 +257,7 @@ namespace Itinero.Data.Shortcuts
             var shortcuts = Context.ArrayFactory.CreateMemoryBackedArray<uint>(shortcutsPointer);
             shortcuts.CopyFrom(stream);
 
-            return new ShortcutsDb(profile, metaDb, stopsMeta, stops, shortcutsMeta, shortcuts);
+            return new ShortcutsDb(profileName, metaDb, stopsMeta, stops, shortcutsMeta, shortcuts);
         }
     }
 }
