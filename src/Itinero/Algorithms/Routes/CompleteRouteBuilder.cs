@@ -352,7 +352,7 @@ namespace Itinero.Algorithms.Routes
             { // both are just regular vertices.
                 edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
                 direction = !edge.DataInverted;
-                if (this.AddShorcut(edge, cancellationToken))
+                if (this.AddShortcut(edge, cancellationToken))
                 {
                     return;
                 }
@@ -407,7 +407,7 @@ namespace Itinero.Algorithms.Routes
         /// <summary>
         /// Add shortcut if the current edge is one.
         /// </summary>
-        private bool AddShorcut(RoutingEdge edge, CancellationToken cancellationToken)
+        private bool AddShortcut(RoutingEdge edge, CancellationToken cancellationToken)
         {
             // when both are just regular vertices, this could be a shortcut.
             var edgeProfile = _routerDb.EdgeProfiles.Get(edge.Data.Profile);

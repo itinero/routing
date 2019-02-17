@@ -108,6 +108,7 @@ namespace Itinero.Algorithms.Shortcuts
             var pathList = new List<uint>();
             var shortcutProfile = _db.EdgeProfiles.Add(new AttributeCollection(
                 new Attribute(ShortcutExtensions.SHORTCUT_KEY, _name)));
+            var edgeEnumerator = _db.Network.GetEdgeEnumerator();
             for (var i = 0; i < _locations.Length; i++)
             {
                 _shortcutIds[i] = new uint[_locations.Length];
@@ -147,6 +148,21 @@ namespace Itinero.Algorithms.Shortcuts
                         _shortcutIds[i][j] = shortcutId;
 
                         // add the shortcut as an edge.
+                        if (edgeEnumerator.MoveTo(pathList[0]))
+                        {
+                            var edgeExists = false;
+                            while (edgeEnumerator.MoveNext())
+                            {
+                                if (edgeEnumerator.To != pathList[pathList.Count - 1]) continue;
+                                edgeExists = true;
+                                break;
+                            }
+
+                            if (edgeExists)
+                            {
+                                continue;
+                            }
+                        }
                         _db.Network.AddEdge(pathList[0], pathList[pathList.Count - 1], new Data.Network.Edges.EdgeData()
                         {
                             Distance = path.Weight.Time + _switchPentaly,

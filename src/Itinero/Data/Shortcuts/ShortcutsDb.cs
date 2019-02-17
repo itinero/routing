@@ -233,14 +233,6 @@ namespace Itinero.Data.Shortcuts
             {
                 throw new Exception(string.Format("Cannot deserialize shortcuts db: Invalid version #: {0}. Try upgrading Itinero or rebuild routing file with older version.", version));
             }
-
-            // read profile name.
-            var profileName = stream.ReadWithSizeString();
-            Profile profile;
-            if (!Profile.TryGet(profileName, out profile))
-            {
-                throw new Exception(string.Format("Cannot deserialize shortcuts db: Profile not found: {0}. Make sure to register all vehicle profile before deserializing.", profileName));
-            }
             
             // read meta-data.
             var metaDb = stream.ReadWithSizeAttributesCollection();

@@ -208,8 +208,8 @@ namespace Itinero
                         "Not all profiles are cached, this could slow down routing significantly, consider building a profile cache.");
                     return (edge) =>
                     { // check all profiles, they all need to be traversible.
-                      // get profile.
-                    float distance;
+                        // get profile.
+                        float distance;
                         ushort edgeProfileId;
                         EdgeDataSerializer.Deserialize(edge.Data[0],
                             out distance, out edgeProfileId);
@@ -217,23 +217,30 @@ namespace Itinero
                         for (var i = 0; i < profiles.Length; i++)
                         {
                             var factorAndSpeed = profiles[i].Profile.FactorAndSpeed(edgeProfile);
-                        // get factor from profile.
-                        if (factorAndSpeed.Value <= 0)
-                            { // cannot be traversed by this profile.
-                            return false;
-                            }
-                            if (router.VerifyAllStoppable)
-                            { // verify stoppable.
-                            if (!factorAndSpeed.CanStopOn())
-                                { // this profile cannot stop on this edge.
+                            // get factor from profile.
+                            if (factorAndSpeed.Value <= 0)
+                            {
+                                // cannot be traversed by this profile.
                                 return false;
+                            }
+
+                            if (router.VerifyAllStoppable)
+                            {
+                                // verify stoppable.
+                                if (!factorAndSpeed.CanStopOn())
+                                {
+                                    // this profile cannot stop on this edge.
+                                    return false;
                                 }
                             }
+
                             if (profiles[i].IsConstrained(factorAndSpeed.Constraints))
-                            { // this edge is constrained, this vehicle cannot travel here.
-                            return false;
+                            {
+                                // this edge is constrained, this vehicle cannot travel here.
+                                return false;
                             }
                         }
+
                         return true;
                     };
                 }

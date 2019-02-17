@@ -145,7 +145,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                 shape[0]);
             if (distance > _network.MaxEdgeDistance)
             {
-                throw new Exception(string.Format("Edge deteted that's too long in: {0}->{1}",
+                throw new Exception(string.Format("Edge detected that's too long in: {0}->{1}",
                         vertex1, newVertex));
             }
             var newEdgeId = _network.AddEdge(vertex1, newVertex, new EdgeData()
@@ -160,7 +160,7 @@ namespace Itinero.Algorithms.Networks.Preprocessing
             distance = System.Math.Max(data.Distance - distance, 0);
             if (distance > _network.MaxEdgeDistance)
             {
-                throw new Exception(string.Format("Edge deteted that's too long in: {0}->{1}",
+                throw new Exception(string.Format("Edge detected that's too long in: {0}->{1}",
                         newVertex, vertex2));
             }
             newEdgeId = _network.AddEdge(newVertex, vertex2, new EdgeData()
