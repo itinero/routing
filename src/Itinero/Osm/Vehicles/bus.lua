@@ -1,6 +1,6 @@
 ﻿-- bus globals
 name = "bus"
-vehicle_types = { "vehicle", "motor_vehicle", "motorcar" }
+vehicle_types = { "vehicle", "motor_vehicle", "motorcar", "bus" }
 constraints =  { "maxweight", "maxwidth" }
 
 minspeed = 30
