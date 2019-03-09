@@ -70,6 +70,9 @@ namespace Itinero.Test.Functional.Tests
                     }
                 }
             }
+
+            // make sure the router is fresh.
+            router = new Router(router.Db);
             
             // resolve all.
             return () =>
@@ -121,6 +124,9 @@ namespace Itinero.Test.Functional.Tests
                 var p = random.Next(unique);    
                 vertices.Add(pool[p]);
             }
+
+            // make sure the router is fresh.
+            router = new Router(router.Db);
             
             // resolve all.
             return () =>
@@ -170,6 +176,9 @@ namespace Itinero.Test.Functional.Tests
                 }
             }
 
+            // make sure the router is fresh.
+            router = new Router(router.Db);
+            
             // resolve all.
             return () =>
             {
@@ -221,6 +230,9 @@ namespace Itinero.Test.Functional.Tests
                 var p = random.Next(unique);    
                 vertices.Add(pool[p]);
             }
+
+            // make sure the router is fresh.
+            router = new Router(router.Db);
 
             // resolve all.
             return () =>
