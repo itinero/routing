@@ -41,6 +41,7 @@ namespace Itinero.Test.Functional.Tests
             GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves in parallel");
             GetTestRandomResolvesCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves");
             GetTestRandomResolvesParallelCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves in parallel");
+            GetTestRandomResolvesConnectedParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random connected resolve in parallel");
         }
 
         /// <summary>
@@ -252,6 +253,57 @@ namespace Itinero.Test.Functional.Tests
                 router.ResolverCache = null;
                 
                 return string.Format("{0}/{1} cached resolves failed.", errors, vertices.Count);
+            };
+        }
+
+        /// <summary>
+        /// Tests a number of resolve connected.
+        /// </summary>
+        public static Func<string> GetTestRandomResolvesConnectedParallel(Router router, Profiles.Profile profile, int count, int testIterations = 5)
+        {
+            var random = new System.Random();
+            var vertices = new List<Coordinate>();
+
+            // make sure all locations are near to accessible roads.
+            while (vertices.Count < count)
+            {
+                var v1 = (uint)random.Next((int)router.Db.Network.VertexCount);
+                var f1 = router.Db.Network.GetVertex(v1);
+
+                var factor = router.GetDefaultGetFactor(profile);
+                var edgeEnumerator = router.Db.Network.GetEdgeEnumerator();
+                edgeEnumerator.MoveTo(v1);
+                while (edgeEnumerator.MoveNext())
+                {
+                    var f = factor(edgeEnumerator.Current.Data.Profile);
+                    if (f.Value != 0)
+                    {
+                        vertices.Add(router.Db.Network.GetVertex(v1));
+                        break;
+                    }
+                }
+            }
+
+            return () =>
+            {
+                // resolve all.
+                var errors = 0;
+                
+                for (var i = 0; i < testIterations; i++)
+                {
+                    // make sure the router is fresh.
+                    router = new Router(router.Db);
+
+                    System.Threading.Tasks.Parallel.ForEach(Enumerable.Range(0, count), (x) =>
+                    {
+                        var routerPoint = router.TryResolveConnected(profile, vertices[x], 1000, 250);
+                        if (routerPoint.IsError)
+                        {
+                            errors++;
+                        }
+                    });
+                }
+                return $"{errors}/{vertices.Count * testIterations} resolves failed in {testIterations} iterations.";
             };
         }
     }

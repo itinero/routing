@@ -29,7 +29,7 @@ namespace Itinero.Profiles
     public class ProfileFactorAndSpeedCache
     {
         private readonly RouterDb _db;
-        private readonly Dictionary<string, FactorAndSpeed[]> _edgeProfileFactors;
+        private Dictionary<string, FactorAndSpeed[]> _edgeProfileFactors;
 
         /// <summary>
         /// A profile factor cache.
@@ -95,24 +95,32 @@ namespace Itinero.Profiles
         /// </summary>
         public void CalculateFor(params Profile[] profiles)
         {
-            var edgeProfileFactors = new FactorAndSpeed[profiles.Length][];
-            for (var p = 0; p < profiles.Length; p++)
-            {
-                edgeProfileFactors[p] = new FactorAndSpeed[(int)_db.EdgeProfiles.Count];
-            }
-            for (uint edgeProfile = 0; edgeProfile < _db.EdgeProfiles.Count; edgeProfile++)
-            {
-                var edgeProfileTags = _db.EdgeProfiles.Get(edgeProfile);
+            lock (this)
+            { // don't allow multiple threads to fill this cache at the same time.
+                var newEdgeProfileFactors = new Dictionary<string, FactorAndSpeed[]>(_edgeProfileFactors);
+
+                var edgeProfileFactors = new FactorAndSpeed[profiles.Length][];
                 for (var p = 0; p < profiles.Length; p++)
                 {
-                    edgeProfileFactors[p][edgeProfile]
-                        = profiles[p].FactorAndSpeed(edgeProfileTags);
+                    edgeProfileFactors[p] = new FactorAndSpeed[(int) _db.EdgeProfiles.Count];
                 }
-            }
 
-            for (var p = 0; p < profiles.Length; p++)
-            {
-                _edgeProfileFactors[profiles[p].FullName] = edgeProfileFactors[p];
+                for (uint edgeProfile = 0; edgeProfile < _db.EdgeProfiles.Count; edgeProfile++)
+                {
+                    var edgeProfileTags = _db.EdgeProfiles.Get(edgeProfile);
+                    for (var p = 0; p < profiles.Length; p++)
+                    {
+                        edgeProfileFactors[p][edgeProfile]
+                            = profiles[p].FactorAndSpeed(edgeProfileTags);
+                    }
+                }
+
+                for (var p = 0; p < profiles.Length; p++)
+                {
+                    newEdgeProfileFactors[profiles[p].FullName] = edgeProfileFactors[p];
+                }
+
+                _edgeProfileFactors = newEdgeProfileFactors;
             }
         }
 
@@ -121,12 +129,13 @@ namespace Itinero.Profiles
         /// </summary>
         public Func<GeometricEdge, bool> GetIsAcceptable(bool verifyCanStopOn, params IProfileInstance[] profileInstances)
         {
-            if (!this.ContainsAll(profileInstances)) { throw new ArgumentException("Not all given profiles are supported."); }
-
+            var edgeProfileFactors = _edgeProfileFactors;  
+            
             var cachedFactors = new FactorAndSpeed[profileInstances.Length][];
             for (var p = 0; p < profileInstances.Length; p++)
             {
-                cachedFactors[p] = _edgeProfileFactors[profileInstances[p].Profile.FullName];
+                if (!edgeProfileFactors.TryGetValue(profileInstances[p].Profile.FullName, out var cache)) throw new ArgumentException("Not all given profiles are supported.");
+                cachedFactors[p] = cache;
             }
 
             return (edge) =>
@@ -165,9 +174,8 @@ namespace Itinero.Profiles
         /// </summary>
         public Func<ushort, Factor> GetGetFactor(IProfileInstance profileInstance)
         {
-            if (!this.ContainsAll(profileInstance)) { throw new ArgumentException("Given profile not supported."); }
-
-            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.FullName];
+            if (!_edgeProfileFactors.TryGetValue(profileInstance.Profile.FullName, out var cache)) throw new ArgumentException("Given profile not supported.");
+            var cachedFactors = cache;
             if (profileInstance.Constraints != null)
             {
                 return (p) =>
@@ -191,9 +199,8 @@ namespace Itinero.Profiles
         /// </summary>
         public Func<ushort, FactorAndSpeed> GetGetFactorAndSpeed(IProfileInstance profileInstance)
         {
-            if (!this.ContainsAll(profileInstance)) { throw new ArgumentException("Given profile not supported."); }
-
-            var cachedFactors = _edgeProfileFactors[profileInstance.Profile.FullName];
+            if (!_edgeProfileFactors.TryGetValue(profileInstance.Profile.FullName, out var cache)) throw new ArgumentException("Given profile not supported.");
+            var cachedFactors = cache;
             if (profileInstance.Constraints != null)
             {
                 return (p) =>
