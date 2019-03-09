@@ -43,7 +43,7 @@ namespace Itinero.Attributes
         public MappedAttributesIndex(AttributesIndexMode mode = AttributesIndexMode.ReverseCollectionIndex |
                 AttributesIndexMode.ReverseStringIndex)
         {
-            _data = new MemoryArray<uint>(1024);
+            _data = Context.ArrayFactory.CreateMemoryBackedArray<uint>(1024);
             _attributes = new AttributesIndex(mode);
             _reverseIndex = new HugeDictionary<uint, int>();
 

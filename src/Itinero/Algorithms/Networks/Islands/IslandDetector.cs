@@ -109,7 +109,7 @@ namespace Itinero.Algorithms.Networks
             }
 
             // build index data structure and stack.
-            _index = new MemoryArray<uint>(vertexCount * 2);
+            _index = Context.ArrayFactory.CreateMemoryBackedArray<uint>(vertexCount * 2);
             for (var i = 0; i < _index.Length; i++)
             {
                 _index[i] = NO_DATA;
