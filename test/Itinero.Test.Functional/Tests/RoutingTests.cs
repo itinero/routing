@@ -50,18 +50,15 @@ namespace Itinero.Test.Functional.Tests
             GetTestDirectedSequences(router, profile, 1).TestPerf($"{profile.FullName} directed sequences.");
             // one-to-many & many-to-many.
             GetTestOneToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} one-to-many routes");
-            GetTestManyToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} many-to-many routes");
+            GetTestManyToManyRoutes(router, profile, 20).TestPerf($"{profile.FullName} many-to-many routes");
             
             // run some routing tests for the 'pedestrian' profile.
             profile = router.Db.GetSupportedProfile("pedestrian");
             GetTestRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random routes");
             GetTestSequences(router, profile, 1).TestPerf($"{profile.FullName} sequences.");
-            // directed (testing 'directed' doesn't make sense here) 
-            // GetTestDirecedRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random directed routes");
-            // GetTestDirectedSequences(router, profile, 1).TestPerf($"{profile.FullName} directed sequences.");
             // one-to-many & many-to-many.
             GetTestOneToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} one-to-many routes");
-            GetTestManyToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} many-to-many routes");
+            GetTestManyToManyRoutes(router, profile, 20).TestPerf($"{profile.FullName} many-to-many routes");
         }
 
         /// <summary>
