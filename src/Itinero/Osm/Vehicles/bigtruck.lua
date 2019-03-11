@@ -171,10 +171,12 @@ function factor_and_speed (attributes, result)
 	local junction = attributes.junction
 	if junction == "roundabout" then
 		result.direction = 1
+		result.attributes_to_keep.junction = true
 	end
 	local direction = is_oneway (attributes, "oneway")
 	if direction != nil then
 		result.direction = direction
+		result.attributes_to_keep.oneway = true
 	end
 end
 
