@@ -51,3 +51,4 @@ islands_*.geojson
 .idea
 .idea/*
 routing.sln
+test/Itinero.Test.Functional/*.geojson

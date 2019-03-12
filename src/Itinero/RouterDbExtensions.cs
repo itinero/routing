@@ -115,14 +115,24 @@ namespace Itinero
                     new DirectedGraphBuilder<float>(db.Network.GeometricGraph.Graph, contracted, weightHandler);
                 directedGraphBuilder.Run(cancellationToken);
 
+//                // contract the graph.
+//                var hierarchyBuilder =
+//                    new FastHierarchyBuilder<float>(contracted, weightHandler)
+//                    {
+//                        DifferenceFactor = 8,
+//                        DepthFactor = 14,
+//                        ContractedFactor = 1
+//                    };
+//                hierarchyBuilder.Run(cancellationToken);
+ 
                 // contract the graph.
-                var hierarchyBuilder =
-                    new FastHierarchyBuilder<float>(contracted, weightHandler)
-                    {
-                        DifferenceFactor = 8,
-                        DepthFactor = 14,
-                        ContractedFactor = 1
-                    };
+                var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
+                    new DykstraWitnessCalculator(int.MaxValue));
+                priorityCalculator.DifferenceFactor = 5;
+                priorityCalculator.DepthFactor = 5;
+                priorityCalculator.ContractedFactor = 8;
+                var hierarchyBuilder = new HierarchyBuilder<float>(contracted, db.GetRestrictions(profile), priorityCalculator,
+                    new DykstraWitnessCalculator(int.MaxValue), weightHandler);
                 hierarchyBuilder.Run(cancellationToken);
 
                 contractedDb = new ContractedDb(contracted, false);
