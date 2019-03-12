@@ -31,7 +31,7 @@ namespace Itinero.Algorithms.Networks.Islands
     /// </summary>
     public class IslandLabels
     {
-        private readonly MemoryArray<uint> _labels;
+        private readonly ArrayBase<uint> _labels;
 
         public const uint NotSet = uint.MaxValue;
         public const uint NoAccess = uint.MaxValue - 1;
@@ -43,7 +43,7 @@ namespace Itinero.Algorithms.Networks.Islands
         /// </summary>
         internal IslandLabels()
         {
-            _labels = new MemoryArray<uint>(1);
+            _labels = Context.ArrayFactory.CreateMemoryBackedArray<uint>(1);
         }
         
         /// <summary>

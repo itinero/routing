@@ -220,7 +220,7 @@ namespace Itinero.Data
             ArrayBase<T> data;
             if (profile == null)
             { // just create arrays and read the data.
-                data = new MemoryArray<T>(length);
+                data = Context.ArrayFactory.CreateMemoryBackedArray<T>(length);
                 data.CopyFrom(stream);
             }
             else
@@ -256,7 +256,7 @@ namespace Itinero.Data
             this.VerifyType();
 
             _length = 0;
-            _data = new MemoryArray<T>(capacity);
+            _data = Context.ArrayFactory.CreateMemoryBackedArray<T>(capacity);
             _empty = empty;
         }
 

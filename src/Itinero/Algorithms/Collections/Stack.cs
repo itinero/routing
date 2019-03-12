@@ -34,7 +34,7 @@ namespace Itinero.Algorithms.Collections
         /// </summary>
         public Stack()
         {
-            _data = new MemoryArray<T>(1024);
+            _data = Context.ArrayFactory.CreateMemoryBackedArray<T>(1024);
         }
 
         private int _pointer = -1;
