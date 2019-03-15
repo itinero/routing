@@ -212,16 +212,24 @@ namespace Itinero.IO.Shape.Writer
 
             foreach (var p in _profiles)
             {
-                var profileName = p.FullName;
+                var vehicleShortName = p.Parent.Name;
+                if (vehicleShortName.Length > 4) vehicleShortName = vehicleShortName.Substring(0, 4);
 
-                if (profileName.Length > 7)
-                {
-                    profileName = profileName.Substring(0, 7);
-                }
+                var profileShortName = p.Name;
+                if (profileShortName == null) profileShortName = string.Empty;
+                if (profileShortName.Length > 2) profileShortName = profileShortName.Substring(0, 3);
 
-                var factor = p.Factor(tags);
+                var profileName = $"{vehicleShortName}_{profileShortName}";
+                
+                var factor = p.FactorAndSpeed(tags);
                 attributes.Add(profileName.ToLower(), factor.Value != 0);
                 attributes.Add(profileName + "_dir", factor.Direction);
+                var speed = 1/factor.SpeedFactor*3.6;
+                if (factor.SpeedFactor <= 0) speed = 65536;
+                attributes.Add(profileName + "_sp", System.Math.Round(speed, 2));
+                speed = 1/factor.Value*3.6;
+                if (factor.Value <= 0) speed = 65536;
+                attributes.Add(profileName + "_spc", System.Math.Round(speed, 2));
             }
 
             attributes.Add("length", System.Math.Round(length, 3));
