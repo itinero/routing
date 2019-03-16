@@ -1101,7 +1101,8 @@ namespace Itinero
         /// <param name="db">The router db.</param>
         /// <param name="vertexIds">The vertices to get.</param>
         /// <param name="neighbours">Flag to get neighbours or not.</param>
-        public static string GetGeoJsonVertices(this RouterDb db, bool neighbours = false, params uint[] vertexIds)
+        /// <param name="includeProfileDetails">Flag to get profile details or not.</param>
+        public static string GetGeoJsonVertices(this RouterDb db, bool neighbours = false, bool includeProfileDetails = false, params uint[] vertexIds)
         {
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
 
@@ -1153,7 +1154,7 @@ namespace Itinero
             foreach (var edgeId in edges)
             {
                 edgeEnumerator.MoveToEdge(edgeId);
-                router.WriteEdge(jsonWriter, edgeEnumerator);
+                router.WriteEdge(jsonWriter, edgeEnumerator, includeProfileDetails);
             }
 
             foreach (var vertex in vertices)
@@ -1175,7 +1176,7 @@ namespace Itinero
         /// <param name="neighbours">Flag to get neighbours or not.</param>
         /// <param name="includeVertices">Flag to get vertices or not.</param>
         public static string GetGeoJsonEdges(this RouterDb db, bool neighbours = false,
-            bool includeVertices = true, params uint[] edgeIds)
+            bool includeVertices = true, bool includeProfileDetails = true, params uint[] edgeIds)
         {
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
             
@@ -1247,7 +1248,7 @@ namespace Itinero
             foreach (var edgeId in edges)
             {
                 edgeEnumerator.MoveToEdge(edgeId);
-                router.WriteEdge(jsonWriter, edgeEnumerator);
+                router.WriteEdge(jsonWriter, edgeEnumerator, includeProfileDetails);
             }
 
             if (vertices != null)
@@ -1322,7 +1323,8 @@ namespace Itinero
         /// <summary>
         /// Writes a linestring-geometry for the edge currently in the enumerator.
         /// </summary>
-        internal static void WriteEdge(this Router router, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator, bool includeProfileDetails = true)
+        internal static void WriteEdge(this Router router, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator, 
+            bool includeProfileDetails = true)
         {
             var db = router.Db;
             
