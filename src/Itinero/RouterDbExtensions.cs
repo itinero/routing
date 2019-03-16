@@ -930,19 +930,19 @@ namespace Itinero
         /// Gets all features around the given vertex as geojson.
         /// </summary>
         public static string GetGeoJsonAround(this RouterDb db, uint vertex, float distanceInMeter = 250,
-            bool includeEdges = true, bool includeVertices = true)
+            bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
             var coordinate = db.Network.GetVertex(vertex);
 
             return db.GetGeoJsonAround(coordinate.Latitude, coordinate.Longitude, distanceInMeter,
-                includeEdges, includeVertices);
+                includeEdges, includeVertices, includeProfileDetails);
         }
 
         /// <summary>
         /// Gets all features around the given location as geojson.
         /// </summary>
         public static string GetGeoJsonAround(this RouterDb db, float latitude, float longitude, float distanceInMeter = 250, 
-            bool includeEdges = true, bool includeVertices = true)
+            bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
             var coordinate = new Coordinate(latitude, longitude);
             var north = coordinate.OffsetWithDirection(distanceInMeter, Navigation.Directions.DirectionEnum.North);
@@ -951,28 +951,30 @@ namespace Itinero
             var west = coordinate.OffsetWithDirection(distanceInMeter, Navigation.Directions.DirectionEnum.West);
 
             return db.GetGeoJsonIn(south.Latitude, west.Longitude, north.Latitude, east.Longitude,
-                includeEdges, includeVertices);
+                includeEdges, includeVertices, includeProfileDetails);
         }
 
 
         /// <summary>
         /// Gets all features inside the given bounding box and builds a geojson string.
         /// </summary>
-        public static string GetGeoJson(this RouterDb db, bool includeEdges = true, bool includeVertices = true)
+        public static string GetGeoJson(this RouterDb db, bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
             var stringWriter = new StringWriter();
-            db.WriteGeoJson(stringWriter, includeEdges, includeVertices);
+            db.WriteGeoJson(stringWriter, includeEdges, includeVertices, includeProfileDetails);
             return stringWriter.ToInvariantString();
         }
 
         /// <summary>
         /// Gets all features inside the given bounding box and writes them as a geojson string.
         /// </summary>
-        public static void WriteGeoJson(this RouterDb db, TextWriter writer, bool includeEdges = true, bool includeVertices = true)
+        public static void WriteGeoJson(this RouterDb db, TextWriter writer, bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
             if (db == null) { throw new ArgumentNullException("db"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
 
+            var router = new Router(db);
+            
             var jsonWriter = new JsonWriter(writer);
             jsonWriter.WriteOpen();
             jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
@@ -1005,7 +1007,7 @@ namespace Itinero
                         }
                         edges.Add(edgeEnumerator.Id);
 
-                        db.WriteEdge(jsonWriter, edgeEnumerator);
+                        router.WriteEdge(jsonWriter, edgeEnumerator, includeProfileDetails);
                     }
                 }
             }
@@ -1018,10 +1020,10 @@ namespace Itinero
         /// Gets all features inside the given bounding box and builds a geojson string.
         /// </summary>
         public static string GetGeoJsonIn(this RouterDb db, float minLatitude, float minLongitude,
-            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
             var stringWriter = new StringWriter();
-            db.WriteGeoJson(stringWriter, minLatitude, minLongitude, maxLatitude, maxLongitude, includeEdges, includeVertices);
+            db.WriteGeoJson(stringWriter, minLatitude, minLongitude, maxLatitude, maxLongitude, includeEdges, includeVertices, includeProfileDetails);
             return stringWriter.ToInvariantString();
         }
 
@@ -1029,19 +1031,21 @@ namespace Itinero
         /// Gets all features inside the given bounding box and writes them as a geojson string.
         /// </summary>
         public static void WriteGeoJson(this RouterDb db, Stream stream, float minLatitude, float minLongitude,
-            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
-            db.WriteGeoJson(new StreamWriter(stream), minLatitude, minLongitude, maxLatitude, maxLongitude, includeEdges, includeVertices);
+            db.WriteGeoJson(new StreamWriter(stream), minLatitude, minLongitude, maxLatitude, maxLongitude, includeEdges, includeVertices, includeProfileDetails);
         }
 
         /// <summary>
         /// Gets all features inside the given bounding box and writes them as a geojson string.
         /// </summary>
         public static void WriteGeoJson(this RouterDb db, TextWriter writer, float minLatitude, float minLongitude,
-            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true)
+            float maxLatitude, float maxLongitude, bool includeEdges = true, bool includeVertices = true, bool includeProfileDetails = true)
         {
             if (db == null) { throw new ArgumentNullException("db"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
+            
+            var router = new Router(db);
 
             var jsonWriter = new JsonWriter(writer);
             jsonWriter.WriteOpen();
@@ -1076,12 +1080,12 @@ namespace Itinero
                         if (edgeEnumerator.DataInverted)
                         {
                             edgeEnumerator.MoveToEdge(edgeEnumerator.Id);
-                            db.WriteEdge(jsonWriter, edgeEnumerator);
+                            router.WriteEdge(jsonWriter, edgeEnumerator);
                             edgeEnumerator.MoveTo(vertex);
                         }
                         else
                         {
-                            db.WriteEdge(jsonWriter, edgeEnumerator);
+                            router.WriteEdge(jsonWriter, edgeEnumerator, includeProfileDetails);
                         }
                     }
                 }
@@ -1102,6 +1106,8 @@ namespace Itinero
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
 
             var writer = new StringWriter();
+            
+            var router = new Router(db);
 
             var jsonWriter = new JsonWriter(writer);
             jsonWriter.WriteOpen();
@@ -1147,7 +1153,7 @@ namespace Itinero
             foreach (var edgeId in edges)
             {
                 edgeEnumerator.MoveToEdge(edgeId);
-                db.WriteEdge(jsonWriter, edgeEnumerator);
+                router.WriteEdge(jsonWriter, edgeEnumerator);
             }
 
             foreach (var vertex in vertices)
@@ -1174,6 +1180,8 @@ namespace Itinero
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
             
             var writer = new StringWriter();
+            
+            var router = new Router(db);
             
             var jsonWriter = new JsonWriter(writer);
             jsonWriter.WriteOpen();
@@ -1239,7 +1247,7 @@ namespace Itinero
             foreach (var edgeId in edges)
             {
                 edgeEnumerator.MoveToEdge(edgeId);
-                db.WriteEdge(jsonWriter, edgeEnumerator);
+                router.WriteEdge(jsonWriter, edgeEnumerator);
             }
 
             if (vertices != null)
@@ -1314,8 +1322,10 @@ namespace Itinero
         /// <summary>
         /// Writes a linestring-geometry for the edge currently in the enumerator.
         /// </summary>
-        internal static void WriteEdge(this RouterDb db, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator)
+        internal static void WriteEdge(this Router router, JsonWriter jsonWriter, RoutingNetwork.EdgeEnumerator edgeEnumerator, bool includeProfileDetails = true)
         {
+            var db = router.Db;
+            
             var edgeAttributes = new Itinero.Attributes.AttributeCollection(db.EdgeMeta.Get(edgeEnumerator.Data.MetaId));
             edgeAttributes.AddOrReplace(db.EdgeProfiles.Get(edgeEnumerator.Data.Profile));
 
@@ -1343,12 +1353,9 @@ namespace Itinero
 
             jsonWriter.WritePropertyName("properties");
             jsonWriter.WriteOpen();
-            if (edgeAttributes != null)
+            foreach (var attribute in edgeAttributes)
             {
-                foreach (var attribute in edgeAttributes)
-                {
-                    jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
-                }
+                jsonWriter.WriteProperty(attribute.Key, attribute.Value, true, true);
             }
             jsonWriter.WriteProperty("edgeid", edgeEnumerator.Id.ToInvariantString());
             jsonWriter.WriteProperty("vertex1", edgeEnumerator.From.ToInvariantString());
@@ -1369,6 +1376,30 @@ namespace Itinero
                     {
                         jsonWriter.WriteProperty(dataName, data.ToInvariantString());
                     }
+                }
+            }
+
+            if (includeProfileDetails)
+            {
+                foreach (var profile in db.GetSupportedProfiles())
+                {
+                    var profileName = profile.FullName.ToLower();
+                    var cache = router.GetAugmentedGetFactor(profile);
+                    
+                    var factor = cache(edgeEnumerator.Data.Profile);
+                    
+                    jsonWriter.WriteProperty(profileName + "_direction", 
+                        factor.Direction.ToString(), true);
+                    
+                    var speed = 1/factor.SpeedFactor*3.6;
+                    if (factor.SpeedFactor <= 0) speed = 65536;
+                    jsonWriter.WriteProperty(profileName + "_speed", 
+                        System.Math.Round(speed, 2).ToInvariantString(), true);
+                    
+                    speed = 1/factor.Value*3.6;
+                    if (factor.Value <= 0) speed = 65536;
+                    jsonWriter.WriteProperty(profileName + "_speed_corrected", 
+                        System.Math.Round(speed, 2).ToInvariantString(), true);
                 }
             }
 

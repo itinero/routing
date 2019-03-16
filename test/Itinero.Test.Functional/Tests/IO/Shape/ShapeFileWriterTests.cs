@@ -22,7 +22,6 @@ using Itinero.IO.Shape;
 
 namespace Itinero.Test.Functional.Tests.IO.Shape
 {
-
     /// <summary>
     /// Contains functional tests writing shapefile output.
     /// </summary>

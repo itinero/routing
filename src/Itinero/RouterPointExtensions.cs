@@ -910,6 +910,8 @@ namespace Itinero
             if (db == null) { throw new ArgumentNullException("db"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
 
+            var router = new Router(db);
+
             var jsonWriter = new JsonWriter(writer);
             jsonWriter.WriteOpen();
             jsonWriter.WriteProperty("type", "FeatureCollection", true, false);
@@ -919,7 +921,7 @@ namespace Itinero
             var edgeEnumerator = db.Network.GetEdgeEnumerator();
             edgeEnumerator.MoveToEdge(routerPoint.EdgeId);
 
-            db.WriteEdge(jsonWriter, edgeEnumerator);
+            router.WriteEdge(jsonWriter, edgeEnumerator);
 
             db.WriteVertex(jsonWriter, edgeEnumerator.From);
             db.WriteVertex(jsonWriter, edgeEnumerator.To);
