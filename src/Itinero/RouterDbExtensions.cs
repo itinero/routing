@@ -1080,7 +1080,7 @@ namespace Itinero
                         if (edgeEnumerator.DataInverted)
                         {
                             edgeEnumerator.MoveToEdge(edgeEnumerator.Id);
-                            router.WriteEdge(jsonWriter, edgeEnumerator);
+                            router.WriteEdge(jsonWriter, edgeEnumerator, includeProfileDetails);
                             edgeEnumerator.MoveTo(vertex);
                         }
                         else
