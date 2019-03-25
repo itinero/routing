@@ -16,8 +16,8 @@ namespace Itinero.Algorithms.Contracted.Dual
         protected readonly DirectedMetaGraph _graph;
         private readonly static Logger _logger = Logger.Create("HierarchyBuilder");
         protected readonly WeightHandler<T> _weightHandler;
-        private readonly Dictionary<uint, int> _contractionCount;
-        private readonly Dictionary<long, int> _depth;
+        private readonly HugeDictionary<uint, int> _contractionCount;
+        private readonly HugeDictionary<long, int> _depth;
         protected VertexInfo<T> _vertexInfo;
         public const float E = 0.1f;
 
@@ -42,8 +42,8 @@ namespace Itinero.Algorithms.Contracted.Dual
             _weightHandler = weightHandler;
 
             _vertexInfo = new VertexInfo<T>();
-            _depth = new Dictionary<long, int>();
-            _contractionCount = new Dictionary<uint, int>();
+            _depth = new HugeDictionary<long, int>();
+            _contractionCount = new HugeDictionary<uint, int>();
 
             this.DifferenceFactor = 4;
             this.DepthFactor = 14;
