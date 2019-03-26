@@ -581,7 +581,11 @@ namespace Itinero.Graphs.Directed
                     maxVertexId = i;
                 }
             }
+            Itinero.Logging.Logger.Log("", TraceEventType.Verbose, 
+                $"Trimmed to vertex count: {maxVertexId}");
             _vertices.Resize((maxVertexId + 1) * VERTEX_SIZE);
+            Itinero.Logging.Logger.Log("", TraceEventType.Verbose, 
+                $"Vertex array size: {_vertices.Length}");
 
             // resize edges.
             var edgesLength = _nextEdgePointer;
@@ -590,6 +594,8 @@ namespace Itinero.Graphs.Directed
                 edgesLength = _edgeSize;
             }
             _edges.Resize(edgesLength);
+            Itinero.Logging.Logger.Log("", TraceEventType.Verbose, 
+                $"Edges array size: {edgesLength}");
 
             // store the max edge id.
             maxEdgeId = _edges.Length / _edgeSize;
@@ -617,8 +623,12 @@ namespace Itinero.Graphs.Directed
             {
                 sortedVertices[i] = i;
             }
+            Itinero.Logging.Logger.Log("", TraceEventType.Verbose, 
+                $"Vertex count size: {this.VertexCount}");
+            Itinero.Logging.Logger.Log("", TraceEventType.Verbose, 
+                $"sorted vertices length: {sortedVertices.Length}");
 
-            // sort vertices and coordinates.
+            // sort vertices by their pointers.
             QuickSort.Sort((i) => _vertices[sortedVertices[i] * VERTEX_SIZE] * sortedVertices.Length +
                     sortedVertices[i],
                 (i, j) =>
