@@ -22,6 +22,7 @@ using Reminiscence.IO;
 using Reminiscence.IO.Streams;
 using System;
 using System.Collections.Generic;
+using Itinero.Logging;
 
 namespace Itinero.Graphs.Directed
 {
@@ -622,6 +623,13 @@ namespace Itinero.Graphs.Directed
                     sortedVertices[i],
                 (i, j) =>
                     {
+                        if (i < 0 || i >= sortedVertices.Length) Itinero.Logging.Logger.Log(
+                            $"{nameof(DirectedGraph)}.{nameof(Compress)}", TraceEventType.Critical, 
+                            $"i out of range: {i}");
+                        if (j < 0 || j >= sortedVertices.Length) Itinero.Logging.Logger.Log(
+                            $"{nameof(DirectedGraph)}.{nameof(Compress)}", TraceEventType.Critical, 
+                            $"j out of range: {j}");
+                        
                         var tempRef = sortedVertices[i];
                         sortedVertices[i] = sortedVertices[j];
                         sortedVertices[j] = tempRef;
