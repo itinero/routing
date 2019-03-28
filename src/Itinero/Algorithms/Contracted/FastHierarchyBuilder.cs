@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Itinero.Algorithms.Collections;
-using Itinero.Algorithms.Contracted.Dual.Witness;
+using Itinero.Algorithms.Contracted.Witness;
 using Itinero.Algorithms.PriorityQueues;
 using Itinero.Algorithms.Weights;
 using Itinero.Graphs.Directed;

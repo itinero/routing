@@ -26,13 +26,15 @@ namespace Itinero.Algorithms.Contracted
     /// </summary>
     public static class PathTreeExtensions
     {
+        private const float WeightFactor = 1000;
+        
         /// <summary>
         /// Adds a new settled vertex.
         /// </summary>
         public static uint AddSettledVertex(this PathTree tree, uint vertex, WeightAndDir<float> weightAndDir, uint hops)
         {
             var hopsAndDirection = hops * 4 + weightAndDir.Direction._val;
-            return tree.Add(vertex, (uint)(weightAndDir.Weight * 10),
+            return tree.Add(vertex, (uint)(weightAndDir.Weight * WeightFactor),
                 hopsAndDirection);
         }
 
@@ -42,7 +44,7 @@ namespace Itinero.Algorithms.Contracted
         public static uint AddSettledVertex(this PathTree tree, uint vertex, WeightAndDir<float> weightAndDir, uint hops, uint pPointer)
         {
             var hopsAndDirection = hops * 4 + weightAndDir.Direction._val;
-            return tree.Add(vertex, (uint)(weightAndDir.Weight * 10),
+            return tree.Add(vertex, (uint)(weightAndDir.Weight * WeightFactor),
                 hopsAndDirection, pPointer);
         }
 
@@ -52,7 +54,7 @@ namespace Itinero.Algorithms.Contracted
         public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops)
         {
             var hopsAndDirection = hops * 4 + dir._val;
-            return tree.Add(vertex, (uint)(weight * 10),
+            return tree.Add(vertex, (uint)(weight * WeightFactor),
                 hopsAndDirection);
         }
 
@@ -62,7 +64,7 @@ namespace Itinero.Algorithms.Contracted
         public static uint AddSettledVertex(this PathTree tree, uint vertex, float weight, Dir dir, uint hops, uint pPointer)
         {
             var hopsAndDirection = hops * 4 + dir._val;
-            return tree.Add(vertex, (uint)(weight * 10),
+            return tree.Add(vertex, (uint)(weight * WeightFactor),
                 hopsAndDirection, pPointer);
         }
 
@@ -77,7 +79,7 @@ namespace Itinero.Algorithms.Contracted
             vertex = data0;
             weightAndDir = new WeightAndDir<float>()
             {
-                Weight = data1 / 10.0f,
+                Weight = data1 / WeightFactor,
                 Direction = new Dir()
                 {
                     _val = (byte)(data2 & 3)
@@ -98,7 +100,7 @@ namespace Itinero.Algorithms.Contracted
             previous = data3;
             weightAndDir = new WeightAndDir<float>()
             {
-                Weight = data1 / 10.0f,
+                Weight = data1 / WeightFactor,
                 Direction = new Dir()
                 {
                     _val = (byte)(data2 & 3)
@@ -116,7 +118,7 @@ namespace Itinero.Algorithms.Contracted
             tree.Get(pointer, out data0, out data1, out data2);
             return new WeightAndDir<float>()
             {
-                Weight = data1 / 10.0f,
+                Weight = data1 / WeightFactor,
                 Direction = new Dir()
                 {
                     _val = (byte)(data2 & 3)

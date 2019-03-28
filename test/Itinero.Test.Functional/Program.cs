@@ -78,10 +78,10 @@ namespace Itinero.Test.Functional
 
         private static void EnableLogging()
         {
-#if DEBUG
             var loggingBlacklist = new HashSet<string>();
+#if DEBUG
 #else
-            var loggingBlacklist = new HashSet<string>(
+            loggingBlacklist = new HashSet<string>(
                 new string[] { 
                     "StreamProgress",
                     "RouterDbStreamTarget",
