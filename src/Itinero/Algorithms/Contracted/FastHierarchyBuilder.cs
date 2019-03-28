@@ -19,7 +19,7 @@ namespace Itinero.Algorithms.Contracted
         private readonly HugeDictionary<uint, int> _contractionCount;
         private readonly HugeDictionary<long, int> _depth;
         protected VertexInfo<T> _vertexInfo;
-        public const float E = 0.01f;
+        public const float E = 0.001f;
 
 #if PCL
         NeighbourWitnessCalculator WitnessCalculators = new NeighbourWitnessCalculator();
@@ -529,7 +529,7 @@ namespace Itinero.Algorithms.Contracted
 #elif PCL
                 for (uint v = 0; v < _graph.VertexCount; v++)
                 {
-                    WitnessCalculators.Run(_graph.Graph, _witnessGraph, (uint)v, null);
+                    WitnessCalculators.Run(_graph.Graph, _witnessGraph, (uint)v, _witnessQueue);
                 }
 #else
                 foreach (var v in _witnessQueue)
