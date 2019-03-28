@@ -19,7 +19,7 @@ namespace Itinero.Algorithms.Contracted
         private readonly HugeDictionary<uint, int> _contractionCount;
         private readonly HugeDictionary<long, int> _depth;
         protected VertexInfo<T> _vertexInfo;
-        public const float E = 0.1f;
+        public const float E = 0.01f;
 
 #if PCL
         NeighbourWitnessCalculator WitnessCalculators = new NeighbourWitnessCalculator();
