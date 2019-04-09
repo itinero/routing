@@ -17,6 +17,7 @@
  */
 
 using System.Collections.Generic;
+using Itinero.Algorithms.Contracted.Dual.Cache;
 
 namespace Itinero
 {
@@ -24,6 +25,7 @@ namespace Itinero
     /// Represents routing settings.
     /// </summary>
     public class RoutingSettings<T>
+        where T : struct
     {
         private readonly Dictionary<string, T> _maxSearch;
 
@@ -58,6 +60,11 @@ namespace Itinero
         /// </summary>
         /// <remarks>When true any route not following the source or target directions will not be considered.</remarks>
         public bool DirectionAbsolute { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the search space cache.
+        /// </summary>
+        public SearchSpaceCache<T> Cache { get; set; }
 
         /// <summary>
         /// Creates a deep-copy of this object.
@@ -67,7 +74,8 @@ namespace Itinero
         {
             var clone = new RoutingSettings<T>()
             {
-                DirectionAbsolute = this.DirectionAbsolute
+                DirectionAbsolute = this.DirectionAbsolute,
+                Cache = this.Cache
             };
             foreach (var item in _maxSearch)
             {

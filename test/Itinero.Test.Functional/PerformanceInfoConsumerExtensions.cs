@@ -54,6 +54,22 @@ namespace Itinero.Test.Functional
         /// <summary>
         /// Tests performance for the given action.
         /// </summary>
+        public static void TestPerf(this Action action, string name, int count)
+        {
+            var info = new PerformanceInfoConsumer(name + " x " + count.ToInvariantString(), 10000);
+            info.Start();
+            var message = string.Empty;
+            while (count > 0)
+            {
+                action();
+                count--;
+            }
+            info.Stop(string.Empty);
+        }
+
+        /// <summary>
+        /// Tests performance for the given action.
+        /// </summary>
         public static void TestPerf(this Func<string> action, string name, int count)
         {
             var info = new PerformanceInfoConsumer(name + " x " + count.ToInvariantString(), 10000);

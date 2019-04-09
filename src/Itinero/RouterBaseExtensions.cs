@@ -30,6 +30,7 @@ using System.Text;
 using Itinero.Algorithms;
 using Itinero.Data.Contracted;
 using System.Threading;
+using Itinero.Algorithms.Contracted.Dual.Cache;
 using Itinero.Algorithms.Default.EdgeBased;
 using Itinero.Algorithms.Search;
 
@@ -699,6 +700,16 @@ namespace Itinero
             ISet<int> invalids)
         {
             return router.CalculateWeight(profile, locations, invalids, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Calculates all weights between all locations.
+        /// </summary>
+        public static float[][] CalculateWeight(this RouterBase router, IProfileInstance profile, RouterPoint[] locations,
+            ISet<int> invalids, RoutingSettings<float> settings)
+        {
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, locations, invalids, 
+                invalids, settings, CancellationToken.None).Value;
         }
 
         /// <summary>
@@ -1559,10 +1570,11 @@ namespace Itinero
                 { // do dual edge-based routing.
                     var graph = contracted.NodeBasedGraph;
 
+                    var searchSpaceCache = new SearchSpaceCache<T>();
                     var dykstraSources = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(sources);
                     var dykstraTargets = Itinero.Algorithms.Contracted.Dual.DykstraSourceExtensions.ToDykstraSources<T>(targets);
                     var algorithm = new Itinero.Algorithms.Contracted.Dual.ManyToMany.VertexToVertexWeightAlgorithm<T>(graph, weightHandler,
-                        dykstraSources, dykstraTargets, maxSearch);
+                        dykstraSources, dykstraTargets, maxSearch, searchSpaceCache);
                     algorithm.Run(cancellationToken);
                     if (!algorithm.HasSucceeded)
                     {

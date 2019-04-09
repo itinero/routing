@@ -163,7 +163,7 @@ namespace Itinero.LocalGeo
                         coordinate.Elevation = _coordinate1.Elevation;
                     }
                     else
-                    { // calculate offset and calculate an estimiate of the elevation.
+                    { // calculate offset and calculate an estimate of the elevation.
                         if (System.Math.Abs(this.A) > System.Math.Abs(this.B))
                         {
                             var diffLat = System.Math.Abs(this.A);

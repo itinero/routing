@@ -21,6 +21,7 @@ using Itinero.Data.Contracted;
 using Itinero.Profiles;
 using System;
 using System.Threading;
+using Itinero.Algorithms.Contracted.Dual.Cache;
 
 namespace Itinero.Algorithms.Contracted.Dual
 {
@@ -34,6 +35,17 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         internal static Result<T[][]> CalculateManyToMany<T>(this ContractedDb contractedDb, RouterDb routerDb, Profile profile, WeightHandler<T> weightHandler, 
             RouterPoint[] sources, RouterPoint[] targets, T max, CancellationToken cancellationToken) where T : struct
+        {
+            return contractedDb.CalculateManyToMany(routerDb, profile, weightHandler, sources, targets, max, null,
+                cancellationToken);
+        }
+
+        /// <summary>
+        /// Calculates a many-to-many weight matrix using a dual edge-based graph.
+        /// </summary>
+        internal static Result<T[][]> CalculateManyToMany<T>(this ContractedDb contractedDb, RouterDb routerDb,
+            Profile profile, WeightHandler<T> weightHandler,
+            RouterPoint[] sources, RouterPoint[] targets, T max, SearchSpaceCache<T> cache, CancellationToken cancellationToken) where T : struct
         {
             if (!(contractedDb.HasNodeBasedGraph &&
                   contractedDb.NodeBasedIsEdgedBased))
@@ -54,7 +66,8 @@ namespace Itinero.Algorithms.Contracted.Dual
             }
             
             // calculate weights.
-            var algorithm = new ManyToMany.VertexToVertexWeightAlgorithm<T>(contractedDb.NodeBasedGraph, weightHandler, dykstraSources, dykstraTargets, weightHandler.Infinite);
+            var algorithm = new ManyToMany.VertexToVertexWeightAlgorithm<T>(contractedDb.NodeBasedGraph, weightHandler, dykstraSources, dykstraTargets, max,
+                cache);
             algorithm.Run(cancellationToken);
 
             // extract the best weight for each edge pair.

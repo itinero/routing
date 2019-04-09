@@ -23,6 +23,7 @@ using Itinero.Graphs.Directed;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Itinero.Algorithms.Contracted.Dual.Cache;
 
 namespace Itinero.Algorithms.Contracted.Dual
 {
@@ -63,7 +64,7 @@ namespace Itinero.Algorithms.Contracted.Dual
 
         private BinaryHeap<uint> _pointerHeap;
         private PathTree _pathTree;
-        private HashSet<uint> _visited;
+        private Dictionary<uint, Tuple<uint, T>> _visited;
         private DirectedMetaGraph.EdgeEnumerator _edgeEnumerator;
 
         /// <summary>
@@ -86,10 +87,10 @@ namespace Itinero.Algorithms.Contracted.Dual
             // algorithm always succeeds, it may be dealing with an empty network and there are no targets.
             this.HasSucceeded = true;
 
-            // intialize dykstra data structures.
+            // initialize dykstra data structures.
             _pointerHeap = new BinaryHeap<uint>();
             _pathTree = new PathTree();
-            _visited = new HashSet<uint>();
+            _visited = new Dictionary<uint, Tuple<uint, T>>();
 
             // queue source.
             if (_source.Vertex1 != Constants.NO_VERTEX)
@@ -120,11 +121,11 @@ namespace Itinero.Algorithms.Contracted.Dual
             T cWeight;
             _weightHandler.GetPathTree(_pathTree, cPointer, out cVertex, out cWeight, out cPrevious);
 
-            if (_visited.Contains(cVertex))
+            if (_visited.ContainsKey(cVertex))
             {
                 return true;
             }
-            _visited.Add(cVertex);
+            _visited.Add(cVertex, new Tuple<uint, T>(cPointer, cWeight));
 
             if (this.WasFound != null)
             {
@@ -172,6 +173,20 @@ namespace Itinero.Algorithms.Contracted.Dual
             uint vertex, previous;
             _weightHandler.GetPathTree(_pathTree, pointer, out vertex, out weight, out previous);
             return weight;
+        }
+        
+        /// <summary>
+        /// Gets the search space.
+        /// </summary>
+        /// <returns></returns>
+        public SearchSpace<T> GetSearchSpace()
+        {
+            return new SearchSpace<T>()
+            {
+                Tree = _pathTree,
+                Visits = _visited,
+                VisitSet =  new HashSet<uint>(_visited.Keys)
+            };
         }
 
         /// <summary>

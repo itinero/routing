@@ -42,7 +42,8 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            // GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
+            //return RouterDb.Deserialize(File.OpenRead("luxembourg.c.cf.opt.routerdb"));
+            return RouterDb.Deserialize(File.OpenRead("belgium.c.cf.routerdb"));
 
             var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,

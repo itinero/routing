@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Itinero.Algorithms;
+using Itinero.Algorithms.Contracted.Dual.Cache;
 using Itinero.Algorithms.Default;
 using Itinero.Algorithms.Routes;
 using Itinero.Algorithms.Search;
@@ -1111,7 +1112,7 @@ namespace Itinero
                 return new Result<EdgePath<T>[][]>(ex.Message, (m) => ex);
             }
         }
-
+        
         /// <summary>
         /// Calculates all routes between all sources and all targets.
         /// </summary>
@@ -1180,8 +1181,9 @@ namespace Itinero
                     else if (contracted.HasNodeBasedGraph &&
                         contracted.NodeBasedIsEdgedBased)
                     { // use vertex-based graph for edge-based routing.
-                        weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted, _db, profileInstance.Profile,
-                            weightHandler, sources, targets, maxSearch, cancellationToken).Value;
+                        weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted,
+                            _db, profileInstance.Profile,
+                            weightHandler, sources, targets, maxSearch, settings?.Cache, cancellationToken).Value;
                     }
                     else
                     { // use node-based routing.

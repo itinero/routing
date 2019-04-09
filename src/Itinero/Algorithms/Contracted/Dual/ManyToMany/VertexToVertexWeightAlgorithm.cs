@@ -23,6 +23,7 @@ using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Itinero.Algorithms.Contracted.Dual.Cache;
 
 namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
 {
@@ -35,25 +36,25 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         private readonly DirectedMetaGraph _graph;
         private readonly DykstraSource<T>[] _sources;
         private readonly DykstraSource<T>[] _targets;
-        private readonly Dictionary<uint, Dictionary<int, T>> _buckets;
         private readonly WeightHandler<T> _weightHandler;
         private readonly T _max;
+        private readonly SearchSpaceCache<T> _cache;
 
         /// <summary>
         /// Creates a new algorithm.
         /// </summary>
         public VertexToVertexWeightAlgorithm(DirectedMetaGraph graph, WeightHandler<T> weightHandler, DykstraSource<T>[] sources,
-            DykstraSource<T>[] targets, T max)
+            DykstraSource<T>[] targets, T max, SearchSpaceCache<T> cache = null)
         {
             _graph = graph;
             _sources = sources;
             _targets = targets;
             _weightHandler = weightHandler;
             _max = max;
-
-            _buckets = new Dictionary<uint, Dictionary<int, T>>();
+            _cache = cache;
         }
 
+        private Dictionary<uint, Dictionary<int, T>> _buckets;
         private T[][] _weights;
 
         /// <summary>
@@ -75,26 +76,122 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 }
             }
 
-            // do forward searches into buckets.
-            for (var i = 0; i < _sources.Length; i++)
-            {
-                var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i], false, _max);
-                forward.WasFound += (p, v, w) =>
+            _buckets = new Dictionary<uint, Dictionary<int, T>>();
+            if (_cache == null)
+            { // when there is no cache, just calculate everything.
+            
+                // do forward searches into buckets.
+                for (var i = 0; i < _sources.Length; i++)
                 {
-                    return this.ForwardVertexFound(i, v, w);
-                };
-                forward.Run(cancellationToken);
-            }
+                    var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i], false, _max);
+                    forward.WasFound += (p, v, w) =>
+                    {
+                        return this.ForwardVertexFound(i, v, w);
+                    };
+                    forward.Run(cancellationToken);
+                }
 
-            // do backward searches into buckets.
-            for (var i = 0; i < _targets.Length; i++)
-            {
-                var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i], true, _max);
-                backward.WasFound += (p, v, w) =>
+                // do backward searches into buckets.
+                for (var i = 0; i < _targets.Length; i++)
                 {
-                    return this.BackwardVertexFound(i, v, w);
-                };
-                backward.Run(cancellationToken);
+                    var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i], true, _max);
+                    backward.WasFound += (p, v, w) =>
+                    {
+                        return this.BackwardVertexFound(i, v, w);
+                    };
+                    backward.Run(cancellationToken);
+                }
+            }
+            else
+            { // when there is a cache, calculate everything that is not cached.
+                // get forward search spaces.
+                var forwardSpaces = new SearchSpace<T>[_sources.Length];
+                for (var i = 0; i < _sources.Length; i++)
+                {
+                    var source = _sources[i];
+                    if (!_cache.TryGet(source, false, out var space))
+                    {
+                        // not found, calculate search space.
+                        var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i], false, _max);                    
+                        forward.WasFound += (p, v, w) =>
+                        {
+                            return this.ForwardVertexFound(i, v, w);
+                        };
+                        forward.Run(cancellationToken);
+                        space = forward.GetSearchSpace();
+                        
+                        _cache.Add(source, false, space);
+                    }
+                    else
+                    {
+                        foreach (var visit in space.Visits)
+                        {
+                            this.ForwardVertexFound(i, visit.Key, visit.Value.Item2);
+                        }
+                    }
+                }
+
+                // get backward search spaces.
+                var backwardSpaces = new SearchSpace<T>[_targets.Length];
+                for (var i = 0; i < _targets.Length; i++)
+                {
+                    var target = _targets[i];
+                    if (!_cache.TryGet(target, true, out var space))
+                    {
+                        var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i], true, _max);
+                        backward.WasFound += (p, v, w) =>
+                        {
+                            return this.BackwardVertexFound(i, v, w);
+                        };
+                        backward.Run(cancellationToken);
+                        space = backward.GetSearchSpace();
+                        
+                        _cache.Add(target, true, space);
+                    }
+                    else
+                    {
+                        foreach (var visit in space.Visits)
+                        {
+                            this.BackwardVertexFound(i, visit.Key, visit.Value.Item2);
+                        }
+                    }
+                }
+                
+//                // compose weights.
+//                for (var s = 0; s < forwardSpaces.Length; s++)
+//                {
+//                    for (var t = 0; t < backwardSpaces.Length; t++)
+//                    {
+//                        var forwardSpace = forwardSpaces[s];
+//                        var backwardSpace = backwardSpaces[t];
+//
+//                        _weights[s][t] = _weightHandler.Infinite;
+//                        if (s == t)
+//                        {
+//                            _weights[s][t] = _weightHandler.Zero;
+//                            continue;
+//                        }
+//
+//                        foreach (var forwardVisit in forwardSpace.Visits)
+//                        {
+//                            //Console.WriteLine(forwardVisit.Value.Item2);
+//
+//                            if (!backwardSpace.Visits.TryGetValue(forwardVisit.Key, out var backwardVisit))
+//                            {
+//                                continue;
+//                            }
+//
+//                            var sourceWeight = forwardVisit.Value.Item2;
+//                            var targetWeight = backwardVisit.Item2;
+//
+//                            var total = _weightHandler.Add(sourceWeight, targetWeight);
+//                            if (_weightHandler.IsSmallerThan(total, _weights[s][t]))
+//                            {
+//                                _weights[s][t] = total;
+//                            }
+//                        }
+//                    }
+//                }
             }
 
             this.HasSucceeded = true;
@@ -165,5 +262,5 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         }
     }
 
-    // TODO: implement a non-generic non-weighthandler version.
+    // TODO: implement a non-generic non-weight handler version.
 }
