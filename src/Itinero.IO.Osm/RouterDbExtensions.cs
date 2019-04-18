@@ -264,14 +264,23 @@ namespace Itinero.IO.Osm
 
             // make sure the routerdb can handle multiple edges.
             db.Network.GeometricGraph.Graph.MarkAsMulti();
-
+            
+            // determine normalization flag.
+            var normalize = true;
+            foreach (var vehicle in vehicles)
+            {
+                if (vehicle.Normalize) continue;
+                normalize = false;
+                break;
+            }
+            
             // load the data.
             var target = new Streams.RouterDbStreamTarget(db,
                 vehicles, settings.AllCore, processRestrictions: settings.ProcessRestrictions, processors: settings.Processors,
                     simplifyEpsilonInMeter: settings.NetworkSimplificationEpsilon);
             target.KeepNodeIds = settings.KeepNodeIds;
             target.KeepWayIds = settings.KeepWayIds;
-            target.RegisterSource(source);
+            target.RegisterSource(source, normalize);
             target.Pull();
 
             // optimize the network.

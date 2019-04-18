@@ -57,6 +57,16 @@ namespace Itinero.Profiles
             }
             _name = dynName.String;
 
+            var dynNormalize = _script.Globals.Get("normalize");
+            if (dynNormalize == null)
+            {
+                this.Normalize = true;
+            }
+            else
+            {
+                this.Normalize = dynNormalize.Boolean;
+            }
+
             var dynVehicleTypes = _script.Globals.Get("vehicle_types");
             if (dynVehicleTypes != null &&
                 dynVehicleTypes.Type == DataType.Table)
@@ -176,6 +186,11 @@ namespace Itinero.Profiles
                 return _name;
             }
         }
+
+        /// <summary>
+        /// Gets the normalize flag.
+        /// </summary>
+        public override bool Normalize { get; }
 
         /// <summary>
         /// Gets the vehicle types.

@@ -390,7 +390,7 @@ namespace Itinero.IO.Osm.Streams
                         }
                         else if (_vehicleCache.Vehicles.IsOnProfileWhiteList(tag.Key))
                         {
-                            metaTags.Add(tag);
+                            profileTags.Add(tag);
                         }
                         else if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key))
                         {
@@ -417,7 +417,7 @@ namespace Itinero.IO.Osm.Streams
                             stringBuilder.Append(' ');
                         }
                         Itinero.Logging.Logger.Log("RouterDbStreamTarget", Logging.TraceEventType.Information,
-                            "Normalized: # profiles {0}: {1}", _db.EdgeProfiles.Count, stringBuilder.ToInvariantString());
+                            "New edge profile: # profiles {0}: {1}", _db.EdgeProfiles.Count, stringBuilder.ToInvariantString());
                     }
                     if (profile > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
                     {

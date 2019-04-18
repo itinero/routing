@@ -47,6 +47,11 @@ namespace Itinero.Profiles
         }
 
         /// <summary>
+        /// Gets the normalization flag.
+        /// </summary>
+        public virtual bool Normalize { get; } = true;
+        
+        /// <summary>
         /// Gets the vehicle types.
         /// </summary>
         public virtual string[] VehicleTypes
