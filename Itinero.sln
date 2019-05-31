@@ -60,6 +60,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itinero.IO.Shape", "src\Iti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Shape", "samples\Sample.Shape\Sample.Shape.csproj", "{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.DynamicProfiles", "samples\Sample.DynamicProfiles\Sample.DynamicProfiles.csproj", "{8DED4253-89E6-4333-9750-E830DB789B2D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -148,6 +150,14 @@ Global
 		{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67}.Release|x64.ActiveCfg = Release|Any CPU
 		{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67}.Release|x64.Build.0 = Release|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Debug|x64.Build.0 = Debug|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|x64.ActiveCfg = Release|Any CPU
+		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,6 +173,7 @@ Global
 		{87E5FF87-E75F-4462-937F-538AB570EE1F} = {4B330D21-2EE5-4C34-B716-0DB1FBC58E29}
 		{C18E5106-ECC6-4C7B-A611-7D8514B0D3BD} = {4B330D21-2EE5-4C34-B716-0DB1FBC58E29}
 		{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67} = {77BC0AC3-41A6-4672-A3AB-9C27710756BE}
+		{8DED4253-89E6-4333-9750-E830DB789B2D} = {77BC0AC3-41A6-4672-A3AB-9C27710756BE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {647068E9-BC76-4E51-B225-D6BBD4689F76}
