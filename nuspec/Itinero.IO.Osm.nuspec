@@ -12,8 +12,6 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Itinero.IO.Osm - OpenStreetMap IO.</description>
         <summary>Itinero.IO.Osm is a package that enables building Itinero routing databases from OpenStreetMap data.</summary>
-		<releaseNotes>
-    </releaseNotes>
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>

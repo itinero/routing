@@ -12,8 +12,6 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Itinero - Routing for .NET.</description>
         <summary>Itinero is a route planning project for .NET to plan routes in a road network.</summary>
-		<releaseNotes>
-    </releaseNotes>
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>

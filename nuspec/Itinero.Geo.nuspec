@@ -12,8 +12,6 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Itinero.Geo - A bridge between Itinero and Geo.</description>
         <summary>Itinero.Geo is a package that provides a bridge between Itinero and Geo using NTS/GeoAPI.</summary>
-        <releaseNotes>
-        </releaseNotes>
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>

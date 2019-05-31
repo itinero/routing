@@ -12,8 +12,6 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Library to read shapefiles and use them for routing.</description>
         <summary>Library to read shapefiles and use them for routing in Itinero.</summary>
-        <releaseNotes>
-        </releaseNotes>
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, nts</tags>
         <dependencies>
