@@ -38,8 +38,6 @@
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="src\Itinero.IO.Shape\bin\Release\net40\Itinero.IO.Shape.dll"
-              target="lib\net40\Itinero.IO.Shape.dll"/>
         <file src="src\Itinero.IO.Shape\bin\Release\net45\Itinero.IO.Shape.dll"
               target="lib\net45\Itinero.IO.Shape.dll"/>
         <file src="src\Itinero.IO.Shape\bin\Release\netstandard2.0\Itinero.IO.Shape.dll"
