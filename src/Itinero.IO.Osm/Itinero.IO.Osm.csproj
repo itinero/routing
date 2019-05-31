@@ -15,7 +15,7 @@
     <ProjectReference Include="..\Itinero\Itinero.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="OsmSharp" Version="6.1.0" />
+    <PackageReference Include="OsmSharp" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
     <PackageReference Include="System.Xml.XmlSerializer" Version="4.3.0" />

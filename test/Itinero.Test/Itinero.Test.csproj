@@ -73,13 +73,12 @@
     <PackageReference Include="nunit" Version="3.9.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="NetTopologySuite" Version="1.15.0-pre027" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0-pre027" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="Itinero.Geo" Version="1.4.0-pre18" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0-beta.1.build3958" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Itinero.Geo\Itinero.Geo.csproj" />
     <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>

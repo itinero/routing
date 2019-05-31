@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net40;net45</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
         <AssemblyName>Itinero.IO.Shape</AssemblyName>
         <PackageId>Itinero.IO.Shape</PackageId>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -15,18 +15,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj"/>
-    </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-        <Reference Include="System.Xml"/>
-        <Reference Include="System.Data"/>
-        <Reference Include="System"/>
-        <Reference Include="Microsoft.CSharp"/>
-    </ItemGroup>
-    <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
-        <DefineConstants>$(DefineConstants);NET40</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
-        <Compile Include="..\..\SharedAssemblyVersion.cs"/>
     </ItemGroup>
     <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
         <DefineConstants>$(DefineConstants);NET45</DefineConstants>
