@@ -12,7 +12,7 @@
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Reminiscence" Version="1.2.0" />
+    <PackageReference Include="Reminiscence" Version="1.3.0-pre06" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.3.0" />
@@ -24,13 +24,13 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE;HAS_NATIVE_MEMORY_ARRAY</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
-    <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
+    <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE;HAS_NATIVE_MEMORY_ARRAY</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
+    <DefineConstants>$(DefineConstants);NET45;HAS_NATIVE_MEMORY_ARRAY</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Compile Include="..\..\SharedAssemblyVersion.cs" />
