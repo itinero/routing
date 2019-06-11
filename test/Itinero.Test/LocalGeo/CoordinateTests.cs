@@ -84,5 +84,13 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(distance, distanceLat, 0.3);
             Assert.AreEqual(distance, distanceLon, 0.3);
         }
+
+        [Test]
+        public void TestOps()
+        {
+            Assert.AreEqual(new Coordinate(10, 20), new Coordinate(50, 20) - new Coordinate(40, 0));
+            Assert.AreEqual(new Coordinate(10, 20), new Coordinate(10, 40) - new Coordinate(0, 20));
+            Assert.AreEqual(new Coordinate(10, 20), new Coordinate(50, 40) - new Coordinate(40, 20));
+        }
     }
 }

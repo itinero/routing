@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Itinero.LocalGeo.Operations;
+using Itinero.Profiles.Lua.Tree.Statements;
 
 namespace Itinero.LocalGeo
 {
@@ -78,6 +79,7 @@ namespace Itinero.LocalGeo
                     return simplified;
                 }
             }
+
             return shape;
         }
 
@@ -88,7 +90,8 @@ namespace Itinero.LocalGeo
         /// <param name="epsilonInMeter">Epsilon.</param>
         /// <param name="first">First.</param>
         /// <param name="last">Last.</param>
-        public static List<Coordinate> SimplifyBetween(this List<Coordinate> points, float epsilonInMeter, int first, int last)
+        public static List<Coordinate> SimplifyBetween(this List<Coordinate> points, float epsilonInMeter, int first,
+            int last)
         {
             if (points == null)
                 throw new ArgumentNullException(nameof(points));
@@ -118,7 +121,8 @@ namespace Itinero.LocalGeo
                 }
 
                 if (foundIndex > 0 && maxDistance > epsilonInMeter)
-                { // a point was found and it is far enough.
+                {
+                    // a point was found and it is far enough.
                     var before = SimplifyBetween(points, epsilonInMeter, first, foundIndex);
                     var after = SimplifyBetween(points, epsilonInMeter, foundIndex, last);
 
@@ -128,14 +132,17 @@ namespace Itinero.LocalGeo
                     {
                         result.Add(before[idx]);
                     }
+
                     for (int idx = 0; idx < after.Count; idx++)
                     {
                         result.Add(after[idx]);
                     }
+
                     return result;
                 }
             }
-            return new List<Coordinate>(new Coordinate[] { points[first], points[last] });
+
+            return new List<Coordinate>(new Coordinate[] {points[first], points[last]});
         }
 
         /// <summary>
@@ -175,7 +182,8 @@ namespace Itinero.LocalGeo
                 }
 
                 if (foundIndex > 0 && maxDistance > epsilonInMeter)
-                { // a point was found and it is far enough.
+                {
+                    // a point was found and it is far enough.
                     var before = SimplifyBetween(points, epsilonInMeter, first, foundIndex);
                     var after = SimplifyBetween(points, epsilonInMeter, foundIndex, last);
 
@@ -185,14 +193,17 @@ namespace Itinero.LocalGeo
                     {
                         result[idx] = before[idx];
                     }
+
                     for (int idx = 0; idx < after.Length; idx++)
                     {
                         result[idx + before.Length - 1] = after[idx];
                     }
+
                     return result;
                 }
             }
-            return new Coordinate[] { points[first], points[last] };
+
+            return new Coordinate[] {points[first], points[last]};
         }
 
         /// <summary>
@@ -209,7 +220,7 @@ namespace Itinero.LocalGeo
                     new Coordinate(box.MaxLat, box.MaxLon),
                     new Coordinate(box.MinLat, box.MaxLon),
                     new Coordinate(box.MinLat, box.MinLon)
-                    })
+                })
             };
         }
 
@@ -217,7 +228,8 @@ namespace Itinero.LocalGeo
         /// Calculates a bounding box for the polygon.
         /// TODO: if this is needed a lot, we should cache it in the polygon, see https://github.com/itinero/routing/issues/138
         /// </summary>
-        public static void BoundingBox(this Polygon polygon, out float north, out float east, out float south, out float west)
+        public static void BoundingBox(this Polygon polygon, out float north, out float east, out float south,
+            out float west)
         {
             polygon.ExteriorRing.BoundingBox(out north, out east, out south, out west);
         }
@@ -225,7 +237,8 @@ namespace Itinero.LocalGeo
         /// <summary>
         /// Calculates a bounding box for the ring.
         /// </summary>
-        public static void BoundingBox(this List<Coordinate> exteriorRing, out float north, out float east, out float south, out float west)
+        public static void BoundingBox(this List<Coordinate> exteriorRing, out float north, out float east,
+            out float south, out float west)
         {
             PointInPolygon.BoundingBox(exteriorRing, out north, out east, out south, out west);
         }
@@ -256,6 +269,7 @@ namespace Itinero.LocalGeo
             {
                 return LocationAfterDistance(line.Coordinate1, line.Coordinate2, offset);
             }
+
             return LocationAfterDistance(line.Coordinate2, line.Coordinate1, offset);
         }
 
@@ -268,7 +282,8 @@ namespace Itinero.LocalGeo
         /// <returns></returns>
         public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float offset)
         {
-            return LocationAfterDistance(coordinate1, coordinate2, Coordinate.DistanceEstimateInMeter(coordinate1, coordinate2),
+            return LocationAfterDistance(coordinate1, coordinate2,
+                Coordinate.DistanceEstimateInMeter(coordinate1, coordinate2),
                 offset);
         }
 
@@ -280,7 +295,8 @@ namespace Itinero.LocalGeo
         /// <param name="distanceBetween">The distance between the two, when we already calculated it before.</param>
         /// <param name="offset">The offset in meter starting at coordinate1.</param>
         /// <returns></returns>
-        public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2, float distanceBetween, float offset)
+        public static Coordinate LocationAfterDistance(Coordinate coordinate1, Coordinate coordinate2,
+            float distanceBetween, float offset)
         {
             if (distanceBetween < 0.05f) return coordinate1; // when line segment < 5cm return first coordinate. 
             var ratio = offset / distanceBetween;
@@ -313,7 +329,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public static bool PointIn(this Polygon poly, Coordinate point)
         {
-            return PointInPolygon.PointIn(poly, point);
+            return PointInPolygon.ContainsPoint(poly, point);
         }
 
         /// <summary>
@@ -321,7 +337,7 @@ namespace Itinero.LocalGeo
         /// </summary>
         public static bool PointIn(List<Coordinate> ring, Coordinate point)
         {
-            return PointInPolygon.PointIn(ring, point);
+            return PointInPolygon.ContainsPoint(ring, point);
         }
 
         /// <summary>
@@ -337,6 +353,17 @@ namespace Itinero.LocalGeo
             };
         }
 
+        public static bool IsClockwise(this Polygon p)
+        {
+            return p.ExteriorRing.IsClockwise();
+        }
+
+        public static bool IsClockwise(this List<Coordinate> p)
+        {
+            return p.SignedSurfaceArea() > 0;
+        }
+
+
         /// <summary>
         /// Calculates the area of the polygon
         /// </summary>
@@ -351,6 +378,105 @@ namespace Itinero.LocalGeo
             }
 
             return poly.ExteriorRing.SurfaceArea() - internalArea;
+        }
+
+        public static List<Polygon> IntersectionsWith(this Polygon a, Polygon b)
+        {
+            if (!a.IsClockwise())
+            {
+                a.ExteriorRing.Reverse();
+            }
+
+            if (!b.IsClockwise())
+            {
+                b.ExteriorRing.Reverse();
+            }
+
+            return a.Intersect(b, out var union);
+        }
+
+        public static Polygon UnionWith(this Polygon a, Polygon b)
+        {
+            if (!a.IsClockwise())
+            {
+                a.ExteriorRing.Reverse();
+            }
+
+            if (!b.IsClockwise())
+            {
+                b.ExteriorRing.Reverse();
+            }
+
+            a.Intersect(b, out var union);
+            return union;
+        }
+
+        public static List<Polygon> DifferencesWith(this Polygon a, Polygon b)
+        {
+            if (!a.IsClockwise())
+            {
+                a.ExteriorRing.Reverse();
+            }
+
+            if (!b.IsClockwise())
+            {
+                b.ExteriorRing.Reverse();
+            }
+
+            return a.Intersect(b, out var union, true);
+        }
+
+        public static Coordinate NorthernMost(this Polygon a)
+        {
+            var min = 0;
+            var northernMost = a.ExteriorRing[0];
+            for (var i = 1; i < a.ExteriorRing.Count - 1; i++)
+            {
+                var coor = a.ExteriorRing[i];
+                if (northernMost.Latitude == coor.Latitude)
+                {
+                    if (northernMost.Longitude > coor.Longitude)
+                    {
+                        northernMost = coor;
+                        min = i;
+                    }
+                }
+                else if (northernMost.Latitude < coor.Latitude)
+                {
+                    northernMost = coor;
+                    min = i;
+                }
+            }
+
+            return northernMost;
+        }
+
+        /// <summary>
+        /// Will rotate the exterior ring so that 'i' is the new start (and end, in case of a closed polygon).
+        /// Result will always be closed
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="newStart"></param>
+        public static void RotateExteriorRing(this Polygon a, int newStart)
+        {
+
+            if (a.IsClosed())
+            {
+                a.ExteriorRing.RemoveAt(a.ExteriorRing.Count);
+            }
+
+            var newExterior = new List<Coordinate>();
+            for (var i = newStart; i < a.ExteriorRing.Count; i++)
+            {
+                newExterior.Add(a.ExteriorRing[i]);
+            }
+            
+            for (var i = 0; i < newStart; i++)
+            {
+                newExterior.Add(a.ExteriorRing[i]);
+            }
+            newExterior.Add(newExterior[0]);
+            a.ExteriorRing = newExterior;
         }
     }
 }

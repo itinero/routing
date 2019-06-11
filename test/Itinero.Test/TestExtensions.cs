@@ -19,11 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
+using Polygon = Itinero.LocalGeo.Polygon;
 
 namespace Itinero.Test
 {
@@ -77,6 +78,26 @@ namespace Itinero.Test
             }
         }
 
+        public static Polygon LoadTestPolygon(this Stream stream)
+        {
+            var points = new List<Coordinate>(stream.LoadTestPoints());
+
+            if (!points.Last().Equals(points[0]))
+            {
+                // Polygon is not closed yet
+                points.Add(points[0]);
+            }
+            
+            var poly = new Polygon() {ExteriorRing = points};
+            
+            if (poly.ExteriorRing.Count <= 2)
+            {
+                throw new ArgumentException($"Too little elements in the exterior ring of the polygon (only {poly.ExteriorRing.Count} found)");
+            }
+            return poly;
+        }
+        
+
         /// <summary>
         /// Loads a test network from geojson.
         /// </summary>
@@ -91,7 +112,6 @@ namespace Itinero.Test
                 if (point == null)
                 {
                     continue;
-                    ;
                 }
 
                 yield return new Coordinate((float) point.Coordinate.Y, (float) point.Coordinate.X);
@@ -106,6 +126,11 @@ namespace Itinero.Test
         {
             return System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
                 path);
+        }
+        
+        public static Stream LoadTestStream(this string path)
+        {
+            return ("Itinero.Test.test_data." + path).LoadAsStream();
         }
     }
 }

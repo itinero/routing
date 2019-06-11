@@ -1001,6 +1001,7 @@ namespace Itinero.Test
             Assert.IsTrue(time > route.ShapeMeta[1].Time);
             Assert.IsTrue(time < route.ShapeMeta[2].Time);
 
+            
             Assert.IsTrue(route.ProjectOn(new Coordinate(51.26610064830449f, 4.801395535469055f), out projected, out shape, out distance, out time));
             Assert.AreEqual(3, shape);
             Assert.IsTrue(time > route.ShapeMeta[1].Time);

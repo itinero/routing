@@ -32,11 +32,11 @@ namespace Itinero.LocalGeo.Operations
         /// Note that polygons spanning a pole, without a point at the pole itself, will fail to detect points within the polygon;
         /// (e.g. Polygon=[(lat=80°, 0), (80, 90), (80, 180)] will *not* detect the point (85, 90))
         /// </summary>
-        internal static bool PointIn(this Polygon poly, Coordinate point)
+        internal static bool ContainsPoint(this Polygon poly, Coordinate point)
         {
             // For startes, the point should lie within the outer
 
-            var inOuter = PointIn(poly.ExteriorRing, point);
+            var inOuter = ContainsPoint(poly.ExteriorRing, point);
             if (!inOuter)
             {
                 return false;
@@ -45,7 +45,7 @@ namespace Itinero.LocalGeo.Operations
             // and it should *not* lay within any inner ring
             for (var i = 0; i < poly.InteriorRings.Count; i++)
             {
-                var inInner = PointIn(poly.InteriorRings[i], point);
+                var inInner = ContainsPoint(poly.InteriorRings[i], point);
                 if (inInner)
                 {
                     return false;
@@ -57,7 +57,7 @@ namespace Itinero.LocalGeo.Operations
         /// <summary>
         /// Returns true if the given point lies within the ring.
         /// </summary>
-        internal static bool PointIn(List<Coordinate> ring, Coordinate point)
+        internal static bool ContainsPoint(List<Coordinate> ring, Coordinate point)
         {
 
             // Coordinate of the point. Longitude might be changed in the antemeridian-crossing case
@@ -106,7 +106,7 @@ namespace Itinero.LocalGeo.Operations
             // no intersections passed yet -> not within the polygon
             var result = false;
 
-            for (int i = 0; i < ring.Count; i++)
+            for (var i = 0; i < ring.Count; i++)
             {
                 var start = ring[i];
                 var end = ring[(i + 1) % ring.Count];
@@ -144,7 +144,7 @@ namespace Itinero.LocalGeo.Operations
 
                 // Analogously, at least one point of the segments should be on the right (east) of the point;
                 // otherwise, no intersection is possible (as the raycast goes right)
-                if (!(Math.Max(stLong, endLong) >= longitude))
+                if (!(Math.Max(stLong, endLong) > longitude))
                 {
                     continue;
                 }

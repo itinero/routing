@@ -36,7 +36,17 @@ namespace Itinero.LocalGeo
         public List<List<Coordinate>> InteriorRings { get; set; } = new List<List<Coordinate>>();
 
 
+        public bool IsClosed()
+        {
+            return ExteriorRing[0].Equals(ExteriorRing[ExteriorRing.Count - 1]);
+        }
 
-        
+        public void MakeClosed()
+        {
+            if (!IsClosed())
+            {
+                ExteriorRing.Add(ExteriorRing[0]);
+            }
+        }
     }
 }

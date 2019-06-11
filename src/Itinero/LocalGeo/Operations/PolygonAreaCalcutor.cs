@@ -12,23 +12,30 @@ namespace Itinero.LocalGeo.Operations
     internal static class PolygonAreaCalcutor
     {
         /// <summary>
-        /// Calculates the surface area of a closed, not-self-intersecting polygon
+        /// Calculates the surface area of a closed, not-self-intersecting polygon.
+        /// Will return a negative result if the polygon is counterclockwise
         /// </summary>
         /// <param name="points"></param>
         /// <returns></returns>
-        internal static float SurfaceArea(this List<Coordinate> points)
+        public static float SignedSurfaceArea(this List<Coordinate> points)
         {
             var l = points.Count;
             var area = 0f;
             for (var i = 1; i < l+1; i++)
             {
-                var p = points[i % l];
-                var pi = points[(i + 1) % l];
-                var pm = points[(i - 1)];
-                area += p.Longitude * (pi.Latitude - pm.Latitude);
+                var cur = points[i % l];
+                var nxt = points[(i + 1) % l];
+                var prev = points[(i - 1)];
+                area += cur.Longitude * (prev.Latitude - nxt.Latitude);
             }
 
-            return Math.Abs(area / 2);
+            return area / 2;
         }
+
+        public static float SurfaceArea(this List<Coordinate> points)
+        {
+            return Math.Abs(points.SignedSurfaceArea());
+        }
+        
     }
 }
