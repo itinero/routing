@@ -24,12 +24,12 @@ namespace Itinero.IO.Osm.Streams
     public sealed class NodeIndex
     {
         private readonly UnsignedNodeIndex _negativeNodeIndex;
-        private readonly UnsignedNodeIndex _postiveNodeIndex;
+        private readonly UnsignedNodeIndex _positiveNodeIndex;
 
         public NodeIndex()
         {
             _negativeNodeIndex = new UnsignedNodeIndex();
-            _postiveNodeIndex = new UnsignedNodeIndex();
+            _positiveNodeIndex = new UnsignedNodeIndex();
         }
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (id >= 0)
             {
-                _postiveNodeIndex.AddId(id);
+                _positiveNodeIndex.AddId(id);
             }
             else
             {
@@ -52,7 +52,7 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         public void SortAndConvertIndex()
         {
-            _postiveNodeIndex.SortAndConvertIndex();
+            _positiveNodeIndex.SortAndConvertIndex();
             _negativeNodeIndex.SortAndConvertIndex();
         }
 
@@ -65,7 +65,7 @@ namespace Itinero.IO.Osm.Streams
             {
                 if (idx >= _negativeNodeIndex.Count)
                 {
-                    return _postiveNodeIndex[idx - _negativeNodeIndex.Count];
+                    return _positiveNodeIndex[idx - _negativeNodeIndex.Count];
                 }
                 return _negativeNodeIndex[idx];
             }
@@ -78,7 +78,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (id >= 0)
             {
-                _postiveNodeIndex.Set(id, vertex);
+                _positiveNodeIndex.Set(id, vertex);
             }
             else
             {
@@ -93,7 +93,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (id >= 0)
             {
-                return _postiveNodeIndex.TryGetIndex(id);
+                return _positiveNodeIndex.TryGetIndex(id);
             }
             else
             {
@@ -113,7 +113,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (idx >= 0)
             {
-                _postiveNodeIndex.SetIndex(idx, latitude, longitude);
+                _positiveNodeIndex.SetIndex(idx, latitude, longitude);
             }
             else
             {
@@ -128,7 +128,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (id >= 0)
             {
-                return _postiveNodeIndex.TryGetCoreNode(id, out vertex);
+                return _positiveNodeIndex.TryGetCoreNode(id, out vertex);
             }
             else
             {
@@ -143,7 +143,7 @@ namespace Itinero.IO.Osm.Streams
         {
             if (id >= 0)
             {
-                return _postiveNodeIndex.TryGetValue(id, out latitude, out longitude, out isCore, out vertex);
+                return _positiveNodeIndex.TryGetValue(id, out latitude, out longitude, out isCore, out vertex);
             }
             else
             {
