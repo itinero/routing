@@ -107,64 +107,70 @@ namespace Itinero.IO.Osm.Streams
         private void InitializeDefaultProcessors(bool processRestrictions)
         {
             // add all vehicle relation processors.
+            bool isDynamic = false;
             foreach(var vehicle in _vehicleCache.Vehicles)
             {
-                if (vehicle is Itinero.Profiles.DynamicVehicle)
+                if (!(vehicle is DynamicVehicle dynamicVehicle)) continue;
+
+                isDynamic = true;
+                this.Processors.Add(new DynamicVehicleRelationTagProcessor(dynamicVehicle));
+                this.Processors.Add(new DynamicVehicleNodeTagProcessor(_db, dynamicVehicle, MarkCore));
+                if (processRestrictions)
                 {
-                    var dynamicVehicle = vehicle as Itinero.Profiles.DynamicVehicle;
-                    this.Processors.Add(new DynamicVehicleRelationTagProcessor(dynamicVehicle));
-                    this.Processors.Add(new DynamicVehicleNodeTagProcessor(_db, dynamicVehicle, (node) =>
-                    {
-                        var index = _nodeIndex.TryGetIndex(node.Id.Value);
-                        if (index == long.MaxValue)
-                        { // node is not a vertex.
-                            return Itinero.Constants.NO_VERTEX;
-                        }
-                        return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
-                    }));
+                    this.Processors.Add(
+                        new DynamicVehicleNodeRestrictionProcessor(_db, dynamicVehicle, MarkCore, FoundRestriction));
                 }
             }
 
             // add restriction processor if needed.
             if (processRestrictions)
             {
+                // add node-based restriction processor if non of the profiles is dynamic.
+                if (!isDynamic)
+                {
+                    this.Processors.Add(new NodeRestrictionProcessor(MarkCore, FoundRestriction));
+                }
+                
                 this.Processors.Add(new RestrictionProcessor(_vehicleTypes, (node) =>
                 {
-                    uint vertex;
-                    if (!_nodeIndex.TryGetCoreNode(node, out vertex))
+                    if (!_nodeIndex.TryGetCoreNode(node, out var vertex))
                     {
                         return uint.MaxValue;
                     }
                     return vertex;
-                },
-                (node) =>
-                {
-                    var index = _nodeIndex.TryGetIndex(node.Id.Value);
-                    if (index == long.MaxValue)
-                    { // node is not a vertex.
-                        return Itinero.Constants.NO_VERTEX;
-                    }
-                    return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
-                },
-                (vehicleType, sequence) =>
-                {
-                    if (vehicleType == null)
-                    {
-                        vehicleType = string.Empty;
-                    }
-                    if (!_db.TryGetRestrictions(vehicleType, out var restrictions))
-                    {
-                        restrictions = new RestrictionsDb();
-                        _db.AddRestrictions(vehicleType, restrictions);
-                    }
+                }, MarkCore, FoundRestriction));
+            }
 
-                    restrictions.Add(sequence.ToArray());
-                }));
+            // a function to handle callbacks from processors handling restrictions.
+            void FoundRestriction(string vehicleType, List<uint> sequence)
+            {
+                if (vehicleType == null)
+                {
+                    vehicleType = string.Empty;
+                }
+                if (!_db.TryGetRestrictions(vehicleType, out var restrictions))
+                {
+                    restrictions = new RestrictionsDb();
+                    _db.AddRestrictions(vehicleType, restrictions);
+                }
+
+                restrictions.Add(sequence.ToArray());
+            }
+
+            // a function to handle callbacks from processor that want to mark nodes as core.
+            uint MarkCore(Node node)
+            {
+                var index = _nodeIndex.TryGetIndex(node.Id.Value);
+                if (index == long.MaxValue)
+                { // node is not a vertex.
+                    return Itinero.Constants.NO_VERTEX;
+                }
+                return this.AddCoreNode(node.Id.Value, (float)node.Latitude.Value, (float)node.Longitude.Value);
             }
         }
 
         /// <summary>
-        /// Intializes this target.
+        /// Initializes this target.
         /// </summary>
         public override void Initialize()
         {

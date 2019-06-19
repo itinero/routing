@@ -59,7 +59,8 @@ profile_whitelist = {
 meta_whitelist = {
 	"name",
 	"bridge",
-	"tunnel"
+	"tunnel",
+	"barrier"
 }
 
 -- profile definitions linking a function to a profile
@@ -80,6 +81,29 @@ profiles = {
 		metric = "custom"
 	}
 }
+
+barriers = {
+    ["gate"] = true,
+    ["bollard"] = true,
+    ["fence"] = true
+}
+
+-- interprets node restrictions
+function node_restriction (attributes, results)
+    results.attributes_to_keep = {}
+	 
+    local barrier = attributes.barrier
+    if barrier == nil then
+        return
+    end
+    
+    local barrier_type = barriers[barrier]
+    if barrier_type == nil then
+        return
+    end    
+    results.attributes_to_keep.barrier = barrier    
+    results.vehicle = "motorcar"
+end
 
 -- interprets access tags
 function can_access (attributes, result)

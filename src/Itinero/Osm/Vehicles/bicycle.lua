@@ -52,7 +52,8 @@ profile_whitelist = {
 	"roundabout",
 	"cycleway", 
 	"cyclenetwork",
-	"oneway:bicycle"
+	"oneway:bicycle",
+	"barrier"
 }
 
 meta_whitelist = {
@@ -83,6 +84,29 @@ profiles = {
 		metric = "custom"
 	}
 }
+
+barriers = {
+    ["gate"] = true,
+    ["fence"] = true
+}
+
+-- interprets node restrictions
+function node_restriction (attributes, results)
+    results.attributes_to_keep = {}
+	 
+    local barrier = attributes.barrier
+    if barrier == nil then
+        return
+    end
+    
+    local barrier_type = barriers[barrier]
+    if barrier_type == nil then
+        return
+    end    
+    results.attributes_to_keep.barrier = barrier    
+    results.vehicle = "motorcar"
+end
+
 
 -- processes relation and adds the attributes_to_keep to the child ways for use in routing
 function relation_tag_processor (attributes, result)

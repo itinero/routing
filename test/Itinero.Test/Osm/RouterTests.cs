@@ -967,6 +967,37 @@ namespace Itinero.Test.Osm
         }
 
         /// <summary>
+        /// Tests a restriction that consists of a bollard on an uncontracted network with only simple restrictions.
+        /// </summary>
+        [Test]
+        public void TestGateUncontractedSimpleRestrictions()
+        {
+            var routerDb = new RouterDb();
+            using (var stream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream(
+                "Itinero.Test.test_data.networks.network20.osm"))
+            {
+                var source = new OsmSharp.Streams.XmlOsmStreamSource(stream);
+                routerDb.LoadOsmData(source, Itinero.Osm.Vehicles.Vehicle.Car);
+            }
+
+            var profile = routerDb.GetSupportedProfile("car");
+
+            var location1 = new Coordinate(51.22735657780183f, 4.834375977516174f);
+            var location2 = new Coordinate(51.22702399914085f, 4.833759069442749f);
+            var location3 = new Coordinate(51.22759509233135f, 4.833576679229736f);
+            var router = new Router(routerDb);
+
+            var resolved1 = router.Resolve(profile, location1);
+            var resolved2 = router.Resolve(profile, location2);
+            var resolved3 = router.Resolve(profile, location3);
+
+            var route1 = router.TryCalculate(profile, resolved1, resolved2);
+            Assert.IsTrue(route1.IsError);
+            var route2 = router.TryCalculate(profile, resolved1, resolved3);
+            Assert.IsFalse(route2.IsError);
+        }
+
+        /// <summary>
         /// Tests a restriction that consists of a bollard on a contracted network with only simple restrictions.
         /// </summary>
         [Test]

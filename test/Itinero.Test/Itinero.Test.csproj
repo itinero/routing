@@ -41,6 +41,7 @@
     <EmbeddedResource Include="test-data\networks\network17.geojson" />
     <EmbeddedResource Include="test-data\networks\network18.geojson" />
     <EmbeddedResource Include="test-data\networks\network2.geojson" />
+    <EmbeddedResource Include="test-data\networks\network20.osm" />
     <EmbeddedResource Include="test-data\networks\network3.geojson" />
     <EmbeddedResource Include="test-data\networks\network4.geojson" />
     <EmbeddedResource Include="test-data\networks\network5.geojson" />
@@ -64,7 +65,7 @@
     <EmbeddedResource Include="test-data\points\points2.hull.geojson" />
     <None Remove="test-data\networks\network19.geojson" />
     <EmbeddedResource Include="test-data\networks\network19.geojson" />
-    <None Remove="test-data\networks\network20.geojson" />
+    <None Remove="test-data\networks\network20.osm.pbf" />
     <None Remove="test-data\routes\route2.json" />
     <EmbeddedResource Include="test-data\routes\route2.json" />
   </ItemGroup>
