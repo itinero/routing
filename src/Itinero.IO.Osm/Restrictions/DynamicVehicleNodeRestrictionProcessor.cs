@@ -115,6 +115,7 @@ namespace Itinero.IO.Osm.Restrictions
                 var existing = _routerDb.VertexMeta[vertex];
                 if (existing != null)
                 {
+                    existing = new AttributeCollection(existing);
                     existing.AddOrReplace(resultAttributes);
                 }
                 else
