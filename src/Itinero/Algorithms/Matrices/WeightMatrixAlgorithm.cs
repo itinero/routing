@@ -1,22 +1,4 @@
-﻿/*
- *  Licensed to SharpSoftware under one or more contributor
- *  license agreements. See the NOTICE file distributed with this work for 
- *  additional information regarding copyright ownership.
- * 
- *  SharpSoftware licenses this file to you under the Apache License, 
- *  Version 2.0 (the "License"); you may not use this file except in 
- *  compliance with the License. You may obtain a copy of the License at
- * 
- *       http://www.apache.org/licenses/LICENSE-2.0
- * 
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-
-using Itinero.Profiles;
+﻿using Itinero.Profiles;
 using System.Collections.Generic;
 using Itinero.Algorithms.Weights;
 using Itinero.Algorithms.Search;
@@ -35,6 +17,7 @@ namespace Itinero.Algorithms.Matrices
         private readonly IProfileInstance _profile;
         private readonly WeightHandler<T> _weightHandler;
         private readonly IMassResolvingAlgorithm _massResolver;
+        private readonly RoutingSettings<T> _settings;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
@@ -61,15 +44,26 @@ namespace Itinero.Algorithms.Matrices
         /// Creates a new weight-matrix algorithm.
         /// </summary>
         public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver)
+        : this(router, profile, weightHandler, massResolver, null)
+        {
+            
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver,
+            RoutingSettings<T> settings)
         {
             _router = router;
             _profile = profile;
             _weightHandler = weightHandler;
             _massResolver = massResolver;
+            _settings = settings;
         }
 
-        private Dictionary<int, RouterPointError> _errors; // all errors per routerpoint idx.
-        private List<int> _correctedIndices; // the original routerpoint per resolved point index.
+        private Dictionary<int, RouterPointError> _errors; // all errors per router point idx.
+        private List<int> _correctedIndices; // the original router point per resolved point index.
         private List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
         private T[][] _weights; // the weights between all valid resolved points.        
         
@@ -95,7 +89,10 @@ namespace Itinero.Algorithms.Matrices
             
             // calculate matrix.
             var nonNullInvalids = new HashSet<int>();
-            _weights = _router.CalculateWeight(_profile, _weightHandler, _correctedResolvedPoints.ToArray(), nonNullInvalids);
+            var locations = _correctedResolvedPoints.ToArray();
+            var weightsResult = _router.TryCalculateWeight(_profile, _weightHandler, locations, locations, 
+                nonNullInvalids, nonNullInvalids, _settings);
+            _weights = weightsResult.Value;
 
             // take into account the non-null invalids now.
             if (nonNullInvalids.Count > 0)
@@ -119,35 +116,17 @@ namespace Itinero.Algorithms.Matrices
         /// <summary>
         /// Gets the router.
         /// </summary>
-        public RouterBase Router
-        {
-            get
-            {
-                return _router;
-            }
-        }
+        public RouterBase Router => _router;
 
         /// <summary>
         /// Gets the profile.
         /// </summary>
-        public IProfileInstance Profile
-        {
-            get
-            {
-                return _profile;
-            }
-        }
+        public IProfileInstance Profile => _profile;
 
         /// <summary>
         /// Gets the mass resolver.
         /// </summary>
-        public IMassResolvingAlgorithm MassResolver
-        {
-            get
-            {
-                return _massResolver;
-            }
-        }
+        public IMassResolvingAlgorithm MassResolver => _massResolver;
 
         /// <summary>
         /// Gets the weights between all valid router points.
@@ -188,10 +167,10 @@ namespace Itinero.Algorithms.Matrices
         }
         
         /// <summary>
-        /// Returns the routerpoint index that represents the given weight in the weight matrix.
+        /// Returns the router point index that represents the given weight in the weight matrix.
         /// </summary>
         /// <param name="weightIdx">The index in the weight matrix.</param>
-        /// <returns>The routerpoint index, always exists and always returns a proper value.</returns>
+        /// <returns>The router point index, always exists and always returns a proper value.</returns>
         public int OriginalIndexOf(int weightIdx)
         {
             this.CheckHasRunAndHasSucceeded();
@@ -200,7 +179,7 @@ namespace Itinero.Algorithms.Matrices
         }
 
         /// <summary>
-        /// Returns the errors indexed per original routerpoint index.
+        /// Returns the errors indexed per original router point index.
         /// </summary>
         public Dictionary<int, RouterPointError> Errors
         {
@@ -226,6 +205,7 @@ namespace Itinero.Algorithms.Matrices
         {
 
         }
+        
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
@@ -241,6 +221,16 @@ namespace Itinero.Algorithms.Matrices
             : base(router, profile, profile.DefaultWeightHandler(router), resolvedLocations)
         {
 
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver,
+            RoutingSettings<float> settings)
+            : base(router, profile, profile.DefaultWeightHandler(router), massResolver, settings)
+        {
+            
         }
     }
 }
