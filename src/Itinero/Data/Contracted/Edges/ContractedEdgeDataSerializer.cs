@@ -198,11 +198,11 @@ namespace Itinero.Data.Contracted.Edges
         {
             if (weight > MAX_DISTANCE)
             {
-                throw new ArgumentOutOfRangeException("Cannot store distance on edge, too big.");
+                throw new ArgumentOutOfRangeException(nameof(weight), "Cannot store distance on edge, too big.");
             }
             if (weight < 0)
             {
-                throw new ArgumentOutOfRangeException("Cannot store distance on edge, too small.");
+                throw new ArgumentOutOfRangeException(nameof(weight),"Cannot store distance on edge, too small.");
             }
 
             var dirFlags = 0;

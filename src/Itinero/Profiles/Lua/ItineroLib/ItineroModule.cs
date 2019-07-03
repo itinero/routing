@@ -63,6 +63,11 @@ namespace Itinero.Profiles.Lua.ItineroLib
             {
                 return DynValue.Nil;
             }
+
+            if (weight < 0)
+            {
+                return DynValue.Nil;
+            }
             return DynValue.NewNumber(weight);
         }
 
