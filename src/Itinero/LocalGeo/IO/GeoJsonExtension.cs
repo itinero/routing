@@ -227,5 +227,44 @@ namespace Itinero.LocalGeo.IO
             jsonWriter.WriteArrayClose(); // closes the coordinates top level.
             jsonWriter.WriteClose(); // closes the geometry.
         }
+        
+        /// <summary>
+        /// Serializes the line to GeoJSON.
+        /// </summary>
+        public static string ToGeoJson(this Line line)
+        {
+            var stringWriter = new StringWriter();
+            var jsonWriter = new Itinero.IO.Json.JsonWriter(stringWriter);
+            new List<Coordinate>() { line.Coordinate1, line.Coordinate2 }.WriteGeoJson(jsonWriter);
+            return stringWriter.ToInvariantString();
+        }
+        
+        /// <summary>
+        /// Serializes the coordinate to a point in GeoJSON.
+        /// </summary>
+        public static string ToGeoJson(this Coordinate coordinate)
+        {
+            var stringWriter = new StringWriter();
+            var jsonWriter = new Itinero.IO.Json.JsonWriter(stringWriter);
+            coordinate.WriteGeoJson(jsonWriter);
+            return stringWriter.ToInvariantString();
+        }
+
+        private static void WriteGeoJson(this Coordinate point, Itinero.IO.Json.JsonWriter jsonWriter)
+        {
+            if (jsonWriter == null)
+            {
+                throw new ArgumentNullException("jsonWriter");
+            }
+
+            jsonWriter.WriteOpen();
+            jsonWriter.WriteProperty("type", "Point", true, false);
+            jsonWriter.WritePropertyName("coordinates", false);
+            jsonWriter.WriteArrayOpen();
+            jsonWriter.WriteArrayValue(point.Longitude.ToInvariantString());
+            jsonWriter.WriteArrayValue(point.Latitude.ToInvariantString());
+            jsonWriter.WriteArrayClose();
+            jsonWriter.WriteClose(); // closes the geometry.
+        }
     }
 }
