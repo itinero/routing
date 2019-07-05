@@ -75,41 +75,9 @@ namespace Itinero.Algorithms.Search
             {
                 var edgeId = edges[e];
                 var edge = _graph.GetEdge(edgeId);
-                float projectedLatitude, projectedLongitude, projectedDistanceFromFirst, totalLength, distanceToProjected;
-                int projectedShapeIndex;
                 if (!_graph.ProjectOn(edge, _latitude, _longitude,
-                    out projectedLatitude, out projectedLongitude, out projectedDistanceFromFirst,
-                    out projectedShapeIndex, out distanceToProjected, out totalLength))
-                {
-                    var points = _graph.GetShape(edge);
-                    var previous = points[0];
-
-                    var bestProjectedDistanceFromFirst = 0.0f;
-                    projectedDistanceFromFirst = 0;
-                    var bestDistanceToProjected = Coordinate.DistanceEstimateInMeter(previous,
-                        new Coordinate(_latitude, _longitude));
-                    projectedLatitude = previous.Latitude;
-                    projectedLongitude = previous.Longitude;
-                    for (var i = 1; i < points.Count; i++)
-                    {
-                        var current = points[i];
-                        projectedDistanceFromFirst += Coordinate.DistanceEstimateInMeter(current, previous);
-                        distanceToProjected = Coordinate.DistanceEstimateInMeter(current,
-                            new Coordinate(_latitude, _longitude));
-                        if (distanceToProjected < bestDistanceToProjected)
-                        {
-                            bestDistanceToProjected = distanceToProjected;
-                            bestProjectedDistanceFromFirst = projectedDistanceFromFirst;
-                            projectedLatitude = current.Latitude;
-                            projectedLongitude = current.Longitude;
-                        }
-                        previous = current;
-                    }
-
-                    // set best distance.
-                    projectedDistanceFromFirst = bestProjectedDistanceFromFirst;
-                }
-
+                    out _, out _, out var projectedDistanceFromFirst,
+                    out _, out _, out var totalLength)) continue;
                 var offset = (ushort)((projectedDistanceFromFirst / totalLength) * ushort.MaxValue);
                 _results.Add(new RouterPoint(_latitude, _longitude, edgeId, offset));
             }
