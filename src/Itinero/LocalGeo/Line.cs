@@ -213,10 +213,21 @@ namespace Itinero.LocalGeo
             // rotate 90°.
             var xLength = Coordinate.DistanceEstimateInMeter(thisLine._coordinate1,
                 new Coordinate(thisLine.Coordinate1.Latitude, thisLine.Coordinate2.Longitude));
+            if (thisLine.Coordinate1.Longitude > thisLine.Coordinate2.Longitude)
+            {
+                xLength = -xLength;
+            }
             var yLength = Coordinate.DistanceEstimateInMeter(thisLine._coordinate1,
                 new Coordinate(thisLine.Coordinate2.Latitude, thisLine.Coordinate1.Longitude));
-            var second = thisLine.Coordinate1.OffsetWithDirection(yLength, DirectionEnum.East)
-                .OffsetWithDirection(xLength, DirectionEnum.North);
+            if (thisLine.Coordinate1.Latitude > thisLine.Coordinate2.Latitude)
+            {
+                yLength = -yLength;
+            }
+
+            var xDirection = DirectionEnum.West;
+            var yDirection = DirectionEnum.North;
+            var second = thisLine.Coordinate1.OffsetWithDirection(yLength, xDirection)
+                .OffsetWithDirection(xLength, yDirection);
             diffLat = second.Latitude - thisLine.Coordinate1.Latitude;
             diffLon = second.Longitude - thisLine.Coordinate1.Longitude;
             

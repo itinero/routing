@@ -932,7 +932,9 @@ namespace Itinero.Test.Osm
             Assert.IsFalse(route.IsError);
             Assert.IsNotNull(route.Value.From);
             Assert.IsNotNull(route.Value.From.From);
-            Assert.IsNull(route.Value.From.From.From);
+            Assert.IsNotNull(route.Value.From.From.From);
+            Assert.IsNotNull(route.Value.From.From.From.From);
+            Assert.IsNull(route.Value.From.From.From.From.From);
         }
 
         /// <summary>
