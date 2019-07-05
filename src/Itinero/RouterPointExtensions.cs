@@ -893,19 +893,29 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Returns a geojson description for 
+        /// Returns a geojson description. 
         /// </summary>
         public static string ToGeoJson(this RouterPoint routerPoint, RouterDb routerDb)
         {
             var stringWriter = new StringWriter();
-            routerPoint.WriteGeoJson(stringWriter, routerDb);
+            (new [] {routerPoint }).WriteGeoJson(stringWriter, routerDb);
+            return stringWriter.ToInvariantString();
+        }
+
+        /// <summary>
+        /// Returns a geojson description.
+        /// </summary>
+        public static string ToGeoJson(this IEnumerable<RouterPoint> routerPoints, RouterDb routerDb)
+        {
+            var stringWriter = new StringWriter();
+            routerPoints.WriteGeoJson(stringWriter, routerDb);
             return stringWriter.ToInvariantString();
         }
 
         /// <summary>
         /// Writes geojson describing the given routerpoint.
         /// </summary>
-        internal static void WriteGeoJson(this RouterPoint routerPoint, TextWriter writer, RouterDb db)
+        internal static void WriteGeoJson(this IEnumerable<RouterPoint> routerPoints, TextWriter writer, RouterDb db)
         {
             if (db == null) { throw new ArgumentNullException("db"); }
             if (writer == null) { throw new ArgumentNullException("writer"); }
@@ -918,59 +928,61 @@ namespace Itinero
             jsonWriter.WritePropertyName("features", false);
             jsonWriter.WriteArrayOpen();
 
-            var edgeEnumerator = db.Network.GetEdgeEnumerator();
-            edgeEnumerator.MoveToEdge(routerPoint.EdgeId);
+            foreach (var routerPoint in routerPoints)
+            {
+                var edgeEnumerator = db.Network.GetEdgeEnumerator();
+                edgeEnumerator.MoveToEdge(routerPoint.EdgeId);
 
-            router.WriteEdge(jsonWriter, edgeEnumerator);
+                router.WriteEdge(jsonWriter, edgeEnumerator);
 
-            db.WriteVertex(jsonWriter, edgeEnumerator.From);
-            db.WriteVertex(jsonWriter, edgeEnumerator.To);
+                db.WriteVertex(jsonWriter, edgeEnumerator.From);
+                db.WriteVertex(jsonWriter, edgeEnumerator.To);
 
-            // write location on network.
-            var coordinate = routerPoint.LocationOnNetwork(db);
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "Feature", true, false);
-            jsonWriter.WritePropertyName("geometry", false);
+                // write location on network.
+                var coordinate = routerPoint.LocationOnNetwork(db);
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Feature", true, false);
+                jsonWriter.WritePropertyName("geometry", false);
 
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "Point", true, false);
-            jsonWriter.WritePropertyName("coordinates", false);
-            jsonWriter.WriteArrayOpen();
-            jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
-            jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
-            jsonWriter.WriteArrayClose();
-            jsonWriter.WriteClose();
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Point", true, false);
+                jsonWriter.WritePropertyName("coordinates", false);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteClose();
 
-            jsonWriter.WritePropertyName("properties");
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "location_on_network", true);
-            jsonWriter.WriteProperty("offset", routerPoint.Offset.ToInvariantString());
-            jsonWriter.WriteClose();
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "location_on_network", true);
+                jsonWriter.WriteProperty("offset", routerPoint.Offset.ToInvariantString());
+                jsonWriter.WriteClose();
 
-            jsonWriter.WriteClose();
+                jsonWriter.WriteClose();
 
-            // write original location.
-            coordinate = routerPoint.Location();
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "Feature", true, false);
-            jsonWriter.WritePropertyName("geometry", false);
+                // write original location.
+                coordinate = routerPoint.Location();
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Feature", true, false);
+                jsonWriter.WritePropertyName("geometry", false);
 
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "Point", true, false);
-            jsonWriter.WritePropertyName("coordinates", false);
-            jsonWriter.WriteArrayOpen();
-            jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
-            jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
-            jsonWriter.WriteArrayClose();
-            jsonWriter.WriteClose();
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Point", true, false);
+                jsonWriter.WritePropertyName("coordinates", false);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteClose();
 
-            jsonWriter.WritePropertyName("properties");
-            jsonWriter.WriteOpen();
-            jsonWriter.WriteProperty("type", "original_location", true);
-            jsonWriter.WriteClose();
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "original_location", true);
+                jsonWriter.WriteClose();
 
-            jsonWriter.WriteClose();
-
+                jsonWriter.WriteClose();
+            }
 
             jsonWriter.WriteArrayClose();
             jsonWriter.WriteClose();
