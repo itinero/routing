@@ -16,6 +16,8 @@
  *  limitations under the License.
  */
 
+using Itinero.Navigation.Directions;
+
 namespace Itinero.LocalGeo
 {
     /// <summary>
@@ -209,12 +211,17 @@ namespace Itinero.LocalGeo
             }
 
             // rotate 90°.
-            var temp = diffLon;
-            diffLon = -diffLat;
-            diffLat = temp;
-
+            var xLength = Coordinate.DistanceEstimateInMeter(thisLine._coordinate1,
+                new Coordinate(thisLine.Coordinate1.Latitude, thisLine.Coordinate2.Longitude));
+            var yLength = Coordinate.DistanceEstimateInMeter(thisLine._coordinate1,
+                new Coordinate(thisLine.Coordinate2.Latitude, thisLine.Coordinate1.Longitude));
+            var second = thisLine.Coordinate1.OffsetWithDirection(yLength, DirectionEnum.East)
+                .OffsetWithDirection(xLength, DirectionEnum.North);
+            diffLat = second.Latitude - thisLine.Coordinate1.Latitude;
+            diffLon = second.Longitude - thisLine.Coordinate1.Longitude;
+            
             // create second point from the given coordinate.
-            var second = new Coordinate((float)(diffLat + coordinate.Latitude), (float)(diffLon + coordinate.Longitude));
+            second = new Coordinate((float)(diffLat + coordinate.Latitude), (float)(diffLon + coordinate.Longitude));
 
             // create a second line.
             var line = new Line(coordinate, second);
