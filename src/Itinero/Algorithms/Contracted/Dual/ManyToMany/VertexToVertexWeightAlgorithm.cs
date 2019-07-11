@@ -104,6 +104,8 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 }
             }
 
+            _weights = transposed;
+
             this.HasSucceeded = true;
         }
 
