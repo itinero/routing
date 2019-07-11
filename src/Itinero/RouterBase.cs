@@ -168,7 +168,29 @@ namespace Itinero
         /// <returns></returns>
         public abstract Result<T[][]> TryCalculateWeight<T>(IProfileInstance profile, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken) where T : struct;
+        
+        /// <summary>
+        /// Calculates all weights between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public Result<float[][]> TryCalculateWeight(IProfileInstance profile, WeightHandler<float> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<float> settings = null)
+        {
+            return this.TryCalculateWeight(profile, weightHandler, sources, targets, invalidSources, invalidTargets, settings, CancellationToken.None);
+        }
 
+        /// <summary>
+        /// Calculates all weights between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public virtual Result<float[][]> TryCalculateWeight(IProfileInstance profile,
+            WeightHandler<float> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<float> settings,
+            CancellationToken cancellationToken)
+        {
+            return this.TryCalculateWeight<float>(profile, weightHandler, sources, targets, invalidSources, invalidTargets, settings, CancellationToken.None);
+        }
+        
         /// <summary>
         /// Builds a route based on a raw path.
         /// </summary>

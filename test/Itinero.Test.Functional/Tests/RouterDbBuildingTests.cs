@@ -42,8 +42,6 @@ namespace Itinero.Test.Functional.Tests
         /// <returns></returns>
         public static RouterDb Run()
         {
-            // GetRouterDbFromOverpass().TestPerf("Loading a routerdb from overpass.");
-
             var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
                 Osm.Vehicles.Vehicle.Car,

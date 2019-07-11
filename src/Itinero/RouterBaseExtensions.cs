@@ -705,6 +705,16 @@ namespace Itinero
         /// Calculates all weights between all locations.
         /// </summary>
         public static float[][] CalculateWeight(this RouterBase router, IProfileInstance profile, RouterPoint[] locations,
+            ISet<int> invalids, RoutingSettings<float> settings)
+        {
+            return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, locations, invalids, 
+                invalids, settings, CancellationToken.None).Value;
+        }
+
+        /// <summary>
+        /// Calculates all weights between all locations.
+        /// </summary>
+        public static float[][] CalculateWeight(this RouterBase router, IProfileInstance profile, RouterPoint[] locations,
             ISet<int> invalids, CancellationToken cancellationToken)
         {
             return router.TryCalculateWeight(profile, profile.DefaultWeightHandler(router), locations, invalids, cancellationToken).Value;
