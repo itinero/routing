@@ -52,7 +52,12 @@ namespace Itinero
         /// <returns></returns>
         public bool TryGetMaxSearch(string profile, out T weight)
         {
-            return _maxSearch.TryGetValue(profile, out weight);
+            if (!_maxSearch.TryGetValue(profile, out weight))
+            {
+                return _maxSearch.TryGetValue(string.Empty, out weight);
+            }
+
+            return true;
         }
 
         /// <summary>

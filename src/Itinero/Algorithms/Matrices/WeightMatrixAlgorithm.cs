@@ -35,6 +35,7 @@ namespace Itinero.Algorithms.Matrices
         private readonly IProfileInstance _profile;
         private readonly WeightHandler<T> _weightHandler;
         private readonly IMassResolvingAlgorithm _massResolver;
+        private readonly RoutingSettings<T> _settings;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
@@ -61,15 +62,26 @@ namespace Itinero.Algorithms.Matrices
         /// Creates a new weight-matrix algorithm.
         /// </summary>
         public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver)
+        : this(router, profile, weightHandler, massResolver, null)
+        {
+            
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, WeightHandler<T> weightHandler, IMassResolvingAlgorithm massResolver,
+            RoutingSettings<T> settings)
         {
             _router = router;
             _profile = profile;
             _weightHandler = weightHandler;
             _massResolver = massResolver;
+            _settings = settings;
         }
 
-        private Dictionary<int, RouterPointError> _errors; // all errors per routerpoint idx.
-        private List<int> _correctedIndices; // the original routerpoint per resolved point index.
+        private Dictionary<int, RouterPointError> _errors; // all errors per router point idx.
+        private List<int> _correctedIndices; // the original router point per resolved point index.
         private List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
         private T[][] _weights; // the weights between all valid resolved points.        
         
@@ -95,7 +107,10 @@ namespace Itinero.Algorithms.Matrices
             
             // calculate matrix.
             var nonNullInvalids = new HashSet<int>();
-            _weights = _router.CalculateWeight(_profile, _weightHandler, _correctedResolvedPoints.ToArray(), nonNullInvalids);
+            var locations = _correctedResolvedPoints.ToArray();
+            var weightsResult = _router.TryCalculateWeight(_profile, _weightHandler, locations, locations, 
+                nonNullInvalids, nonNullInvalids, _settings);
+            _weights = weightsResult.Value;
 
             // take into account the non-null invalids now.
             if (nonNullInvalids.Count > 0)
@@ -226,6 +241,7 @@ namespace Itinero.Algorithms.Matrices
         {
 
         }
+        
         /// <summary>
         /// Creates a new weight-matrix algorithm.
         /// </summary>
@@ -241,6 +257,16 @@ namespace Itinero.Algorithms.Matrices
             : base(router, profile, profile.DefaultWeightHandler(router), resolvedLocations)
         {
 
+        }
+
+        /// <summary>
+        /// Creates a new weight-matrix algorithm.
+        /// </summary>
+        public WeightMatrixAlgorithm(RouterBase router, IProfileInstance profile, IMassResolvingAlgorithm massResolver,
+            RoutingSettings<float> settings)
+            : base(router, profile, profile.DefaultWeightHandler(router), massResolver, settings)
+        {
+            
         }
     }
 }

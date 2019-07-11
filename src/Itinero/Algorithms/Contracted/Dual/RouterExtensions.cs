@@ -43,6 +43,40 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Calculates a many-to-many weight matrix using a dual edge-based graph.
         /// </summary>
+        internal static Result<float[][]> CalculateManyToMany(this ContractedDb contractedDb, RouterDb routerDb,
+            Profile profile, WeightHandler<float> weightHandler,
+            RouterPoint[] sources, RouterPoint[] targets, float max, SearchSpaceCache<float> cache, CancellationToken cancellationToken)
+        {
+            if (!(contractedDb.HasNodeBasedGraph &&
+                  contractedDb.NodeBasedIsEdgedBased))
+            {
+                throw new ArgumentOutOfRangeException("No dual edge-based graph was found!");
+            }
+            
+            var dykstraSources = new DykstraSource<float>[sources.Length];
+            for (var i = 0; i < sources.Length; i++)
+            {
+                dykstraSources[i] = sources[i].ToDualDykstraSource(routerDb, weightHandler, true);
+            }
+
+            var dykstraTargets = new DykstraSource<float>[targets.Length];
+            for (var i = 0; i < targets.Length; i++)
+            {
+                dykstraTargets[i] = targets[i].ToDualDykstraSource(routerDb, weightHandler, true);
+            }
+            
+            // calculate weights.
+            var algorithm = new ManyToMany.VertexToVertexWeightAlgorithm(contractedDb.NodeBasedGraph, weightHandler, dykstraSources, dykstraTargets, max,
+                cache);
+            algorithm.Run(cancellationToken);
+
+            // extract the best weight for each edge pair.
+            return new Result<float[][]>(algorithm.Weights);
+        }
+
+        /// <summary>
+        /// Calculates a many-to-many weight matrix using a dual edge-based graph.
+        /// </summary>
         internal static Result<T[][]> CalculateManyToMany<T>(this ContractedDb contractedDb, RouterDb routerDb,
             Profile profile, WeightHandler<T> weightHandler,
             RouterPoint[] sources, RouterPoint[] targets, T max, SearchSpaceCache<T> cache, CancellationToken cancellationToken) where T : struct

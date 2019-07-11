@@ -38,7 +38,7 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            for (var count = 300; count <= 300; count += 100)
+            for (var count = 1000; count <= 5000; count += 1000)
             {
                 var cache = new SearchSpaceCache<float>();
                 var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
@@ -60,9 +60,11 @@ namespace Itinero.Test.Functional.Tests
                     new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
                 massResolver.Run();
 
+                GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, null)
+                    .TestPerf($"Testing {count}x{count} matrix (cold with cache off)");
                 GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache)
-                    .TestPerf($"Testing {count}x{count} matrix");
-                for (var i = 0; i < 100; i++)
+                    .TestPerf($"Testing {count}x{count} matrix (cold with cache on)");
+                for (var i = 0; i < 200; i++)
                 {
                     GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache)
                         .TestPerf($"Testing {count}x{count} matrix (with cache)");
@@ -99,7 +101,7 @@ namespace Itinero.Test.Functional.Tests
             {
                 Cache = cache
             };
-            settings.SetMaxSearch(profile.FullName, 3600);
+            settings.SetMaxSearch(profile.FullName, 7200);
             return () =>
             {
                 var invalids = new HashSet<int>();
@@ -117,7 +119,7 @@ namespace Itinero.Test.Functional.Tests
             {
                 Cache = cache
             };
-            settings.SetMaxSearch(profile.FullName, 3600);
+            settings.SetMaxSearch(profile.FullName, 7200);
             return () =>
             {
                 var invalids = new HashSet<int>();

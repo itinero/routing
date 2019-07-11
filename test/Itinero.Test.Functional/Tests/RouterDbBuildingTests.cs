@@ -43,7 +43,7 @@ namespace Itinero.Test.Functional.Tests
         public static RouterDb Run()
         {
             //return RouterDb.Deserialize(File.OpenRead("luxembourg.c.cf.opt.routerdb"));
-            return RouterDb.Deserialize(File.OpenRead("belgium.c.cf.routerdb"));
+            return RouterDb.Deserialize(File.OpenRead("netherlands.c.cf.routerdb"));
 
             var sourcePBF = Download.LuxembourgLocal;
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,

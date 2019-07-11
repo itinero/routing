@@ -38,11 +38,13 @@ namespace Itinero.Algorithms.Contracted.Dual
         private readonly bool _backward;
         private readonly WeightHandler<T> _weightHandler;
         private readonly T _max;
+        private readonly SearchSpaceCache<T> _cache = null;
 
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, uint source, bool backward, T max)
+        public Dykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, uint source, bool backward, T max, 
+            SearchSpaceCache<T> cache = null)
             : this(graph, weightHandler, new DykstraSource<T>(source), backward, max)
         {
 
@@ -51,7 +53,8 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Creates a new routing algorithm instance.
         /// </summary>
-        public Dykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, DykstraSource<T> source, bool backward, T max)
+        public Dykstra(DirectedMetaGraph graph, WeightHandler<T> weightHandler, DykstraSource<T> source, bool backward, T max,
+            SearchSpaceCache<T> cache = null)
         {
             weightHandler.CheckCanUse(graph);
 
@@ -60,6 +63,7 @@ namespace Itinero.Algorithms.Contracted.Dual
             _backward = backward;
             _weightHandler = weightHandler;
             _max = max;
+            _cache = cache;
         }
 
         private BinaryHeap<uint> _pointerHeap;
@@ -72,11 +76,29 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         protected override void DoRun(CancellationToken cancellationToken)
         {
-            // initialize stuff.
-            this.Initialize();
+            // check cache.
+            if (_cache != null &&
+                _cache.TryGet(_source, false, out var space))
+            { // use cached search space.
+                foreach (var visit in space.Visits)
+                {
+                    this.WasFound?.Invoke(uint.MaxValue,visit.Key, visit.Value.Item2);
+                }
+            }
+            else
+            { // no cache.
+                // initialize stuff.
+                this.Initialize();
 
-            // start the search.
-            while (this.Step()) { }
+                // start the search.
+                while (this.Step()) { }
+
+                if (_cache == null) return; 
+                
+                // cache but no entry, add.
+                space = this.GetSearchSpace();
+                _cache.Add(_source, _backward, space);
+            }
         }
         
         /// <summary>
@@ -169,9 +191,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// </summary>
         public T GetWeight(uint pointer)
         {
-            T weight;
-            uint vertex, previous;
-            _weightHandler.GetPathTree(_pathTree, pointer, out vertex, out weight, out previous);
+            _weightHandler.GetPathTree(_pathTree, pointer, out _, out var weight, out _);
             return weight;
         }
         
@@ -200,7 +220,7 @@ namespace Itinero.Algorithms.Contracted.Dual
         public delegate bool WasFoundDelegate(uint pointer, uint vertex, T weight);
 
         /// <summary>
-        /// Gets or sets the wasfound function to be called when a new vertex is found.
+        /// Gets or sets the was found function to be called when a new vertex is found.
         /// </summary>
         public WasFoundDelegate WasFound
         {
@@ -211,25 +231,11 @@ namespace Itinero.Algorithms.Contracted.Dual
         /// <summary>
         /// Gets the backward flag.
         /// </summary>
-        public bool Backward
-        {
-            get
-            {
-                return _backward;
-            }
-        }
+        public bool Backward => _backward;
 
         /// <summary>
         /// Gets the graph.
         /// </summary>
-        public DirectedMetaGraph Graph
-        {
-            get
-            {
-                return _graph;
-            }
-        }
+        public DirectedMetaGraph Graph => _graph;
     }
-
-    // TODO: build and non-generic non-weighthandler version, also use graph not meta graph in the simple weighed version.
 }
