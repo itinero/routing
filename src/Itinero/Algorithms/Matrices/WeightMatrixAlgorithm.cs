@@ -31,11 +31,11 @@ namespace Itinero.Algorithms.Matrices
     public class WeightMatrixAlgorithm<T> : AlgorithmBase, IWeightMatrixAlgorithm<T>
         where T : struct
     {
-        private readonly RouterBase _router;
-        private readonly IProfileInstance _profile;
-        private readonly WeightHandler<T> _weightHandler;
-        private readonly IMassResolvingAlgorithm _massResolver;
-        private readonly RoutingSettings<T> _settings;
+        protected readonly RouterBase _router;
+        protected readonly IProfileInstance _profile;
+        protected readonly WeightHandler<T> _weightHandler;
+        protected readonly IMassResolvingAlgorithm _massResolver;
+        protected readonly RoutingSettings<T> _settings;
 
         /// <summary>
         /// Creates a new weight-matrix algorithm.
@@ -80,15 +80,15 @@ namespace Itinero.Algorithms.Matrices
             _settings = settings;
         }
 
-        private Dictionary<int, RouterPointError> _errors; // all errors per router point idx.
-        private List<int> _correctedIndices; // the original router point per resolved point index.
-        private List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
-        private T[][] _weights; // the weights between all valid resolved points.        
+        protected Dictionary<int, RouterPointError> _errors; // all errors per router point idx.
+        protected List<int> _correctedIndices; // the original router point per resolved point index.
+        protected List<RouterPoint> _correctedResolvedPoints; // only the valid resolved points.
+        protected T[][] _weights; // the weights between all valid resolved points.        
         
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
-        protected sealed override void DoRun(CancellationToken cancellationToken)
+        protected override void DoRun(CancellationToken cancellationToken)
         {
             // run mass resolver if needed.
             if (!_massResolver.HasRun)
@@ -267,6 +267,52 @@ namespace Itinero.Algorithms.Matrices
             : base(router, profile, profile.DefaultWeightHandler(router), massResolver, settings)
         {
             
+        }
+        
+        /// <summary>
+        /// Executes the algorithm.
+        /// </summary>
+        protected override void DoRun(CancellationToken cancellationToken)
+        {
+            // run mass resolver if needed.
+            if (!_massResolver.HasRun)
+            {
+                _massResolver.Run(cancellationToken);
+            }
+
+            // create error and resolved point management data structures.
+            _correctedResolvedPoints = _massResolver.RouterPoints;
+            _errors = new Dictionary<int, RouterPointError>(_correctedResolvedPoints.Count);
+            _correctedIndices = new List<int>(_correctedResolvedPoints.Count);
+            for (var i = 0; i < _correctedResolvedPoints.Count; i++)
+            {
+                _correctedIndices.Add(i);
+            }
+            
+            // calculate matrix.
+            var nonNullInvalids = new HashSet<int>();
+            var locations = _correctedResolvedPoints.ToArray();
+            var weightsResult = _router.TryCalculateWeight(_profile, _weightHandler, locations, locations, 
+                nonNullInvalids, nonNullInvalids, _settings);
+            _weights = weightsResult.Value;
+
+            // take into account the non-null invalids now.
+            if (nonNullInvalids.Count > 0)
+            { // shrink lists and add errors.
+                foreach (var invalid in nonNullInvalids)
+                {
+                    _errors[invalid] = new RouterPointError()
+                    {
+                        Code = RouterPointErrorCode.NotRoutable,
+                        Message = "Location could not routed to or from."
+                    };
+                }
+
+                _correctedResolvedPoints = _correctedResolvedPoints.ShrinkAndCopyList(nonNullInvalids);
+                _correctedIndices = _correctedIndices.ShrinkAndCopyList(nonNullInvalids);
+                _weights = _weights.SchrinkAndCopyMatrix(nonNullInvalids);
+            }
+            this.HasSucceeded = true;
         }
     }
 }

@@ -1117,7 +1117,7 @@ namespace Itinero
         /// Calculates all routes between all sources and all targets.
         /// </summary>
         /// <returns></returns>
-        public sealed override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+        public override Result<T[][]> TryCalculateWeight<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
             ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<T> settings, CancellationToken cancellationToken)
         {
             try
@@ -1263,11 +1263,162 @@ namespace Itinero
                 return new Result<T[][]>(ex.Message, (m) => ex);
             }
         }
+        
+        /// <summary>
+        /// Calculates all routes between all sources and all targets.
+        /// </summary>
+        /// <returns></returns>
+        public override Result<float[][]> TryCalculateWeight(IProfileInstance profileInstance, WeightHandler<float> weightHandler, RouterPoint[] sources, RouterPoint[] targets,
+            ISet<int> invalidSources, ISet<int> invalidTargets, RoutingSettings<float> settings, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (!_db.Supports(profileInstance.Profile))
+                {
+                    return new Result<float[][]>("Routing profile is not supported.", (message) =>
+                    {
+                        return new Exception(message);
+                    });
+                }
+
+                var maxSearch = weightHandler.Infinite;
+                if (settings != null)
+                {
+                    if (!settings.TryGetMaxSearch(profileInstance.Profile.FullName, out maxSearch))
+                    {
+                        maxSearch = weightHandler.Infinite;
+                    }
+                }
+
+                ContractedDb contracted;
+                float[][] weights = null;
+
+                bool useContracted = false;
+                if (_db.TryGetContracted(profileInstance.Profile, out contracted))
+                { // contracted calculation.
+                    useContracted = true;
+                    if (_db.HasComplexRestrictions(profileInstance.Profile) &&
+                        (!contracted.HasEdgeBasedGraph && !contracted.NodeBasedIsEdgedBased))
+                    { // there is no edge-based graph for this profile but the db has complex restrictions, don't use the contracted graph.
+                        Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                            "There is a vertex-based contracted graph but also complex restrictions. Not using the contracted graph, add an edge-based contracted graph.");
+                        useContracted = false;
+                    }
+
+                    if (!weightHandler.CanUse(contracted))
+                    { // there is a contracted graph but it is not equipped to handle this weight-type.
+                        Logging.Logger.Log("Router", Logging.TraceEventType.Warning,
+                            "There is a contracted graph but it's not built for the given weight calculations, using the default but slow implementation.");
+                        useContracted = false;
+                    }
+                }
+
+                if (useContracted)
+                {
+                    if (contracted.HasEdgeBasedGraph)
+                    { // use edge-based routing.
+                        var algorithm = new Itinero.Algorithms.Contracted.EdgeBased.ManyToManyWeightsBidirectionalDykstra<float>(_db, profileInstance.Profile, weightHandler,
+                            sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                        weights = algorithm.Weights;
+                    }
+                    else if (contracted.HasNodeBasedGraph &&
+                        contracted.NodeBasedIsEdgedBased)
+                    { // use vertex-based graph for edge-based routing.
+                        weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted,
+                            _db, profileInstance.Profile,
+                            weightHandler, sources, targets, maxSearch, settings?.Cache, cancellationToken).Value;
+                    }
+                    else
+                    { // use node-based routing.
+                        var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<float>(_db, profileInstance.Profile, weightHandler,
+                            sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                        weights = algorithm.Weights;
+                    }
+                }
+                else
+                { // use regular graph.
+                    if (_db.HasComplexRestrictions(profileInstance.Profile))
+                    {
+                        var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<float>(this, weightHandler, _db.GetGetRestrictions(profileInstance.Profile, true), sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                        weights = algorithm.Weights;
+                    }
+                    else
+                    {
+                        var algorithm = new Itinero.Algorithms.Default.ManyToMany<float>(_db, weightHandler, sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                        weights = algorithm.Weights;
+                    }
+                }
+
+                // check for invalids.
+                var invalidTargetCounts = new int[targets.Length];
+                for (var s = 0; s < weights.Length; s++)
+                {
+                    var invalids = 0;
+                    for (var t = 0; t < weights[s].Length; t++)
+                    {
+                        if (t != s)
+                        {
+                            if (weightHandler.GetMetric(weights[s][t]) == float.MaxValue)
+                            {
+                                invalids++;
+                                invalidTargetCounts[t]++;
+                                if (invalidTargetCounts[t] > (sources.Length - 1) / 2)
+                                {
+                                    invalidTargets.Add(t);
+                                }
+                            }
+                        }
+                    }
+
+                    if (invalids > (targets.Length - 1) / 2)
+                    {
+                        invalidSources.Add(s);
+                    }
+                }
+                return new Result<float[][]>(weights);
+            }
+            catch (Exception ex)
+            {
+                return new Result<float[][]>(ex.Message, (m) => ex);
+            }
+        }
 
         /// <summary>
         /// Builds a route.
         /// </summary>
-        public override sealed Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
+        public override Result<Route> BuildRoute<T>(IProfileInstance profileInstance, WeightHandler<T> weightHandler, RouterPoint source, RouterPoint target, EdgePath<T> path, CancellationToken cancellationToken)
         {
             try
             {

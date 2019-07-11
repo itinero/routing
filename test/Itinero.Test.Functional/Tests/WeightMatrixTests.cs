@@ -38,7 +38,8 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            for (var count = 1000; count <= 5000; count += 1000)
+            var max = 5400;
+            for (var count = 200; count <= 3000; count += 200)
             {
                 var cache = new SearchSpaceCache<float>();
                 var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
@@ -60,15 +61,14 @@ namespace Itinero.Test.Functional.Tests
                     new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
                 massResolver.Run();
 
-                GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, null)
+                GetTestWeightMatrixAlgorithm(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, null, max)
                     .TestPerf($"Testing {count}x{count} matrix (cold with cache off)");
-                GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache)
+                GetTestWeightMatrixAlgorithm(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache, max)
                     .TestPerf($"Testing {count}x{count} matrix (cold with cache on)");
-                for (var i = 0; i < 200; i++)
-                {
-                    GetTestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache)
-                        .TestPerf($"Testing {count}x{count} matrix (with cache)");
-                }
+                GetTestWeightMatrixAlgorithm(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache, max)
+                    .TestPerf($"Testing {count}x{count} matrix (with cache)");
+                GetTestWeightMatrixAlgorithm(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), massResolver, cache, max)
+                    .TestPerf($"Testing {count}x{count} matrix (with cache)");
             }
 
 //            GetTestWeightMatrixAlgorithm(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 200).TestPerf("Testing weight matrix");
@@ -78,7 +78,7 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a weight matrix.
         /// </summary>
-        public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, int count, SearchSpaceCache<float> cache = null)
+        public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, int count, SearchSpaceCache<float> cache = null, float max = 7200)
         {
             var random = new System.Random(145171654);
             var vertices = new HashSet<uint>();
@@ -101,7 +101,7 @@ namespace Itinero.Test.Functional.Tests
             {
                 Cache = cache
             };
-            settings.SetMaxSearch(profile.FullName, 7200);
+            settings.SetMaxSearch(profile.FullName, max);
             return () =>
             {
                 var invalids = new HashSet<int>();
@@ -113,13 +113,13 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a weight matrix.
         /// </summary>
-        public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, MassResolvingAlgorithm massResolver, SearchSpaceCache<float> cache = null)
+        public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, MassResolvingAlgorithm massResolver, SearchSpaceCache<float> cache = null, float max = 7200)
         {
             var settings = new RoutingSettings<float>()
             {
                 Cache = cache
             };
-            settings.SetMaxSearch(profile.FullName, 7200);
+            settings.SetMaxSearch(profile.FullName, max);
             return () =>
             {
                 var invalids = new HashSet<int>();
@@ -131,28 +131,16 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a weight matrix.
         /// </summary>
-        public static Action GetTestWeightMatrixAlgorithm(Router router, Profiles.Profile profile, int count)
+        public static Action GetTestWeightMatrixAlgorithm(Router router, Profiles.Profile profile, MassResolvingAlgorithm massResolver, SearchSpaceCache<float> cache = null, float max = 7200)
         {
-            var random = new System.Random(145171654);
-            var vertices = new HashSet<uint>();
-            var locations = new List<Coordinate>();
-            while (locations.Count < count)
+            var settings = new RoutingSettings<float>()
             {
-                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
-                if (!vertices.Contains(v))
-                {
-                    vertices.Add(v);
-                    locations.Add(router.Db.Network.GetVertex(v));
-                }
-            }
-
-            var locationsArray = locations.ToArray();
-            var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
-            massResolver.Run();
-
+                Cache = cache
+            };
+            settings.SetMaxSearch(profile.FullName, max);
             return () =>
             {
-                var matrix = new Itinero.Algorithms.Matrices.WeightMatrixAlgorithm(router, profile, massResolver);
+                var matrix = new Itinero.Algorithms.Matrices.WeightMatrixAlgorithm(router, profile, massResolver, settings);
                 matrix.Run();
                 Assert.IsTrue(matrix.HasSucceeded);
             };

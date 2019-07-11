@@ -91,6 +91,18 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 backward.WasFound += (p, v, w) => this.BackwardVertexFound(i, v, w);
                 backward.Run(cancellationToken);
             }
+            
+            // invert matrix.
+            // TODO: this can be done inplace when matrix is square: https://mouzamali.wordpress.com/2013/06/08/inplace-transpose-a-square-array/
+            var transposed = new T[_sources.Length][];
+            for (var i = 0; i < _sources.Length; i++)
+            {
+                transposed[i] = new T[_targets.Length];
+                for (var j = 0; j < _targets.Length; j++)
+                {
+                    transposed[i][j] = _weights[j][i];
+                }
+            }
 
             this.HasSucceeded = true;
         }
@@ -136,13 +148,15 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         private bool BackwardVertexFound(int i, uint vertex, T weight)
         {
             if (!_buckets.TryGetValue(vertex, out var bucket)) return false;
+            
+            var weights = _weights[i];
             foreach (var pair in bucket)
             {
-                var existing = _weights[pair.Key][i];
+                var existing = weights[pair.Key];
                 var total = _weightHandler.Add(weight, pair.Value);
                 if (_weightHandler.IsSmallerThan(total, existing))
                 {
-                    _weights[pair.Key][i] = total;
+                    weights[pair.Key] = total;
                 }
             }
             return false;
@@ -174,11 +188,11 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         {
             // put in default weights, all are infinite.
             // EXPLANATION: a path between two identical vertices has to contain at least one edge.
-            _weights = new float[_sources.Length][];
-            for (var i = 0; i < _sources.Length; i++)
+            _weights = new float[_targets.Length][];
+            for (var i = 0; i < _targets.Length; i++)
             {
-                _weights[i] = new float[_targets.Length];
-                for (var j = 0; j < _targets.Length; j++)
+                _weights[i] = new float[_sources.Length];
+                for (var j = 0; j < _sources.Length; j++)
                 {
                     _weights[i][j] = float.MaxValue;
                 }
@@ -200,6 +214,20 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 backward.WasFound += (p, v, w) => this.BackwardVertexFound(i, v, w);
                 backward.Run(cancellationToken);
             }
+            
+            // invert matrix.
+            // TODO: this can be done inplace when matrix is square: https://mouzamali.wordpress.com/2013/06/08/inplace-transpose-a-square-array/
+            var transposed = new float[_sources.Length][];
+            for (var i = 0; i < _sources.Length; i++)
+            {
+                transposed[i] = new float[_targets.Length];
+                for (var j = 0; j < _targets.Length; j++)
+                {
+                    transposed[i][j] = _weights[j][i];
+                }
+            }
+
+            _weights = transposed;
 
             this.HasSucceeded = true;
         }
@@ -246,13 +274,14 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
         {
             if (!_buckets.TryGetValue(vertex, out var bucket)) return false;
             
+            var weights = _weights[i];
             foreach (var pair in bucket)
             {
-                var existing = _weights[pair.Key][i];
+                var existing = weights[pair.Key];
                 var total = weight + pair.Value;
                 if (total < existing)
                 {
-                    _weights[pair.Key][i] = total;
+                    weights[pair.Key] = total;
                 }
             }
             return false;
