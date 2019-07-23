@@ -934,12 +934,12 @@ namespace Itinero
                 edgeEnumerator.MoveToEdge(routerPoint.EdgeId);
 
                 router.WriteEdge(jsonWriter, edgeEnumerator);
-
-                db.WriteVertex(jsonWriter, edgeEnumerator.From);
-                db.WriteVertex(jsonWriter, edgeEnumerator.To);
+//
+//                db.WriteVertex(jsonWriter, edgeEnumerator.From);
+//                db.WriteVertex(jsonWriter, edgeEnumerator.To);
 
                 // write location on network.
-                var coordinate = routerPoint.LocationOnNetwork(db);
+                var networkLocation = routerPoint.LocationOnNetwork(db);
                 jsonWriter.WriteOpen();
                 jsonWriter.WriteProperty("type", "Feature", true, false);
                 jsonWriter.WritePropertyName("geometry", false);
@@ -948,8 +948,8 @@ namespace Itinero
                 jsonWriter.WriteProperty("type", "Point", true, false);
                 jsonWriter.WritePropertyName("coordinates", false);
                 jsonWriter.WriteArrayOpen();
-                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
-                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(networkLocation.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(networkLocation.Latitude.ToInvariantString());
                 jsonWriter.WriteArrayClose();
                 jsonWriter.WriteClose();
 
@@ -962,7 +962,7 @@ namespace Itinero
                 jsonWriter.WriteClose();
 
                 // write original location.
-                coordinate = routerPoint.Location();
+                var originalLocation = routerPoint.Location();
                 jsonWriter.WriteOpen();
                 jsonWriter.WriteProperty("type", "Feature", true, false);
                 jsonWriter.WritePropertyName("geometry", false);
@@ -971,14 +971,41 @@ namespace Itinero
                 jsonWriter.WriteProperty("type", "Point", true, false);
                 jsonWriter.WritePropertyName("coordinates", false);
                 jsonWriter.WriteArrayOpen();
-                jsonWriter.WriteArrayValue(coordinate.Longitude.ToInvariantString());
-                jsonWriter.WriteArrayValue(coordinate.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(originalLocation.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(originalLocation.Latitude.ToInvariantString());
                 jsonWriter.WriteArrayClose();
                 jsonWriter.WriteClose();
 
                 jsonWriter.WritePropertyName("properties");
                 jsonWriter.WriteOpen();
                 jsonWriter.WriteProperty("type", "original_location", true);
+                jsonWriter.WriteClose();
+
+                jsonWriter.WriteClose();
+
+                // write projected line.
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "Feature", true, false);
+                jsonWriter.WritePropertyName("geometry", false);
+
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "LineString", true, false);
+                jsonWriter.WritePropertyName("coordinates", false);
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(originalLocation.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(originalLocation.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteArrayOpen();
+                jsonWriter.WriteArrayValue(networkLocation.Longitude.ToInvariantString());
+                jsonWriter.WriteArrayValue(networkLocation.Latitude.ToInvariantString());
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteArrayClose();
+                jsonWriter.WriteClose();
+
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteOpen();
+                jsonWriter.WriteProperty("type", "projected_line", true);
                 jsonWriter.WriteClose();
 
                 jsonWriter.WriteClose();

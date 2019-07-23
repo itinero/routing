@@ -21,6 +21,7 @@ using Itinero.LocalGeo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Itinero.Algorithms.Search;
 using Itinero.Algorithms.Search.Cache;
 
 namespace Itinero.Test.Functional.Tests
@@ -42,6 +43,26 @@ namespace Itinero.Test.Functional.Tests
             GetTestRandomResolvesCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves");
             GetTestRandomResolvesParallelCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves in parallel");
             GetTestRandomResolvesConnectedParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random connected resolve in parallel");
+            GetMultipleResolve(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Multiple resolve test.");
+        }
+
+        public static Action GetMultipleResolve(Router router, Profiles.Profile profile)
+        {
+            float Offset(Coordinate centerLocation, Itinero.Data.Network.RoutingNetwork routingNetwork)
+            {
+                var offsetLocation = centerLocation.OffsetWithDistances(routingNetwork.MaxEdgeDistance / 2);
+                var latitudeOffset = System.Math.Abs(centerLocation.Latitude - offsetLocation.Latitude);
+                var longitudeOffset = System.Math.Abs(centerLocation.Longitude - offsetLocation.Longitude);
+
+                return System.Math.Max(latitudeOffset, longitudeOffset);
+            }
+            
+            var isAcceptable = router.GetIsAcceptable(router.Db.GetSupportedProfile("bicycle"));
+            var multiResolve = new ResolveMultipleAlgorithm(router.Db.Network.GeometricGraph, 49.60471690708019f,
+                6.116970777511597f, Offset(new Coordinate(49.60471690708019f,
+                    6.116970777511597f), router.Db.Network),
+                200, isAcceptable, true);
+            return () => multiResolve.Run();
         }
 
         /// <summary>

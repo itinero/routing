@@ -36,12 +36,30 @@ namespace Itinero.Algorithms.Search
         private readonly float _maxOffset;
         private readonly float _maxDistance;
         private readonly Func<GeometricEdge, bool> _isAcceptable;
+        private readonly bool _allEdges = false;
 
         /// <summary>
         /// Creates a new resolve algorithm.
         /// </summary>
         public ResolveMultipleAlgorithm(GeometricGraph graph, float latitude, float longitude,
             float maxOffset, float maxDistance, Func<GeometricEdge, bool> isAcceptable)
+            : this (graph, latitude, longitude, maxOffset, maxDistance, isAcceptable, false)
+        {
+            
+        }
+        
+        /// <summary>
+        /// Creates a new resolve algorithm.
+        /// </summary>
+        /// <param name="graph">The graph.</param>
+        /// <param name="latitude">The latitude.</param>
+        /// <param name="longitude">The longitude.</param>
+        /// <param name="maxOffset">The maximum offset.</param>
+        /// <param name="maxDistance">The maximum distance.</param>
+        /// <param name="isAcceptable">The acceptable function.</param>
+        /// <param name="allEdges">A flag to return all edges or not.</param>
+        public ResolveMultipleAlgorithm(GeometricGraph graph, float latitude, float longitude,
+            float maxOffset, float maxDistance, Func<GeometricEdge, bool> isAcceptable, bool allEdges)
         {
             _graph = graph;
             _latitude = latitude;
@@ -49,6 +67,7 @@ namespace Itinero.Algorithms.Search
             _maxDistance = maxDistance;
             _maxOffset = maxOffset;
             _isAcceptable = isAcceptable;
+            _allEdges = allEdges;
         }
 
         private List<RouterPoint> _results = null;
@@ -77,7 +96,34 @@ namespace Itinero.Algorithms.Search
                 var edge = _graph.GetEdge(edgeId);
                 if (!_graph.ProjectOn(edge, _latitude, _longitude,
                     out _, out _, out var projectedDistanceFromFirst,
-                    out _, out _, out var totalLength)) continue;
+                    out _, out var distanceToProjected, out var totalLength))
+                {
+                    if (!_allEdges) continue;
+                    
+                    var points = _graph.GetShape(edge);
+                    var previous = points[0];
+
+                    var bestProjectedDistanceFromFirst = 0.0f;
+                    projectedDistanceFromFirst = 0;
+                    var bestDistanceToProjected = Coordinate.DistanceEstimateInMeter(previous,
+                        new Coordinate(_latitude, _longitude));
+                    for (var i = 1; i < points.Count; i++)
+                    {
+                        var current = points[i];
+                        projectedDistanceFromFirst += Coordinate.DistanceEstimateInMeter(current, previous);
+                        distanceToProjected = Coordinate.DistanceEstimateInMeter(current,
+                            new Coordinate(_latitude, _longitude));
+                        if (distanceToProjected < bestDistanceToProjected)
+                        {
+                            bestDistanceToProjected = distanceToProjected;
+                            bestProjectedDistanceFromFirst = projectedDistanceFromFirst;
+                        }
+                        previous = current;
+                    }
+
+                    // set best distance.
+                    projectedDistanceFromFirst = bestProjectedDistanceFromFirst;
+                }
                 var offset = (ushort)((projectedDistanceFromFirst / totalLength) * ushort.MaxValue);
                 _results.Add(new RouterPoint(_latitude, _longitude, edgeId, offset));
             }

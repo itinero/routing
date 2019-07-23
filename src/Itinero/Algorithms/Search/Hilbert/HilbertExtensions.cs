@@ -1097,9 +1097,24 @@ namespace Itinero.Algorithms.Search.Hilbert
                         continue;
                     }
                     checkedEdges.Add(edgeEnumerator.Id);
+                    
+                    var edgeIsOk = isOk == null;
+                    var distance = Coordinate.DistanceEstimateInMeter(
+                        sourceLocation.Latitude, sourceLocation.Longitude, latitude, longitude);
+                    if (distance < maxDistanceMeter)
+                    { // ok this shape-point is close.
+                        if (!edgeIsOk && isOk(edgeEnumerator.Current))
+                        { // ok, edge is found to be ok.
+                            edgeIsOk = true;
+                        }
+                        if (edgeIsOk)
+                        { // edge is ok, or all edges are ok by default.
+                            result.Add(edgeEnumerator.Id);
+                            continue;
+                        }
+                    }
 
                     // check edge.
-                    var edgeIsOk = isOk == null;
                     Coordinate previous = sourceLocation;
                     Coordinate? current = null;
                     Line line;
@@ -1116,7 +1131,7 @@ namespace Itinero.Algorithms.Search.Hilbert
                         while (shapeEnumerator.MoveNext())
                         {
                             current = shapeEnumerator.Current;
-                            var distance = Coordinate.DistanceEstimateInMeter(
+                            distance = Coordinate.DistanceEstimateInMeter(
                                         current.Value.Latitude, current.Value.Longitude, latitude, longitude);
                             if (distance < maxDistanceMeter)
                             { // ok this shape-point is clooose.
@@ -1127,6 +1142,7 @@ namespace Itinero.Algorithms.Search.Hilbert
                                 if (edgeIsOk)
                                 { // edge is ok, or all edges are ok by default.
                                     result.Add(edgeEnumerator.Id);
+                                    continue;
                                 }
                             }
 
@@ -1149,6 +1165,7 @@ namespace Itinero.Algorithms.Search.Hilbert
                                         if (edgeIsOk)
                                         { // edge is ok, or all edges are ok by default.
                                             result.Add(edgeEnumerator.Id);
+                                            continue;
                                         }
                                     }
                                 }
@@ -1160,13 +1177,28 @@ namespace Itinero.Algorithms.Search.Hilbert
                     if (maxDistanceBox.IntersectsPotentially(previous.Longitude, previous.Latitude,
                             current.Value.Longitude, current.Value.Latitude))
                     { // ok, it's possible there is an intersection here, project this point.
+                        distance = Coordinate.DistanceEstimateInMeter(
+                            current.Value.Latitude, current.Value.Longitude, latitude, longitude);
+                        if (distance < maxDistanceMeter)
+                        { // ok this shape-point is close.
+                            if (!edgeIsOk && isOk(edgeEnumerator.Current))
+                            { // ok, edge is found to be ok.
+                                edgeIsOk = true;
+                            }
+                            if (edgeIsOk)
+                            { // edge is ok, or all edges are ok by default.
+                                result.Add(edgeEnumerator.Id);
+                                continue;
+                            }
+                        }
+                        
                         line = new Line(
                             new Coordinate(previous.Latitude, previous.Longitude),
                              new Coordinate(current.Value.Latitude, current.Value.Longitude));
                         projectedPoint = line.ProjectOn(coordinate);
                         if (projectedPoint != null)
                         { // ok, projection succeeded.
-                            var distance = Coordinate.DistanceEstimateInMeter(
+                            distance = Coordinate.DistanceEstimateInMeter(
                                 projectedPoint.Value.Latitude, projectedPoint.Value.Longitude,
                                 latitude, longitude);
                             if (distance < maxDistanceMeter)
@@ -1178,6 +1210,7 @@ namespace Itinero.Algorithms.Search.Hilbert
                                 if (edgeIsOk)
                                 { // edge is ok, or all edges are ok by default.
                                     result.Add(edgeEnumerator.Id);
+                                    continue;
                                 }
                             }
                         }

@@ -27,6 +27,7 @@ using System.IO;
 using Itinero.LocalGeo;
 using System.Linq;
 using Itinero.Algorithms.Networks.Islands;
+using Itinero.Algorithms.Search;
 using Itinero.Test.Functional.Tests.IO.Shape;
 
 namespace Itinero.Test.Functional
@@ -51,7 +52,7 @@ namespace Itinero.Test.Functional
             _logger.Log(TraceEventType.Information, "Starting tests...");
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
-
+            
             // test some routerdb extensions.
             RouterDbExtensionsTests.Run(routerDb);
 
