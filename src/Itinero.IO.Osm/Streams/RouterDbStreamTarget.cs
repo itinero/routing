@@ -457,7 +457,7 @@ namespace Itinero.IO.Osm.Streams
                         var toNode = long.MaxValue;
                         while (true)
                         {
-                            if (!this.TryGetValue(way.Nodes[node], out coordinate, out isCore))
+                            if (node >= way.Nodes.Length || !this.TryGetValue(way.Nodes[node], out coordinate, out isCore))
                             { // an incomplete way, node not in source.
                                 return;
                             }
