@@ -48,12 +48,12 @@ namespace Itinero.Test.Functional
             _logger.Log(TraceEventType.Information, "Downloading Luxembourg...");
             Download.DownloadLuxembourgAll();
 
-            // test building a routerdb.
+            // test building a router db.
             _logger.Log(TraceEventType.Information, "Starting tests...");
             var routerDb = RouterDbBuildingTests.Run();
             var router = new Router(routerDb);
             
-            // test some routerdb extensions.
+            // test some router db extensions.
             RouterDbExtensionsTests.Run(routerDb);
 
             // test resolving.
@@ -68,13 +68,10 @@ namespace Itinero.Test.Functional
             // test instruction generation.
             InstructionTests.Run(routerDb);
 
-            // test writing shapefile.
+            // test writing shape file.
             ShapeFileWriterTests.Run(routerDb);
 
             _logger.Log(TraceEventType.Information, "Testing finished.");
-#if DEBUG
-            Console.ReadLine();
-#endif
         }
 
         private static void EnableLogging()

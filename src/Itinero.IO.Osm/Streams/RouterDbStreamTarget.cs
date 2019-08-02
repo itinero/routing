@@ -227,7 +227,7 @@ namespace Itinero.IO.Osm.Streams
             this.Source.Reset();
             this.DoPull();
             
-            Itinero.Logging.Logger.Log("", TraceEventType.Information, 
+            Itinero.Logging.Logger.Log("RouterDbStreamTarget", TraceEventType.Information, 
                 $"{_db.EdgeProfiles.Count} profiles.");
 
             return false;
@@ -436,6 +436,8 @@ namespace Itinero.IO.Osm.Streams
 
                         if (!this.Normalize)
                         { // no normalization, translate profiles by.
+                            metaTags.AddOrReplace(profileTags);
+                            
                             // translate profile.
                             var translatedProfile = new AttributeCollection();
                             translatedProfile.AddOrReplace("translated_profile", "yes");
@@ -474,8 +476,6 @@ namespace Itinero.IO.Osm.Streams
                                     "New translated profile: # {0}: {1}", _db.EdgeProfiles.Count,
                                     stringBuilder.ToInvariantString());
                             }
-                            
-                            metaTags.AddOrReplace(profileTags);
                         }
                         else
                         {
@@ -498,6 +498,8 @@ namespace Itinero.IO.Osm.Streams
                     else if (!this.Normalize)
                     {
                         profile = _translatedPerOriginal[profile];
+                            
+                        metaTags.AddOrReplace(profileTags);
                     }
                     var meta = _db.EdgeMeta.Add(metaTags);
 
