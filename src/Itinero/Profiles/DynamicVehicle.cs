@@ -58,7 +58,9 @@ namespace Itinero.Profiles
             _name = dynName.String;
 
             var dynNormalize = _script.Globals.Get("normalize");
-            if (dynNormalize == null)
+            if (dynNormalize == null || 
+                DynValue.Nil.Equals(dynNormalize) ||
+                DynValue.True.Equals(dynNormalize))
             {
                 this.Normalize = true;
             }
@@ -255,8 +257,7 @@ namespace Itinero.Profiles
                 _resultsTable.Clear();
                 this.Script.Call(function, _attributesTable, _resultsTable);
 
-                float val;
-                if (_resultsTable.TryGetFloat("speed", out val))
+                if (_resultsTable.TryGetFloat("speed", out var val))
                 {
                     if (val != 0)
                     {

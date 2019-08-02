@@ -96,7 +96,7 @@ namespace Itinero.Profiles
         /// <summary>
         /// Calculates a factor and speed and adds a keys to the given whitelist that are relevant.
         /// </summary>
-        /// <returns>True if the edge with the given attributes is usefull for this vehicle.</returns>
+        /// <returns>True if the edge with the given attributes is useful for this vehicle.</returns>
         public abstract FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes, Whitelist whitelist);
 
         /// <summary>

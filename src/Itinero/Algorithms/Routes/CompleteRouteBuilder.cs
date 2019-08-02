@@ -265,7 +265,7 @@ namespace Itinero.Algorithms.Routes
             }
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var attributes = new AttributeCollection(meta);
-            attributes.AddOrReplace(profile);
+            if (!profile.IsTranslatedProfile()) attributes.AddOrReplace(profile);
             attributes.AddOrReplace("profile", _profile.FullName);
             
             // add shape and meta.
@@ -382,7 +382,7 @@ namespace Itinero.Algorithms.Routes
             }
             var meta = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
             var attributes = new AttributeCollection(meta);
-            attributes.AddOrReplace(profile);
+            if (!profile.IsTranslatedProfile()) attributes.AddOrReplace(profile);
             attributes.AddOrReplace("profile", _profile.FullName);
 
             // add shape and meta.

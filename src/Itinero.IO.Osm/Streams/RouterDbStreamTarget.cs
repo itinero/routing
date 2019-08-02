@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Itinero.Logging;
 
 namespace Itinero.IO.Osm.Streams
 {
@@ -100,6 +101,11 @@ namespace Itinero.IO.Osm.Streams
         private MetaCollection<long> _nodeData = null;
         private MetaCollection<long> _wayIds = null;
         private MetaCollection<ushort> _wayNodeIndices = null;
+        
+        // store all the things for when profile translation is enabled, when normalization is turned off.
+        private AttributesIndex _profileIndex = new AttributesIndex(AttributesIndexMode.IncreaseOne
+                                                                    | AttributesIndexMode.ReverseAll);
+        private readonly Dictionary<uint, ushort> _translatedPerOriginal = new Dictionary<uint, ushort>();
 
         /// <summary>
         /// Setups default add-on processors.
@@ -220,6 +226,9 @@ namespace Itinero.IO.Osm.Streams
             _nodeIndex.SortAndConvertIndex();
             this.Source.Reset();
             this.DoPull();
+            
+            Itinero.Logging.Logger.Log("", TraceEventType.Information, 
+                $"{_db.EdgeProfiles.Count} profiles.");
 
             return false;
         }
@@ -245,6 +254,11 @@ namespace Itinero.IO.Osm.Streams
         /// </summary>
         /// <remarks>This is a way to build 'stable' identifiers for each vertex.</remarks>
         public bool KeepNodeIds { get; set; }
+        
+        /// <summary>
+        /// Gets the normalize flag.
+        /// </summary>
+        public bool Normalize { get; private set; }
 
         /// <summary>
         /// Gets or sets a flag to keep way id's and the index of the first node of the edge in the original way.
@@ -256,10 +270,14 @@ namespace Itinero.IO.Osm.Streams
         /// <summary>
         /// Registers the source.
         /// </summary>
-        public virtual void RegisterSource(OsmStreamSource source, bool filterNonRoutingTags)
+        public virtual void RegisterSource(OsmStreamSource source, bool normalize)
         {
-            if (filterNonRoutingTags)
-            { // add filtering.
+            this.Normalize = normalize;
+            
+            if (normalize)
+            { // add normalization and filtering.
+                _profileIndex = _db.EdgeProfiles;
+                
                 var eventsFilter = new OsmSharp.Streams.Filters.OsmStreamFilterDelegate();
                 eventsFilter.MoveToNextEvent += (osmGeo, param) =>
                 {
@@ -410,24 +428,76 @@ namespace Itinero.IO.Osm.Streams
                     }
 
                     // get profile and meta-data id's.
-                    var profileCount = _db.EdgeProfiles.Count;
-                    var profile = _db.EdgeProfiles.Add(profileTags);
-                    if (profileCount != _db.EdgeProfiles.Count)
+                    var profileCount = _profileIndex.Count;
+                    var profile = _profileIndex.Add(profileTags);
+                    if (profileCount != _profileIndex.Count)
                     {
                         var stringBuilder = new StringBuilder();
-                        foreach(var att in profileTags)
-                        {
-                            stringBuilder.Append(att.Key);
-                            stringBuilder.Append('=');
-                            stringBuilder.Append(att.Value);
-                            stringBuilder.Append(' ');
+
+                        if (!this.Normalize)
+                        { // no normalization, translate profiles by.
+                            // translate profile.
+                            var translatedProfile = new AttributeCollection();
+                            translatedProfile.AddOrReplace("translated_profile", "yes");
+                            foreach (var vehicle in _vehicleCache.Vehicles)
+                            {
+                                foreach (var vehicleProfile in vehicle.GetProfiles())
+                                {
+                                    var factorAndSpeed = vehicleProfile.FactorAndSpeed(profileTags);
+                                    translatedProfile.AddOrReplace($"{vehicleProfile.FullName}",
+                                        $"{factorAndSpeed.Direction}|" +
+                                        $"{factorAndSpeed.Value.ToInvariantString()}|" +
+                                        $"{factorAndSpeed.SpeedFactor.ToInvariantString()}");
+                                }
+                            }
+
+                            var translatedCount = _db.EdgeProfiles.Count;
+                            var translatedProfileId = _db.EdgeProfiles.Add(translatedProfile);
+                            if (translatedProfileId > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                            {
+                                throw new Exception("Maximum supported profiles exceeded, make sure only routing tags are included in the profiles.");
+                            }
+                            _translatedPerOriginal[profile] = (ushort)translatedProfileId;
+                            profile = translatedProfileId;
+                            if (translatedCount != _db.EdgeProfiles.Count)
+                            {
+                                stringBuilder.Clear();
+                                foreach (var att in translatedProfile)
+                                {
+                                    stringBuilder.Append(att.Key);
+                                    stringBuilder.Append('=');
+                                    stringBuilder.Append(att.Value);
+                                    stringBuilder.Append(' ');
+                                }
+
+                                Itinero.Logging.Logger.Log("RouterDbStreamTarget", Logging.TraceEventType.Information,
+                                    "New translated profile: # {0}: {1}", _db.EdgeProfiles.Count,
+                                    stringBuilder.ToInvariantString());
+                            }
+                            
+                            metaTags.AddOrReplace(profileTags);
                         }
-                        Itinero.Logging.Logger.Log("RouterDbStreamTarget", Logging.TraceEventType.Information,
-                            "New edge profile: # profiles {0}: {1}", _db.EdgeProfiles.Count, stringBuilder.ToInvariantString());
+                        else
+                        {
+                            foreach(var att in profileTags)
+                            {
+                                stringBuilder.Append(att.Key);
+                                stringBuilder.Append('=');
+                                stringBuilder.Append(att.Value);
+                                stringBuilder.Append(' ');
+                            }
+                            Itinero.Logging.Logger.Log("RouterDbStreamTarget", Logging.TraceEventType.Information,
+                                "New edge profile: # profiles {0}: {1}", _profileIndex.Count, stringBuilder.ToInvariantString());
+                            
+                            if (profile > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                            {
+                                throw new Exception("Maximum supported profiles exceeded, make sure only routing tags are included in the profiles.");
+                            }
+                        }
                     }
-                    if (profile > Data.Edges.EdgeDataSerializer.MAX_PROFILE_COUNT)
+                    else if (!this.Normalize)
                     {
-                        throw new Exception("Maximum supported profiles exeeded, make sure only routing tags are included in the profiles.");
+                        profile = _translatedPerOriginal[profile];
                     }
                     var meta = _db.EdgeMeta.Add(metaTags);
 

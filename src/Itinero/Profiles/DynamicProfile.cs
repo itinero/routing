@@ -16,6 +16,8 @@
  *  limitations under the License.
  */
 
+using System;
+using System.Globalization;
 using Itinero.Attributes;
 using Itinero.Navigation.Instructions;
 using Itinero.Profiles.Lua;
@@ -90,14 +92,20 @@ namespace Itinero.Profiles
         /// <returns></returns>
         public sealed override FactorAndSpeed FactorAndSpeed(IAttributeCollection attributes)
         {
+            if (attributes == null || attributes.Count == 0)
+            {
+                return Profiles.FactorAndSpeed.NoFactor;
+            }
+
+            if (attributes.TryParseTranslated(this.FullName, out var parsed))
+            {
+                return parsed;
+            }
+            
             lock (_script)
             {
                 // build lua table.
                 _attributesTable.Clear();
-                if (attributes == null || attributes.Count == 0)
-                {
-                    return Profiles.FactorAndSpeed.NoFactor;
-                }
                 foreach (var attribute in attributes)
                 {
                     _attributesTable.Set(attribute.Key, DynValue.NewString(attribute.Value));
