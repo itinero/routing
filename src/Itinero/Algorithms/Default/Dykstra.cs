@@ -80,7 +80,7 @@ namespace Itinero.Algorithms.Default
             // algorithm always succeeds, it may be dealing with an empty network and there are no targets.
             this.HasSucceeded = true;
 
-            // intialize dykstra data structures.
+            // initialize dykstra data structures.
             _visits = new Dictionary<uint, EdgePath<T>>();
             _heap = new BinaryHeap<EdgePath<T>>(1000);
 
@@ -182,17 +182,14 @@ namespace Itinero.Algorithms.Default
                 if (this.Visit == null)
                 {
                     if (_visits.ContainsKey(neighbour))
-                    { // has already been choosen
+                    { // has already been chosen
                         continue;
                     }
                 }
 
                 // get the speed from cache or calculate.
-                float distance;
-                ushort edgeProfile;
-                EdgeDataSerializer.Deserialize(edge.Data0, out distance, out edgeProfile);
-                var factor = Factor.NoFactor;
-                var totalWeight = _weightHandler.Add(_current.Weight, edgeProfile, distance, out factor);
+                EdgeDataSerializer.Deserialize(edge.Data0, out var distance, out var edgeProfile);
+                var totalWeight = _weightHandler.Add(_current.Weight, edgeProfile, distance, out var factor);
 
                 // check the tags against the interpreter.
                 if (factor.Value > 0 && (factor.Direction == 0 ||
@@ -208,7 +205,7 @@ namespace Itinero.Algorithms.Default
                             _weightHandler.GetMetric(totalWeight));
                     }
                     else
-                    { // the maxium was reached.
+                    { // the maximum was reached.
                         this.MaxReached = true;
                     }
                 }

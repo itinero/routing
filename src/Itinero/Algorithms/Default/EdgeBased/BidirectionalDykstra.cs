@@ -69,19 +69,28 @@ namespace Itinero.Algorithms.Default.EdgeBased
 
             _sourceSearch.Initialize();
             _targetSearch.Initialize();
-            var source = true;
-            var target = true;
-            while (source || target)
+            while (true)
             {
-                source = false;
+                var source = false;
                 if (_weightHandler.IsSmallerThan(_maxForward, _best.Item3))
                 { // still a need to search, not best found or max < best.
                     source = _sourceSearch.Step();
                 }
-                target = false;
+
+                if (this.HasSucceeded)
+                { // a path was found.
+                    break;
+                }
+                
+                var target = false;
                 if (_weightHandler.IsSmallerThan(_maxBackward, _best.Item3))
                 { // still a need to search, not best found or max < best.
                     target = _targetSearch.Step();
+                }
+
+                if (this.HasSucceeded)
+                { // a path was found.
+                    break;
                 }
                 
                 if (!source && !target)
@@ -98,24 +107,23 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private bool ReachedForward(EdgePath<T> forwardVisit)
         {
             // check backward search for the same vertex.
-            EdgePath<T> backwardVisit;
-            if (_targetSearch.TryGetVisit(-forwardVisit.Edge, out backwardVisit))
-            { // there is a status for this edge in the target search.
-                var localWeight = _weightHandler.Zero;
-                if (forwardVisit.From != null)
-                {
-                    localWeight = _weightHandler.Subtract(forwardVisit.Weight, forwardVisit.From.Weight);
-                }
-                var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
-                if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
-                { // this is a better match.
-                    if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
-                        (forwardVisit.From.From != null || backwardVisit.From.From != null))
-                    { // paths match and are bigger than one edge.
-                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
-                        this.HasSucceeded = true;
-                    }
-                }
+            if (!_targetSearch.TryGetVisit(-forwardVisit.Edge, out var backwardVisit)) return false; 
+            
+            // there is a status for this edge in the target search.
+            var localWeight = _weightHandler.Zero;
+            if (forwardVisit.From != null)
+            {
+                localWeight = _weightHandler.Subtract(forwardVisit.Weight, forwardVisit.From.Weight);
+            }
+            var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
+            if (!_weightHandler.IsSmallerThan(totalWeight, _best.Item3)) return false; 
+            
+            // this is a better match.
+            if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
+                (forwardVisit.From.From != null || backwardVisit.From.From != null))
+            { // paths match and are bigger than one edge.
+                _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
+                this.HasSucceeded = true;
             }
             return false;
         }
@@ -127,24 +135,23 @@ namespace Itinero.Algorithms.Default.EdgeBased
         private bool ReachedBackward(EdgePath<T> backwardVisit)
         {
             // check forward search for the same vertex.
-            EdgePath<T> forwardVisit;
-            if (_sourceSearch.TryGetVisit(-backwardVisit.Edge, out forwardVisit))
-            { // there is a status for this edge in the source search.
-                var localWeight = _weightHandler.Zero;
-                if (backwardVisit.From != null)
-                {
-                    localWeight = _weightHandler.Subtract(backwardVisit.Weight, backwardVisit.From.Weight);
-                }
-                var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
-                if (_weightHandler.IsSmallerThan(totalWeight, _best.Item3))
-                { // this is a better match.
-                    if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
-                        (forwardVisit.From.From != null || backwardVisit.From.From != null))
-                    { // paths match and are bigger than one edge.
-                        _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
-                        this.HasSucceeded = true;
-                    }
-                }
+            if (!_sourceSearch.TryGetVisit(-backwardVisit.Edge, out var forwardVisit)) return false; 
+            
+            // there is a status for this edge in the source search.
+            var localWeight = _weightHandler.Zero;
+            if (backwardVisit.From != null)
+            {
+                localWeight = _weightHandler.Subtract(backwardVisit.Weight, backwardVisit.From.Weight);
+            }
+            var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
+            if (!_weightHandler.IsSmallerThan(totalWeight, _best.Item3)) return false; 
+            
+            // this is a better match.
+            if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
+                (forwardVisit.From.From != null || backwardVisit.From.From != null))
+            { // paths match and are bigger than one edge.
+                _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
+                this.HasSucceeded = true;
             }
             return false;
         }
@@ -152,24 +159,12 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <summary>
         /// Returns the source-search algorithm.
         /// </summary>
-        public Dykstra<T> SourceSearch
-        {
-            get
-            {
-                return _sourceSearch;
-            }
-        }
+        public Dykstra<T> SourceSearch => _sourceSearch;
 
         /// <summary>
         /// Returns the target-search algorithm.
         /// </summary>
-        public Dykstra<T> TargetSearch
-        {
-            get
-            {
-                return _targetSearch;
-            }
-        }
+        public Dykstra<T> TargetSearch => _targetSearch;
 
         /// <summary>
         /// Gets the best edge.

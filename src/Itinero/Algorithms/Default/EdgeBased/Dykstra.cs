@@ -290,7 +290,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         _heap.Push(path, _weightHandler.GetMetric(totalWeight));
                     }
                     else
-                    { // the maxium was reached.
+                    { // the maximum was reached.
                         this.MaxReached = true;
                     }
                 }

@@ -72,16 +72,20 @@ namespace Itinero.Algorithms.Default
 
             _sourceSearch.Initialize();
             _targetSearch.Initialize();
-            var source = true;
-            var target = true;
-            while (source || target)
+            while (true)
             {
-                source = false;
+                var source = false;
                 if (_weightHandler.IsSmallerThan(_maxForward, _bestWeight))
                 { // still a need to search, not best found or max < best.
                     source = _sourceSearch.Step();
                 }
-                target = false;
+
+                if (this.HasSucceeded)
+                { // a path was found.
+                    break;
+                }
+                
+                var target = false;
                 if (_weightHandler.IsSmallerThan(_maxBackward, _bestWeight))
                 { // still a need to search, not best found or max < best.
                     target = _targetSearch.Step();
@@ -89,6 +93,11 @@ namespace Itinero.Algorithms.Default
 
                 if(!source && !target)
                 { // both source and target search failed or useless.
+                    break;
+                }
+
+                if (this.HasSucceeded)
+                { // a path was found.
                     break;
                 }
             }
@@ -101,17 +110,17 @@ namespace Itinero.Algorithms.Default
         private bool ReachedVertexForward(uint vertex, T weight)
         {
             // check backward search for the same vertex.
-            EdgePath<T> backwardVisit;
-            if (_targetSearch.TryGetVisit(vertex, out backwardVisit))
-            { // there is a status for this vertex in the source search.
-                weight = _weightHandler.Add(weight, backwardVisit.Weight);
-                if (_weightHandler.IsSmallerThan(weight, _bestWeight))
-                { // this vertex is a better match.
-                    _bestWeight = weight;
-                    _bestVertex = vertex;
-                    this.HasSucceeded = true;
-                }
-            }
+            if (!_targetSearch.TryGetVisit(vertex, out var backwardVisit)) return false; 
+            
+            // there is a status for this vertex in the source search.
+            weight = _weightHandler.Add(weight, backwardVisit.Weight);
+            if (!_weightHandler.IsSmallerThan(weight, _bestWeight)) return false; 
+            
+            // this vertex is a better match.
+            _bestWeight = weight;
+            _bestVertex = vertex;
+            this.HasSucceeded = true;
+            
             return false;
         }
 
@@ -122,41 +131,29 @@ namespace Itinero.Algorithms.Default
         private bool ReachedVertexBackward(uint vertex, T weight)
         {
             // check forward search for the same vertex.
-            EdgePath<T> forwardVisit;
-            if (_sourceSearch.TryGetVisit(vertex, out forwardVisit))
-            { // there is a status for this vertex in the source search.
-                weight = _weightHandler.Add(weight, forwardVisit.Weight);
-                if (_weightHandler.IsSmallerThan(weight, _bestWeight))
-                { // this vertex is a better match.
-                    _bestWeight = weight;
-                    _bestVertex = vertex;
-                    this.HasSucceeded = true;
-                }
-            }
+            if (!_sourceSearch.TryGetVisit(vertex, out var forwardVisit)) return false; 
+            
+            // there is a status for this vertex in the source search.
+            weight = _weightHandler.Add(weight, forwardVisit.Weight);
+            if (!_weightHandler.IsSmallerThan(weight, _bestWeight)) return false; 
+            
+            // this vertex is a better match.
+            _bestWeight = weight;
+            _bestVertex = vertex;
+            this.HasSucceeded = true;
+            
             return false;
         }
 
         /// <summary>
         /// Returns the source-search algorithm.
         /// </summary>
-        public Dykstra<T> SourceSearch
-        {
-            get
-            {
-                return _sourceSearch;
-            }
-        }
+        public Dykstra<T> SourceSearch => _sourceSearch;
 
         /// <summary>
         /// Returns the target-search algorithm.
         /// </summary>
-        public Dykstra<T> TargetSearch
-        {
-            get
-            {
-                return _targetSearch;
-            }
-        }
+        public Dykstra<T> TargetSearch => _targetSearch;
 
         /// <summary>
         /// Gets the best vertex.
@@ -178,11 +175,9 @@ namespace Itinero.Algorithms.Default
         public EdgePath<T> GetPath()
         {
             this.CheckHasRunAndHasSucceeded();
-            
-            EdgePath<T> fromSource;
-            EdgePath<T> toTarget;
-            if(_sourceSearch.TryGetVisit(_bestVertex, out fromSource) &&
-               _targetSearch.TryGetVisit(_bestVertex, out toTarget))
+
+            if(_sourceSearch.TryGetVisit(_bestVertex, out var fromSource) &&
+               _targetSearch.TryGetVisit(_bestVertex, out var toTarget))
             {
                 return fromSource.Append(toTarget, _weightHandler);
             }
