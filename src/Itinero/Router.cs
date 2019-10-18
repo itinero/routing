@@ -327,15 +327,11 @@ namespace Itinero
                     }
                 }
 
-                EdgePath<T> path = null;
-                if (source.EdgeId == target.EdgeId)
-                { // check for a path on the same edge.
-                    var edgePath = source.EdgePathTo(_db, weightHandler, target);
-                    if (edgePath != null)
-                    {
-                        path = edgePath;
-                    }
-                }
+                // check one-hop routes.
+                var oneHopRouter = new OneHopRouter<T>(_db, profileInstance, weightHandler,
+                    source, target);
+                oneHopRouter.Run();
+                var path = oneHopRouter.Result;
 
                 if (useContracted)
                 { // use the contracted graph.
