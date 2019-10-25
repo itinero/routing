@@ -29,6 +29,7 @@ using Itinero.Profiles;
 using System.Linq;
 using System.Threading;
 using NetTopologySuite.IO;
+using Coordinate = Itinero.LocalGeo.Coordinate;
 
 namespace Itinero.IO.Shape.Reader
 {
@@ -125,15 +126,23 @@ namespace Itinero.IO.Shape.Reader
                 { // build header.
                     for (int idx = 0; idx < reader.DbaseHeader.Fields.Length; idx++)
                     {
-                        header.Add(reader.DbaseHeader.Fields[idx].Name, idx + 1);
+                        try
+                        {
+                            header.Add(reader.DbaseHeader.Fields[idx].Name, idx + 1);
+                        }
+                        catch (Exception e)
+                        {
+                            
+                        }
+                        
                     }
 
                     // check if all columns are in the header.
-                    if (!header.ContainsKey(_sourceVertexColumn))
+                    if (!header.ContainsKey(_sourceVertexColumn??""))
                     { // no node from column.
                         throw new InvalidOperationException(string.Format("No column with name {0} found.", _sourceVertexColumn));
                     }
-                    if (!header.ContainsKey(_targetVertexColumn))
+                    if (!header.ContainsKey(_targetVertexColumn??""))
                     { // no node to column.
                         throw new InvalidOperationException(string.Format("No column with name {0} found.", _targetVertexColumn));
                     }

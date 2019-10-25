@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
- using GeoAPI.Geometries;
+ using NetTopologySuite.Geometries;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Itinero.Navigation;

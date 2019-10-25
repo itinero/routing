@@ -16,13 +16,10 @@
  *  limitations under the License.
  */
 
-using GeoAPI.Geometries;
-using Itinero.Algorithms.Collections;
-using Itinero.Geo;
+using NetTopologySuite.Geometries;
 using Itinero.Logging;
 using Itinero.Profiles;
 using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using System;
 using System.Collections;
 using System.Collections.Generic;

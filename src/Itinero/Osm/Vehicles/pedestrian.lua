@@ -1,5 +1,11 @@
 ﻿
 name = "pedestrian"
+-- global profile parameters.
+-- defines columns in the shapefile.
+parameters = {
+	source_vertex = "JTE_ID_BEG",
+	target_vertex = "JTE_ID_END"
+}
 vehicle_types = { "foot" }
 
 minspeed = 4
