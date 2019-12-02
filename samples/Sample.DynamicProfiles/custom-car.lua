@@ -28,7 +28,7 @@ speed_profile = {
 	["ferry"] = 5,
 	["movable"] = 5,
 	["shuttle_train"] = 10,
-  	["default"] = 10
+	["default"] = 10
 }
 
 -- default access values
@@ -127,7 +127,7 @@ function factor_and_speed (attributes, result)
 	 local highway = attributes.highway
 	 
 	 if attributes["custom-speed"] then
-	    highway = "residential" -- assume residential, doesn't matter, custom speed is used anyway.
+		highway = "residential" -- assume residential, doesn't matter, custom speed is used anyway.
 	 end
 	 
 	 result.speed = 0
@@ -145,8 +145,8 @@ function factor_and_speed (attributes, result)
 	 -- get default speed profiles
 	 local highway_speed = speed_profile[highway]
 	 if highway_speed then
-        result.speed = highway_speed * 0.75
-        result.direction = 0
+		result.speed = highway_speed * 0.75
+		result.direction = 0
 		result.canstop = true
 		result.attributes_to_keep.highway = highway
 		if highway == "motorway" or 
@@ -154,15 +154,15 @@ function factor_and_speed (attributes, result)
 		   result.canstop = false
 		end
 	 else
-	    return
+		return
 	 end
 
 	 -- interpret access tags
 	 if can_access (attributes, result) == false then
-	 	result.speed = 0
+		result.speed = 0
 		result.direction = 0
 		result.canstop = true
-	    return
+		return
 	 end
 	 
 	 -- get maxspeed if any.
@@ -176,8 +176,8 @@ function factor_and_speed (attributes, result)
 	
 	-- use custom speed tags, if any just override whatever is there.
 	if attributes["custom-speed"] then
-	    result.speed = itinero.parsespeed (attributes["custom-speed"])
-	    result.attributes_to_keep["custom-speed"] = true;
+		result.speed = itinero.parsespeed (attributes["custom-speed"])
+		result.attributes_to_keep["custom-speed"] = true;
 	end
 
 	-- get directional information
