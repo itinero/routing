@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Itinero.Algorithms;
 using Itinero.Algorithms.Default;
+using Itinero.Algorithms.Networks.Islands;
 using Itinero.Algorithms.Routes;
 using Itinero.Algorithms.Search;
 using Itinero.Algorithms.Search.Cache;
@@ -740,7 +741,7 @@ namespace Itinero
                 }
 
                 if (!sourceForward.HasValue && !targetForward.HasValue)
-                { // no direction information is relevation, use default routing implementation.
+                { // no direction information is relevant, use default routing implementation.
                     return this.TryCalculateRaw(profileInstance, weightHandler, source, target, settings, cancellationToken);
                 }
 
@@ -765,15 +766,11 @@ namespace Itinero
                     }
                 }
 
-                EdgePath<T> path = null;
-                if (source.EdgeId == target.EdgeId)
-                { // check for a path on the same edge.
-                    var edgePath = source.EdgePathTo(_db, weightHandler, sourceForward, target, targetForward);
-                    if (edgePath != null)
-                    {
-                        path = edgePath;
-                    }
-                }
+                // try one hop paths first.
+                var algorithm = new Algorithms.Default.EdgeBased.OneHopRouter<T>(_db, profileInstance, weightHandler,
+                    source, sourceForward, target, targetForward);
+                algorithm.Run(cancellationToken);
+                var path = algorithm.Result;
 
                 if (useContracted)
                 { // use the contracted graph.
@@ -857,7 +854,7 @@ namespace Itinero
                                 var original = new OriginalEdge(enumerator.From, enumerator.To);
                                 if (!e.Forward)
                                 {
-                                original = original.Reverse();
+                                    original = original.Reverse();
                                 }
                                 edge.Add(original);
                                 if (vertexPath.Count == 0)
