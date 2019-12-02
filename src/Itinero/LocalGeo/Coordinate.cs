@@ -146,6 +146,26 @@ namespace Itinero.LocalGeo
         }
 
         /// <summary>
+        /// Returns true if this coordinate is valid.
+        /// </summary>
+        public bool Valid => Validate(this.Latitude, this.Longitude);
+
+        /// <summary>
+        /// Validates the given lat/lon.
+        /// </summary>
+        /// <param name="lat">The latitude.</param>
+        /// <param name="lon">The longitude.</param>
+        /// <returns>True if both are in range.</returns>
+        public static bool Validate(double lat, double lon)
+        {
+            if (lat < -90) return false;
+            if (lat > 90) return false;
+            if (lon < -180) return false;
+            if (lon > 180) return false;
+            return true;
+        }
+
+        /// <summary>
         /// Offsets this coordinate with a given distance.
         /// </summary>
         public Coordinate OffsetWithDistances(float meter)
