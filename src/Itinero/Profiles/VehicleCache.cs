@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using System;
 using Itinero.Attributes;
 using Itinero.Profiles;
 using System.Collections.Generic;
@@ -142,18 +143,31 @@ namespace Itinero.Profiles
                 canTraverse = null;
                 return false;
             }
-
-            var id = _edgeProfiles.Add(filtered);
-            WhitelistAndFlags whitelistAndFlags;
-            if (!_cache.TryGetValue(id, out whitelistAndFlags))
-            {
-                whitelist = null;
-                canTraverse = null;
-                return false;
+            try{
+                var id = _edgeProfiles.Add(filtered);
+                WhitelistAndFlags whitelistAndFlags;
+                if (!_cache.TryGetValue(id, out whitelistAndFlags))
+                {
+                    whitelist = null;
+                    canTraverse = null;
+                    return false;
+                }
+                whitelist = whitelistAndFlags.Whitelist;
+                canTraverse = whitelistAndFlags.CanTraverse;
+                return true;
             }
-            whitelist = whitelistAndFlags.Whitelist;
-            canTraverse = whitelistAndFlags.CanTraverse;
-            return true;
+            catch (Exception e)
+            {
+                var originalAttributes = string.Join(", ",attributes.Select(attr => $"{attr.Key} = {attr.Value}"));
+                var filteredAttributes = string.Join(", ",filtered.Select(attr => $"{attr.Key} = {attr.Value}"));
+
+                var msg =
+                    $"Error while trying to add a new edge profile.\n" +
+                    $"Filtered attributes are {filteredAttributes}\n" +
+                    $"(original attributes are {originalAttributes}";
+                throw new Exception(msg, e);
+                    
+            }
         }
 
         /// <summary>
