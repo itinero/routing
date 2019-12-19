@@ -201,8 +201,10 @@ namespace Itinero.Algorithms.Default
 
                     if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
-                        _heap.Push(new EdgePath<T>(neighbour, totalWeight, edge.IdDirected(), _current),
-                            _weightHandler.GetMetric(totalWeight));
+                        var neighbourVisit = new EdgePath<T>(neighbour, totalWeight, edge.IdDirected(), _current);
+                        _heap.Push(neighbourVisit, _weightHandler.GetMetric(totalWeight));
+
+                        NeighbourWasFound?.Invoke(neighbourVisit);
                     }
                     else
                     { // the maximum was reached.
@@ -252,6 +254,20 @@ namespace Itinero.Algorithms.Default
         /// Gets or sets the wasfound function to be called when a new vertex is found.
         /// </summary>
         public WasFoundDelegate WasFound
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// The was found delegate for not yet settled neighbours.
+        /// </summary>
+        public delegate void NeighbourWasFoundDelegate(EdgePath<T> visit);
+
+        /// <summary>
+        /// Gets or sets the wasfound function to be called when a new vertex is found.
+        /// </summary>
+        public NeighbourWasFoundDelegate NeighbourWasFound
         {
             get;
             set;
