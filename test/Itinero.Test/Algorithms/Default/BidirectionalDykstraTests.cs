@@ -71,16 +71,15 @@ namespace Itinero.Test.Algorithms.Default
 
             // run algorithm.
             var sourceSearch = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(0) },
-                150 * 1 / speed, false);
+                250 * 1 / speed, false);
             var targetSearch = new Dykstra(graph, getFactor, null, new EdgePath<float>[] { new EdgePath<float>(2) },
-                150 * 1 / speed, true);
+                250 * 1 / speed, true);
             var algorithm = new BidirectionalDykstra(sourceSearch, targetSearch, getFactor);
             algorithm.Run();
 
             Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
-            Assert.AreEqual(1, algorithm.BestVertex);
             Assert.AreEqual(new uint[] { 0, 1, 2 }, algorithm.GetPath().ToListAsVertices().ToArray());
         }
     }
