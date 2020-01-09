@@ -92,13 +92,17 @@ namespace Itinero
                     weightHandler, restrictions);
                 dualGraphBuilder.Run(cancellationToken);
 
-                var hierarchyBuilder =
-                    new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler)
-                    {
-                        DifferenceFactor = 5,
-                        DepthFactor = 14,
-                        ContractedFactor = 1
-                    };
+//                var hierarchyBuilder =
+//                    new Itinero.Algorithms.Contracted.Dual.FastHierarchyBuilder(contracted, weightHandler)
+//                    {
+//                        DifferenceFactor = 5,
+//                        DepthFactor = 14,
+//                        ContractedFactor = 1
+//                    };
+//                hierarchyBuilder.Run(cancellationToken);
+                var hierarchyBuilder = 
+                    new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder(contracted, 
+                        new Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator(contracted.Graph));
                 hierarchyBuilder.Run(cancellationToken);
 
                 contractedDb = new ContractedDb(contracted, true);
@@ -185,24 +189,24 @@ namespace Itinero
                         weightHandler, restrictions);
                     dualGraphBuilder.Run(cancellationToken);
 
-                    // contract the graph.
-                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<T>(contracted,
-                        new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator<T>(contracted.Graph, weightHandler, 
-                            8, 1024), weightHandler);
-                    hierarchyBuilder.DifferenceFactor = 5;
-                    hierarchyBuilder.DepthFactor = 5;
-                    hierarchyBuilder.ContractedFactor = 8;
-                    hierarchyBuilder.Run(cancellationToken);
+//                    // contract the graph.
+//                    var hierarchyBuilder = new Itinero.Algorithms.Contracted.Dual.HierarchyBuilder<T>(contracted,
+//                        new Itinero.Algorithms.Contracted.Dual.Witness.DykstraWitnessCalculator<T>(contracted.Graph, weightHandler, 
+//                            8, 1024), weightHandler);
+//                    hierarchyBuilder.DifferenceFactor = 5;
+//                    hierarchyBuilder.DepthFactor = 5;
+//                    hierarchyBuilder.ContractedFactor = 8;
+//                    hierarchyBuilder.Run(cancellationToken);
 
-                    //// contract the graph.
-                    //var priorityCalculator = new EdgeDifferencePriorityCalculator(contracted,
-                    //    new DykstraWitnessCalculator(int.MaxValue));
-                    //priorityCalculator.DifferenceFactor = 5;
-                    //priorityCalculator.DepthFactor = 5;
-                    //priorityCalculator.ContractedFactor = 8;
-                    //var hierarchyBuilder = new HierarchyBuilder<T>(contracted, priorityCalculator,
-                    //        new DykstraWitnessCalculator(int.MaxValue), weightHandler);
-                    //hierarchyBuilder.Run();
+                    // contract the graph.
+                    var hierarchyBuilder =
+                        new FastHierarchyBuilder<T>(contracted, weightHandler)
+                        {
+                            DifferenceFactor = 8,
+                            DepthFactor = 14,
+                            ContractedFactor = 1
+                        };
+                    hierarchyBuilder.Run(cancellationToken);
 
                     contractedDb = new ContractedDb(contracted, true);
                 }

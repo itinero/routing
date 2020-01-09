@@ -15,33 +15,14 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, mapping</tags>
         <dependencies>
-            <group targetFramework=".NETFramework4.5">
-                <dependency id="Itinero" version="$version$" />
-                <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
-                <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
-            </group>
-            <group targetFramework=".NETStandard1.3">
-                <dependency id="Itinero" version="$version$" />
-                <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
-                <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers"/>
-                <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
-            </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Itinero" version="$version$" />
                 <dependency id="NetTopologySuite" version="1.15.1" exclude="Build,Analyzers"/>
                 <dependency id="NetTopologySuite.Features" version="1.15.0" exclude="Build,Analyzers"/>
             </group>
         </dependencies>
-        <frameworkAssemblies>
-            <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-            <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-        </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="src\Itinero.Geo\bin\Release\net45\Itinero.Geo.dll" target="lib\net45\Itinero.Geo.dll"/>
-        <file src="src\Itinero.Geo\bin\Release\netstandard1.3\Itinero.Geo.dll"
-              target="lib\netstandard1.3\Itinero.Geo.dll"/>
         <file src="src\Itinero.Geo\bin\Release\netstandard2.0\Itinero.Geo.dll"
               target="lib\netstandard2.0\Itinero.Geo.dll"/>
     </files>

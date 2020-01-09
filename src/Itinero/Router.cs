@@ -389,7 +389,7 @@ namespace Itinero
                                 var original = new OriginalEdge(enumerator.From, enumerator.To);
                                 if (!e.Forward)
                                 {
-                                original = original.Reverse();
+                                    original = original.Reverse();
                                 }
                                 edge.Add(original);
                                 if (vertexPath.Count == 0)

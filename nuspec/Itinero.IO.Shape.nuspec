@@ -15,29 +15,13 @@
         <copyright>Ben Abelshausen</copyright>
         <tags>osm, openstreetmap, routing, nts</tags>
         <dependencies>
-            <group targetFramework=".NETFramework4.0">
-                <dependency id="Itinero.Geo" version="$version$" />
-                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.2" exclude="Build,Analyzers"/>
-            </group>
-            <group targetFramework=".NETFramework4.5">
-                <dependency id="Itinero.Geo" version="$version$" />
-                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.2" exclude="Build,Analyzers"/>
-            </group>
             <group targetFramework=".NETStandard2.0">
                 <dependency id="Itinero.Geo" version="$version$" />
-                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.2" exclude="Build,Analyzers"/>
+                <dependency id="NetTopologySuite.IO.ShapeFile" version="1.15.3" exclude="Build,Analyzers"/>
             </group>
         </dependencies>
-        <frameworkAssemblies>
-            <frameworkAssembly assemblyName="Microsoft.CSharp" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-            <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-            <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-            <frameworkAssembly assemblyName="System.Xml" targetFramework=".NETFramework4.0, .NETFramework4.5"/>
-        </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="src\Itinero.IO.Shape\bin\Release\net45\Itinero.IO.Shape.dll"
-              target="lib\net45\Itinero.IO.Shape.dll"/>
         <file src="src\Itinero.IO.Shape\bin\Release\netstandard2.0\Itinero.IO.Shape.dll"
               target="lib\netstandard2.0\Itinero.IO.Shape.dll"/>
     </files>

@@ -28,6 +28,8 @@ using Itinero.LocalGeo;
 using System.Linq;
 using Itinero.Algorithms.Networks.Islands;
 using Itinero.Algorithms.Search;
+using Itinero.IO.Osm;
+using Itinero.Profiles;
 using Itinero.Test.Functional.Tests.IO.Shape;
 
 namespace Itinero.Test.Functional
