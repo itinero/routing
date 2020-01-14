@@ -8,6 +8,16 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <PackageVersion />
+    <Title>Itinero</Title>
+    <Authors>Itinero BV</Authors>
+    <Description>Itinero - Routing for .NET.</Description>
+    <Copyright>Itinero BV</Copyright>
+    <PackageProjectUrl>http://www.itinero.tech/</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</PackageLicenseUrl>
+    <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
+    <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Reminiscence" Version="1.3.0" />
