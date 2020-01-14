@@ -8,7 +8,16 @@
         <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
         <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
         <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-        <LangVersion>7.2</LangVersion>
+        <LangVersion>default</LangVersion>
+        <Title>Itinero.IO.Shape</Title>
+        <Authors>Itinero BV</Authors>
+        <Description>Itinero.IO.Shape - Reads routing networks from shapefiles.</Description>
+        <Copyright>Itinero BV</Copyright>
+        <PackageProjectUrl>http://www.itinero.tech/</PackageProjectUrl>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</PackageLicenseUrl>
+        <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
+        <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
+        <RepositoryType>routing, mapping, NTS</RepositoryType>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="1.15.3" />

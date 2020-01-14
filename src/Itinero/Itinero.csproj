@@ -18,6 +18,7 @@
     <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
     <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Reminiscence" Version="1.3.0" />

@@ -8,6 +8,16 @@
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <LangVersion>default</LangVersion>
+    <Title>Itinero.IO.Osm</Title>
+    <Authors>Itinero BV</Authors>
+    <Description>Itinero.IO.Osm - OpenStreetMap data IO.</Description>
+    <Copyright>Itinero BV</Copyright>
+    <PackageProjectUrl>http://www.itinero.tech/</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</PackageLicenseUrl>
+    <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
+    <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Itinero\Itinero.csproj" />
