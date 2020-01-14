@@ -2,6 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
     <metadata>
         <id>Itinero</id>
+        <version>0.0.1</version>
         <title>Itinero</title>
         <authors>Ben Abelshausen</authors>
         <owners>Ben Abelshausen</owners>
