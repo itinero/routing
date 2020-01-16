@@ -113,7 +113,7 @@ namespace Itinero.Test.Navigation.Directions
                 new Coordinate(shape.Latitude + 0.01f /* perfectly north of the shapepoint*/,
                     shape.Longitude));
             Assert.False(double.IsNaN(bearingOut));
-            Assert.AreEqual((float) -Math.PI, bearingOut);
+            Assert.AreEqual((float) -Math.PI/2, bearingOut);
 
         }
         
@@ -128,7 +128,22 @@ namespace Itinero.Test.Navigation.Directions
                 new Coordinate(shape.Latitude + 0.01f /* perfectly north of the shapepoint*/,
                     shape.Longitude));
             Assert.False(double.IsNaN(bearingOut));
-            Assert.AreEqual((float) Math.PI, bearingOut);
+            Assert.AreEqual((float) Math.PI/2, bearingOut);
+
+        }
+        
+                
+        [Test]
+        public void CalculateAngleStraightOn()
+        {
+            var a = new Coordinate(50.71287f, 4.55f); 
+            var b = new Coordinate(50.71287f, 4.56f); 
+            var c = new Coordinate(50.71287f, 4.57f); 
+
+            var bearingOut = DirectionCalculator.Angle(
+                a, b, c);
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) (Math.PI), bearingOut);
 
         }
     }

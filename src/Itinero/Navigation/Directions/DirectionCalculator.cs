@@ -55,7 +55,14 @@ namespace Itinero.Navigation.Directions
                 // The dot-product is pretty small or close to zero -> the coordinates are perpendicular
                 // only thing left to figure out if the angle is positive or negative
                 // For this we have the cross-product
-                return (float) (Math.Sign(cross) * Math.PI);
+                return (float) (Math.Sign(cross) * Math.PI / 2);
+            }
+
+            if (Math.Abs(cross) < 0.0000001)
+            {
+                // THe cross-product is zero -> the coordinates are on one line
+                // dot > 0 => upper quadrants => positive angle
+                return (float) Math.PI;
             }
             
             // split per quadrant.
