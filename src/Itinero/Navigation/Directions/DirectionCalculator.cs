@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+using System;
 using Itinero.LocalGeo;
 
 namespace Itinero.Navigation.Directions
@@ -26,12 +27,14 @@ namespace Itinero.Navigation.Directions
     public static class DirectionCalculator
     {
         /// <summary>
-        /// Calculates the angle in randians at coordinate2.
+        /// Calculates the angle in radians at coordinate2.
         /// </summary>
         public static float Angle(Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate3)
         {
+
             var v11 = coordinate1.Latitude - coordinate2.Latitude;
             var v10 = coordinate1.Longitude - coordinate2.Longitude;
+
 
             var v21 = coordinate3.Latitude - coordinate2.Latitude;
             var v20 = coordinate3.Longitude - coordinate2.Longitude;
@@ -44,64 +47,88 @@ namespace Itinero.Navigation.Directions
                 return float.NaN;
             }
 
-            var dot = (double)(v11 * v21 + v10 * v20);
-            var cross = (double)(v10 * v21 - v11 * v20);
+            var dot = (double) (v11 * v21 + v10 * v20);
+            var cross = (double) (v10 * v21 - v11 * v20);
 
+            if (Math.Abs(dot) < 0.0000001)
+            {
+                // The dot-product is pretty small or close to zero -> the coordinates are perpendicular
+                // only thing left to figure out if the angle is positive or negative
+                // For this we have the cross-product
+                return (float) (Math.Sign(cross) * Math.PI);
+            }
+            
             // split per quadrant.
             double angle;
             if (dot > 0)
-            { // dot > 0
+            {
+                // dot > 0
                 if (cross > 0)
-                { // dot > 0 and cross > 0
+                {
+                    // dot > 0 and cross > 0
                     // Quadrant 1
-                    angle = (double)System.Math.Asin(cross / (v1size * v2size));
+                    angle = (double) System.Math.Asin(cross / (v1size * v2size));
                     if (angle < System.Math.PI / 4f)
-                    { // use cosine.
-                        angle = (double)System.Math.Acos(dot / (v1size * v2size));
+                    {
+                        // use cosine.
+                        angle = (double) System.Math.Acos(dot / (v1size * v2size));
                     }
+
                     // angle is ok here for quadrant 1.
                 }
                 else
-                { // dot > 0 and cross <= 0
+                {
+                    // dot > 0 and cross <= 0
                     // Quadrant 4
-                    angle = (double)(System.Math.PI * 2.0f) + (double)System.Math.Asin(cross / (v1size * v2size));
-                    if (angle > (double)(System.Math.PI * 2.0f) - System.Math.PI / 4f)
-                    { // use cosine.
-                        angle = (double)(System.Math.PI * 2.0f) - (double)System.Math.Acos(dot / (v1size * v2size));
+                    angle = (double) (System.Math.PI * 2.0f) + (double) System.Math.Asin(cross / (v1size * v2size));
+                    if (angle > (double) (System.Math.PI * 2.0f) - System.Math.PI / 4f)
+                    {
+                        // use cosine.
+                        angle = (double) (System.Math.PI * 2.0f) - (double) System.Math.Acos(dot / (v1size * v2size));
                     }
+
                     // angle is ok here for quadrant 1.
                 }
             }
             else
-            { // dot <= 0
+            {
+                // dot <= 0
                 if (cross > 0)
-                { // dot > 0 and cross > 0
+                {
+                    // dot > 0 and cross > 0
                     // Quadrant 2
-                    angle = (double)System.Math.PI - (double)System.Math.Asin(cross / (v1size * v2size));
+                    angle = (double) System.Math.PI - (double) System.Math.Asin(cross / (v1size * v2size));
                     if (angle > System.Math.PI / 2f + System.Math.PI / 4f)
-                    { // use cosine.
-                        angle = (double)System.Math.Acos(dot / (v1size * v2size));
+                    {
+                        // use cosine.
+                        angle = (double) System.Math.Acos(dot / (v1size * v2size));
                     }
+
                     // angle is ok here for quadrant 2.
                 }
                 else
-                { // dot > 0 and cross <= 0
+                {
+                    // dot > 0 and cross <= 0
                     // Quadrant 3
-                    angle = -(-(double)System.Math.PI + (double)System.Math.Asin(cross / (v1size * v2size)));
+                    angle = -(-(double) System.Math.PI + (double) System.Math.Asin(cross / (v1size * v2size)));
                     if (angle < System.Math.PI + System.Math.PI / 4f)
-                    { // use cosine.
-                        angle = (double)(System.Math.PI * 2.0f) - (double)System.Math.Acos(dot / (v1size * v2size));
+                    {
+                        // use cosine.
+                        angle = (double) (System.Math.PI * 2.0f) - (double) System.Math.Acos(dot / (v1size * v2size));
                     }
+
                     // angle is ok here for quadrant 3.
                 }
             }
-            return (float)angle;
+
+            return (float) angle;
         }
 
         /// <summary>
         /// Calculates the direction of one line segment relative to another.
         /// </summary>
-        public static RelativeDirection Calculate(Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate3)
+        public static RelativeDirection Calculate(Coordinate coordinate1, Coordinate coordinate2,
+            Coordinate coordinate3)
         {
             var direction = new RelativeDirection();
 
@@ -146,7 +173,8 @@ namespace Itinero.Navigation.Directions
             {
                 direction.Direction = RelativeDirectionEnum.SharpLeft;
             }
-            direction.Angle = (float)angle;
+
+            direction.Angle = (float) angle;
 
             return direction;
         }
@@ -156,44 +184,54 @@ namespace Itinero.Navigation.Directions
         /// </summary>
         public static DirectionEnum Calculate(Coordinate coordinate1, Coordinate coordinate2)
         {
-            var angle = (double)DirectionCalculator.Angle(new Coordinate(coordinate1.Latitude + 0.01f, coordinate1.Longitude),
+            var angle = (double) DirectionCalculator.Angle(
+                new Coordinate(coordinate1.Latitude + 0.01f, coordinate1.Longitude),
                 coordinate1, coordinate2);
 
             angle = angle.ToDegrees();
             angle = angle.NormalizeDegrees();
 
             if (angle < 22.5 || angle >= 360 - 22.5)
-            { // north
+            {
+                // north
                 return DirectionEnum.North;
             }
             else if (angle >= 22.5 && angle < 90 - 22.5)
-            { // north-east.
+            {
+                // north-east.
                 return DirectionEnum.NorthWest;
             }
             else if (angle >= 90 - 22.5 && angle < 90 + 22.5)
-            { // east.
+            {
+                // east.
                 return DirectionEnum.West;
             }
             else if (angle >= 90 + 22.5 && angle < 180 - 22.5)
-            { // south-east.
+            {
+                // south-east.
                 return DirectionEnum.SouthWest;
             }
             else if (angle >= 180 - 22.5 && angle < 180 + 22.5)
-            { // south
+            {
+                // south
                 return DirectionEnum.South;
             }
             else if (angle >= 180 + 22.5 && angle < 270 - 22.5)
-            { // south-west.
+            {
+                // south-west.
                 return DirectionEnum.SouthEast;
             }
             else if (angle >= 270 - 22.5 && angle < 270 + 22.5)
-            { // south-west.
+            {
+                // south-west.
                 return DirectionEnum.East;
             }
             else if (angle >= 270 + 22.5 && angle < 360 - 22.5)
-            { // south-west.
+            {
+                // south-west.
                 return DirectionEnum.NorthEast;
             }
+
             return DirectionEnum.North;
         }
     }

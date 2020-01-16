@@ -16,9 +16,11 @@
  *  limitations under the License.
  */
 
+using System;
 using NUnit.Framework;
 using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
+using NUnit.Framework.Internal.Builders;
 
 namespace Itinero.Test.Navigation.Directions
 {
@@ -98,6 +100,36 @@ namespace Itinero.Test.Navigation.Directions
                 new Coordinate(0, -1)));
             Assert.AreEqual(DirectionEnum.NorthWest, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(1, -1)));
+        }
+
+        [Test]
+        public void CalculateAngleSameLatitudesGivesAngle()
+        {
+            var shape = new Coordinate(50.71287f, 4.555358f); // slightly to the right/east
+            var nextShape = new Coordinate(50.71287f, 4.55207f); // slightly to the left/west
+            var bearingOut = DirectionCalculator.Angle(
+                nextShape, // west
+                shape, // center
+                new Coordinate(shape.Latitude + 0.01f /* perfectly north of the shapepoint*/,
+                    shape.Longitude));
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) -Math.PI, bearingOut);
+
+        }
+        
+        [Test]
+        public void CalculateAngleSameLatitudesGivesAngleEast()
+        {
+            var shape = new Coordinate(50.71287f, 4.555358f); 
+            var nextShape = new Coordinate(50.71287f, 4.55807f); 
+            var bearingOut = DirectionCalculator.Angle(
+                nextShape, // west
+                shape, // center
+                new Coordinate(shape.Latitude + 0.01f /* perfectly north of the shapepoint*/,
+                    shape.Longitude));
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) Math.PI, bearingOut);
+
         }
     }
 }
