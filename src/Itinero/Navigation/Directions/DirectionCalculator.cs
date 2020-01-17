@@ -26,12 +26,13 @@ namespace Itinero.Navigation.Directions
     /// </summary>
     public static class DirectionCalculator
     {
+
+        private const float E = 0.0000000001f;
         /// <summary>
         /// Calculates the angle in radians at coordinate2.
         /// </summary>
         public static float Angle(Coordinate coordinate1, Coordinate coordinate2, Coordinate coordinate3)
         {
-
             var v11 = coordinate1.Latitude - coordinate2.Latitude;
             var v10 = coordinate1.Longitude - coordinate2.Longitude;
 
@@ -50,21 +51,36 @@ namespace Itinero.Navigation.Directions
             var dot = (double) (v11 * v21 + v10 * v20);
             var cross = (double) (v10 * v21 - v11 * v20);
 
-            if (Math.Abs(dot) < 0.0000001)
+            if (Math.Abs(cross) < E)
+            {
+                // The cross product is pretty small, the points are close to each other
+                // This either means we are at 180° or 360°, depending on the dot product
+                if (dot < 0)
+                {
+                    return (float) Math.PI;
+                }
+                else
+                {
+                    return (float) (2 * Math.PI);
+                }
+            }
+            
+            if (Math.Abs(dot) < E)
             {
                 // The dot-product is pretty small or close to zero -> the coordinates are perpendicular
                 // only thing left to figure out if the angle is positive or negative
                 // For this we have the cross-product
-                return (float) (Math.Sign(cross) * Math.PI / 2);
+                if (cross > 0)
+                {
+                    return (float) (Math.PI / 2);
+                }
+                else
+                {
+                    return (float) (3 * Math.PI / 2);
+                }
             }
 
-            if (Math.Abs(cross) < 0.0000001)
-            {
-                // THe cross-product is zero -> the coordinates are on one line
-                // dot > 0 => upper quadrants => positive angle
-                return (float) Math.PI;
-            }
-            
+
             // split per quadrant.
             double angle;
             if (dot > 0)
