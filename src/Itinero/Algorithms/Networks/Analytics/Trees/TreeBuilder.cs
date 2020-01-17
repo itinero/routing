@@ -34,6 +34,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Creates a new tree builder.
         /// </summary>
+        /// <param name="graph">The graph.</param>
         /// <param name="edgeVisitor">The algorithm that visits the edges.</param>
         public TreeBuilder(GeometricGraph graph, IEdgeVisitor<float> edgeVisitor)
         {
@@ -112,9 +113,9 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
                 };
                 _treeEdges.Add(treeEdge);
 
-                if (_max < weight2)
+                if (_max < weight1)
                 {
-                    _max = weight2;
+                    _max = weight1;
                 }
 
                 return false;
