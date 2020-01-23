@@ -101,7 +101,7 @@ namespace Itinero.Algorithms.Default
             if (!_targetSearch.TryGetVisit(edge.Vertex, out var backwardVisit)) return;
             
             // check for u-turns.
-            if (edge.Edge == backwardVisit.Edge) return;
+            if (edge.From?.From != null && backwardVisit.From?.From != null && edge.Edge == backwardVisit.Edge) return;
             
             // calculate total weight.
             var weight = _weightHandler.Add(edge.Weight, backwardVisit.Weight);
@@ -123,7 +123,7 @@ namespace Itinero.Algorithms.Default
             if (!_sourceSearch.TryGetVisit(edge.Vertex, out var forwardVisit)) return;
             
             // check for u-turns.
-            if (edge.Edge == forwardVisit.Edge) return;
+            if (edge.From?.From != null && forwardVisit.From?.From != null && edge.Edge == forwardVisit.Edge) return;
             
             // calculate total weight.
             var weight = _weightHandler.Add(edge.Weight, forwardVisit.Weight);
