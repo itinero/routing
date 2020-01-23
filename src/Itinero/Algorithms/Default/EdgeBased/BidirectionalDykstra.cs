@@ -120,7 +120,6 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <returns></returns>
         private bool NeighbourReachedForward(EdgePath<T> forwardVisit)
         {
-            Console.WriteLine($"F: {forwardVisit}");
             // check backward search for the same vertex.
             if (!_targetSearch.TryGetVisit(-forwardVisit.Edge, out var backwardVisit)) return false; 
             
@@ -154,7 +153,6 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 
                 _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
-                Console.WriteLine($"BEST (F): {_best}");
                 this.HasSucceeded = true;
             }
             return false;
@@ -166,7 +164,6 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// <returns></returns>
         private bool NeighbourReachedBackward(EdgePath<T> backwardVisit)
         {
-            Console.WriteLine($"B: {backwardVisit}");
             // check forward search for the same vertex.
             if (!_sourceSearch.TryGetVisit(-backwardVisit.Edge, out var forwardVisit)) return false;
             
@@ -198,7 +195,6 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 
                 _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
-                Console.WriteLine($"BEST (B): {_best}");
                 this.HasSucceeded = true;
             }
             return false;
