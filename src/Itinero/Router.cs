@@ -331,7 +331,7 @@ namespace Itinero
                 // check one-hop routes.
                 var oneHopRouter = new OneHopRouter<T>(_db, profileInstance, weightHandler,
                     source, target);
-                oneHopRouter.Run();
+                oneHopRouter.Run(cancellationToken);
                 var path = oneHopRouter.Result;
 
                 if (useContracted)

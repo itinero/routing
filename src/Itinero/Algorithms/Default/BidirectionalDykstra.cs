@@ -60,8 +60,26 @@ namespace Itinero.Algorithms.Default
             _bestWeight = _weightHandler.Infinite;
             _maxForward = _weightHandler.Zero;
             _maxBackward = _weightHandler.Zero;
+            _sourceSearch.Visit = (visit) =>
+            {
+                if (visit.From != null && visit.From.From == null)
+                {
+                    this.ReachedNeighbourForward(visit);
+                }
+
+                return false;
+            };
             _sourceSearch.NeighbourWasFound = this.ReachedNeighbourForward;
             _targetSearch.NeighbourWasFound = this.ReachedNeighbourBackward;
+            _targetSearch.Visit = (visit) =>
+            {
+                if (visit.From != null && visit.From.From == null)
+                {
+                    this.ReachedNeighbourBackward(visit);
+                }
+
+                return false;
+            };
 
             _sourceSearch.Initialize();
             _targetSearch.Initialize();
@@ -101,7 +119,7 @@ namespace Itinero.Algorithms.Default
             if (!_targetSearch.TryGetVisit(edge.Vertex, out var backwardVisit)) return;
             
             // check for u-turns.
-            if (edge.From?.From != null && backwardVisit.From?.From != null && edge.Edge == backwardVisit.Edge) return;
+            if (edge.Edge == backwardVisit.Edge) return;
             
             // calculate total weight.
             var weight = _weightHandler.Add(edge.Weight, backwardVisit.Weight);
@@ -123,7 +141,7 @@ namespace Itinero.Algorithms.Default
             if (!_sourceSearch.TryGetVisit(edge.Vertex, out var forwardVisit)) return;
             
             // check for u-turns.
-            if (edge.From?.From != null && forwardVisit.From?.From != null && edge.Edge == forwardVisit.Edge) return;
+            if (edge.Edge == forwardVisit.Edge) return;
             
             // calculate total weight.
             var weight = _weightHandler.Add(edge.Weight, forwardVisit.Weight);
