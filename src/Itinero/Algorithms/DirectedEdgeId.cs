@@ -33,6 +33,11 @@ namespace Itinero.Algorithms
         /// </summary>
         public DirectedEdgeId(long directedEdgeId)
         {
+            if (directedEdgeId == Constants.NO_EDGE)
+            {
+                Raw = Constants.NO_EDGE;
+                return;
+            }
             uint edgeId = Constants.NO_EDGE;
             if (directedEdgeId > 0)
             {
@@ -103,6 +108,7 @@ namespace Itinero.Algorithms
         {
             get
             {
+                if (this.Raw == Constants.NO_EDGE) return Constants.NO_EDGE;
                 return Raw / 2;
             }
         }
