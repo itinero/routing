@@ -233,6 +233,30 @@ namespace Itinero.IO.Shape.Writer
             }
 
             attributes.Add("length", System.Math.Round(length, 3));
+            
+            if (_routerDb.EdgeData != null)
+            {
+                foreach (var dataName in _routerDb.EdgeData.Names)
+                {
+                    var dataCollection = _routerDb.EdgeData.Get(dataName);
+                    var attributeName = dataName;
+                    if (attributeName.Length > 11) attributeName = attributeName.Substring(0, 11);
+                    if (edge.Id >= dataCollection.Count)
+                    {
+                        attributes.Add(attributeName, string.Empty);
+                        continue;
+                    }
+                    var data = dataCollection.GetRaw(edge.Id);
+                    if (data != null)
+                    {
+                        attributes.Add(attributeName, data.ToInvariantString());
+                    }
+                    else
+                    {
+                        attributes.Add(attributeName, string.Empty);
+                    }
+                }
+            }
 
             string lanesString;
             var lanes = 1;
