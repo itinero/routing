@@ -270,18 +270,17 @@ namespace Itinero.IO.Shape.Writer
                     lanesVerified = false;
                 }
             }
-            attributes.Add("lanes", lanes);
-            attributes.Add("lanes_ve", lanesVerified);
+            if (!attributes.Exists("lanes")) attributes.Add("lanes", lanes);
+            if (!attributes.Exists("lanes_ve")) attributes.Add("lanes_ve", lanesVerified);
             
             var name = tags.ExtractName();
-            attributes.Add("name", name);
-
-            attributes.AddFrom("way_id", tags);
-            attributes.AddFrom("tunnel", tags);
-            attributes.AddFrom("bridge", tags);
+            if (!attributes.Exists("name")) attributes.Add("name", name);
+            if (!attributes.Exists("way_id")) attributes.AddFrom("way_id", tags);
+            if (!attributes.Exists("tunnel")) attributes.AddFrom("tunnel", tags);
+            if (!attributes.Exists("bridge")) attributes.AddFrom("bridge", tags);
             
-            attributes.Add("from", edge.From);
-            attributes.Add("to", edge.To);
+            if (!attributes.Exists("from")) attributes.Add("from", edge.From);
+            if (!attributes.Exists("to")) attributes.Add("to", edge.To);
             
             return new Feature(geometry, attributes);
         }
