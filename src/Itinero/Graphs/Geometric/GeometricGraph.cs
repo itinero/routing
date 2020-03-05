@@ -292,6 +292,8 @@ namespace Itinero.Graphs.Geometric
                         _elevation[i] = NO_ELEVATION;
                     }
                 }
+                
+                _elevation.EnsureMinimumSize<short>(vertex + 1, NO_ELEVATION);
                 _elevation[vertex] = elevation.Value;
             }
         }
