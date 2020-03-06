@@ -38,15 +38,22 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            // resolving with an invalid coordinate should fail gracefully.
-            router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 51.660199503280325f, 5291824042797089f);
+            // resolving with an invalid coordinate should fail gracefully and result with IsError == true
+            Assert.IsTrue(router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 51.660199503280325f, 5291824042797089f).IsError);
 
-            GetTestRandomResolves(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves");
-            GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves in parallel");
-            GetTestRandomResolvesCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves");
-            GetTestRandomResolvesParallelCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves in parallel");
-            GetTestRandomResolvesConnectedParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random connected resolve in parallel");
-            GetMultipleResolve(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Multiple resolve test.");
+            //resolving with a valid coordinate should result with IsError == false
+            Assert.IsTrue(router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Locomotive.Fastest(), 49.968567f, 5.935257f).IsError == false);
+
+            //Test each supported profile
+            foreach(var profile in router.Db.GetSupportedProfiles())
+            {
+                GetTestRandomResolves(router, profile, 1000).TestPerf("Random resolves");
+                GetTestRandomResolvesParallel(router, profile, 1000).TestPerf("Random resolves in parallel");
+                GetTestRandomResolvesCached(router, profile, 1000, 100).TestPerf("Random resolves");
+                GetTestRandomResolvesParallelCached(router, profile, 1000, 100).TestPerf("Random resolves in parallel");
+                GetTestRandomResolvesConnectedParallel(router, profile, 1000).TestPerf("Random connected resolve in parallel");
+                GetMultipleResolve(router, profile).TestPerf("Multiple resolve test.");
+            }
         }
 
         public static Action GetMultipleResolve(Router router, Profiles.Profile profile)
