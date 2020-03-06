@@ -37,57 +37,34 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
-            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            var max = 7200;
-            for (var count = 250; count <= 1000; count += 250)
+            foreach(var profile in router.Db.GetSupportedProfiles())
             {
-                var random = new System.Random(145171654);
-                var vertices = new HashSet<uint>();
-                var locations = new List<Coordinate>();
-                while (locations.Count < count)
+                var max = 7200;
+                for (var count = 250; count <= 1000; count += 250)
                 {
-                    var v = (uint) random.Next((int) router.Db.Network.VertexCount);
-                    if (!vertices.Contains(v))
+                    var random = new System.Random(145171654);
+                    var vertices = new HashSet<uint>();
+                    var locations = new List<Coordinate>();
+                    while (locations.Count < count)
                     {
-                        vertices.Add(v);
-                        locations.Add(router.Db.Network.GetVertex(v));
+                        var v = (uint)random.Next((int)router.Db.Network.VertexCount);
+                        if (!vertices.Contains(v))
+                        {
+                            vertices.Add(v);
+                            locations.Add(router.Db.Network.GetVertex(v));
+                        }
                     }
+
+                    var locationsArray = locations.ToArray();
+                    var massResolver =
+                        new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
+                    massResolver.Run();
+
+                    GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
+                        .TestPerf($"Testing {profile.FullName} {count}x{count} matrix");
+                    GetTestDirectedWeightMatrix(router, profile, massResolver, max)
+                        .TestPerf($"Testing {profile.FullName} {count}x{count} directed matrix");
                 }
-
-                var locationsArray = locations.ToArray();
-                var massResolver =
-                    new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
-                massResolver.Run();
-
-                GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
-                    .TestPerf($"Testing {profile.FullName} {count}x{count} matrix");
-                GetTestDirectedWeightMatrix(router, profile, massResolver, max)
-                    .TestPerf($"Testing {profile.FullName} {count}x{count} directed matrix");
-            }
-
-            profile = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
-            for (var count = 250; count <= 1000; count += 250)
-            {
-                var random = new System.Random(145171654);
-                var vertices = new HashSet<uint>();
-                var locations = new List<Coordinate>();
-                while (locations.Count < count)
-                {
-                    var v = (uint) random.Next((int) router.Db.Network.VertexCount);
-                    if (!vertices.Contains(v))
-                    {
-                        vertices.Add(v);
-                        locations.Add(router.Db.Network.GetVertex(v));
-                    }
-                }
-
-                var locationsArray = locations.ToArray();
-                var massResolver =
-                    new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
-                massResolver.Run();
-
-                GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
-                    .TestPerf($"Testing {profile.FullName} {count}x{count} matrix");
             }
         }
 
