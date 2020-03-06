@@ -46,15 +46,19 @@ namespace Itinero.Test.Functional.Tests
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
                 Osm.Vehicles.Vehicle.Car,
                 Osm.Vehicles.Vehicle.Bicycle,
-                Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+                Osm.Vehicles.Vehicle.Pedestrian,
+                Osm.Vehicles.Vehicle.SimpleTrain,
+                Osm.Vehicles.Vehicle.Locomotive).TestPerf("Loading OSM data");
 
             GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
 
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Locomotive.Fastest()).TestPerf("Adding islands for locomotive.");
 
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
+            GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Locomotive.Fastest(), true).TestPerf("Build contracted db for locomotive");
 
             routerDb = GetTestSerializeDeserialize(routerDb, "luxembourg.c.cf.opt.routerdb").TestPerf("Testing serializing/deserializing routerdb.");
 
