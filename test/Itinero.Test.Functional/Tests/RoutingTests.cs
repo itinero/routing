@@ -44,6 +44,7 @@ namespace Itinero.Test.Functional.Tests
             // normal.
             var profile = router.Db.GetSupportedProfile("car");
             GetTestRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random routes");
+            GetTestRandomRoutesParallel(router, profile, 1000);
             GetTestSequences(router, profile, 1).TestPerf($"{profile.FullName} sequences.");
             // directed.
             GetTestDirectedRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random directed routes");
