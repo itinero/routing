@@ -36,11 +36,15 @@ namespace Itinero.Test.Functional.Tests
             var resultJson = result.GetGeoJson();
 
             // just test some random routes.
-            Itinero.Logging.Logger.Log("RouterDbExtensionTests", Logging.TraceEventType.Information,
-                "Testing routing on database extract...");
+            Logging.Logger.Log("RouterDbExtensionTests", Logging.TraceEventType.Information, "Testing routing on database extract...");
+
             var router = new Router(result);
-            RoutingTests.GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Car random routes on extracted db.");
-            RoutingTests.GetTestRandomRoutes(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), 1000).TestPerf("Pedestrian random routes on extracted db.");
+
+            foreach(var profile in routerDb.GetSupportedProfiles())
+            {
+                RoutingTests.GetTestRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random routes on extracted db.");
+                RoutingTests.GetTestRandomRoutes(router, profile, 1000).TestPerf($"{profile.FullName} random routes on extracted db.");
+            }
         }
 
         /// <summary>
