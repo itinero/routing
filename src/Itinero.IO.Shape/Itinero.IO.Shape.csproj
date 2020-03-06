@@ -20,7 +20,7 @@
         <RepositoryType>routing, mapping, NTS</RepositoryType>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="1.15.3" />
+        <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="2.0.0" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj" />

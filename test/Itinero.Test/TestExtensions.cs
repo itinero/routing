@@ -37,12 +37,12 @@ namespace Itinero.Test
         /// <summary>
         /// Generates a random coordinate in the given box.
         /// </summary>
-        public static Coordinate GenerateRandomIn(this Box box)
+        public static Itinero.LocalGeo.Coordinate GenerateRandomIn(this Box box)
         {
             var xNext = (float) _random.NextDouble();
             var yNext = (float) _random.NextDouble();
 
-            return new Coordinate(box.MinLat + (box.MaxLat - box.MinLat) * xNext,
+            return new Itinero.LocalGeo.Coordinate(box.MinLat + (box.MaxLat - box.MinLat) * xNext,
                 box.MinLon + (box.MaxLon - box.MinLon) * yNext);
         }
 
@@ -60,7 +60,7 @@ namespace Itinero.Test
             return routerDb.Network.AddEdge(vertex1, vertex2,
                 new Itinero.Data.Network.Edges.EdgeData()
                 {
-                    Distance = Coordinate.DistanceEstimateInMeter(latitude1, longitude1, latitude2, longitude2),
+                    Distance = Itinero.LocalGeo.Coordinate.DistanceEstimateInMeter(latitude1, longitude1, latitude2, longitude2),
                     Profile = 0,
                     MetaId = 0
                 });
@@ -69,7 +69,7 @@ namespace Itinero.Test
         /// <summary>
         /// Loads a set of test points.
         /// </summary>
-        public static IEnumerable<Coordinate> LoadTestPoints(this Stream stream)
+        public static IEnumerable<Itinero.LocalGeo.Coordinate> LoadTestPoints(this Stream stream)
         {
             using (var streamReader = new StreamReader(stream))
             {
@@ -80,12 +80,12 @@ namespace Itinero.Test
         /// <summary>
         /// Loads a test network from geojson.
         /// </summary>
-        private static IEnumerable<Coordinate> LoadTestPoints(string geoJson)
+        private static IEnumerable<Itinero.LocalGeo.Coordinate> LoadTestPoints(string geoJson)
         {
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
                 var point = feature.Geometry as Point;
                 if (point == null)
@@ -94,7 +94,7 @@ namespace Itinero.Test
                     ;
                 }
 
-                yield return new Coordinate((float) point.Coordinate.Y, (float) point.Coordinate.X);
+                yield return new Itinero.LocalGeo.Coordinate((float) point.Coordinate.Y, (float) point.Coordinate.X);
             }
         }
 

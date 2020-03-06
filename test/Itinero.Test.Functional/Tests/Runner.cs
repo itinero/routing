@@ -46,9 +46,9 @@ namespace Itinero.Test.Functional.Tests
         /// Tests resolving all points in the given feature collection.
         /// </summary>
         public static void TestResolve(Router router, FeatureCollection features,
-            Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
+            Func<Router, NetTopologySuite.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
                 if (feature.Geometry is Point)
                 {
@@ -61,7 +61,7 @@ namespace Itinero.Test.Functional.Tests
         /// Tests resolving all points in the given feature collection.
         /// </summary>
         public static void TestResolve(Router router, string embeddedResourceId,
-            Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
+            Func<Router, NetTopologySuite.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
             FeatureCollection featureCollection;
             using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))
@@ -169,7 +169,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Func<List<LocalGeo.Polygon>> GetTestIsochroneCalculation(Router router)
         {
-            return () => router.CalculateIsochrones(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f),
+            return () => router.CalculateIsochrones(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new LocalGeo.Coordinate(49.80356608186087f, 6.102948188781738f),
                 new List<float>() { 900, 1800 }, 18);
         }
 
@@ -178,7 +178,7 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static Func<HeatmapResult> GetTestHeatmapCalculation(Router router)
         {
-            return () => router.CalculateHeatmap(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
+            return () => router.CalculateHeatmap(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), new LocalGeo.Coordinate(49.80356608186087f, 6.102948188781738f), 1800, 18);
         }
 
         /// <summary>

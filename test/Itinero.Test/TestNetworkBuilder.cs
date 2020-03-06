@@ -57,7 +57,7 @@ namespace Itinero.Test
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
             var features = geoJsonReader.Read<FeatureCollection>(geoJson);
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
                 if (feature.Geometry is Point)
                 {
@@ -100,7 +100,7 @@ namespace Itinero.Test
                 }
             }
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
                 if (feature.Geometry is LineString)
                 {
@@ -137,13 +137,13 @@ namespace Itinero.Test
                         (float)line.Coordinates[0].Y,
                         (float)line.Coordinates[0].X, tolerance);
                     var distance = 0.0;
-                    var shape = new List<Coordinate>();
+                    var shape = new List<Itinero.LocalGeo.Coordinate>();
                     for (var i = 1; i < line.Coordinates.Length; i++)
                     {
                         var vertex2 = db.SearchVertexFor(
                             (float)line.Coordinates[i].Y,
                             (float)line.Coordinates[i].X, tolerance);
-                        distance += Coordinate.DistanceEstimateInMeter(
+                        distance += Itinero.LocalGeo.Coordinate.DistanceEstimateInMeter(
                             (float)line.Coordinates[i - 1].Y, (float)line.Coordinates[i - 1].X,
                             (float)line.Coordinates[i].Y, (float)line.Coordinates[i].X);
                         if (vertex2 == Itinero.Constants.NO_VERTEX)
@@ -167,7 +167,7 @@ namespace Itinero.Test
                 }
             }
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
                 if (feature.Geometry is LineString &&
                     feature.Attributes.Contains("restriction", "yes"))
@@ -236,7 +236,7 @@ namespace Itinero.Test
                 float lat, lon;
                 if (db.Network.GetVertex(vertex, out lat, out lon))
                 {
-                    var dist = Coordinate.DistanceEstimateInMeter(latitude, longitude,
+                    var dist = Itinero.LocalGeo.Coordinate.DistanceEstimateInMeter(latitude, longitude,
                         lat, lon);
                     if (dist < tolerance)
                     {
