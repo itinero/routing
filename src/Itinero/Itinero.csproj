@@ -24,6 +24,10 @@
     <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Osm\Vehicles\locomotive.lua" />
+    <None Remove="Osm\Vehicles\train.lua" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Osm\Vehicles\bicycle.lua">
       <LogicalName>Itinero.Osm.Vehicles.bicycle.lua</LogicalName>
     </EmbeddedResource>
@@ -36,6 +40,7 @@
     <EmbeddedResource Include="Osm\Vehicles\car.lua">
       <LogicalName>Itinero.Osm.Vehicles.car.lua</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\locomotive.lua" />
     <EmbeddedResource Include="Osm\Vehicles\moped.lua">
       <LogicalName>Itinero.Osm.Vehicles.moped.lua</LogicalName>
     </EmbeddedResource>
@@ -48,6 +53,7 @@
     <EmbeddedResource Include="Osm\Vehicles\smalltruck.lua">
       <LogicalName>Itinero.Osm.Vehicles.smalltruck.lua</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Osm\Vehicles\train.lua" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\reminiscence\src\Reminiscence\Reminiscence.csproj" />
