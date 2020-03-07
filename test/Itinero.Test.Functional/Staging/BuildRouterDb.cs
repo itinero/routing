@@ -22,7 +22,7 @@ namespace Itinero.Test.Functional.Staging
             {
                 srtmCache.Create();
             }
-            var srtmData = new SRTMData("srtm-cache");
+            var srtmData = new SRTMData("srtm-cache", new SRTM.Sources.USGS.USGSSource());
             LocalGeo.Elevation.ElevationHandler.GetElevation = (lat, lon) =>
             {
                 return (short)srtmData.GetElevation(lat, lon);

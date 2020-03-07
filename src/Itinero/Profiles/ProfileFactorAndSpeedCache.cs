@@ -95,7 +95,7 @@ namespace Itinero.Profiles
         /// </summary>
         public void CalculateFor(params Profile[] profiles)
         {
-            lock (this)
+            lock (_db)
             { // don't allow multiple threads to fill this cache at the same time.
                 var newEdgeProfileFactors = new Dictionary<string, FactorAndSpeed[]>(_edgeProfileFactors);
 
