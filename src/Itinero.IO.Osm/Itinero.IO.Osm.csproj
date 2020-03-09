@@ -24,7 +24,9 @@
     <EmbeddedResource Include="Profiles\Defaults\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\osmsharp\core-develop\src\OsmSharp\OsmSharp.csproj" />
+    <PackageReference Include="OsmSharp" Version="7.0.0-pre006" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Itinero\Itinero.csproj" />
   </ItemGroup>
 </Project>
