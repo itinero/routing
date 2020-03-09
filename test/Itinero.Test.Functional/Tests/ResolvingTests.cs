@@ -44,7 +44,6 @@ namespace Itinero.Test.Functional.Tests
             //resolving with a valid coordinate should result with IsError == false
             Assert.IsTrue(router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Locomotive.Fastest(), 49.968567f, 5.935257f).IsError == false);
 
-
             //Test in parallel
             ParallelEnumerable.ForAll(Enumerable.Range(0, 1000).AsParallel(), (a)=>
             {
@@ -53,7 +52,6 @@ namespace Itinero.Test.Functional.Tests
                 var route = router.TryCalculate(Itinero.Osm.Vehicles.Vehicle.Locomotive.Fastest(), new RouterPoint[] { start.Value, end.Value });
                 Assert.IsTrue(route.IsError == false);
             });
-
 
             //Test each supported profile
             foreach (var profile in router.Db.GetSupportedProfiles())
