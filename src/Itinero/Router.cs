@@ -1319,14 +1319,7 @@ namespace Itinero
                             });
                         }
                         weights = algorithm.Weights;
-                    }
-                    else if (contracted.HasNodeBasedGraph &&
-                        contracted.NodeBasedIsEdgedBased)
-                    { // use vertex-based graph for edge-based routing.
-                        weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted,
-                            _db, profileInstance.Profile,
-                            weightHandler, sources, targets, maxSearch, cancellationToken).Value;
-                    }
+                    }                    
                     else
                     { // use node-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.ManyToManyWeightsBidirectionalDykstra<float>(_db, profileInstance.Profile, weightHandler,
