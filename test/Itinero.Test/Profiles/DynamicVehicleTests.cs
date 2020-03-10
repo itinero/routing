@@ -37,42 +37,42 @@ namespace Itinero.Test.Profiles
             var vehicle = DynamicVehicle.LoadFromEmbeddedResource(typeof(DynamicVehicleTests).Assembly, "Itinero.Test.test_data.profiles.osm.car.lua").Fastest();
 
             // invalid highway types.
-            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highwey", "road");
+            TestFactorAndSpeed(vehicle, 0, 0, 0, "highwey", "road");
 
             // default highway types.
-            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
-            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
-            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
-            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
-            this.TestFactorAndSpeed(vehicle, 0, null, 05, "highway", "living_street");
-            this.TestFactorAndSpeed(vehicle, 0, null, 30, "highway", "road");
-            this.TestFactorAndSpeed(vehicle, 0, null, 30, "highway", "track");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "residential");
-            this.TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "tertiary");
-            this.TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "tertiary_link");
-            this.TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "secondary");
-            this.TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "secondary_link");
-            this.TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "primary");
-            this.TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "primary_link");
-            this.TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "trunk");
-            this.TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "trunk_link");
-            this.TestFactorAndSpeed(vehicle, 3, null, 120, "highway", "motorway");
-            this.TestFactorAndSpeed(vehicle, 3, null, 120, "highway", "motorway_link");
+            TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "footway");
+            TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "pedestrian");
+            TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "path");
+            TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "cycleway");
+            TestFactorAndSpeed(vehicle, 0, null, 05, "highway", "living_street");
+            TestFactorAndSpeed(vehicle, 0, null, 30, "highway", "road");
+            TestFactorAndSpeed(vehicle, 0, null, 30, "highway", "track");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "residential");
+            TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "tertiary");
+            TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "tertiary_link");
+            TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "secondary");
+            TestFactorAndSpeed(vehicle, 0, null, 70, "highway", "secondary_link");
+            TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "primary");
+            TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "primary_link");
+            TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "trunk");
+            TestFactorAndSpeed(vehicle, 0, null, 90, "highway", "trunk_link");
+            TestFactorAndSpeed(vehicle, 3, null, 120, "highway", "motorway");
+            TestFactorAndSpeed(vehicle, 3, null, 120, "highway", "motorway_link");
 
             // designated roads.
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "designated");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "yes");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "no");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "designated");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "yes");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "no");
-            this.TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "motorcar", "yes");
-            this.TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "unclassified", "motorcar", "no");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "designated");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "yes");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "foot", "no");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "designated");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "yes");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "bicycle", "no");
+            TestFactorAndSpeed(vehicle, 0, null, 50, "highway", "unclassified", "motorcar", "yes");
+            TestFactorAndSpeed(vehicle, 0, 0, 0, "highway", "unclassified", "motorcar", "no");
 
             // test maxspeed tags.
-            this.TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
-            this.TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
+            TestFactorAndSpeed(vehicle, 0, null, 30 * .75f, "highway", "primary", "maxspeed", "30");
+            TestFactorAndSpeed(vehicle, 0, null, 20 * 1.60934f * .75f, "highway", "primary", "maxspeed", "20 mph");
         }
 
         /// <summary>
@@ -85,12 +85,12 @@ namespace Itinero.Test.Profiles
             var profile = vehicle.Fastest();
             
             // default types.
-            this.TestFactorAndSpeed(profile, 0, null, 50, "BST_CODE", "BVD");
-            this.TestFactorAndSpeed(profile, 0, null, 70, "BST_CODE", "AF");
-            this.TestFactorAndSpeed(profile, 0, null, 70, "BST_CODE", "OP");
-            this.TestFactorAndSpeed(profile, 0, null, 120, "BST_CODE", "HR");
-            this.TestFactorAndSpeed(profile, 1, null, 30, "BST_CODE", "MRB");
-            this.TestFactorAndSpeed(profile, 1, null, 30, "BST_CODE", "NRB");
+            TestFactorAndSpeed(profile, 0, null, 50, "BST_CODE", "BVD");
+            TestFactorAndSpeed(profile, 0, null, 70, "BST_CODE", "AF");
+            TestFactorAndSpeed(profile, 0, null, 70, "BST_CODE", "OP");
+            TestFactorAndSpeed(profile, 0, null, 120, "BST_CODE", "HR");
+            TestFactorAndSpeed(profile, 1, null, 30, "BST_CODE", "MRB");
+            TestFactorAndSpeed(profile, 1, null, 30, "BST_CODE", "NRB");
 
             // test parameters.
             var value = string.Empty;
@@ -103,10 +103,10 @@ namespace Itinero.Test.Profiles
         /// <summary>
         /// Tests getting factor and speed.
         /// </summary>
-        protected void TestFactorAndSpeed(Itinero.Profiles.Profile profile, short? direction, float? factor, float? speed, params string[] tags)
+        static protected void TestFactorAndSpeed(Itinero.Profiles.Profile profile, short? direction, float? factor, float? speed, params string[] tags)
         {
             var attributesCollection = new AttributeCollection();
-            for (int idx = 0; idx < tags.Length; idx = idx + 2)
+            for (int idx = 0; idx < tags.Length; idx += 2)
             {
                 attributesCollection.AddOrReplace(tags[idx], tags[idx + 1]);
             }
