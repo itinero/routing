@@ -193,7 +193,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
                 _weights[i] = new float[_sources.Length];
                 for (var j = 0; j < _sources.Length; j++)
                 {
-                    _weights[i][j] = float.MaxValue;
+                    _weights[i][j] = _weightHandler.Infinite;
                 }
             }
 
@@ -246,7 +246,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
             {
                 bucket = new Dictionary<int, float>();
                 _buckets.Add(vertex, bucket);
-                bucket[i] = weight;
+                bucket[i] = weight;                
             }
             else
             {

@@ -96,10 +96,12 @@ namespace Itinero.Test.Functional.Tests
             //Add the contraction
             routerDb.AddContracted(profile, forceEdgeBased: true);
 
-            var distanceMatrixContracted = router.TryCalculateWeight(profile, router.GetDefaultWeightHandler(profile), new RouterPoint[] { from }, new RouterPoint[] { to }, new HashSet<int>(), new HashSet<int>());
+            
+
+            var distanceMatrixContracted = router.TryCalculateWeight(profile, router.GetAugmentedWeightHandler(profile), new RouterPoint[] { from }, new RouterPoint[] { to }, new HashSet<int>(), new HashSet<int>());
             var weightContracted = distanceMatrixContracted.Value[0][0]; // 573.7
 
-            Assert.IsTrue(weightNonContracted == weightContracted);
+            Assert.IsTrue(weightNonContracted == weightContracted.Value);
 
             var routeContracted = router.Calculate(profile, from, to);
             var routeDistanceContracted = routeContracted.TotalDistance;
