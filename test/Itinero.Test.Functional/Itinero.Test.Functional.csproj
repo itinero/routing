@@ -11,11 +11,15 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Tests\data\minimal-example.osm.pbf" />
     <None Remove="Tests\data\sequence1.geojson" />
     <None Remove="Tests\data\sequence2.geojson" />
     <None Remove="Tests\data\sequence3.geojson" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Tests\data\minimal-example.osm.pbf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tests\data\sequence1.geojson">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
