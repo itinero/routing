@@ -180,9 +180,6 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
             
         }
 
-        private Dictionary<uint, Dictionary<int, float>> _buckets;
-        private float[][] _weights;
-
         /// <summary>
         /// Executes the actual run.
         /// </summary>
