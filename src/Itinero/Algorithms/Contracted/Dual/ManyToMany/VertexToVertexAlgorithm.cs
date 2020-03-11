@@ -80,10 +80,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
             for (var i = 0; i < _sources.Length; i++)
             {
                 var forward = new Dykstra<T>(_graph, _weightHandler, _sources[i], false, _max);
-                forward.WasFound += (p, v, w) =>
-                {
-                    return this.ForwardVertexFound(forward, i, p, v, w);
-                };
+                forward.WasFound += (p, v, w) => this.ForwardVertexFound(forward, i, p, v, w);
                 forward.Run(cancellationToken);
             }
 
@@ -91,10 +88,7 @@ namespace Itinero.Algorithms.Contracted.Dual.ManyToMany
             for (var i = 0; i < _targets.Length; i++)
             {
                 var backward = new Dykstra<T>(_graph, _weightHandler, _targets[i], true, _max);
-                backward.WasFound += (p, v, w) =>
-                {
-                    return this.BackwardVertexFound(backward, i, p, v, w);
-                };
+                backward.WasFound += (p, v, w) => this.BackwardVertexFound(backward, i, p, v, w);
                 backward.Run(cancellationToken);
             }
 

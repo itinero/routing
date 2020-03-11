@@ -35,6 +35,10 @@ namespace Itinero.Test.Functional.Tests
         /// </summary>
         public static void Run(RouterDb routerDb)
         {
+            TestEdgeBasedContractionsMinimal();
+
+            TestEdgeBasedContractions();
+
             var router = new Router(routerDb);
 
             foreach(var profile in router.Db.GetSupportedProfiles())
@@ -66,10 +70,6 @@ namespace Itinero.Test.Functional.Tests
                         .TestPerf($"Testing {profile.FullName} {count}x{count} directed matrix");
                 }
             }
-
-            TestEdgeBasedContractionsMinimal();
-
-            TestEdgeBasedContractions();
         }
 
         /// <summary>
