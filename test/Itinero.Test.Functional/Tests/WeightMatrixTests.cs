@@ -67,16 +67,56 @@ namespace Itinero.Test.Functional.Tests
                 }
             }
 
+            TestEdgeBasedContractionsMinimal();
+
             TestEdgeBasedContractions();
         }
 
         /// <summary>
         /// Tests defined in https://github.com/itinero/routing/issues/293
         /// </summary>
-        private static void TestEdgeBasedContractions()
+        private static void TestEdgeBasedContractionsMinimal()
         {
             RouterDb routerDb = new RouterDb();
             using (var stream = System.IO.File.OpenRead("Tests/data/minimal-example.osm.pbf"))
+            {
+                routerDb.LoadOsmData(stream, new Itinero.IO.Osm.LoadSettings { }, Osm.Vehicles.Vehicle.Car);
+            }
+
+            var router = new Router(routerDb);
+            var profile = routerDb.GetSupportedProfile("car.shortest");
+
+            var from = router.Resolve(profile, new Coordinate(50.13463848643f, 14.49010693683f));
+            var to = router.Resolve(profile, new Coordinate(50.13450614509f, 14.4897319773f));
+
+            var distanceMatrix = router.TryCalculateWeight(profile, router.GetDefaultWeightHandler(profile), new RouterPoint[] { from }, new RouterPoint[] { to }, new HashSet<int>(), new HashSet<int>());
+            var weightNonContracted = distanceMatrix.Value[0][0]; //253.722855
+
+            var routeNonContracted = router.Calculate(profile, from, to);
+            var routeDistanceNonContracted = routeNonContracted.TotalDistance; //253.72287
+
+            //Add the contraction
+            routerDb.AddContracted(profile, forceEdgeBased: true);
+
+
+            //GetDefaultWeightHandler has differences...
+            //var distanceMatrixContracted = router.TryCalculateWeight(profile, router.GetAugmentedWeightHandler(profile), new RouterPoint[] { from }, new RouterPoint[] { to }, new HashSet<int>(), new HashSet<int>());
+            var distanceMatrixContracted = router.TryCalculateWeight(profile, router.GetDefaultWeightHandler(profile), new RouterPoint[] { from }, new RouterPoint[] { to }, new HashSet<int>(), new HashSet<int>());
+            var weightContracted = distanceMatrixContracted.Value[0][0]; // 573.7
+
+            Assert.IsTrue(weightNonContracted == weightContracted);
+
+            var routeContracted = router.Calculate(profile, from, to);
+            var routeDistanceContracted = routeContracted.TotalDistance;
+
+            //This is correct it seems
+            Assert.IsTrue(routeDistanceNonContracted == routeDistanceContracted);
+        }
+
+        private static void TestEdgeBasedContractions()
+        {
+            RouterDb routerDb = new RouterDb();
+            using (var stream = System.IO.File.OpenRead("Tests/data/prague-small.osm.pbf"))
             {
                 routerDb.LoadOsmData(stream, new Itinero.IO.Osm.LoadSettings { }, Osm.Vehicles.Vehicle.Car);
             }
