@@ -147,7 +147,7 @@ namespace Itinero.Test.Functional.Tests
             var routeContracted = router.Calculate(profile, from, to);
             var routeDistanceContracted = routeContracted.TotalDistance;
 
-            //This is correct it seems
+            //This is correct it seems when using GetAugmentedWeightHandler
             Assert.IsTrue(routeDistanceNonContracted == routeDistanceContracted);
         }
 
