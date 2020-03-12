@@ -1326,7 +1326,7 @@ namespace Itinero
                       //weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted,
                       //    _db, profileInstance.Profile,
                       //    weightHandler, sources, targets, maxSearch, cancellationToken).Value;
-
+                      //https://github.com/itinero/routing/issues/293
                         var algorithm = new Itinero.Algorithms.Default.ManyToMany<float>(_db, weightHandler, sources, targets, maxSearch);
                         algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
