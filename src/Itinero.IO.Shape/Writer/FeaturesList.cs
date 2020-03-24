@@ -201,9 +201,13 @@ namespace Itinero.IO.Shape.Writer
             }
 
             var tags = new Itinero.Attributes.AttributeCollection(_routerDb.EdgeProfiles.Get(edge.Data.Profile));
-            foreach (var tag in _routerDb.EdgeMeta.Get(edge.Data.MetaId))
+            var metaTags = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
+            if (metaTags != null)
             {
-                tags.AddOrReplace(tag.Key, tag.Value);
+                foreach (var tag in metaTags)
+                {
+                    tags.AddOrReplace(tag.Key, tag.Value);
+                }
             }
 
             var attributes = new AttributesTable();
