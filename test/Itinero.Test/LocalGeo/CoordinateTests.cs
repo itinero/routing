@@ -88,9 +88,9 @@ namespace Itinero.Test.LocalGeo
         [Test]
         public void TestGeoCoordinateDistanceEstimateInMeter()
         {
-            var coordinateStart = new Coordinate(179f, 0f);
+            var coordinateStart = new Coordinate(0f, 179f);
 
-            var coordinateEnd = new Coordinate(-179f, 0f);
+            var coordinateEnd = new Coordinate(0f, -179f);
 
             var distance = Coordinate.DistanceEstimateInMeter(coordinateStart, coordinateEnd);
 

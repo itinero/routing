@@ -47,6 +47,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
 
             var turns = DirectedSequenceRouter.CalculateOptimimal(weights, 10, null);
             Assert.IsNotNull(turns);
+            Assert.AreEqual(4, turns.Length);
             Assert.AreEqual(new[] {0, 4, 8, 12}, turns);
         }
         
@@ -70,6 +71,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
 
             var turns = DirectedSequenceRouter.CalculateOptimimal(weights, 10, null);
             Assert.IsNotNull(turns);
+            Assert.AreEqual(3, turns.Length);
             Assert.AreEqual(new[] {0, 8, 12}, turns);
         }
         
@@ -93,6 +95,7 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
 
             var turns = DirectedSequenceRouter.CalculateOptimimal(weights, 10, null);
             Assert.IsNotNull(turns);
+            Assert.AreEqual(4, turns.Length);
             Assert.AreEqual(new[] {0, 7, 11, 15}, turns);
         }
         
@@ -114,7 +117,9 @@ namespace Itinero.Test.Algorithms.Default.EdgeBased
             };
 
             var turns = DirectedSequenceRouter.CalculateOptimimal(weights, 10, null);
-            
+            Assert.IsNotNull(turns);
+            Assert.AreEqual(3, turns.Length);
+            Assert.AreEqual(new[] { 1, 7, 8 }, turns);
         }
     }
 }
