@@ -123,7 +123,9 @@ namespace Itinero.LocalGeo
             var num1 = longitude1 * DegreesToRadians;
             var d2 = latitude2 * DegreesToRadians;
             var num2 = longitude2 * DegreesToRadians - num1;
-            var d3 = Math.Pow(Math.Sin((d2 - d1) / 2.0), 2.0) + Math.Cos(d1) * Math.Cos(d2) * Math.Pow(Math.Sin(num2 / 2.0), 2.0);
+            var num3 = Math.Sin((d2 - d1) / 2.0);
+            var num4 = Math.Sin(num2 / 2.0);
+            var d3 = (num3 * num3) + Math.Cos(d1) * Math.Cos(d2) * (num4 * num4);
 
             return (float)(6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3))));
         }
