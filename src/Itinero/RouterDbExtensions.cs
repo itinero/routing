@@ -2068,6 +2068,7 @@ namespace Itinero
             }
 
             var router = new Router(db);
+            router.ProfileFactorAndSpeedCache.CalculateFor(profile);
 
             // run island detection.
             var islandDetector = new IslandDetector(db,
