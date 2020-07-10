@@ -299,7 +299,7 @@ namespace Itinero.IO.Osm.Streams
                         }
                         foreach (var tag in tags)
                         {
-                            if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key))
+                            if (_vehicleCache.Vehicles.IsOnMetaWhiteList(tag.Key)&&!osmGeo.Tags.ContainsKey(tag.Key))
                             {
                                 osmGeo.Tags.Add(tag.Key, tag.Value);
                             }
