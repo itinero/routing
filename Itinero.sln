@@ -55,6 +55,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Shape", "samples\Sam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.DynamicProfiles", "samples\Sample.DynamicProfiles\Sample.DynamicProfiles.csproj", "{8DED4253-89E6-4333-9750-E830DB789B2D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsmSharp", "..\AmstedDigital.OperationalTwins\osmsharp\core-develop\src\OsmSharp\OsmSharp.csproj", "{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsmSharp.Geo", "..\AmstedDigital.OperationalTwins\osmsharp\core-develop\src\OsmSharp.Geo\OsmSharp.Geo.csproj", "{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -151,6 +155,22 @@ Global
 		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|x64.ActiveCfg = Release|Any CPU
 		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|x64.Build.0 = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|x64.Build.0 = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|x64.ActiveCfg = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|x64.Build.0 = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|x64.Build.0 = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|x64.ActiveCfg = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
