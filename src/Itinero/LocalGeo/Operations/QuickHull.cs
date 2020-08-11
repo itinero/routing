@@ -258,7 +258,7 @@ namespace Itinero.LocalGeo.Operations
         /// <param name="b"></param>
         /// <param name="c"></param>
         /// <returns></returns>
-        internal static HashSet<Coordinate> PositionToLine(this HashSet<Coordinate> points, Coordinate a,
+        internal static HashSet<Coordinate> RemoveInTriangle(this HashSet<Coordinate> points, Coordinate a,
             Coordinate b,
             Coordinate c)
         {
