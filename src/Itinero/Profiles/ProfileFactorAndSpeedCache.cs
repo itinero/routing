@@ -95,33 +95,31 @@ namespace Itinero.Profiles
         /// </summary>
         public void CalculateFor(params Profile[] profiles)
         {
-            lock (this)
-            { // don't allow multiple threads to fill this cache at the same time.
-                var newEdgeProfileFactors = new Dictionary<string, FactorAndSpeed[]>(_edgeProfileFactors);
+            // don't allow multiple threads to fill this cache at the same time.
+            var newEdgeProfileFactors = new Dictionary<string, FactorAndSpeed[]>(_edgeProfileFactors);
 
-                var edgeProfileFactors = new FactorAndSpeed[profiles.Length][];
-                for (var p = 0; p < profiles.Length; p++)
-                {
-                    edgeProfileFactors[p] = new FactorAndSpeed[(int) _db.EdgeProfiles.Count];
-                }
-
-                for (uint edgeProfile = 0; edgeProfile < _db.EdgeProfiles.Count; edgeProfile++)
-                {
-                    var edgeProfileTags = _db.EdgeProfiles.Get(edgeProfile);
-                    for (var p = 0; p < profiles.Length; p++)
-                    {
-                        edgeProfileFactors[p][edgeProfile]
-                            = profiles[p].FactorAndSpeed(edgeProfileTags);
-                    }
-                }
-
-                for (var p = 0; p < profiles.Length; p++)
-                {
-                    newEdgeProfileFactors[profiles[p].FullName] = edgeProfileFactors[p];
-                }
-
-                _edgeProfileFactors = newEdgeProfileFactors;
+            var edgeProfileFactors = new FactorAndSpeed[profiles.Length][];
+            for (var p = 0; p < profiles.Length; p++)
+            {
+                edgeProfileFactors[p] = new FactorAndSpeed[(int)_db.EdgeProfiles.Count];
             }
+
+            for (uint edgeProfile = 0; edgeProfile < _db.EdgeProfiles.Count; edgeProfile++)
+            {
+                var edgeProfileTags = _db.EdgeProfiles.Get(edgeProfile);
+                for (var p = 0; p < profiles.Length; p++)
+                {
+                    edgeProfileFactors[p][edgeProfile]
+                        = profiles[p].FactorAndSpeed(edgeProfileTags);
+                }
+            }
+
+            for (var p = 0; p < profiles.Length; p++)
+            {
+                newEdgeProfileFactors[profiles[p].FullName] = edgeProfileFactors[p];
+            }
+
+            _edgeProfileFactors = newEdgeProfileFactors;
         }
 
         /// <summary>

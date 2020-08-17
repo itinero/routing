@@ -71,6 +71,19 @@ namespace Itinero.Osm.Vehicles
         public static readonly Profiles.Vehicle Bus = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bus.lua"));
 
         /// <summary>
+        /// A simple train / tram based profile (should also work for subways)
+        /// </summary>
+        /// <remarks>
+        /// The Shortest and Fastest profiles should be the same
+        /// </remarks>
+        public static readonly Profiles.Vehicle SimpleTrain = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.train.lua"));
+
+        /// <summary>
+        /// A profile sensitive to speed and access values (similar to <see cref="SimpleTrain"/>
+        /// </summary>
+        public static readonly Profiles.Vehicle Locomotive = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.locomotive.lua"));
+
+        /// <summary>
         /// Registers all default vehicles.
         /// </summary>
         [Obsolete]
@@ -84,6 +97,8 @@ namespace Itinero.Osm.Vehicles
             SmallTruck.Register();
             BigTruck.Register();
             Bus.Register();
+            SimpleTrain.Register();
+            Locomotive.Register();
         }
 
         private static Dictionary<string, bool?> _accessValues = null;

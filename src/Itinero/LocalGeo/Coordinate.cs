@@ -118,17 +118,16 @@ namespace Itinero.LocalGeo
         /// <remarks>Accuraccy decreases with distance.</remarks>
         public static float DistanceEstimateInMeter(float latitude1, float longitude1, float latitude2, float longitude2)
         {
-            var lat1Rad = (latitude1 / 180d) * System.Math.PI;
-            var lon1Rad = (longitude1 / 180d) * System.Math.PI;
-            var lat2Rad = (latitude2 / 180d) * System.Math.PI;
-            var lon2Rad = (longitude2 / 180d) * System.Math.PI;
+            const double DegreesToRadians = Math.PI / 180.0;
+            var d1 = latitude1 * DegreesToRadians;
+            var num1 = longitude1 * DegreesToRadians;
+            var d2 = latitude2 * DegreesToRadians;
+            var num2 = longitude2 * DegreesToRadians - num1;
+            var num3 = Math.Sin((d2 - d1) / 2.0);
+            var num4 = Math.Sin(num2 / 2.0);
+            var d3 = (num3 * num3) + Math.Cos(d1) * Math.Cos(d2) * (num4 * num4);
 
-            var x = (lon2Rad - lon1Rad) * System.Math.Cos((lat1Rad + lat2Rad) / 2.0);
-            var y = lat2Rad - lat1Rad;
-
-            var m = System.Math.Sqrt(x * x + y * y) * RadiusOfEarth;
-
-            return (float)m;
+            return (float)(6376500.0 * (2.0 * Math.Atan2(Math.Sqrt(d3), Math.Sqrt(1.0 - d3))));
         }
 
         /// <summary>

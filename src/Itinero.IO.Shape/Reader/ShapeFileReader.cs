@@ -220,10 +220,10 @@ namespace Itinero.IO.Shape.Reader
                         nodeToVertex.TryGetValue(vertex2Shape, out vertex2))
                     { // the node has not been processed yet.
                         // add intermediates.
-                        var intermediates = new List<Coordinate>(lineString.Coordinates.Length);
+                        var intermediates = new List<LocalGeo.Coordinate>(lineString.Coordinates.Length);
                         for (int i = 1; i < lineString.Coordinates.Length - 1; i++)
                         {
-                            intermediates.Add(new Coordinate()
+                            intermediates.Add(new LocalGeo.Coordinate()
                             {
                                 Latitude = (float)lineString.Coordinates[i].Y,
                                 Longitude = (float)lineString.Coordinates[i].X
@@ -236,15 +236,15 @@ namespace Itinero.IO.Shape.Reader
                         if (_routerDb.Network.GetVertex(vertex1, out latitudeFrom, out longitudeFrom) &&
                             _routerDb.Network.GetVertex(vertex2, out latitudeTo, out longitudeTo))
                         { // calculate distance.
-                            var fromLocation = new Coordinate(latitudeFrom, longitudeFrom);
+                            var fromLocation = new LocalGeo.Coordinate(latitudeFrom, longitudeFrom);
                             for (int i = 0; i < intermediates.Count; i++)
                             {
-                                var currentLocation = new Coordinate(intermediates[i].Latitude, intermediates[i].Longitude);
-                                distance = distance + Coordinate.DistanceEstimateInMeter(fromLocation, currentLocation);
+                                var currentLocation = new LocalGeo.Coordinate(intermediates[i].Latitude, intermediates[i].Longitude);
+                                distance = distance + LocalGeo.Coordinate.DistanceEstimateInMeter(fromLocation, currentLocation);
                                 fromLocation = currentLocation;
                             }
-                            var toLocation = new Coordinate(latitudeTo, longitudeTo);
-                            distance = distance + Coordinate.DistanceEstimateInMeter(fromLocation, toLocation);
+                            var toLocation = new LocalGeo.Coordinate(latitudeTo, longitudeTo);
+                            distance = distance + LocalGeo.Coordinate.DistanceEstimateInMeter(fromLocation, toLocation);
                         }
 
                         // get profile and meta attributes.
@@ -289,10 +289,10 @@ namespace Itinero.IO.Shape.Reader
                                 var shape = intermediates;
                                 if (shape == null)
                                 { // make sure there is a shape.
-                                    shape = new List<Coordinate>();
+                                    shape = new List<LocalGeo.Coordinate>();
                                 }
 
-                                shape = new List<Coordinate>(shape);
+                                shape = new List<LocalGeo.Coordinate>(shape);
                                 shape.Insert(0, _routerDb.Network.GetVertex(vertex1));
                                 shape.Add(_routerDb.Network.GetVertex(vertex2));
 
@@ -302,11 +302,11 @@ namespace Itinero.IO.Shape.Reader
                                     tooBig = false;
                                     for (var s = 1; s < shape.Count; s++)
                                     {
-                                        var localDistance = Coordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
+                                        var localDistance = LocalGeo.Coordinate.DistanceEstimateInMeter(shape[s - 1], shape[s]);
                                         if (localDistance >= _routerDb.Network.MaxEdgeDistance)
                                         { // insert a new intermediate.
                                             shape.Insert(s,
-                                                new Coordinate()
+                                                new LocalGeo.Coordinate()
                                                 {
                                                     Latitude = (float)(((double)shape[s - 1].Latitude +
                                                         (double)shape[s].Latitude) / 2.0),
@@ -320,14 +320,14 @@ namespace Itinero.IO.Shape.Reader
                                 }
 
                                 var i = 0;
-                                var shortShape = new List<Coordinate>();
+                                var shortShape = new List<LocalGeo.Coordinate>();
                                 var shortDistance = 0.0f;
                                 uint shortVertex = Constants.NO_VERTEX;
-                                Coordinate? shortPoint;
+                                LocalGeo.Coordinate? shortPoint;
                                 i++;
                                 while (i < shape.Count)
                                 {
-                                    var localDistance = Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
+                                    var localDistance = LocalGeo.Coordinate.DistanceEstimateInMeter(shape[i - 1], shape[i]);
                                     if (localDistance + shortDistance > _routerDb.Network.MaxEdgeDistance)
                                     { // ok, previous shapepoint was the maximum one.
                                         shortPoint = shortShape[shortShape.Count - 1];
@@ -411,7 +411,7 @@ namespace Itinero.IO.Shape.Reader
         /// <summary>
         /// Adds a new edge.
         /// </summary>
-        private void AddEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData edgeData, List<Coordinate> intermediates)
+        private void AddEdge(uint vertex1, uint vertex2, Data.Network.Edges.EdgeData edgeData, List<LocalGeo.Coordinate> intermediates)
         {
             var edge = _routerDb.Network.GetEdgeEnumerator(vertex1).FirstOrDefault(x => x.To == vertex2);
             if (edge == null)
@@ -441,7 +441,7 @@ namespace Itinero.IO.Shape.Reader
                         edge.Shape != null)
                     { // no intermediates in current edge.
                       // save old edge data.
-                        intermediates = new List<Coordinate>(edge.Shape);
+                        intermediates = new List<LocalGeo.Coordinate>(edge.Shape);
                         vertex1 = edge.From;
                         vertex2 = edge.To;
                         splitMeta = edge.Data.MetaId;
@@ -464,7 +464,7 @@ namespace Itinero.IO.Shape.Reader
                         _routerDb.Network.AddVertex(newCoreVertex, intermediates[0].Latitude, intermediates[0].Longitude);
 
                         // calculate new distance and update old distance.
-                        var newDistance = Coordinate.DistanceEstimateInMeter(
+                        var newDistance = LocalGeo.Coordinate.DistanceEstimateInMeter(
                             _routerDb.Network.GetVertex(vertex1), intermediates[0]);
                         splitDistance -= newDistance;
 

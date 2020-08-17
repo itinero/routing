@@ -1321,11 +1321,22 @@ namespace Itinero
                         weights = algorithm.Weights;
                     }
                     else if (contracted.HasNodeBasedGraph &&
-                        contracted.NodeBasedIsEdgedBased)
+                       contracted.NodeBasedIsEdgedBased)
                     { // use vertex-based graph for edge-based routing.
-                        weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted,
-                            _db, profileInstance.Profile,
-                            weightHandler, sources, targets, maxSearch, cancellationToken).Value;
+                      //weights = Itinero.Algorithms.Contracted.Dual.RouterExtensions.CalculateManyToMany(contracted,
+                      //    _db, profileInstance.Profile,
+                      //    weightHandler, sources, targets, maxSearch, cancellationToken).Value;
+                      //https://github.com/itinero/routing/issues/293
+                        var algorithm = new Itinero.Algorithms.Default.ManyToMany<float>(_db, weightHandler, sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<float[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+                        weights = algorithm.Weights;
                     }
                     else
                     { // use node-based routing.

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <AssemblyName>Itinero.IO.Osm</AssemblyName>
     <PackageId>Itinero.IO.Osm</PackageId>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -19,14 +19,18 @@
     <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
     <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
   </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Itinero\Itinero.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="OsmSharp" Version="6.2.0" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\SharedAssemblyVersion.cs" Link="Properties\SharedAssemblyVersion.cs" />
     <EmbeddedResource Include="Profiles\Defaults\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\AmstedDigital.OperationalTwins\osmsharp\core-develop\src\OsmSharp\OsmSharp.csproj" />
+    <ProjectReference Include="..\Itinero\Itinero.csproj" />
   </ItemGroup>
 </Project>

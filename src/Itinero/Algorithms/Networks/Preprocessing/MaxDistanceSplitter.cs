@@ -65,7 +65,8 @@ namespace Itinero.Algorithms.Networks.Preprocessing
                 while (edgeEnumerator.MoveNext())
                 {
                     var data = edgeEnumerator.Data;
-                    if (data.Distance < _maxDistance)
+                    //https://github.com/itinero/routing/issues/306
+                    if (data.Distance <= _maxDistance)
                     { // edge is within bounds.
                         continue;
                     }

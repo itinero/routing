@@ -84,5 +84,18 @@ namespace Itinero.Test.LocalGeo
             Assert.AreEqual(distance, distanceLat, 0.3);
             Assert.AreEqual(distance, distanceLon, 0.3);
         }
+
+        [Test]
+        public void TestGeoCoordinateDistanceEstimateInMeter()
+        {
+            var coordinateStart = new Coordinate(0f, 179f);
+
+            var coordinateEnd = new Coordinate(0f, -179f);
+
+            var distance = Coordinate.DistanceEstimateInMeter(coordinateStart, coordinateEnd);
+
+            Assert.IsTrue(distance == 222581.84375);
+
+        }
     }
 }

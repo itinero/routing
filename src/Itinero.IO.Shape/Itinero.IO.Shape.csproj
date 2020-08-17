@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
         <AssemblyName>Itinero.IO.Shape</AssemblyName>
         <PackageId>Itinero.IO.Shape</PackageId>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -19,10 +19,17 @@
         <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
         <RepositoryType>routing, mapping, NTS</RepositoryType>
     </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="1.15.3" />
+        <PackageReference Include="NetTopologySuite.IO.ShapeFile" Version="2.0.0" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj" />
+      <ProjectReference Include="..\Itinero.Geo\Itinero.Geo.csproj" />
+      <ProjectReference Include="..\Itinero\Itinero.csproj" />
     </ItemGroup>
 </Project>

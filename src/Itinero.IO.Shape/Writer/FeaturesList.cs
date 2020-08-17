@@ -16,7 +16,6 @@
  *  limitations under the License.
  */
 
-using GeoAPI.Geometries;
 using Itinero.Algorithms.Collections;
 using Itinero.Geo;
 using Itinero.Logging;
@@ -176,8 +175,8 @@ namespace Itinero.IO.Shape.Writer
             var edge = _routerDb.Network.GetEdge((uint)index);
 
             var vertexLocation1 = _routerDb.Network.GeometricGraph.GetVertex(edge.From);
-            var coordinates = new List<Coordinate>();
-            coordinates.Add(new Coordinate(vertexLocation1.Longitude, vertexLocation1.Latitude));
+            var coordinates = new List<NetTopologySuite.Geometries.Coordinate>();
+            coordinates.Add(new NetTopologySuite.Geometries.Coordinate(vertexLocation1.Longitude, vertexLocation1.Latitude));
             var shape = edge.Shape;
             if (shape != null)
             {
@@ -185,12 +184,12 @@ namespace Itinero.IO.Shape.Writer
                 shapeEnumerable.Reset();
                 while (shapeEnumerable.MoveNext())
                 {
-                    coordinates.Add(new Coordinate(shapeEnumerable.Current.Longitude,
+                    coordinates.Add(new NetTopologySuite.Geometries.Coordinate(shapeEnumerable.Current.Longitude,
                         shapeEnumerable.Current.Latitude));
                 }
             }
             var vertexLocation2 = _routerDb.Network.GeometricGraph.GetVertex(edge.To);
-            coordinates.Add(new Coordinate(vertexLocation2.Longitude, vertexLocation2.Latitude));
+            coordinates.Add(new NetTopologySuite.Geometries.Coordinate(vertexLocation2.Longitude, vertexLocation2.Latitude));
             var geometry = new LineString(coordinates.ToArray());
 
             var length = 0.0f;

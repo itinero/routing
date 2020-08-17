@@ -188,30 +188,30 @@ namespace Itinero.Algorithms.Default.EdgeBased
             // instad of making them impossible. This way this algorithm still doesn't return restricted
             // routes when possible but returns a restricted route when the request is impossible.
             // It also minizes the violated restrictions this way.
-            
+
             var settled = new HashSet<int>();
             var queue = new BinaryHeap<int>();
-            var paths = new Tuple<int, float>[directedWeights.Length * 2]; // (int previous, float cost)[capacity];
+            var paths = new Tuple<int, float>[Math.Max(1, directedWeights.Length * 2)]; // (int previous, float cost)[capacity];
             for (var i = 0; i < paths.Length; i++)
             {
                 paths[i] = new Tuple<int, float>(int.MaxValue, float.MaxValue);
             }
-            
+
             // build path.
-            var nextArray = new int[directedWeights.Length / 2];
+            var nextArray = new int[Math.Max(1, directedWeights.Length / 2)];
             var p = 0;
             nextArray[0] = -1;
             var length = 1;
             for (var c = 1; c < directedWeights.Length / 2; c++)
             {
                 nextArray[c] = -1;
-                
+
                 // check if p -> c is possible.
                 if (!(directedWeights[p * 2 + 0][c * 2 + 0] < float.MaxValue) &&
                     !(directedWeights[p * 2 + 0][c * 2 + 1] < float.MaxValue) &&
                     !(directedWeights[p * 2 + 1][c * 2 + 0] < float.MaxValue) &&
                     !(directedWeights[p * 2 + 1][c * 2 + 1] < float.MaxValue)) continue;
-                
+
                 nextArray[p] = c;
                 length++;
                 p = c;
@@ -238,14 +238,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
             var bestLast = -1;
             while (queue.Count > 0)
             {
-                var currentWeight = queue.PeekWeight();
+                //var currentWeight = queue.PeekWeight();
                 var current = queue.Pop();
                 if (settled.Contains(current))
                 { // was already settled before.
                     continue;
                 }
                 settled.Add(current);
-                
+
                 // check if we're done.
                 var currentTurn = current % 4;
                 var currentVisit = (current - currentTurn) / 4;
@@ -256,15 +256,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 }
                 var currentDeparture = (currentTurn == 1 || currentTurn == 3) ? 1 : 0;
                 var nextVisit = nextArray[currentVisit];
-                for (var nextTurn = 0; nextTurn < 4; nextTurn++)
+                for (int nextTurn = 0, e = fixedTurns != null ? fixedTurns.Length : 4; nextTurn < e; ++nextTurn)
                 {
                     var next = nextVisit * 4 + nextTurn;
                     if (settled.Contains(next))
                     { // already settled, don't queue again.
                         continue;
                     }
-                    var nextArrival =  (nextTurn == 2 || nextTurn == 3) ? 1 : 0;
-                    
+                    var nextArrival = (nextTurn == 2 || nextTurn == 3) ? 1 : 0;
+
                     // figure out penalty if any.
                     var fixedTurnPenalty = 0f;
                     if (fixedTurns?[nextVisit].Item1 != null)
@@ -283,7 +283,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
 
                     if (fixedTurns?[nextVisit].Item2 != null)
                     { // there is a fixed departure turn for this visit.
-                        var nextDeparture =  (nextTurn == 1 || nextTurn == 3) ? 1 : 0;
+                        var nextDeparture = (nextTurn == 1 || nextTurn == 3) ? 1 : 0;
                         if (!fixedTurns[nextVisit].Item2.Value &&
                             nextDeparture == 1)
                         { // turn is fixed departure forward and current turn is departure backward.
@@ -327,14 +327,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
             var h = path.Length - 1;
             path[h] = bestLast;
             var nextHop = paths[bestLast];
-            while (nextHop.Item1 >= 4)
+            while (nextHop.Item1 >= 4 && h > 0)
             {
                 h--;
                 path[h] = nextHop.Item1;
                 nextHop = paths[nextHop.Item1];
             }
             path[0] = nextHop.Item1;
-            
+
             return path;
         }
     }

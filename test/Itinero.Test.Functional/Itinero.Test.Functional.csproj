@@ -11,6 +11,28 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Tests\data\minimal-example.osm.pbf" />
+    <None Remove="Tests\data\prague-small.osm.pbf" />
+    <None Remove="Tests\data\sequence1.geojson" />
+    <None Remove="Tests\data\sequence2.geojson" />
+    <None Remove="Tests\data\sequence3.geojson" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Tests\data\minimal-example.osm.pbf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\data\prague-small.osm.pbf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\data\sequence1.geojson">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\data\sequence2.geojson">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\data\sequence3.geojson">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Tests\fictional.osm">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -21,9 +43,9 @@
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0" />
-    <PackageReference Include="SRTM" Version="0.0.1" />
-    <PackageReference Include="System.Net.Http" Version="4.3.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.2" />
+    <PackageReference Include="SRTM" Version="0.0.4" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 </Project>

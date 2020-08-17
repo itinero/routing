@@ -19,6 +19,7 @@
 using System;
 using Itinero.Profiles;
 using Itinero.IO.Shape;
+using System.Linq;
 
 namespace Itinero.Test.Functional.Tests.IO.Shape
 {
@@ -32,13 +33,10 @@ namespace Itinero.Test.Functional.Tests.IO.Shape
         /// </summary>
         public static void Run(RouterDb routerDb)
         {
-            var profiles = new Profile[] {
-                routerDb.GetSupportedProfile("car"),
-                routerDb.GetSupportedProfile("bicycle"),
-                routerDb.GetSupportedProfile("pedestrian")
-            };
-
-            GetTestWriteShapeFile(routerDb, profiles).TestPerf("Writing shapefile.");
+            foreach(var profile in routerDb.GetSupportedProfiles())
+            {
+                GetTestWriteShapeFile(routerDb, routerDb.GetSupportedProfiles().ToArray()).TestPerf("Writing shapefile.");
+            }
         }
 
         /// <summary>

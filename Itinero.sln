@@ -1,20 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27004.2009
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4B330D21-2EE5-4C34-B716-0DB1FBC58E29}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C142786B-F60E-4B6B-B9F2-1D25C3A3D7B5}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
+		build.sh = build.sh
 		CONTRIBUTING.md = CONTRIBUTING.md
 		LICENSE.md = LICENSE.md
 		NOTICE.md = NOTICE.md
 		README.md = README.md
 		SharedAssemblyVersion.cs = SharedAssemblyVersion.cs
 		test.sh = test.sh
-		build.sh = build.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7E594B3F-4CA9-4198-B90D-DD16972D0481}"
@@ -47,13 +47,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Test", "test\Itiner
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Test.Functional", "test\Itinero.Test.Functional\Itinero.Test.Functional.csproj", "{9D719B37-42DD-486A-9FFC-CD8B0230D114}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itinero.Geo", "src\Itinero.Geo\Itinero.Geo.csproj", "{87E5FF87-E75F-4462-937F-538AB570EE1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.Geo", "src\Itinero.Geo\Itinero.Geo.csproj", "{87E5FF87-E75F-4462-937F-538AB570EE1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Itinero.IO.Shape", "src\Itinero.IO.Shape\Itinero.IO.Shape.csproj", "{C18E5106-ECC6-4C7B-A611-7D8514B0D3BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero.IO.Shape", "src\Itinero.IO.Shape\Itinero.IO.Shape.csproj", "{C18E5106-ECC6-4C7B-A611-7D8514B0D3BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.Shape", "samples\Sample.Shape\Sample.Shape.csproj", "{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Shape", "samples\Sample.Shape\Sample.Shape.csproj", "{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample.DynamicProfiles", "samples\Sample.DynamicProfiles\Sample.DynamicProfiles.csproj", "{8DED4253-89E6-4333-9750-E830DB789B2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.DynamicProfiles", "samples\Sample.DynamicProfiles\Sample.DynamicProfiles.csproj", "{8DED4253-89E6-4333-9750-E830DB789B2D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsmSharp", "..\AmstedDigital.OperationalTwins\osmsharp\core-develop\src\OsmSharp\OsmSharp.csproj", "{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OsmSharp.Geo", "..\AmstedDigital.OperationalTwins\osmsharp\core-develop\src\OsmSharp.Geo\OsmSharp.Geo.csproj", "{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -151,6 +155,22 @@ Global
 		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|x64.ActiveCfg = Release|Any CPU
 		{8DED4253-89E6-4333-9750-E830DB789B2D}.Release|x64.Build.0 = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Debug|x64.Build.0 = Debug|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|x64.ActiveCfg = Release|Any CPU
+		{4E4348CD-2E8E-4FC9-996F-95DBFD37AE1A}.Release|x64.Build.0 = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Debug|x64.Build.0 = Debug|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|x64.ActiveCfg = Release|Any CPU
+		{FF50E1A3-80F2-41D0-AACA-A8D7DBD34C22}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -167,9 +187,6 @@ Global
 		{C18E5106-ECC6-4C7B-A611-7D8514B0D3BD} = {4B330D21-2EE5-4C34-B716-0DB1FBC58E29}
 		{EB6A7F79-3540-4E31-A1A8-3ADA0F232E67} = {77BC0AC3-41A6-4672-A3AB-9C27710756BE}
 		{8DED4253-89E6-4333-9750-E830DB789B2D} = {77BC0AC3-41A6-4672-A3AB-9C27710756BE}
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {647068E9-BC76-4E51-B225-D6BBD4689F76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B9A2B2E1-FE8E-4F87-80E2-1A3F620ED1E8}

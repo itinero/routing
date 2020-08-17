@@ -9,16 +9,16 @@ namespace Itinero.Test.Functional.Staging
 {
     public static class StagingHelper
     {
-        public static Itinero.LocalGeo.Coordinate[] GetLocations(string geojsonFile)
+        public static LocalGeo.Coordinate[] GetLocations(string geojsonFile)
         {
             var features = GetFeatureCollection(geojsonFile);
 
-            var locations = new List<Itinero.LocalGeo.Coordinate>();
-            foreach (var feature in features.Features)
+            var locations = new List<LocalGeo.Coordinate>();
+            foreach (var feature in features)
             {
                 if (feature.Geometry is Point p)
                 {
-                    locations.Add(new Coordinate((float)p.Coordinate.Y, (float)p.Coordinate.X));
+                    locations.Add(new LocalGeo.Coordinate((float)p.Coordinate.Y, (float)p.Coordinate.X));
                 }
             }
 
