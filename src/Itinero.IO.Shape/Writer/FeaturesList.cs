@@ -16,7 +16,6 @@
  *  limitations under the License.
  */
 
-using GeoAPI.Geometries;
 using Itinero.Algorithms.Collections;
 using Itinero.Geo;
 using Itinero.Logging;

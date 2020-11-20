@@ -29,6 +29,7 @@ using Itinero.Profiles;
 using System.Linq;
 using System.Threading;
 using NetTopologySuite.IO;
+using Coordinate = Itinero.LocalGeo.Coordinate;
 
 namespace Itinero.IO.Shape.Reader
 {

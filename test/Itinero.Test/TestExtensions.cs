@@ -21,9 +21,6 @@ using System.Collections.Generic;
 using System.IO;
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 
 namespace Itinero.Test
 {
@@ -83,15 +80,14 @@ namespace Itinero.Test
         private static IEnumerable<Coordinate> LoadTestPoints(string geoJson)
         {
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
-            var features = geoJsonReader.Read<FeatureCollection>(geoJson);
+            var features = geoJsonReader.Read<NetTopologySuite.Features.FeatureCollection>(geoJson);
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
-                var point = feature.Geometry as Point;
+                var point = feature.Geometry as NetTopologySuite.Geometries.Point;
                 if (point == null)
                 {
                     continue;
-                    ;
                 }
 
                 yield return new Coordinate((float) point.Coordinate.Y, (float) point.Coordinate.X);

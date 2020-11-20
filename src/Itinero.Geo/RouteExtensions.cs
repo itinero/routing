@@ -32,7 +32,7 @@ namespace Itinero.Geo
         /// <summary>
         /// Returns the bounding box around this route.
         /// </summary>
-        public static GeoAPI.Geometries.Envelope GetBox(this Route route)
+        public static Envelope GetBox(this Route route)
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (route.Shape  == null)
@@ -42,11 +42,11 @@ namespace Itinero.Geo
 
             if (route.Shape.Length == 1)
             {
-                return new GeoAPI.Geometries.Envelope(
+                return new Envelope(
                     route.Shape[0].ToCoordinate(), route.Shape[0].ToCoordinate());
             }
 
-            var envelope = new GeoAPI.Geometries.Envelope(
+            var envelope = new Envelope(
                     route.Shape[0].ToCoordinate(), route.Shape[1].ToCoordinate());
             for(var i = 2; i < route.Shape.Length; i++)
             {
@@ -96,7 +96,7 @@ namespace Itinero.Geo
                         Logging.Logger.Log("RouteExtensions", Logging.TraceEventType.Warning, 
                             "Invalid meta-data detected on route. One of the meta-description has a shape index smaller than the previous one.");
                     }
-                    var shape = new GeoAPI.Geometries.Coordinate[current.Shape - previous.Shape + 1];
+                    var shape = new Coordinate[current.Shape - previous.Shape + 1];
                     for(var s = previous.Shape; s <= current.Shape; s++)
                     {
                         if (s < 0 || s >= route.Shape.Length)
@@ -116,7 +116,7 @@ namespace Itinero.Geo
                 for (var i = 0; i < route.Stops.Length; i++)
                 {
                     featureCollection.Add(new Feature(
-                        new Point(new GeoAPI.Geometries.Coordinate(
+                        new Point(new Coordinate(
                             route.Stops[i].Coordinate.ToCoordinate())), 
                         route.Stops[i].Attributes.ToAttributesTable()));
                 }

@@ -17,8 +17,6 @@
  */
 
 using Itinero.Algorithms.Search.Hilbert;
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -45,14 +43,14 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests resolving all points in the given feature collection.
         /// </summary>
-        public static void TestResolve(Router router, FeatureCollection features,
-            Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
+        public static void TestResolve(Router router, NetTopologySuite.Features.FeatureCollection features,
+            Func<Router, NetTopologySuite.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
-                if (feature.Geometry is Point)
+                if (feature.Geometry is NetTopologySuite.Geometries.Point)
                 {
-                    Assert.IsNotNull(resolve(router, (feature.Geometry as Point).Coordinate));
+                    Assert.IsNotNull(resolve(router, (feature.Geometry as NetTopologySuite.Geometries.Point).Coordinate));
                 }
             }
         }
@@ -61,14 +59,14 @@ namespace Itinero.Test.Functional.Tests
         /// Tests resolving all points in the given feature collection.
         /// </summary>
         public static void TestResolve(Router router, string embeddedResourceId,
-            Func<Router, GeoAPI.Geometries.Coordinate, Result<RouterPoint>> resolve)
+            Func<Router, NetTopologySuite.Geometries.Coordinate, Result<RouterPoint>> resolve)
         {
-            FeatureCollection featureCollection;
+            NetTopologySuite.Features.FeatureCollection featureCollection;
             using (var stream = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(embeddedResourceId)))
             {
                 var jsonReader = new JsonTextReader(stream);
                 var geoJsonSerializer = NetTopologySuite.IO.GeoJsonSerializer.Create();
-                featureCollection = geoJsonSerializer.Deserialize(jsonReader) as FeatureCollection;
+                featureCollection = geoJsonSerializer.Deserialize(jsonReader) as NetTopologySuite.Features.FeatureCollection;
             }
             TestResolve(router, featureCollection, resolve);
         }

@@ -20,8 +20,8 @@
     <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="NetTopologySuite" Version="1.15.1" />
-    <PackageReference Include="NetTopologySuite.Features" Version="1.15.1" />
+    <PackageReference Include="NetTopologySuite" Version="2.1.0" />
+    <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Itinero\Itinero.csproj" />
