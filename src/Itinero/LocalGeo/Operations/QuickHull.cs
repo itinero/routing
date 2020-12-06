@@ -93,7 +93,7 @@ namespace Itinero.LocalGeo.Operations
                 var nxt = (i + 1) % hull.Count;
 
                 // Neatly on the right, as it is supposed to be.. Continue to the next point
-                if (!LeftOfLine(hull[i], hull[nxt], newPoint))
+                if (PointPosition(hull[i], hull[nxt], newPoint) != PositionToLine.LeftOfLine)
                 {
                     i++;
                     continue;
@@ -106,7 +106,7 @@ namespace Itinero.LocalGeo.Operations
                 // If the new point is on the left of that point as well, we can simply remove point i
 
                 var prev = (hull.Count + i - 1) % hull.Count;
-                if (LeftOfLine(hull[prev], hull[i], newPoint))
+                if (PointPosition(hull[prev], hull[i], newPoint) == PositionToLine.LeftOfLine)
                 {
                     // Current point i is shadowed
                     // Remove it and continue at the current position, as if pointI never existed
@@ -116,7 +116,7 @@ namespace Itinero.LocalGeo.Operations
 
                 // When added, it might shadow the next points as well...
                 var nxtnxt = (nxt + 1) % hull.Count;
-                while (LeftOfLine(hull[nxt], hull[nxtnxt], newPoint))
+                while (PointPosition(hull[nxt], hull[nxtnxt], newPoint) == PositionToLine.LeftOfLine)
                 {
                     hull.RemoveAt(nxt);
                     nxt %= hull.Count;
@@ -156,7 +156,7 @@ namespace Itinero.LocalGeo.Operations
 
             points.Remove(a);
             points.Remove(b);
-            
+
             // Split the resting set into a left and right partition...
             points.PartitionLeftRight(a, b, out var leftSet, out var rightSet);
 
@@ -262,7 +262,7 @@ namespace Itinero.LocalGeo.Operations
             Coordinate b,
             Coordinate c)
         {
-            if (!LeftOfLine(a, b, c))
+            if (PointPosition(a, b, c) == PositionToLine.RightOfLine)
             {
                 // Corner case
                 return points.RemoveInTriangle(b, a, c);
@@ -272,7 +272,7 @@ namespace Itinero.LocalGeo.Operations
             var outsiders = new HashSet<Coordinate>();
             foreach (var p in points)
             {
-                if (!(LeftOfLine(a, b, p) && LeftOfLine(b, c, p) && LeftOfLine(c, a, p)))
+                if (!(PointPosition(a, b, p) == PositionToLine.LeftOfLine && PointPosition(b, c, p) == PositionToLine.LeftOfLine && PointPosition(c, a, p) == PositionToLine.LeftOfLine))
                 {
                     // Left of all the lines: element of the triangle -> we remove it
                     outsiders.Add(p);
@@ -294,7 +294,7 @@ namespace Itinero.LocalGeo.Operations
             pointsRight = new HashSet<Coordinate>();
             foreach (var p in points)
             {
-                if (LeftOfLine(a, b, p))
+                if (PointPosition(a, b, p) == PositionToLine.LeftOfLine)
                 {
                     pointsLeft.Add(p);
                 }
@@ -306,10 +306,10 @@ namespace Itinero.LocalGeo.Operations
         }
 
         /// <summary>
-        /// Returns true if 'p' lies on the left of the line from A to B
+        /// Returns position of 'p' relative to line from A to B
         /// </summary>
-        /// <returns>If the point lies on the left</returns>
-        private static bool LeftOfLine(Coordinate a, Coordinate b, Coordinate p)
+        /// <returns>Returns position of 'p' relative to line from A to B</returns>
+        private static PositionToLine PointPosition(Coordinate a, Coordinate b, Coordinate p)
         {
             var ax = a.Longitude;
             var ay = a.Latitude;
@@ -319,8 +319,18 @@ namespace Itinero.LocalGeo.Operations
 
             var x = p.Longitude;
             var y = p.Latitude;
+
             var position = (bx - ax) * (y - ay) - (by - ay) * (x - ax);
-            return position > 0;
+
+            if (position > 0)
+            {
+                return PositionToLine.LeftOfLine;
+            }
+            else if (position < 0)
+            {
+                return PositionToLine.RightOfLine;
+            }
+            return PositionToLine.OnLine;
         }
 
         /// <summary>
@@ -350,6 +360,13 @@ namespace Itinero.LocalGeo.Operations
                     maxVal = coor.Latitude;
                 }
             }
+        }
+
+        enum PositionToLine
+        {
+            LeftOfLine,
+            RightOfLine,
+            OnLine
         }
     }
 }

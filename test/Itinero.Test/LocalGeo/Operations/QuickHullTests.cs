@@ -16,10 +16,10 @@
  *  limitations under the License.
  */
 
-using System.Collections.Generic;
 using Itinero.LocalGeo;
 using Itinero.LocalGeo.Operations;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Itinero.Test.LocalGeo.Operations
 {
@@ -134,6 +134,15 @@ namespace Itinero.Test.LocalGeo.Operations
 
             index = hull.UpdateHull(new Coordinate(2f, 2f));
             Assert.AreEqual(3, index);
+        }
+
+        [Test]
+        public void RemoveInTriangle_WorksForPointAlignedOnLine()
+        {
+            var points = new HashSet<Coordinate>() { new Coordinate(41f, 10.1f) };
+            QuickHull.RemoveInTriangle(points, new Coordinate(40f, 10f), new Coordinate(40f, 10.2f), new Coordinate(40f, 10.1f));
+
+            Assert.AreEqual(1, points.Count);
         }
     }
 }
