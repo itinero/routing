@@ -1,23 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Itinero.Common.props" />
+
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Itinero</AssemblyName>
     <PackageId>Itinero</PackageId>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <PackageVersion />
     <Title>Itinero</Title>
-    <Authors>Itinero BV</Authors>
-    <Description>Itinero - Routing for .NET.</Description>
-    <Copyright>Itinero BV</Copyright>
-    <PackageProjectUrl>http://www.itinero.tech/</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</PackageLicenseUrl>
-    <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
-    <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>

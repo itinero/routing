@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  
+  <!--- Package information, Version -->
+  <PropertyGroup>
+    <PackageVersion>1.6.0-pre031</PackageVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Description>Itinero - Routing for .NET.</Description>
+    <Copyright>Itinero BV</Copyright>
+    <PackageProjectUrl>http://www.itinero.tech/</PackageProjectUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</PackageLicenseUrl>
+    <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>Itinero Contributors</Authors>
+    <Company>Itinero BV</Company>
+  </PropertyGroup>
+</Project>

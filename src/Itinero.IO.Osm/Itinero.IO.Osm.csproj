@@ -1,23 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../Itinero.Common.props" />
+
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Itinero.IO.Osm</AssemblyName>
     <PackageId>Itinero.IO.Osm</PackageId>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <LangVersion>default</LangVersion>
     <Title>Itinero.IO.Osm</Title>
-    <Authors>Itinero BV</Authors>
     <Description>Itinero.IO.Osm - OpenStreetMap data IO.</Description>
-    <Copyright>Itinero BV</Copyright>
-    <PackageProjectUrl>http://www.itinero.tech/</PackageProjectUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/itinero/routing/develop/LICENSE.md</PackageLicenseUrl>
-    <PackageIconUrl>http://www.itinero.tech/logos/itinero_logo_notext.svg.128.png</PackageIconUrl>
-    <RepositoryUrl>https://github.com/itinero/routing/</RepositoryUrl>
-    <RepositoryType>osm, openstreetmap, routing, mapping</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Itinero\Itinero.csproj" />
@@ -26,7 +16,6 @@
     <PackageReference Include="OsmSharp" Version="6.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\SharedAssemblyVersion.cs" Link="Properties\SharedAssemblyVersion.cs" />
     <EmbeddedResource Include="Profiles\Defaults\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
 </Project>
