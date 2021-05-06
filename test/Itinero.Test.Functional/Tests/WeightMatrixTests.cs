@@ -89,6 +89,56 @@ namespace Itinero.Test.Functional.Tests
                 GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
                     .TestPerf($"Testing {profile.FullName} {count}x{count} matrix");
             }
+
+            profile = Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest();
+            for (var count = 50; count <= 200; count += 50)
+            {
+                var random = new System.Random(145171654);
+                var vertices = new HashSet<uint>();
+                var locations = new List<Coordinate>();
+                while (locations.Count < count)
+                {
+                    var v = (uint) random.Next((int) router.Db.Network.VertexCount);
+                    if (!vertices.Contains(v))
+                    {
+                        vertices.Add(v);
+                        locations.Add(router.Db.Network.GetVertex(v));
+                    }
+                }
+            
+                var locationsArray = locations.ToArray();
+                var massResolver =
+                    new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
+                massResolver.Run();
+            
+                GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
+                    .TestPerf($"Testing {profile.FullName} (uncontracted) {count}x{count} matrix");
+            }
+
+            profile = Itinero.Osm.Vehicles.Vehicle.BigTruck.Fastest();
+            for (var count = 50; count <= 200; count += 50)
+            {
+                var random = new System.Random(145171654);
+                var vertices = new HashSet<uint>();
+                var locations = new List<Coordinate>();
+                while (locations.Count < count)
+                {
+                    var v = (uint) random.Next((int) router.Db.Network.VertexCount);
+                    if (!vertices.Contains(v))
+                    {
+                        vertices.Add(v);
+                        locations.Add(router.Db.Network.GetVertex(v));
+                    }
+                }
+
+                var locationsArray = locations.ToArray();
+                var massResolver =
+                    new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
+                massResolver.Run();
+
+                GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
+                    .TestPerf($"Testing {profile.FullName} (uncontracted) {count}x{count} matrix");
+            }
         }
 
         /// <summary>

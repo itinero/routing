@@ -49,7 +49,8 @@ namespace Itinero.Test.Functional.Tests
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
                 Osm.Vehicles.Vehicle.Car,
                 Osm.Vehicles.Vehicle.Bicycle,
-                Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+                Osm.Vehicles.Vehicle.Pedestrian,
+                Osm.Vehicles.Vehicle.BigTruck).TestPerf("Loading OSM data");
 
             GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
 
