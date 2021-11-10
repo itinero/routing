@@ -1,8 +1,5 @@
 name: stable release
 
-env:
-  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-
 on:
   push:
     branches: [ hotfix/stable-build ]
@@ -26,3 +23,6 @@ jobs:
  
     - name: Build and Publish Web App
       run: msbuild Itinero.sln /p:Configuration=Release
+
+    - name: Create packages.
+      run: nuget pack ./nuspec/Itinero.nuspec
