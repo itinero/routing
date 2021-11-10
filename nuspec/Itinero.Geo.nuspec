@@ -39,10 +39,10 @@
         </frameworkAssemblies>
     </metadata>
     <files>
-        <file src="src\Itinero.Geo\bin\Release\net45\Itinero.Geo.dll" target="lib\net45\Itinero.Geo.dll"/>
-        <file src="src\Itinero.Geo\bin\Release\netstandard1.3\Itinero.Geo.dll"
+        <file src="..\src\Itinero.Geo\bin\Release\net45\Itinero.Geo.dll" target="lib\net45\Itinero.Geo.dll"/>
+        <file src="..\src\Itinero.Geo\bin\Release\netstandard1.3\Itinero.Geo.dll"
               target="lib\netstandard1.3\Itinero.Geo.dll"/>
-        <file src="src\Itinero.Geo\bin\Release\netstandard2.0\Itinero.Geo.dll"
+        <file src="..\src\Itinero.Geo\bin\Release\netstandard2.0\Itinero.Geo.dll"
               target="lib\netstandard2.0\Itinero.Geo.dll"/>
     </files>
 </package>

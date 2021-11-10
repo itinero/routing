@@ -37,5 +37,5 @@ jobs:
       run: nuget pack ./nuspec/Itinero.IO.Shape.nuspec -Version 1.5.1
 
     - name: Nuget push
-      run: nuget push **/*.nupkg -SkipDuplicate -ApiKey ${{ secrets.NUGET_TOKEN }} -src https://api.nuget.org/v3/index.json
+      run: nuget push **/*.nupkg -SkipDuplicate -src https://api.nuget.org/v3/index.json
       working-directory: ./src/
