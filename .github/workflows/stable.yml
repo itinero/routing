@@ -2,7 +2,7 @@ name: stable release
 
 on:
   push:
-    branches: [ hotfix/stable-build ]
+    branches: [ master ]
 
 jobs:
   stable:
