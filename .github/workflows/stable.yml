@@ -1,0 +1,25 @@
+name: .NET Core
+
+on:
+  push:
+    branches: [ hotfix/stable-build ]
+
+jobs:
+  stable:
+    runs-on: windows-latest
+ 
+    steps:
+    - uses: actions/checkout@v1
+      name: Checkout Code
+     
+    - name: Setup MSBuild Path
+      uses: warrenbuckley/Setup-MSBuild@v1
+       
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+     
+    - name: Restore NuGet Packages
+      run: nuget restore Itinero.sln
+ 
+    - name: Build and Publish Web App
+      run: msbuild Itinero.sln /p:Configuration=Release
