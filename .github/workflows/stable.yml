@@ -26,3 +26,12 @@ jobs:
 
     - name: Create packages.
       run: nuget pack ./nuspec/Itinero.nuspec -Version 1.5.1
+
+    - name: Create packages.
+      run: nuget pack ./nuspec/Itinero.Geo.nuspec -Version 1.5.1
+
+    - name: Create packages.
+      run: nuget pack ./nuspec/Itinero.IO.Osm.nuspec -Version 1.5.1
+
+    - name: Create packages.
+      run: nuget pack ./nuspec/Itinero.IO.Shape.nuspec -Version 1.5.1
