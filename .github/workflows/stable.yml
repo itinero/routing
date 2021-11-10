@@ -17,6 +17,8 @@ jobs:
        
     - name: Setup NuGet
       uses: NuGet/setup-nuget@v1
+      with:
+        nuget-api-key: ${{ secrets.NUGET_TOKEN }}
      
     - name: Restore NuGet Packages
       run: nuget restore Itinero.sln
@@ -37,5 +39,4 @@ jobs:
       run: nuget pack ./nuspec/Itinero.IO.Shape.nuspec -Version 1.5.1
 
     - name: Nuget push
-      run: nuget push **/*.nupkg -SkipDuplicate -src https://api.nuget.org/v3/index.json
-      working-directory: ./src/
+      run: nuget push *.nupkg -SkipDuplicate -src https://api.nuget.org/v3/index.json
