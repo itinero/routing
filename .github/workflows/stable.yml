@@ -25,4 +25,4 @@ jobs:
       run: msbuild Itinero.sln /p:Configuration=Release
 
     - name: Create packages.
-      run: nuget pack ./nuspec/Itinero.nuspec
+      run: nuget pack ./nuspec/Itinero.nuspec -Version 1.5.1
