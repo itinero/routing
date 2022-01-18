@@ -41,8 +41,22 @@ namespace Itinero.Algorithms.Networks.Islands
     public class EdgeBasedIslandDetector : AlgorithmBase
     {
         private readonly RoutingNetwork _network;
-        private readonly Func<ushort, Factor> _profile;
+        private readonly Func<EdgeData, Factor> _profile;
         private readonly RestrictionCollection _restrictions;
+        
+        /// <summary>
+        /// Creates a new island detector.
+        /// </summary>
+        /// <param name="network">The network.</param>
+        /// <param name="profile">The profile.</param>
+        /// <param name="restrictions">The restrictions.</param>
+        public EdgeBasedIslandDetector(RoutingNetwork network, Func<ushort, uint, Factor> profile, 
+            RestrictionCollection restrictions = null)
+        {
+            _network = network;
+            _profile = (ed) => profile(ed.Profile, ed.MetaId);
+            _restrictions = restrictions;
+        }
 
         /// <summary>
         /// Creates a new island detector.
@@ -54,7 +68,7 @@ namespace Itinero.Algorithms.Networks.Islands
             RestrictionCollection restrictions = null)
         {
             _network = network;
-            _profile = profile;
+            _profile = (ed) => profile(ed.Profile);
             _restrictions = restrictions;
         }
         
@@ -90,7 +104,7 @@ namespace Itinero.Algorithms.Networks.Islands
                 var edges = 0;
                 while (edgeEnumerator1.MoveNext())
                 {
-                    var edge1Factor = _profile(edgeEnumerator1.Data.Profile);
+                    var edge1Factor = _profile(edgeEnumerator1.Data);
                     if (edge1Factor.Value == 0)
                     {
                         // no access, don't evaluate neighbours.
@@ -148,7 +162,7 @@ namespace Itinero.Algorithms.Networks.Islands
                             continue;
                         }
                         
-                        var edge2Factor = _profile(edgeEnumerator2.Data.Profile);
+                        var edge2Factor = _profile(edgeEnumerator2.Data);
                         if (edge2Factor.Value == 0)
                         {
                             // should be marked as no access in parent loop.
@@ -231,7 +245,7 @@ namespace Itinero.Algorithms.Networks.Islands
                             continue;
                         }
 
-                        var edge2Factor = _profile(edgeEnumerator2.Data.Profile);
+                        var edge2Factor = _profile(edgeEnumerator2.Data);
                         if (edge2Factor.Value == 0)
                         {
                             // should be marked as no access in parent loop.
@@ -332,7 +346,7 @@ namespace Itinero.Algorithms.Networks.Islands
                 // log all connections.
                 while (edgeEnumerator1.MoveNext())
                 {
-                    var edge1Factor = _profile(edgeEnumerator1.Data.Profile);
+                    var edge1Factor = _profile(edgeEnumerator1.Data);
                     if (edge1Factor.Value == 0)
                     {
                         // no access, don't evaluate neighbours.
@@ -367,7 +381,7 @@ namespace Itinero.Algorithms.Networks.Islands
                             continue;
                         }
                         
-                        var edge2Factor = _profile(edgeEnumerator2.Data.Profile);
+                        var edge2Factor = _profile(edgeEnumerator2.Data);
                         if (edge2Factor.Value == 0)
                         {
                             // should be marked as no access in parent loop.

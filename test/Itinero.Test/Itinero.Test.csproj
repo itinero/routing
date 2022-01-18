@@ -1,8 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.16.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
+  </ItemGroup>
+  
   <ItemGroup>
     <None Remove="test-data\networks\network1.geojson" />
     <None Remove="test-data\networks\network10-meta.geojson" />
@@ -27,6 +36,7 @@
     <None Remove="test-data\profiles\osm\car.lua" />
     <None Remove="test-data\profiles\shape\car.lua" />
   </ItemGroup>
+  
   <ItemGroup>
     <EmbeddedResource Include="test-data\networks\network1.geojson" />
     <EmbeddedResource Include="test-data\networks\network10-meta.geojson" />
@@ -69,15 +79,7 @@
     <None Remove="test-data\routes\route2.json" />
     <EmbeddedResource Include="test-data\routes\route2.json" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="dotnet-test-nunit" Version="3.4.0-beta-3" />
-    <PackageReference Include="nunit" Version="3.9.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-    <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="1.15.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0-beta.1.build3958" />
-  </ItemGroup>
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\Itinero.Geo\Itinero.Geo.csproj" />
     <ProjectReference Include="..\..\src\Itinero.IO.Osm\Itinero.IO.Osm.csproj" />

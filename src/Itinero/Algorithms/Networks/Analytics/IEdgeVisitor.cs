@@ -16,17 +16,25 @@
  *  limitations under the License.
  */
 
+using Itinero.Algorithms.Default;
+
 namespace Itinero.Algorithms.Networks.Analytics
 {
     /// <summary>
     /// Abstract representation of an algorithm that generates edge visits.
     /// </summary>
     public interface IEdgeVisitor<T> : IAlgorithm
+        where T : struct
     {
         /// <summary>
         /// Gets or sets the visit delegate.
         /// </summary>
         VisitDelegate<T> Visit { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the neighbour visit delegate.
+        /// </summary>
+        VisitDelegate<T> VisitNeighbour { get; set; }
     }
 
     /// <summary>

@@ -23,6 +23,7 @@ using Itinero.Geo;
 using Itinero.Profiles;
 using System;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 
 namespace Itinero.Geo
 {
@@ -35,6 +36,7 @@ namespace Itinero.Geo
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
         public static Result<RouterPoint>[] TryResolve(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate[] coordinates,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -51,6 +53,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate coordinate,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(new Profile[] { profile }, coordinate, searchDistanceInMeter);
@@ -60,6 +63,7 @@ namespace Itinero.Geo
         /// Searches for the closest points on the routing network that's routable for the given profile(s).
         /// </summary>
         public static Result<RouterPoint>[] TryResolve(this Router router, Profile[] profiles, NetTopologySuite.Geometries.Coordinate[] coordinates,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             if (coordinates == null) { throw new ArgumentNullException("coordinate"); }
@@ -76,6 +80,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this Router router, Profile[] profiles, NetTopologySuite.Geometries.Coordinate coordinate,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, (float)coordinate.Y, (float)coordinate.X,
@@ -86,6 +91,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static Result<RouterPoint> TryResolve(this Router router, Profile[] profiles, NetTopologySuite.Geometries.Coordinate coordinate,
+
             Func<RoutingEdge, bool> isBetter, float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, (float)coordinate.Y, (float)coordinate.X, isBetter,
@@ -96,6 +102,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate coordinate,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profile, coordinate, searchDistanceInMeter).Value;
@@ -105,6 +112,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this Router router, Profile[] profiles, NetTopologySuite.Geometries.Coordinate coordinate,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             return router.TryResolve(profiles, coordinate, searchDistanceInMeter).Value;
@@ -114,6 +122,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint[] Resolve(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate[] coordinates,
+
             float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
             var results = router.TryResolve(profile, coordinates, searchDistanceInMeter);
@@ -129,6 +138,7 @@ namespace Itinero.Geo
         /// Searches for the closest point on the routing network that's routable for the given profiles.
         /// </summary>
         public static RouterPoint Resolve(this Router router, Profile[] profiles, NetTopologySuite.Geometries.Coordinate coordinate,
+
             Func<RoutingEdge, bool> isBetter,
                 float searchDistanceInMeter = Constants.SearchDistanceInMeter)
         {
@@ -139,6 +149,7 @@ namespace Itinero.Geo
         /// Calculates a route between the two locations.
         /// </summary>
         public static Route Calculate(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate source, NetTopologySuite.Geometries.Coordinate target)
+
         {
             return router.TryCalculate(profile, source, target).Value;
         }
@@ -147,6 +158,7 @@ namespace Itinero.Geo
         /// Calculates a route along the given locations.
         /// </summary>
         public static Route Calculate(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate[] locations)
+
         {
             return router.TryCalculate(profile, locations).Value;
         }
@@ -156,6 +168,7 @@ namespace Itinero.Geo
         /// </summary>
         public static Result<Route> TryCalculate(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate source,
             NetTopologySuite.Geometries.Coordinate target)
+
         {
             return router.TryCalculate(profile, (float)source.Y, (float)source.X, (float)target.Y, (float)target.X);
         }
@@ -164,6 +177,7 @@ namespace Itinero.Geo
         /// Calculates a route along the given locations.
         /// </summary>
         public static Result<Route> TryCalculate(this Router router, Profile profile, NetTopologySuite.Geometries.Coordinate[] locations)
+
         {
             if (locations.Length < 2)
             {
@@ -191,6 +205,7 @@ namespace Itinero.Geo
         /// Calculates the weight between the two locations.
         /// </summary>
         public static Result<T> TryCalculateWeight<T>(this Router router, Profile profile, WeightHandler<T> weightHandler, NetTopologySuite.Geometries.Coordinate source, NetTopologySuite.Geometries.Coordinate target)
+
             where T : struct
         {
             return router.TryCalculateWeight(profile, weightHandler, (float)source.Y, (float)source.X, (float)target.Y, (float)target.X);
@@ -200,6 +215,7 @@ namespace Itinero.Geo
         /// Calculates all weights between all given locations.
         /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this Router router, Profile profile, WeightHandler<T> weightHandler, NetTopologySuite.Geometries.Coordinate[] locations)
+
             where T : struct
         {
             return router.TryCalculateWeight(profile, weightHandler, locations, locations);
@@ -209,6 +225,7 @@ namespace Itinero.Geo
         /// Calculates all weights between all sources and all targets.
         /// </summary>
         public static Result<T[][]> TryCalculateWeight<T>(this Router router, Profile profile, WeightHandler<T> weightHandler, NetTopologySuite.Geometries.Coordinate[] sources, NetTopologySuite.Geometries.Coordinate[] targets)
+
             where T : struct
         {
             var resolvedSources = new RouterPoint[sources.Length];

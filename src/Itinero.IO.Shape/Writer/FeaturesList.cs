@@ -198,9 +198,13 @@ namespace Itinero.IO.Shape.Writer
             }
 
             var tags = new Itinero.Attributes.AttributeCollection(_routerDb.EdgeProfiles.Get(edge.Data.Profile));
-            foreach (var tag in _routerDb.EdgeMeta.Get(edge.Data.MetaId))
+            var metaTags = _routerDb.EdgeMeta.Get(edge.Data.MetaId);
+            if (metaTags != null)
             {
-                tags.AddOrReplace(tag.Key, tag.Value);
+                foreach (var tag in metaTags)
+                {
+                    tags.AddOrReplace(tag.Key, tag.Value);
+                }
             }
 
             var attributes = new AttributesTable();
@@ -230,6 +234,30 @@ namespace Itinero.IO.Shape.Writer
             }
 
             attributes.Add("length", System.Math.Round(length, 3));
+            
+            if (_routerDb.EdgeData != null)
+            {
+                foreach (var dataName in _routerDb.EdgeData.Names)
+                {
+                    var dataCollection = _routerDb.EdgeData.Get(dataName);
+                    var attributeName = dataName;
+                    if (attributeName.Length > 11) attributeName = attributeName.Substring(0, 11);
+                    if (edge.Id >= dataCollection.Count)
+                    {
+                        attributes.Add(attributeName, string.Empty);
+                        continue;
+                    }
+                    var data = dataCollection.GetRaw(edge.Id);
+                    if (data != null)
+                    {
+                        attributes.Add(attributeName, data.ToInvariantString());
+                    }
+                    else
+                    {
+                        attributes.Add(attributeName, string.Empty);
+                    }
+                }
+            }
 
             string lanesString;
             var lanes = 1;
@@ -243,18 +271,17 @@ namespace Itinero.IO.Shape.Writer
                     lanesVerified = false;
                 }
             }
-            attributes.Add("lanes", lanes);
-            attributes.Add("lanes_ve", lanesVerified);
+            if (!attributes.Exists("lanes")) attributes.Add("lanes", lanes);
+            if (!attributes.Exists("lanes_ve")) attributes.Add("lanes_ve", lanesVerified);
             
             var name = tags.ExtractName();
-            attributes.Add("name", name);
-
-            attributes.AddFrom("way_id", tags);
-            attributes.AddFrom("tunnel", tags);
-            attributes.AddFrom("bridge", tags);
+            if (!attributes.Exists("name")) attributes.Add("name", name);
+            if (!attributes.Exists("way_id")) attributes.AddFrom("way_id", tags);
+            if (!attributes.Exists("tunnel")) attributes.AddFrom("tunnel", tags);
+            if (!attributes.Exists("bridge")) attributes.AddFrom("bridge", tags);
             
-            attributes.Add("from", edge.From);
-            attributes.Add("to", edge.To);
+            if (!attributes.Exists("from")) attributes.Add("from", edge.From);
+            if (!attributes.Exists("to")) attributes.Add("to", edge.To);
             
             return new Feature(geometry, attributes);
         }

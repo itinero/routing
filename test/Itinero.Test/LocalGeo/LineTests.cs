@@ -123,6 +123,21 @@ namespace Itinero.Test.LocalGeo
         /// Tests project on.
         /// </summary>
         [Test]
+        public void TestIntersectRegression2()
+        {
+            var line1 = new Line(new Coordinate(51.05363599762037f, 3.7312209606170654f),
+                new Coordinate(51.053366234152264f, 3.7314248085021973f));
+            var line2 = new Line(new Coordinate(51.05344379131031f, 3.7311029434204100f),
+                new Coordinate(51.053588789126906f, 3.7315267324447630f));
+
+            var intersection = line1.Intersect(line2);
+            
+        }
+
+        /// <summary>
+        /// Tests project on.
+        /// </summary>
+        [Test]
         public void TestProjectOneRegression1()
         {
             var point = new Coordinate(51.05349f, 3.731339f); // inside of line.

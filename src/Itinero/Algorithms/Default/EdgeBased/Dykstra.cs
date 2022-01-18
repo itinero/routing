@@ -85,7 +85,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
             // initialize a dictionary of speeds per edge profile.
             _factors = new Dictionary<uint, Factor>();
 
-            // intialize dykstra data structures.
+            // initialize dykstra data structures.
             _visits = new Dictionary<long, EdgePath<T>>();
             _heap = new BinaryHeap<EdgePath<T>>(1000);
             _edgeRestrictions = new Dictionary<EdgePath<T>, LinkedRestriction>();
@@ -134,6 +134,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         }
                     }
                 }
+
                 if (queue)
                 {
                     _heap.Push(source, _weightHandler.GetMetric(source.Weight));
@@ -272,6 +273,7 @@ namespace Itinero.Algorithms.Default.EdgeBased
                         }
                         currentRestriction = currentRestriction.Next;
                     }
+   
                     if (forbidden)
                     { // move to next neighbour.
                         continue;
@@ -281,13 +283,14 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     var totalWeight = _weightHandler.Add(_current.Weight, edgeWeight);
                     if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
                     { // update the visit list.
-
                         var path = new EdgePath<T>(neighbour, totalWeight, directedEdgeId, _current);
                         if (newRestrictions != null)
                         {
                             _edgeRestrictions[path] = newRestrictions;
                         }
-                        _heap.Push(path, _weightHandler.GetMetric(totalWeight));
+                        _heap.Push(path, _weightHandler.GetMetric(path.From.Weight));
+
+                        VisitNeighbour?.Invoke(path);
                     }
                     else
                     { // the maximum was reached.
@@ -337,6 +340,15 @@ namespace Itinero.Algorithms.Default.EdgeBased
         }
 
         /// <summary>
+        /// Gets or sets the visit function to be called when a new neighbour path is found.
+        /// </summary>
+        public VisitDelegate<T> VisitNeighbour
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets the backward flag.
         /// </summary>
         public bool Backward
@@ -367,6 +379,16 @@ namespace Itinero.Algorithms.Default.EdgeBased
             {
                 return _current;
             }
+        }
+
+        internal IEnumerable<uint[]> GetRestriction(uint vertex)
+        {
+            if (_getRestriction != null)
+            {
+                return _getRestriction(vertex);
+            }
+
+            return null;
         }
 
         /// <summary>

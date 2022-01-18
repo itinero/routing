@@ -416,6 +416,32 @@ namespace Itinero
         }
 
         /// <summary>
+        /// Creates a router point for the given edge.
+        /// </summary>
+        public static RouterPoint CreateRouterPoint(this RoutingNetwork.EdgeEnumerator edgeEnumerator,
+            RouterDb routerDb, bool atFrom = true)
+        {
+            if (atFrom)
+            {
+                var location = routerDb.Network.GetVertex(edgeEnumerator.From);
+                if (edgeEnumerator.DataInverted)
+                {
+                    return new RouterPoint(location.Latitude, location.Longitude, edgeEnumerator.Id, ushort.MaxValue);
+                }
+                return new RouterPoint(location.Latitude, location.Longitude, edgeEnumerator.Id, 0);
+            }
+            else
+            {
+                var location = routerDb.Network.GetVertex(edgeEnumerator.To);
+                if (edgeEnumerator.DataInverted)
+                {
+                    return new RouterPoint(location.Latitude, location.Longitude, edgeEnumerator.Id, 0);
+                }
+                return new RouterPoint(location.Latitude, location.Longitude, edgeEnumerator.Id, ushort.MaxValue);
+            }
+        }
+
+        /// <summary>
         /// Creates a router point for the given vertex.
         /// </summary>
         public static RouterPoint CreateRouterPointForVertex(this RouterDb routerDb, uint vertex, params Profile[] profile)

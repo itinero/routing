@@ -33,6 +33,7 @@ namespace Itinero.Geo
         /// Returns the bounding box around this route.
         /// </summary>
         public static NetTopologySuite.Geometries.Envelope GetBox(this Route route)
+
         {
             if (route == null) { throw new ArgumentNullException("route"); }
             if (route.Shape  == null)
@@ -47,6 +48,7 @@ namespace Itinero.Geo
             }
 
             var envelope = new NetTopologySuite.Geometries.Envelope(
+
                     route.Shape[0].ToCoordinate(), route.Shape[1].ToCoordinate());
             for(var i = 2; i < route.Shape.Length; i++)
             {
@@ -97,6 +99,7 @@ namespace Itinero.Geo
                             "Invalid meta-data detected on route. One of the meta-description has a shape index smaller than the previous one.");
                     }
                     var shape = new NetTopologySuite.Geometries.Coordinate[current.Shape - previous.Shape + 1];
+
                     for(var s = previous.Shape; s <= current.Shape; s++)
                     {
                         if (s < 0 || s >= route.Shape.Length)
@@ -117,6 +120,7 @@ namespace Itinero.Geo
                 {
                     featureCollection.Add(new Feature(
                         new Point(new NetTopologySuite.Geometries.Coordinate(
+
                             route.Stops[i].Coordinate.ToCoordinate())), 
                         route.Stops[i].Attributes.ToAttributesTable()));
                 }

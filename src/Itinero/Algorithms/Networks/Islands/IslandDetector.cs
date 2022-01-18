@@ -34,15 +34,17 @@ namespace Itinero.Algorithms.Networks
 	public class IslandDetector : AlgorithmBase
 	{
 		private readonly Func<ushort, Factor>[] _profiles;
-        private readonly ushort[] _islands; // holds the island # per vertex.
+        private readonly ushort[] _islands; // holds the island ID per vertex.
+        private readonly Dictionary<ushort, uint> _islandSizes; // holds the size per island.
         private readonly RouterDb _routerDb;
         private const uint NO_DATA = uint.MaxValue;
-        private const ushort NO_ISLAND = ushort.MaxValue - 1;
+        private const uint NO_ISLAND = uint.MaxValue - 1;
 
         /// <summary>
         /// A value representing a restricted vertex, could be part of multiple islands.
         /// </summary>
         public const ushort RESTRICTED = ushort.MaxValue - 2;
+        private const uint RESTRICTED_FULL = uint.MaxValue - 2;
 
         private readonly Restrictions.RestrictionCollection _restrictionCollection;
 
@@ -50,6 +52,9 @@ namespace Itinero.Algorithms.Networks
         /// A value representing a singleton island.
         /// </summary>
         public const ushort SINGLETON_ISLAND = ushort.MaxValue;
+        private const uint SINGLETON_ISLAND_FULL = uint.MaxValue;
+        
+        private const ushort OVERFLOW_ISLAND = ushort.MaxValue - 1; // A value representing an island when there is overflow.
 
         /// <summary>
         /// Creates a new island detector.
@@ -63,28 +68,31 @@ namespace Itinero.Algorithms.Networks
             _islands = new ushort[_routerDb.Network.VertexCount];
             _islandSizes = new Dictionary<ushort, uint>();
 		}
-        
-        private Dictionary<ushort, uint> _islandSizes;
 
+        private uint[] _fullIslands;
+        private Dictionary<uint, uint> _fullIslandSizes;
         private ArrayBase<uint> _index;
         private Collections.Stack<uint> _stack;
         private SparseLongIndex _onStack;
 
         private uint _nextIndex = 0;
-        private ushort _nextIsland = 0;
+        private uint _nextIsland = 0;
 
         /// <summary>
         /// Runs the island detection.
         /// </summary>
 		protected override void DoRun(CancellationToken cancellationToken)
         {
+            _fullIslands = new uint[_islands.Length];
+            _fullIslandSizes = new Dictionary<uint, uint>();
+            
             _onStack = new SparseLongIndex();
             var vertexCount = _routerDb.Network.GeometricGraph.Graph.VertexCount;
 
             // initialize all islands to NO_ISLAND.
             for (uint i = 0; i < _islands.Length; i++)
             {
-                _islands[i] = NO_ISLAND;
+                _fullIslands[i] = NO_ISLAND;
 
                 if (_restrictionCollection != null)
                 {
@@ -97,7 +105,7 @@ namespace Itinero.Algorithms.Networks
                         if (restriction.Vertex2 == Constants.NO_VERTEX &&
                             restriction.Vertex3 == Constants.NO_VERTEX)
                         {
-                            _islands[i] = RESTRICTED;
+                            _fullIslands[i] = RESTRICTED_FULL;
                             break;
                         }
                         else
@@ -129,26 +137,33 @@ namespace Itinero.Algorithms.Networks
             }
             
             // sort islands.
-            var sortedIslands = new List<KeyValuePair<ushort, uint>>(_islandSizes);
+            var sortedIslands = new List<KeyValuePair<uint, uint>>(_fullIslandSizes);
             sortedIslands.Sort((x, y) => -x.Value.CompareTo(y.Value));
-            var newIds = new Dictionary<ushort, ushort>();
-            for (ushort i = 0; i < sortedIslands.Count; i++)
+            var newIds = new Dictionary<uint, ushort>();
+            for (uint i = 0; i < sortedIslands.Count; i++)
             {
-                newIds[sortedIslands[i].Key] = i;
+                var id = i;
+                if (id > OVERFLOW_ISLAND) id = OVERFLOW_ISLAND;
+                newIds[sortedIslands[(int)i].Key] = (ushort)id;
             }
-            for (var v = 0; v < _islands.Length; v++)
+            for (var v = 0; v < _fullIslands.Length; v++)
             {
-                ushort newId;
-                if (newIds.TryGetValue(_islands[v], out newId))
+                if (newIds.TryGetValue(_fullIslands[v], out var newId))
                 {
                     _islands[v] = newId;
+                }
+                else if (_fullIslands[v] == SINGLETON_ISLAND_FULL)
+                {
+                    _islands[v] = SINGLETON_ISLAND;
+                }else if (_fullIslands[v] == RESTRICTED_FULL)
+                {
+                    _islands[v] = RESTRICTED;
                 }
             }
             _islandSizes.Clear();
             foreach (var sortedIsland in sortedIslands)
             {
-                ushort newId;
-                if (newIds.TryGetValue(sortedIsland.Key, out newId))
+                if (newIds.TryGetValue(sortedIsland.Key, out var newId))
                 {
                     _islandSizes[newId] = sortedIsland.Value;
                 }
@@ -166,7 +181,7 @@ namespace Itinero.Algorithms.Networks
                 v = nextStack.Pop();
                 var parent = nextStack.Pop();
 
-                if (_islands[v] != NO_ISLAND)
+                if (_fullIslands[v] != NO_ISLAND)
                 {
                     continue;
                 }
@@ -198,17 +213,17 @@ namespace Itinero.Algorithms.Networks
                             _onStack.Remove(islandVertex);
 
                             size++;
-                            _islands[islandVertex] = island;
+                            _fullIslands[islandVertex] = island;
                         } while (islandVertex != v);
 
                         if (size == 1)
                         { // only the root vertex, meaning this is a singleton.
-                            _islands[v] = SINGLETON_ISLAND;
+                            _fullIslands[v] = SINGLETON_ISLAND_FULL;
                             _nextIsland--; // reset island counter.
                         }
                         else
                         { // keep island size.
-                            _islandSizes[island] = size;
+                            _fullIslandSizes[island] = size;
                         }
                     }
 
@@ -234,9 +249,7 @@ namespace Itinero.Algorithms.Networks
                 {
                     while (enumerator.MoveNext())
                     {
-                        float distance;
-                        ushort edgeProfile;
-                        EdgeDataSerializer.Deserialize(enumerator.Data0, out distance, out edgeProfile);
+                        EdgeDataSerializer.Deserialize(enumerator.Data0, out _, out var edgeProfile);
 
                         var access = this.GetAccess(edgeProfile);
 

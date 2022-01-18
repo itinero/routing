@@ -44,30 +44,41 @@ namespace Itinero.Algorithms.Default
             _targetSearch = targetSearch;
             _weightHandler = weightHandler;
         }
-
-        private uint _bestVertex = uint.MaxValue;
+        
         private T _bestWeight;
         private T _maxForward;
         private T _maxBackward;
+
+        private EdgePath<T> _bestPathForward;
+        private EdgePath<T> _bestPathBackward;
 
         /// <summary>
         /// Executes the algorithm.
         /// </summary>
         protected override void DoRun(CancellationToken cancellationToken)
         {
-            _bestVertex = uint.MaxValue;
             _bestWeight = _weightHandler.Infinite;
             _maxForward = _weightHandler.Zero;
             _maxBackward = _weightHandler.Zero;
-            _sourceSearch.WasFound = (vertex, weight) =>
+            _sourceSearch.Visit = (visit) =>
             {
-                _maxForward = weight;
-                return this.ReachedVertexForward(vertex, weight);
+                if (visit.From != null && visit.From.From == null)
+                {
+                    this.ReachedNeighbourForward(visit);
+                }
+
+                return false;
             };
-            _targetSearch.WasFound = (vertex, weight) =>
+            _sourceSearch.NeighbourWasFound = this.ReachedNeighbourForward;
+            _targetSearch.NeighbourWasFound = this.ReachedNeighbourBackward;
+            _targetSearch.Visit = (visit) =>
             {
-                _maxBackward = weight;
-                return this.ReachedVertexBackward(vertex, weight);
+                if (visit.From != null && visit.From.From == null)
+                {
+                    this.ReachedNeighbourBackward(visit);
+                }
+
+                return false;
             };
 
             _sourceSearch.Initialize();
@@ -78,11 +89,6 @@ namespace Itinero.Algorithms.Default
                 if (_weightHandler.IsSmallerThan(_maxForward, _bestWeight))
                 { // still a need to search, not best found or max < best.
                     source = _sourceSearch.Step();
-                }
-
-                if (this.HasSucceeded)
-                { // a path was found.
-                    break;
                 }
                 
                 var target = false;
@@ -95,54 +101,57 @@ namespace Itinero.Algorithms.Default
                 { // both source and target search failed or useless.
                     break;
                 }
-
-                if (this.HasSucceeded)
-                { // a path was found.
+            
+                if (_weightHandler.IsLargerThanOrEqual(_weightHandler.Add(_maxBackward, _maxForward),
+                    _bestWeight))
+                {
                     break;
                 }
             }
         }
 
-        /// <summary>
-        /// Called when a vertex was reached during a forward search.
-        /// </summary>
-        /// <returns></returns>
-        private bool ReachedVertexForward(uint vertex, T weight)
+        private void ReachedNeighbourForward(EdgePath<T> edge)
         {
-            // check backward search for the same vertex.
-            if (!_targetSearch.TryGetVisit(vertex, out var backwardVisit)) return false; 
+            if (edge.From == null) return;
+            _maxForward = edge.From.Weight;
+
+            // check backward search.
+            if (!_targetSearch.TryGetVisit(edge.Vertex, out var backwardVisit)) return;
             
-            // there is a status for this vertex in the source search.
-            weight = _weightHandler.Add(weight, backwardVisit.Weight);
-            if (!_weightHandler.IsSmallerThan(weight, _bestWeight)) return false; 
+            // check for u-turns.
+            if (edge.Edge == backwardVisit.Edge) return;
             
-            // this vertex is a better match.
+            // calculate total weight.
+            var weight = _weightHandler.Add(edge.Weight, backwardVisit.Weight);
+            if (!_weightHandler.IsSmallerThan(weight, _bestWeight)) return; 
+            
+            // weight is better, this path is better.
             _bestWeight = weight;
-            _bestVertex = vertex;
+            _bestPathForward = edge;
+            _bestPathBackward = backwardVisit;
             this.HasSucceeded = true;
-            
-            return false;
         }
 
-        /// <summary>
-        /// Called when a vertex was reached during a backward search.
-        /// </summary>
-        /// <returns></returns>
-        private bool ReachedVertexBackward(uint vertex, T weight)
+        private void ReachedNeighbourBackward(EdgePath<T> edge)
         {
-            // check forward search for the same vertex.
-            if (!_sourceSearch.TryGetVisit(vertex, out var forwardVisit)) return false; 
+            if (edge.From == null) return;
+            _maxBackward = edge.From.Weight;
+
+            // check forward search.
+            if (!_sourceSearch.TryGetVisit(edge.Vertex, out var forwardVisit)) return;
             
-            // there is a status for this vertex in the source search.
-            weight = _weightHandler.Add(weight, forwardVisit.Weight);
-            if (!_weightHandler.IsSmallerThan(weight, _bestWeight)) return false; 
+            // check for u-turns.
+            if (edge.Edge == forwardVisit.Edge) return;
             
-            // this vertex is a better match.
+            // calculate total weight.
+            var weight = _weightHandler.Add(edge.Weight, forwardVisit.Weight);
+            if (!_weightHandler.IsSmallerThan(weight, _bestWeight)) return; 
+            
+            // weight is better, this path is better.
             _bestWeight = weight;
-            _bestVertex = vertex;
+            _bestPathForward = forwardVisit;
+            _bestPathBackward = edge;
             this.HasSucceeded = true;
-            
-            return false;
         }
 
         /// <summary>
@@ -164,7 +173,7 @@ namespace Itinero.Algorithms.Default
             {
                 this.CheckHasRunAndHasSucceeded();
 
-                return _bestVertex;
+                return _bestPathBackward.Vertex;
             }
         }
 
@@ -176,10 +185,9 @@ namespace Itinero.Algorithms.Default
         {
             this.CheckHasRunAndHasSucceeded();
 
-            if(_sourceSearch.TryGetVisit(_bestVertex, out var fromSource) &&
-               _targetSearch.TryGetVisit(_bestVertex, out var toTarget))
+            if(_bestPathBackward != null && _bestPathForward != null)
             {
-                return fromSource.Append(toTarget, _weightHandler);
+                return _bestPathForward.Append(_bestPathBackward, _weightHandler);
             }
             throw new InvalidOperationException("No path could be found to/from source/target.");
         }

@@ -36,58 +36,23 @@ namespace Itinero.Test.Functional.Tests
         public static void Run(RouterDb routerDb)
         {
             var router = new Router(routerDb);
-
-            var profile = Itinero.Osm.Vehicles.Vehicle.Car.Fastest();
-            var max = 7200;
-            for (var count = 250; count <= 1000; count += 250)
+            
+            TestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest());
+            TestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest());
+            TestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest(), 20, 20);
+            TestWeightMatrix(router, Itinero.Osm.Vehicles.Vehicle.BigTruck.Fastest(), 20, 20);
+        }
+        
+        public static void TestWeightMatrix(Router router, Profiles.Profile profile, int step = 250, int max = 1000)
+        {
+            for (var count = step; count <= max; count += step)
             {
-                var random = new System.Random(145171654);
-                var vertices = new HashSet<uint>();
-                var locations = new List<Coordinate>();
-                while (locations.Count < count)
-                {
-                    var v = (uint) random.Next((int) router.Db.Network.VertexCount);
-                    if (!vertices.Contains(v))
-                    {
-                        vertices.Add(v);
-                        locations.Add(router.Db.Network.GetVertex(v));
-                    }
-                }
-
-                var locationsArray = locations.ToArray();
-                var massResolver =
-                    new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
-                massResolver.Run();
-
-                GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
-                    .TestPerf($"Testing {profile.FullName} {count}x{count} matrix");
-                GetTestDirectedWeightMatrix(router, profile, massResolver, max)
-                    .TestPerf($"Testing {profile.FullName} {count}x{count} directed matrix");
-            }
-
-            profile = Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest();
-            for (var count = 250; count <= 1000; count += 250)
-            {
-                var random = new System.Random(145171654);
-                var vertices = new HashSet<uint>();
-                var locations = new List<Coordinate>();
-                while (locations.Count < count)
-                {
-                    var v = (uint) random.Next((int) router.Db.Network.VertexCount);
-                    if (!vertices.Contains(v))
-                    {
-                        vertices.Add(v);
-                        locations.Add(router.Db.Network.GetVertex(v));
-                    }
-                }
-
-                var locationsArray = locations.ToArray();
-                var massResolver =
-                    new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] {profile}, locationsArray);
-                massResolver.Run();
-
-                GetTestWeightMatrixAlgorithm(router, profile, massResolver, max)
-                    .TestPerf($"Testing {profile.FullName} {count}x{count} matrix");
+                GetTestWeightMatrix(router, profile, count)
+                    .TestPerf($"Testing {profile.FullName} " +
+                              $"({(router.Db.HasContractedFor(profile) ? "contracted" : "uncontracted")}) {count}x{count} weight matrix");
+                GetTestDirectedWeightMatrix(router, profile, count)
+                    .TestPerf($"Testing {profile.FullName} " +
+                              $"({(router.Db.HasContractedFor(profile) ? "contracted" : "uncontracted")}) {count}x{count}x4 directed weight matrix");
             }
         }
 
@@ -129,44 +94,25 @@ namespace Itinero.Test.Functional.Tests
         /// <summary>
         /// Tests calculating a weight matrix.
         /// </summary>
-        public static Action GetTestWeightMatrix(Router router, Profiles.Profile profile, MassResolvingAlgorithm massResolver, float max = 7200)
+        public static Action GetTestDirectedWeightMatrix(Router router, Profiles.Profile profile, int count)
         {
-            var settings = new RoutingSettings<float>()
+            var random = new System.Random(145171654);
+            var vertices = new HashSet<uint>();
+            var locations = new List<Coordinate>();
+            while (locations.Count < count)
             {
-                //Cache = cache
-            };
-            settings.SetMaxSearch(profile.FullName, max);
-            return () =>
-            {
-                var invalids = new HashSet<int>();
-                var weights = router.CalculateWeight(profile, massResolver.RouterPoints.ToArray(), invalids,
-                    settings);
-            };
-        }
-        
-        /// <summary>
-        /// Tests calculating a weight matrix.
-        /// </summary>
-        public static Action GetTestWeightMatrixAlgorithm(Router router, Profiles.Profile profile, MassResolvingAlgorithm massResolver, float max = 7200)
-        {
-            var settings = new RoutingSettings<float>()
-            {
-                //Cache = cache
-            };
-            settings.SetMaxSearch(profile.FullName, max);
-            return () =>
-            {
-                var matrix = new Itinero.Algorithms.Matrices.WeightMatrixAlgorithm(router, profile, massResolver, settings);
-                matrix.Run();
-                Assert.IsTrue(matrix.HasSucceeded);
-            };
-        }
+                var v = (uint)random.Next((int)router.Db.Network.VertexCount);
+                if (!vertices.Contains(v))
+                {
+                    vertices.Add(v);
+                    locations.Add(router.Db.Network.GetVertex(v));
+                }
+            }
 
-        /// <summary>
-        /// Tests calculating a weight matrix.
-        /// </summary>
-        public static Action GetTestDirectedWeightMatrix(Router router, Profiles.Profile profile, MassResolvingAlgorithm massResolver, int count)
-        {
+            var locationsArray = locations.ToArray();
+            var massResolver = new MassResolvingAlgorithm(router, new Profiles.IProfileInstance[] { profile }, locationsArray);
+            massResolver.Run();
+            
             var edges = new List<DirectedEdgeId>();
             foreach(var resolved in massResolver.RouterPoints)
             {

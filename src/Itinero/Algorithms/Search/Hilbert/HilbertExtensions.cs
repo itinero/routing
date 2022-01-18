@@ -179,13 +179,16 @@ namespace Itinero.Algorithms.Search.Hilbert
         public static HashSet<uint> Search(this GeometricGraph graph, int n, float minLatitude, float minLongitude,
             float maxLatitude, float maxLongitude)
         {
+            var vertices = new HashSet<uint>();
+            if (!Coordinate.Validate(minLatitude, minLongitude) ||
+                !Coordinate.Validate(maxLatitude, maxLongitude)) return vertices;
+            
             var targets = HilbertCurve.HilbertDistances(
                 System.Math.Max(minLatitude, -90),
                 System.Math.Max(minLongitude, -180),
                 System.Math.Min(maxLatitude, 90),
                 System.Math.Min(maxLongitude, 180), n);
             targets.Sort();
-            var vertices = new HashSet<uint>();
 
             var targetIdx = 0;
             var vertex1 = (uint)0;

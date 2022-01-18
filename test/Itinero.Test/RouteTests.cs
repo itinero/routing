@@ -412,7 +412,7 @@ namespace Itinero.Test
             };
 
             var json = route.ToJson();
-            Assert.AreEqual("{\"Attributes\":{\"distance\":\"100\",\"time\":\"60\"},\"Shape\":[[4.801353,51.26782],[4.801353,51.26822]],\"ShapeMeta\":[{\"Shape\":0},{\"Shape\":1,\"Attributes\":{\"highway\":\"residential\"}}],\"Stops\":[{\"Shape\":1,\"Coordinates\":[4.801353,51.26822],\"Attributes\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}],\"Branches\":[{\"Shape\":1,\"Coordinates\":[4.801353,51.26822],\"Attributes\":{\"highway\":\"residential\"}}]}",
+            Assert.AreEqual("{\"Attributes\":{\"distance\":\"100\",\"time\":\"60\"},\"Shape\":[[4.8013525,51.26782],[4.8013525,51.26822]],\"ShapeMeta\":[{\"Shape\":0},{\"Shape\":1,\"Attributes\":{\"highway\":\"residential\"}}],\"Stops\":[{\"Shape\":1,\"Coordinates\":[4.8013525,51.26822],\"Attributes\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}],\"Branches\":[{\"Shape\":1,\"Coordinates\":[4.8013525,51.26822],\"Attributes\":{\"highway\":\"residential\"}}]}",
                 json);
         }
 
@@ -486,7 +486,7 @@ namespace Itinero.Test
             };
 
             var xml = route.ToXml();
-            Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?><route><shape><c lat=\"51.26782\" lon=\"4.801353\" /><c lat=\"51.26822\" lon=\"4.801353\" /></shape><metas><meta shape=\"0\" /><meta shape=\"1\"><property k=\"highway\" v=\"residential\" /></meta></metas><branches><branch shape=\"1\"><property k=\"highway\" v=\"residential\" /></branch></branches><stops><stop shape=\"1\" lat=\"51.26822\" lon=\"4.801353\"><property k=\"address\" v=\"Pastorijstraat 102, 2275 Wechelderzande\" /></stop></stops></route>",
+            Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?><route><shape><c lat=\"51.26782\" lon=\"4.8013525\" /><c lat=\"51.26822\" lon=\"4.8013525\" /></shape><metas><meta shape=\"0\" /><meta shape=\"1\"><property k=\"highway\" v=\"residential\" /></meta></metas><branches><branch shape=\"1\"><property k=\"highway\" v=\"residential\" /></branch></branches><stops><stop shape=\"1\" lat=\"51.26822\" lon=\"4.8013525\"><property k=\"address\" v=\"Pastorijstraat 102, 2275 Wechelderzande\" /></stop></stops></route>",
                 xml);
         }
 
@@ -560,7 +560,7 @@ namespace Itinero.Test
             };
 
             var geojson = route.ToGeoJson();
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.8013525,51.26782],[4.8013525,51.26822]]},\"properties\":{\"highway\":\"residential\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.8013525,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
                 geojson);
         }
 
@@ -634,7 +634,7 @@ namespace Itinero.Test
             };
 
             var geojson = route.ToGeoJson(isRaw: (k, v) => k == "time" || k == "distance");
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\",\"distance\":100,\"time\":60}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.8013525,51.26782],[4.8013525,51.26822]]},\"properties\":{\"highway\":\"residential\",\"distance\":100,\"time\":60}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.8013525,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\"}}]}",
                 geojson);
         }
 
@@ -708,10 +708,10 @@ namespace Itinero.Test
             };
 
             var geojson = route.ToGeoJson(attributesCallback: (att) => { att.AddOrReplace("extra", "attributes"); });
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"highway\":\"residential\",\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"ShapeMeta\",\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.8013525,51.26782],[4.8013525,51.26822]]},\"properties\":{\"highway\":\"residential\",\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.8013525,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
                 geojson);
             geojson = route.ToGeoJson(attributesCallback: (att) => { att.AddOrReplace("extra", "attributes"); }, includeShapeMeta: false, groupByShapeMeta: false);
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.801353,51.26782],[4.801353,51.26822]]},\"properties\":{\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.801353,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[4.8013525,51.26782],[4.8013525,51.26822]]},\"properties\":{\"extra\":\"attributes\"}},{\"type\":\"Feature\",\"name\":\"Stop\",\"Shape\":\"1\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[4.8013525,51.26822]},\"properties\":{\"address\":\"Pastorijstraat 102, 2275 Wechelderzande\",\"extra\":\"attributes\"}}]}",
                 geojson);
         }
 

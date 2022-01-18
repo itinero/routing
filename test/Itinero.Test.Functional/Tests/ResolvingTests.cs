@@ -38,6 +38,9 @@ namespace Itinero.Test.Functional.Tests
         {
             var router = new Router(routerDb);
 
+            // resolving with an invalid coordinate should fail gracefully.
+            router.TryResolve(Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 51.660199503280325f, 5291824042797089f);
+
             GetTestRandomResolves(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves");
             GetTestRandomResolvesParallel(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000).TestPerf("Random resolves in parallel");
             GetTestRandomResolvesCached(router, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), 1000, 100).TestPerf("Random resolves");

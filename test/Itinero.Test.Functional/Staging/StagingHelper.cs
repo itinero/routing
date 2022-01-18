@@ -14,11 +14,11 @@ namespace Itinero.Test.Functional.Staging
             var features = GetFeatureCollection(geojsonFile);
 
             var locations = new List<Itinero.LocalGeo.Coordinate>();
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
                 if (feature.Geometry is Point p)
                 {
-                    locations.Add(new Coordinate((float)p.Coordinate.Y, (float)p.Coordinate.X));
+                    locations.Add(new Itinero.LocalGeo.Coordinate((float)p.Coordinate.Y, (float)p.Coordinate.X));
                 }
             }
 

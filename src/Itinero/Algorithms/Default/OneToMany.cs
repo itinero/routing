@@ -102,9 +102,26 @@ namespace Itinero.Algorithms.Default
                 }
             }
 
+            T MaxBestWeight()
+            {
+                var min = _weightHandler.Zero;
+                foreach (var best in _best)
+                {
+                    if (best == null) return _weightHandler.Infinite;
+
+                    if (_weightHandler.IsLargerThan(best.Weight, min))
+                    {
+                        min = best.Weight;
+                    }
+                }
+
+                return min;
+            }
+
             // run the search.
             var dykstra = new Dykstra<T>(_routerDb.Network.GeometricGraph.Graph, null, _weightHandler,
                 sourcePaths, max, false);
+            var min = _weightHandler.Infinite;
             dykstra.WasFound += (vertex, weight) =>
             {
                 LinkedTarget target;
@@ -143,7 +160,15 @@ namespace Itinero.Algorithms.Default
                         // move to next target.
                         target = target.Next;
                     }
+
+                    min = MaxBestWeight();
                 }
+
+                if (_weightHandler.IsSmallerThan(min, weight))
+                {
+                    return true;
+                }
+                
                 return false;
             };
             dykstra.Run(cancellationToken);
@@ -164,7 +189,8 @@ namespace Itinero.Algorithms.Default
             {
                 return best;
             }
-            throw new InvalidOperationException("No path could be found to/from source/target.");
+
+            return null;
         }
 
         /// <summary>

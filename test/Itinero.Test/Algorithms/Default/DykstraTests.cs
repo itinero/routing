@@ -130,7 +130,7 @@ namespace Itinero.Test.Algorithms
             Assert.AreEqual(null, visit.From);
             Assert.AreEqual(0, visit.Vertex);
             Assert.AreEqual(0, visit.Weight);
-            Assert.IsFalse(algorithm.TryGetVisit(1, out visit));
+            Assert.IsTrue(algorithm.TryGetVisit(1, out visit));
         }
 
         /// <summary>

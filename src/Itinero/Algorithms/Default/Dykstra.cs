@@ -166,12 +166,23 @@ namespace Itinero.Algorithms.Default
                 return false;
             }
 
+            if (!_weightHandler.IsSmallerThan(_current.Weight, _sourceMax))
+            { // maximum reached.
+                this.MaxReached = true;
+                return false;
+            }
+
             // get neighbours and queue them.
             _edgeEnumerator.MoveTo(_current.Vertex);
             while (_edgeEnumerator.MoveNext())
             {
                 var edge = _edgeEnumerator;
                 var neighbour = edge.To;
+
+                if (edge.IdDirected() == -_current.Edge)
+                { // don't go back.
+                    continue;
+                }
 
                 if (_current.From != null &&
                     _current.From.Vertex == neighbour)
@@ -193,21 +204,16 @@ namespace Itinero.Algorithms.Default
 
                 // check the tags against the interpreter.
                 if (factor.Value > 0 && (factor.Direction == 0 ||
-                    (!_backward && (factor.Direction == 1) != edge.DataInverted) ||
-                    (_backward && (factor.Direction == 1) == edge.DataInverted)))
-                { // it's ok; the edge can be traversed by the given vehicle.
+                                         (!_backward && (factor.Direction == 1) != edge.DataInverted) ||
+                                         (_backward && (factor.Direction == 1) == edge.DataInverted)))
+                {
+                    // it's ok; the edge can be traversed by the given vehicle.
                     // calculate neighbors weight.
-                    var edgeWeight = (distance * factor.Value);
+                    var neighbourVisit = new EdgePath<T>(neighbour, totalWeight, edge.IdDirected(), _current);
+                    _heap.Push(neighbourVisit, _weightHandler.GetMetric(totalWeight));
 
-                    if (_weightHandler.IsSmallerThan(totalWeight, _sourceMax))
-                    { // update the visit list.
-                        _heap.Push(new EdgePath<T>(neighbour, totalWeight, edge.IdDirected(), _current),
-                            _weightHandler.GetMetric(totalWeight));
-                    }
-                    else
-                    { // the maximum was reached.
-                        this.MaxReached = true;
-                    }
+                    NeighbourWasFound?.Invoke(neighbourVisit);
+                    (this as IEdgeVisitor<T>).VisitNeighbour?.Invoke(neighbourVisit);
                 }
             }
             return true;
@@ -258,9 +264,29 @@ namespace Itinero.Algorithms.Default
         }
 
         /// <summary>
+        /// The was found delegate for not yet settled neighbours.
+        /// </summary>
+        public delegate void NeighbourWasFoundDelegate(EdgePath<T> visit);
+
+        /// <summary>
+        /// Gets or sets the wasfound function to be called when a new vertex is found.
+        /// </summary>
+        public NeighbourWasFoundDelegate NeighbourWasFound
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Gets or sets the visit function to be called when a new path is found.
         /// </summary>
         public VisitDelegate<T> Visit
+        {
+            get;
+            set;
+        }
+
+        VisitDelegate<T> IEdgeVisitor<T>.VisitNeighbour
         {
             get;
             set;

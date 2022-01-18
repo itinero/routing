@@ -16,8 +16,6 @@
  *  limitations under the License.
  */
 
-using NetTopologySuite.Features;
-using NetTopologySuite.Geometries;
 using Itinero.Data.Network;
 using Itinero.LocalGeo;
 using System.Collections.Generic;
@@ -55,13 +53,13 @@ namespace Itinero.Test
             var edgeIds = db.EdgeData.AddInt64("edge_id");
 
             var geoJsonReader = new NetTopologySuite.IO.GeoJsonReader();
-            var features = geoJsonReader.Read<FeatureCollection>(geoJson);
+            var features = geoJsonReader.Read<NetTopologySuite.Features.FeatureCollection>(geoJson);
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
-                if (feature.Geometry is Point)
+                if (feature.Geometry is NetTopologySuite.Geometries.Point)
                 {
-                    var point = feature.Geometry as Point;
+                    var point = feature.Geometry as NetTopologySuite.Geometries.Point;
                     uint id;
                     if (feature.Attributes.Exists("id") &&
                        uint.TryParse(feature.Attributes["id"].ToInvariantString(), out id))
@@ -100,16 +98,16 @@ namespace Itinero.Test
                 }
             }
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
-                if (feature.Geometry is LineString)
+                if (feature.Geometry is NetTopologySuite.Geometries.LineString)
                 {
                     if (feature.Attributes.Contains("restriction", "yes"))
                     {
                         continue;
                     }
 
-                    var line = feature.Geometry as LineString;
+                    var line = feature.Geometry as NetTopologySuite.Geometries.LineString;
                     var profile = new Itinero.Attributes.AttributeCollection();
                     var names = feature.Attributes.GetNames();
                     foreach (var name in names)
@@ -167,12 +165,12 @@ namespace Itinero.Test
                 }
             }
 
-            foreach (var feature in features.Features)
+            foreach (var feature in features)
             {
-                if (feature.Geometry is LineString &&
+                if (feature.Geometry is NetTopologySuite.Geometries.LineString &&
                     feature.Attributes.Contains("restriction", "yes"))
                 {
-                    var line = feature.Geometry as LineString;
+                    var line = feature.Geometry as NetTopologySuite.Geometries.LineString;
                     var sequence = new List<uint>();
                     sequence.Add(db.SearchVertexFor(
                         (float)line.Coordinates[0].Y,
@@ -199,10 +197,10 @@ namespace Itinero.Test
                     restrictions.Add(sequence.ToArray());
                 }
 
-                if (feature.Geometry is Point &&
+                if (feature.Geometry is NetTopologySuite.Geometries.Point &&
                     feature.Attributes.Contains("restriction", "yes"))
                 {
-                    var point = feature.Geometry as Point;
+                    var point = feature.Geometry as NetTopologySuite.Geometries.Point;
                     var sequence = new List<uint>();
                     sequence.Add(db.SearchVertexFor(
                         (float)point.Coordinate.Y,

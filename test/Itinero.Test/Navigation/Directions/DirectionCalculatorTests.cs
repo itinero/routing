@@ -16,9 +16,12 @@
  *  limitations under the License.
  */
 
+using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Itinero.LocalGeo;
 using Itinero.Navigation.Directions;
+using NUnit.Framework.Internal.Builders;
 
 namespace Itinero.Test.Navigation.Directions
 {
@@ -66,12 +69,12 @@ namespace Itinero.Test.Navigation.Directions
         [Test]
         public void RelativeDirectionTest()
         {
-            var direction = DirectionCalculator.Calculate(new Coordinate(0, 1), 
+            var direction = DirectionCalculator.Calculate(new Coordinate(0, 1),
                 new Coordinate(0, 0), new Coordinate(1, 0));
             Assert.AreEqual(90, direction.Angle, 0.0001);
             Assert.AreEqual(RelativeDirectionEnum.Right, direction.Direction);
             direction = DirectionCalculator.Calculate(new Coordinate(1, 0),
-                 new Coordinate(0, 0), new Coordinate(0, 1));
+                new Coordinate(0, 0), new Coordinate(0, 1));
             Assert.AreEqual(270, direction.Angle, 0.0001);
             Assert.AreEqual(RelativeDirectionEnum.Left, direction.Direction);
         }
@@ -98,6 +101,71 @@ namespace Itinero.Test.Navigation.Directions
                 new Coordinate(0, -1)));
             Assert.AreEqual(DirectionEnum.NorthWest, DirectionCalculator.Calculate(new Coordinate(0, 0),
                 new Coordinate(1, -1)));
+        }
+
+        [Test]
+        public void CalculateAngleSameLatitudesGivesAngle()
+        {
+            var shape = new Coordinate(50.71287f, 4.555358f); // slightly to the right/east
+            var nextShape = new Coordinate(50.71287f, 4.55207f); // slightly to the left/west
+            var bearingOut = DirectionCalculator.Angle(
+                nextShape, // west
+                shape, // center
+                new Coordinate(shape.Latitude + 0.01f /* perfectly north of the shapepoint*/,
+                    shape.Longitude));
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) (3 * Math.PI / 2), bearingOut);
+        }
+
+        [Test]
+        public void CalculateAngleSameLatitudesGivesAngleEast()
+        {
+            var shape = new Coordinate(50.71287f, 4.555358f);
+            var nextShape = new Coordinate(50.71287f, 4.55807f);
+            var bearingOut = DirectionCalculator.Angle(
+                nextShape, // west
+                shape, // center
+                new Coordinate(shape.Latitude + 0.01f /* perfectly north of the shapepoint*/,
+                    shape.Longitude));
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) Math.PI / 2, bearingOut);
+        }
+
+
+        [Test]
+        public void CalculateAngleStraightOn()
+        {
+            var a = new Coordinate(50.71287f, 4.55f);
+            var b = new Coordinate(50.71287f, 4.56f);
+            var c = new Coordinate(50.71287f, 4.57f);
+
+            var bearingOut = DirectionCalculator.Angle(a, b, c);
+            
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) Math.PI, bearingOut);
+        }
+        
+        [Test]
+        public void CalculateAngleTurnAroundExpects360()
+        {
+            var a = new Coordinate(50.71287f, 4.55f);
+            var b = new Coordinate(50.71287f, 4.56f);
+
+            var bearingOut = DirectionCalculator.Angle(a, b, a);
+            
+            Assert.False(double.IsNaN(bearingOut));
+            Assert.AreEqual((float) (2 * Math.PI), bearingOut);
+        }
+
+        [Test]
+        public void CalculateAngleTurnAround()
+        {
+            var coordinate1 = new Coordinate(51.168175f,4.4764566f);
+            var coordinate2 = new Coordinate(51.169174f,4.4764566f);
+            var coordinate3 = new Coordinate(51.168175f,4.4764566f);
+
+            var angle = DirectionCalculator.Angle(coordinate1, coordinate2, coordinate3);
+            Assert.AreEqual((float) (Math.PI * 2), angle);
         }
     }
 }

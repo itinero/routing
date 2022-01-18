@@ -28,6 +28,9 @@ using Itinero.Data;
 using Itinero.LocalGeo;
 using SRTM;
 using Itinero.Elevation;
+using SRTM.Sources;
+using SRTM.Sources.NASA;
+using SRTM.Sources.USGS;
 
 namespace Itinero.Test.Functional.Tests
 {
@@ -46,13 +49,15 @@ namespace Itinero.Test.Functional.Tests
             var routerDb = GetTestBuildRouterDb(sourcePBF, false, true,
                 Osm.Vehicles.Vehicle.Car,
                 Osm.Vehicles.Vehicle.Bicycle,
-                Osm.Vehicles.Vehicle.Pedestrian).TestPerf("Loading OSM data");
+                Osm.Vehicles.Vehicle.Pedestrian,
+                Osm.Vehicles.Vehicle.BigTruck).TestPerf("Loading OSM data");
 
             GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
-
+            
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest()).TestPerf("Adding islands for bicycles.");
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
-
+            
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
 
@@ -219,20 +224,23 @@ namespace Itinero.Test.Functional.Tests
             // create a new srtm data instance.
             // it accepts a folder to download and cache data into.
             var srtmCache = new DirectoryInfo("srtm-cache");
-            if (!srtmCache.Exists)
-            {
+            if (!srtmCache.Exists) {
                 srtmCache.Create();
             }
-            var srtmData = new SRTMData("srtm-cache");
-            LocalGeo.Elevation.ElevationHandler.GetElevation = (lat, lon) =>
-            {
-                return (short)srtmData.GetElevation(lat, lon);
-            };
 
-            return () =>
-            {
-                routerDb.AddElevation();
-            };
+            // setup elevation integration.
+            var srtmData = new SRTMData(srtmCache.FullName, (source) => {
+                var (path, name) = source;
+                var filename = name + ".hgt.zip";
+                    var hgt = Path.Combine(path, filename);
+            
+                    return SourceHelpers.Download(hgt, "http://planet.anyways.eu/srtm/" + filename);
+                });
+            
+            LocalGeo.Elevation.ElevationHandler.GetElevation = (lat, lon) => 
+                (short)srtmData.GetElevation(lat, lon);
+
+            return routerDb.AddElevation;
         }
 
         private static string FormatBytes(long bytes)

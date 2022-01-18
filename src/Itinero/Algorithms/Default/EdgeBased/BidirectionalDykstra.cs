@@ -58,13 +58,31 @@ namespace Itinero.Algorithms.Default.EdgeBased
             _maxBackward = _weightHandler.Zero;
             _sourceSearch.Visit = (path) =>
             {
-                _maxForward = path.Weight;
-                return this.ReachedForward(path);
+                if (path.From == null) return false;
+                _maxForward = path.From.Weight;
+                if (path.From.From == null)
+                {
+                    this.NeighbourReachedForward(path);
+                }
+                return false;
+            };
+            _sourceSearch.VisitNeighbour = (path) =>
+            {
+                return this.NeighbourReachedForward(path);
             };
             _targetSearch.Visit = (path) =>
             {
-                _maxBackward = path.Weight;
-                return this.ReachedBackward(path);
+                if (path.From == null) return false;
+                _maxBackward = path.From.Weight;
+                if (path.From.From == null)
+                {
+                    this.NeighbourReachedBackward(path);
+                }
+                return false;
+            };
+            _targetSearch.VisitNeighbour = (path) =>
+            {
+                return this.NeighbourReachedBackward(path);
             };
 
             _sourceSearch.Initialize();
@@ -76,11 +94,6 @@ namespace Itinero.Algorithms.Default.EdgeBased
                 { // still a need to search, not best found or max < best.
                     source = _sourceSearch.Step();
                 }
-
-                if (this.HasSucceeded)
-                { // a path was found.
-                    break;
-                }
                 
                 var target = false;
                 if (_weightHandler.IsSmallerThan(_maxBackward, _best.Item3))
@@ -88,8 +101,9 @@ namespace Itinero.Algorithms.Default.EdgeBased
                     target = _targetSearch.Step();
                 }
 
-                if (this.HasSucceeded)
-                { // a path was found.
+                if (_weightHandler.IsLargerThanOrEqual(_weightHandler.Add(_maxBackward, _maxForward),
+                    _best.Item3))
+                { // a better path cannot be found.
                     break;
                 }
                 
@@ -104,24 +118,40 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Called when a vertex was reached during a forward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedForward(EdgePath<T> forwardVisit)
+        private bool NeighbourReachedForward(EdgePath<T> forwardVisit)
         {
             // check backward search for the same vertex.
             if (!_targetSearch.TryGetVisit(-forwardVisit.Edge, out var backwardVisit)) return false; 
             
             // there is a status for this edge in the target search.
-            var localWeight = _weightHandler.Zero;
+            var totalWeight = backwardVisit.Weight;
             if (forwardVisit.From != null)
             {
-                localWeight = _weightHandler.Subtract(forwardVisit.Weight, forwardVisit.From.Weight);
+                totalWeight = _weightHandler.Add(forwardVisit.From.Weight, totalWeight);
             }
-            var totalWeight = _weightHandler.Subtract(_weightHandler.Add(forwardVisit.Weight, backwardVisit.Weight), localWeight);
+            
+            // calculate the weight, count forward edge only once.
             if (!_weightHandler.IsSmallerThan(totalWeight, _best.Item3)) return false; 
             
             // this is a better match.
             if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
                 (forwardVisit.From.From != null || backwardVisit.From.From != null))
             { // paths match and are bigger than one edge.
+                // verify if there are restrictions here.
+                var targetVertexRestriction = _sourceSearch.GetRestriction(forwardVisit.Vertex);
+                if (targetVertexRestriction != null)
+                {
+                    foreach (var restriction in targetVertexRestriction)
+                    {
+                        if (restriction != null &&
+                            restriction.Length == 1)
+                        {
+                            // a simple restriction, restricted vertex, cannot join paths here.
+                            return false;
+                        }
+                    }
+                }
+                
                 _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
                 this.HasSucceeded = true;
             }
@@ -132,24 +162,38 @@ namespace Itinero.Algorithms.Default.EdgeBased
         /// Called when a vertex was reached during a backward search.
         /// </summary>
         /// <returns></returns>
-        private bool ReachedBackward(EdgePath<T> backwardVisit)
+        private bool NeighbourReachedBackward(EdgePath<T> backwardVisit)
         {
             // check forward search for the same vertex.
-            if (!_sourceSearch.TryGetVisit(-backwardVisit.Edge, out var forwardVisit)) return false; 
+            if (!_sourceSearch.TryGetVisit(-backwardVisit.Edge, out var forwardVisit)) return false;
             
             // there is a status for this edge in the source search.
-            var localWeight = _weightHandler.Zero;
-            if (backwardVisit.From != null)
+            var totalWeight = forwardVisit.Weight;
+            if (forwardVisit.From != null)
             {
-                localWeight = _weightHandler.Subtract(backwardVisit.Weight, backwardVisit.From.Weight);
+                totalWeight = _weightHandler.Add(backwardVisit.From.Weight, totalWeight);
             }
-            var totalWeight = _weightHandler.Subtract(_weightHandler.Add(backwardVisit.Weight, forwardVisit.Weight), localWeight);
             if (!_weightHandler.IsSmallerThan(totalWeight, _best.Item3)) return false; 
             
             // this is a better match.
             if (forwardVisit.Vertex == backwardVisit.From.Vertex &&
                 (forwardVisit.From.From != null || backwardVisit.From.From != null))
             { // paths match and are bigger than one edge.
+                // verify if there are restrictions here.
+                var targetVertexRestriction = _sourceSearch.GetRestriction(forwardVisit.Vertex);
+                if (targetVertexRestriction != null)
+                {
+                    foreach (var restriction in targetVertexRestriction)
+                    {
+                        if (restriction != null &&
+                            restriction.Length == 1)
+                        {
+                            // a simple restriction, restricted vertex, cannot join paths here.
+                            return false;
+                        }
+                    }
+                }
+                
                 _best = new Tuple<EdgePath<T>, EdgePath<T>, T>(forwardVisit, backwardVisit, totalWeight);
                 this.HasSucceeded = true;
             }

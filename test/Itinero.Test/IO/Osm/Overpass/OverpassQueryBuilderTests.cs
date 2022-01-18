@@ -39,7 +39,7 @@ namespace Itinero.Test.IO.Osm.Overpass
                 new Coordinate(51.22860288655629f, 4.470577239990234f),
                 new Coordinate(51.17256293114924f, 4.383201599121094f));
 
-            Assert.AreEqual("<osm-script><union><query type=\"way\"><has-kv k=\"highway\"/><polygon-query bounds=\"51.17256 4.383202 51.1408 4.466801 51.2286 4.470577 51.17256 4.383202\"/></query><query type=\"relation\"><has-kv k=\"type=restriction\"/><polygon-query bounds=\"51.17256 4.383202 51.1408 4.466801 51.2286 4.470577 51.17256 4.383202\"/></query></union><print mode=\"body\"/><recurse type=\"down\"/><print mode=\"skeleton\"/></osm-script>", q);
+            Assert.AreEqual("<osm-script><union><query type=\"way\"><has-kv k=\"highway\"/><polygon-query bounds=\"51.17256 4.3832016 51.1408 4.4668007 51.228603 4.4705772 51.17256 4.3832016\"/></query><query type=\"relation\"><has-kv k=\"type=restriction\"/><polygon-query bounds=\"51.17256 4.3832016 51.1408 4.4668007 51.228603 4.4705772 51.17256 4.3832016\"/></query></union><print mode=\"body\"/><recurse type=\"down\"/><print mode=\"skeleton\"/></osm-script>", q);
         }
     }
 }

@@ -3,6 +3,7 @@ using Itinero.Elevation;
 using Itinero.IO.Osm;
 using Itinero.LocalGeo;
 using SRTM;
+using SRTM.Sources;
 
 namespace Itinero.Test.Functional.Staging
 {
@@ -18,11 +19,18 @@ namespace Itinero.Test.Functional.Staging
             // create a new srtm data instance.
             // it accepts a folder to download and cache data into.
             var srtmCache = new DirectoryInfo("srtm-cache");
-            if (!srtmCache.Exists)
-            {
+            if (!srtmCache.Exists) {
                 srtmCache.Create();
             }
-            var srtmData = new SRTMData("srtm-cache");
+
+            // setup elevation integration.
+            var srtmData = new SRTMData(srtmCache.FullName, (source) => {
+                var (path, name) = source;
+                var filename = name + ".hgt.zip";
+                var hgt = Path.Combine(path, filename);
+            
+                return SourceHelpers.Download(hgt, "http://planet.anyways.eu/srtm/" + filename);
+            });
             LocalGeo.Elevation.ElevationHandler.GetElevation = (lat, lon) =>
             {
                 return (short)srtmData.GetElevation(lat, lon);

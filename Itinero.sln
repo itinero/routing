@@ -12,22 +12,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE.md = LICENSE.md
 		NOTICE.md = NOTICE.md
 		README.md = README.md
-		SharedAssemblyVersion.cs = SharedAssemblyVersion.cs
 		test.sh = test.sh
 		build.sh = build.sh
+		Itinero.Common.props = Itinero.Common.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7E594B3F-4CA9-4198-B90D-DD16972D0481}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{77BC0AC3-41A6-4672-A3AB-9C27710756BE}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nuspec", "nuspec", "{8BEE6496-C8C3-4815-8481-530E6706717B}"
-	ProjectSection(SolutionItems) = preProject
-		nuspec\Itinero.IO.Osm.nuspec = nuspec\Itinero.IO.Osm.nuspec
-		nuspec\Itinero.nuspec = nuspec\Itinero.nuspec
-		nuspec\Itinero.Geo.nuspec = nuspec\Itinero.Geo.nuspec
-		nuspec\Itinero.IO.Shape.nuspec = nuspec\Itinero.IO.Shape.nuspec
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Itinero", "src\Itinero\Itinero.csproj", "{97D8404B-8C3C-4A15-BB44-F54C15C0DE67}"
 EndProject

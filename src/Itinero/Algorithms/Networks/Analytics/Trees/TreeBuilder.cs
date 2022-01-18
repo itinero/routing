@@ -34,6 +34,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// <summary>
         /// Creates a new tree builder.
         /// </summary>
+        /// <param name="graph">The graph.</param>
         /// <param name="edgeVisitor">The algorithm that visits the edges.</param>
         public TreeBuilder(GeometricGraph graph, IEdgeVisitor<float> edgeVisitor)
         {
@@ -41,7 +42,7 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
             _edgeVisitor = edgeVisitor;
         }
 
-        private HashSet<uint> _edges;
+        private HashSet<long> _edges;
         private List<TreeEdge> _treeEdges;
         private float _max = 0;
         private Tree _tree;
@@ -51,10 +52,10 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
         /// </summary>
         protected override void DoRun(CancellationToken cancellationToken)
         {
-            _edges = new HashSet<uint>();
+            _edges = new HashSet<long>();
             _treeEdges = new List<TreeEdge>();
 
-            _edgeVisitor.Visit += (path) =>
+            bool HandleVisit(EdgePath<float> path)
             {
                 var e = path.Edge;
                 var weight2 = path.Weight;
@@ -63,33 +64,32 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
                     return false;
                 }
 
-                var previousEdgeId = Constants.NO_EDGE;
+                if (_edges.Contains(e))
+                {
+                    return false;
+                }
+                _edges.Add(e);
+                
+                var edgeId = new DirectedEdgeId(e);
+                var previousEdgeId = DirectedEdgeId.NO_EDGE;
                 var weight1 = 0f;
                 if (path.From != null)
                 {
                     weight1 = path.From.Weight;
-                    if (path.From.Edge > 0)
+                    if (path.From.Edge != Constants.NO_EDGE)
                     {
-                        previousEdgeId = (uint)path.From.Edge - 1;
-                    }
-                    else
-                    {
-                        previousEdgeId = (uint)((-path.From.Edge) - 1);
+                        previousEdgeId = new DirectedEdgeId(path.From.Edge);
                     }
                 }
                 
-                uint edgeId;
-                if (e > 0)
+                if (_max < weight1)
                 {
-                    edgeId = (uint)e - 1;
+                    _max = weight1;
                 }
-                else
-                {
-                    edgeId = (uint)((-e) - 1);
-                }
-                var edge = _graph.GetEdge(edgeId);
+                
+                var edge = _graph.GetEdge(edgeId.EdgeId);
                 var shape = _graph.GetShape(edge);
-                if (e < 0)
+                if (!edgeId.Forward)
                 {
                     shape.Reverse();
                 }
@@ -101,24 +101,28 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees
                     shapeArray[i][1] = shape[i].Latitude;
                     shapeArray[i][0] = shape[i].Longitude;
                 }
-
+                
                 var treeEdge = new TreeEdge()
                 {
-                    EdgeId = edgeId,
-                    PreviousEdgeId = previousEdgeId,
+                    EdgeId = edgeId.EdgeId,
+                    EdgeDirection =  edgeId.Forward,
+                    PreviousEdgeId = previousEdgeId.EdgeId,
+                    PreviousEdgeDirection = previousEdgeId.Forward,
                     Shape = shapeArray,
                     Weight1 = weight1,
                     Weight2 = weight2
                 };
                 _treeEdges.Add(treeEdge);
 
-                if (_max < weight2)
-                {
-                    _max = weight2;
-                }
-
                 return false;
+            }
+
+            _edgeVisitor.Visit+= (path) =>
+            {
+                if (path?.From?.From != null) return false;
+                return HandleVisit(path);
             };
+            _edgeVisitor.VisitNeighbour += HandleVisit;
             _edgeVisitor.Run(cancellationToken);
 
             _tree = new Tree()

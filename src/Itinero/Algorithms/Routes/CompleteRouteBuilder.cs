@@ -239,7 +239,8 @@ namespace Itinero.Algorithms.Routes
             }
             else
             { // both are just regular vertices.
-                edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                edge = _routerDb.Network.GetEdgeEnumerator(from).FirstOrDefault(x => x.To == to);
+                if (edge == null) throw new Exception($"Edge {from} -> {to} not found.");
                 direction = !edge.DataInverted;
                 distance = edge.Data.Distance;
                 var shapeEnumerable = edge.Shape;
@@ -351,7 +352,8 @@ namespace Itinero.Algorithms.Routes
             }
             else
             { // both are just regular vertices.
-                edge = _routerDb.Network.GetEdgeEnumerator(from).First(x => x.To == to);
+                edge = _routerDb.Network.GetEdgeEnumerator(from).FirstOrDefault(x => x.To == to);
+                if (edge == null) throw new Exception($"Edge {from} -> {to} not found.");
                 direction = !edge.DataInverted;
                 if (this.AddShortcut(edge, cancellationToken))
                 {

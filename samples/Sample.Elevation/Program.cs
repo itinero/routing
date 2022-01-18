@@ -46,7 +46,7 @@ namespace Sample.Elevation
                 Console.WriteLine(string.Format("[{0}] {1} - {2}", o, level, message));
             };
 
-            Download.ToFile("http://files.itinero.tech/data/OSM/planet/europe/luxembourg-latest.osm.pbf", "luxembourg-latest.osm.pbf").Wait();
+            Download.ToFile("http://planet.anyways.eu/planet/europe/luxembourg/luxembourg-latest.osm.pbf", "luxembourg-latest.osm.pbf").Wait();
 
             // load some routing data and create a router.
             var routerDb = new RouterDb();

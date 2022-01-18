@@ -57,7 +57,7 @@ namespace Itinero.Test.LocalGeo.IO
             };
 
             var geoJson = polygon.ToGeoJson();
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[4.368439,51.00425],[4.281235,50.90087],[4.540787,50.89827],[4.368439,51.00425]],[[4.37479,50.94659],[4.369683,50.9382],[4.385905,50.93874],[4.37479,50.94659]]]}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[4.3684387,51.00425],[4.2812347,50.900867],[4.5407867,50.89827],[4.3684387,51.00425]],[[4.37479,50.946587],[4.3696833,50.9382],[4.3859053,50.938744],[4.37479,50.946587]]]}}]}",
                 geoJson);
             
             var polygons = new Polygon[] {
@@ -104,7 +104,7 @@ namespace Itinero.Test.LocalGeo.IO
             };
 
             geoJson = polygons.ToGeoJson();
-            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[4.368439,51.00425],[4.281235,50.90087],[4.540787,50.89827],[4.368439,51.00425]],[[4.37479,50.94659],[4.369683,50.9382],[4.385905,50.93874],[4.37479,50.94659]]]}},{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[4.368439,51.00425],[4.281235,50.90087],[4.540787,50.89827],[4.368439,51.00425]],[[4.37479,50.94659],[4.369683,50.9382],[4.385905,50.93874],[4.37479,50.94659]]]}}]}",
+            Assert.AreEqual("{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[4.3684387,51.00425],[4.2812347,50.900867],[4.5407867,50.89827],[4.3684387,51.00425]],[[4.37479,50.946587],[4.3696833,50.9382],[4.3859053,50.938744],[4.37479,50.946587]]]}},{\"type\":\"Feature\",\"name\":\"Shape\",\"properties\":{},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[4.3684387,51.00425],[4.2812347,50.900867],[4.5407867,50.89827],[4.3684387,51.00425]],[[4.37479,50.946587],[4.3696833,50.9382],[4.3859053,50.938744],[4.37479,50.946587]]]}}]}",
                 geoJson);
         }
     }

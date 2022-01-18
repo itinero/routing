@@ -27,11 +27,21 @@ namespace Itinero.Algorithms.Networks.Analytics.Trees.Models
         /// Gets or sets the edge id.
         /// </summary>
         public uint EdgeId { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the edge direction.
+        /// </summary>
+        public bool EdgeDirection { get; set; }
 
         /// <summary>
         /// Gets or sets the previous edge id.
         /// </summary>
         public uint PreviousEdgeId { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the previous edge direction.
+        /// </summary>
+        public bool PreviousEdgeDirection { get; set; }
 
         /// <summary>
         /// Gets or sets the first weight.

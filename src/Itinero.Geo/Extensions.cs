@@ -18,6 +18,7 @@
 
 using Itinero.Navigation.Instructions;
 using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 
 namespace Itinero.Geo
 {
@@ -32,12 +33,14 @@ namespace Itinero.Geo
         public static NetTopologySuite.Geometries.Coordinate ToCoordinate(this LocalGeo.Coordinate coordinate)
         {
             return new NetTopologySuite.Geometries.Coordinate(coordinate.Longitude, coordinate.Latitude);
+
         }
 
         /// <summary>
         /// Converts a geoapi coordinate to a coordinate.
         /// </summary>
         public static LocalGeo.Coordinate FromCoordinate(this NetTopologySuite.Geometries.Coordinate coordinate)
+
         {
             return new LocalGeo.Coordinate((float)coordinate.Y, (float)coordinate.X);
         }
@@ -46,13 +49,14 @@ namespace Itinero.Geo
         /// Converts a list of coordinates to geoapi coordinates.
         /// </summary>
         public static List<NetTopologySuite.Geometries.Coordinate> ToCoordinates(this List<LocalGeo.Coordinate> coordinates)
+
         {
             if (coordinates == null)
             {
                 return null;
             }
-
             var geoApiCoordinates = new List<NetTopologySuite.Geometries.Coordinate>(coordinates.Count);
+
             for (var i = 0; i < coordinates.Count; i++)
             {
                 geoApiCoordinates.Add(coordinates[i].ToCoordinate());
@@ -64,13 +68,14 @@ namespace Itinero.Geo
         /// Converts a list of coordinates to geoapi coordinates.
         /// </summary>
         public static NetTopologySuite.Geometries.Coordinate[] ToCoordinatesArray(this List<LocalGeo.Coordinate> coordinates)
+
         {
             if (coordinates == null)
             {
                 return null;
             }
-
             var geoApiCoordinates = new NetTopologySuite.Geometries.Coordinate[coordinates.Count];
+
             for (var i = 0; i < coordinates.Count; i++)
             {
                 geoApiCoordinates[i] = coordinates[i].ToCoordinate();
@@ -82,6 +87,7 @@ namespace Itinero.Geo
         /// Converts a list of coordinates to geoapi coordinates.
         /// </summary>
         public static List<NetTopologySuite.Geometries.Coordinate> ToCoordinates(this LocalGeo.Coordinate[] coordinates)
+
         {
             if (coordinates == null)
             {
@@ -89,6 +95,7 @@ namespace Itinero.Geo
             }
 
             var geoApiCoordinates = new List<NetTopologySuite.Geometries.Coordinate>(coordinates.Length);
+
             for (var i = 0; i < coordinates.Length; i++)
             {
                 geoApiCoordinates.Add(coordinates[i].ToCoordinate());
@@ -100,13 +107,14 @@ namespace Itinero.Geo
         /// Converts an array of coordinates to an array of geoapi coordinates.
         /// </summary>
         public static NetTopologySuite.Geometries.Coordinate[] ToCoordinatesArray(this LocalGeo.Coordinate[] coordinates)
+
         {
             if (coordinates == null)
             {
                 return null;
             }
-
             var geoApiCoordinates = new NetTopologySuite.Geometries.Coordinate[coordinates.Length];
+
             for (var i = 0; i < coordinates.Length; i++)
             {
                 geoApiCoordinates[i] = coordinates[i].ToCoordinate();
@@ -117,17 +125,17 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts the given coordinates list to the a linear ring.
         /// </summary>
-        public static NetTopologySuite.Geometries.LinearRing ToLinearRing(this List<LocalGeo.Coordinate> coordinates)
+        public static LinearRing ToLinearRing(this List<LocalGeo.Coordinate> coordinates)
         {
-            return new NetTopologySuite.Geometries.LinearRing(coordinates.ToCoordinatesArray());
+            return new LinearRing(coordinates.ToCoordinatesArray());
         }
 
         /// <summary>
         /// Converts the given coordinates list list to the an array of linear rings.
         /// </summary>
-        public static NetTopologySuite.Geometries.LinearRing[] ToLinearRings(this List<List<LocalGeo.Coordinate>> coordinates)
+        public static LinearRing[] ToLinearRings(this List<List<LocalGeo.Coordinate>> coordinates)
         {
-            var rings = new NetTopologySuite.Geometries.LinearRing[coordinates.Count];
+            var rings = new LinearRing[coordinates.Count];
             for(var i = 0; i < rings.Length; i++)
             {
                 rings[i] = coordinates[i].ToLinearRing();
@@ -161,14 +169,15 @@ namespace Itinero.Geo
         /// <summary>
         /// Converts the given treeedge to a linestring.
         /// </summary>
-        public static NetTopologySuite.Geometries.LineString ToLineString(this Algorithms.Networks.Analytics.Trees.Models.TreeEdge edge)
+        public static LineString ToLineString(this Algorithms.Networks.Analytics.Trees.Models.TreeEdge edge)
         {
             var coordinates = new NetTopologySuite.Geometries.Coordinate[edge.Shape.Length];
             for(var i = 0; i < coordinates.Length; i++)
             {
                 coordinates[i] = new NetTopologySuite.Geometries.Coordinate(edge.Shape[i][0], edge.Shape[i][1]);
+
             }
-            return new NetTopologySuite.Geometries.LineString(coordinates);
+            return new LineString(coordinates);
         }
 
         /// <summary>

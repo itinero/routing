@@ -16,7 +16,9 @@
  *  limitations under the License.
  */
 
+
  using NetTopologySuite.Geometries;
+
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 using Itinero.Data.Network;
