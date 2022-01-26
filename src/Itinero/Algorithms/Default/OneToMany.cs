@@ -85,7 +85,19 @@ namespace Itinero.Algorithms.Default
                 // determine one-edge-paths.
                 if (_source.EdgeId == _targets[i].EdgeId)
                 { // on same edge.
-                    _best[i] = _source.EdgePathTo(_routerDb, _weightHandler, _targets[i], !_forward);
+                    if (_forward)
+                    {
+                        _best[i] = _source.EdgePathTo(_routerDb, _weightHandler, _targets[i]);
+                    }
+                    else
+                    {
+                        var reversePath = _targets[i].EdgePathTo(_routerDb, _weightHandler, _source);
+                        if (reversePath != null)
+                        {
+                            _best[i] = new EdgePath<T>(reversePath.From.Vertex, reversePath.Weight, -reversePath.Edge,
+                                new EdgePath<T>(reversePath.Vertex));
+                        }
+                    }
                 }
 
                 // register targets.

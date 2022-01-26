@@ -57,7 +57,7 @@ namespace Itinero.Algorithms.Default
         /// </summary>
         protected override void DoRun(CancellationToken cancellationToken)
         {
-            if (_sources.Length < _targets.Length)
+            if (_sources.Length <= _targets.Length)
             {
                 // search from sources.
                 _sourceSearches = new OneToMany<T>[_sources.Length];
@@ -87,12 +87,35 @@ namespace Itinero.Algorithms.Default
         {
             get
             {
-                var weights = new T[_sources.Length][];
-                for (var s = 0; s < _sources.Length; s++)
+                if (_sourceSearches != null)
                 {
-                    weights[s] = _sourceSearches[s].Weights;
+                    
+                    var weights = new T[_sources.Length][];
+                    for (var s = 0; s < _sources.Length; s++)
+                    {
+                        weights[s] = _sourceSearches[s].Weights;
+                    }
+                    return weights;
                 }
-                return weights;
+                else
+                {
+                    var weights = new T[_sources.Length][];
+                    for (var s = 0; s < _sources.Length; s++)
+                    {
+                        weights[s] = new T[_targets.Length];
+                    }
+
+                    for (var t = 0; t < _targets.Length; t++)
+                    {
+                        var weightsToSources = _targetSearches[t].Weights;
+                        for (var s = 0; s < _sources.Length; s++)
+                        {
+                            weights[s][t] = weightsToSources[s];
+                        }
+                    }
+
+                    return weights;
+                }
             }
         }
 

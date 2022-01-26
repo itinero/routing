@@ -90,7 +90,7 @@ namespace Itinero.Test
             };
 
             // route and verify (a few select routes).
-            var routes = router.TryCalculate(vehicle, resolved, resolved);
+            var routes = router.TryCalculate(vehicle,  resolved, resolved);
 
             // matrix of distance results:
             //      1    2    3    5

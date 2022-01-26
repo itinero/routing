@@ -176,7 +176,8 @@ namespace Itinero.Test.Algorithms.Default
                     routerDb.Network.CreateRouterPointForVertex(1),
                     routerDb.Network.CreateRouterPointForVertex(2)
                 }, float.MaxValue);
-            algorithm.Run(); Assert.IsTrue(algorithm.HasRun);
+            algorithm.Run(); 
+            Assert.IsTrue(algorithm.HasRun);
             Assert.IsTrue(algorithm.HasSucceeded);
 
             var weights = algorithm.Weights;
