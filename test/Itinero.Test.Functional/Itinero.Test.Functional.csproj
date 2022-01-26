@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net5</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>Itinero.Test.Functional</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Itinero.Test.Functional</PackageId>
