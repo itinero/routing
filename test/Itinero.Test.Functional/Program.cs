@@ -53,23 +53,25 @@ namespace Itinero.Test.Functional
             // test building a router db.
             _logger.Log(TraceEventType.Information, "Starting tests...");
             var routerDb = RouterDbBuildingTests.Run();
-            var router = new Router(routerDb);
             
             // test some router db extensions.
             RouterDbExtensionsTests.Run(routerDb);
-
+            
             // test resolving.
             ResolvingTests.Run(routerDb);
-
+            
             // test routing.
             RoutingTests.Run(routerDb);
 
             // tests calculate weight matrices.
             WeightMatrixTests.Run(routerDb);
+
+            // tests calculate matrices.
+            MatrixTests.Run(routerDb);
             
             // test instruction generation.
             InstructionTests.Run(routerDb);
-
+            
             // test writing shape file.
             ShapeFileWriterTests.Run(routerDb);
 

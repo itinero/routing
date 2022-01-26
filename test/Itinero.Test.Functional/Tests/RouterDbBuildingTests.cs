@@ -53,10 +53,11 @@ namespace Itinero.Test.Functional.Tests
                 Osm.Vehicles.Vehicle.BigTruck).TestPerf("Loading OSM data");
 
             GetTestAddElevation(routerDb).TestPerf("Adding elevation based on SRTM.");
-
+            
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest()).TestPerf("Adding islands for pedestrians.");
+            GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Bicycle.Fastest()).TestPerf("Adding islands for bicycles.");
             GetTestAddIslandData(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest()).TestPerf("Adding islands for cars.");
-
+            
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Pedestrian.Fastest(), false).TestPerf("Build contracted db for pedestrian");
             GetTestAddContracted(routerDb, Itinero.Osm.Vehicles.Vehicle.Car.Fastest(), true).TestPerf("Build contracted db for car");
 
