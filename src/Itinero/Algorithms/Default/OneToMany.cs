@@ -35,6 +35,7 @@ namespace Itinero.Algorithms.Default
         private readonly IList<RouterPoint> _targets;
         private readonly WeightHandler<T> _weightHandler;
         private readonly T _maxSearch;
+        private readonly bool _forward = true;
         
         /// <summary>
         /// Creates a new algorithm.
@@ -48,6 +49,20 @@ namespace Itinero.Algorithms.Default
             _targets = targets;
             _maxSearch = maxSearch;
         }
+        
+        /// <summary>
+        /// Creates a new algorithm.
+        /// </summary>
+        public OneToMany(RouterDb routerDb, WeightHandler<T> weightHandler,
+            RouterPoint source, IList<RouterPoint> targets, T maxSearch, bool forward)
+        {
+            _routerDb = routerDb;
+            _weightHandler = weightHandler;
+            _source = source;
+            _targets = targets;
+            _maxSearch = maxSearch;
+            _forward = forward;
+        }
 
         private EdgePath<T>[] _best;
 
@@ -59,18 +74,18 @@ namespace Itinero.Algorithms.Default
             _best = new EdgePath<T>[_targets.Count];
 
             // register the targets and determine one-edge-paths.
-            var sourcePaths = _source.ToEdgePaths(_routerDb, _weightHandler, true);
+            var sourcePaths = _source.ToEdgePaths(_routerDb, _weightHandler, _forward);
             var targetIndexesPerVertex = new Dictionary<uint, LinkedTarget>();
             var targetPaths = new IEnumerable<EdgePath<T>>[_targets.Count];
             for (var i = 0; i < _targets.Count; i++)
             {
-                var targets = _targets[i].ToEdgePaths(_routerDb, _weightHandler, false);
+                var targets = _targets[i].ToEdgePaths(_routerDb, _weightHandler, !_forward);
                 targetPaths[i] = targets;
 
                 // determine one-edge-paths.
                 if (_source.EdgeId == _targets[i].EdgeId)
                 { // on same edge.
-                    _best[i] = _source.EdgePathTo(_routerDb, _weightHandler, _targets[i]);
+                    _best[i] = _source.EdgePathTo(_routerDb, _weightHandler, _targets[i], !_forward);
                 }
 
                 // register targets.
@@ -104,7 +119,7 @@ namespace Itinero.Algorithms.Default
 
             // run the search.
             var dykstra = new Dykstra<T>(_routerDb.Network.GeometricGraph.Graph, null, _weightHandler,
-                sourcePaths, max, false);
+                sourcePaths, max, !_forward);
             dykstra.WasFound += (vertex, weight) =>
             {
                 LinkedTarget target;

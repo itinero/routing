@@ -19,6 +19,7 @@
 using Itinero.Algorithms.Weights;
 using Itinero.Profiles;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 namespace Itinero.Algorithms.Default
@@ -49,18 +50,31 @@ namespace Itinero.Algorithms.Default
         }
 
         private OneToMany<T>[] _sourceSearches;
+        private OneToMany<T>[] _targetSearches;
 
         /// <summary>
         /// Executes the actual run of the algorithm.
         /// </summary>
         protected override void DoRun(CancellationToken cancellationToken)
         {
-            // search sources.
-            _sourceSearches = new OneToMany<T>[_sources.Length];
-            for (var i = 0; i < _sources.Length; i++)
+            if (_sources.Length < _targets.Length)
             {
-                _sourceSearches[i] = new OneToMany<T>(_routerDb, _weightHandler, _sources[i], _targets, _maxSearch);
-                _sourceSearches[i].Run(cancellationToken);
+                // search from sources.
+                _sourceSearches = new OneToMany<T>[_sources.Length];
+                for (var i = 0; i < _sources.Length; i++)
+                {
+                    _sourceSearches[i] = new OneToMany<T>(_routerDb, _weightHandler, _sources[i], _targets, _maxSearch);
+                    _sourceSearches[i].Run(cancellationToken);
+                }
+            }
+            else
+            {
+                _targetSearches = new OneToMany<T>[_targets.Length];
+                for (var i = 0; i < _targets.Length; i++)
+                {
+                    _targetSearches[i] = new OneToMany<T>(_routerDb, _weightHandler, _targets[i], _sources, _maxSearch, false);
+                    _targetSearches[i].Run(cancellationToken);
+                }
             }
 
             this.HasSucceeded = true;
@@ -105,10 +119,22 @@ namespace Itinero.Algorithms.Default
         {
             this.CheckHasRunAndHasSucceeded();
 
-            var path = _sourceSearches[source].GetPath(target);
-            if (path != null)
+            if (_sourceSearches != null)
             {
-                return path;
+                var path = _sourceSearches[source].GetPath(target);
+                if (path != null)
+                {
+                    return path;
+                }
+            }
+            else
+            {         
+                var path = _targetSearches[target].GetPath(source);
+                if (path != null)
+                {
+                    var reversePath = new EdgePath<T>(path.Vertex);
+                    return reversePath.Append(path, _weightHandler);
+                }
             }
             return null;
         }
