@@ -2,14 +2,14 @@
   <Import Project="../../Itinero.Common.props" />
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Itinero</AssemblyName>
     <PackageId>Itinero</PackageId>
     <Title>Itinero</Title>
     <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Reminiscence" Version="1.3.0" />
+    <PackageReference Include="Reminiscence" Version="1.4.0-pre004" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
     <DefineConstants>$(DefineConstants);NETFX_CORE;DOTNET_CORE</DefineConstants>
