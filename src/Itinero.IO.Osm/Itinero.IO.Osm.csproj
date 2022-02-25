@@ -13,7 +13,7 @@
     <ProjectReference Include="..\Itinero\Itinero.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="OsmSharp" Version="6.2.0" />
+    <PackageReference Include="OsmSharp" Version="7.0.0-pre018" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Profiles\Defaults\*.lua" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
