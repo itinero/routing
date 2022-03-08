@@ -1048,7 +1048,8 @@ namespace Itinero
                         }
                     }
                     else
-                    { // use node-based routing.
+                    { 
+                        // use node-based routing.
                         var algorithm = new Itinero.Algorithms.Contracted.ManyToManyBidirectionalDykstra<T>(_db, profileInstance.Profile, weightHandler,
                             sources, targets, maxSearch);
                         algorithm.Run(cancellationToken);
@@ -1076,26 +1077,56 @@ namespace Itinero
                 if (paths == null)
                 {
                     // use non-contracted calculation.
-                    var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
-                    algorithm.Run(cancellationToken);
-                    if (!algorithm.HasSucceeded)
+                    if (_db.HasComplexRestrictions(profileInstance.Profile))
                     {
-                        return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                        // use edge-based routing.
+                        var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, 
+                            _db.GetGetRestrictions(profileInstance.Profile, true), sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
                         {
-                            return new RouteNotFoundException(message);
-                        });
-                    }
+                            return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
 
-                    // build all routes.
-                    paths = new EdgePath<T>[sources.Length][];
-                    for (var s = 0; s < sources.Length; s++)
-                    {
-                        paths[s] = new EdgePath<T>[targets.Length];
-                        for (var t = 0; t < targets.Length; t++)
+                        // build all routes.
+                        paths = new EdgePath<T>[sources.Length][];
+                        for (var s = 0; s < sources.Length; s++)
                         {
-                            paths[s][t] = algorithm.GetPath(s, t);
+                            paths[s] = new EdgePath<T>[targets.Length];
+                            for (var t = 0; t < targets.Length; t++)
+                            {
+                                paths[s][t] = algorithm.GetPath(s, t);
+                            }
                         }
                     }
+                    else
+                    {
+                        // use node-based routing.
+                        var algorithm = new Itinero.Algorithms.Default.ManyToMany<T>(_db, weightHandler, sources, targets, maxSearch);
+                        algorithm.Run(cancellationToken);
+                        if (!algorithm.HasSucceeded)
+                        {
+                            return new Result<EdgePath<T>[][]>(algorithm.ErrorMessage, (message) =>
+                            {
+                                return new RouteNotFoundException(message);
+                            });
+                        }
+
+                        // build all routes.
+                        paths = new EdgePath<T>[sources.Length][];
+                        for (var s = 0; s < sources.Length; s++)
+                        {
+                            paths[s] = new EdgePath<T>[targets.Length];
+                            for (var t = 0; t < targets.Length; t++)
+                            {
+                                paths[s][t] = algorithm.GetPath(s, t);
+                            }
+                        }
+                    }
+
                 }
                 return new Result<EdgePath<T>[][]>(paths);
             }
@@ -1195,7 +1226,8 @@ namespace Itinero
                 { // use regular graph.
                     if (_db.HasComplexRestrictions(profileInstance.Profile))
                     {
-                        var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, _db.GetGetRestrictions(profileInstance.Profile, true), sources, targets, maxSearch);
+                        var algorithm = new Itinero.Algorithms.Default.EdgeBased.ManyToMany<T>(this, weightHandler, 
+                            _db.GetGetRestrictions(profileInstance.Profile, true), sources, targets, maxSearch);
                         algorithm.Run(cancellationToken);
                         if (!algorithm.HasSucceeded)
                         {
