@@ -21,7 +21,7 @@
     <ProjectReference Include="..\..\src\Itinero\Itinero.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="2.0.4" />
     <PackageReference Include="SRTM" Version="0.0.7" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
