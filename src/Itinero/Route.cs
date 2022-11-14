@@ -26,17 +26,21 @@ using Itinero.Navigation.Directions;
 namespace Itinero
 {
     /// <summary>
-    /// Represents a route.
+    /// A route is a collection of Coordinates how a vehicle might travel over the routing graph.
+    /// Typically, a route is the result of routeplanning from one point to another point (or multiple other points).
+    ///
+    /// A route contains coordinates, stops and metadata
     /// </summary>
     public partial class Route : IEnumerable<RoutePosition>
     {
         /// <summary>
-        /// Gets or sets the shape.
+        /// The complete geometry of the route (including start- and endpoint), represented by coordinates.
         /// </summary>
         public Coordinate[] Shape { get; set; }
 
         /// <summary>
-        /// Gets or sets the attributes.
+        /// Attributes relevant for the entire route.
+        /// For example, this might contain the total length and duration of the route, with what profile the route has been calculated.
         /// </summary>
         public IAttributeCollection Attributes { get; set; }
 
@@ -46,32 +50,45 @@ namespace Itinero
         public Stop[] Stops { get; set; }
 
         /// <summary>
-        /// Gets or sets the meta data.
+        /// Metadata for individual route segments.
+        /// Every Meta-object has a Shape-index, which points into the 'Shape'-array.
+        /// The meta-information is thus valid for the coordinates starting at index `meta[x].Shape` up to (but not including) `meta[x + 1].Shape`
         /// </summary>
         public Meta[] ShapeMeta { get; set; }
 
         /// <summary>
-        /// Represents a stop.
+        /// A stop is a significant location within a route, such as:
+        ///
+        /// - The starting point
+        /// - The arrival-point
+        /// - Intermediate waypoints where a user wants to travel to
+        ///
+        /// This mainly contains metadata about the stop itself. A Stop must always be considered within the context of its route object
         /// </summary>
         public class Stop
         {
             /// <summary>
-            /// Gets or sets the shape index.
+            /// The index within the `route.Shape` array that this Stop is about 
             /// </summary>
             public int Shape { get; set; }
 
             /// <summary>
-            /// Gets or sets the coordinates.
+            /// The coordinates of the stop.
+            /// Note that these will probably be different from the coordinates found in `parentRoute.Shape[stop.Shape]`:
+            /// many `Stops` are derived from user input and then snapped onto the routable network.
+            /// The coordinate here should reflect the user-given location, whereas the coordinate in the parent route will
+            /// be the snapped location.
+            /// In extreme cases, this difference can be up to a few hundred meters (but this depends on the routing engine and it's parameters)
             /// </summary>
             public Coordinate Coordinate { get; set; }
 
             /// <summary>
-            /// Gets or sets the attributes.
+            /// Meta-information about this stop
             /// </summary>
             public IAttributeCollection Attributes { get; set; }
 
             /// <summary>
-            /// Creates a clone of this object.
+            /// Creates a deep clone of this object.
             /// </summary>
             public Stop Clone()
             {
@@ -89,7 +106,8 @@ namespace Itinero
             }
 
             /// <summary>
-            /// The distance in meter.
+            /// The distance in meter since the beginning of this trip.
+            /// This is fetched from the attributes
             /// </summary>
             public float Distance
             {
@@ -117,7 +135,8 @@ namespace Itinero
             }
 
             /// <summary>
-            /// The time in seconds.
+            /// The time in seconds since the beginning of this trip.
+            /// This is fetched from the attributes
             /// </summary>
             public float Time
             {
@@ -163,7 +182,9 @@ namespace Itinero
         public class Meta
         {
             /// <summary>
-            /// Gets or sets the shape index.
+            /// The index within the `Shape`-array from the parent route.
+            /// This meta-information describes the segment from `this.Shape` up to (but not including)
+            /// the coordinate at `next.Shape`, where `next` is the shapeMeta following this one in `parentRoute.ShapeMeta`
             /// </summary>
             public int Shape { get; set; }
 
@@ -281,32 +302,41 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets or sets the branches.
+        /// Branches are streets intersecting this route.
+        /// Useful for generation instruction, see <see cref="Branch"/> for more info
         /// </summary>
         public Branch[] Branches { get; set; }
 
         /// <summary>
-        /// Represents a branch.
+        /// A branch is where another road crosses the taken route.
+        /// Even though this road is not taken, this information is important to generate instructions
+        /// (e.g.: cross the intersection, keep right, ...)
         /// </summary>
         public class Branch
         {
             /// <summary>
-            /// Gets or sets the shape index.
+            /// The index of the coordinate where this branch intersects the route.
+            /// (Multiple branches might intersect at the same coordinate - this is quite common)
             /// </summary>
             public int Shape { get; set; }
 
             /// <summary>
-            /// Gets or sets the coordinates.
+            /// The coordinate of the way closest to the the intersection of this route.
+            /// 
+            /// (Note that OSM-ways will be cut into multiple parts and will result in two branches)
             /// </summary>
             public Coordinate Coordinate { get; set; }
 
             /// <summary>
-            /// Gets or sets the attributes.
+            /// Attributes of the intersecting segment
             /// </summary>
             public IAttributeCollection Attributes { get; set; }
 
             /// <summary>
             /// Gets or sets the relative direction flag of the attributes.
+            /// IF false then the branch should be interpreted as running towards the route, otherwise as going away from route.
+            /// This is important with respect to oneway-streets, to know if `oneway=yes` implies if traffic arrives on the intersection
+            /// or departs from it
             /// </summary>
             public bool AttributesDirection { get; set; }
 
@@ -330,7 +360,8 @@ namespace Itinero
         }
 
         /// <summary>
-        /// The distance in meter.
+        /// The total distance for this route, in meter.
+        /// Saved in the attributes
         /// </summary>
         public float TotalDistance
         {
@@ -358,7 +389,8 @@ namespace Itinero
         }
 
         /// <summary>
-        /// The time in seconds.
+        /// The total time this route takes, in seconds.
+        /// Saved in the attributes
         /// </summary>
         public float TotalTime
         {
@@ -386,7 +418,8 @@ namespace Itinero
         }
 
         /// <summary>
-        /// Gets or sets the profile.
+        /// The profile that was used to calculate this route.
+        /// Note that this is saved in the attributes
         /// </summary>
         public string Profile
         {
