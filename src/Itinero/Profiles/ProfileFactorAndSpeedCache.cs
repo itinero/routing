@@ -73,7 +73,7 @@ namespace Itinero.Profiles
         {
             for (var p = 0; p < profileInstances.Length; p++)
             {
-                if (!_edgeProfileFactors.ContainsKey(profileInstances[p].Profile.FullName))
+                if (!_edgeProfileFactors.TryGetValue(profileInstances[p].Profile.FullName, out _))
                 {
                     return false;
                 }
@@ -124,6 +124,23 @@ namespace Itinero.Profiles
             }
         }
 
+        private void CalculateFor(Profile profile)
+        {
+            // don't allow multiple threads to fill this cache at the same time.
+            var factors = new FactorAndSpeed[(int) _db.EdgeProfiles.Count];
+            lock (this)
+            {
+                // don't allow multiple threads to fill this cache at the same time.
+                for (uint edgeProfile = 0; edgeProfile < _db.EdgeProfiles.Count; edgeProfile++)
+                {
+                    var edgeProfileTags = _db.EdgeProfiles.Get(edgeProfile);
+                    factors[edgeProfile]
+                        = profile.FactorAndSpeed(edgeProfileTags);
+                }
+            }
+            _edgeProfileFactors[profile.FullName] = factors;
+        }
+
         /// <summary>
         /// Returns an isacceptable function using the cached data.
         /// </summary>
@@ -144,8 +161,16 @@ namespace Itinero.Profiles
                 ushort edgeProfileId;
                 Data.Edges.EdgeDataSerializer.Deserialize(edge.Data[0],
                     out distance, out edgeProfileId);
+                
                 for (var i = 0; i < profileInstances.Length; i++)
                 {
+                    if (edgeProfileId >= cachedFactors[i].Length)
+                    {
+                        this.CalculateFor(profileInstances[i].Profile);
+                        if (!_edgeProfileFactors.TryGetValue(profileInstances[i].Profile.FullName, out var newCachedFactors)) throw new ArgumentException("Given profile not supported.");
+                        cachedFactors[i] = newCachedFactors;
+                    }
+                    
                     var cachedFactor = cachedFactors[i][edgeProfileId];
                     if (cachedFactor.Value <= 0)
                     { // edge is not accessible to this profile.
@@ -180,6 +205,12 @@ namespace Itinero.Profiles
             {
                 return (p) =>
                 {
+                    if (p >= cachedFactors.Length)
+                    {
+                        this.CalculateFor(profileInstance.Profile);
+                        if (!_edgeProfileFactors.TryGetValue(profileInstance.Profile.FullName, out cachedFactors)) throw new ArgumentException("Given profile not supported.");
+                    }
+                    
                     var cachedFactor = cachedFactors[p];
                     if (profileInstance.IsConstrained(cachedFactor.Constraints))
                     {
@@ -190,6 +221,12 @@ namespace Itinero.Profiles
             }
             return (p) =>
             {
+                if (p >= cachedFactors.Length)
+                {
+                    this.CalculateFor(profileInstance.Profile);
+                    if (!_edgeProfileFactors.TryGetValue(profileInstance.Profile.FullName, out cachedFactors)) throw new ArgumentException("Given profile not supported.");
+                }
+                
                 return cachedFactors[p].ToFactor();
             };
         }
@@ -205,6 +242,12 @@ namespace Itinero.Profiles
             {
                 return (p) =>
                 {
+                    if (p >= cachedFactors.Length)
+                    {
+                        this.CalculateFor(profileInstance.Profile);
+                        if (!_edgeProfileFactors.TryGetValue(profileInstance.Profile.FullName, out cachedFactors)) throw new ArgumentException("Given profile not supported.");
+                    }
+                    
                     var cachedFactor = cachedFactors[p];
                     if (profileInstance.IsConstrained(cachedFactor.Constraints))
                     {
@@ -215,6 +258,12 @@ namespace Itinero.Profiles
             }
             return (p) =>
             {
+                if (p >= cachedFactors.Length)
+                {
+                    this.CalculateFor(profileInstance.Profile);
+                    if (!_edgeProfileFactors.TryGetValue(profileInstance.Profile.FullName, out cachedFactors)) throw new ArgumentException("Given profile not supported.");
+                }
+                
                 return cachedFactors[p];
             };
         }
