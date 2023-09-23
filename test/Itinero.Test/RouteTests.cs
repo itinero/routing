@@ -21,6 +21,8 @@ using Itinero.LocalGeo;
 using Itinero.Attributes;
 using System.Collections.Generic;
 using Itinero.Navigation.Directions;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace Itinero.Test
 {
@@ -486,8 +488,116 @@ namespace Itinero.Test
             };
 
             var xml = route.ToXml();
-            Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?><route><shape><c lat=\"51.26782\" lon=\"4.8013525\" /><c lat=\"51.26822\" lon=\"4.8013525\" /></shape><metas><meta shape=\"0\" /><meta shape=\"1\"><property k=\"highway\" v=\"residential\" /></meta></metas><branches><branch shape=\"1\"><property k=\"highway\" v=\"residential\" /></branch></branches><stops><stop shape=\"1\" lat=\"51.26822\" lon=\"4.8013525\"><property k=\"address\" v=\"Pastorijstraat 102, 2275 Wechelderzande\" /></stop></stops></route>",
+            Assert.AreEqual("<?xml version=\"1.0\" encoding=\"utf-16\"?><route><property k=\"distance\" v=\"100\" /><property k=\"time\" v=\"60\" /><shape><c lat=\"51.26782\" lon=\"4.8013525\" /><c lat=\"51.26822\" lon=\"4.8013525\" /></shape><metas><meta shape=\"0\" /><meta shape=\"1\"><property k=\"highway\" v=\"residential\" /></meta></metas><branches><branch shape=\"1\" lat=\"51.26822\" lon=\"4.8013525\"><property k=\"highway\" v=\"residential\" /></branch></branches><stops><stop shape=\"1\" lat=\"51.26822\" lon=\"4.8013525\"><property k=\"address\" v=\"Pastorijstraat 102, 2275 Wechelderzande\" /></stop></stops></route>",
                 xml);
+        }
+
+        /// <summary>
+        /// Tests reading a route as xml.
+        /// </summary>
+        [Test]
+        public void TestReadXml()
+        {            
+            var expectedRoute = new Route()
+            {
+                Shape = new Coordinate[]
+               {
+                    new Coordinate()
+                    {
+                        Latitude = 51.26782f,
+                        Longitude = 4.8013525f
+                    },
+                    new Coordinate()
+                    {
+                        Latitude = 51.26822f,
+                        Longitude = 4.8013525f
+                    }
+               },
+                ShapeMeta = new Route.Meta[]
+               {
+                    new Route.Meta()
+                    {
+                        Shape = 0
+                    },
+                    new Route.Meta()
+                    {
+                        Shape = 1,
+                        Distance = 100,
+                        Time = 60,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                    }
+               },
+                Stops = new Route.Stop[]
+               {
+                    new Route.Stop()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("address", "Pastorijstraat 102, 2275 Wechelderzande")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+               },
+                Branches = new Route.Branch[]
+               {
+                    new Route.Branch()
+                    {
+                        Shape = 1,
+                        Attributes = new AttributeCollection(
+                            new Attribute("highway", "residential")),
+                        Coordinate = new Coordinate()
+                        {
+                            Latitude = 51.26821857585588f,
+                            Longitude = 4.801352620124817f
+                        }
+                    }
+               },
+                Attributes = new AttributeCollection(),
+                TotalDistance = 100,
+                TotalTime = 60
+            };
+
+            var xml = expectedRoute.ToXml();
+
+            var serializer = new XmlSerializer(typeof(Route));
+            Route route;
+            using (TextReader reader = new StringReader(xml))
+            {
+                route = (Route)serializer.Deserialize(reader);
+            }
+
+            Assert.AreEqual(expectedRoute.Attributes, route.Attributes);
+            Assert.AreEqual(expectedRoute.TotalDistance, route.TotalDistance);
+            Assert.AreEqual(expectedRoute.TotalTime, route.TotalTime);
+            Assert.AreEqual(expectedRoute.Shape.Length, route.Shape.Length);
+            Assert.AreEqual(expectedRoute.Shape[0].Latitude, route.Shape[0].Latitude);
+            Assert.AreEqual(expectedRoute.Shape[0].Longitude, route.Shape[0].Longitude);
+            Assert.AreEqual(expectedRoute.Shape[1].Latitude, route.Shape[1].Latitude);
+            Assert.AreEqual(expectedRoute.Shape[1].Longitude, route.Shape[1].Longitude);
+
+            Assert.AreEqual(expectedRoute.ShapeMeta.Length, route.ShapeMeta.Length);
+            Assert.AreEqual(expectedRoute.ShapeMeta[0].Shape, route.ShapeMeta[0].Shape);
+            Assert.AreEqual(expectedRoute.ShapeMeta[0].Attributes, route.ShapeMeta[0].Attributes);
+
+            Assert.AreEqual(expectedRoute.ShapeMeta[1].Shape, route.ShapeMeta[1].Shape);
+            Assert.AreEqual(expectedRoute.ShapeMeta[1].Attributes.Count, route.ShapeMeta[1].Attributes.Count);
+            Assert.AreEqual(expectedRoute.ShapeMeta[1].Distance, route.ShapeMeta[1].Distance);
+            Assert.AreEqual(expectedRoute.ShapeMeta[1].Time, route.ShapeMeta[1].Time);
+            Assert.AreEqual(expectedRoute.ShapeMeta[1].Attributes, route.ShapeMeta[1].Attributes);
+
+            Assert.AreEqual(expectedRoute.Stops.Length, route.Stops.Length);
+            Assert.AreEqual(expectedRoute.Stops[0].Shape, route.Stops[0].Shape);
+            Assert.AreEqual(expectedRoute.Stops[0].Coordinate, route.Stops[0].Coordinate);
+            Assert.AreEqual(expectedRoute.Stops[0].Attributes, route.Stops[0].Attributes);
+
+            Assert.AreEqual(expectedRoute.Branches.Length, route.Branches.Length);
+            Assert.AreEqual(expectedRoute.Branches[0].Shape, route.Branches[0].Shape);
+            Assert.AreEqual(expectedRoute.Branches[0].Coordinate, route.Branches[0].Coordinate);
+            Assert.AreEqual(expectedRoute.Branches[0].Attributes, route.Branches[0].Attributes);
         }
 
         /// <summary>

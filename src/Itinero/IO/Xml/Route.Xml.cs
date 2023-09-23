@@ -16,9 +16,11 @@
  *  limitations under the License.
  */
 
+using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
+using Itinero.Attributes;
 using Itinero.IO.Xml;
 using Itinero.LocalGeo;
 
@@ -37,11 +39,172 @@ namespace Itinero
 
         void IXmlSerializable.ReadXml(XmlReader reader)
         {
+            reader.MoveToContent();
+            bool isEmptyElement = reader.IsEmptyElement;
+            if (!isEmptyElement)
+            {
+                reader.ReadStartElement();
 
+                IAttributeCollection attributes = null;
+                while (reader.IsStartElement("property"))
+                {
+                    var k = reader.GetAttribute("k");
+                    var v = reader.GetAttribute("v");
+
+                    if (attributes == null)
+                    {
+                        attributes = new AttributeCollection();
+                    }
+                    attributes.AddOrReplace(k, v);
+                    reader.Read();
+                }
+                this.Attributes = attributes;
+
+                if (reader.IsStartElement("shape"))
+                { 
+                    reader.Read();
+                    var listOfCoordinate = new List<Coordinate>();
+                    while (reader.IsStartElement("c"))
+                    {                        
+                        var lat = reader.GetAttribute("lat");
+                        var lon = reader.GetAttribute("lon");
+                        if (lat != null && lon != null)
+                        {
+                            listOfCoordinate.Add(new Coordinate(float.Parse(lat), float.Parse(lon)));
+                        }
+                        reader.Read();
+                    }
+                    this.Shape = listOfCoordinate.ToArray();
+                    reader.ReadEndElement();
+                }
+
+                if (reader.IsStartElement("metas"))
+                {
+                    reader.Read();
+                    var listOfMeta = new List<Meta>();
+                    while (reader.IsStartElement("meta"))
+                    {                 
+                        
+                        var shape = int.Parse(reader.GetAttribute("shape"));
+                        reader.Read();
+                        var meta = new Meta()
+                        { 
+                            Shape = shape
+                        };
+                        while (reader.IsStartElement("property"))
+                        {                            
+                            var k = reader.GetAttribute("k");
+                            var v = reader.GetAttribute("v");
+                            
+                            if (meta.Attributes == null)
+                            {
+                                meta.Attributes = new AttributeCollection();
+                            }
+                            meta.Attributes.AddOrReplace(k, v);
+                            reader.Read();
+                        }
+
+                        listOfMeta.Add(meta);
+                        if (reader.NodeType == XmlNodeType.EndElement)
+                        {
+                            reader.ReadEndElement();
+                        }
+                    }
+                    this.ShapeMeta = listOfMeta.ToArray();
+                    reader.ReadEndElement();
+                }
+
+                if (reader.IsStartElement("branches"))
+                {
+                    reader.Read();
+                    var listOfBranch = new List<Branch>();
+                    while (reader.IsStartElement("branch"))
+                    {
+                        
+                        var shape = int.Parse(reader.GetAttribute("shape"));
+                        var lat = float.Parse(reader.GetAttribute("lat"));
+                        var lon = float.Parse(reader.GetAttribute("lon"));
+                        reader.Read();
+                        var branch = new Branch()
+                        {
+                            Shape = shape,
+                            Coordinate = new Coordinate(lat, lon)
+                        };
+                        while (reader.IsStartElement("property"))
+                        {                            
+                            var k = reader.GetAttribute("k");
+                            var v = reader.GetAttribute("v");
+                            if (branch.Attributes == null)
+                            {
+                                branch.Attributes = new AttributeCollection();
+                            }
+                            branch.Attributes.AddOrReplace(k, v);
+                            reader.Read();
+                        }
+                        listOfBranch.Add(branch);
+                        if (reader.NodeType == XmlNodeType.EndElement)
+                        {
+                            reader.ReadEndElement();
+                        }
+                    }
+                    this.Branches = listOfBranch.ToArray();
+                    reader.ReadEndElement();
+                }
+
+                if (reader.IsStartElement("stops"))
+                {
+                    reader.Read();
+                    var listOfStop = new List<Stop>();
+                    while (reader.IsStartElement("stop"))
+                    {
+                        var shape = int.Parse(reader.GetAttribute("shape"));
+                        var lat = float.Parse(reader.GetAttribute("lat"));
+                        var lon = float.Parse(reader.GetAttribute("lon"));
+                        reader.Read();
+                        var stop = new Stop()
+                        {
+                            Shape = shape,
+                            Coordinate = new Coordinate(lat, lon)
+                        };
+                        while (reader.IsStartElement("property"))
+                        {                            
+                            var k = reader.GetAttribute("k");
+                            var v = reader.GetAttribute("v");
+                            if (stop.Attributes == null)
+                            {
+                                stop.Attributes = new AttributeCollection();
+                            }
+                            stop.Attributes.AddOrReplace(k, v);
+                            reader.Read();
+                        }
+
+                        listOfStop.Add(stop);
+                        if (reader.NodeType == XmlNodeType.EndElement)
+                        {
+                            reader.ReadEndElement();
+                        }
+                    }
+                    this.Stops = listOfStop.ToArray();
+                    reader.ReadEndElement();
+                }
+                reader.ReadEndElement();
+            }
+            
         }
 
         void IXmlSerializable.WriteXml(XmlWriter writer)
         {
+            if (this.Attributes != null)
+            {
+                foreach (var attribute in Attributes)
+                {
+                    writer.WriteStartElement("property");
+                    writer.WriteAttributeString("k", attribute.Key);
+                    writer.WriteAttributeString("v", attribute.Value);
+                    writer.WriteEndElement();
+                }
+            }
+
             if (this.Shape != null)
             {
                 writer.WriteStartElement("shape");
@@ -95,6 +258,8 @@ namespace Itinero
 
                     writer.WriteStartElement("branch");
                     writer.WriteAttributeString("shape", branch.Shape.ToInvariantString());
+                    writer.WriteAttribute("lat", branch.Coordinate.Latitude.ToInvariantString());
+                    writer.WriteAttribute("lon", branch.Coordinate.Longitude.ToInvariantString());
 
                     if (branch.Attributes != null)
                     {
