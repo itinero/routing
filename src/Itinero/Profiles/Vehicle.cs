@@ -54,35 +54,17 @@ namespace Itinero.Profiles
         /// <summary>
         /// Gets the vehicle types.
         /// </summary>
-        public virtual string[] VehicleTypes
-        {
-            get
-            {
-                return new string[] { };
-            }
-        }
+        public virtual string[] VehicleTypes { get; } = [];
 
         /// <summary>
         /// Gets a whitelist of attributes to keep as meta-data.
         /// </summary>
-        public virtual HashSet<string> MetaWhiteList
-        {
-            get
-            {
-                return new HashSet<string>();
-            }
-        }
+        public virtual HashSet<string> MetaWhiteList { get; } = [];
 
         /// <summary>
         /// Gets a whitelist of attributes to keep as part of the profile.
         /// </summary>
-        public virtual HashSet<string> ProfileWhiteList
-        {
-            get
-            {
-                return new HashSet<string>();
-            }
-        }
+        public virtual HashSet<string> ProfileWhiteList { get; } = [];
 
         /// <summary>
         /// Adds a number of keys to the given whitelist when they are relevant for this vehicle.
@@ -215,7 +197,7 @@ namespace Itinero.Profiles
 
         /// <summary>
         /// Serializes the content of this vehicle.
-        /// </summary
+        /// </summary>
         protected virtual long DoSerialize(Stream stream)
         {
             return 0;
