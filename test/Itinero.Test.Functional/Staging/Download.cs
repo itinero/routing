@@ -37,13 +37,19 @@ namespace Itinero.Test.Functional.Staging
         /// <summary>
         /// Downloads the luxembourg data.
         /// </summary>
-        public static void DownloadLuxembourgAll()
+        public static void DownloadLuxembourgAll() => DownloadPBF(Download.LuxembourgPBF, Download.LuxembourgLocal);
+
+        /// <summary>
+        /// Download the given PBF url into a local file.
+        /// </summary>
+        /// <param name="url">URL for the PBF file.</param>
+        /// <param name="localPath">Local path.</param>
+        public static void DownloadPBF(string url, string localPath)
         {
-            if (!File.Exists(Download.LuxembourgLocal))
+            if (!File.Exists(localPath))
             {
-                var client = new WebClient();
-                client.DownloadFile(Download.LuxembourgPBF,
-                    Download.LuxembourgLocal);
+                using var client = new WebClient();
+                client.DownloadFile(url, localPath);
             }
         }
 

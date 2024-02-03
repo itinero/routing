@@ -59,6 +59,8 @@ namespace Itinero.Test.Functional.Tests
             // one-to-many & many-to-many.
             GetTestOneToManyRoutes(router, profile, 200).TestPerf($"{profile.FullName} one-to-many routes");
             GetTestManyToManyRoutes(router, profile, 20).TestPerf($"{profile.FullName} many-to-many routes");
+
+            RunDownhillSki();
         }
 
         /// <summary>
@@ -357,6 +359,28 @@ namespace Itinero.Test.Functional.Tests
 
             return () => new PerformanceTestResult<Result<Route[][]>>(
                 router.TryCalculate(profile, resolvedPoints, resolvedPoints));
+        }
+
+        /// <summary>
+        /// Runs ski resort routing tests.
+        /// </summary>
+        public static void RunDownhillSki()
+        {
+            var localPath = Path.Combine(Path.GetTempPath(), "aragon-latest.osm.pbf");
+            Download.DownloadPBF("https://download.geofabrik.de/europe/spain/aragon-latest.osm.pbf", localPath);
+
+            using var stream = new FileInfo(localPath).OpenRead();
+            var routerDb = new RouterDb();
+            routerDb.LoadOsmData(stream, Itinero.Osm.Vehicles.Vehicle.Ski.Downhill, Itinero.Osm.Vehicles.Vehicle.Pedestrian);
+            var router = new Router(routerDb);
+
+            using var routingCancellation = new CancellationTokenSource();
+            routingCancellation.CancelAfter(TimeSpan.FromMinutes(5));
+            var source = new Coordinate(42.58698f, 0.54023f); // El Molino chair lift in Cerler, Spain
+            var target = new Coordinate(42.55933f, 0.56834f); // Ampriu chair lift in Cerler, Spain
+
+            Assert.IsNotNull(router.Calculate(Itinero.Osm.Vehicles.Vehicle.Ski.Downhill.Shortest(),
+                source.Latitude, source.Longitude, target.Latitude, target.Longitude, routingCancellation.Token));
         }
     }
 }
