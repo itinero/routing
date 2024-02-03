@@ -96,6 +96,8 @@ namespace Itinero.Osm.Vehicles
             SmallTruck.Register();
             BigTruck.Register();
             Bus.Register();
+
+            Ski.Downhill.Register();
         }
 
         private static Dictionary<string, bool?> _accessValues = null;
