@@ -22,6 +22,7 @@ using Itinero.Profiles;
 using Itinero.Profiles.Lua;
 using System.Collections.Generic;
 using System.Linq;
+using Itinero.Osm.Vehicles.Ski;
 
 namespace Itinero.Osm.Vehicles
 {
@@ -71,6 +72,17 @@ namespace Itinero.Osm.Vehicles
         public static readonly Profiles.Vehicle Bus = new DynamicVehicle(VehicleExtensions.LoadEmbeddedResource("Itinero.Osm.Vehicles.bus.lua"));
 
         /// <summary>
+        /// Ski vehicle types.
+        /// </summary>
+        public static class Ski
+        {
+            /// <summary>
+            /// Downhill skiing.
+            /// </summary>
+            public static readonly Profiles.Vehicle Downhill = new Downhill();
+        }
+
+        /// <summary>
         /// Registers all default vehicles.
         /// </summary>
         [Obsolete]
@@ -84,6 +96,8 @@ namespace Itinero.Osm.Vehicles
             SmallTruck.Register();
             BigTruck.Register();
             Bus.Register();
+
+            Ski.Downhill.Register();
         }
 
         private static Dictionary<string, bool?> _accessValues = null;
